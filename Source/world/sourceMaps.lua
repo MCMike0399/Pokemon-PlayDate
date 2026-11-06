@@ -484,13 +484,46 @@ function SourceMaps.padded(name)
     return padded(name, false)
 end
 
+-- A load scope already reuses one padded definition, then drops it. The next
+-- visit (Saffron after the Center) otherwise decodes runtime-<Map>.json again.
+-- Keep the two most recent immutable results. Callers only read them; padding
+-- is applied once. Fixture record overrides never enter this cache.
+local retainedRuntime = {}
+local retainedRuntimeOrder = {}
+local RETAINED_RUNTIME <const> = 2
+local function retainRuntime(name, definition)
+    for index, key in ipairs(retainedRuntimeOrder) do
+        if key == name then
+            table.remove(retainedRuntimeOrder, index)
+            break
+        end
+    end
+    retainedRuntime[name] = definition
+    retainedRuntimeOrder[#retainedRuntimeOrder + 1] = name
+    while #retainedRuntimeOrder > RETAINED_RUNTIME do
+        retainedRuntime[table.remove(retainedRuntimeOrder, 1)] = nil
+    end
+end
 function SourceMaps._runtimePadded(name)
     if runtimeDefinitions and runtimeDefinitions[name] then
         return runtimeDefinitions[name]
     end
+    if not recordOverrides then
+        local cached = retainedRuntime[name]
+        if cached then
+            retainRuntime(name, cached)
+            if runtimeDefinitions then
+                runtimeDefinitions[name] = cached
+            end
+            return cached
+        end
+    end
     local definition = padded(name, true)
     if runtimeDefinitions then
         runtimeDefinitions[name] = definition
+    end
+    if not recordOverrides then
+        retainRuntime(name, definition)
     end
     return definition
 end

@@ -217,7 +217,7 @@ function ExploreSubstate:handleInput()
     self.pendingAction = self.pendingAction or action
     player.running = running and not self.pendingAction
     local cycling
-    if FieldCycling and game.session:fieldTravelData().mode == "bicycle" then
+    if FieldCycling and game.session:fieldTravelMode() == "bicycle" then
         local map = currentZone.stableID == "pallet_town" and "PALLET_TOWN"
             or WorldDeltas.definitionProvider():descriptor(currentZone.stableID).source_map_constant
         cycling = FieldCycling.motion(game.session:fieldTravelData(), map, {

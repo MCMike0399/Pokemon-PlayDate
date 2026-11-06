@@ -8,6 +8,58 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Saffron street re-decode is smaller; the Silph route still does not fit — 2026-11-06
+
+The 997 vs 1041 MiB spread was the same street Save, sampled on either side of one heap extension. It was not a divergent walk. On this tree the matched pair agrees within 1 MiB at every landmark. Source `9323a2029ebe40cfb183f1d1f52f210758fa22782ffa14470cc59838c8023dbc`, pool `MallocPoolSize=16645684`, no preload. The previous street run on the imagetable experiment is `street-reuse-1` (source `36cd529874271809`).
+
+Leaving the Center used to decode `runtime-SaffronCity.json` and the city's content chunks again, because the load scope drops those tables and the chunk cache held eight. The padded runtime definition for the two most recent maps is now kept, and the chunk cache holds ninety-six. Explore frames read the intro stage and the travel mode without copying those records. Checksums, the second payload decode, owner export, snapshot cadence, the 16 MiB pool, and the 1 GiB stop are unchanged. Lua at the street pause was 8501 KiB, under both 9 and 11, so the 11 MiB recovery did not collect.
+
+| Landmark | reuse | cut 1 | cut 2 |
+| --- | --- | --- | --- |
+| Center `(3,7)` in | 714620 (697.9) | 641804 (626.8) | 640832 (625.8) |
+| Center `(3,7)` out | 940776 (918.7) | 853736 (833.7) | 852636 (832.7) |
+| City door `(9,30)` | 944032 (921.9) | 855228 (835.2) | 854780 (834.7) |
+| Street `(8,30)` | 1001136 (977.7) | 897360 (876.3) | 896756 (875.7) |
+| Pause `(3,28)` | 1010924 (987.2) | 903152 (882.0) | 902424 (881.3) |
+| Peak | 1065252 (1040.3) | 1047216 (1022.7) | 1047904 (1023.3) |
+
+KiB, with MiB in parentheses. Sessions: reuse `d596ee7ced834c8ba31140bef98b672f`; cut 1 `9d07cd61df124d73a0be9057e2c8b4fe`; cut 2 `fc1d3e8722db4019a34361c86c21221a`. All three stopped on the 1 GiB guard. The door-to-`(8,30)` step is still about 41 MiB (was 56). The pause is 105 MiB under the previous run, and that Save now returns. The probe then walks back toward Silph and opens another pause; that continuation is what reaches 1023 MiB.
+
+`route_c_silph` after this heal still has the mart, the Silph floors, the rival, Giovanni, the president, and another heal. The measured continuation already spends the margin before re-entering Silph. The route does not fit under 1 GiB. No cabin was launched.
+
+Isolated grass-cut on this source, `max_frames` 18000: 35 passed, 0 failed, exit ok, session `6018aabcbeef4cef9444a1c03206c75f`. Live heap at return was 13212 KiB, under the 16 MiB pool and under the previous 13783 KiB peak. One pass, not a new two-pass claim.
+
+## 11 MiB recovery stays above the 6/8/9 MiB guards — 2026-11-06
+
+`SessionCodec.relieveHeap` runs only at the start of `encode`, `decode`, and
+`validate`. It is not on the frame path. The threshold is 11 MiB of Lua
+(`11 * 1024` KiB), strictly above the three admission limits in `BootTrace`:
+
+- 6 MiB is the post-collection live cap on hardware (`title.live`,
+  `Continue.live`, and after the soft collect).
+- 8 MiB is the soft collect (`collectMemoryIfNeeded`), and it runs only after
+  `checkGuard` has already sampled the heap.
+- 9 MiB is the hard sample. `checkGuard` errors when `heap >= 9 * 1024` KiB.
+  It runs from `BootTrace.mark`, `GameBootstrap.yieldIfDue`, and both ends of
+  `GameBootstrap.runFrame`. The private door-census collect calls `checkGuard`
+  before it collects.
+
+`BootTrace.memoryBudgetEnabled()` is true for a device-test build and for any
+process where the harness is off. On that path `relieveHeap` returns
+immediately, so it cannot collect a sample away before the 9 MiB guard sees
+it, and it does not change the 6 or 8 MiB thresholds. Private harness journeys
+leave the budget off. They sit under 9 MiB, so the 11 MiB threshold does not
+collect and does not change snapshot cadence (full party, bag, flags, and
+Pokédex on command completion and every 30 frames). Releasing retained
+diagnostic views only makes the next snapshot rebuild them.
+
+While `proofDepth > 0` (a Save, recovery, or replacement is still proving its
+readbacks) the recovery keeps the validation proof and the decoded slot
+records. Dropping them would force `_decodeUncached` to decode the payload a
+second time. Checksums, that second payload decode, owner export,
+`SaveBuildPolicy`, the 16 MiB pool (`MallocPoolSize=16645684`), and the 1 GiB
+Linux VmHWM stop are unchanged.
+
 ## Hiding the tilemap does not cut the Saffron climb — 2026-11-06
 
 The extended probe still dies on `pokered:SAFFRON_CITY` `(3, 28)` with Card Key

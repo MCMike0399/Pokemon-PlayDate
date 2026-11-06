@@ -231,11 +231,25 @@ function SessionCodec.retainValidationProof(retain)
     if proofDepth == 0 then SessionCodec.releaseValidationProof() end
 end
 local relievingHeap = false
+-- 11 MiB is above the 6/8/9 MiB admission guards. Those guards own production
+-- and device-test processes: a frame or yield already rejects 9 MiB, and the
+-- 8 MiB soft collect runs only after the hard check. This recovery stays out
+-- of that path so it cannot collect a sample away before the guard sees it.
+-- Private harness sessions, where the budget is off, use it to drop publication
+-- copies before the 16 MiB pool fails. Journeys sit under 9 MiB, so the
+-- threshold does not collect there or change snapshot cadence.
 function SessionCodec.relieveHeap()
     if relievingHeap or collectgarbage("count") < 11 * 1024 then return end
+    if BootTrace and BootTrace.memoryBudgetEnabled and BootTrace.memoryBudgetEnabled() then
+        return
+    end
     relievingHeap = true
-    if proofDepth == 0 then SessionCodec.releaseValidationProof() end
-    if SaveStore and SaveStore.dropDecodedRecords then SaveStore.dropDecodedRecords() end
+    -- An open Save still needs its proof and the decoded byte cache. Dropping
+    -- them here would make the second readback decode the payload again.
+    if proofDepth == 0 then
+        SessionCodec.releaseValidationProof()
+        if SaveStore and SaveStore.dropDecodedRecords then SaveStore.dropDecodedRecords() end
+    end
     if HarnessDiagnostics and HarnessDiagnostics.releaseRetainedViews then
         HarnessDiagnostics.releaseRetainedViews()
     end

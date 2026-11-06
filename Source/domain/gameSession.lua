@@ -198,6 +198,16 @@ function GameSession:inventory() return state[self].inventory end
 function GameSession:activePokemon() return self:party():active() end
 function GameSession:title() return {playerName="RED",rivalName="BLUE"} end
 function GameSession:getIntro() return copy(state[self].intro) end
+-- Stage and travel mode are read every explore frame. The full copies stay
+-- available for callers that detach and edit the record.
+function GameSession:introStage()
+    local intro = state[self].intro
+    return intro and intro.stage or "pre_oak"
+end
+function GameSession:fieldTravelMode()
+    local travel = state[self].fieldTravel
+    return travel and travel.mode or "walking"
+end
 function GameSession:setIntro(value)
     local ok,normalized=pcall(intro,value)
     if not ok then return false,tostring(normalized) end

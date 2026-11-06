@@ -14,9 +14,12 @@ local function weakValues()
 end
 local contentIndexes = weakValues()
 local contentFields = weakValues()
--- Only the last eight immutable records are owned by this cache. Eviction
--- drops our reference; an active controller's descriptor remains valid.
+-- The shared cache owns recently decoded chunks only. Eight was small enough
+-- that a city plus the Center re-decoded every chunk on the way back out.
+-- Ninety-six holds that working set; each chunk is a few kilobytes. Eviction
+-- still drops only this reference. An active descriptor remains valid.
 local recent, recentOrder = {}, {}
+local RECENT_CONTENT <const> = 96
 local function yieldIfDue()
     if GameBootstrap then
         GameBootstrap.yieldIfDue()
@@ -128,7 +131,7 @@ function SourceEvents._contentRecord(digest, region)
     end
     recent[cacheKey] = value
     recentOrder[#recentOrder + 1] = cacheKey
-    if #recentOrder > 8 then
+    if #recentOrder > RECENT_CONTENT then
         recent[table.remove(recentOrder, 1)] = nil
     end
     return value
@@ -893,7 +896,7 @@ local function settledWorld(game)
     local player, world = game.player, game.machine:get("overworld")
     return game.machine:getCurrent() == "overworld" and game.machine:depth() == 1
         and world and world.sub and world.sub:getCurrent() == "explore"
-        and game.session:getIntro().stage == "done" and player
+        and game.session:introStage() == "done" and player
         and not player.isMoving and not player.pendingEdgeDoor and not player.pendingConnection
 end
 function SourceEvents.worldHook(phase, game, ...)
