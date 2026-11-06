@@ -20,7 +20,10 @@ function SilphStory.scenes()
         assert(data.schema == 1 and data.source_revision == REVISION, "unverified Silph scenes")
         cached = data.scenes
     end
-    return copy(cached)
+    -- Pinned scene plans are immutable. Actor metadata and door projection
+    -- read them once per actor during Save and map entry; copying the whole
+    -- graph on each read retained a fresh table for every node.
+    return cached
 end
 function SilphStory.padding(zoneID)
     return SourceMaps.entry(assert(SourceMaps.nameForID(zoneID))).padding

@@ -8,6 +8,23 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Shared Silph scene plans cleared the Linux gate again — 2026-11-06
+
+`SilphStory.scenes()` decoded the pinned scene plan once, then deep-copied
+every node on each read. Save validation and map entry ask for that plan once
+per actor, including actors that only need to know the plan does not mention
+them. The decoded plan is now the shared read source. SaveStore copies, the
+second payload decode, validators, readbacks, and SaveBuildPolicy are unchanged.
+
+With the 16 MB pool and no preload, both runs stopped on `parcel journey
+exceeded semantic action bound` at `pokered:SILPH_CO_1F`, stage `done`, player
+`(8, 11)` down, one process. VmHWM was **491.168 MiB** (502956 KiB) and
+**491.086 MiB** (502872 KiB). The worse run is 15.0 percent under the higher
+Linux baseline of 577.855 MiB, and both are under the 520.070 MiB bar. It is
+also 24.4 MiB under the previous adopted worse run of 515.531 MiB. This is not
+a Mac phys_footprint result and not hardware acceptance. Evidence, outside
+Git: `linux-silph-entry-scenes-1` and `linux-silph-entry-scenes-2`.
+
 ## Save-window records cleared the Linux gate — 2026-11-06
 
 Session normalize rebuilds the item catalog and every Pokémon's six-stat
