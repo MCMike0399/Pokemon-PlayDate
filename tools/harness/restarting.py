@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
+import threading
 import time
 
 from tools.harness.protocol import Client, ProtocolError, atomic_json
@@ -549,6 +551,54 @@ def native_process_identity(pid):
     return dict(start_sec=sec, start_usec=usec, owner_pid=parent)
 
 
+def linux_vmhwm_bytes(pid):
+    """Peak resident set from /proc, not Darwin phys_footprint."""
+    try:
+        text = Path(f'/proc/{pid}/status').read_text()
+    except OSError as error:
+        raise ProtocolError('cannot inspect Linux resident set') from error
+    for line in text.splitlines():
+        if line.startswith('VmHWM:'):
+            return int(line.split()[1]) * 1024
+    raise ProtocolError('cannot inspect Linux resident set')
+
+
+class LinuxResidentGuard:
+    """Enforce the 1 GiB hard stop and 30 GiB reserve without the Mac helper.
+
+    VmHWM is this host's peak resident set. It is not proc_pid_rusage and
+    must not be compared with the Macintosh Silph baselines.
+    """
+    def __init__(self, process, output):
+        self.process = process
+        self.output = output
+        self.error = None
+        self.stop = threading.Event()
+        self.thread = threading.Thread(target=self._run, name='linux-resident-guard', daemon=True)
+        self.thread.start()
+
+    def _run(self):
+        while not self.stop.is_set():
+            if self.process.poll() is not None:
+                return
+            try:
+                if linux_vmhwm_bytes(self.process.pid) > 1024**3:
+                    self.error = 'owned Simulator exceeds 1 GiB Linux VmHWM'
+                elif shutil.disk_usage(self.output).free < 30 * 1024**3:
+                    self.error = 'journey disk reserve below 30 GiB'
+                else:
+                    self.stop.wait(0.25)
+                    continue
+            except ProtocolError as error:
+                self.error = str(error)
+            self.process.kill()
+            return
+
+    def close(self):
+        self.stop.set()
+        self.thread.join(2)
+
+
 def host_footprint(pid):
     import ctypes
     class Usage(ctypes.Structure):
@@ -776,7 +826,7 @@ class JourneyHistory:
 def run(args, scenario, metadata, output, data, owner, runner):
     """Run approved groups under the caller's uninterrupted global/private locks."""
     processes = []
-    process = client = evidence = None
+    process = client = evidence = guard = None
     sequence = trace_start = 0
     finalized = archived = False
     prior_pid = None
@@ -808,7 +858,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
             catalog_qualification.prepare(output)
             with (evidence / 'simulator.log').open('w') as log:
                 runner.simulator_preflight()
-                if metadata.get('history_clear') and shutil.disk_usage(output).free < 31 * 1024**3:
+                if (metadata.get('history_clear') or sys.platform != 'darwin') and shutil.disk_usage(output).free < 31 * 1024**3:
                     raise ProtocolError('journey admission requires 31 GiB disk headroom')
                 startup = None
                 if metadata.get('history_clear'):
@@ -819,6 +869,12 @@ def run(args, scenario, metadata, output, data, owner, runner):
                         id='startup-' + uuid.uuid4().hex, generation=generation, history_startup_version=1)
                     atomic_json(data / 'journey-startup-request.json', startup)
                 process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
+                if sys.platform != 'darwin' and not metadata.get('history_clear'):
+                    if guard is not None:
+                        guard.close()
+                        if guard.error:
+                            raise ProtocolError(guard.error)
+                    guard = LinuxResidentGuard(process, output)
                 record['pid'] = process.pid
                 if process.pid == prior_pid:
                     raise ProtocolError('restart did not produce a new PID')
@@ -884,6 +940,8 @@ def run(args, scenario, metadata, output, data, owner, runner):
         print(output)
         return 0
     except BaseException as error:
+        if guard is not None and guard.error:
+            error = ProtocolError(guard.error)
         if processes:
             processes[-1].update(status='failed', error=str(error))
             atomic_json(evidence / 'process.json', processes[-1])
@@ -902,6 +960,8 @@ def run(args, scenario, metadata, output, data, owner, runner):
                                              'captures_finalized': finalized})
         return 1
     finally:
+        if guard is not None:
+            guard.close()
         if process is not None:
             try:
                 returncode = stop_owned(process, owner, data)
