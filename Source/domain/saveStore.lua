@@ -232,6 +232,21 @@ end
 -- Recheck domain acceptance without decoding/checksumming bytes already proven
 -- in this publication. Dynamic validators still run at each original boundary.
 function SaveStore:_validateRecord(path, record)
+    local covers = self._proofCovers
+    -- A covered record was already normalized and snapshotted for this
+    -- publication. The proof check does not write, so the readback can return
+    -- the existing detached data. Any other validator, or a missed proof,
+    -- still copies before validation and compares the copy.
+    if covers and record.data and covers(record.data) then
+        local ok, accepted, reason = pcall(function()
+            local accepted, reason = self._validate(record.data)
+            return accepted, reason
+        end)
+        if ok and accepted == true and SessionCodec.proofSatisfied() then
+            return {state="valid", sequence=record.sequence, payload=record.payload, data=record.data, path=path}
+        end
+        return {state="corrupt", error=not ok and tostring(accepted) or reason or tostring(accepted), path=path}
+    end
     local data = copy(record.data)
     local ok, accepted, reason = pcall(function()
         local accepted, reason = self._validate(data)
@@ -271,13 +286,18 @@ function SaveStore:_decodeUncached(path,bytes,err)
 end
 -- Cache only full disk validation, never an owner-export byte proof. Compare
 -- actual strings read on every access; neither sequence nor checksum is identity.
-function SaveStore:_decode(path, bytes, err)
+function SaveStore:_decode(path, bytes, err, headerOnly)
     local epoch, token, validate = self._validationEpoch, self._validationToken, self._validate
     local cache = diskRecords[self]
     local cached = cache and cache[path]
     if epoch ~= nil and cached and type(bytes) == "string" and err == nil
         and cached.bytes == bytes and cached.epoch == epoch
         and cached.token == token and cached.validate == validate then
+        -- Header inspection only reads immutable fields and copies those
+        -- scalars itself. It must not clone the decoded data tree.
+        if headerOnly then
+            return cached.record
+        end
         return copy(cached.record)
     end
     if cache then
@@ -299,7 +319,7 @@ function SaveStore:_read(path)
     record.bytes=bytes
     return record
 end
-function SaveStore:_inspect(ownerSave)
+function SaveStore:_inspect(ownerSave, headerOnly)
     local raw = {}
     for _, role in ipairs({"a", "b", "candidate"}) do
         local bytes, problem = call(self._fs, "read", self._paths[role])
@@ -321,13 +341,22 @@ function SaveStore:_inspect(ownerSave)
         end
         local record
         if ownerSave and ownerExports[self] ~= nil and matches then
-            record = copy(proof.record)
+            record = headerOnly and proof.record or copy(proof.record)
         else
-            record = self:_decode(path, observed.bytes, observed.error)
+            record = self:_decode(path, observed.bytes, observed.error, headerOnly)
         end
         if record.state == "valid" then
-            -- A validator may retain its argument. Never expose or reuse it.
-            record = copy(record)
+            if headerOnly and role ~= "candidate" then
+                -- Save only needs the validated header of a published slot.
+                -- The data tree stays in the cache. A lone candidate can still
+                -- be returned as recovery data, so that role keeps its copy.
+                -- Bytes are attached to this new table, never to the cached record.
+                record = {state=record.state, sequence=record.sequence, payload=record.payload,
+                    path=record.path or path, schema=record.schema, error=record.error}
+            else
+                -- A validator may retain its argument. Never expose or reuse it.
+                record = copy(record)
+            end
         end
         record.bytes = observed.bytes
         artifacts[role] = record
@@ -530,7 +559,9 @@ end
 function SaveStore:save(data)
     local ownerSave = data ~= nil and ownerExports[self] == data
     if not ownerSave then ownerPublications[self] = nil end
-    local artifacts,latest,metadata=self:_inspect(ownerSave)
+    -- Publication needs sequence, bytes and payload identity. It does not
+    -- read the decoded data tree, so a second copy of each slot is skipped.
+    local artifacts,latest,metadata=self:_inspect(ownerSave, true)
     if metadata.reason=="unsupported-schema" or metadata.reason=="io-error" or metadata.reason=="sequence-conflict" or metadata.reason=="archive-verification-failed" then return false,metadata end
     if metadata.hasCorruption or not latest and metadata.reason~="empty" then metadata.reason="recovery-required"; return false,metadata end
     if metadata.pendingCandidate then metadata.reason="pending-candidate-recovery-required"; return false,metadata end

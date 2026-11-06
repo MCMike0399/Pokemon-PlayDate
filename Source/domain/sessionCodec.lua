@@ -217,10 +217,25 @@ end
 function SessionCodec.releaseValidationProof()
     for key in pairs(proven) do proven[key] = nil end
 end
+-- True only when this record matches the detached proof for these dependencies.
+-- The check only reads. Callers may skip a defensive copy when it is true and
+-- the following validate takes that same path.
+local proofHit = false
+function SessionCodec.proofCovers(record, deps)
+    proofHit = false
+    local stamp = dependencyStamp(deps)
+    local prior = type(deps) == "table" and proven[deps] or nil
+    return prior ~= nil and sameStamp(prior.stamp, stamp) and same(prior.record, record)
+end
+function SessionCodec.proofSatisfied()
+    return proofHit
+end
 function SessionCodec.validate(record,deps)
+    proofHit = false
     local stamp = dependencyStamp(deps)
     local prior = proven[deps]
     if prior and sameStamp(prior.stamp, stamp) and same(prior.record, record) then
+        proofHit = true
         return true, nil
     end
     local ok,reason=pcall(normalize,record,deps)
@@ -251,7 +266,10 @@ function SessionCodec.decode(record,deps)
 end
 function SessionCodec.store(prefix,deps,filesystem)
     deps=GameSession._dependencies(deps)
-    return SaveStore(prefix,function(record) return SessionCodec.validate(record,deps) end,filesystem)
+    local store = SaveStore(prefix,function(record) return SessionCodec.validate(record,deps) end,filesystem)
+    -- Public readbacks may reuse a covered record without copying it again.
+    store._proofCovers = function(record) return SessionCodec.proofCovers(record, deps) end
+    return store
 end
 function SessionCodec.save(store,session,gate)
     local data,reason=SessionCodec.encode(session,gate)

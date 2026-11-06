@@ -8,6 +8,60 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Save headers and unchanged snapshots — 2026-11-06
+
+A public Save still checksums, decodes, and validates every new byte string.
+Inspecting the two published slots during that Save now keeps only the
+validated header (state, sequence, payload, path). The decoded data tree stays
+in the existing byte cache. A candidate that may be returned as recovery data
+is still copied. Readbacks that match the publication's validation proof return
+the detached record already held for that proof. Any other validator, or a
+missed proof, still copies before validation and compares the copy. Owner
+export, the payload decodes, and `SaveBuildPolicy` are unchanged.
+
+Walking snapshots still record the full party, bag, flags, and Pokédex on the
+same cadence. A later snapshot reuses those tables only when the live flag
+generation, flag-table identity, dex generation, dex-table identity, bag slot
+identity, money, and a party field stamp all match. The closed Pokédex
+snapshot reads two species flags instead of copying the dex. `flags()` and
+`pokedex()` still return fresh copies to every other caller.
+
+Source `e2d852a7b01951cb818ccb459cd238f64f3baefca35554453113362049a6d618`,
+measured against parent `d32629c4`, pool `MallocPoolSize=16645684`, no preload,
+one process, exit 1, `parcel journey exceeded semantic action bound`.
+
+Official one-save probe, `pokered:SILPH_CO_1F`, stage `done`, player `(8, 11)` down,
+last save `published`:
+
+| Run | VmHWM | Session |
+| --- | --- | --- |
+| header 1 | 443076 KiB (432.691 MiB) | `76769e064aac47b994afaa4205c41023` |
+| header 2 | 442488 KiB (432.117 MiB) | `5c728824bc944287b085d1b3c291e3b0` |
+
+The worse run is under the 520.070 MiB gate and 26312 KiB (25.7 MiB) under the
+validation-proof worse run (469388 KiB).
+
+Capped four-save path, `pokered:SAFFRON_POKECENTER`, stage `done`, player
+`(3, 3)` up, last save `published`:
+
+| Run | VmHWM | Session |
+| --- | --- | --- |
+| proof worse | 938032 KiB (916.047 MiB) | `36149f6c288244e1bda4657264eac0f7` |
+| header 1 | 818564 KiB (799.379 MiB) | `2b6d51cb2c484afa9f2eaad7420a541d` |
+| header 2 | 816424 KiB (797.289 MiB) | `4af24db0426645c0a181c673485a741e` |
+
+The worse header run is 119468 KiB (116.7 MiB) under the proof worse run.
+Adding cabin 03's 75148 KiB uncapped offset is 893712 KiB (872.766 MiB),
+154864 KiB (151.2 MiB) under the 1 GiB stop at that Center tile.
+
+That margin does not survive the next commands. A further probe with the same
+build raised the action, step, and transition bounds and was killed at
+1006628 KiB (983.035 MiB) while still inside `pokered:SAFFRON_POKECENTER`,
+player `(3, 3)` up, root `event`, Card Key quantity 0, 157 results. It is not
+a finished journey. No new cabin was launched. Grass-cut and the persistence
+payload cap were not re-run and are not green. This is not Mac phys_footprint
+and not hardware acceptance.
+
 ## One Save's later readbacks reuse its validation proof — 2026-11-06
 
 A public Save still validates on inspection, on the envelope, and on both

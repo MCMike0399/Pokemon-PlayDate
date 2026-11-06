@@ -211,11 +211,15 @@ function GameSession:recruit(mon)
     if not ok and index=="party-full" then ok,index=current.storage:receive(mon); destination="storage" end
     if not ok then return false,index end
     current.dex.seen[mon.species],current.dex.owned[mon.species]=true,true
+    current.dexGeneration = (current.dexGeneration or 0) + 1
     return true,{destination=destination,index=index,box=destination=="storage" and current.storage:activeBox() or nil}
 end
 function GameSession:markSeen(species)
     if not pokemonData[species] then return false,"unknown-species" end
-    state[self].dex.seen[species]=true; return true
+    local current = state[self]
+    current.dex.seen[species]=true
+    current.dexGeneration = (current.dexGeneration or 0) + 1
+    return true
 end
 -- Paid gifts use ordinary Gen V acquisition, including selected-box overflow.
 -- Prepare every fallible value on detached owners before claiming the specimen.
@@ -279,6 +283,10 @@ function GameSession:purchaseGiftPokemon(offer, expectedMoney)
         specimen=prepared.receipt}
 end
 function GameSession:pokedex() return copy(state[self].dex) end
+function GameSession:dexFlags(species)
+    local dex = state[self].dex
+    return dex.seen[species] == true, dex.owned[species] == true
+end
 local function setFlag(self,kind,id,value)
     if not stable(id) or type(value)~="boolean" then return false,"invalid-flag" end
     local values=state[self][kind]
@@ -286,13 +294,22 @@ local function setFlag(self,kind,id,value)
         local count=0; for _ in pairs(values) do count=count+1 end
         if count>=4096 then return false,"flag-limit" end
     end
-    values[id]=value;state[self].currentActors=WorldMotionData.empty();return true
+    values[id]=value
+    state[self].flagGeneration = (state[self].flagGeneration or 0) + 1
+    state[self].currentActors=WorldMotionData.empty();return true
 end
 function GameSession:setQuestFlag(id,value) return setFlag(self,"questFlags",id,value) end
 function GameSession:questFlag(id) return state[self].questFlags[id] or false end
 function GameSession:setTrainerDefeated(id,value) return setFlag(self,"trainerFlags",id,value) end
 function GameSession:trainerDefeated(id) return state[self].trainerFlags[id] or false end
 function GameSession:flags() return {quest=copy(state[self].questFlags),trainers=copy(state[self].trainerFlags)} end
+-- Identity of the live flag and dex tables plus the in-place edit counters.
+-- Diagnostic snapshots reuse a previous copy only when all four still match.
+function GameSession:diagnosticToken()
+    local current = state[self]
+    return current.flagGeneration or 0, current.questFlags, current.trainerFlags,
+        current.dexGeneration or 0, current.dex
+end
 -- A deliberately small event transaction: item transfers + boolean quest
 -- flags, trainer outcomes and saturating currency. Dialogue/world/UI actions
 -- remain the root event executor's work.

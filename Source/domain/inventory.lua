@@ -62,6 +62,12 @@ end
 function Inventory:slots() return copySlots(states[self].slots) end
 function Inventory:count() return #states[self].slots end
 function Inventory:money() return states[self].money end
+-- Slots are replaced on every edit. Diagnostics compare this token so an
+-- unchanged bag does not rebuild quantity maps. Callers must not write it.
+function Inventory:diagnosticToken()
+    local state = states[self]
+    return state.slots, state.money
+end
 function Inventory:quantity(id)
     if not states[self].definitions[id] then return nil, "unknown-item" end
     local n = 0

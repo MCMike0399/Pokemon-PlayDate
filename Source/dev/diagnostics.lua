@@ -95,6 +95,69 @@ local function ui(state)
         menu = menu(state.menu), lastSave = state.lastSave, message = state.message, lastResult = state.lastResult} or {phase = "closed"}
 end
 
+local remembered = setmetatable({}, {__mode = "k"})
+local function pendingStamp(mon)
+    local pending = {}
+    for _, choice in ipairs(mon.pendingMoveChoices or {}) do
+        pending[#pending + 1] = tostring(choice.id) .. ":" .. tostring(choice.move) .. ":" .. tostring(choice.level)
+    end
+    return table.concat(pending, ",")
+end
+local function partyStamp(members, active)
+    local parts = {}
+    for index, mon in ipairs(members) do
+        local pp = {}
+        for _, key in ipairs(mon.moves or {}) do
+            pp[#pp + 1] = key .. ":" .. tostring(mon.pp and mon.pp[key])
+        end
+        local stages = {}
+        for _, stat in ipairs({"atk", "def", "spa", "spd", "spe", "acc", "eva"}) do
+            stages[#stages + 1] = tostring(mon.statStages and mon.statStages[stat])
+        end
+        parts[index] = table.concat({
+            tostring(mon.hp), tostring(mon.maxHP), tostring(mon.xp), tostring(mon.level),
+            mon.status or "", tostring(mon.statusTurns), tostring(mon.sleepDuration or 0),
+            tostring(mon.confusion or 0), tostring(mon.flinched or false), mon.heldItem or "",
+            tostring(mon.pendingEvolution ~= nil), pendingStamp(mon),
+            table.concat(pp, ","), table.concat(stages, ","),
+        }, "/")
+    end
+    parts[#parts + 1] = "active:" .. tostring(active)
+    return table.concat(parts, ";")
+end
+local function leadView(game, party)
+    local lead = game:getPlayerPokemon()
+    if not lead then return {present = false} end
+    local members = game.session:party():members()
+    for index, mon in ipairs(members) do
+        if mon == lead and party.members[index] then return party.members[index] end
+    end
+    return pokemon(lead)
+end
+local function reusedViews(game)
+    local session = game.session
+    local flagGeneration, quest, trainers, dexGeneration, dex = session:diagnosticToken()
+    local slots, money = session:inventory():diagnosticToken()
+    local members = session:party():members()
+    local active = session:party():activeIndex()
+    local stamp = partyStamp(members, active)
+    local prior = remembered[session]
+    if prior and prior.flagGeneration == flagGeneration and prior.quest == quest
+        and prior.trainers == trainers and prior.dexGeneration == dexGeneration and prior.dex == dex
+        and prior.slots == slots and prior.money == money and prior.stamp == stamp then
+        return prior.party, prior.inventory, prior.flags, prior.pokedex
+    end
+    local party = {count = #members, active = active, members = {}}
+    for index, mon in ipairs(members) do party.members[index] = pokemon(mon) end
+    local inventory = {slots = session:inventory():slots(), money = money, quantities = {}}
+    for id in pairs(ItemData.definitions) do inventory.quantities[id] = session:inventory():quantity(id) end
+    local flags = session:flags()
+    local pokedex = session:pokedex()
+    remembered[session] = {flagGeneration = flagGeneration, quest = quest, trainers = trainers,
+        dexGeneration = dexGeneration, dex = dex, slots = slots, money = money, stamp = stamp,
+        party = party, inventory = inventory, flags = flags, pokedex = pokedex}
+    return party, inventory, flags, pokedex
+end
 function HarnessDiagnostics.snapshot(game)
     local root = game.machine
     local top = root:current()
@@ -113,10 +176,7 @@ function HarnessDiagnostics.snapshot(game)
             interacted = npc.hasInteracted and npc:hasInteracted() or npc.interacted,
             motion=game.npcManager.motion:actor(npc) }
     end
-    local party = {count = game.session:party():count(), active = game.session:party():activeIndex(), members = {}}
-    for i, mon in ipairs(game.session:party():members()) do party.members[i] = pokemon(mon) end
-    local inventory = {slots = game.session:inventory():slots(), money = game.session:inventory():money(), quantities = {}}
-    for id in pairs(ItemData.definitions) do inventory.quantities[id] = game.session:inventory():quantity(id) end
+    local party, inventory, sessionFlags, sessionDex = reusedViews(game)
     return {
         display = HarnessCapture.display(),
         field_encounter=game.lastEncounterSession==game.session and game.lastEncounterAttempt or {kind="none",reason="not-attempted"},
@@ -133,8 +193,8 @@ function HarnessDiagnostics.snapshot(game)
         root = root:getCurrent(), stack = root:stackNames(),
         overworld = world.sub:getCurrent(), zone = getCurrentZoneKey(),
         zone_id = currentZone and currentZone.stableID,
-        session = {item_storage=game.session:itemStorage():toData(),party = party, inventory = inventory, flags = game.session:flags(), checkpoint = game.session:checkpoint(),
-            pokedex = game.session:pokedex()},
+        session = {item_storage=game.session:itemStorage():toData(),party = party, inventory = inventory, flags = sessionFlags, checkpoint = game.session:checkpoint(),
+            pokedex = sessionDex},
         party = party, inventory = inventory,
         pause = ui(root:get("pause")), title = ui(root:get("title")),
         title_metadata = root:get("title") and root:get("title").metadata or nil,
@@ -152,7 +212,7 @@ function HarnessDiagnostics.snapshot(game)
             groundPixelX = player.groundPixelX, groundPixelY = player.groundPixelY,
             lastTraversalBlock = player.lastTraversalBlock,
             pendingEdgeDoor = player.pendingEdgeDoor ~= nil, tile = tile and tile[player.gridX + 1] } or { present = false },
-        pokemon = pokemon(game:getPlayerPokemon()),
+        pokemon = leadView(game, party),
         battle = battle and { presentation={player=shownVitals(battle,battle.player),enemy=shownVitals(battle,battle.enemy),xp_gauge="authoritative-model"},
             rewards=battle:getRewardSnapshot(), phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
             conditions = battle:getConditionsSnapshot(),
