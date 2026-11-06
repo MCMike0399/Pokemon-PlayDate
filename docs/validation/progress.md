@@ -8,6 +8,31 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Hiding the tilemap does not cut the Saffron climb — 2026-11-06
+
+The extended probe still dies on `pokered:SAFFRON_CITY` `(3, 28)` with Card Key
+0. Three checks on this tree (`fe4333c6`) missed, and were removed:
+
+- `Party._primitive` during the Silph 1F south walk is about 28 keys and 4
+  calls a frame. That is not the climb.
+- Freezing `Camera:follow` / `Camera:apply` for ticks 374–460, and separately
+  hiding the live tilemap sprite for those ticks, left the Silph-entry peak at
+  439004 and 439184 KiB against 439464 KiB with both left on.
+- Hiding the live tilemap after tick 30 for the whole extended probe
+  (confirmed: Silph 1F drew only RED and one NPC) tracked the previous
+  heal-layout run within about 1 MiB at the same landmarks and still stopped
+  at 1050072 KiB. The sampler killed that simulator; session
+  `82923a4f496d481983443d90b9e88869`. The matched heal-layout run peaked at
+  1021240 KiB.
+
+A garbage-collector pause on twelve frames at Saffron `(13, 22)` measured
+2.88 KiB of Lua in `machine:update` while walking, 0 in draw, and about 36 KiB
+in the harness snapshot on a command boundary. Draw is not the per-frame Lua
+cost. The retained Linux climb is still the simulator malloc log (40-byte
+node, `strdup`, and a 32-byte-stride `realloc`) enabled with the 16 MiB pool.
+No cabin was launched. Grass-cut was not re-run; the two passes above still
+stand. The persistence payload cap stays not green.
+
 ## Grass-cut holds, Center heal no longer copies the map every frame — 2026-11-06
 
 Publication proofs are kept only while a Save, recovery, or replacement is
