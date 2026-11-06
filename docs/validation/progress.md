@@ -8,6 +8,45 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Two host memory failures are not green — 2026-11-06
+
+The publication-reuse change was compared, isolated, with the pre-change tree
+`37dae3af` (content `16312ba1de83551910ec0229716c8abac20f4870e01dbad47562299a1fb4ca56`,
+worktree `/tmp/pd-assess/pre-retain`) and the current tree `a57db9d1` (content
+`b815e3854cfbd25bc6dbaae0362a96c8b5a108a4307656e9c5fe0dc5f0936db5`). Neither
+failure below is a passing check.
+
+Persistence, `read faults sequence conflicts and bounded payloads never replace
+committed bytes`: the fixture builds `string.rep("x", SaveStore.MAX_PAYLOAD)` and
+calls `SaveStore:save` on a store that is not `gameSaveStore`.
+`retainVerifiedPublications` is never set. The same case reports
+`not enough memory` through `contracts.lua:406` on the retain build
+(`/tmp/pd-assess/save-retain-persist`, 45 passed, 1 failed), on the immediate
+parent (`/tmp/pd-assess/memqual-persist-base`, 45 passed, 1 failed, exit 1), and
+on the earlier `51164b5a` tree (`/tmp/pd-assess/save-epoch-contracts3`, 45 passed,
+1 failed). The inspect-reuse change did not cause this and did not worsen it.
+The bounded-payload case is still a Lua-cap failure.
+
+Grass-cut, isolated, `max_frames` 18000:
+
+| Run | Build | Result |
+| --- | --- | --- |
+| parent 1 `/tmp/pd-assess/memqual-gc-base` | `37dae3af:16312ba1` | 35 passed, 0 failed, exit 0 |
+| parent 2 `/tmp/pd-assess/memqual-gc-base2` | `37dae3af:16312ba1` | 35 passed, 0 failed, exit 0 |
+| retain 1 `/tmp/pd-assess/memqual-gc-now` | `a57db9d1:b815e385` | 33 passed, 2 failed |
+| retain 2 `/tmp/pd-assess/memqual-gc-now2` | `a57db9d1:b815e385` | 32 passed, 3 failed, exit 1 |
+
+Retain run 1 failed `facing each quadrant selects one source block rather than
+player-centered area` (`not enough memory`) and `16 native updates sample 32
+source positions and commit once` at `grassCutContracts.lua:13`
+(`SessionCodec.encode`). Retain run 2 failed different cases, including
+`saved terrain decodes then public Continue restores source grass and position`
+at `grassCutContracts.lua:529` around `SessionCodec.decode`. Boot heap on the
+retain tree is about 1.1 KiB higher at session import and 5.0 KiB higher at
+GameSaves init, and the first cached publication adds about 85 KiB at
+`Save.begin`. The parent suite passed twice. The retain tree failed twice.
+The change worsened grass-cut reliability. Grass-cut is not green.
+
 ## Third Squirtle cabin still stopped at 1 GiB — 2026-11-06
 
 One new cabin ran the admitted 5.5c journey on the publication-reuse build
