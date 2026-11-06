@@ -222,6 +222,13 @@ function SaveStore:setValidationEpoch(epoch)
     diskRecords[self] = nil
     ownerPublications[self] = nil
 end
+-- After a public readback has accepted a file, remember that exact byte string.
+-- The next inspect reuses the detached record. Owner export never sets this.
+local retainVerified = setmetatable({}, {__mode="k"})
+function SaveStore:retainVerifiedPublications()
+    assert(self._validationEpoch ~= nil, "publication reuse requires a validation epoch")
+    retainVerified[self] = true
+end
 -- Recheck domain acceptance without decoding/checksumming bytes already proven
 -- in this publication. Dynamic validators still run at each original boundary.
 function SaveStore:_validateRecord(path, record)
@@ -488,6 +495,15 @@ function SaveStore:_publish(bytes,target,sequence)
         return false,{reason="published-verification-failed",error=published.error}
     end
     if exact~=bytes then return false,{reason="published-bytes-differ"} end
+    if retainVerified[self] and validated and not validated.ownerExport
+        and published.state == "valid" and problem == nil
+        and validated.epoch ~= nil and validated.epoch == self._validationEpoch
+        and validated.token == self._validationToken and validated.validate == self._validate then
+        local cache = diskRecords[self] or {}
+        diskRecords[self] = cache
+        cache[self._paths[target]] = {bytes=exact, epoch=validated.epoch, token=validated.token,
+            validate=validated.validate, record=copy(published)}
+    end
     if validated and validated.ownerExport and validated.bytes == bytes
         and validated.sequence == sequence and problem == nil
         and validated.epoch ~= nil and validated.epoch == self._validationEpoch

@@ -8,6 +8,47 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## A verified public readback is reused on the next Save — 2026-11-06
+
+The epoch cache only filled when a byte string was decoded. A public
+readback accepts the promoted file and does not decode it, so the next Save
+still decoded that newest slot in full. `SaveStore:retainVerifiedPublications()`
+is opt-in. The public game store sets it after
+`session-public-dependencies-v1`. After the promoted bytes match the
+envelope, that exact string and its detached record are remembered. Owner
+export never sets the flag. New payloads still checksum, decode the payload
+twice, validate, and read back. `SaveBuildPolicy` is unchanged.
+
+The cabin path, extended through the fourth published save and stopped on
+the action bound, no preload, pool `MallocPoolSize=16645684`, one process,
+`pokered:SAFFRON_POKECENTER`, stage `done`, player `(3, 3)` up, last save
+`published`:
+
+| Run | VmHWM | Session |
+| --- | --- | --- |
+| epoch only | 1031308 KiB (1007.137 MiB) | `b1861dc3d1a04cf49ac727e134717816` |
+| publication reuse | 984392 KiB (961.320 MiB) | `0557a2ea05684bb6b0d672c5b39a7aea` |
+
+The cut is 46916 KiB (45.8 MiB) on that path. 984392 KiB is 64184 KiB under
+the 1 GiB stop. That finishes the save cabin 02 died inside. It does not
+leave another Silph door. The official one-save probe does not inspect the
+new file again. Both runs still stop on `parcel journey exceeded semantic
+action bound` at `pokered:SILPH_CO_1F`, stage `done`, player `(8, 11)` down,
+one process:
+
+| Run | VmHWM | Session |
+| --- | --- | --- |
+| retain 1 | 484564 KiB (473.207 MiB) | `1043e7cfe3324746aea06d6127005c97` |
+| retain 2 | 483396 KiB (472.066 MiB) | `d8b7d75d101e4316a0e051b71804a597` |
+
+The worse run is under the 520.070 MiB gate and 1652 KiB above the epoch
+worse run (482912 KiB). Public GameSaves save/Continue passed. Persistence
+passed 45; the same bounded-payload case still reports `not enough memory`.
+Owner call-count tests passed. This is not Mac phys_footprint and not
+hardware acceptance. Evidence, outside Git: `linux-silph-two-save-before`,
+`linux-silph-two-save-after`, `linux-silph-entry-retain-1`,
+`linux-silph-entry-retain-2`.
+
 ## Public slot proof reused on the next Save — 2026-11-06
 
 Cabin 02's VmHWM did not spike and release. Across 166 samples it never fell.

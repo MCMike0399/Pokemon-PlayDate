@@ -227,11 +227,11 @@ function SessionCodec.gameSaveStore(game, prefix)
     if not SaveBuildPolicy.ownerExports() then
         local store = SessionCodec.store(prefix, deps)
         -- The public path still checksums, decodes, and validates every new
-        -- byte string. Continue's load fills that proof; a later inspect of
-        -- those exact bytes reuses the detached record. A newly published
-        -- file is decoded again the first time Save inspects it. Owner
-        -- export stays off: this epoch is not an owner-inspection capability.
+        -- byte string. Continue's load fills that proof, and a public readback
+        -- that has just accepted a published file does too. A later inspect of
+        -- those exact bytes reuses the detached record. Owner export stays off.
         store:setValidationEpoch("session-public-dependencies-v1")
+        store:retainVerifiedPublications()
         return store
     end
     local store, publish = SaveStore.ownerExportStore(prefix, function(record)
