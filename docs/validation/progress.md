@@ -33,6 +33,14 @@ process. VmHWM was **515.180 MiB** and **515.531 MiB**. Both are under the
 acceptance. Evidence, outside Git: `linux-silph-entry-catalog-1`,
 `linux-silph-entry-save-cut-1`, and `linux-silph-entry-save-cut-2`.
 
+One Squirtle cabin pilot then ran the admitted 5.5c journey from that same
+save, with the 1 GiB Linux VmHWM stop left on. It continued from the Silph
+elevator, saved twice on `pokered:SILPH_CO_1F`, and the guard stopped it at
+100 commands: Saffron City, pause menu, player `(4, 22)` left, tick 810.
+`resumed_steps` was still only `saffron-guard-entry`. No battle was recorded.
+The Continue process did not start. The pilot was not launched again.
+Evidence: `linux-cabin-pilot-20261106-01`.
+
 ## Linux continuation assessment — 2026-11-06
 
 Clean Linux x86_64 workspace, no prior `env.sh`, SDK, earned saves, or Mac
