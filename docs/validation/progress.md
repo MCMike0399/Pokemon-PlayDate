@@ -8,6 +8,30 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Second Squirtle cabin still stopped at 1 GiB — 2026-11-06
+
+After the shared Silph scene plan, one new cabin ran the same admitted 5.5c
+journey. It is not a relaunch of `linux-cabin-pilot-20261106-01`. The 16 MB
+pool, the 1 GiB Linux VmHWM stop, and the other guards stayed on. No preload.
+
+It continued from the Silph elevator, saved twice on `pokered:SILPH_CO_1F`,
+and published a third save on Saffron City. The last save was `published`.
+The guard then stopped the owned Simulator inside the Saffron Pokémon Center:
+`owned Simulator exceeds 1 GiB Linux VmHWM`. The peak sample was **1024.8 MiB**
+(1049356 KiB), session `ac1ce9bc975f4b8e848b6afd8555b228`, one process. The
+last snapshot is `pokered:SAFFRON_POKECENTER`, player `(3, 7)` up, tick 1006,
+with a dialog opening and not yet ready. `resumed_steps` was still only
+`saffron-guard-entry`. The Continue process did not start. No battle was
+recorded. Card Key was still absent.
+
+Pilot 01 had died during that third save, at Saffron City `(4, 22)` left,
+tick 810. This run finished the save and reached the Center, then crossed the
+same stop. The per-save and per-door climbs are still large enough that the
+full journey cannot stay under 1 GiB. This pilot was not launched again.
+This is not a Mac phys_footprint result and not hardware acceptance. C
+progression has not started. Evidence, outside Git:
+`linux-cabin-pilot-20261106-02`.
+
 ## Shared Silph scene plans cleared the Linux gate again — 2026-11-06
 
 `SilphStory.scenes()` decoded the pinned scene plan once, then deep-copied
