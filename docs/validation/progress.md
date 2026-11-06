@@ -8,6 +8,30 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Per-command collection and cached door fades do not cut the street — 2026-11-06
+
+VmHWM does not fall because the simulator malloc log keeps every record. A
+prior same-host histogram put the live heap at about 4.99 million 24-byte
+`strdup`s and 6.60 million 40-byte log nodes; `fordblks` stayed near 3 MiB.
+Lua at the street pause stays near 8.5 MiB because those tables are freed.
+The log is not. Pool `MallocPoolSize=16645684` and the 1 GiB stop stayed on.
+No preload.
+
+On the committed street pair the Center door itself is about +2 MiB. The
+next observe plus the step to `(8, 30)` is still about +41 MiB. One
+`doorWarp` update spends about 400 ms in fade yields; that wait is not the
++41 MiB. `drawFaded` for the 7/8 and 1/2 patterns was built once per door
+and then blitted (`street-fade-1`). Landmarks matched cut 2 within 1.5 MiB
+(pause 902924 vs 902424 KiB, peak 1046700 vs 1047904). Reverted.
+
+Dropping `collectgarbage("collect")` after every journey command
+(`street-nogc-1`) left the door-to-street step at +41 MiB and raised the
+Center pause from 640832 to 677968 KiB. Reverted. Checksums, the second
+payload decode, snapshot cadence, owner export, and the 6/8/9 vs 11 MiB
+guards are unchanged.
+
+`route_c_silph` still does not fit under 1 GiB. No cabin was launched.
+
 ## Saffron street re-decode is smaller; the Silph route still does not fit — 2026-11-06
 
 The 997 vs 1041 MiB spread was the same street Save, sampled on either side of one heap extension. It was not a divergent walk. On this tree the matched pair agrees within 1 MiB at every landmark. Source `9323a2029ebe40cfb183f1d1f52f210758fa22782ffa14470cc59838c8023dbc`, pool `MallocPoolSize=16645684`, no preload. The previous street run on the imagetable experiment is `street-reuse-1` (source `36cd529874271809`).
