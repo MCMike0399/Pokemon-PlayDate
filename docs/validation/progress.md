@@ -56,6 +56,23 @@ stale coverage Source fingerprint that this session did not regenerate. Errors
 are missing external reference trees (ability oracle, field-move pins, NPC-trade
 manifest) and `libproc`. This is not a green suite and does not requalify C.
 
+## Await snapshot peek rejected — 2026-11-06
+
+`await` and `assert` built a full diagnostic snapshot on every waiting frame.
+A path-only peek kept command-completion and periodic snapshots unchanged.
+This is not the Mac Silph-entry probe and does not use phys_footprint. The
+labelled Linux scenario skipped the intro, saved from Red's room, and stopped
+on a ready save dialog: `reds_house_2f`, stage `done`, player `(5, 3)` up,
+save published. Journey-profile VmHWM baselines were 241.664 MiB and
+242.465 MiB. The 10 percent bar for that higher baseline is 218.219 MiB.
+The peek run reached the same end state at 240.105 MiB, 0.97 percent under.
+Reverted. A non-journey build that snapshots every frame climbed to 4.08 GiB
+and is not an adoption measurement. The cabin pilot was not relaunched.
+Evidence outside Git:
+`linux-save-await-journey-baseline-1`, `linux-save-await-journey-baseline-2`,
+and `linux-save-await-journey-peek-1` under
+`~/Developer/Pokemon-PlayDate-env/evidence/`.
+
 ## Save index hold rejected — 2026-11-05
 
 The Save path decodes the same five sprite indexes on each validator pass.
