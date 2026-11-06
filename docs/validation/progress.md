@@ -8,6 +8,40 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Public slot proof reused on the next Save — 2026-11-06
+
+Cabin 02's VmHWM did not spike and release. Across 166 samples it never fell.
+Two Silph 1F saves left the process at 598.9 MiB. The 1 GiB sample was later,
+when a fourth save opened inside the Saffron Center, on top of those saves,
+the Saffron door, the Saffron save, and the steps between them. One save's
+peak is not the guard.
+
+The public game store decoded and normalized a slot again whenever Save
+inspected it, even when Continue had just accepted those exact bytes.
+`SessionCodec.gameSaveStore` now sets
+`session-public-dependencies-v1` on that store only. The first read of a byte
+string still checksums, decodes the payload twice, and validates. A later
+inspect of those same bytes reuses the detached record. Owner export stays
+off. New payloads still take the public envelope and both readbacks.
+`SaveBuildPolicy` is unchanged.
+
+Matched Silph-entry runs, no preload, pool `MallocPoolSize=16645684`, one
+process, exit 1, `parcel journey exceeded semantic action bound`,
+`pokered:SILPH_CO_1F`, stage `done`, player `(8, 11)` down:
+
+| Run | VmHWM | Session |
+| --- | --- | --- |
+| epoch 1 | 482912 KiB (471.594 MiB) | `bda530d1d83843a4a84d855abdf2ae08` |
+| epoch 2 | 481560 KiB (470.273 MiB) | `54a64c0496304f4385bcdca6a4103d90` |
+
+The worse run is under the 520.070 MiB gate and 20044 KiB (19.6 MiB) under
+the shared-scene worse run (502956 KiB). That is the whole-probe difference,
+not a per-save measurement of the cabin. Subtracting it once from cabin 02's
+1049356 KiB still leaves about 1005 MiB, over the 1 GiB stop. Doors and steps
+are untouched. No new cabin was launched. This is not Mac phys_footprint and
+not hardware acceptance. C has not started. Evidence, outside Git:
+`linux-silph-entry-epoch-1`, `linux-silph-entry-epoch-2`.
+
 ## Second Squirtle cabin still stopped at 1 GiB — 2026-11-06
 
 After the shared Silph scene plan, one new cabin ran the same admitted 5.5c
