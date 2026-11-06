@@ -8,6 +8,31 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Save-window records cleared the Linux gate — 2026-11-06
+
+Session normalize rebuilds the item catalog and every Pokémon's six-stat
+records while it validates a save. Inventory and the session dependency
+projection still check every definition on each construction, and they reuse
+one record table per unchanged source identity. A changed or removed
+definition rebuilds that projection. Item storage still deep-copies the
+catalog once per source, then reuses the detached copy after validation.
+Individual stat normalization and calculation build compiler-sized literals.
+The defensive primitive copy reuses one cycle set for a root walk and
+allocates a fresh set when a copy is already in progress. SaveStore's own
+copies, the second payload decode, validators, readbacks, and SaveBuildPolicy
+are unchanged.
+
+Reusing only the item-catalog records, without the stat literals or the shared
+cycle set, reached the same end state at **555.688 MiB** and missed the bar.
+That narrower edit is not what this tree keeps. The combined cut, with the
+16 MB pool and no preload, stopped on `parcel journey exceeded semantic action
+bound` at `pokered:SILPH_CO_1F`, stage `done`, player `(8, 11)` down, one
+process. VmHWM was **515.180 MiB** and **515.531 MiB**. Both are under the
+520.070 MiB bar, which is 10 percent under the higher Linux baseline of
+577.855 MiB. This is not a Mac phys_footprint result and not hardware
+acceptance. Evidence, outside Git: `linux-silph-entry-catalog-1`,
+`linux-silph-entry-save-cut-1`, and `linux-silph-entry-save-cut-2`.
+
 ## Linux continuation assessment — 2026-11-06
 
 Clean Linux x86_64 workspace, no prior `env.sh`, SDK, earned saves, or Mac

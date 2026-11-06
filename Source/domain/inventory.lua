@@ -20,14 +20,43 @@ local function copySlots(slots)
     for i, slot in ipairs(slots) do out[i] = { id = slot.id, quantity = slot.quantity } end
     return out
 end
-function Inventory:init(definitions)
-    assert(type(definitions) == "table", "item definitions required")
-    local defs = {}
+-- Repeated save validation rebuilds an inventory for the same immutable catalog.
+-- The projection is checked again on every construction; only the record tables
+-- are reused, and a changed or removed definition rebuilds them.
+local validatedCatalogs = setmetatable({}, { __mode = "k" })
+local function catalogName(id, item)
+    return type(item.name) == "string" and item.name or id
+end
+local function catalogRecord(id, item)
+    return { keyItem = item.keyItem, name = catalogName(id, item) }
+end
+local function catalogMatches(definitions, defs)
     for id, item in pairs(definitions) do
         assert(type(id) == "string" and id:match("^[a-z][A-Za-z0-9]*$") and type(item) == "table"
             and type(item.keyItem) == "boolean", "invalid item definition")
-        defs[id] = { keyItem = item.keyItem, name = type(item.name) == "string" and item.name or id }
+        if defs then
+            local record = defs[id]
+            if not record or record.keyItem ~= item.keyItem or record.name ~= catalogName(id, item) then
+                return false
+            end
+        end
     end
+    if defs then
+        for id in pairs(defs) do if definitions[id] == nil then return false end end
+    end
+    return true
+end
+function Inventory:init(definitions)
+    assert(type(definitions) == "table", "item definitions required")
+    local defs = validatedCatalogs[definitions]
+    if defs and catalogMatches(definitions, defs) then
+        states[self] = { definitions = defs, slots = {}, money = 0 }
+        return
+    end
+    catalogMatches(definitions, nil)
+    defs = {}
+    for id, item in pairs(definitions) do defs[id] = catalogRecord(id, item) end
+    validatedCatalogs[definitions] = defs
     states[self] = { definitions = defs, slots = {}, money = 0 }
 end
 function Inventory:slots() return copySlots(states[self].slots) end

@@ -11,9 +11,17 @@ end
 local function values(value,maximum,label)
     assert(type(value)=="table" and getmetatable(value)==nil,"invalid-"..label)
     for key in pairs(value)do assert(allowed[key],"unknown-"..label.."-stat")end
-    local out,total={},0
-    for _,key in ipairs(keys)do out[key]=integer(value[key],0,maximum,"invalid-"..label.."-"..key);total=total+out[key]end
-    return out,total
+    -- A literal keeps the six-stat hash at its final size. Save validation
+    -- rebuilds these records for every Pokémon on every normalize.
+    local out = {
+        hp = integer(value.hp, 0, maximum, "invalid-" .. label .. "-hp"),
+        atk = integer(value.atk, 0, maximum, "invalid-" .. label .. "-atk"),
+        def = integer(value.def, 0, maximum, "invalid-" .. label .. "-def"),
+        spa = integer(value.spa, 0, maximum, "invalid-" .. label .. "-spa"),
+        spd = integer(value.spd, 0, maximum, "invalid-" .. label .. "-spd"),
+        spe = integer(value.spe, 0, maximum, "invalid-" .. label .. "-spe"),
+    }
+    return out, out.hp + out.atk + out.def + out.spa + out.spd + out.spe
 end
 function IndividualStats.zero()return {hp=0,atk=0,def=0,spa=0,spd=0,spe=0}end
 function IndividualStats.normalize(ivs,evs)
@@ -26,14 +34,21 @@ function IndividualStats.calculate(data,level,nature,ivs,evs)
     integer(level,1,100,"invalid-individual-level")
     integer(nature,0,24,"invalid-individual-nature")
     assert(type(data)=="table","invalid-individual-species")
-    local out={}
-    for _,key in ipairs(keys)do
-        local base=integer(data[bases[key]],1,255,"invalid-individual-base")
-        local scaled=((2*base+iv[key]+ev[key]//4)*level)//100
-        if key=="hp"then out.maxHP=scaled+level+10
-        else out[key]=Specimen.stat(scaled+5,nature,key)end
-    end
-    return out
+    local hpBase = integer(data[bases.hp], 1, 255, "invalid-individual-base")
+    local atkBase = integer(data[bases.atk], 1, 255, "invalid-individual-base")
+    local defBase = integer(data[bases.def], 1, 255, "invalid-individual-base")
+    local spaBase = integer(data[bases.spa], 1, 255, "invalid-individual-base")
+    local spdBase = integer(data[bases.spd], 1, 255, "invalid-individual-base")
+    local speBase = integer(data[bases.spe], 1, 255, "invalid-individual-base")
+    local hp = ((2 * hpBase + iv.hp + ev.hp // 4) * level) // 100
+    return {
+        maxHP = hp + level + 10,
+        atk = Specimen.stat(((2 * atkBase + iv.atk + ev.atk // 4) * level) // 100 + 5, nature, "atk"),
+        def = Specimen.stat(((2 * defBase + iv.def + ev.def // 4) * level) // 100 + 5, nature, "def"),
+        spa = Specimen.stat(((2 * spaBase + iv.spa + ev.spa // 4) * level) // 100 + 5, nature, "spa"),
+        spd = Specimen.stat(((2 * spdBase + iv.spd + ev.spd // 4) * level) // 100 + 5, nature, "spd"),
+        spe = Specimen.stat(((2 * speBase + iv.spe + ev.spe // 4) * level) // 100 + 5, nature, "spe"),
+    }
 end
 function IndividualStats.hpAfterRecalc(hp,oldMax,newMax)
     integer(oldMax,0,1000,"invalid-old-max-hp");integer(newMax,1,1000,"invalid-new-max-hp")

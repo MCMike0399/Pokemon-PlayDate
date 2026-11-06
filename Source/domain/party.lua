@@ -10,12 +10,30 @@ local function valid(mon)
     return type(mon) == "table" and type(mon.is) == "function" and mon:is("Pokemon")
         and pokemonData[mon.species] ~= nil and integer(mon.maxHP, 1, 1000000) and integer(mon.hp, 0, mon.maxHP)
 end
+-- One cycle set for the root copy. Nested calls share it. A thrown copy leaves
+-- the set busy so the next copy allocates a fresh one instead of observing a
+-- partial walk. This does not change the detached result.
+local scratch = {}
+local scratchBusy = false
+local function releaseScratch()
+    for key in pairs(scratch) do scratch[key] = nil end
+    scratchBusy = false
+end
 local function primitive(value, visited)
     local kind = type(value)
     if kind == "boolean" or kind == "string" then return value end
     if kind == "number" then assert(value == value and math.abs(value) < math.huge, "nonfinite number"); return value end
     assert(kind == "table" and getmetatable(value) == nil, "primitive table required")
-    visited = visited or {}
+    local usingScratch = false
+    if visited == nil then
+        if scratchBusy then
+            visited = {}
+        else
+            scratchBusy = true
+            usingScratch = true
+            visited = scratch
+        end
+    end
     assert(not visited[value], "cyclic data")
     visited[value] = true
     local out = {}
@@ -24,6 +42,7 @@ local function primitive(value, visited)
         out[key] = primitive(item, visited)
     end
     visited[value] = nil
+    if usingScratch then releaseScratch() end
     return out
 end
 local function array(value, limit)

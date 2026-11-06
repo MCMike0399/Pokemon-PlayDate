@@ -117,14 +117,38 @@ local function rngData(value)
     probe:restoreData(copy(value))
     return probe:toData()
 end
+-- Save validation rebuilds this projection for every normalize. The source
+-- catalog is immutable; repeat calls re-check keyItem and reuse the records.
+local projectedItems = setmetatable({}, { __mode = "k" })
+local function projectItems(source)
+    assert(type(source) == "table", "item definitions required")
+    local projected = projectedItems[source]
+    if projected then
+        local matches = true
+        for id, entry in pairs(source) do
+            assert(type(entry) == "table" and type(entry.keyItem) == "boolean", "invalid item definition")
+            local record = projected[id]
+            if not record or record.keyItem ~= entry.keyItem then matches = false end
+        end
+        for id in pairs(projected) do if source[id] == nil then matches = false end end
+        if matches then return projected end
+    end
+    projected = {}
+    for id, entry in pairs(source) do
+        assert(type(id) == "string" and type(entry) == "table" and type(entry.keyItem) == "boolean",
+            "invalid item definition")
+        projected[id] = { keyItem = entry.keyItem }
+    end
+    projectedItems[source] = projected
+    return projected
+end
 local function dependencies(deps)
     assert(type(deps)=="table" and type(deps.validateWorld)=="function" and type(deps.resolveLocation)=="function","pure world/location dependencies required")
     assert(deps.validateActors==nil or type(deps.validateActors)=="function","pure actor validator required")
     assert(deps.hiddenActors==nil or type(deps.hiddenActors)=="function","pure actor visibility proof required")
     assert(deps.resolvePlayerLocation == nil or type(deps.resolvePlayerLocation) == "function",
         "pure player location validator required")
-    local definitions={}
-    for id,entry in pairs(assert(deps.itemDefinitions,"item definitions required")) do definitions[id]={keyItem=entry.keyItem} end
+    local definitions = projectItems(assert(deps.itemDefinitions, "item definitions required"))
     Inventory(definitions) -- validates configuration without modifying callers.
     return {
         itemDefinitions = definitions,
