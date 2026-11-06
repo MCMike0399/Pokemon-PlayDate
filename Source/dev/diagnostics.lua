@@ -96,6 +96,9 @@ local function ui(state)
 end
 
 local remembered = setmetatable({}, {__mode = "k"})
+function HarnessDiagnostics.releaseRetainedViews()
+    for key in pairs(remembered) do remembered[key] = nil end
+end
 local function pendingStamp(mon)
     local pending = {}
     for _, choice in ipairs(mon.pendingMoveChoices or {}) do

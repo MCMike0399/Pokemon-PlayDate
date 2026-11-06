@@ -14,6 +14,13 @@ local function wire(g)
 end
 
 local function scene(fn, entry)
+    -- Each scene builds a Route 6 view in the 16 MiB pool. Drop publication
+    -- reuse copies and collect the previous scene before constructing this one.
+    SessionCodec.releaseValidationProof()
+    SaveStore.dropDecodedRecords()
+    if HarnessDiagnostics.releaseRetainedViews then HarnessDiagnostics.releaseRetainedViews() end
+    collectgarbage("collect")
+    collectgarbage("collect")
     entry = entry or {x = 6, y = 14, facing = "right"}
     local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
     local oldStory, oldRNG, oldOwner = Story.currentContext(), RulesRNG.toData(), GameSession.activeRNGSession()

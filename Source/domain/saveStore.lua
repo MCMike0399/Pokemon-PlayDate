@@ -229,6 +229,24 @@ function SaveStore:retainVerifiedPublications()
     assert(self._validationEpoch ~= nil, "publication reuse requires a validation epoch")
     retainVerified[self] = true
 end
+-- The decoded tree is only a reuse cache. Drop it when the Lua pool is tight
+-- so the next read validates the same bytes again instead of failing allocation.
+function SaveStore.dropDecodedRecords()
+    for _, cache in pairs(diskRecords) do
+        if type(cache) == "table" then
+            for _, entry in pairs(cache) do
+                if type(entry) == "table" then entry.record = nil end
+            end
+        end
+    end
+end
+local function withPublicationProof(fn)
+    SessionCodec.retainValidationProof(true)
+    local ok, first, second, third = pcall(fn)
+    SessionCodec.retainValidationProof(false)
+    if not ok then error(first, 0) end
+    return first, second, third
+end
 -- Recheck domain acceptance without decoding/checksumming bytes already proven
 -- in this publication. Dynamic validators still run at each original boundary.
 function SaveStore:_validateRecord(path, record)
@@ -291,7 +309,7 @@ function SaveStore:_decode(path, bytes, err, headerOnly)
     local cache = diskRecords[self]
     local cached = cache and cache[path]
     if epoch ~= nil and cached and type(bytes) == "string" and err == nil
-        and cached.bytes == bytes and cached.epoch == epoch
+        and cached.record and cached.bytes == bytes and cached.epoch == epoch
         and cached.token == token and cached.validate == validate then
         -- Header inspection only reads immutable fields and copies those
         -- scalars itself. It must not clone the decoded data tree.
@@ -557,6 +575,11 @@ local function targetFor(artifacts,latest)
     return artifacts.a.state=="missing" and "a" or artifacts.b.state=="missing" and "b" or "a"
 end
 function SaveStore:save(data)
+    return withPublicationProof(function()
+        return SaveStore._saveBody(self, data)
+    end)
+end
+function SaveStore:_saveBody(data)
     local ownerSave = data ~= nil and ownerExports[self] == data
     if not ownerSave then ownerPublications[self] = nil end
     -- Publication needs sequence, bytes and payload identity. It does not
@@ -572,6 +595,11 @@ function SaveStore:save(data)
     return self:_publish(bytes,targetFor(artifacts,latest),sequence)
 end
 function SaveStore:recover(source)
+    return withPublicationProof(function()
+        return SaveStore._recoverBody(self, source)
+    end)
+end
+function SaveStore:_recoverBody(source)
     ownerPublications[self] = nil
     if source=="proposal" or source=="backup-published" or source=="backup-candidate" then return self:_restoreArchive(source) end
     if source~="candidate" and source~="published" then return false,{reason="invalid-recovery-source"} end
@@ -847,6 +875,11 @@ function SaveStore:_archive(snapshot,proposal,target,mode)
     return true,{archived=true,archive=index}
 end
 function SaveStore:_replaceSnapshot(data,snapshot,mode)
+    return withPublicationProof(function()
+        return SaveStore._replaceSnapshotBody(self, data, snapshot, mode)
+    end)
+end
+function SaveStore:_replaceSnapshotBody(data,snapshot,mode)
     local highest=0
     for _,role in ipairs(ROLES) do
         if snapshot[role]~=false then

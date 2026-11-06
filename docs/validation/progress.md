@@ -8,6 +8,45 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Grass-cut holds, Center heal no longer copies the map every frame — 2026-11-06
+
+Publication proofs are kept only while a Save, recovery, or replacement is
+validating its readbacks, then released. Above 11 MiB of Lua heap, decoded
+publication records and retained diagnostic views are dropped and the pool is
+collected. Each grass-cut scene does that before it builds the next Route 6
+view. The machine-geometry check still reads the map definition; a zone that
+already passed is not deep-copied again on every heal frame. Checksums, the
+second payload decode, owner export, the 16 MiB pool, and the 1 GiB stop are
+unchanged.
+
+Isolated grass-cut, `max_frames` 18000, final source
+`8cc7ad913152ae280b3a43760a83813ad81c0d58ffe4eee5830eb5aa121a95c3`:
+
+| Run | Result | Session |
+| --- | --- | --- |
+| 1 | 35 passed, 0 failed, exit 0 | `7bb7a11425d3430db1d904331f845251` |
+| 2 | 35 passed, 0 failed, exit 0 | `4021f58dc60d435dbfcbd19b9c71cb48` |
+
+Healing-composition on the same source: 26 passed, 0 failed, exit 0, session
+`ba01680b870c4698b98ffa643b8e1114`. The persistence payload cap was not re-run
+and is not green.
+
+The same extended Saffron probe, pool `MallocPoolSize=16645684`, no preload,
+still stops on the 1 GiB guard. Both runs leave the Center and stop in
+`pokered:SAFFRON_CITY` at `(3, 28)` up, pause open, Card Key quantity 0.
+
+| Run | Sampled VmHWM | Session | Stop |
+| --- | --- | --- | --- |
+| previous heal spike | 1006628 KiB (983.035 MiB) at 43.9s | inside the Center heal | probe kill |
+| 1 | 1021240 KiB (997.305 MiB) at 56.8s | `4b70ae7aa11a4814973788ef98db5834` | harness 1 GiB stop |
+| 2 | 1066268 KiB (1041.277 MiB) | `69f4d313fbe64986b418e95ed33c85c0` | sampler kill, then harness timeout |
+
+The per-frame map copy during the nurse animation is gone: the run continues
+through that heal onto the Saffron street instead of dying inside it. The
+street is already at the stop. Silph, the Card Key, and the rest of
+`route_c_silph` are not inside 1 GiB. No cabin was launched. This is not Mac
+phys_footprint and not hardware acceptance.
+
 ## Save headers and unchanged snapshots — 2026-11-06
 
 A public Save still checksums, decodes, and validates every new byte string.

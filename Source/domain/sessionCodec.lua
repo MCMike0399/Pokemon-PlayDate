@@ -153,6 +153,7 @@ local function normalize(record,deps)
         location=location,checkpoint=savedCheckpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel,safari=safari,coins=coins}
 end
 function SessionCodec.encode(session,gate)
+    SessionCodec.relieveHeap()
     local ok,result=pcall(function()
         assert(type(session)=="table" and type(session.is)=="function" and session:is("GameSession"),"GameSession required")
         assert(type(gate)=="table" and gate.root=="overworld" and gate.overworld=="explore" and gate.settled==true,
@@ -217,6 +218,31 @@ end
 function SessionCodec.releaseValidationProof()
     for key in pairs(proven) do proven[key] = nil end
 end
+-- Save readbacks are the only caller that compares a second decoded table
+-- with this proof. Every other validate runs normalize itself and must not
+-- leave a detached session copy in the pool.
+local proofDepth = 0
+function SessionCodec.retainValidationProof(retain)
+    if retain then
+        proofDepth = proofDepth + 1
+        return
+    end
+    if proofDepth > 0 then proofDepth = proofDepth - 1 end
+    if proofDepth == 0 then SessionCodec.releaseValidationProof() end
+end
+local relievingHeap = false
+function SessionCodec.relieveHeap()
+    if relievingHeap or collectgarbage("count") < 11 * 1024 then return end
+    relievingHeap = true
+    if proofDepth == 0 then SessionCodec.releaseValidationProof() end
+    if SaveStore and SaveStore.dropDecodedRecords then SaveStore.dropDecodedRecords() end
+    if HarnessDiagnostics and HarnessDiagnostics.releaseRetainedViews then
+        HarnessDiagnostics.releaseRetainedViews()
+    end
+    collectgarbage("collect")
+    collectgarbage("collect")
+    relievingHeap = false
+end
 -- True only when this record matches the detached proof for these dependencies.
 -- The check only reads. Callers may skip a defensive copy when it is true and
 -- the following validate takes that same path.
@@ -231,6 +257,7 @@ function SessionCodec.proofSatisfied()
     return proofHit
 end
 function SessionCodec.validate(record,deps)
+    SessionCodec.relieveHeap()
     proofHit = false
     local stamp = dependencyStamp(deps)
     local prior = proven[deps]
@@ -239,7 +266,7 @@ function SessionCodec.validate(record,deps)
         return true, nil
     end
     local ok,reason=pcall(normalize,record,deps)
-    if ok and stamp then
+    if ok and stamp and proofDepth > 0 then
         proven[deps] = {record=copy(record), stamp=stamp}
     else
         proven[deps] = nil
@@ -247,6 +274,7 @@ function SessionCodec.validate(record,deps)
     return ok,not ok and tostring(reason) or nil
 end
 function SessionCodec.decode(record,deps)
+    SessionCodec.relieveHeap()
     local ok,result=pcall(function()
         local prepared=normalize(record,deps)
         local party=assert(Party.fromData(prepared.data.party,function(value) return pokemonFromWire(value,true) end))
