@@ -48,9 +48,37 @@ def sdk_path(explicit=None):
     return sdk
 
 
+def simulator_executable(sdk):
+    """Return the official Simulator binary for this SDK install.
+
+    macOS builds ship an app bundle. Linux SDK 3.1.2 ships bin/PlaydateSimulator.
+    A missing binary keeps the historical macOS path so compile-only metadata
+    stays stable; launch still fails instead of substituting another program.
+    """
+    mac = sdk / 'bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator'
+    linux = sdk / 'bin/PlaydateSimulator'
+    if mac.is_file():
+        return mac
+    if linux.is_file():
+        return linux
+    return mac
+
+
+def simulator_settings_file():
+    """Path of the ini the running platform's Simulator actually writes.
+
+    Darwin keeps ~/Library/Preferences. Linux SDK 3.1.2 writes
+    ~/.config/Playdate Simulator/Playdate Simulator.ini, including
+    MallocPoolSize=16645684 after Playdate > Malloc Pool > 16 MB.
+    """
+    if sys.platform == 'darwin':
+        return Path.home() / 'Library/Preferences/com.panic.Playdate Simulator.ini'
+    return Path.home() / '.config/Playdate Simulator/Playdate Simulator.ini'
+
+
 def simulator_preflight():
     simulator_usb_preflight()
-    settings = Path.home() / 'Library/Preferences/com.panic.Playdate Simulator.ini'
+    settings = simulator_settings_file()
     # SDK 3.1.2 wrote this usable pool size when the user selected 16MB.
     values = dict(line.split('=', 1) for line in settings.read_text().splitlines() if '=' in line)
     if values.get('MallocPoolSize') != '16645684':
@@ -236,7 +264,7 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False, his
     with (output / 'build.log').open('w') as log:
         subprocess.run([str(sdk / 'bin/pdc'), str(source), str(bundle)], stdout=log, stderr=subprocess.STDOUT, check=True)
     metadata['bundle'] = str(bundle)
-    metadata['simulator'] = str(sdk / 'bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator')
+    metadata['simulator'] = str(simulator_executable(sdk))
     metadata['data_dir'] = str(sdk / 'Disk/Data' / metadata['bundle_id'])
     if history:
         metadata['pdx_files'] = {path.relative_to(bundle).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
