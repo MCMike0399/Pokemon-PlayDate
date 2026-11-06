@@ -8,6 +8,29 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## Third Squirtle cabin still stopped at 1 GiB — 2026-11-06
+
+One new cabin ran the admitted 5.5c journey on the publication-reuse build
+`4a9d1ce3`. It is not a relaunch of `linux-cabin-pilot-20261106-01` or
+`linux-cabin-pilot-20261106-02`. The 16 MB pool, the 1 GiB Linux VmHWM stop,
+and the other guards stayed on. No preload.
+
+It published both Silph 1F saves, the Saffron City save, and the fourth save
+inside the Saffron Pokémon Center. Cabin 02 had died while that fourth save's
+dialog was opening, at `(3, 7)` up, tick 1006. This run finished the save.
+The guard then stopped the owned Simulator on the next press, still in the
+Center: `owned Simulator exceeds 1 GiB Linux VmHWM`. The peak sample was
+**1034.7 MiB** (1059540 KiB), session `5e25a0b8f65843d1b2545bb5d4ec59a7`,
+one process, 175 samples, 43.97s. The last snapshot is
+`pokered:SAFFRON_POKECENTER`, player `(3, 3)` up, tick 1095, pause closed,
+last save `published`. `resumed_steps` was still only `saffron-guard-entry`.
+The Continue process did not start. Card Key was still absent. Captures were
+not finalized. The capped four-save probe had ended at this tile under the
+guard (961.320 MiB) because its action bound fired first. The uncapped cabin
+took the next command and crossed. This pilot was not launched again. This
+is not a Mac phys_footprint result and not hardware acceptance. C progression
+has not started. Evidence, outside Git: `linux-cabin-pilot-20261106-03`.
+
 ## A verified public readback is reused on the next Save — 2026-11-06
 
 The epoch cache only filled when a byte string was decoded. A public
