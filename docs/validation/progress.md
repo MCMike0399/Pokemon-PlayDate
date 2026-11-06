@@ -56,6 +56,42 @@ stale coverage Source fingerprint that this session did not regenerate. Errors
 are missing external reference trees (ability oracle, field-move pins, NPC-trade
 manifest) and `libproc`. This is not a green suite and does not requalify C.
 
+## Silph elevator surround — 2026-11-06
+
+The live Silph Co. elevator (`pokered:SILPH_CO_ELEVATOR`, imported 13×4 cells,
+128 px tall) sat in the lower middle of the 400×240 screen with a solid white
+band above it. Pokered's map is 2×2 blocks with border block `$0f`.
+`LoadTileBlockMap` fills the overworld buffer with that border before placing
+the room, and the scroll origin stays non-negative, so the surround is black
+and the room is in the upper portion of the view. This game's authored
+interiors pad with void to at least 13×8 because the camera assumed the map
+was at least screen-sized. The elevator's vertical padding is 0. `Camera`
+applied `map - screen` after the `>= 0` clamp, and that limit is −112 px, so
+the room was bottom-aligned. Pixels the tilemap did not cover stayed the
+default white sprite background. The catalog viewport already used
+`math.max(0, math.min(map - screen, goal))`, which pins a short map to the
+origin. `follow` and `snapTo` now do the same. While the live map is narrower
+or shorter than the screen, the sprite background is black and the full
+display is marked dirty once on entry; screen-sized maps still use white so
+transparent roof wedges are unchanged. Elevator menus, persisted floor, and
+tile art are untouched. The static catalog clear color is unchanged.
+`test_visual*.py` passed 21/21. Protected-source pin mismatches on
+`tilefactory.lua`, `spritefactory.lua`, `player.lua`, `zone.lua`, and
+`maps.lua` are the existing C-tree drift; those files were not edited.
+A fresh guarded probe captured the elevator with the room in rows 0–127 and
+solid black from row 128 through 239, then still stopped on the action bound
+at `pokered:SILPH_CO_1F` `(8, 11)` down. That run's VmHWM was 585.238 MiB and
+is not an allocation adoption. Evidence:
+`linux-silph-elevator-surround-1`.
+
+## Path-only await pair missed the Linux gate — 2026-11-06
+
+The second Silph-entry peek run, same probe and end state as the baselines,
+peaked at **572.207 MiB** VmHWM (`linux-silph-entry-peek-2`). With peek-1 at
+571.262 MiB, both are above the 520.070 MiB bar (about 1.0 and 1.1 percent
+under 577.855). The peek was reverted and is not in the tree. The cabin pilot
+was not relaunched.
+
 ## Earned bundle and Linux Silph-entry baseline — 2026-11-06
 
 `check_bundle.py` on the supplied bundle: artifact hashes PASS, 188 evidence
