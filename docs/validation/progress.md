@@ -8,6 +8,55 @@ This continuation is `cursor/c-linux-continuation-4fcf`, branched from
 `4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
+## One Save's later readbacks reuse its validation proof — 2026-11-06
+
+A public Save still validates on inspection, on the envelope, and on both
+readbacks. The envelope runs the full normalize. Each later call in that same
+publication compares the newly decoded table with a detached proof of that
+result, including the dependency functions. A difference, a failure, or the
+return from Save drops the proof and takes the full path. Owner export, the
+payload decodes, the copies that detect a mutating validator, and
+`SaveBuildPolicy` are unchanged.
+
+The capped four-save path, no preload, pool `MallocPoolSize=16645684`, one
+process, exit 1, `parcel journey exceeded semantic action bound`,
+`pokered:SAFFRON_POKECENTER`, stage `done`, player `(3, 3)` up, last save
+`published`. Content
+`2c17a62bcf434ae86f2fb004d5d96e22492f474a22d6a11ec5514e81a0c37393`:
+
+| Run | VmHWM | Session |
+| --- | --- | --- |
+| publication reuse | 984392 KiB (961.320 MiB) | `0557a2ea05684bb6b0d672c5b39a7aea` |
+| proof 1 | 904832 KiB (883.625 MiB) | `852fd23caf5148b4a5958b59dba43b29` |
+| proof 2 | 938032 KiB (916.047 MiB) | `36149f6c288244e1bda4657264eac0f7` |
+
+The worse proof run is 46360 KiB (45.3 MiB) under the publication-reuse run.
+The official one-save probe, same guards, `pokered:SILPH_CO_1F`, stage `done`,
+player `(8, 11)` down, one process, action bound, last save `published`:
+
+| Run | VmHWM | Session |
+| --- | --- | --- |
+| proof 1 | 469388 KiB (458.387 MiB) | `bbc18202dc1f4da49a9e1e60c8fd1e4b` |
+| proof 2 | 468460 KiB (457.480 MiB) | `c6e7ef83632245ca822f4c26076a6364` |
+
+The worse run is under the 520.070 MiB gate and 15176 KiB under the
+publication-reuse worse run (484564 KiB).
+
+Cabin 03 was 75148 KiB above the capped publication-reuse probe at this same
+Center tile, because the uncapped journey took the next command. Adding that
+gap to the worse proof run is 1013180 KiB, 35396 KiB (34.6 MiB) under the 1 GiB
+stop. That is the Center, before the rest of `route_c_silph`. The remaining
+route still enters Silph 5F, 9F, 3F, 7F, and 11F, revisits floors, fights, and
+saves every 16 walked cells. Those do not fit in 34.6 MiB. No new cabin was
+launched. This is not Mac phys_footprint and not hardware acceptance.
+
+Isolated grass-cut on this tree passed once (`/tmp/pd-assess/proof-gc`, 35
+passed, 0 failed, exit 0) and failed once (`/tmp/pd-assess/proof-gc2`, 34
+passed, 1 failed, exit 1). The failure is still `not enough memory` in
+`saved terrain decodes then public Continue restores source grass and position`.
+Grass-cut is not green. The persistence payload-cap failure recorded below was
+not re-run and is not green.
+
 ## Two host memory failures are not green — 2026-11-06
 
 The publication-reuse change was compared, isolated, with the pre-change tree

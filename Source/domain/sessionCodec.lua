@@ -181,8 +181,54 @@ function SessionCodec.encode(session,gate)
     if not ok then return nil,tostring(result) end
     return result
 end
+-- One public Save calls this for the envelope and both readbacks. The later
+-- calls see a newly decoded table with the same contents. Re-running normalize
+-- would reconstruct every Pokemon and copy the record again. A detached proof
+-- answers only when the dependencies and the record are unchanged. Any edit,
+-- failure, or explicit release takes the full path.
+local proven = setmetatable({}, {__mode="k"})
+local function same(a, b, seen)
+    if type(a) ~= type(b) then return false end
+    if type(a) ~= "table" then return a == b end
+    if getmetatable(a) ~= nil or getmetatable(b) ~= nil then return false end
+    seen = seen or {}
+    if seen[a] then return seen[a] == b end
+    seen[a] = b
+    for key, value in pairs(a) do
+        if not same(value, b[key], seen) then return false end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then return false end
+    end
+    return true
+end
+local function dependencyStamp(deps)
+    if type(deps) ~= "table" then return nil end
+    return {deps.validateWorld, deps.resolveLocation, deps.validateActors, deps.hiddenActors,
+        deps.resolvePlayerLocation, deps.itemDefinitions}
+end
+local function sameStamp(left, right)
+    if type(left) ~= "table" or type(right) ~= "table" then return false end
+    for index = 1, 6 do
+        if left[index] ~= right[index] then return false end
+    end
+    return true
+end
+function SessionCodec.releaseValidationProof()
+    for key in pairs(proven) do proven[key] = nil end
+end
 function SessionCodec.validate(record,deps)
+    local stamp = dependencyStamp(deps)
+    local prior = proven[deps]
+    if prior and sameStamp(prior.stamp, stamp) and same(prior.record, record) then
+        return true, nil
+    end
     local ok,reason=pcall(normalize,record,deps)
+    if ok and stamp then
+        proven[deps] = {record=copy(record), stamp=stamp}
+    else
+        proven[deps] = nil
+    end
     return ok,not ok and tostring(reason) or nil
 end
 function SessionCodec.decode(record,deps)
