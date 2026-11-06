@@ -1,11 +1,60 @@
 # Full-game execution ledger
 
-Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-11-06 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
-preparation is isolated and inactive. Nothing is pushed without a user request.
-The user stopped this session after pushing `84ac642e`. The handover is
+preparation is isolated and unaccepted. Nothing is pushed without a user request.
+This continuation is `cursor/c-linux-continuation-4fcf`, branched from
+`4b93ff24` (`origin/pi/c-actor-validation-fix`). It is not pushed. The handover is
 [c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
+
+## Linux continuation assessment — 2026-11-06
+
+Clean Linux x86_64 workspace, no prior `env.sh`, SDK, earned saves, or Mac
+helper. Official Playdate SDK 3.1.2 is installed at `~/Developer/PlaydateSDK`
+(`pdc` reports 3.1.2; `bin/PlaydateSimulator` is the Linux ELF). Pinned pokered
+`af519899719f0754965776faac0e836a3b906e6d` checks out. The pinned B2W2 cache
+`tools/verify_moves/cache/b2w2/2bf639e5572812a67d2b94903fdcb9d095f5aeb2` verifies.
+One interpreter: Python 3.12.3 in `~/Developer/pd-venv` with Pillow 12.0.0.
+Disk free is about 245 GiB, above the 31 GiB admission. No
+`/dev/cu.usbmodemPD*` node. Swift and `/usr/lib/libproc.dylib` are absent, so
+the Mac history helper and `proc_pid_rusage` footprint cannot run. The 1 GiB
+stop stays inside `JourneyHistory` and was not replaced or disabled.
+
+The Linux Simulator GUI does start. Its first-run dialog was dismissed, then
+Playdate > Malloc Pool > 16 MB was selected in the UI. After quit, the binary
+wrote `MallocPoolSize=16645684` to
+`~/.config/Playdate Simulator/Playdate Simulator.ini`. That is the file this
+platform writes. The runner now uses `bin/PlaydateSimulator` when the macOS app
+binary is absent, and reads that ini off Darwin. Darwin still uses the app
+bundle and `~/Library/Preferences`. A missing or different pool value still
+fails closed. `make test-harness` protocol tests passed 57/57, and the new
+platform checks passed 4/4. Commit `ddd8ffc7`. Production `pdc` also compiled
+`PokemonPoC.pdx`.
+
+A fresh harness session on that binary reached the title menu (NEW GAME /
+OPTIONS), stage `pre_oak`, Lua heap about 10.9 MiB, ready at about 29 s wall.
+Evidence, outside Git:
+`~/Developer/Pokemon-PlayDate-env/evidence/linux-title-smoke-20261106-01`.
+ALSA reported no playback device. This is not a Silph-entry measurement, not a
+device result, and not C acceptance.
+
+The strict importer does not reach the cabin marker. It stops on the missing
+accepted-B producer
+`~/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/03-midgame--restart-55b-squirtle/run.json`.
+The cabin marker `22047333…`, slots `6a20c09e…` / `00f2d64b…`, and chain
+`evidence/chain/5.5b/squirtle` are also absent. No save was fabricated. No
+allocation edit was made. Rejected experiments stay rejected. The Mac
+Silph-entry gate (both runs ≤ 421.26 MiB) was not run and is not claimed from
+Linux RSS. The cabin pilot was not relaunched.
+
+Host discovery on this machine: **1161 tests, 7 failures, 62 errors, 1 skip**
+(the Darwin footprint proof). Log:
+`~/Developer/Pokemon-PlayDate-env/evidence/linux-host-suite-20261106-01/host-suite.log`.
+Failures are the inherited C-versus-B inventory/coverage mismatch, including a
+stale coverage Source fingerprint that this session did not regenerate. Errors
+are missing external reference trees (ability oracle, field-move pins, NPC-trade
+manifest) and `libproc`. This is not a green suite and does not requalify C.
 
 ## Save index hold rejected — 2026-11-05
 
