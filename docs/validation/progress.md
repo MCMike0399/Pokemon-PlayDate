@@ -56,6 +56,29 @@ stale coverage Source fingerprint that this session did not regenerate. Errors
 are missing external reference trees (ability oracle, field-move pins, NPC-trade
 manifest) and `libproc`. This is not a green suite and does not requalify C.
 
+## Earned bundle and Linux Silph-entry baseline — 2026-11-06
+
+`check_bundle.py` on the supplied bundle: artifact hashes PASS, 188 evidence
+files. `--project` against a clean full-history checkout at
+`4b93ff24d8fec06021be1f72c5950d6d7ea7c5bd`: three imports succeed, 188 mapped
+dependencies, no SDK launch. Squirtle slots are `6a20c09e…` and `00f2d64b…`
+with completed step only `saffron-guard-entry`. Bulbasaur and Charmander import
+with empty completed steps. Creating `/Users/burbujamc/...` was permission
+denied, so the files were not hydrated there and no frozen hash was rewritten.
+`POKEMON_EVIDENCE_MIRROR` redirects only that namespace for reads.
+
+The short Silph-entry probe (30 steps, 80 actions, 12 transitions, cabin
+marker) stops on `parcel journey exceeded semantic action bound` at
+`pokered:SILPH_CO_1F`, stage `done`, player `(8, 11)` down. Linux VmHWM, not
+Mac phys_footprint: **577.332 MiB** and **577.855 MiB**. The 10 percent bar for
+the higher baseline is **520.070 MiB**. The same path-only await peek, measured
+on this probe, reached the same end state at 571.262 MiB, 1.14 percent under.
+Reverted. The 1 GiB Linux VmHWM stop did not trip. The cabin pilot was not
+relaunched. Evidence:
+`linux-silph-entry-baseline-1`, `linux-silph-entry-baseline-2`, and
+`linux-silph-entry-peek-1` under
+`~/Developer/Pokemon-PlayDate-env/evidence/`.
+
 ## Await snapshot peek rejected — 2026-11-06
 
 `await` and `assert` built a full diagnostic snapshot on every waiting frame.
