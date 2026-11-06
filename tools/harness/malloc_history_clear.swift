@@ -1,4 +1,4 @@
-// Root-only bounded native helper; enabled explicitly by the census owner.
+// Root-only bounded native helper; enabled explicitly by its verified runtime owner.
 import Foundation
 import ApplicationServices
 import CryptoKit
@@ -55,7 +55,7 @@ func argv(_ pid: pid_t) throws -> [String] {
 func ownedLock(_ url: URL, _ owner: pid_t) throws {
     try require((try record(url))["pid"] as? Int == Int(owner), "lock metadata owner mismatch")
     // F_GETLK only queries the kernel; this descriptor never acquires a lock.
-    // Census history sessions use a POSIX lock whose owner PID Darwin exposes.
+    // Opted-in history sessions use a POSIX lock whose owner PID Darwin exposes.
     let descriptor = open(url.path, O_RDONLY | O_NOFOLLOW)
     try require(descriptor >= 0, "owner lock cannot be opened read-only")
     defer { close(descriptor) }
@@ -67,29 +67,112 @@ func ownedLock(_ url: URL, _ owner: pid_t) throws {
 }
 let sdk = path("/Users/burbujamc/Developer/PlaydateSDK")
 let simulatorHash = "ebaeca5c65f3d613f06c8a3d701e90c01f292f13fc66f24a680e4357c5b447cf"
-func verify(_ directory: URL, _ buildHash: String, _ runHash: String) throws -> pid_t {
+func verify(_ directory: URL, _ buildHash: String, _ runHash: String,
+            _ identity: String = "CENSUS", _ processFile: String = "run.json") throws -> pid_t {
+    let journey = identity == "JOURNEY"
+    try require(identity == "CENSUS" || journey, "unknown identity class")
+    try require(!journey || processFile.range(of: #"^processes/[0-9]{4}/process\.json$"#, options: .regularExpression) != nil,
+                "invalid current process path")
     let buildURL = directory.appendingPathComponent("build.json")
-    let runURL = directory.appendingPathComponent("run.json")
+    let runURL = directory.appendingPathComponent(processFile)
     try require(try digest(buildURL) == buildHash && digest(runURL) == runHash, "metadata pin mismatch")
     let build = try record(buildURL), run = try record(runURL)
-    guard let id = build["build_id"] as? String, id.count == 32,
-          id.allSatisfy({ $0.isHexDigit }), let pid = run["pid"] as? Int, pid > 1, pid <= Int(Int32.max),
+    guard let id = build["build_id"] as? String,
+          (journey ? id.range(of: #"^[0-9a-f]{40}:[0-9a-f]{64}$"#, options: .regularExpression) != nil
+                   : id.count == 32 && id.allSatisfy({ $0.isHexDigit })), let pid = run["pid"] as? Int, pid > 1, pid <= Int(Int32.max),
           let files = build["pdx_files"] as? [String: String], !files.isEmpty
-    else { throw Refusal(reason: "missing census identity") }
+    else { throw Refusal(reason: journey ? "missing journey identity" : "missing census identity") }
     let version = try String(contentsOf: sdk.appendingPathComponent("VERSION.txt"), encoding: .utf8)
     let ini = try String(contentsOf: FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(
         "Library/Preferences/com.panic.Playdate Simulator.ini"), encoding: .utf8)
     try require(version.trimmingCharacters(in: .whitespacesAndNewlines) == "3.1.2" &&
         ini.components(separatedBy: .newlines).filter { $0.hasPrefix("MallocPoolSize=") }.last == "MallocPoolSize=16645684",
         "SDK version or existing 16 MiB pool setting changed")
-    let bundle = directory.appendingPathComponent("DoorCensus.pdx")
+    let bundle = directory.appendingPathComponent(journey ? "Harness.pdx" : "DoorCensus.pdx")
     let binary = sdk.appendingPathComponent("bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator")
-    try require(build["mode"] as? String == "door-census-compile-only" &&
-        build["sdk_version"] as? String == "3.1.2" && build["sdk"] as? String == sdk.path &&
-        build["bundle_id"] as? String == "com.poc.pokemon.doorcensus." + id &&
-        build["bundle"] as? String == bundle.path && run["build_id"] as? String == id &&
-        run["simulator"] as? String == binary.path && run["simulator_sha256"] as? String == simulatorHash,
-        "not the pinned SDK census build/run")
+    let bundleID: String
+    if journey {
+        guard let session = build["session_id"] as? String, session.count == 32,
+              session.allSatisfy({ $0.isHexDigit }) else { throw Refusal(reason: "missing journey session") }
+        bundleID = "com.poc.pokemon.harness." + session
+        try require(build["history_identity"] as? String == "JOURNEY" &&
+            build["history_clear"] as? Bool == true && build["harness_profile"] as? String == "journey" &&
+            build["sdk_version"] as? String == "3.1.2" && build["sdk"] as? String == sdk.path &&
+            build["bundle_id"] as? String == bundleID && build["bundle"] as? String == bundle.path &&
+            build["simulator"] as? String == binary.path &&
+            build["data_dir"] as? String == sdk.appendingPathComponent("Disk/Data/" + bundleID).path &&
+            run["build_id"] as? String == id && run["session_id"] as? String == session &&
+            run["history_identity"] as? String == "JOURNEY" &&
+            run["owner_pid"] as? Int == Int(getppid()) &&
+            run["simulator_sha256"] as? String == simulatorHash &&
+            run["evidence"] as? String == String(processFile.dropLast("/process.json".count)),
+            "not the pinned SDK journey build/process")
+        let data = sdk.appendingPathComponent("Disk/Data/" + bundleID)
+        let pause = try record(data.appendingPathComponent("journey-history-pause.json"))
+        let startup = run["status"] as? String == "launching"
+        if startup {
+            try require(build["history_startup_version"] as? Int == 1 &&
+                build["history_startup_hook_sha256"] as? String == "7fae7f6fa9d640a640d12419c959b726935d0ab51820a527b1c2218dcf87615b" &&
+                run["history_startup_version"] as? Int == 1 && run["fresh_ready"] as? Bool == false &&
+                run["simulator"] as? String == binary.path &&
+                pause["protocol"] as? Int == 1 && pause["build_id"] as? String == id &&
+                pause["session_id"] as? String == session && pause["tick"] as? Int == 0 &&
+                pause["id"] as? String != nil && pause["id"] as? String == run["startup_id"] as? String &&
+                pause["generation"] as? Int != nil && pause["generation"] as? Int == run["generation"] as? Int &&
+                pause["history_startup_version"] as? Int == 1 && pause["status"] as? String == "startup" &&
+                pause["startup_stage"] as? String == "title-preparing" &&
+                pause["root"] as? String == "title" && pause["stack"] as? String == "title" &&
+                pause["title_phase"] as? String == "preparing" && pause["player_present"] as? Bool == false &&
+                pause["injected_input"] as? Bool == false && pause["recording"] as? Bool == false &&
+                !FileManager.default.fileExists(atPath: data.appendingPathComponent("ready.json").path) &&
+                !FileManager.default.fileExists(atPath: data.appendingPathComponent("result.json").path),
+                "journey is not at the pinned pre-ready startup barrier")
+        } else {
+            try require(run["status"] as? String == "ready" && run["fresh_ready"] as? Bool == true,
+                        "journey process is not fresh ready")
+            let result = try record(data.appendingPathComponent("result.json"))
+            let snapshot = result["snapshot"] as? [String: Any] ?? [:]
+            let player = snapshot["player"] as? [String: Any] ?? [:]
+            let title = snapshot["title"] as? [String: Any] ?? [:]
+            let menu = title["menu"] as? [String: Any] ?? [:]
+            let readyTitle = snapshot["root"] as? String == "title" &&
+                snapshot["stack"] as? String == "title" && title["phase"] as? String == "menu" &&
+                menu["active"] as? Bool == true && player["present"] as? Bool == false
+            let exploring = snapshot["root"] as? String == "overworld" && snapshot["overworld"] as? String == "explore" &&
+                player["settled"] as? Bool == true && player["moving"] as? Bool == false &&
+                player["isJumping"] as? Bool != true && player["pendingEdgeDoor"] as? Bool == false
+            try require(pause["build_id"] as? String == id && pause["session_id"] as? String == session &&
+                result["build_id"] as? String == id && result["session_id"] as? String == session &&
+                pause["protocol"] as? Int == 1 && result["protocol"] as? Int == 1 &&
+                pause["id"] as? String != nil && pause["id"] as? String == result["id"] as? String &&
+                pause["tick"] as? Int != nil && pause["tick"] as? Int == result["tick"] as? Int &&
+                result["history_paused"] as? Bool == true && result["status"] as? String == "ok" &&
+                (exploring || readyTitle) &&
+                !FileManager.default.fileExists(atPath: data.appendingPathComponent("journey-history-ack.json").path),
+                "journey is not at an unacknowledged safe pause")
+        }
+        try require(!FileManager.default.fileExists(atPath: data.appendingPathComponent("journey-history-ack.json").path),
+                    "journey pause already acknowledged")
+        let current = try record(directory.appendingPathComponent("run.json"))
+        let generations = current["processes"] as? [[String: Any]] ?? []
+        try require(current["build_id"] as? String == id && current["session_id"] as? String == session &&
+            generations.last?["pid"] as? Int == pid &&
+            generations.last?["status"] as? String == run["status"] as? String &&
+            generations.last?["generation"] as? Int == run["generation"] as? Int &&
+            generations.last?["start_sec"] as? UInt64 == run["start_sec"] as? UInt64 &&
+            generations.last?["start_usec"] as? UInt64 == run["start_usec"] as? UInt64 &&
+            (!startup || generations.last?["startup_id"] as? String == run["startup_id"] as? String) &&
+            generations.last?["evidence"] as? String == run["evidence"] as? String,
+            "process is not the current journey generation")
+    } else {
+        bundleID = "com.poc.pokemon.doorcensus." + id
+        try require(build["mode"] as? String == "door-census-compile-only" &&
+            build["sdk_version"] as? String == "3.1.2" && build["sdk"] as? String == sdk.path &&
+            build["bundle_id"] as? String == "com.poc.pokemon.doorcensus." + id &&
+            build["bundle"] as? String == bundle.path && run["build_id"] as? String == id &&
+            run["simulator"] as? String == binary.path && run["simulator_sha256"] as? String == simulatorHash,
+            "not the pinned SDK census build/run")
+    }
     try require(try digest(binary) == simulatorHash, "SDK executable changed")
     guard let entries = FileManager.default.enumerator(at: bundle, includingPropertiesForKeys: [.isSymbolicLinkKey, .isDirectoryKey])
     else { throw Refusal(reason: "missing PDX") }
@@ -105,11 +188,16 @@ func verify(_ directory: URL, _ buildHash: String, _ runHash: String) throws -> 
     let owner = getppid(), live = try bsd(pid_t(pid))
     try require(owner > 1 && live.pbi_ppid == UInt32(owner), "helper must be direct child of runtime owner")
     _ = try bsd(owner)
+    if journey {
+        try require(run["start_sec"] as? UInt64 == live.pbi_start_tvsec &&
+                    run["start_usec"] as? UInt64 == live.pbi_start_tvusec,
+                    "journey process start time changed")
+    }
     try require(try executable(pid_t(pid)) == binary.path && argv(pid_t(pid)) == [binary.path, bundle.path],
                 "live executable/PDX mismatch")
     try ownedLock(path("/private/tmp/pokemon-playdate-simulator-\(getuid()).lock"), owner)
     try ownedLock(path("/private/tmp/pokemon-playdate-device-\(getuid()).lock"), owner)
-    try ownedLock(sdk.appendingPathComponent("Disk/Data/com.poc.pokemon.doorcensus.\(id)/owner.lock"), owner)
+    try ownedLock(sdk.appendingPathComponent("Disk/Data/\(bundleID)/owner.lock"), owner)
     let again = try bsd(pid_t(pid))
     try require(live.pbi_start_tvsec == again.pbi_start_tvsec && live.pbi_start_tvusec == again.pbi_start_tvusec,
                 "PID changed during verification")
@@ -157,14 +245,30 @@ func rectangle(_ element: AXUIElement) throws -> CGRect? {
     else { return nil }
     return CGRect(origin: point, size: dimensions)
 }
+func mallocLogWindows(_ app: AXUIElement) throws -> [AXUIElement] {
+    try elements(app, kAXWindowsAttribute).filter {
+        try label($0, kAXTitleAttribute) == "Malloc Log"
+    }
+}
+func waitForMallocLogWindow(_ app: AXUIElement, milliseconds: Int) throws -> [AXUIElement] {
+    var windows = try mallocLogWindows(app)
+    var waited = 0
+    while windows.isEmpty && waited < milliseconds {
+        usleep(100_000)
+        waited += 100
+        windows = try mallocLogWindows(app)
+    }
+    return windows
+}
 func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
                                  _ reverify: () throws -> Void) throws {
     // SDK 3.1.2 exposes no AX element for its bottom-row broom. Root inspected
     // the native capture: this exact 740x480 layout puts Clear at (48,462).
     // No caller can supply coordinates, a window title or a different target.
-    let logs = try elements(app, kAXWindowsAttribute).filter {
-        try label($0, kAXTitleAttribute) == "Malloc Log"
-    }
+    // Show Malloc Log returns before the window exists. Wait boundedly for the
+    // unique window instead of racing it; a missing or ambiguous window after
+    // the deadline still refuses and never clicks blind.
+    let logs = try waitForMallocLogWindow(app, milliseconds: 2000)
     try require(logs.count == 1, "one Malloc Log window required")
     guard let bounds = try rectangle(logs[0]) else {
         throw Refusal(reason: "Malloc Log bounds unavailable")
@@ -184,19 +288,39 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
     try require(AXUIElementPerformAction(logs[0], kAXRaiseAction as CFString) == .success,
                 "Malloc Log cannot be raised")
     let point = CGPoint(x: bounds.minX + 48, y: bounds.minY + 462)
-    try reverify()
+    // Activation and window raising are asynchronous. Re-verify the same point
+    // boundedly until it resolves to this PID's Malloc Log, then click exactly
+    // once. Without a verified target this still refuses and never clicks blind.
+    var verified = false
+    var attempts = 0
+    while !verified && attempts < 12 {
+        usleep(100_000)
+        attempts += 1
+        try reverify()
+        try require(try rectangle(logs[0]) == bounds, "Malloc Log moved or resized during verification")
+        var candidate: AXUIElement?
+        guard AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(),
+              Float(point.x), Float(point.y), &candidate) == .success, let hit = candidate else {
+            _ = AXUIElementSetAttributeValue(app, kAXFrontmostAttribute as CFString, kCFBooleanTrue)
+            _ = AXUIElementPerformAction(logs[0], kAXRaiseAction as CFString)
+            continue
+        }
+        var hitPID: pid_t = 0
+        if AXUIElementGetPid(hit, &hitPID) == .success && hitPID == pid {
+            let hitWindow = try attribute(hit, kAXWindowAttribute)
+            let window = hitWindow.map { unsafeBitCast($0, to: AXUIElement.self) } ?? hit
+            if try label(window, kAXTitleAttribute) == "Malloc Log" {
+                verified = true
+                break
+            }
+        }
+        _ = AXUIElementSetAttributeValue(app, kAXFrontmostAttribute as CFString, kCFBooleanTrue)
+        _ = AXUIElementPerformAction(logs[0], kAXRaiseAction as CFString)
+    }
+    guard verified else {
+        throw Refusal(reason: "Clear hit-test did not resolve to the Malloc Log")
+    }
     try require(try rectangle(logs[0]) == bounds, "Malloc Log moved or resized during verification")
-    var hit: AXUIElement?
-    try require(AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(),
-                Float(point.x), Float(point.y), &hit) == .success, "Clear hit-test unavailable")
-    guard let element = hit else { throw Refusal(reason: "Clear hit-test has no element") }
-    var hitPID: pid_t = 0
-    try require(AXUIElementGetPid(element, &hitPID) == .success && hitPID == pid,
-                "Clear point belongs to another application")
-    let hitWindow = try attribute(element, kAXWindowAttribute)
-    let window = hitWindow.map { unsafeBitCast($0, to: AXUIElement.self) } ?? element
-    try require(try label(window, kAXTitleAttribute) == "Malloc Log",
-                "Clear point belongs to another Simulator window")
     guard let down = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown,
                              mouseCursorPosition: point, mouseButton: .left),
           let up = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp,
@@ -226,10 +350,18 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
     usleep(200_000)
     print("{\"clear_requested\":true,\"mechanism\":\"verified-window-broom\",\"pid\":\(pid)}")
 }
-func operate(_ pid: pid_t, _ operation: String, _ directory: URL, _ reverify: () throws -> Void) throws {
+func operate(_ pid: pid_t, _ operation: String, _ directory: URL, journey: Bool,
+             _ reverify: () throws -> Void) throws {
     try require(AXIsProcessTrusted(), "Accessibility unavailable; no prompt requested")
     let app = AXUIElementCreateApplication(pid)
     try require(AXUIElementSetMessagingTimeout(app, 0.2) == .success, "AX timeout unavailable")
+    if journey && operation == "clear" {
+        // The pinned SDK's broom is unlabelled. Avoid materializing its populated
+        // AX control tree before clearing. This existing path still verifies the
+        // exact native window, layout, live owner and point hit-test before input.
+        try clearUnlabelledMallocControl(app, pid, reverify)
+        return
+    }
     var candidates: [AXUIElement] = [], logControls: [AXUIElement] = []
     var seen: [AXUIElement] = [], listing: [[String: String]] = []
     func walk(_ element: AXUIElement, _ scope: String, _ depth: Int) throws {
@@ -286,32 +418,72 @@ func operate(_ pid: pid_t, _ operation: String, _ directory: URL, _ reverify: ()
             ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
             ($0[kCGWindowName as String] as? String) == "Malloc Log"
         }
-        if logs.count == 1, let identifier = logs[0][kCGWindowNumber as String] as? Int {
-            try reverify()
-            let capture = Process()
-            let target = directory.appendingPathComponent("malloc-log-inspection-\(UUID().uuidString).png")
-            capture.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-            capture.arguments = ["-x", "-l", String(identifier), target.path]
-            capture.standardOutput = FileHandle.nullDevice
-            capture.standardError = FileHandle.nullDevice
-            try capture.run()
-            capture.waitUntilExit()
-            try require(capture.terminationStatus == 0 &&
-                        FileManager.default.fileExists(atPath: target.path), "Malloc Log capture failed")
-            listing.append(["scope": "inspection capture", "path": target.path,
-                            "returncode": String(capture.terminationStatus)])
+        if logs.count == 1 {
+            // The window number can change while the log redraws after a clear.
+            // Capturing is passive: refresh the identity once and retry, then
+            // refuse. No click, preference or permission is involved.
+            var captured = false
+            for attempt in 0..<2 where !captured {
+                if attempt > 0 { usleep(200_000) }
+                let current = (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []).filter {
+                    ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
+                    ($0[kCGWindowName as String] as? String) == "Malloc Log"
+                }
+                guard current.count == 1, let identifier = current[0][kCGWindowNumber as String] as? Int else { continue }
+                try reverify()
+                let capture = Process()
+                let target = directory.appendingPathComponent("malloc-log-inspection-\(UUID().uuidString).png")
+                capture.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+                capture.arguments = ["-x", "-l", String(identifier), target.path]
+                capture.standardOutput = FileHandle.nullDevice
+                capture.standardError = FileHandle.nullDevice
+                try capture.run()
+                capture.waitUntilExit()
+                if capture.terminationStatus == 0 && FileManager.default.fileExists(atPath: target.path) {
+                    listing.append(["scope": "inspection capture", "path": target.path,
+                                    "returncode": String(capture.terminationStatus)])
+                    captured = true
+                }
+            }
+            try require(captured, "Malloc Log capture failed")
         }
         let data = try JSONSerialization.data(withJSONObject: listing, options: [.sortedKeys])
         print(String(decoding: data, as: UTF8.self))
         return
     }
     if operation == "show-log" {
-        try require(logControls.count == 1, "expected one verified Show Malloc Log menu item")
-        try require((try attribute(logControls[0], kAXEnabledAttribute)) as? Bool == true, "Malloc Log is not enabled")
-        try reverify()
-        try require(AXUIElementPerformAction(logControls[0], kAXPressAction as CFString) == .success, "Show Malloc Log AXPress failed")
-        print("{\"malloc_log_open_requested\":true,\"pid\":\(pid)}")
-        return
+        // macOS restores the Malloc Log window from the previous session and the
+        // menu item is a toggle, so a blind press can close an open window or be
+        // lost while the app is still restoring. Press at most twice, and only
+        // report success after exactly one verified window exists.
+        var presses = 0
+        while presses < 2 {
+            let openLogs = try mallocLogWindows(app)
+            try require(openLogs.count <= 1, "ambiguous Malloc Log windows")
+            if openLogs.count == 1 {
+                print(presses == 0 ? "{\"malloc_log_already_open\":true,\"pid\":\(pid)}"
+                                   : "{\"malloc_log_open_requested\":true,\"pid\":\(pid)}")
+                return
+            }
+            try require(logControls.count == 1, "expected one verified Show Malloc Log menu item")
+            try require((try attribute(logControls[0], kAXEnabledAttribute)) as? Bool == true, "Malloc Log is not enabled")
+            try reverify()
+            // The harness launches the verified Simulator binary directly, so the
+            // app can still be inactive when its menu is pressed. Raise only that
+            // verified app; the press still targets the unique menu item.
+            try require(AXUIElementSetAttributeValue(app, kAXFrontmostAttribute as CFString,
+                kCFBooleanTrue) == .success, "Simulator frontmost refused")
+            usleep(150_000)
+            try require(AXUIElementPerformAction(logControls[0], kAXPressAction as CFString) == .success, "Show Malloc Log AXPress failed")
+            presses += 1
+            let opened = try waitForMallocLogWindow(app, milliseconds: 1200)
+            try require(opened.count <= 1, "ambiguous Malloc Log windows")
+            if opened.count == 1 {
+                print("{\"malloc_log_open_requested\":true,\"pid\":\(pid)}")
+                return
+            }
+        }
+        throw Refusal(reason: "Show Malloc Log did not open the log window")
     }
     if candidates.isEmpty {
         try clearUnlabelledMallocControl(app, pid, reverify)
@@ -327,14 +499,17 @@ let started = DispatchTime.now().uptimeNanoseconds
 alarm(8) // Bounds native inspection/capture; never signals the Simulator.
 do {
     let args = CommandLine.arguments
-    try require(args.count == 5 && ["inspect", "show-log", "clear"].contains(args[1]),
-                "usage: helper inspect|show-log|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256")
+    try require((args.count == 5 || args.count == 7) && ["inspect", "show-log", "clear"].contains(args[1]),
+                "usage: helper inspect|show-log|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256 [JOURNEY processes/NNNN/process.json]")
     try require(args[3].count == 64 && args[4].count == 64 && (args[3] + args[4]).allSatisfy({ $0.isHexDigit }),
                 "expected SHA256 pins")
+    let identity = args.count == 7 ? args[5] : "CENSUS"
+    try require(args.count == 5 || identity == "JOURNEY", "explicit JOURNEY identity required")
+    let processFile = args.count == 7 ? args[6] : "run.json"
     let directory = path(args[2])
-    let pid = try verify(directory, args[3], args[4])
-    try operate(pid, args[1], directory) {
-        try require(try verify(directory, args[3], args[4]) == pid, "runtime identity changed")
+    let pid = try verify(directory, args[3], args[4], identity, processFile)
+    try operate(pid, args[1], directory, journey: identity == "JOURNEY") {
+        try require(try verify(directory, args[3], args[4], identity, processFile) == pid, "runtime identity changed")
     }
     fputs("helper_elapsed_ms=\(Double(DispatchTime.now().uptimeNanoseconds - started) / 1e6)\n", stderr)
 } catch {

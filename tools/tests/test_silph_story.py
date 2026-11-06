@@ -54,6 +54,29 @@ class SilphSourceTests(unittest.TestCase):
         self.assertNotIn('pokered:SILPH_CO_11F:objects:1', hide)
         self.assertEqual(len(set(hide + show)), 46)
 
+    def test_fuji_rescue_is_the_earlier_source_saffron_guard_transition(self):
+        rescue = self.scenes['fuji_rescue']
+        self.assertEqual(rescue['flag'], 'EVENT_RESCUED_MR_FUJI')
+        self.assertEqual(rescue['source'], 'scripts/PokemonTower7F.asm')
+        self.assertEqual(rescue['hides'], ['pokered:SAFFRON_CITY:objects:14'])
+        self.assertEqual(rescue['shows'], ['pokered:SAFFRON_CITY:objects:15'])
+        # Both remain in the later Silph completion hide list, so the two
+        # source transitions compose instead of replacing each other.
+        for identity in rescue['hides'] + rescue['shows']:
+            self.assertIn(identity, self.scenes['toggles']['hide'])
+        self.assertEqual(len(self.scenes['toggles']['hide']), 40)
+        self.assertEqual(len(self.scenes['toggles']['show']), 6)
+
+    def test_fuji_guard_is_the_source_silph_door_blocker(self):
+        map_data = json.loads((ROOT / 'Source/data/midgameSaffron/SaffronCity.json').read_bytes())
+        objects = {event['id']: event for event in map_data['events']['objects']}
+        door = next(warp for warp in map_data['events']['warps'] if (warp['x'], warp['y']) == (18, 21))
+        self.assertEqual(door['destination']['map'], 'SILPH_CO_1F')
+        blocker = objects[self.scenes['fuji_rescue']['hides'][0]]
+        sleeping = objects[self.scenes['fuji_rescue']['shows'][0]]
+        self.assertEqual((blocker['x'], blocker['y'], blocker['sprite']), (18, 22, 'SPRITE_ROCKET'))
+        self.assertEqual((sleeping['x'], sleeping['y'], sleeping['sprite']), (19, 22, 'SPRITE_ROCKET'))
+
 
 if __name__ == '__main__':
     unittest.main()

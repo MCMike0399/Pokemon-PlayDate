@@ -38,10 +38,12 @@ def build(project=ROOT, cache_files=None, source_root=None, excluded_sources=())
         files = {p.relative_to(source / 'data/contentCache').as_posix(): p.read_bytes()
                  for p in (source / 'data/contentCache').rglob('*.json')}
     catalog = json.loads(files['catalog.json'])['packages']
+    require('midgameSaffron' in provenance['exports'], 'C requires a real pinned SDK Saffron transform export')
     result = {}
     for name, root in (('vermilion', 'data/vermilionPreparation/'),
                        ('midgameEast', 'data/midgameEast/'),
-                       ('midgameSouth', 'data/midgameSouth/')):
+                       ('midgameSouth', 'data/midgameSouth/'),
+                       ('midgameSaffron', 'data/midgameSaffron/')):
         index = json.loads(files[catalog[root] + '.json'])
         events = dict(index['records']['events']['events'])
         events.update(index['records']['events']['signs'])

@@ -14,7 +14,14 @@ compile:
 	python3 tools/build.py --sdk "$(SDK)" --output "$(PRODUCT)"
 
 run:
-	open -a "$(SDK)/bin/Playdate Simulator.app" $(PRODUCT)
+	@if [ -x "$(SDK)/bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator" ]; then \
+		open -a "$(SDK)/bin/Playdate Simulator.app" $(PRODUCT); \
+	elif [ -x "$(SDK)/bin/PlaydateSimulator" ]; then \
+		"$(SDK)/bin/PlaydateSimulator" $(PRODUCT); \
+	else \
+		echo "Playdate Simulator executable not found under $(SDK)/bin"; \
+		exit 1; \
+	fi
 
 # Deploy to physical Playdate: build, enter data disk, copy, eject & reboot
 deploy: compile

@@ -153,6 +153,7 @@ local function normalize(record,deps)
         location=location,checkpoint=savedCheckpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel,safari=safari,coins=coins}
 end
 function SessionCodec.encode(session,gate)
+    SessionCodec.relieveHeap()
     local ok,result=pcall(function()
         assert(type(session)=="table" and type(session.is)=="function" and session:is("GameSession"),"GameSession required")
         assert(type(gate)=="table" and gate.root=="overworld" and gate.overworld=="explore" and gate.settled==true,
@@ -181,11 +182,113 @@ function SessionCodec.encode(session,gate)
     if not ok then return nil,tostring(result) end
     return result
 end
+-- One public Save calls this for the envelope and both readbacks. The later
+-- calls see a newly decoded table with the same contents. Re-running normalize
+-- would reconstruct every Pokemon and copy the record again. A detached proof
+-- answers only when the dependencies and the record are unchanged. Any edit,
+-- failure, or explicit release takes the full path.
+local proven = setmetatable({}, {__mode="k"})
+local function same(a, b, seen)
+    if type(a) ~= type(b) then return false end
+    if type(a) ~= "table" then return a == b end
+    if getmetatable(a) ~= nil or getmetatable(b) ~= nil then return false end
+    seen = seen or {}
+    if seen[a] then return seen[a] == b end
+    seen[a] = b
+    for key, value in pairs(a) do
+        if not same(value, b[key], seen) then return false end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then return false end
+    end
+    return true
+end
+local function dependencyStamp(deps)
+    if type(deps) ~= "table" then return nil end
+    return {deps.validateWorld, deps.resolveLocation, deps.validateActors, deps.hiddenActors,
+        deps.resolvePlayerLocation, deps.itemDefinitions}
+end
+local function sameStamp(left, right)
+    if type(left) ~= "table" or type(right) ~= "table" then return false end
+    for index = 1, 6 do
+        if left[index] ~= right[index] then return false end
+    end
+    return true
+end
+function SessionCodec.releaseValidationProof()
+    for key in pairs(proven) do proven[key] = nil end
+end
+-- Save readbacks are the only caller that compares a second decoded table
+-- with this proof. Every other validate runs normalize itself and must not
+-- leave a detached session copy in the pool.
+local proofDepth = 0
+function SessionCodec.retainValidationProof(retain)
+    if retain then
+        proofDepth = proofDepth + 1
+        return
+    end
+    if proofDepth > 0 then proofDepth = proofDepth - 1 end
+    if proofDepth == 0 then SessionCodec.releaseValidationProof() end
+end
+local relievingHeap = false
+-- 11 MiB is above the 6/8/9 MiB admission guards. Those guards own production
+-- and device-test processes: a frame or yield already rejects 9 MiB, and the
+-- 8 MiB soft collect runs only after the hard check. This recovery stays out
+-- of that path so it cannot collect a sample away before the guard sees it.
+-- Private harness sessions, where the budget is off, use it to drop publication
+-- copies before the 16 MiB pool fails. Journeys sit under 9 MiB, so the
+-- threshold does not collect there or change snapshot cadence.
+function SessionCodec.relieveHeap()
+    if relievingHeap or collectgarbage("count") < 11 * 1024 then return end
+    if BootTrace and BootTrace.memoryBudgetEnabled and BootTrace.memoryBudgetEnabled() then
+        return
+    end
+    relievingHeap = true
+    -- An open Save still needs its proof and the decoded byte cache. Dropping
+    -- them here would make the second readback decode the payload again.
+    if proofDepth == 0 then
+        SessionCodec.releaseValidationProof()
+        if SaveStore and SaveStore.dropDecodedRecords then SaveStore.dropDecodedRecords() end
+    end
+    if HarnessDiagnostics and HarnessDiagnostics.releaseRetainedViews then
+        HarnessDiagnostics.releaseRetainedViews()
+    end
+    collectgarbage("collect")
+    collectgarbage("collect")
+    relievingHeap = false
+end
+-- True only when this record matches the detached proof for these dependencies.
+-- The check only reads. Callers may skip a defensive copy when it is true and
+-- the following validate takes that same path.
+local proofHit = false
+function SessionCodec.proofCovers(record, deps)
+    proofHit = false
+    local stamp = dependencyStamp(deps)
+    local prior = type(deps) == "table" and proven[deps] or nil
+    return prior ~= nil and sameStamp(prior.stamp, stamp) and same(prior.record, record)
+end
+function SessionCodec.proofSatisfied()
+    return proofHit
+end
 function SessionCodec.validate(record,deps)
+    SessionCodec.relieveHeap()
+    proofHit = false
+    local stamp = dependencyStamp(deps)
+    local prior = proven[deps]
+    if prior and sameStamp(prior.stamp, stamp) and same(prior.record, record) then
+        proofHit = true
+        return true, nil
+    end
     local ok,reason=pcall(normalize,record,deps)
+    if ok and stamp and proofDepth > 0 then
+        proven[deps] = {record=copy(record), stamp=stamp}
+    else
+        proven[deps] = nil
+    end
     return ok,not ok and tostring(reason) or nil
 end
 function SessionCodec.decode(record,deps)
+    SessionCodec.relieveHeap()
     local ok,result=pcall(function()
         local prepared=normalize(record,deps)
         local party=assert(Party.fromData(prepared.data.party,function(value) return pokemonFromWire(value,true) end))
@@ -205,7 +308,10 @@ function SessionCodec.decode(record,deps)
 end
 function SessionCodec.store(prefix,deps,filesystem)
     deps=GameSession._dependencies(deps)
-    return SaveStore(prefix,function(record) return SessionCodec.validate(record,deps) end,filesystem)
+    local store = SaveStore(prefix,function(record) return SessionCodec.validate(record,deps) end,filesystem)
+    -- Public readbacks may reuse a covered record without copying it again.
+    store._proofCovers = function(record) return SessionCodec.proofCovers(record, deps) end
+    return store
 end
 function SessionCodec.save(store,session,gate)
     local data,reason=SessionCodec.encode(session,gate)
@@ -225,7 +331,14 @@ end
 function SessionCodec.gameSaveStore(game, prefix)
     local deps = GameSession._dependencies(game:getSessionDependencies())
     if not SaveBuildPolicy.ownerExports() then
-        return SessionCodec.store(prefix, deps)
+        local store = SessionCodec.store(prefix, deps)
+        -- The public path still checksums, decodes, and validates every new
+        -- byte string. Continue's load fills that proof, and a public readback
+        -- that has just accepted a published file does too. A later inspect of
+        -- those exact bytes reuses the detached record. Owner export stays off.
+        store:setValidationEpoch("session-public-dependencies-v1")
+        store:retainVerifiedPublications()
+        return store
     end
     local store, publish = SaveStore.ownerExportStore(prefix, function(record)
         return SessionCodec.validate(record, deps)

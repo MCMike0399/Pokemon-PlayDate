@@ -47,7 +47,7 @@ end)
 -- the shared map-reader dependency changes; no host translation of transforms.
 local registerContent <const> = SourceEvents._registerContent
 SourceEvents._registerContent = function(name, index, fields, trainers, contentOverride, overrides)
-    if name == "midgameEast" or name == "midgameSouth" then
+    if name == "midgameEast" or name == "midgameSouth" or name == "midgameSaffron" then
         local file = assert(fileAPI.open("content-transform-" .. name .. ".json", fileAPI.kFileWrite))
         assert(file:write(json.encode({schema=1, name=name, root="data/" .. name .. "/",
             fields=fields, trainer_field=false, events=overrides or {}, trainers=trainers or {}})))

@@ -415,12 +415,26 @@ class DecisionTests(unittest.TestCase):
     def test_codec_payload_only_requested_at_save_continue_boundaries(self):
         driver = journey()
         driver.export = {'session_codec': 1}
+        payload = campaign_receipt()['codec']
         response = dict(kind='validate', version=1, valid=True, roundtrip_equal=True,
-                        payload=campaign_receipt()['codec'])
+                        migrated_equal=True, payload=payload,
+                        canonical=copy.deepcopy(payload), sequence=1, slot='a')
         driver.observe = lambda kind: response
         with self.assertRaisesRegex(ProtocolError, 'masquerade'):
             driver.codec_guard()
         self.assertEqual(driver.codec_guard('saved'), response['payload'])
+        # Literal equality and the exact selected-slot identity are required.
+        for mutation in ({'canonical': {}}, {'sequence': '1'}, {'slot': 'c'},
+                         {'migrated_equal': False}, {'roundtrip_equal': False}):
+            driver.observe = lambda kind: dict(response, **mutation)
+            with self.subTest(mutation=mutation), self.assertRaises(ProtocolError):
+                driver.codec_guard('saved')
+        migrated = copy.deepcopy(response)
+        migrated['roundtrip_equal'] = False
+        migrated['migration'] = {'reason': 'source-actor-visibility', 'dropped': ['actor']}
+        driver.observe = lambda kind: migrated
+        with self.assertRaises(ProtocolError):
+            driver.codec_guard('saved')
 
 
 class ReceiptAndPatchTests(unittest.TestCase):
@@ -804,7 +818,9 @@ class MidgameBImportTests(unittest.TestCase):
         calls = []
         with patch.object(driver, 'start_earned'), patch.object(driver, 'save'), patch.object(driver, 'write_receipt'):
             for method in ('route_tower', 'route_fuchsia', 'route_bicycle', 'route_lavender', 'route_a', 'route_saffron'):
-                setattr(driver, method, lambda method=method: calls.append(method))
+                action = lambda method=method: calls.append(method)
+                action.__name__ = method
+                setattr(driver, method, action)
             driver.natural()
         self.assertEqual(calls, ['route_tower', 'route_fuchsia', 'route_bicycle'])
         state = dict(starter='squirtle', packet='5.5b', content_scope='critical',

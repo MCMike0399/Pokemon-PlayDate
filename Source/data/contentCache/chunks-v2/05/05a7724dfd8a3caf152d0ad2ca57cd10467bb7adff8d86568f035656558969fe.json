@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"My daughter is so"},{"op":"line","source_line":3,"text":"self-centered."},{"op":"cont","source_line":4,"text":"She only has a"},{"op":"cont","source_line":5,"text":"few friends."},{"op":"control","source":"done","source_line":6}],"source":"text/CopycatsHouse1F.asm"}

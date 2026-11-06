@@ -19,9 +19,17 @@ function ItemStorage.normalize(definitions,data)
     end
     return out
 end
+-- Owners only read keyItem. The detached catalog is still copied once per
+-- source identity; a later init reuses that copy after Inventory re-validates.
+local catalogCopies = setmetatable({}, { __mode = "k" })
 function ItemStorage:init(definitions)
     Inventory(definitions) -- Reuse definition validation; no shared owner mutation.
-    states[self]={definitions=copy(definitions),data={version=1,slots={}}}
+    local defs = catalogCopies[definitions]
+    if not defs then
+        defs = copy(definitions)
+        catalogCopies[definitions] = defs
+    end
+    states[self]={definitions=defs,data={version=1,slots={}}}
 end
 function ItemStorage:slots()return copy(states[self].data.slots)end
 function ItemStorage:count()return #states[self].data.slots end

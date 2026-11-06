@@ -42,6 +42,54 @@ function WorldMotionData.newWorldRNG(rulesData)
     return RulesRNG.new(assert(DecimalInteger.decode(probe:toData().seed,1,2147483646)))
 end
 local fields={id=true,x=true,y=true,facing=true,phase=true,origin_x=true,origin_y=true,target_x=true,target_y=true,tick=true,delay_raw=true,delay_left=true}
+local required={"id","x","y","facing","phase","origin_x","origin_y","target_x","target_y","tick","delay_raw","delay_left"}
+local phases={static=true,ready=true,delay=true,moving=true}
+local function inside(descriptor,x,y)
+    return integer(x,0,descriptor.width-1) and integer(y,0,descriptor.height-1)
+end
+-- Required structure, value ranges and intrinsic motion consistency. These
+-- checks never read the live reservation, player cell or current surface, so
+-- a known historical actor that a corrected visibility rule now hides must
+-- still present a complete and self-consistent saved record.
+local function intrinsic(value,spec,descriptor)
+    object(value,fields)
+    for _,name in ipairs(required) do
+        assert(value[name]~=nil,"missing actor field: "..name)
+    end
+    assert(inside(descriptor,value.x,value.y) and inside(descriptor,value.origin_x,value.origin_y)
+        and inside(descriptor,value.target_x,value.target_y),"actor coordinates outside source map")
+    assert(spec.faces[value.facing],"unavailable original actor facing")
+    assert(integer(value.tick,0,7) and integer(value.delay_raw,0,127) and integer(value.delay_left,0,128),"invalid actor timer/step")
+    assert(phases[value.phase],"unknown actor phase")
+    if value.phase=="moving" then
+        assert(spec.movement=="WALK" and spec.random,"stationary source actor cannot translate")
+        local d=assert(directions[value.facing])
+        assert(value.target_x==value.origin_x+d[1] and value.target_y==value.origin_y+d[2],"actor step must match one source cell/facing")
+        assert(value.x==value.target_x and value.y==value.target_y,"moving actor logical cell must be reserved destination")
+        assert(value.delay_left==0 and value.delay_raw==0,"moving actor cannot have delay")
+    else
+        assert(value.tick==0 and value.origin_x==value.x and value.origin_y==value.y
+            and value.target_x==value.x and value.target_y==value.y,"stationary actor has stale motion")
+        if value.phase=="delay" then
+            assert(spec.random and value.delay_left>=1 and value.delay_left<=WorldMotionData.delay(value.delay_raw),"invalid source actor delay")
+        else
+            assert(value.delay_raw==0 and value.delay_left==0,"ready/static actor has stale delay")
+        end
+        assert((value.phase=="static")==(not spec.random),"wrong stationary actor policy")
+    end
+end
+-- Current-world placement: only a visible actor needs a legal live surface and
+-- a non-overlapping reservation that avoids the candidate player cell.
+local function placed(value,spec,descriptor,reserve)
+    if value.phase=="moving" then
+        assert(descriptor.canStep(spec,value.origin_x,value.origin_y,value.target_x,value.target_y),"illegal source actor step")
+        reserve(value.origin_x,value.origin_y,value.id)
+        reserve(value.target_x,value.target_y,value.id)
+    else
+        assert(descriptor.canStand(spec,value.x,value.y),"actor outside source movement/allowed surface")
+        reserve(value.x,value.y,value.id)
+    end
+end
 function WorldMotionData.normalize(payload,descriptor,location,flags)
     object(payload,{version=true,zone_id=true,definition_revision=true,count=true,actors=true})
     assert(payload.version==1,"unsupported actor snapshot version");array(payload.actors,payload.count)
@@ -56,7 +104,7 @@ function WorldMotionData.normalize(payload,descriptor,location,flags)
         assert(not specs[spec.id],"duplicate source actor descriptor");specs[spec.id]=spec
     end
     local result={version=1,zone_id=payload.zone_id,definition_revision=payload.definition_revision,count=payload.count,actors={}}
-    local function inside(x,y)return integer(x,0,descriptor.width-1)and integer(y,0,descriptor.height-1)end
+    local dropped={}
     local function reserve(x,y,id)
         local cell=y*descriptor.width+x+1
         assert(not reserved[cell]or reserved[cell]==id,"overlapping actor reservations")
@@ -64,33 +112,27 @@ function WorldMotionData.normalize(payload,descriptor,location,flags)
         reserved[cell]=id
     end
     for _,value in ipairs(payload.actors)do
-        object(value,fields);local spec=assert(specs[value.id],"unknown stable source actor ID")
-        assert(not seen[value.id]and WorldMotionData.visible(spec,flags),"duplicate or hidden source actor")
+        local spec=assert(specs[value.id],"unknown stable source actor ID")
+        assert(not seen[value.id],"duplicate source actor")
         seen[value.id]=true
-        assert(inside(value.x,value.y)and inside(value.origin_x,value.origin_y)and inside(value.target_x,value.target_y),"actor coordinates outside source map")
-        assert(spec.faces[value.facing],"unavailable original actor facing")
-        assert(integer(value.tick,0,7)and integer(value.delay_raw,0,127)and integer(value.delay_left,0,128),"invalid actor timer/step")
-        assert(value.phase=="static"or value.phase=="ready"or value.phase=="delay"or value.phase=="moving","unknown actor phase")
-        if value.phase=="moving"then
-            assert(spec.movement=="WALK"and spec.random,"stationary source actor cannot translate")
-            local d=assert(directions[value.facing]);assert(value.target_x==value.origin_x+d[1]and value.target_y==value.origin_y+d[2],"actor step must match one source cell/facing")
-            assert(value.x==value.target_x and value.y==value.target_y,"moving actor logical cell must be reserved destination")
-            assert(value.delay_left==0 and value.delay_raw==0,"moving actor cannot have delay")
-            assert(descriptor.canStep(spec,value.origin_x,value.origin_y,value.target_x,value.target_y),"illegal source actor step")
-            reserve(value.origin_x,value.origin_y,value.id);reserve(value.target_x,value.target_y,value.id)
+        intrinsic(value,spec,descriptor)
+        if WorldMotionData.visible(spec,flags)then
+            placed(value,spec,descriptor,reserve)
+            result.actors[#result.actors+1]=copy(value)
         else
-            assert(value.tick==0 and value.origin_x==value.x and value.origin_y==value.y and value.target_x==value.x and value.target_y==value.y,"stationary actor has stale motion")
-            if value.phase=="delay"then assert(spec.random and value.delay_left>=1 and value.delay_left<=WorldMotionData.delay(value.delay_raw),"invalid source actor delay")
-            else assert(value.delay_raw==0 and value.delay_left==0,"ready/static actor has stale delay")end
-            assert((value.phase=="static")== (not spec.random),"wrong stationary actor policy")
-            assert(descriptor.canStand(spec,value.x,value.y),"actor outside source movement/allowed surface")
-            reserve(value.x,value.y,value.id)
+            -- A corrected source visibility rule must keep an older saved actor
+            -- list valid. A known entry whose spec is now hidden is dropped
+            -- exactly like explicit zone reconciliation drops it, so it can
+            -- never spawn. It still has to be a complete, self-consistent
+            -- record; unknown, duplicate, out-of-shape and still-visible
+            -- entries keep their strict validation above.
+            dropped[#dropped+1]=value.id
         end
-        result.actors[#result.actors+1]=copy(value)
     end
     for id,spec in pairs(specs)do assert(not WorldMotionData.visible(spec,flags)or seen[id],"missing visible source actor")end
     table.sort(result.actors,function(a,b)return a.id<b.id end)
-    return result
+    result.count=#result.actors
+    return result,dropped
 end
 -- Explicit transition reconciliation only. Decode always uses strict normalize.
 function WorldMotionData.reconcile(payload,descriptor,flags)

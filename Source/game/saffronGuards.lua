@@ -78,7 +78,7 @@ end
 function SaffronGuards.check(game)
     local player <const> = game.player
     if game.machine:getCurrent() ~= "overworld" or game.machine:depth() ~= 1
-        or game.session:getIntro().stage ~= "done" or not currentZone or not player
+        or game.session:introStage() ~= "done" or not currentZone or not player
         or player.isMoving or player.pendingEdgeDoor or player.pendingConnection
         or game.session:questFlag(data().flag) then
         return false

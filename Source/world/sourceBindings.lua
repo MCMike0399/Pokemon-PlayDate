@@ -78,7 +78,7 @@ function SourceBindings.prepare(d, specs, options)
     local viridian = entry.profile == "viridian"
     local width, height = table.unpack(d.dimensions.cells)
     local expected, bound, npcs, doors = {}, {}, {}, {}
-    local function source(id, event)
+    local function source(id, event, isWarp)
         assert(type(id) == "string" and not expected[id], "duplicate source binding ID")
         expected[id] = true
         if event then
@@ -87,7 +87,8 @@ function SourceBindings.prepare(d, specs, options)
                 "source event outside padded map")
         end
         local spec = assert(specs[id], "missing explicit source binding: " .. id)
-        assert(spec.status == "bound" or spec.status == "blocked" or spec.status == "scripted", "invalid source binding status")
+        assert(spec.status == "bound" or spec.status == "blocked" or spec.status == "scripted"
+            or spec.status == "inert" and isWarp, "invalid source binding status")
         if spec.status ~= "blocked" then bound[id] = true end
         return spec
     end
@@ -100,12 +101,16 @@ function SourceBindings.prepare(d, specs, options)
         end
     end
     for _, event in ipairs(d.events.warps) do
-        local spec = source(event.id, event)
-        if spec.status == "scripted" then
+        local spec = source(event.id, event, true)
+        if spec.status == "inert" then
+            assert(spec.source_event_id == event.id and SourceMaps.warpSpec(name, event).status == "inert",
+                "undeclared inert source warp")
+        elseif spec.status == "scripted" then
             assert(SourceMaps.warpSpec(name, event).status == "scripted", "undeclared scripted warp")
             doors[#doors + 1] = {x = event.x, y = event.y, source_event_id = event.id, scripted = true}
         elseif spec.status == "bound" then
             local verified = SourceMaps.warpSpec(name, event)
+            assert(verified.status == "bound", "source warp is not an ordinary transition")
             for _, field in ipairs({ "to", "toX", "toY", "facing", "preserveFacing", "target_name", "target_warp",
                 "source_target_map", "source_target_warp", "source_target_x", "source_target_y", "arrival_advance" }) do
                 assert(spec[field] == verified[field], "warp differs from pinned source projection")

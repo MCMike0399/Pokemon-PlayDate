@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"Welcome!"},{"op":"para","source_line":4,"text":"The PRESIDENT is"},{"op":"line","source_line":5,"text":"in the boardroom"},{"op":"cont","source_line":6,"text":"on 11F!"},{"op":"control","source":"done","source_line":7}],"source":"text/SilphCo1F.asm"}

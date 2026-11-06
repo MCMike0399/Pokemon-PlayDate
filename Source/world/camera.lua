@@ -2,6 +2,17 @@ local gfx <const> = playdate.graphics
 
 Class("Camera")
 
+-- A map smaller than the screen has no legal scroll. Pin that axis to the
+-- origin. The old upper bound was `map - screen`, which is negative and pulled
+-- the room to the bottom/right, leaving the default white background above it.
+local function clampOrigin(value, mapSize, screenSize)
+    local limit = mapSize - screenSize
+    if limit < 0 then limit = 0 end
+    if value < 0 then return 0 end
+    if value > limit then return limit end
+    return value
+end
+
 function Camera:init()
     self.x = 0
     self.y = 0
@@ -11,14 +22,8 @@ function Camera:follow(targetX, targetY, mapPixelW, mapPixelH)
     local screenW = 400
     local screenH = 240
 
-    local goalX = targetX - screenW / 2
-    local goalY = targetY - screenH / 2
-
-    -- Clamp to map bounds
-    if goalX < 0 then goalX = 0 end
-    if goalY < 0 then goalY = 0 end
-    if goalX > mapPixelW - screenW then goalX = mapPixelW - screenW end
-    if goalY > mapPixelH - screenH then goalY = mapPixelH - screenH end
+    local goalX = clampOrigin(targetX - screenW / 2, mapPixelW, screenW)
+    local goalY = clampOrigin(targetY - screenH / 2, mapPixelH, screenH)
 
     -- Smooth lerp (20% per frame at 30fps)
     local lerp = 0.2
@@ -31,16 +36,8 @@ function Camera:follow(targetX, targetY, mapPixelW, mapPixelH)
 end
 
 function Camera:snapTo(targetX, targetY, mapPixelW, mapPixelH)
-    local screenW = 400
-    local screenH = 240
-
-    self.x = targetX - screenW / 2
-    self.y = targetY - screenH / 2
-
-    if self.x < 0 then self.x = 0 end
-    if self.y < 0 then self.y = 0 end
-    if self.x > mapPixelW - screenW then self.x = mapPixelW - screenW end
-    if self.y > mapPixelH - screenH then self.y = mapPixelH - screenH end
+    self.x = clampOrigin(targetX - 400 / 2, mapPixelW, 400)
+    self.y = clampOrigin(targetY - 240 / 2, mapPixelH, 240)
 end
 
 function Camera:apply()

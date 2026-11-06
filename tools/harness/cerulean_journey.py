@@ -151,6 +151,81 @@ def validate_boundary_payload(payload):
             raise ProtocolError("invalid canonical Save/Continue flag record")
 
 
+def actor_index(value, label):
+    if not isinstance(value, list):
+        raise ProtocolError("invalid " + label + " actor list")
+    index = {}
+    for actor in value:
+        if (not isinstance(actor, dict) or not isinstance(actor.get("id"), str)
+                or not actor["id"] or actor["id"] in index):
+            raise ProtocolError("invalid " + label + " actor record")
+        index[actor["id"]] = actor
+    return index
+
+
+def _actor_envelope(motion, label):
+    """SessionCodec stores the saved actor record under worldMotion.actors.
+
+    That value is the envelope {version, zone_id, definition_revision, count,
+    actors}, not the actor list itself. The list is envelope["actors"].
+    """
+    envelope = motion.get("actors") if isinstance(motion, dict) else None
+    if not isinstance(envelope, dict):
+        raise ProtocolError("migration requires the " + label + " actor envelope")
+    return envelope
+
+
+def validate_actor_migration(raw, canonical, migration):
+    """Check the exact permitted source-actor visibility migration.
+
+    The raw selected-slot payload keeps every saved actor. The canonical state
+    may only remove the ids that the Lua owner independently proved hidden; every
+    surviving record and every other session field must be identical. Count is
+    allowed to shrink only by the number of removed actors.
+    """
+    if not isinstance(migration, dict) or set(migration) != {"reason", "dropped"}:
+        raise ProtocolError("malformed source actor visibility migration")
+    dropped = migration["dropped"]
+    if (migration["reason"] != "source-actor-visibility" or not isinstance(dropped, list)
+            or not dropped or any(not isinstance(value, str) or not value for value in dropped)
+            or len(set(dropped)) != len(dropped) or dropped != sorted(dropped)):
+        raise ProtocolError("invalid source actor visibility migration receipt")
+    raw_motion = raw.get("worldMotion")
+    canonical_motion = canonical.get("worldMotion")
+    if not isinstance(raw_motion, dict) or not isinstance(canonical_motion, dict):
+        raise ProtocolError("migration requires both world motion records")
+    raw_envelope = _actor_envelope(raw_motion, "raw")
+    canonical_envelope = _actor_envelope(canonical_motion, "canonical")
+    raw_actors = actor_index(raw_envelope.get("actors"), "raw")
+    canonical_actors = actor_index(canonical_envelope.get("actors"), "canonical")
+    for field in ("version", "rng"):
+        if raw_motion.get(field) != canonical_motion.get(field):
+            raise ProtocolError("migration changed retained world motion")
+    for field in ("version", "zone_id", "definition_revision"):
+        if raw_envelope.get(field) != canonical_envelope.get(field):
+            raise ProtocolError("migration changed the saved actor envelope")
+    for stable, record in canonical_actors.items():
+        if stable not in raw_actors or raw_actors[stable] != record:
+            raise ProtocolError("migration changed a surviving source actor")
+    if sorted(set(canonical_actors) - set(raw_actors)):
+        raise ProtocolError("migration added a source actor")
+    if sorted(set(raw_actors) - set(canonical_actors)) != dropped:
+        raise ProtocolError("migration dropped list differs from the actual removal")
+    if (raw_envelope.get("count") != len(raw_actors)
+            or canonical_envelope.get("count") != len(canonical_actors)):
+        raise ProtocolError("migration changed the actor count")
+    masked_raw = copy.deepcopy(raw)
+    masked_canonical = copy.deepcopy(canonical)
+    # The actor list and its count are the only fields a visibility drop may change.
+    for masked, envelope in ((masked_raw, raw_envelope), (masked_canonical, canonical_envelope)):
+        masked["worldMotion"]["actors"]["actors"] = None
+        masked["worldMotion"]["actors"]["count"] = None
+        if set(envelope) != {"version", "zone_id", "definition_revision", "count", "actors"}:
+            raise ProtocolError("migration actor envelope has unexpected fields")
+    if masked_raw != masked_canonical:
+        raise ProtocolError("migration changed a retained session field")
+
+
 def validate_receipt_state(state):
     fields = {"starter", "fossil", "zone_id", "player", "flags", "inventory", "party", "checkpoint", "codec"}
     if not isinstance(state, dict) or set(state) != fields:
@@ -225,6 +300,9 @@ def source_models(source):
         # house's wall hole). The source collision decides passability.
         model.signs = {point for point in model.signs if model.collision[point[1]][point[0]]}
         model.source_data, model.descriptor = raw, desc
+        inert = set(desc.get("non_triggering_warps", {}))
+        model.warps.difference_update((event["x"], event["y"]) for event in events["warps"]
+                                      if event["id"] in inert)
         model.padding, model.counter_feet = entry["padding"], tuple(raw["tileset"]["counter_tiles"])
         models[entry["id"]] = model
     return models, manifest, compact["door_tiles"]
@@ -352,19 +430,45 @@ class CeruleanJourney(BrockJourney):
 
     def codec_guard(self, boundary=None):
         codec = self.observe(boundary or "validate")
-        if codec.get("version") != self.export["session_codec"]:
+        if not isinstance(codec, dict):
+            raise ProtocolError("missing SessionCodec observation")
+        # Literal equality and the accepted owner migration are separate claims.
+        # A non-literal roundtrip is valid only with the exact proven removal.
+        literal = codec.get("roundtrip_equal") is True
+        migration = codec.get("migration")
+        if codec.get("version") != self.export["session_codec"] or codec.get("valid") is not True:
             raise ProtocolError("missing root read-only SessionCodec diagnostic/version")
-        if codec.get("valid") is not True or codec.get("roundtrip_equal") is not True:
+        if literal:
+            if migration is not None or codec.get("migrated_equal") is not True:
+                raise ProtocolError("literal SessionCodec roundtrip carries a migration receipt")
+        elif codec.get("migrated_equal") is not True:
             raise ProtocolError("actual SessionCodec validation/roundtrip guard failed")
+        self.codec_migration = copy.deepcopy(migration) if isinstance(migration, dict) else None
         if boundary:
-            if not isinstance(codec.get("payload"), dict) or not codec["payload"]:
+            payload = codec.get("payload")
+            if not isinstance(payload, dict) or not payload:
                 raise ProtocolError("missing complete Save/Continue boundary payload")
-            validate_boundary_payload(codec["payload"])
-            if codec["payload"]["version"] != self.export["session_codec"]:
+            validate_boundary_payload(payload)
+            if payload["version"] != self.export["session_codec"]:
                 raise ProtocolError("boundary payload codec version differs")
-            return copy.deepcopy(codec["payload"])
-        if "payload" in codec:
+            canonical = codec.get("canonical")
+            if not isinstance(canonical, dict) or not canonical:
+                raise ProtocolError("missing canonical migrated boundary state")
+            validate_boundary_payload(canonical)
+            if canonical["version"] != self.export["session_codec"]:
+                raise ProtocolError("canonical boundary codec version differs")
+            if literal:
+                if payload != canonical:
+                    raise ProtocolError("literal boundary payload differs from its canonical state")
+            else:
+                validate_actor_migration(payload, canonical, migration)
+            if type(codec.get("sequence")) is not int or codec.get("slot") not in {"a", "b"}:
+                raise ProtocolError("missing selected-slot identity/sequence")
+            return copy.deepcopy(payload)
+        if "payload" in codec or "canonical" in codec:
             raise ProtocolError("fresh validation must not masquerade as a boundary receipt")
+        if not literal:
+            raise ProtocolError("fresh validation must be canonical")
         return None
 
     def save(self):
@@ -404,6 +508,8 @@ class CeruleanJourney(BrockJourney):
         return self.project_warp(self.model(), event)
 
     def project_warp(self, model, event):
+        if event.get("id") in getattr(model, "descriptor", {}).get("non_triggering_warps", {}):
+            raise ProtocolError("non-triggering source declaration is not a transition")
         if not hasattr(model, "descriptor"):
             return super().warp_projection(event)
         destination = event["destination"]
@@ -430,7 +536,8 @@ class CeruleanJourney(BrockJourney):
     def portals(self, model):
         for event in model.events["warps"]:
             point = (event["x"], event["y"])
-            if not model.collision[point[1]][point[0]]:
+            inert = getattr(model, "descriptor", {}).get("non_triggering_warps", {})
+            if event["id"] not in inert and not model.collision[point[1]][point[0]]:
                 yield point, "warp", event
         if hasattr(model, "descriptor"):
             for direction, (dx, dy) in DIRECTIONS.items():

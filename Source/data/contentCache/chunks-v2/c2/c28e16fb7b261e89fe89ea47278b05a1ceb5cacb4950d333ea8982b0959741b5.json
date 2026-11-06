@@ -1,0 +1,1 @@
+{"recipe":[{"op":"control","source":"text_start","source_line":64},{"op":"para","source_line":66,"text":"TM46 is PSYWAVE!"},{"op":"line","source_line":67,"text":"It uses powerful"},{"op":"cont","source_line":68,"text":"psychic waves to"},{"op":"cont","source_line":69,"text":"inflict damage!"},{"op":"control","source":"done","source_line":70}],"source":"text/SaffronGym.asm"}

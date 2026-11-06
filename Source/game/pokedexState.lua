@@ -48,8 +48,7 @@ function PokedexState:entryView()
         return {dex=entry.dex, species=entry.species, seen=true, owned=owned,
             name=entry.name, details=owned and entry or nil}
     end
-    local dex=self.game.session:pokedex()
-    local seen,owned=dex.seen[entry.species]==true,dex.owned[entry.species]==true
+    local seen, owned = self.game.session:dexFlags(entry.species)
     -- No undiscovered name/flavor escapes the view consumed by the UI.
     return {dex=entry.dex,species=entry.species,seen=seen,owned=owned,
         name=seen and entry.name or "----------",details=owned and entry or nil}

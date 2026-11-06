@@ -18,6 +18,25 @@ end
 function SourceActors.validate(payload,world,location,flags)
     return WorldMotionData.normalize(payload,SourceActors.describe(location.zone_id,world),location,flags)
 end
+-- Independent proof used by the session retention boundary. It re-resolves the
+-- candidate descriptor and flags and rejects both unknown and still-visible
+-- actors, so a custom validator cannot claim an arbitrary removal.
+function SourceActors.hidden(ids,world,location,flags)
+    assert(type(ids)=="table" and Party._array(ids,64),"bounded actor ID list required")
+    assert(type(location)=="table","candidate location required")
+    local descriptor=assert(SourceActors.describe(location.zone_id,world),"actor descriptor required for visibility proof")
+    local specs={}
+    for _,spec in ipairs(descriptor.actors) do
+        specs[spec.id]=spec
+    end
+    local proved={}
+    for _,id in ipairs(ids) do
+        local spec=assert(specs[id],"unknown stable source actor ID: "..tostring(id))
+        assert(not WorldMotionData.visible(spec,flags),"actor is still visible: "..id)
+        proved[id]=true
+    end
+    return proved
+end
 -- Legacy Viridian keeps its reviewed static sprites and empty motion envelope.
 -- This is a compatibility policy, not the default for newly decoded maps.
 local compatibility = { viridian = { motion = false } }

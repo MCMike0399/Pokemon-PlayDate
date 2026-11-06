@@ -149,7 +149,7 @@ end
 -- ------------------------------------------------------------
 
 function Story.check(game, overworldState)
-    if Story.get(game).stage == "done" then return false end
+    if (game.session and game.session:introStage() or "pre_oak") == "done" then return false end
     -- Never re-trigger while a dialog/debug overlay already owns input
     if not game.machine:is("overworld") then return false end
 

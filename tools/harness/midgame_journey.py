@@ -1,4 +1,4 @@
-"""Earned 5.4 -> 5.5a and accepted 5.5a -> 5.5b input journeys. Root alone owns Simulator and save import.
+"""Earned checkpoint A/B and isolated accepted-B -> C input journeys. Root alone owns Simulator and save import.
 
 Reuse existing route, battle, menu, capture and restart owners. No planner,
 fixture, state setter, artificial reward or free preparation battle is provided.
@@ -6,6 +6,7 @@ fixture, state setter, artificial reward or free preparation battle is provided.
 import copy
 import hashlib
 import json
+import time
 from pathlib import Path
 
 from tools.harness import cerulean_journey as cj
@@ -23,6 +24,9 @@ BOUNDS = {'max_actions': (1, 120000), 'max_steps': (1, 20000),
 B_STEPS = {'tower-fuji-flute', 'route12-snorlax', 'bicycle-cycling-road',
            'fuchsia-koga', 'safari-hm03-gold-teeth-hm04-strength-surf'}
 B_OPTIONAL = {'rods-fishing'}
+C_STEPS = {'saffron-guard-entry', 'silph-rival-lapras-giovanni-president',
+           'saffron_gym', 'dojo-gift', 'hm02-visited-fly'}
+C_OPTIONAL = {'copycat-doll-tm31'}
 B_AUXILIARY = {'fuchsia_gym', 'route13-rested'}
 HMS = {'cut': 'hm01', 'fly': 'hm02', 'surf': 'hm03', 'strength': 'hm04', 'flash': 'hm05'}
 
@@ -34,11 +38,12 @@ def validate_config(config):
     for key, (low, high) in BOUNDS.items():
         if key in config and (type(config[key]) is not int or not low <= config[key] <= high):
             raise ProtocolError('invalid bounded midgame option: ' + key)
-    if config.get('starter') not in cj.FAMILIES or config.get('packet') not in {'lavender', '5.5a', '5.5b'}:
+    if config.get('starter') not in cj.FAMILIES or config.get('packet') not in {'lavender', '5.5a', '5.5b', '5.5c'}:
         raise ProtocolError('midgame requires an original starter and explicit route packet')
-    expected = 'optional' if config['starter'] == 'charmander' else 'critical'
+    optional_starter = 'bulbasaur' if config['packet'] == '5.5c' else 'charmander'
+    expected = 'optional' if config['starter'] == optional_starter else 'critical'
     if config.get('content_scope') != expected or config.get('evolution_policy', 'accept') != 'accept':
-        raise ProtocolError('midgame scope is Charmander optional, Bulbasaur/Squirtle critical; accept natural evolution')
+        raise ProtocolError('midgame scope must match the packet rotating starter; accept natural evolution')
 
 
 def validate_scenario(scenario):
@@ -59,7 +64,7 @@ def validate_scenario(scenario):
     starting = scenario['initial_save']
     if (not isinstance(starting, dict) or set(starting) not in (
             {'milestone', 'starter'}, {'milestone', 'starter', 'resume'})
-            or starting.get('milestone') != ('5.5a' if groups[0]['journey']['packet'] == '5.5b' else '5.4')
+            or starting.get('milestone') != ({'5.5b': '5.5a', '5.5c': '5.5b'}.get(groups[0]['journey']['packet'], '5.4'))
             or starting.get('starter') != groups[0]['journey']['starter']):
         raise ProtocolError('midgame starting milestone must match its explicit packet')
     if 'resume' in starting:
@@ -71,6 +76,22 @@ def validate_scenario(scenario):
 
 
 def validate_chain_record(record, spec, project):
+    if spec['milestone'] == '5.5b':
+        acceptance = 'docs/validation/midgame-b-acceptance-20261102.json'
+        proof = json.loads((Path(project) / acceptance).read_bytes())
+        rows = [row for row in proof.get('starters', []) if row.get('starter') == spec['starter']]
+        if (proof.get('milestone') != '5.5b' or proof.get('milestone_accepted') is not True
+                or proof.get('accepted_main_code') != 'af9a89380f9730767ff22b3ac5114cf32f216a75'
+                or proof.get('production_source_sha256') != '9b086ab51d65b4ad212d8f4486ba01ce8562e563e41ebf3947e2c7dcad058284'
+                or record.get('from_milestone') != '5.5b' or record.get('origin_milestone') != '5.5a'
+                or record.get('starter') != spec['starter'] or len(rows) != 1
+                or record.get('accepted_commit') != proof['accepted_main_code']
+                or record.get('accepted_source_sha256') != proof['production_source_sha256']
+                or record.get('acceptance') != acceptance or record.get('files') != rows[0].get('files')
+                or record.get('source') != rows[0].get('evidence')
+                or record.get('journey_source_sha256') != rows[0].get('journey_source_sha256')):
+            raise ProtocolError('starting slots lack exact accepted 5.5b manifest binding')
+        return
     if spec['milestone'] == '5.5a':
         proof = json.loads((Path(project) / 'docs/validation/midgame-a-acceptance-20261029.json').read_bytes())
         rows = [row for row in proof.get('starters', []) if row.get('starter') == spec['starter']]
@@ -107,6 +128,8 @@ def validate_partial_state(state):
                'squirtle-ice-beam-preparation'}
     if state['packet'] == '5.5b':
         allowed = B_STEPS | B_AUXILIARY | (B_OPTIONAL if state['content_scope'] == 'optional' else set())
+    if state['packet'] == '5.5c':
+        allowed = C_STEPS | (C_OPTIONAL if state['content_scope'] == 'optional' else set())
     if (not isinstance(steps, list) or any(not isinstance(step, str) for step in steps)
             or steps != sorted(set(steps)) or not set(steps) <= allowed):
         raise ProtocolError('invalid partial route steps')
@@ -123,6 +146,32 @@ def validate_receipt_state(state):
     required = B_STEPS.copy() if state['packet'] == '5.5b' else {'rock-tunnel-flash-lavender'}
     if state['packet'] == '5.5b' and state['content_scope'] == 'optional':
         required |= B_OPTIONAL
+    if state['packet'] == '5.5c':
+        required = C_STEPS | (C_OPTIONAL if state['content_scope'] == 'optional' else set())
+        if set(steps) != required:
+            raise ProtocolError('C receipt requires only its complete story and scoped optional steps')
+        flags = state['codec'].get('questFlags', {})
+        quantities = {slot['id']: slot['quantity'] for slot in state['codec']['inventory']['slots']}
+        required_flags = {'pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK',
+                          'EVENT_BEAT_SILPH_CO_RIVAL', 'SILPH_STORY_V1_RIVAL_LEFT',
+                          'BIT_GOT_LAPRAS', 'EVENT_BEAT_SILPH_CO_GIOVANNI',
+                          'EVENT_GOT_MASTER_BALL', 'BADGE_MARSH', 'EVENT_GOT_TM46',
+                          'EVENT_DEFEATED_FIGHTING_DOJO', 'EVENT_GOT_HITMONLEE', 'EVENT_GOT_HM02'}
+        if state['content_scope'] == 'optional':
+            required_flags.add('EVENT_GOT_TM31')
+            if quantities.get('tm31', 0) < 1:
+                raise ProtocolError('C optional receipt lacks actual TM31')
+        if (any(flags.get(flag) is not True for flag in required_flags)
+                or flags.get('EVENT_GOT_HITMONCHAN') is True
+                or any(quantities.get(item, 0) < 1 for item in ('cardKey', 'masterBall', 'tm46', 'hm02'))):
+            raise ProtocolError('C codec lacks actual required rewards')
+        codec = state['codec']
+        mons = codec['party']['members'] + [m for box in codec['storage']['boxes'] for m in sequence(box, 'PC box')]
+        if (not any(m['species'] == 'lapras' and m['level'] >= 15 for m in mons)
+                or not any(m['species'] == 'hitmonlee' and m['level'] >= 30 for m in mons)
+                or not any('fly' in m['moves'] for m in codec['party']['members'])
+                or not {'pokered:CELADON_CITY', 'pokered:SAFFRON_CITY'} <= set(codec['fieldTravel']['visited'])):
+            raise ProtocolError('C codec lacks actual gifts, taught Fly or visited destinations')
     if state['packet'] == '5.5a':
         required |= {'celadon_gym', 'hideout-scope'}
         if state['content_scope'] == 'optional':
@@ -163,7 +212,7 @@ class MidgameJourney(vj.VermilionJourney):
                        max_blackouts=config.get('max_blackouts', 1))
         super().__init__(client, evidence, adapted, build_evidence, capture_dir)
         self.config = copy.deepcopy(config)
-        self.summary.update(journey=copy.deepcopy(config), milestone='5.5b' if config['packet'] == '5.5b' else '5.5a', acceptance='unrun candidate',
+        self.summary.update(journey=copy.deepcopy(config), milestone=config['packet'] if config['packet'] in {'5.5b', '5.5c'} else '5.5a', acceptance='unrun candidate',
                             driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                             preparation_policy={'new_training_fights': 0, 'use_centers_and_shops': True})
         self.stage = 'cerulean'  # Existing shared source-trainer validation path.
@@ -172,7 +221,7 @@ class MidgameJourney(vj.VermilionJourney):
         self.midgame_ready = False
 
     def frame_label(self, label):
-        prefix = 'm55b-' if self.config['packet'] == '5.5b' else 'm55a-'
+        prefix = {'5.5b': 'm55b-', '5.5c': 'm55c-'}.get(self.config['packet'], 'm55a-')
         if label.startswith(prefix):
             return label
         for old_prefix in ('brock-', 'parcel-', 'cerulean-', 'vermilion-'):
@@ -193,7 +242,33 @@ class MidgameJourney(vj.VermilionJourney):
         if commands and commands[0] == 'press b' and self.state.get('root') == 'overworld':
             # Let the existing A/B gesture finish before opening a field menu.
             commands = ('wait 3', *commands)
-        return super().send(*commands)
+        result = super().send(*commands)
+        if getattr(self, 'midgame_ready', False):
+            self.ensure_owner_map(self.state.get('zone_id'))
+        return result
+
+    def ensure_owner_map(self, zone):
+        model = self.models.get(zone)
+        source = getattr(model, 'source_data', None)
+        if not source or source['name'] in self.owner_maps:
+            return
+        owners = self.observe('midgame-owners:' + source['name'])
+        if owners.get('valid') is not True or owners.get('map_name') != source['name']:
+            raise ProtocolError('actual bounded map owner observation differs')
+        self.registered_events.update(self.owner_mapping(owners['registered_events']))
+        shops = self.owner_mapping(owners['shops'])
+        self.export['shops'].update(shops)
+        self.vermilion['shops'].update(shops)
+        self.source_trainers.update(self.owner_mapping(owners['trainers']))
+        self.owner_maps.add(source['name'])
+
+    @staticmethod
+    def owner_mapping(value):
+        if value == []:
+            return {}
+        if not isinstance(value, dict):
+            raise ProtocolError('actual owner map must be a mapping')
+        return value
 
     def learning(self):
         release = (getattr(self, 'cycling_brake', False)
@@ -256,6 +331,18 @@ class MidgameJourney(vj.VermilionJourney):
             self.send('wait 8')
             return
         self.npc_step_retry = None, 0
+        if (getattr(self, 'config', {}).get('packet') == '5.5c'
+                and step.kind == 'walk' and self.position() != origin
+                and self.state.get('root') == 'overworld'
+                and self.state.get('overworld') == 'explore'
+                and lookup(self.state, 'player.settled') is True
+                and not lookup(self.state, 'player.pendingEdgeDoor')):
+            self.c_transit_cells = getattr(self, 'c_transit_cells', 0) + 1
+            if self.c_transit_cells >= 16:
+                # Ordinary Save/codec observation only; this grants no quest
+                # completion and uses the existing verified partial ancestry.
+                self.save()
+                self.c_transit_cells = 0
         return result
 
     def reset(self, **options):
@@ -277,10 +364,11 @@ class MidgameJourney(vj.VermilionJourney):
         owners = self.observe('midgame-owners')
         if owners.get('valid') is not True or type(owners.get('version')) is not int:
             raise ProtocolError('root midgame owner observation unavailable')
-        self.export = {'session_codec': owners['version'], 'shops': owners['shops']}
-        self.registered_events = owners['registered_events']
-        self.vermilion['shops'].update(owners['shops'])
-        for stable, definition in owners['trainers'].items():
+        self.export = {'session_codec': owners['version'], 'shops': self.owner_mapping(owners['shops'])}
+        self.registered_events = self.owner_mapping(owners['registered_events'])
+        self.owner_maps = set()
+        self.vermilion['shops'].update(self.export['shops'])
+        for stable, definition in self.owner_mapping(owners['trainers']).items():
             self.source_trainers[stable] = definition
         self.midgame_ready = True
         self.summary['midgame_dependencies'] = {'build_id': self.client.identity['build_id'],
@@ -299,20 +387,24 @@ class MidgameJourney(vj.VermilionJourney):
 
     def start_earned(self):
         provenance = json.loads((self.build_evidence / 'starting-save.json').read_bytes())
-        origin = '5.5a' if self.config['packet'] == '5.5b' else '5.4'
+        origin = {'5.5b': '5.5a', '5.5c': '5.5b'}.get(self.config['packet'], '5.4')
         if provenance.get('from_milestone') != origin or provenance.get('starter') != self.starter:
             raise ProtocolError('midgame requires imported accepted starting-save provenance')
         self.dependencies()
         self.title_continue()
-        if self.config['packet'] == '5.5b':
+        if self.config['packet'] in {'5.5b', '5.5c'}:
             accepted = provenance.get('accepted_boundary')
             if not isinstance(accepted, dict):
-                raise ProtocolError('missing bound accepted A Save/Continue receipt')
+                raise ProtocolError('missing bound accepted previous checkpoint Save/Continue receipt')
             expected = provenance.get('resume', {}).get('state', accepted['state'])
             if self.codec_guard('loaded') != expected['codec']:
-                raise ProtocolError('accepted A Continue differs from its complete actual saved codec')
+                raise ProtocolError('accepted previous checkpoint Continue differs from its complete actual saved codec')
             if self.quantity('silphScope') != 1 or not self.flag('BADGE_RAINBOW'):
                 raise ProtocolError('accepted A Scope/Erika reward unavailable')
+        if self.config['packet'] == '5.5c':
+            validate_receipt_state(accepted['state'])
+            if accepted['state']['packet'] != '5.5b':
+                raise ProtocolError('C requires the complete accepted B receipt')
         for flag in ('EVENT_GOT_HM01', 'EVENT_GOT_HM05', 'BADGE_THUNDER'):
             if not self.flag(flag):
                 raise ProtocolError('earned 5.4 progression missing: ' + flag)
@@ -326,12 +418,15 @@ class MidgameJourney(vj.VermilionJourney):
             self.boundary_payload = self.codec_guard('loaded')
             if self.boundary_payload != saved['codec']:
                 raise ProtocolError('partial Continue differs from its actual saved codec payload')
+            if self.codec_migration:
+                self.summary['startup_actor_visibility_migration'] = copy.deepcopy(self.codec_migration)
             self.completed_steps = set(saved['completed_steps'])
             self.summary['resumed_steps'] = sorted(self.completed_steps)
         self.summary['starting_save'] = provenance
         self.checkpoint('earned-flash-continue')
 
     def require_event(self, stable):
+        self.ensure_owner_map(stable.rsplit(':', 2)[0])
         if self.registered_events.get(stable) is not True:
             raise ProtocolError('unavailable gameplay event; root must integrate owner: ' + stable)
 
@@ -575,10 +670,40 @@ class MidgameJourney(vj.VermilionJourney):
         self.completed_steps.add(step)
         self.save()
 
+    def heal_here(self, name):
+        if self.config['packet'] != '5.5c':
+            return super().heal_here(name)
+        self.travel(self.zone(name))
+        if name == 'CeladonPokecenter':
+            descriptor = cj.StagedSource(self.build_evidence).read(
+                'data/midgameEast/events.json')['events'][self.zone(name) + ':objects:1']
+            checkpoints = [step['checkpoint'] for step in descriptor['steps'] if step['op'] == 'heal']
+            if (len(checkpoints) == 1
+                    and lookup(self.state, 'session.checkpoint') == checkpoints[0]
+                    and self.party()
+                    and all(mon['hp'] == mon['maxHP'] and mon['status'] in {None, 'none'}
+                            and mon['pp'] == mon['maxPP'] for mon in self.party())):
+                self.summary.setdefault('already_restored_centers', []).append(name)
+                return
+        self.send('wait 1')
+        history = getattr(self.client, 'history', None)
+        if history:
+            from tools.harness.restarting import validate_journey_pause
+            validate_journey_pause(history.pause, self.client.read('result.json'))
+            history.clear(time.monotonic() + 18)
+        return super().heal_here(name)
+
     def save(self):
         # A final dialogue press can expose the overworld with its field
         # gesture still consumed. Release it before the inherited Save B tap.
         self.send('wait 1')
+        history = getattr(self.client, 'history', None)
+        if self.config['packet'] == '5.5c' and history:
+            from tools.harness.restarting import validate_journey_pause
+            # This is the existing, unacknowledged settled-overworld barrier.
+            # Clear before deep Save work, without allowing a Clear inside UI/IO.
+            validate_journey_pause(history.pause, self.client.read('result.json'))
+            history.clear(time.monotonic() + 18)
         super().save()
         files = []
         for name in ('adventure.a.json', 'adventure.b.json'):
@@ -631,12 +756,21 @@ class MidgameJourney(vj.VermilionJourney):
             phases.append(self.optional_b)
         if self.config['packet'] == '5.5a':
             phases.append(self.route_a)
-        observed_groups = {'route_tower': {'tower-fuji-flute'},
+        if self.config['packet'] == '5.5c':
+            phases = [self.route_c_guard, self.route_c_silph, self.route_c_sabrina,
+                      self.route_c_dojo, self.route_c_fly]
+            if self.config['content_scope'] == 'optional':
+                phases.append(self.optional_c_copycat)
+        observed_groups = {'route_c_guard': {'saffron-guard-entry'},
+                           'route_c_silph': {'silph-rival-lapras-giovanni-president'},
+                           'route_c_sabrina': {'saffron_gym'}, 'route_c_dojo': {'dojo-gift'},
+                           'route_c_fly': {'hm02-visited-fly'}, 'optional_c_copycat': C_OPTIONAL,
+                           'route_tower': {'tower-fuji-flute'},
                            'route_fuchsia': {'route12-snorlax', 'fuchsia-koga', 'safari-hm03-gold-teeth-hm04-strength-surf'},
                            'route_bicycle': {'bicycle-cycling-road'}, 'optional_b': B_OPTIONAL}
         for index, phase in enumerate(phases):
-            group = ('route_tower', 'route_fuchsia', 'route_bicycle', 'optional_b')[index]
-            if self.config['packet'] == '5.5b' and observed_groups[group] <= self.completed_steps:
+            group = phase.__name__
+            if self.config['packet'] in {'5.5b', '5.5c'} and observed_groups[group] <= self.completed_steps:
                 continue
             for _ in range(self.config.get('max_blackouts', 1) + 1):
                 try:
@@ -829,6 +963,17 @@ class MidgameJourney(vj.VermilionJourney):
             yield point, kind, detail
 
     def project_warp(self, model, event):
+        if model.name == self.zone('SilphCoElevator'):
+            # Both cabin warps land on the floor the source scene persisted. A
+            # genuine transit Save can resume inside the cabin, so the planner
+            # must project its exits without replaying a floor selection.
+            scenes = self.scene_data('data/silphStory/scenes.json')
+            for floor in scenes['elevator']:
+                if self.flag('SILPH_STORY_LIFT_V1_' + str(floor['floor'])):
+                    target = self.models[self.zone('SilphCo' + str(floor['floor']) + 'F')]
+                    destination = floor['destination']
+                    return target.name, (destination['x'] + target.padding, destination['y'])
+            raise ProtocolError('missing persisted Silph elevator destination')
         # Hideout lift entries use explicit cabin positions without a door step.
         scenes = self.scene_data('data/rocketHideoutStory/scenes.json')
         for floor in scenes['elevator']:
@@ -1301,26 +1446,60 @@ class MidgameJourney(vj.VermilionJourney):
             raise ProtocolError('source Card Key door did not commit: ' + flag)
         self.refresh_world()
 
-    def route_saffron(self):
-        self.heal_here('CeladonPokecenter')
-        self.travel(self.zone('CeladonMart1F'))
-        for name in ('CeladonMart2F', 'CeladonMart3F', 'CeladonMart4F', 'CeladonMart5F', 'CeladonMartRoof'):
-            self.warp(self.zone(name))
-        vending = 'pokered:CELADON_MART_ROOF:background_events:1'
-        before_money, before_water = self.inventory()['money'], self.quantity('freshWater')
-        self.event_choices = {vending: 'FRESH WATER'}
-        try:
-            self.background(vending)
-        finally:
-            self.event_choices = {}
-        if self.quantity('freshWater') != before_water + 1 or self.inventory()['money'] != before_money - 200:
-            raise ProtocolError('actual source vending purchase unavailable/incomplete')
-        self.travel(self.zone('Route7Gate'))
+    def route_c_guard(self):
         flag = 'pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK'
+        # A stopped genuine transit Save can already contain the committed
+        # transaction. Do not buy/consume a second drink on its Continue.
         if not self.flag(flag):
-            self.visit_event(cj.sid('ROUTE_7_GATE', 1))
-        if not self.flag(flag):
-            raise ProtocolError('actual guard drink transaction did not open Saffron')
+            # B ends at Fuchsia. Reuse walking return legs without replaying B phases.
+            if self.state['zone_id'] in {self.zone('FuchsiaPokecenter'), self.zone('FuchsiaCity')}:
+                self.return_from_fuchsia_to_route12()
+            # A genuine transit Continue may start partway through the eastern leg.
+            # Reuse its declared cells instead of planning back through Fuchsia.
+            if self.state['zone_id'] == self.zone('Route15'):
+                self.source_waypoint(59, 8)
+                self.cross('right', self.zone('Route14'), (0, 44))
+            if self.state['zone_id'] == self.zone('Route14'):
+                self.source_waypoint(19, 10)
+                self.cross('right', self.zone('Route13'), (0, 10))
+            if self.state['zone_id'] == self.zone('Route13'):
+                self.source_waypoint(51, 0)
+                self.cross('up', self.zone('Route12'), (11, 107))
+            if self.state['zone_id'] == self.zone('Route12'):
+                self.return_from_route12_to_lavender()
+                # A genuine transit Save can resume this long return leg under the
+                # unchanged per-process history budget. It completes no C quest.
+                self.save()
+            self.ensure_room('CeladonMart2F')
+            self.heal_here('CeladonPokecenter')
+            self.travel(self.zone('CeladonMart1F'))
+            for name in ('CeladonMart2F', 'CeladonMart3F', 'CeladonMart4F', 'CeladonMart5F', 'CeladonMartRoof'):
+                self.warp(self.zone(name))
+            vending = 'pokered:CELADON_MART_ROOF:background_events:1'
+            before_money, before_water = self.inventory()['money'], self.quantity('freshWater')
+            self.celadon_service(vending, ['FRESH WATER  ¥200'], background=True)
+            if self.quantity('freshWater') != before_water + 1 or self.inventory()['money'] != before_money - 200:
+                raise ProtocolError('actual source vending purchase unavailable/incomplete')
+            drinks = {item: self.quantity(item) for item in ('freshWater', 'sodaPop', 'lemonade')}
+            money = self.inventory()['money']
+            flag = 'pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK'
+            opened = self.flag(flag)
+            self.travel(self.zone('Route7Gate'))
+            if not opened:
+                self.visit_event(cj.sid('ROUTE_7_GATE', 1))
+            if not self.flag(flag):
+                raise ProtocolError('actual guard drink transaction did not open Saffron')
+            if (any(self.quantity(item) != quantity - (1 if item == 'freshWater' and not opened else 0)
+                    for item, quantity in drinks.items()) or self.inventory()['money'] != money):
+                raise ProtocolError('guard did not consume exactly one priority drink')
+        self.heal_here('SaffronPokecenter')
+        self.travel(self.zone('SaffronCity'))
+        if self.zone('SaffronCity') not in self.observe('midgame-state')['fieldTravel']['visited']:
+            raise ProtocolError('actual Saffron entry did not record visited history')
+        self.checkpoint('guard-drink-saffron-entry')
+        self.complete_at_center('saffron-guard-entry')
+
+    def route_c_silph(self):
         self.heal_here('SaffronPokecenter')
         self.ensure_room('SaffronMart')
         self.scene_data('data/silphStory/scenes.json')
@@ -1345,23 +1524,31 @@ class MidgameJourney(vj.VermilionJourney):
             self.source_waypoint(*point)
         if not self.defeated(cj.sid('SILPH_CO_7F', 9)) or not self.flag('SILPH_STORY_V1_RIVAL_LEFT'):
             raise ProtocolError('actual Silph rival battle/departure did not complete')
-        self.event_offer(cj.sid('SILPH_CO_7F', 1))
-        if not self.flag('BIT_GOT_LAPRAS') or not any(m['species'] == 'lapras' for m in self.party()):
-            raise ProtocolError('actual Lapras gift did not enter the reserved party slot')
+        self.c_gift(cj.sid('SILPH_CO_7F', 1), 'lapras', 15, 'BIT_GOT_LAPRAS')
         self.fixed_warp(4, (5, 6))
+        self.fixed_leg('silph-fixed-routes.json', 'giovanni-door-approach')
+        self.key_door((6, 14), 'up', 'EVENT_SILPH_CO_11_UNLOCKED_DOOR')
         self.fixed_leg('silph-fixed-routes.json', 'giovanni-trigger')
         if not self.defeated(cj.sid('SILPH_CO_11F', 3)) or not self.flag('EVENT_BEAT_SILPH_CO_GIOVANNI'):
             raise ProtocolError('actual Silph Giovanni victory did not commit')
-        self.key_door((6, 12), 'right', 'EVENT_SILPH_CO_11_UNLOCKED_DOOR')
+        self.fixed_leg('silph-fixed-routes.json', 'president-approach')
         self.pickup(cj.sid('SILPH_CO_11F', 1), 'masterBall', 'EVENT_GOT_MASTER_BALL')
         self.completed_steps.add('silph-rival-lapras-giovanni-president')
         self.heal_here('SaffronPokecenter')
+        self.checkpoint('silph-liberated-master-ball')
+        self.save()
+
+    def route_c_sabrina(self):
+        self.heal_here('SaffronPokecenter')
+        self.ensure_room('SaffronMart')
         self.restock('SaffronMart')
         self.travel(self.zone('SaffronGym'))
         route = json.loads((SCENARIOS / 'silph-fixed-routes.json').read_bytes())
         for index in route['saffron_gym_in']:
             self.fixed_warp(index)
         self.fight(cj.sid('SAFFRON_GYM', 1))
+        if not self.flag('EVENT_GOT_TM46'):
+            self.visit_event(cj.sid('SAFFRON_GYM', 1))
         if not self.flag('BADGE_MARSH') or not self.flag('EVENT_GOT_TM46') or self.quantity('tm46') < 1:
             raise ProtocolError('actual Sabrina reward missing')
         for index in route['saffron_gym_out']:
@@ -1369,10 +1556,120 @@ class MidgameJourney(vj.VermilionJourney):
         self.warp(self.zone('SaffronCity'))
         self.completed_steps.add('saffron_gym')
         self.heal_here('SaffronPokecenter')
-        if self.quantity('escapeRope') == 0:
-            clerk = cj.sid('SAFFRON_MART', 1)
-            self.travel(self.zone('SaffronMart'))
-            self.buy_item(clerk, 'escapeRope', 1, self.vermilion['shops'][clerk]['prices']['escapeRope'])
+        self.checkpoint('sabrina-badge-tm46')
+        self.save()
+
+    def route_saffron(self):
+        # Historical full-route entry point; never selected by A, B or C.
+        self.route_c_guard()
+        self.route_c_silph()
+        self.route_c_sabrina()
+
+    def c_gift(self, stable, species, level, flag):
+        before = self.collection_owner()
+        if self.flag(flag):
+            if self.species_count(before, species) < 1:
+                raise ProtocolError('committed gift missing from actual party and PC: ' + species)
+            return
+        storage = before['storage']
+        destination = 'party' if len(before['party']['members']) < 6 else 'storage'
+        box = storage['active']
+        if destination == 'storage' and len(sequence(storage['boxes'][box - 1], 'selected PC box')) >= 20:
+            raise ProtocolError('actual selected PC box is full; gift requires real PC capacity before retry')
+        self.event_offer(stable)
+        after = self.collection_owner()
+        old = before['party']['members'] if destination == 'party' else sequence(storage['boxes'][box - 1], 'box')
+        new = after['party']['members'] if destination == 'party' else sequence(after['storage']['boxes'][box - 1], 'box')
+        if (not self.flag(flag) or self.species_count(after, species) != self.species_count(before, species) + 1
+                or len(new) != len(old) + 1 or new[:-1] != old
+                or new[-1]['species'] != species or new[-1]['level'] != level
+                or (destination == 'storage' and after['party'] != before['party'])
+                or (destination == 'party' and after['storage'] != before['storage'])):
+            raise ProtocolError('actual gift destination/specimen differs: ' + species)
+        expected_storage = copy.deepcopy(before['storage'])
+        if destination == 'storage':
+            expected_storage['boxes'][box - 1] = new
+        if after['storage'] != expected_storage:
+            raise ProtocolError('gift changed another PC box or active selection')
+        self.summary.setdefault('c_gifts', []).append(dict(species=species, level=level,
+            destination=destination, box=box if destination == 'storage' else None))
+        self.checkpoint('earned-' + species + '-' + destination)
+
+    def route_c_dojo(self):
+        self.heal_here('SaffronPokecenter')
+        self.travel(self.zone('FightingDojo'))
+        self.source_waypoint(4, 3)
+        self.fight(cj.sid('FIGHTING_DOJO', 1))
+        self.c_gift(cj.sid('FIGHTING_DOJO', 6), 'hitmonlee', 30, 'EVENT_GOT_HITMONLEE')
+        if (not self.flag('EVENT_DEFEATED_FIGHTING_DOJO')
+                or self.flag('EVENT_GOT_HITMONCHAN')):
+            raise ProtocolError('Dojo completion or mutually exclusive gift differs')
+        self.completed_steps.add('dojo-gift')
+        self.heal_here('SaffronPokecenter')
+        self.save()
+
+    def route_c_fly(self):
+        self.ensure_room('CeladonMart2F')
+        self.travel(self.zone('CeladonCity'))
+        cut = self.teach('cut')
+        self.travel(self.zone('Route16'))
+        sites = self.field_definitions['maps'].get(self.zone('Route16'), {}).get('sites', [])
+        if not sites:
+            raise ProtocolError('prepared C lacks Route16 Cut site; root must supply pinned field capability for Fly house')
+        targets = [target for site in sites for target in site['targets']]
+        if len(targets) != 1:
+            raise ProtocolError('Route16 Fly approach requires one pinned Cut target')
+        self.field_cut(cut, 'Route16', (targets[0]['x'], targets[0]['y']))
+        self.fixed_warp(7, (25, 4))
+        self.require(zone_id=self.zone('Route16Gate1F'))
+        self.fixed_warp(5, (1, 2))
+        self.require(zone_id=self.zone('Route16'))
+        self.fixed_warp(9, (7, 6))
+        self.pickup(cj.sid('ROUTE_16_FLY_HOUSE', 1), 'hm02', 'EVENT_GOT_HM02')
+        self.fixed_warp(1, (2, 6))
+        self.require(zone_id=self.zone('Route16'))
+        index = self.teach('fly')
+        for city in ('CeladonCity', 'SaffronCity'):
+            before = self.observe('midgame-state')['fieldTravel']
+            target = self.zone(city)
+            if target not in before['visited']:
+                raise ProtocolError('Fly destination was never genuinely visited: ' + city)
+            pp = copy.deepcopy(self.party()[index - 1]['pp'])
+            self.fly_target = target
+            try:
+                self.use_field(index, 'fly')
+            finally:
+                self.fly_target = None
+            self.require(zone_id=target)
+            after = self.observe('midgame-state')['fieldTravel']
+            if after['visited'] != before['visited'] or self.party()[index - 1]['pp'] != pp:
+                raise ProtocolError('Fly changed visited history or consumed PP')
+            self.checkpoint('actual-fly-' + city.lower())
+        self.completed_steps.add('hm02-visited-fly')
+        self.heal_here('SaffronPokecenter')
+        self.save()
+
+    def optional_c_copycat(self):
+        self.ensure_room('CeladonMart2F')
+        clerk = cj.sid('CELADON_MART_4F', 1)
+        self.travel(self.zone('CeladonMart4F'))
+        if self.quantity('pokeDoll') == 0:
+            self.buy_item(clerk, 'pokeDoll', 1, self.vermilion['shops'][clerk]['prices']['pokeDoll'])
+        self.travel(self.zone('CopycatsHouse2F'))
+        before = copy.deepcopy(self.inventory())
+        doll, tm = self.quantity('pokeDoll'), self.quantity('tm31')
+        if not self.flag('EVENT_GOT_TM31'):
+            self.visit_event(cj.sid('COPYCATS_HOUSE_2F', 1))
+            if (not self.flag('EVENT_GOT_TM31') or self.quantity('pokeDoll') != doll - 1
+                    or self.quantity('tm31') != tm + 1 or self.inventory()['money'] != before['money']):
+                raise ProtocolError('actual Copycat Doll/TM31 exchange incomplete')
+        inventory = copy.deepcopy(self.inventory())
+        self.visit_event(cj.sid('COPYCATS_HOUSE_2F', 1))
+        if self.inventory() != inventory:
+            raise ProtocolError('Copycat repeated talk changed inventory')
+        self.completed_steps.add('copycat-doll-tm31')
+        self.checkpoint('copycat-earned-tm31')
+        self.heal_here('SaffronPokecenter')
         self.save()
 
     def use_item(self, item):

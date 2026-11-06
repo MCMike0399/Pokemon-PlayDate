@@ -48,9 +48,37 @@ def sdk_path(explicit=None):
     return sdk
 
 
+def simulator_executable(sdk):
+    """Return the official Simulator binary for this SDK install.
+
+    macOS builds ship an app bundle. Linux SDK 3.1.2 ships bin/PlaydateSimulator.
+    A missing binary keeps the historical macOS path so compile-only metadata
+    stays stable; launch still fails instead of substituting another program.
+    """
+    mac = sdk / 'bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator'
+    linux = sdk / 'bin/PlaydateSimulator'
+    if mac.is_file():
+        return mac
+    if linux.is_file():
+        return linux
+    return mac
+
+
+def simulator_settings_file():
+    """Path of the ini the running platform's Simulator actually writes.
+
+    Darwin keeps ~/Library/Preferences. Linux SDK 3.1.2 writes
+    ~/.config/Playdate Simulator/Playdate Simulator.ini, including
+    MallocPoolSize=16645684 after Playdate > Malloc Pool > 16 MB.
+    """
+    if sys.platform == 'darwin':
+        return Path.home() / 'Library/Preferences/com.panic.Playdate Simulator.ini'
+    return Path.home() / '.config/Playdate Simulator/Playdate Simulator.ini'
+
+
 def simulator_preflight():
     simulator_usb_preflight()
-    settings = Path.home() / 'Library/Preferences/com.panic.Playdate Simulator.ini'
+    settings = simulator_settings_file()
     # SDK 3.1.2 wrote this usable pool size when the user selected 16MB.
     values = dict(line.split('=', 1) for line in settings.read_text().splitlines() if '=' in line)
     if values.get('MallocPoolSize') != '16645684':
@@ -143,7 +171,7 @@ def validate_recent_interval(value):
     return value
 
 
-def prepare(project, sdk, output, session, recent_interval=1, journey=False):
+def prepare(project, sdk, output, session, recent_interval=1, journey=False, history=False):
     recent_interval = validate_recent_interval(recent_interval)
     source = output / 'Source'
     shutil.copytree(project / 'Source', source)
@@ -173,6 +201,24 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
     (output / 'frames').mkdir()
     # JSON strings are Lua-compatible quoted strings for these machine-generated values.
     lua_values = []
+    if history and not journey:
+        raise ProtocolError('history clearing requires the journey profile')
+    if history:
+        metadata['history_identity'] = 'JOURNEY'
+        metadata['history_clear'] = True
+        metadata['history_startup_version'] = 1
+        # Freeze check is private staging only; production entry stays byte-exact.
+        text = (source / 'main.lua').read_text()
+        marker = 'if harness and harness.isQuiescent then return end'
+        if text.count(marker) != 1:
+            raise ProtocolError('missing unique harness freeze seam')
+        startup_marker = '        BootTrace.mark("title.visible")'
+        if text.count(startup_marker) != 1:
+            raise ProtocolError('missing unique title artwork seam')
+        text = text.replace(startup_marker, startup_marker + '\n        Harness.pauseStartup(game)')
+        metadata['history_startup_hook_sha256'] = hashlib.sha256(b'Harness.pauseStartup(game)').hexdigest()
+        (source / 'main.lua').write_text(text.replace(marker,
+            marker + '\n            if harness and harness.historyWaiting and harness.historyWaiting() then return end'))
     if journey:
         metadata['journey_profile'] = True
     if recent_interval > 1:
@@ -185,8 +231,8 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
         if target.exists():
             raise ProtocolError('capture policy overlay would overwrite staged Source')
         target.write_bytes(overlay)
-        (source / 'main.lua').write_bytes(original_main + b'\nimport "dev/capture_policy"\n')
-    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval', 'journey_profile'):
+        (source / 'main.lua').write_bytes((source / 'main.lua').read_bytes() + b'\nimport "dev/capture_policy"\n')
+    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval', 'journey_profile', 'history_clear', 'history_startup_version'):
         if key not in metadata:
             continue
         value = metadata[key]
@@ -218,8 +264,12 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
     with (output / 'build.log').open('w') as log:
         subprocess.run([str(sdk / 'bin/pdc'), str(source), str(bundle)], stdout=log, stderr=subprocess.STDOUT, check=True)
     metadata['bundle'] = str(bundle)
-    metadata['simulator'] = str(sdk / 'bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator')
+    metadata['simulator'] = str(simulator_executable(sdk))
     metadata['data_dir'] = str(sdk / 'Disk/Data' / metadata['bundle_id'])
+    if history:
+        metadata['pdx_files'] = {path.relative_to(bundle).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                                 for path in sorted(bundle.rglob('*')) if path.is_file()
+                                 and path.name != '.DS_Store' and not path.name.startswith('._')}
     atomic_json(output / 'build.json', metadata)
     return metadata
 
@@ -259,6 +309,7 @@ def _run(args):
         raise ProtocolError('scenario must be a JSON object')
     from tools.harness import restarting
     restarting.validate(scenario, getattr(args, 'qualification', False))
+    history = restarting.history_options(args, scenario)
     if not args.build_only and any(group.get('journey', {}).get('name') == 'npc-motion-continue' for group in scenario.get('processes', [scenario])):
         from tools.harness.motion_journey import visual_preflight
         visual_preflight(scenario)
@@ -271,7 +322,7 @@ def _run(args):
         journey_only = bool(groups) and all(group.get('journey') for group in groups)
         if journey_only:
             metadata = prepare(PROJECT, sdk, output, session,
-                               recent_interval=interval, journey=True)
+                               recent_interval=interval, journey=True, **({'history': True} if history else {}))
         else:
             metadata = (prepare(PROJECT, sdk, output, session, recent_interval=interval)
                         if interval > 1 else prepare(PROJECT, sdk, output, session))
@@ -290,12 +341,14 @@ def _run(args):
     captures_finalized = False
     data = Path(metadata['data_dir'])
     data.mkdir(parents=True, exist_ok=False)
-    owner = OwnerLock(data / 'owner.lock')
+    owner = OwnerLock(data / 'owner.lock', history=history)
     owner.__enter__()
     if 'processes' in scenario:
         confirmed_exit = True
         try:
-            restarting.import_chain_save(scenario, PROJECT, data, output)
+            from tools.harness.evidence_mirror import mirrored_evidence_reads
+            with mirrored_evidence_reads():
+                restarting.import_chain_save(scenario, PROJECT, data, output)
             return restarting.run(args, scenario, metadata, output, data, owner, sys.modules[__name__])
         except restarting.UnconfirmedExit:
             confirmed_exit = False
@@ -382,7 +435,9 @@ def run(args):
     sdk = sdk_path(args.sdk)
     if args.build_only:
         return _run(args)
-    with OwnerLock(runtime_lock_path(sdk)), OwnerLock(device_lock_path()):
+    from tools.harness.restarting import history_options
+    history = history_options(args)
+    with OwnerLock(runtime_lock_path(sdk), history=history), OwnerLock(device_lock_path(), history=history):
         simulator_preflight()
         return _run(args)
 
@@ -398,6 +453,8 @@ def main():
     parser.add_argument('--max-frames', type=int, default=1800)
     parser.add_argument('--recent-interval', type=validate_recent_interval, default=1,
                         help='diagnostic recent-frame sampling interval; default 1 keeps the original runtime path')
+    parser.add_argument('--history-helper', type=Path, help='opt in to pinned JOURNEY history clearing')
+    parser.add_argument('--history-helper-sha256', help='exact private helper binary SHA256')
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--qualification', action='store_true', help='exercise real-runtime protocol faults, cancellation and ownership')
     args = parser.parse_args()

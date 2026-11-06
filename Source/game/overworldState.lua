@@ -217,7 +217,7 @@ function ExploreSubstate:handleInput()
     self.pendingAction = self.pendingAction or action
     player.running = running and not self.pendingAction
     local cycling
-    if FieldCycling and game.session:fieldTravelData().mode == "bicycle" then
+    if FieldCycling and game.session:fieldTravelMode() == "bicycle" then
         local map = currentZone.stableID == "pallet_town" and "PALLET_TOWN"
             or WorldDeltas.definitionProvider():descriptor(currentZone.stableID).source_map_constant
         cycling = FieldCycling.motion(game.session:fieldTravelData(), map, {
@@ -548,6 +548,13 @@ function OverworldState:enter(opts)
     local px, py = game.player:getPixelCenter()
     local mw, mh = getMapPixelSize()
     game.camera:snapTo(px, py, mw, mh)
+    -- Pokered fills the overworld buffer with the map's border block before
+    -- placing a short room. Undersized imported maps (the Silph elevator is
+    -- 13x4) have no vertical void rows, so the uncovered screen must be that
+    -- black border rather than the default white sprite background. Screen-sized
+    -- maps keep white so transparent roof wedges stay on their reviewed ground.
+    gfx.setBackgroundColor((mw < 400 or mh < 240) and gfx.kColorBlack or gfx.kColorWhite)
+    gfx.sprite.addDirtyRect(0, 0, 400, 240)
 
     local encounterReady, encounterReason = FieldEncounters.prepareZone(currentZone)
     assert(encounterReady, encounterReason)
@@ -567,6 +574,7 @@ function OverworldState:enter(opts)
 end
 
 function OverworldState:exit()
+    gfx.setBackgroundColor(gfx.kColorWhite)
     self.presentationVisit = nil
     self.builtView = nil
     self.savedActors=self.game.npcManager.motion:snapshot();self.savedActorsSession=self.game.session

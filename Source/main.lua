@@ -179,10 +179,16 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/fieldGearRequests"
     import "game/fieldGearState"
     import "world/fieldGearArt"
+    import "game/silphStory"
+    import "game/silphStoryWorld"
+    import "game/silphStoryController"
+    import "game/saffronGuards"
+    import "game/midgameGymStoryController"
     import "game/midgameGymStory"
     import "game/midgameStoryWarps"
     import "game/celadonServices"
     import "game/celadonServicesController"
+    import "game/copycatService"
     import "game/hideoutTowerContent"
     import "game/hideoutTowerController"
     import "domain/safariBattle"
@@ -233,6 +239,9 @@ local bootAccepted, bootProblem = pcall(function()
             CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
                 return HideoutTowerContent.package("midgameSouth", events, trainers)
             end, "hideout-tower-midgameSouth-v1")
+            CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/", function(events, trainers)
+                return HideoutTowerContent.package("midgameSaffron", events, trainers)
+            end, "hideout-tower-midgameSaffron-v1")
             BootTrace.mark("CeruleanContent.registerPackage.end")
             GameBootstrap.yieldIfDue()
             BootTrace.mark("CeruleanContent.install.begin")
@@ -264,9 +273,11 @@ local bootAccepted, bootProblem = pcall(function()
             BootTrace.mark("Daycare.install.begin")
             Daycare.install()
             BootTrace.mark("Daycare.install.end")
-            -- NPC trades and Saffron guards remain parked.
+            -- NPC trades remain parked.
+            SaffronGuards.install()
             BootTrace.mark("HideoutTowerContent.install.begin")
             HideoutTowerContent.install()
+            CopycatService.install()
             BootTrace.mark("HideoutTowerContent.install.end")
             BootTrace.mark("MidgameServices.install.begin")
             MidgameServices.install()

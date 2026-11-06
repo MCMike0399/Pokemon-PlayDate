@@ -8,10 +8,14 @@ import argparse
 import copy
 import hashlib
 import json
+import re
 import struct
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.generate_kanto_maps import Reference, integer as asm_integer, records, warp_tiles
 REVISION = "af519899719f0754965776faac0e836a3b906e6d"
 MANIFEST = ROOT / "Source/data/sourceMaps.json"
 VOID_KEYS = {"source": "adapter:source:void", "viridian": "adapter:viridian-slice:void", "pewter": "adapter:pewter:void"}
@@ -35,6 +39,61 @@ def padding_grid(profile, index):
             "terrain": {"foot_tile": -1, "land_passable": False, "grass": False,
                         "counter": False, "warp_tile": False, "water_candidate": False,
                         "adapter_padding": True}}
+
+
+def warp_authority():
+    """Read pinned Blue control flow; only prove function1 interior negatives.
+
+    Function2's front-tile/direction behavior is deliberately left to existing
+    bindings. Pin the entire consumed routines, including collision entry paths.
+    """
+    path = ROOT / "tools/references/source-warps/manifest.json"
+    raw = path.read_bytes()
+    pins = json.loads(raw)
+    require(pins["schema"] == 1 and pins["source_revision"] == REVISION, "unverified warp authority")
+    reference = Reference(ROOT, {entry["path"]: entry["sha256"] for entry in pins["files"].values()})
+    sources = {name: reference.text(entry["path"]) for name, entry in pins["files"].items()}
+    constants = re.findall(r"^\s*const (\w+)", sources["constants/tileset_constants.asm"], re.M)
+    doors = {}
+    source = sources["data/tilesets/door_tile_ids.asm"]
+    for tileset, label in re.findall(r"dbw (\w+),\s*(\.\w+)", source):
+        block = source.split(label + ":", 1)[1].split("door_tiles", 1)[1].splitlines()[0]
+        doors[tileset] = [asm_integer(value) for value in block.split(",") if value.strip()]
+    routine = sources["home/overworld.asm"].split("ExtraWarpCheck::", 1)[1].split("\nMapEntryAfterBattle::", 1)[0]
+    maps, tilesets = routine.split("ld a, [wCurMapTileset]", 1)
+    def branches(text):
+        clean = "\n".join(line.split(";", 1)[0].rstrip() for line in text.splitlines())
+        return dict(re.findall(r"cp (\w+)\s*\n\s*jr z, \.useFunction([12])", clean))
+    map_rules, tileset_rules = branches(maps), branches(tilesets)
+    require("and a ; outside tileset (OVERWORLD)\n\tjr z, .useFunction2" in tilesets,
+            "unknown outside ExtraWarpCheck branch")
+    tileset_rules["OVERWORLD"] = "2"
+    require(map_rules and tileset_rules and "ld hl, IsPlayerFacingEdgeOfMap" in routine
+            and "ld hl, IsWarpTileInFrontOfPlayer" in routine, "unknown ExtraWarpCheck rules")
+    return dict(doors=doors, constants=constants, map_rules=map_rules, tileset_rules=tileset_rules,
+                warps=sources["data/tilesets/warp_tile_ids.asm"],
+                sha256=hashlib.sha256(raw).hexdigest())
+
+
+def warp_classification(definition, event, authority):
+    """Conservative source classification, before any padding or barriers."""
+    tileset = definition["tileset"]["constant"]
+    index = definition["tileset"]["index"]
+    require(authority["constants"][index] == tileset, "source tileset index differs")
+    grid = definition["grids"][definition["tile_ids"][event["y"]][event["x"]] - 1]
+    foot = grid["terrain"]["foot_tile"]
+    standing = foot in warp_tiles(authority["warps"], index)
+    require(grid["terrain"]["warp_tile"] == standing, "source warp terrain differs from pinned list")
+    if standing or foot in authority["doors"].get(tileset, []):
+        return "standing_tile", grid
+    function = authority["map_rules"].get(definition["source_map_constant"],
+                                         authority["tileset_rules"].get(tileset, "1"))
+    if function == "2":
+        return "function2", grid
+    width, height = definition["dimensions"]["cells"]
+    if event["x"] in (0, width - 1) or event["y"] in (0, height - 1):
+        return "edge", grid
+    return "non_triggering", grid
 
 
 
@@ -87,7 +146,10 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
     require(isinstance(door_tiles, dict) and all(isinstance(name, str) and isinstance(ids, list)
             and all(integer(tile, 0, 255) for tile in ids) for name, ids in door_tiles.items()),
             "invalid shared door tiles")
+    authority = warp_authority()
+    require(door_tiles == authority["doors"], "shared doors differ from pinned Blue lists")
     compact = dict(header, maps={}, tiles={}, door_tiles=door_tiles)
+    compact["warp_authority_sha256"] = authority["sha256"]
     atlas = dict(header, tiles={})
     identities, keys = set(), set()
     runtime = {}
@@ -135,7 +197,8 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
                       "last_outdoor": entry.get("last_outdoor"),
                       "connection_sources": entry.get("connection_sources", {}),
                       "blocked_connections": entry.get("blocked_connections", []),
-                      "warps": [], "connections": definition["connections"], "tileset": definition["tileset"]}
+                      "warps": [], "non_triggering_warps": {},
+                      "connections": definition["connections"], "tileset": definition["tileset"]}
         for row, collision in zip(definition["tile_ids"], definition["collision"]):
             require(len(row) == width and len(collision) == width, "source row width differs")
             for tile, solid in zip(row, collision):
@@ -148,10 +211,20 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
         scripted = set(entry.get("scripted_warps", []))
         require(len(scripted) == len(entry.get("scripted_warps", [])), "duplicate scripted warp")
         blocked = list(entry.get("blocked_events", []))
+        for event in definition["events"]["warps"]:
+            classification, grid = warp_classification(definition, event, authority)
+            if classification == "non_triggering":
+                descriptor["non_triggering_warps"][event["id"]] = dict(
+                    source_x=event["x"], source_y=event["y"], tileset=definition["tileset"]["constant"],
+                    key=grid["stable_id"], foot_tile=grid["terrain"]["foot_tile"],
+                    edge_check="function1_interior")
+        inert = set(descriptor["non_triggering_warps"])
+        require(not inert.intersection(blocked), "blocked/non-triggering warp sets overlap")
+        require(not inert.intersection(scripted), "scripted/non-triggering warp sets overlap")
         available = {item["id"] for item in manifest["maps"].values()}
         for event in definition["events"]["warps"]:
             destination = event["destination"]
-            if event["id"] not in scripted and destination["kind"] == "map" and "pokered:" + destination["map"] not in available:
+            if event["id"] not in scripted | inert and destination["kind"] == "map" and "pokered:" + destination["map"] not in available:
                 blocked.append(event["id"])
         require(isinstance(blocked, list) and len(set(blocked)) == len(blocked), "duplicate blocked surface event")
         surfaces, all_events = set(), set()
@@ -188,6 +261,26 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
             cells = cell_cache(definition, header, entry)
             if cells is not None:
                 cell_artifacts[name + ".bin"] = cells
+    # Callback-only Silph block cells come from generate_silph_story's use of
+    # the existing pinned decoder (extra_blocks), without changing base grids,
+    # map palettes, row bytes or manifest pins. This immutable auxiliary input
+    # is shared by ordinary builds and staged activation/proposal generation.
+    if "SilphCo3F" in manifest["maps"] and "SilphCo11F" in manifest["maps"]:
+        raw = (source_root / "data/silphStory/tiles.json").read_bytes()
+        require(hashlib.sha256(raw).hexdigest() ==
+                "c6e20529f7a1c785a85b91b60769ba2bdd6e36b181ddda2895f93d2885e31a70",
+                "pinned Silph callback tiles differ; reproduce with generate_silph_story")
+        extra = json.loads(raw)
+        require(extra["schema"] == 1 and extra["source_revision"] == REVISION,
+                "unverified Silph callback tiles")
+        for grid in extra["grids"]:
+            key = grid["stable_id"]
+            tile = {"key": key, "grid": grid["grid"], "terrain": grid["terrain"],
+                    "collision": int(not grid["terrain"]["land_passable"])}
+            require(key not in atlas["tiles"] or atlas["tiles"][key] == tile,
+                    "shared Silph callback tile differs: " + key)
+            atlas["tiles"][key] = tile
+            compact["tiles"][key] = {field: value for field, value in tile.items() if field != "grid"}
     # LAST_MAP is stateful in the source. Infer its ordinary unique OVERWORLD
     # ingress; an ambiguous context requires an explicit manifest override (or
     # ultimately a bespoke runtime script), never a regional Lua name branch.
@@ -195,6 +288,7 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
         blocked_events = manifest["maps"][name].get("blocked_events", [])
         dynamic = [warp for warp in descriptor["warps"]
                    if warp["destination"]["kind"] == "last_outdoor_map"
+                   and warp["id"] not in descriptor["non_triggering_warps"]
                    and warp["id"] not in blocked_events
                    and warp["id"] not in manifest["maps"][name].get("scripted_warps", [])]
         if not dynamic:
@@ -226,7 +320,7 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
         for descriptor in compact["maps"].values():
             scripted = manifest["maps"][descriptor["name"]].get("scripted_warps", [])
             for warp in descriptor["warps"]:
-                if warp["id"] in scripted:
+                if warp["id"] in scripted or warp["id"] in descriptor["non_triggering_warps"]:
                     continue
                 cell = str(warp["y"] * descriptor["width"] + warp["x"] + 1)
                 if cell in descriptor["blocked"]:

@@ -71,6 +71,10 @@ function GameSaves:_publishPayload(payload)
             ok, metadata, published = self.store:save(payload)
         end
     end
+    -- The envelope proof covered this publication's readbacks. Drop it before
+    -- the caller keeps walking so a later, different record cannot reuse it
+    -- and the detached copy does not stay live.
+    SessionCodec.releaseValidationProof()
     -- Optional read-only observer is installed explicitly by the private
     -- harness. Observe the actual verified disk boundary, never recapture play.
     if ok and self.observeBoundary then
@@ -78,6 +82,7 @@ function GameSaves:_publishPayload(payload)
         -- readback. Observing it must not load/decode/encode the same bytes again.
         self.observeBoundary(self.game.session, "saved", published, GameSession._copy(metadata))
     end
+    SessionCodec.releaseValidationProof()
     return ok, metadata
 end
 

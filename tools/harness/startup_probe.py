@@ -102,7 +102,7 @@ def prepare(project, sdk, output, session, mode, checkpoint=None, device_test=Fa
                                      for line in pdxinfo.read_text().splitlines()) + '\n')
         metadata = {'bundle': str(output / 'Production.pdx'), 'bundle_id': bundle_id,
                     'data_dir': str(sdk / 'Disk/Data' / bundle_id),
-                    'simulator': str(sdk / 'bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator'),
+                    'simulator': str(run.simulator_executable(sdk)),
                     'revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=project, text=True).strip(),
                     'sdk_version': (sdk / 'VERSION.txt').read_text().strip(),
                     'source_sha256': run.fingerprint(project)}

@@ -484,13 +484,46 @@ function SourceMaps.padded(name)
     return padded(name, false)
 end
 
+-- A load scope already reuses one padded definition, then drops it. The next
+-- visit (Saffron after the Center) otherwise decodes runtime-<Map>.json again.
+-- Keep the two most recent immutable results. Callers only read them; padding
+-- is applied once. Fixture record overrides never enter this cache.
+local retainedRuntime = {}
+local retainedRuntimeOrder = {}
+local RETAINED_RUNTIME <const> = 2
+local function retainRuntime(name, definition)
+    for index, key in ipairs(retainedRuntimeOrder) do
+        if key == name then
+            table.remove(retainedRuntimeOrder, index)
+            break
+        end
+    end
+    retainedRuntime[name] = definition
+    retainedRuntimeOrder[#retainedRuntimeOrder + 1] = name
+    while #retainedRuntimeOrder > RETAINED_RUNTIME do
+        retainedRuntime[table.remove(retainedRuntimeOrder, 1)] = nil
+    end
+end
 function SourceMaps._runtimePadded(name)
     if runtimeDefinitions and runtimeDefinitions[name] then
         return runtimeDefinitions[name]
     end
+    if not recordOverrides then
+        local cached = retainedRuntime[name]
+        if cached then
+            retainRuntime(name, cached)
+            if runtimeDefinitions then
+                runtimeDefinitions[name] = cached
+            end
+            return cached
+        end
+    end
     local definition = padded(name, true)
     if runtimeDefinitions then
         runtimeDefinitions[name] = definition
+    end
+    if not recordOverrides then
+        retainRuntime(name, definition)
     end
     return definition
 end
@@ -599,6 +632,29 @@ function SourceMaps.resolveScriptedWarp(game, door)
 end
 
 function SourceMaps.warpSpec(name, event)
+    local descriptor = assert(compactData().maps[name], "unknown source map")
+    local inert = descriptor.non_triggering_warps and descriptor.non_triggering_warps[event.id]
+    if inert then
+        local declared
+        for _, warp in ipairs(descriptor.warps) do
+            if warp.id == event.id then
+                declared = warp
+            end
+        end
+        assert(declared and event.x == declared.x and event.y == declared.y
+            and event.destination and event.destination.kind == declared.destination.kind
+            and event.destination.map == declared.destination.map
+            and event.destination.warp_index == declared.destination.warp_index,
+            "non-triggering event differs from enumerated source warp")
+        local cell = SourceMaps.cell(name, event.x, event.y)
+        assert(event.x == inert.source_x + descriptor.padding and event.y == inert.source_y
+            and descriptor.tileset.constant == inert.tileset and cell.key == inert.key
+            and cell.terrain.foot_tile == inert.foot_tile and not cell.terrain.warp_tile
+            and not SourceMaps.isDoor(name, event.x, event.y)
+            and inert.edge_check == "function1_interior",
+            "non-triggering source surface differs")
+        return {status = "inert", source_event_id = event.id}
+    end
     local entry = SourceMaps.entry(name)
     for _, id in ipairs(entry.scripted_warps or {}) do
         if id == event.id then

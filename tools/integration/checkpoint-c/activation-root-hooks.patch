@@ -1,0 +1,93 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -178,12 +178,18 @@
+     import "game/fieldTravelState"
+     import "game/fieldGearRequests"
+     import "game/fieldGearState"
+     import "world/fieldGearArt"
++    import "game/silphStory"
++    import "game/silphStoryWorld"
++    import "game/silphStoryController"
++    import "game/saffronGuards"
++    import "game/midgameGymStoryController"
+     import "game/midgameGymStory"
+     import "game/midgameStoryWarps"
+     import "game/celadonServices"
+     import "game/celadonServicesController"
++    import "game/copycatService"
+     import "game/hideoutTowerContent"
+     import "game/hideoutTowerController"
+     import "domain/safariBattle"
+     import "game/midgameServices"
+@@ -232,8 +238,11 @@
+             end, "hideout-tower-midgameEast-v1")
+             CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
+                 return HideoutTowerContent.package("midgameSouth", events, trainers)
+             end, "hideout-tower-midgameSouth-v1")
++            CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/", function(events, trainers)
++                return HideoutTowerContent.package("midgameSaffron", events, trainers)
++            end, "hideout-tower-midgameSaffron-v1")
+             BootTrace.mark("CeruleanContent.registerPackage.end")
+             GameBootstrap.yieldIfDue()
+             BootTrace.mark("CeruleanContent.install.begin")
+             CeruleanContent.install(campaignActorMetadata)
+@@ -263,11 +272,13 @@
+             GameBootstrap.yieldIfDue()
+             BootTrace.mark("Daycare.install.begin")
+             Daycare.install()
+             BootTrace.mark("Daycare.install.end")
+-            -- NPC trades and Saffron guards remain parked.
++            -- NPC trades remain parked.
++            SaffronGuards.install()
+             BootTrace.mark("HideoutTowerContent.install.begin")
+             HideoutTowerContent.install()
++            CopycatService.install()
+             BootTrace.mark("HideoutTowerContent.install.end")
+             BootTrace.mark("MidgameServices.install.begin")
+             MidgameServices.install()
+             SourceEvents.registerWorldHooks("pokered:SAFARI_ZONE_GATE:script:admission", {
+--- a/Source/game/hideoutTowerController.lua
++++ b/Source/game/hideoutTowerController.lua
+@@ -7,8 +7,11 @@
+     if SilphStoryController then SilphStoryController.enter(state) end
+     CeladonServicesController.enter(state)
+ end
+ function HideoutTowerController.advance(state)
++    if CopycatService and CopycatService.advance(state) then
++        return true
++    end
+     return RocketHideoutStoryController.advance(state) or (TowerStoryController and TowerStoryController.advance(state))
+         or (MidgameGymStoryController and MidgameGymStoryController.advance(state)) or (SilphStoryController and SilphStoryController.advance(state))
+         or CeladonServicesController.advance(state)
+ end
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -645,9 +645,9 @@
+ -- Registration checks membership using indexes; it never decodes descriptors.
+ function SourceEvents._registerRegionDeclaration(name, root, identity)
+     local kanto = name == "ceruleanStory" or name == "ceruleanRoutes"
+     if not (ShippedDataPolicy and ShippedDataPolicy.regionDeclarations())
+-        or (not kanto and name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth") then
++        or (not kanto and name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth" and name ~= "midgameSaffron") then
+         return false
+     end
+     if kanto then
+         -- Fixture records cannot borrow the shipped map-padding qualification.
+--- a/tools/generate_region_registrations.py
++++ b/tools/generate_region_registrations.py
+@@ -37,12 +37,14 @@
+     if not cache_files:
+         files = {p.relative_to(source / 'data/contentCache').as_posix(): p.read_bytes()
+                  for p in (source / 'data/contentCache').rglob('*.json')}
+     catalog = json.loads(files['catalog.json'])['packages']
++    require('midgameSaffron' in provenance['exports'], 'C requires a real pinned SDK Saffron transform export')
+     result = {}
+     for name, root in (('vermilion', 'data/vermilionPreparation/'),
+                        ('midgameEast', 'data/midgameEast/'),
+-                       ('midgameSouth', 'data/midgameSouth/')):
++                       ('midgameSouth', 'data/midgameSouth/'),
++                       ('midgameSaffron', 'data/midgameSaffron/')):
+         index = json.loads(files[catalog[root] + '.json'])
+         events = dict(index['records']['events']['events'])
+         events.update(index['records']['events']['signs'])
+         trainers = dict(index['ordinary_trainers'])

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":10,"text":"REVIVE is costly,"},{"op":"line","source_line":11,"text":"but it revives"},{"op":"cont","source_line":12,"text":"fainted #MON!"},{"op":"control","source":"done","source_line":13}],"source":"text/SaffronMart.asm"}

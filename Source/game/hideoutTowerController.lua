@@ -8,6 +8,9 @@ function HideoutTowerController.enter(state)
     CeladonServicesController.enter(state)
 end
 function HideoutTowerController.advance(state)
+    if CopycatService and CopycatService.advance(state) then
+        return true
+    end
     return RocketHideoutStoryController.advance(state) or (TowerStoryController and TowerStoryController.advance(state))
         or (MidgameGymStoryController and MidgameGymStoryController.advance(state)) or (SilphStoryController and SilphStoryController.advance(state))
         or CeladonServicesController.advance(state)

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":40,"text":"It's a #MON"},{"op":"line","source_line":41,"text":"REPORT!"},{"op":"para","source_line":43,"text":"Over 160 #MON"},{"op":"line","source_line":44,"text":"techniques have"},{"op":"cont","source_line":45,"text":"been confirmed."},{"op":"control","source":"done","source_line":46}],"source":"text/SilphCo5F_2.asm"}

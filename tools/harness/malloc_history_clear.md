@@ -33,7 +33,7 @@ these mutually exclusive with the ordinary BSD flock owners in both directions.
 The helper opens those paths read-only and uses F_GETLK to require an exclusive
 whole-file write lock belonging to its direct parent PID. It never acquires or
 changes a lock. Metadata alone is never sufficient. Ordinary sessions retain
-the original OwnerLock; only history-enabled census ownership uses this mode.
+the original OwnerLock; the explicit JOURNEY opt-in below uses the same history mode.
 It has an eight-second lifetime ceiling. Its application-root AX object has a
 200 ms messaging timeout; Apple's API applies that setting only to that object,
 not every child reference. The whole-helper alarm remains the outer bound.
@@ -126,3 +126,161 @@ allocations again in [2024 support](https://devforum.play.date/t/simulator-memor
 These support the proposed control, not a current-SDK causal result.
 
 Host rejection checks: `python3 tools/harness/malloc_history_clear_host_checks.py HELPER RETAINED_CENSUS_RUN`.
+
+## Opted-in ordinary JOURNEY owner (host preparation only)
+
+The existing root runner now accepts `--history-helper ABSOLUTE_PATH` and
+`--history-helper-sha256 SHA256` together, only for its existing process-journey
+scenarios. No default owner changes lock mode. Opted-in sessions use whole-file
+POSIX write locks on the same Simulator, device and private Data paths; metadata
+and kernel-owner proof are both still required. Census invocation/validation is
+retained separately and is not a way to admit a journey.
+
+The explicit helper identity is:
+
+```
+HELPER OPERATION OUTPUT BUILD_JSON_SHA256 PROCESS_JSON_SHA256 JOURNEY processes/NNNN/process.json
+```
+
+Only the actual root runner launches this command as a direct child. It pins the
+new stage's actual `build.json`, PDX inventory and current generation's
+`process.json`; these bind build/session, harness bundle ID, executable hash,
+PID, direct parent and native start seconds/microseconds. The verifier also
+checks the latest generation in actual `run.json`, its live executable/argv,
+all three kernel fences, and the actual matching unacknowledged pause/result.
+Do not manually invoke the helper from a different shell or fake census fields.
+
+The private staging hook freezes before the next game update after a successful
+request ends in settled overworld exploration, with no jumping, pending edge
+door, held input or recording. The root `main.lua` bytes are untouched. Pauses
+are nonterminal: only an exact build/session/request/tick acknowledgement from
+the owner releases them. Updates, timers, movement and rules RNG do not execute
+while paused. Save UI, battle, warp and incomplete movement boundaries cannot
+Clear. These restrictions can still stop a journey at the hard guard if a safe
+boundary is not reached soon enough; there is no automatic replay or shortcut.
+Native command/frame timing ends before the pause; helper overhead stays in the
+separate `processes/NNNN/malloc-clear.jsonl`, with wall time retained. Journey
+results are not production latency measurements.
+
+The first safe pause performs inspect/show/Clear/inspect. Later safe
+pauses Clear/inspect when host footprint is at least736MiB. Limits are64 Clears
+and131 helper calls per generation; existing scenario validation bounds process
+generations. Each helper still has its original8s alarm and9s host ceiling.
+During helpers, the owner checks footprint, disk, progress and the original
+command deadline every50ms. The1GiB hard stop,31/30GiB disk admission/reserve,
+60s progress check and4h generation wall ceiling remain active during pauses.
+No game Lua guard or16MiB pool change is introduced. Helper pin changes,
+refusals, deadlines, capture failures or invalid acknowledgements poison this
+owner, skip further finalization commands and stop its owned Simulator child.
+No failed Clear is retried. Native captures use their unique helper paths and
+are bound by SHA256 in the audit. A Clear reply alone proves no reclamation.
+
+Compile-only handoff commands (Root selects a durable private directory):
+
+```sh
+swiftc -O tools/harness/malloc_history_clear.swift -o "$PRIVATE_DIR/malloc-history-clear"
+shasum -a 256 tools/harness/malloc_history_clear.swift "$PRIVATE_DIR/malloc-history-clear"
+python3 -m unittest tools.tests.test_journey_history
+```
+
+Root's eventual existing journey invocation adds only these pins:
+
+```sh
+python3 tools/harness/run.py \
+  --scenario tools/harness/scenarios/midgame/restart-55c-bulbasaur.json \
+  --output "$FRESH_OUTPUT" \
+  --history-helper "$PRIVATE_DIR/malloc-history-clear" \
+  --history-helper-sha256 "$HELPER_SHA256"
+```
+
+Use the existing Root admission/guard wrapper too, unchanged. First independently
+inspect the native controls and qualify one Clear plus a short ordinary C
+segment under this actual owner. Only then run all three existing earned
+journeys (substitute `charmander`/`squirtle` scenario filenames). The implementation
+worker ran no SDK compile, Simulator, native AX, device, USB or global locks.
+Swift compile and host checks do not establish native pause behavior, correct
+current broom layout, reclamation, complete journeys or acceptance. No census
+was resumed. Root must record actual before/after footprint and native control
+captures in the new evidence, rather than reuse census qualification.
+
+### Generation fence correction
+
+Generation archival excludes the live root `owner.lock` file. POSIX record locks
+are released when the owning process closes any descriptor for that inode, so
+copying that file would silently release the private fence. Owner metadata stays
+in the live descriptor and existing process evidence; archival never reopens the
+fence. A two-generation subprocess test verifies a competing POSIX writer is
+refused after each archive and succeeds only after the owner exits. This fixes
+the review finding; actual native Clear qualification remains pending.
+
+### First-open journey memory qualification
+
+The first journey pilot stopped at the unchanged 1 GiB host limit: initial
+inspection used about 392 MB; showing Malloc Log raised usage to 880 MB; its
+pre-Clear inspection crossed 1 GiB. No Clear ran. The next candidate removes
+that pre-Clear inspection and uses the existing verified-window broom path
+directly for JOURNEY Clear, without traversing the populated log's AX children.
+The exact SDK binary, native window, 740×480 layout, current PID/locks and point
+hit-test remain mandatory immediately before input. Inspection/capture follows
+Clear. Census behavior is unchanged and remains stopped. This is a candidate
+until actual native reclamation and a short journey segment pass; no host guard,
+pool, timing or game-state check is relaxed.
+
+### Ready-title boundary candidate
+
+Three ordinary C pilots remain failed, with their true outcomes retained. The
+latest removed the fixed 500 ms Show wait, but Clear still met a busy AX window
+while the native log grew from about 395 MB to 1.056 GB. None qualifies a Clear.
+The next candidate makes the first pause at the already-prepared title menu,
+before Continue constructs the saved map. Lua, host and helper independently
+require root/stack exactly `title`, phase `menu`, an active menu and no player.
+Preparing, confirmation, options and in-world titles with a player refuse. The
+same no-held-input/no-recording request barrier applies; the later settled
+exploration rule is unchanged. No save inspection or Continue validator is
+skipped, and no gameplay input is injected by the helper. Native identity,
+three kernel fences, window/layout/hit-test, deadlines and memory guards stay
+mandatory. Actual native Clear and a short segment remain pending fresh review.
+
+
+User decision, 2026-11-02: raise only the ordinary journey Clear trigger from
+512 to 736 MiB. The 1 GiB hard stop, 16 MiB pool, 64-Clear/131-call caps and all
+other memory, disk, ownership and deadline guards remain unchanged. The failed
+window-close experiment is reverted. Native effectiveness of the new trigger
+must be measured; permission alone establishes no complete journey.
+
+### Pre-ready title artwork barrier (host/compile-only candidate)
+
+History-enabled journey staging now inserts `Harness.pauseStartup(game)` just
+following `title.visible`, after `presentStartup` has yielded the actual artwork
+and before content registration or title/save inspection. Imports remain in PDZ
+loading; the checked-in `Source/main.lua` is untouched. The barrier yields the
+same initialization coroutine through `GameBootstrap.checkpoint`, keeping its
+loading/memory guards active without game updates, timers or injected input.
+It does not skip the subsequent content, save, world or constructor validation.
+
+Before launch, the existing owner publishes a unique startup request for that
+generation. Before polling readiness it records the real PID, executable hash,
+native start time and direct parent in `process.json` and current `run.json`,
+with `status=launching` and `fresh_ready=false`. The minimal startup publication
+binds build/session/generation/nonce and feature version 1 to the exact preparing
+title stack, absent player/input/recording. It never calls a full diagnostics
+snapshot while overworld is unregistered. The actual compiled inventory and
+private hook identity are retained in `build.json`.
+
+`Client.ready` services this one startup pause with the same `JourneyHistory`
+inspect/show-log/Clear/inspect operations and counters, then publishes only the
+exact startup ACK. Errors/timeouts poison the owner without ACK or replay. Only
+normal boot's genuine ready publication changes process status to ready. The
+startup Clear counts toward 64/131; later boundaries use the existing 736 MiB
+trigger instead of forcing another initial Clear. All kernel fences and native
+window/layout/PID/hit-test/payload/timing checks remain mandatory.
+
+Use the existing compile and short Root qualification commands above, with a
+fresh directory and newly compiled helper pin; keep Root's admission/guard
+wrapper unchanged. After native early-Clear qualification, Root must retry the
+exact earned Route 14 partial described by
+`E/checkpoint-c-resume-inputs-20261102-10/validation.json` and its unchanged
+`restart-55c-squirtle.json` (marker SHA256
+`bb2246417b96b01e8dfd5a664d0566fe43acc11d46375bb11dfd661a417bc380`).
+Canonical B startup alone cannot qualify that resume. This candidate has no
+native reclamation, timing, long-journey or C acceptance claim.

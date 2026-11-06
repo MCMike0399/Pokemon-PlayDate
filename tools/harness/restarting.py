@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
+import threading
 import time
 
 from tools.harness.protocol import Client, ProtocolError, atomic_json
@@ -11,7 +13,8 @@ from tools.harness.protocol import Client, ProtocolError, atomic_json
 # Only these protocol publications are removed between stopped processes.
 TRANSIENT = frozenset({'ready.json', 'heartbeat.json', 'request.json', 'result.json',
                        'rejected.json', 'cancel.json', 'runtime-error.json', 'captures-final.json',
-                       'catalog-invariance-before.json', 'catalog-invariance-after.json'})
+                       'catalog-invariance-before.json', 'catalog-invariance-after.json',
+                       'journey-history-pause.json', 'journey-history-ack.json', 'journey-startup-request.json'})
 
 
 class UnconfirmedExit(ProtocolError):
@@ -174,7 +177,10 @@ def durable_hashes(data):
 
 def archive_generation(data, output, evidence, trace_start):
     # Called only after confirmed process exit; producers cannot overwrite copies.
-    shutil.copytree(data, evidence / 'runtime-data')
+    # Opening and closing another descriptor for a POSIX-locked inode releases
+    # this process's record lock. Never read the live fence during archival.
+    shutil.copytree(data, evidence / 'runtime-data',
+                    ignore=lambda directory, names: {'owner.lock'} if Path(directory) == data else set())
     trace = data / 'trace.jsonl'
     content = trace.read_bytes() if trace.exists() else b''
     if trace_start > len(content):
@@ -195,13 +201,13 @@ def import_chain_save(scenario, project, data, output):
     if spec is None:
         return None
     if (not isinstance(spec, dict) or set(spec) not in ({'milestone', 'starter'}, {'milestone', 'starter', 'resume'})
-            or spec['milestone'] not in {'5.2', '5.3', '5.4', '5.5a'}
+            or spec['milestone'] not in {'5.2', '5.3', '5.4', '5.5a', '5.5b'}
             or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
         raise ProtocolError('unknown starting save')
     first = scenario['processes'][0]['journey']
     expected = spec['milestone']
-    if expected == '5.5a' and first.get('name') != 'midgame-natural':
-        raise ProtocolError('accepted A starting save is only valid for midgame B')
+    if expected in {'5.5a', '5.5b'} and first.get('name') != 'midgame-natural':
+        raise ProtocolError('accepted midgame starting save requires its next midgame packet')
     if first.get('name') == 'midgame-natural':
         from tools.harness.midgame_journey import validate_scenario
         validate_scenario(scenario)
@@ -219,7 +225,7 @@ def import_chain_save(scenario, project, data, output):
     if first['name'] == 'midgame-natural':
         from tools.harness.midgame_journey import validate_chain_record
         validate_chain_record(record, spec, project)
-        if spec['milestone'] == '5.5a':
+        if spec['milestone'] in {'5.5a', '5.5b'}:
             record = dict(record, accepted_boundary=accepted_midgame_boundary(record, project))
     if first['name'] == 'vermilion-natural':
         origin = record
@@ -258,12 +264,14 @@ def import_chain_save(scenario, project, data, output):
     return record
 
 
-def accepted_midgame_boundary(record, project):
-    """Bind accepted A bytes to earned ancestry and a stopped real Continue.
+def accepted_midgame_boundary(record, project, *, chain_manifest=None):
+    """Bind accepted A/B bytes to earned ancestry and a stopped real Continue.
 
     Read only: no Simulator API, private Data owner, lock, or save edits.
     """
     from tools.harness.midgame_journey import validate_chain_record
+    milestone = record['from_milestone']
+    validate_chain_record(record, {'milestone': milestone, 'starter': record['starter']}, project)
     root = Path(record['source'])
     run = json.loads((root / 'run.json').read_bytes())
     outcome = json.loads((root / 'outcome.json').read_bytes())
@@ -273,18 +281,86 @@ def accepted_midgame_boundary(record, project):
         raise ProtocolError('accepted A requires both exact slot hashes')
     if (outcome.get('ok') is not True or outcome.get('session_id') != run.get('session_id')
             or provenance.get('evidence') != str(root) or provenance.get('files') != record['files']
-            or provenance.get('milestone') != '5.5a' or provenance.get('starter') != record['starter']
+            or provenance.get('milestone') != milestone or provenance.get('starter') != record['starter']
             or provenance.get('source_sha256') != record['journey_source_sha256']
             or provenance.get('build_id') != run.get('build_id')):
         raise ProtocolError('accepted A producer/provenance binding differs')
     manifest_path = Path(project) / 'docs/validation/chain-saves.json'
-    manifest = json.loads(manifest_path.read_bytes())
+    manifest_bytes = manifest_path.read_bytes() if chain_manifest is None else chain_manifest
+    manifest = json.loads(manifest_bytes)
     ancestors = [row for row in manifest['saves'] if row['starter'] == record['starter']
-                 and row['from_milestone'] == '5.4']
+                 and row['from_milestone'] == ('5.5a' if milestone == '5.5b' else '5.4')]
     prior = provenance.get('starting_save', {})
-    if len(ancestors) != 1 or {k: v for k, v in prior.items() if k != 'resume'} != ancestors[0]:
-        raise ProtocolError('accepted A lacks exact earned 5.4 ancestry')
-    validate_chain_record(ancestors[0], {'milestone': '5.4', 'starter': record['starter']}, project)
+    ignored = {'resume', 'accepted_boundary'} if milestone == '5.5b' else {'resume'}
+    if len(ancestors) != 1 or {k: v for k, v in prior.items() if k not in ignored} != ancestors[0]:
+        raise ProtocolError('accepted boundary lacks exact earned previous milestone ancestry')
+    validate_chain_record(ancestors[0], {'milestone': ancestors[0]['from_milestone'], 'starter': record['starter']}, project)
+    if milestone == '5.5b':
+        # The producer used a pre-B chain manifest. Verify that immutable Git
+        # object; never replace its frozen hash with today's enlarged manifest.
+        producer_commit = run['build_id'].split(':')[0]
+        historical = subprocess.check_output(['git', '-C', str(project), 'show',
+                                              producer_commit + ':docs/validation/chain-saves.json'])
+        if prior.get('accepted_boundary') != accepted_midgame_boundary(
+                ancestors[0], project, chain_manifest=historical):
+            raise ProtocolError('accepted B frozen A authority differs')
+        proof = json.loads((Path(project) / record['acceptance']).read_bytes())
+        authority = next(row for row in proof['starters'] if row['starter'] == record['starter'])
+        for filename, field in [('run.json', 'run_sha256'), ('outcome.json', 'outcome_sha256')]:
+            if hashlib.sha256((root / filename).read_bytes()).hexdigest() != authority[field]:
+                raise ProtocolError('accepted B producer evidence checksum changed')
+        if run.get('build_id') != authority['build_id']:
+            raise ProtocolError('accepted B producer build differs')
+    groups = run.get('processes', [])
+    if len(groups) != 2:
+        raise ProtocolError('accepted A requires two actual process generations')
+    first, last = groups
+    if (any(row.get('status') != 'exited' or 'returncode' not in row for row in groups)
+            or type(first.get('pid')) is not int or type(last.get('pid')) is not int
+            or first['pid'] == last['pid'] or last.get('previous_pid') != first['pid']
+            or last.get('previous_exit_confirmed') is not True or last.get('fresh_ready') is not True):
+        raise ProtocolError('accepted A producer has no confirmed actual restart/exit')
+    receipts = []
+    for group in groups:
+        reference = group['journey_receipt']
+        expected = group['evidence'] + '/journey-receipt.json'
+        if reference['path'] != expected or Path(group['evidence']).parts not in {
+                ('processes', '0001'), ('processes', '0002')}:
+            raise ProtocolError('accepted A receipt escaped its stopped generation')
+        packet = read_receipt(dict(path=str(root / expected), sha256=reference['sha256']), run)
+        state = packet['state']
+        if (packet['kind'] != 'midgame-saved' or state['packet'] != milestone
+                or state['starter'] != record['starter']):
+            raise ProtocolError('accepted A receipt route identity differs')
+        receipts.append(packet)
+        for name, digest in wanted.items():
+            slot = root / group['evidence'] / 'runtime-data' / name
+            if (group.get('durable_after', {}).get(name) != digest or slot.is_symlink()
+                    or hashlib.sha256(slot.read_bytes()).hexdigest() != digest):
+                raise ProtocolError('accepted A stopped archive slot changed')
+    if milestone == '5.5b':
+        slots = []
+        for name, digest in wanted.items():
+            path = Path(record['directory']) / name
+            if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                raise ProtocolError('accepted B canonical slot changed')
+            slot = json.loads(path.read_bytes())
+            if (set(slot) != {'format', 'schema', 'sequence', 'checksum', 'payload'}
+                    or slot['format'] != 'pokemon-playdate-save' or slot['schema'] != 1
+                    or not isinstance(slot['payload'], str)):
+                raise ProtocolError('accepted B slot envelope differs')
+            sequence = int(slot['sequence'])
+            wire = ('1\n' + str(sequence) + '\n' + slot['payload']).encode()
+            checksum = 2166136261
+            for byte in wire:
+                checksum = ((checksum ^ byte) * 16777619) & 0xffffffff
+            if f'{checksum:08x}' != slot['checksum']:
+                raise ProtocolError('accepted B slot checksum differs')
+            slots.append((sequence, json.loads(slot['payload'])))
+        if max(slots, key=lambda row: row[0])[1] != receipts[-1]['state']['codec']:
+            raise ProtocolError('accepted B saved codec differs from actual Continue')
+    if receipts[0] != receipts[1]:
+        raise ProtocolError('accepted A actual Continue codec differs from Save')
     # Verify the recorded partial chain, including its stopped producer and slots.
     for reference in prior.get('resume', {}).get('ancestry', []):
         marker_path = Path(reference['path'])
@@ -304,38 +380,9 @@ def accepted_midgame_boundary(record, project):
             if (item['file'] not in wanted or archived.is_symlink()
                     or hashlib.sha256(archived.read_bytes()).hexdigest() != item['sha256']):
                 raise ProtocolError('accepted A ancestry archive changed')
-    groups = run.get('processes', [])
-    if len(groups) != 2:
-        raise ProtocolError('accepted A requires two actual process generations')
-    first, last = groups
-    if (any(row.get('status') != 'exited' or 'returncode' not in row for row in groups)
-            or type(first.get('pid')) is not int or type(last.get('pid')) is not int
-            or first['pid'] == last['pid'] or last.get('previous_pid') != first['pid']
-            or last.get('previous_exit_confirmed') is not True or last.get('fresh_ready') is not True):
-        raise ProtocolError('accepted A producer has no confirmed actual restart/exit')
-    receipts = []
-    for group in groups:
-        reference = group['journey_receipt']
-        expected = group['evidence'] + '/journey-receipt.json'
-        if reference['path'] != expected or Path(group['evidence']).parts not in {
-                ('processes', '0001'), ('processes', '0002')}:
-            raise ProtocolError('accepted A receipt escaped its stopped generation')
-        packet = read_receipt(dict(path=str(root / expected), sha256=reference['sha256']), run)
-        state = packet['state']
-        if (packet['kind'] != 'midgame-saved' or state['packet'] != '5.5a'
-                or state['starter'] != record['starter']):
-            raise ProtocolError('accepted A receipt route identity differs')
-        receipts.append(packet)
-        for name, digest in wanted.items():
-            slot = root / group['evidence'] / 'runtime-data' / name
-            if (group.get('durable_after', {}).get(name) != digest or slot.is_symlink()
-                    or hashlib.sha256(slot.read_bytes()).hexdigest() != digest):
-                raise ProtocolError('accepted A stopped archive slot changed')
-    if receipts[0] != receipts[1]:
-        raise ProtocolError('accepted A actual Continue codec differs from Save')
     return dict(state=receipts[-1]['state'], receipt=last['journey_receipt'],
                 acceptance_sha256=hashlib.sha256((Path(project) / record['acceptance']).read_bytes()).hexdigest(),
-                chain_manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+                chain_manifest_sha256=hashlib.sha256(manifest_bytes).hexdigest(),
                 producer_run_sha256=hashlib.sha256((root / 'run.json').read_bytes()).hexdigest())
 
 
@@ -408,7 +455,7 @@ def export_chain_save(scenario, data, output, metadata):
     if spec is None:
         return
     first = scenario['processes'][0].get('journey', {})
-    if first.get('name') == 'midgame-natural' and first.get('packet') not in {'5.5a', '5.5b'}:
+    if first.get('name') == 'midgame-natural' and first.get('packet') not in {'5.5a', '5.5b', '5.5c'}:
         return  # A partial route checkpoint never exports final 5.5a slots.
     if first.get('name') == 'vermilion-natural' and (
             len(scenario['processes']) != 2
@@ -457,10 +504,329 @@ def export_chain_save(scenario, data, output, metadata):
         'status': 'journey passed Save/Continue; milestone review pending'})
 
 
+# Fixed limits for the explicitly opted-in existing journey owner. These do not
+# relax any outer owner guard. No census producer or controller is imported.
+HISTORY_TRIGGER = 736 * 1024**2
+HISTORY_MAX_CLEARS = 64
+HISTORY_MAX_CALLS = 131
+SIMULATOR_SHA256 = 'ebaeca5c65f3d613f06c8a3d701e90c01f292f13fc66f24a680e4357c5b447cf'
+
+
+def file_sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def history_options(args, scenario=None):
+    helper, pin = getattr(args, 'history_helper', None), getattr(args, 'history_helper_sha256', None)
+    if bool(helper) != bool(pin):
+        raise ProtocolError('history helper and SHA256 must be supplied together')
+    if not helper:
+        return False
+    if (not isinstance(pin, str) or len(pin) != 64 or any(c not in '0123456789abcdef' for c in pin)
+            or Path(helper).is_symlink() or not Path(helper).is_file() or file_sha(helper) != pin):
+        raise ProtocolError('history helper pin mismatch')
+    if scenario is not None and (getattr(args, 'qualification', False)
+            or not scenario.get('processes')
+            or any(not group.get('journey') for group in scenario['processes'])):
+        raise ProtocolError('history clearing requires existing process journeys')
+    return True
+
+
+def native_process_identity(pid):
+    """Darwin proc_bsdinfo start fields, not a rounded ps display timestamp."""
+    import ctypes
+    import struct
+    library = ctypes.CDLL('/usr/lib/libproc.dylib', use_errno=True)
+    library.proc_pidinfo.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_uint64, ctypes.c_void_p, ctypes.c_int]
+    library.proc_pidinfo.restype = ctypes.c_int
+    buffer = ctypes.create_string_buffer(136)
+    size = library.proc_pidinfo(pid, 3, 0, buffer, len(buffer))  # PROC_PIDTBSDINFO
+    if size != len(buffer):
+        raise ProtocolError('cannot pin owned process start time')
+    parent = struct.unpack_from('=I', buffer.raw, 16)[0]
+    import os
+    if parent != os.getpid():
+        raise ProtocolError('Simulator is not a direct child of this owner')
+    sec, usec = struct.unpack_from('=QQ', buffer.raw, 120)
+    return dict(start_sec=sec, start_usec=usec, owner_pid=parent)
+
+
+def linux_vmhwm_bytes(pid):
+    """Peak resident set from /proc, not Darwin phys_footprint."""
+    try:
+        text = Path(f'/proc/{pid}/status').read_text()
+    except OSError as error:
+        raise ProtocolError('cannot inspect Linux resident set') from error
+    for line in text.splitlines():
+        if line.startswith('VmHWM:'):
+            return int(line.split()[1]) * 1024
+    raise ProtocolError('cannot inspect Linux resident set')
+
+
+class LinuxResidentGuard:
+    """Enforce the 1 GiB hard stop and 30 GiB reserve without the Mac helper.
+
+    VmHWM is this host's peak resident set. It is not proc_pid_rusage and
+    must not be compared with the Macintosh Silph baselines.
+    """
+    def __init__(self, process, output):
+        self.process = process
+        self.output = output
+        self.error = None
+        self.stop = threading.Event()
+        self.thread = threading.Thread(target=self._run, name='linux-resident-guard', daemon=True)
+        self.thread.start()
+
+    def _run(self):
+        while not self.stop.is_set():
+            if self.process.poll() is not None:
+                return
+            try:
+                if linux_vmhwm_bytes(self.process.pid) > 1024**3:
+                    self.error = 'owned Simulator exceeds 1 GiB Linux VmHWM'
+                elif shutil.disk_usage(self.output).free < 30 * 1024**3:
+                    self.error = 'journey disk reserve below 30 GiB'
+                else:
+                    self.stop.wait(0.25)
+                    continue
+            except ProtocolError as error:
+                self.error = str(error)
+            self.process.kill()
+            return
+
+    def close(self):
+        self.stop.set()
+        self.thread.join(2)
+
+
+def host_footprint(pid):
+    import ctypes
+    class Usage(ctypes.Structure):
+        _fields_ = [('uuid', ctypes.c_uint8 * 16)] + [
+            (name, ctypes.c_uint64) for name in ('user', 'system', 'idle', 'interrupt',
+                'pageins', 'wired', 'resident', 'footprint', 'start', 'exit')]
+    usage = Usage()
+    library = ctypes.CDLL('/usr/lib/libproc.dylib', use_errno=True)
+    library.proc_pid_rusage.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+    library.proc_pid_rusage.restype = ctypes.c_int
+    if library.proc_pid_rusage(pid, 0, ctypes.byref(usage)) != 0:
+        raise ProtocolError('cannot inspect owned Simulator footprint')
+    return usage.footprint
+
+
+def validate_journey_pause(value, result):
+    if (not value or value.get('id') != result.get('id') or value.get('tick') != result.get('tick')
+            or result.get('status') != 'ok' or result.get('history_paused') is not True):
+        raise ProtocolError('foreign or incomplete journey history pause')
+    snapshot = result.get('snapshot', {})
+    player = snapshot.get('player', {})
+    title = snapshot.get('title', {})
+    ready_title = (snapshot.get('root') == 'title' and snapshot.get('stack') == 'title'
+                   and title.get('phase') == 'menu' and title.get('menu', {}).get('active') is True
+                   and player.get('present') is False)
+    exploring = (snapshot.get('root') == 'overworld' and snapshot.get('overworld') == 'explore'
+                 and player.get('settled') is True and player.get('moving') is False
+                 and not player.get('isJumping') and not player.get('pendingEdgeDoor'))
+    if not (exploring or ready_title):
+        raise ProtocolError('journey history boundary is not settled exploration or ready title')
+
+
+def validate_startup_pause(value, expected):
+    if (not isinstance(value, dict) or not expected
+            or any(value.get(key) != item for key, item in expected.items())
+            or value.get('tick') != 0 or value.get('status') != 'startup'
+            or value.get('startup_stage') != 'title-preparing'
+            or value.get('history_startup_version') != 1
+            or value.get('root') != 'title' or value.get('stack') != 'title'
+            or value.get('title_phase') != 'preparing'
+            or value.get('player_present') is not False
+            or value.get('injected_input') is not False or value.get('recording') is not False):
+        raise ProtocolError('foreign or unsafe startup history pause')
+
+
+class JourneyHistory:
+    """A bounded hook on the existing owner/client; never drives game commands."""
+    def __init__(self, args, metadata, output, evidence, process, client, startup=None):
+        self.startup = startup
+        self.startup_serviced = False
+        self.startup_consumed = False
+        self.helper = Path(args.history_helper).expanduser().absolute()
+        self.pin = args.history_helper_sha256
+        self.metadata, self.output, self.evidence = metadata, output, evidence
+        self.process, self.client = process, client
+        self.calls = self.clears = 0
+        self.failed = False
+        self.pause = None
+        self.started = self.progress = time.monotonic()
+        self.tick = None
+
+    def check(self, command_deadline=None):
+        try:
+            now = time.monotonic()
+            if self.process.poll() is not None:
+                raise ProtocolError('owned journey process exited')
+            footprint = host_footprint(self.process.pid)
+            if footprint > 1024**3:
+                raise ProtocolError('owned Simulator exceeds 1 GiB host footprint')
+            if shutil.disk_usage(self.output).free < 30 * 1024**3:
+                raise ProtocolError('journey disk reserve below 30 GiB')
+            heartbeat = self.client.read('heartbeat.json')
+            if heartbeat and heartbeat.get('tick') != self.tick:
+                self.tick, self.progress = heartbeat.get('tick'), now
+            if now - self.progress > 60 or now - self.started > 14400:
+                raise ProtocolError('journey progress or whole-owner deadline expired')
+            if command_deadline is not None and now >= command_deadline:
+                raise ProtocolError('journey command deadline expired during history pause')
+            self.client._check_runtime_failure()
+            return footprint
+        except BaseException:
+            self.failed = True
+            raise
+
+    def startup_poll(self, deadline):
+        try:
+            self.check(deadline)
+            if self.failed:
+                raise ProtocolError('history owner failed; stop without replay')
+            pause = self.client.read('journey-history-pause.json')
+            if self.startup_serviced:
+                # The publication may remain until the coroutine consumes ACK.
+                if pause is None:
+                    self.startup_consumed = True
+                if pause and (self.startup_consumed or pause != self.startup_publication):
+                    raise ProtocolError('startup history publication changed after acknowledgement')
+                return
+            if pause is None:
+                return
+            validate_startup_pause(pause, self.startup)
+            if (self.client.data / 'journey-history-ack.json').exists():
+                raise ProtocolError('startup acknowledgement already exists')
+            self.pause = pause
+            self.clear(deadline)
+            self.check(deadline)
+            if self.client.read('journey-history-pause.json') != pause:
+                raise ProtocolError('startup history pause changed before acknowledgement')
+            ack = {key: pause[key] for key in (*self.client.identity, 'id', 'tick',
+                'generation', 'startup_stage', 'history_startup_version')}
+            atomic_json(self.evidence / 'startup-pause.json', pause)
+            atomic_json(self.client.data / 'journey-history-ack.json', ack)
+            self.startup_publication = pause
+            self.startup_serviced = True
+            self.pause = None
+        except BaseException:
+            self.failed = True
+            raise
+
+    def clear(self, deadline):
+        if self.failed or self.clears >= HISTORY_MAX_CLEARS:
+            raise ProtocolError('journey history Clear bound reached or owner failed')
+        operations = ['inspect', 'show-log', 'clear', 'inspect'] if not self.clears else ['clear', 'inspect']
+        for operation in operations:
+            self.invoke(operation, deadline)
+            if operation == 'clear':
+                self.clears += 1
+
+    def before_send(self):
+        self.check()
+        if self.failed:
+            raise ProtocolError('history owner failed; stop without replay')
+        if self.pause:
+            atomic_json(self.client.data / 'journey-history-ack.json', self.pause)
+            self.pause = None
+
+    def invoke(self, operation, deadline):
+        if self.calls >= HISTORY_MAX_CALLS or file_sha(self.helper) != self.pin:
+            raise ProtocolError('history helper bound or pin changed')
+        self.calls += 1
+        before = self.check(deadline)
+        began = time.monotonic()
+        pins = [str(self.output), file_sha(self.output / 'build.json'),
+                file_sha(self.evidence / 'process.json'), 'JOURNEY',
+                (self.evidence / 'process.json').relative_to(self.output).as_posix()]
+        child = subprocess.Popen([str(self.helper), operation, *pins],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout = stderr = ''
+        inspection_captures = []
+        try:
+            while True:
+                self.check(deadline)
+                if time.monotonic() - began >= 9:
+                    raise ProtocolError('history helper timed out; no replay or acknowledgement')
+                try:
+                    stdout, stderr = child.communicate(timeout=.05)
+                    break
+                except subprocess.TimeoutExpired:
+                    pass
+            after = self.check(deadline)
+            if child.returncode != 0:
+                raise ProtocolError('history helper refused: ' + stderr[-1200:])
+            reply = json.loads(stdout)
+            if operation == 'clear' and reply not in (
+                    {'ax_press_accepted': True, 'pid': self.process.pid},
+                    {'clear_requested': True, 'mechanism': 'verified-window-broom', 'pid': self.process.pid}):
+                raise ProtocolError('history Clear acknowledgement differs')
+            if operation == 'inspect':
+                if not isinstance(reply, list):
+                    raise ProtocolError('history inspection is not a listing')
+                captures = [row for row in reply if row.get('scope') == 'inspection capture']
+                if len(captures) > 1 or (not captures and self.clears):
+                    raise ProtocolError('history inspection capture missing or ambiguous')
+                for capture in captures:
+                    path = Path(capture['path'])
+                    import re
+                    if (path.parent != self.output or path.is_symlink() or
+                            not re.fullmatch(r'malloc-log-inspection-[0-9A-Fa-f-]{36}\.png', path.name)
+                            or capture.get('returncode') != '0'):
+                        raise ProtocolError('history inspection capture identity differs')
+                    from tools.harness.run import verify_png
+                    verify_png(path)
+                    inspection_captures.append(dict(capture, sha256=file_sha(path)))
+            if operation == 'show-log':
+                accepted = ({'malloc_log_open_requested': True, 'pid': self.process.pid},
+                            {'malloc_log_already_open': True, 'pid': self.process.pid})
+                if reply not in accepted:
+                    raise ProtocolError('history Show Malloc Log acknowledgement differs')
+                # Do not wait for the populated profiler view to materialize.
+                # Clear independently verifies window readiness and fails closed.
+            return reply
+        except BaseException:
+            self.failed = True
+            raise
+        finally:
+            if child.poll() is None:
+                child.kill()
+            stdout, stderr = child.communicate()
+            try:
+                after = host_footprint(self.process.pid)
+            except BaseException:
+                after = None  # Preserve the original helper/producer failure.
+            with (self.evidence / 'malloc-clear.jsonl').open('a') as stream:
+                stream.write(json.dumps(dict(operation=operation, calls=self.calls, clears=self.clears,
+                    helper_sha256=self.pin, pins=pins, pause=self.pause, failed=self.failed,
+                    elapsed_ms=(time.monotonic()-began)*1000, returncode=child.returncode,
+                    stdout=stdout, stderr=stderr, inspection_captures=inspection_captures, host_before_bytes=before,
+                    host_after_bytes=after), sort_keys=True) + '\n')
+
+    def completed(self, result, deadline):
+        try:
+            footprint = self.check(deadline)
+            if result.get('history_paused') is not True:
+                return
+            pause = self.client.read('journey-history-pause.json')
+            validate_journey_pause(pause, result)
+            self.pause = pause
+            if self.clears and footprint < HISTORY_TRIGGER:
+                return
+            self.clear(deadline)
+        except BaseException:
+            self.failed = True
+            raise
+
+
 def run(args, scenario, metadata, output, data, owner, runner):
     """Run approved groups under the caller's uninterrupted global/private locks."""
     processes = []
-    process = client = evidence = None
+    process = client = evidence = guard = None
     sequence = trace_start = 0
     finalized = archived = False
     prior_pid = None
@@ -492,13 +858,40 @@ def run(args, scenario, metadata, output, data, owner, runner):
             catalog_qualification.prepare(output)
             with (evidence / 'simulator.log').open('w') as log:
                 runner.simulator_preflight()
+                if (metadata.get('history_clear') or sys.platform != 'darwin') and shutil.disk_usage(output).free < 31 * 1024**3:
+                    raise ProtocolError('journey admission requires 31 GiB disk headroom')
+                startup = None
+                if metadata.get('history_clear'):
+                    if metadata.get('history_startup_version') != 1:
+                        raise ProtocolError('journey startup feature missing from actual build')
+                    import uuid
+                    startup = dict(protocol=1, build_id=metadata['build_id'], session_id=metadata['session_id'],
+                        id='startup-' + uuid.uuid4().hex, generation=generation, history_startup_version=1)
+                    atomic_json(data / 'journey-startup-request.json', startup)
                 process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
+                if sys.platform != 'darwin' and not metadata.get('history_clear'):
+                    if guard is not None:
+                        guard.close()
+                        if guard.error:
+                            raise ProtocolError(guard.error)
+                    guard = LinuxResidentGuard(process, output)
                 record['pid'] = process.pid
                 if process.pid == prior_pid:
                     raise ProtocolError('restart did not produce a new PID')
                 record['launched_ns'] = time.time_ns(); publish()
+                if metadata.get('history_clear'):
+                    record.update(native_process_identity(process.pid), build_id=metadata['build_id'],
+                        session_id=metadata['session_id'], history_identity='JOURNEY',
+                        simulator_sha256=file_sha(metadata['simulator']))
+                    if record['simulator_sha256'] != SIMULATOR_SHA256:
+                        raise ProtocolError('journey Simulator executable pin differs')
                 client = Client(data, metadata['build_id'], metadata['session_id'], evidence, owner=owner)
                 client.sequence = sequence
+                if metadata.get('history_clear'):
+                    record.update(startup_id=startup['id'], history_startup_version=1, fresh_ready=False,
+                                  simulator=metadata['simulator'])
+                    atomic_json(evidence / 'process.json', record); publish()
+                    client.history = JourneyHistory(args, metadata, output, evidence, process, client, startup)
                 # No prior ready exists, and the old publisher is confirmed dead.
                 ready = client.ready(args.ready_timeout)
                 if process.poll() is not None:
@@ -547,13 +940,16 @@ def run(args, scenario, metadata, output, data, owner, runner):
         print(output)
         return 0
     except BaseException as error:
+        if guard is not None and guard.error:
+            error = ProtocolError(guard.error)
         if processes:
             processes[-1].update(status='failed', error=str(error))
             atomic_json(evidence / 'process.json', processes[-1])
             publish()
         # Never reset/recover a failed command into success. A poisoned pending
         # request cannot safely quiesce; stop its owned producer and archive it.
-        if client is not None and not finalized and client._pending_id is None:
+        if (client is not None and not finalized and client._pending_id is None
+                and not metadata.get('history_clear')):
             try:
                 runner.finalize_captures(client, data, output)
                 finalized = True
@@ -564,6 +960,8 @@ def run(args, scenario, metadata, output, data, owner, runner):
                                              'captures_finalized': finalized})
         return 1
     finally:
+        if guard is not None:
+            guard.close()
         if process is not None:
             try:
                 returncode = stop_owned(process, owner, data)

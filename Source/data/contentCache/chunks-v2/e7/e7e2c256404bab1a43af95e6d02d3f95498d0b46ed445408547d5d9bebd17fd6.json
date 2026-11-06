@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":148,"text":"<RIVAL>: What"},{"op":"line","source_line":149,"text":"kept you <PLAYER>?"},{"op":"control","source":"done","source_line":150}],"source":"text/SilphCo7F.asm"}

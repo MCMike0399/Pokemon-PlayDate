@@ -87,6 +87,9 @@ class SourceMapActivationInputs(unittest.TestCase):
                 raw = canonical(fixture[entry['path']]) if entry['path'] in fixture else (ROOT / 'Source' / entry['path']).read_bytes()
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), entry['source_sha256'])
                 path.write_bytes(raw)
+            auxiliary = source / 'data/silphStory/tiles.json'
+            auxiliary.parent.mkdir(parents=True, exist_ok=True)
+            auxiliary.write_bytes((ROOT / 'Source/data/silphStory/tiles.json').read_bytes())
             path = source / 'manifest.json'
             path.write_bytes(canonical(manifest))
             compact = json.loads(build(path, source)['compact.json'])['maps']

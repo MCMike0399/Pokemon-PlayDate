@@ -70,6 +70,30 @@ local function retainedFields(before,after)
         if type(value)=="table" then retainedFields(value,after[key]) end
     end
 end
+-- Exact value equality for the actor retention boundary. It rejects both a
+-- changed scalar and any added or removed record field.
+local function sameValue(a,b)
+    if type(a)~=type(b) then return false end
+    if type(a)~="table" then return a==b end
+    for key,value in pairs(a) do
+        if not sameValue(value,b[key]) then return false end
+    end
+    for key in pairs(b) do
+        if a[key]==nil then return false end
+    end
+    return true
+end
+local function actorIndex(list,label)
+    assert(type(list)=="table" and getmetatable(list)==nil,label.." actor list required")
+    local index={}
+    for _,record in ipairs(list) do
+        assert(type(record)=="table" and getmetatable(record)==nil,label.." plain actor record required")
+        assert(type(record.id)=="string",label.." stable actor ID required")
+        assert(index[record.id]==nil,label.." duplicate actor ID: "..record.id)
+        index[record.id]=record
+    end
+    return index
+end
 local function world(deps,payload)
     local input=copy(payload)
     local before=copy(input)
@@ -93,19 +117,45 @@ local function rngData(value)
     probe:restoreData(copy(value))
     return probe:toData()
 end
+-- Save validation rebuilds this projection for every normalize. The source
+-- catalog is immutable; repeat calls re-check keyItem and reuse the records.
+local projectedItems = setmetatable({}, { __mode = "k" })
+local function projectItems(source)
+    assert(type(source) == "table", "item definitions required")
+    local projected = projectedItems[source]
+    if projected then
+        local matches = true
+        for id, entry in pairs(source) do
+            assert(type(entry) == "table" and type(entry.keyItem) == "boolean", "invalid item definition")
+            local record = projected[id]
+            if not record or record.keyItem ~= entry.keyItem then matches = false end
+        end
+        for id in pairs(projected) do if source[id] == nil then matches = false end end
+        if matches then return projected end
+    end
+    projected = {}
+    for id, entry in pairs(source) do
+        assert(type(id) == "string" and type(entry) == "table" and type(entry.keyItem) == "boolean",
+            "invalid item definition")
+        projected[id] = { keyItem = entry.keyItem }
+    end
+    projectedItems[source] = projected
+    return projected
+end
 local function dependencies(deps)
     assert(type(deps)=="table" and type(deps.validateWorld)=="function" and type(deps.resolveLocation)=="function","pure world/location dependencies required")
     assert(deps.validateActors==nil or type(deps.validateActors)=="function","pure actor validator required")
+    assert(deps.hiddenActors==nil or type(deps.hiddenActors)=="function","pure actor visibility proof required")
     assert(deps.resolvePlayerLocation == nil or type(deps.resolvePlayerLocation) == "function",
         "pure player location validator required")
-    local definitions={}
-    for id,entry in pairs(assert(deps.itemDefinitions,"item definitions required")) do definitions[id]={keyItem=entry.keyItem} end
+    local definitions = projectItems(assert(deps.itemDefinitions, "item definitions required"))
     Inventory(definitions) -- validates configuration without modifying callers.
     return {
         itemDefinitions = definitions,
         validateWorld = deps.validateWorld,
         resolveLocation = deps.resolveLocation,
         validateActors = deps.validateActors,
+        hiddenActors = deps.hiddenActors,
         resolvePlayerLocation = deps.resolvePlayerLocation or deps.resolveLocation
     }
 end
@@ -148,6 +198,16 @@ function GameSession:inventory() return state[self].inventory end
 function GameSession:activePokemon() return self:party():active() end
 function GameSession:title() return {playerName="RED",rivalName="BLUE"} end
 function GameSession:getIntro() return copy(state[self].intro) end
+-- Stage and travel mode are read every explore frame. The full copies stay
+-- available for callers that detach and edit the record.
+function GameSession:introStage()
+    local intro = state[self].intro
+    return intro and intro.stage or "pre_oak"
+end
+function GameSession:fieldTravelMode()
+    local travel = state[self].fieldTravel
+    return travel and travel.mode or "walking"
+end
 function GameSession:setIntro(value)
     local ok,normalized=pcall(intro,value)
     if not ok then return false,tostring(normalized) end
@@ -161,11 +221,15 @@ function GameSession:recruit(mon)
     if not ok and index=="party-full" then ok,index=current.storage:receive(mon); destination="storage" end
     if not ok then return false,index end
     current.dex.seen[mon.species],current.dex.owned[mon.species]=true,true
+    current.dexGeneration = (current.dexGeneration or 0) + 1
     return true,{destination=destination,index=index,box=destination=="storage" and current.storage:activeBox() or nil}
 end
 function GameSession:markSeen(species)
     if not pokemonData[species] then return false,"unknown-species" end
-    state[self].dex.seen[species]=true; return true
+    local current = state[self]
+    current.dex.seen[species]=true
+    current.dexGeneration = (current.dexGeneration or 0) + 1
+    return true
 end
 -- Paid gifts use ordinary Gen V acquisition, including selected-box overflow.
 -- Prepare every fallible value on detached owners before claiming the specimen.
@@ -229,6 +293,10 @@ function GameSession:purchaseGiftPokemon(offer, expectedMoney)
         specimen=prepared.receipt}
 end
 function GameSession:pokedex() return copy(state[self].dex) end
+function GameSession:dexFlags(species)
+    local dex = state[self].dex
+    return dex.seen[species] == true, dex.owned[species] == true
+end
 local function setFlag(self,kind,id,value)
     if not stable(id) or type(value)~="boolean" then return false,"invalid-flag" end
     local values=state[self][kind]
@@ -236,13 +304,22 @@ local function setFlag(self,kind,id,value)
         local count=0; for _ in pairs(values) do count=count+1 end
         if count>=4096 then return false,"flag-limit" end
     end
-    values[id]=value;state[self].currentActors=WorldMotionData.empty();return true
+    values[id]=value
+    state[self].flagGeneration = (state[self].flagGeneration or 0) + 1
+    state[self].currentActors=WorldMotionData.empty();return true
 end
 function GameSession:setQuestFlag(id,value) return setFlag(self,"questFlags",id,value) end
 function GameSession:questFlag(id) return state[self].questFlags[id] or false end
 function GameSession:setTrainerDefeated(id,value) return setFlag(self,"trainerFlags",id,value) end
 function GameSession:trainerDefeated(id) return state[self].trainerFlags[id] or false end
 function GameSession:flags() return {quest=copy(state[self].questFlags),trainers=copy(state[self].trainerFlags)} end
+-- Identity of the live flag and dex tables plus the in-place edit counters.
+-- Diagnostic snapshots reuse a previous copy only when all four still match.
+function GameSession:diagnosticToken()
+    local current = state[self]
+    return current.flagGeneration or 0, current.questFlags, current.trainerFlags,
+        current.dexGeneration or 0, current.dex
+end
 -- A deliberately small event transaction: item transfers + boolean quest
 -- flags, trainer outcomes and saturating currency. Dialogue/world/UI actions
 -- remain the root event executor's work.
@@ -465,9 +542,46 @@ function GameSession:worldRngData()return assert(state[self].worldRng):toData()e
 function GameSession:actorData()return copy(assert(state[self].currentActors))end
 function GameSession._validateActors(deps,payload,candidateWorld,position,candidateFlags)
     if deps.validateActors then
-        local input=copy(payload);local before=copy(input)
+        -- Only an exact, independently proven hidden-actor removal may survive
+        -- this boundary. The callback receives detached inputs and cannot
+        -- delete, add or mutate any retained actor or envelope field.
+        object(payload,{version=true,zone_id=true,definition_revision=true,count=true,actors=true})
+        for _,name in ipairs({"version","zone_id","definition_revision","count","actors"}) do
+            assert(payload[name]~=nil,"saved actor field required: "..name)
+        end
+        assert(Party._array(payload.actors,64) and Party._integer(payload.count,0,64)
+            and #payload.actors==payload.count,"invalid saved actor collection")
+        local input=copy(payload)
         local normalized=deps.validateActors(input,copy(candidateWorld),copy(position),copy(candidateFlags))
-        retainedFields(before,normalized);return copy(normalized)
+        object(normalized,{version=true,zone_id=true,definition_revision=true,count=true,actors=true})
+        for _,name in ipairs({"version","zone_id","definition_revision","count","actors"}) do
+            assert(normalized[name]~=nil,"actor validator discarded "..name)
+        end
+        assert(Party._array(normalized.actors,64) and Party._integer(normalized.count,0,64)
+            and #normalized.actors==normalized.count,"actor validator changed the collection shape")
+        for _,name in ipairs({"version","zone_id","definition_revision"}) do
+            assert(normalized[name]==payload[name],"actor validator changed retained field: "..name)
+        end
+        local saved=actorIndex(payload.actors,"saved")
+        local kept=actorIndex(normalized.actors,"normalized")
+        local dropped={}
+        for id,record in pairs(kept) do
+            assert(saved[id],"actor validator added an unknown actor: "..id)
+            assert(sameValue(saved[id],record),"actor validator changed a surviving actor: "..id)
+        end
+        for id in pairs(saved) do
+            if not kept[id] then dropped[#dropped+1]=id end
+        end
+        table.sort(dropped)
+        if #dropped>0 then
+            assert(type(deps.hiddenActors)=="function","actor removal requires independent visibility proof")
+            local proof=deps.hiddenActors(dropped,copy(candidateWorld),copy(position),copy(candidateFlags))
+            assert(type(proof)=="table","actor visibility proof required")
+            for _,id in ipairs(dropped) do
+                assert(proof[id]==true,"actor removal is not proven hidden: "..id)
+            end
+        end
+        return copy(normalized)
     end
     assert(payload.zone_id=="none","source actor validator required")
     return WorldMotionData.normalize(payload,nil,position,candidateFlags)

@@ -222,9 +222,49 @@ function SaveStore:setValidationEpoch(epoch)
     diskRecords[self] = nil
     ownerPublications[self] = nil
 end
+-- After a public readback has accepted a file, remember that exact byte string.
+-- The next inspect reuses the detached record. Owner export never sets this.
+local retainVerified = setmetatable({}, {__mode="k"})
+function SaveStore:retainVerifiedPublications()
+    assert(self._validationEpoch ~= nil, "publication reuse requires a validation epoch")
+    retainVerified[self] = true
+end
+-- The decoded tree is only a reuse cache. Drop it when the Lua pool is tight
+-- so the next read validates the same bytes again instead of failing allocation.
+function SaveStore.dropDecodedRecords()
+    for _, cache in pairs(diskRecords) do
+        if type(cache) == "table" then
+            for _, entry in pairs(cache) do
+                if type(entry) == "table" then entry.record = nil end
+            end
+        end
+    end
+end
+local function withPublicationProof(fn)
+    SessionCodec.retainValidationProof(true)
+    local ok, first, second, third = pcall(fn)
+    SessionCodec.retainValidationProof(false)
+    if not ok then error(first, 0) end
+    return first, second, third
+end
 -- Recheck domain acceptance without decoding/checksumming bytes already proven
 -- in this publication. Dynamic validators still run at each original boundary.
 function SaveStore:_validateRecord(path, record)
+    local covers = self._proofCovers
+    -- A covered record was already normalized and snapshotted for this
+    -- publication. The proof check does not write, so the readback can return
+    -- the existing detached data. Any other validator, or a missed proof,
+    -- still copies before validation and compares the copy.
+    if covers and record.data and covers(record.data) then
+        local ok, accepted, reason = pcall(function()
+            local accepted, reason = self._validate(record.data)
+            return accepted, reason
+        end)
+        if ok and accepted == true and SessionCodec.proofSatisfied() then
+            return {state="valid", sequence=record.sequence, payload=record.payload, data=record.data, path=path}
+        end
+        return {state="corrupt", error=not ok and tostring(accepted) or reason or tostring(accepted), path=path}
+    end
     local data = copy(record.data)
     local ok, accepted, reason = pcall(function()
         local accepted, reason = self._validate(data)
@@ -264,13 +304,18 @@ function SaveStore:_decodeUncached(path,bytes,err)
 end
 -- Cache only full disk validation, never an owner-export byte proof. Compare
 -- actual strings read on every access; neither sequence nor checksum is identity.
-function SaveStore:_decode(path, bytes, err)
+function SaveStore:_decode(path, bytes, err, headerOnly)
     local epoch, token, validate = self._validationEpoch, self._validationToken, self._validate
     local cache = diskRecords[self]
     local cached = cache and cache[path]
     if epoch ~= nil and cached and type(bytes) == "string" and err == nil
-        and cached.bytes == bytes and cached.epoch == epoch
+        and cached.record and cached.bytes == bytes and cached.epoch == epoch
         and cached.token == token and cached.validate == validate then
+        -- Header inspection only reads immutable fields and copies those
+        -- scalars itself. It must not clone the decoded data tree.
+        if headerOnly then
+            return cached.record
+        end
         return copy(cached.record)
     end
     if cache then
@@ -292,7 +337,7 @@ function SaveStore:_read(path)
     record.bytes=bytes
     return record
 end
-function SaveStore:_inspect(ownerSave)
+function SaveStore:_inspect(ownerSave, headerOnly)
     local raw = {}
     for _, role in ipairs({"a", "b", "candidate"}) do
         local bytes, problem = call(self._fs, "read", self._paths[role])
@@ -314,13 +359,22 @@ function SaveStore:_inspect(ownerSave)
         end
         local record
         if ownerSave and ownerExports[self] ~= nil and matches then
-            record = copy(proof.record)
+            record = headerOnly and proof.record or copy(proof.record)
         else
-            record = self:_decode(path, observed.bytes, observed.error)
+            record = self:_decode(path, observed.bytes, observed.error, headerOnly)
         end
         if record.state == "valid" then
-            -- A validator may retain its argument. Never expose or reuse it.
-            record = copy(record)
+            if headerOnly and role ~= "candidate" then
+                -- Save only needs the validated header of a published slot.
+                -- The data tree stays in the cache. A lone candidate can still
+                -- be returned as recovery data, so that role keeps its copy.
+                -- Bytes are attached to this new table, never to the cached record.
+                record = {state=record.state, sequence=record.sequence, payload=record.payload,
+                    path=record.path or path, schema=record.schema, error=record.error}
+            else
+                -- A validator may retain its argument. Never expose or reuse it.
+                record = copy(record)
+            end
         end
         record.bytes = observed.bytes
         artifacts[role] = record
@@ -488,6 +542,15 @@ function SaveStore:_publish(bytes,target,sequence)
         return false,{reason="published-verification-failed",error=published.error}
     end
     if exact~=bytes then return false,{reason="published-bytes-differ"} end
+    if retainVerified[self] and validated and not validated.ownerExport
+        and published.state == "valid" and problem == nil
+        and validated.epoch ~= nil and validated.epoch == self._validationEpoch
+        and validated.token == self._validationToken and validated.validate == self._validate then
+        local cache = diskRecords[self] or {}
+        diskRecords[self] = cache
+        cache[self._paths[target]] = {bytes=exact, epoch=validated.epoch, token=validated.token,
+            validate=validated.validate, record=copy(published)}
+    end
     if validated and validated.ownerExport and validated.bytes == bytes
         and validated.sequence == sequence and problem == nil
         and validated.epoch ~= nil and validated.epoch == self._validationEpoch
@@ -512,9 +575,16 @@ local function targetFor(artifacts,latest)
     return artifacts.a.state=="missing" and "a" or artifacts.b.state=="missing" and "b" or "a"
 end
 function SaveStore:save(data)
+    return withPublicationProof(function()
+        return SaveStore._saveBody(self, data)
+    end)
+end
+function SaveStore:_saveBody(data)
     local ownerSave = data ~= nil and ownerExports[self] == data
     if not ownerSave then ownerPublications[self] = nil end
-    local artifacts,latest,metadata=self:_inspect(ownerSave)
+    -- Publication needs sequence, bytes and payload identity. It does not
+    -- read the decoded data tree, so a second copy of each slot is skipped.
+    local artifacts,latest,metadata=self:_inspect(ownerSave, true)
     if metadata.reason=="unsupported-schema" or metadata.reason=="io-error" or metadata.reason=="sequence-conflict" or metadata.reason=="archive-verification-failed" then return false,metadata end
     if metadata.hasCorruption or not latest and metadata.reason~="empty" then metadata.reason="recovery-required"; return false,metadata end
     if metadata.pendingCandidate then metadata.reason="pending-candidate-recovery-required"; return false,metadata end
@@ -525,6 +595,11 @@ function SaveStore:save(data)
     return self:_publish(bytes,targetFor(artifacts,latest),sequence)
 end
 function SaveStore:recover(source)
+    return withPublicationProof(function()
+        return SaveStore._recoverBody(self, source)
+    end)
+end
+function SaveStore:_recoverBody(source)
     ownerPublications[self] = nil
     if source=="proposal" or source=="backup-published" or source=="backup-candidate" then return self:_restoreArchive(source) end
     if source~="candidate" and source~="published" then return false,{reason="invalid-recovery-source"} end
@@ -800,6 +875,11 @@ function SaveStore:_archive(snapshot,proposal,target,mode)
     return true,{archived=true,archive=index}
 end
 function SaveStore:_replaceSnapshot(data,snapshot,mode)
+    return withPublicationProof(function()
+        return SaveStore._replaceSnapshotBody(self, data, snapshot, mode)
+    end)
+end
+function SaveStore:_replaceSnapshotBody(data,snapshot,mode)
     local highest=0
     for _,role in ipairs(ROLES) do
         if snapshot[role]~=false then

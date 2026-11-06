@@ -206,6 +206,7 @@ local function normalize(value)
             or args[1] == "saved" or args[1] == "loaded"
             or args[1] == "vermilion-owners" or args[1] == "vermilion-collection"
             or args[1] == "midgame-owners" or args[1] == "midgame-state"
+            or type(args[1]) == "string" and args[1]:match("^midgame%-owners:[%w_]+$") ~= nil
             or args[1] == "vermilion-encounter-terrain" or args[1] == "vermilion-aide-fixture"
             or args[1] == "vermilion-daycare" or args[1] == "vermilion-world")
     elseif op == "fixture" then
@@ -282,8 +283,11 @@ local function normalize(value)
     elseif op == "battle" then valid = pokemonData[args[1]] and integer(args[2], 1, 100) and #args == 2
     elseif op == "warp" then valid = integer(args[1], 0, 10000) and integer(args[2], 0, 10000) and #args == 2
     elseif op == "contracts" then
-        valid = #args == 0 or (#args == 1 and type(args[1]) == "string" and args[1]:match("^[%w_%-]+$") ~= nil)
-    elseif op == "snapshot" or op == "gamestate" or op == "state" or op == "pokemon" or op == "dismiss" or op == "atlas" or op == "catalog" or op == "quiesce" then valid = #args == 0
+        valid = #args == 0 or (#args == 1 and type(args[1]) == "string"
+            and args[1]:match("^[%w_%-]+$") ~= nil)
+    elseif op == "snapshot" or op == "gamestate" or op == "state" or op == "pokemon"
+        or op == "dismiss" or op == "atlas" or op == "catalog" or op == "quiesce" then
+        valid = #args == 0
     end
     assert(valid, "invalid command: " .. op)
     assert(value.expect == nil or value.expect == "blocked" or value.expect == "interrupted" or value.expect == "edge-door" or value.expect == "ok", "invalid expected outcome")
@@ -291,6 +295,57 @@ local function normalize(value)
     for _, arg in ipairs(args) do value.parts[#value.parts + 1] = tostring(arg) end
     return value
 end
+-- Nonterminal history barrier. Only the opted-in private journey build uses it.
+local historyPause
+function Harness.historyWaiting()
+    if not historyPause then return false end
+    local ack = read("journey-history-ack.json")
+    if not ack then return true end
+    assert(identity(ack) and ack.id == historyPause.id and ack.tick == historyPause.tick
+        and (not historyPause.startup_stage or (ack.startup_stage == historyPause.startup_stage
+            and ack.generation == historyPause.generation and ack.history_startup_version == config.history_startup_version)),
+        "foreign history acknowledgement")
+    -- read() consumes the acknowledgement; only the pause publication remains.
+    assert(playdate.file.delete("journey-history-pause.json"))
+    historyPause = nil
+    return false
+end
+
+-- Called only by the identified private entry after the real title presentation
+-- yield. No diagnostics snapshot: overworld/battle are not registered yet.
+local startupPaused = false
+function Harness.pauseStartup(game)
+    assert(config.history_clear and config.history_startup_version == 1 and not startupPaused,
+        "invalid or repeated startup history barrier")
+    startupPaused = true
+    local ok, problem = pcall(function()
+        local startup = read("journey-startup-request.json")
+        assert(startup and identity(startup) and type(startup.id) == "string"
+            and startup.id:match("^startup%-%x+$") and #startup.id == 40
+            and integer(startup.generation, 1, 8) and startup.history_startup_version == 1,
+            "foreign startup history request")
+        local title = game.machine:get("title")
+        local input = Autopilot.inputSnapshot()
+        assert(game.machine:getCurrent() == "title" and game.machine:stackNames() == "title" and title.phase == "preparing"
+            and not game.player and not request and tick == 0 and not Autopilot.isRecording()
+            and #input.held == 0 and #input.pressed == 0 and #input.released == 0,
+            "unsafe startup history boundary")
+        historyPause = { id = startup.id, tick = tick, generation = startup.generation,
+            history_startup_version = 1, startup_stage = "title-preparing" }
+        publish("journey-history-pause.json", { id = startup.id, generation = startup.generation,
+            history_startup_version = 1, startup_stage = "title-preparing", status = "startup",
+            root = "title", stack = "title", title_phase = title.phase, player_present = false,
+            injected_input = false, recording = false })
+        while Harness.historyWaiting() do
+            GameBootstrap.checkpoint()
+        end
+    end)
+    if not ok then
+        publish("runtime-error.json", { error = tostring(problem), startup_stage = "title-preparing" })
+        error(problem, 0)
+    end
+end
+
 local function finish(game, status, message)
     local interruptedSnapshot
     if status == "cancelled" or status == "timeout" then
@@ -314,7 +369,26 @@ local function finish(game, status, message)
     else
         finalSnapshot = HarnessDiagnostics.snapshot(game)
     end
+    local safeHistory
+    if config.history_clear then
+        local input = Autopilot.inputSnapshot()
+        local player = finalSnapshot.player or {}
+        local title = finalSnapshot.title or {}
+        local readyTitle = finalSnapshot.root == "title" and finalSnapshot.stack == "title"
+            and title.phase == "menu" and title.menu and title.menu.active == true
+            and player.present == false
+        local exploring = finalSnapshot.root == "overworld" and finalSnapshot.overworld == "explore"
+            and player.settled == true and not player.moving and not player.isJumping and not player.pendingEdgeDoor
+        safeHistory = status == "ok" and not Harness.isQuiescent
+            and (exploring or readyTitle)
+            and #input.held == 0 and not Autopilot.isRecording()
+        if safeHistory then
+            historyPause = { id = request.id, tick = tick }
+            publish("journey-history-pause.json", { id = request.id })
+        end
+    end
     publish("result.json", { id = request.id, status = status, error = message,
+        history_paused = safeHistory,
         results = entries, snapshot = finalSnapshot,
         interrupted_snapshot = (status == "cancelled" or status == "timeout") and interruptedSnapshot or nil,
         catalog = Autopilot.catalog, quiescent = Harness.isQuiescent,
@@ -434,7 +508,10 @@ function Harness.afterFrame(game, runtimeError)
         return
     end
     Autopilot.afterFrame()
-    HarnessCapture.recent()
+    local terminal = request and complete and commands[index] and commands[index].op == "quiesce"
+    if not config.journey_profile or terminal then
+        HarnessCapture.recent()
+    end
     watchMachines(game)
     if tick % 15 == 0 then
         publish("heartbeat.json", { status = "alive", active_id = request and request.id, command = index })

@@ -1,0 +1,10 @@
+{
+  "scope": "Host geometry/ancestry/qualified declarations only; no actual C journey acceptance",
+  "checks": 239,
+  "blockers": 0,
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-qualified-preflight-20261102-01.json",
+  "sha256": "d2787e0bb36da4239836a2aed0d846954a66a232736fce1be9c7a84ed6cf5bf2",
+  "source_ref": "548ba47d",
+  "driver_sha256": "76f0eecc263425100538bee47478d19b02c1ef167f9b22919499a749aaa958ee",
+  "projection_change": "Host navigation honors generated non-triggering declarations as ordinary floor and excludes them from portals; explicit project_warp rejects them. Existing B metadata has no inert entries."
+}

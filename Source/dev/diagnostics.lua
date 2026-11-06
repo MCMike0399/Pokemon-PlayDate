@@ -95,6 +95,72 @@ local function ui(state)
         menu = menu(state.menu), lastSave = state.lastSave, message = state.message, lastResult = state.lastResult} or {phase = "closed"}
 end
 
+local remembered = setmetatable({}, {__mode = "k"})
+function HarnessDiagnostics.releaseRetainedViews()
+    for key in pairs(remembered) do remembered[key] = nil end
+end
+local function pendingStamp(mon)
+    local pending = {}
+    for _, choice in ipairs(mon.pendingMoveChoices or {}) do
+        pending[#pending + 1] = tostring(choice.id) .. ":" .. tostring(choice.move) .. ":" .. tostring(choice.level)
+    end
+    return table.concat(pending, ",")
+end
+local function partyStamp(members, active)
+    local parts = {}
+    for index, mon in ipairs(members) do
+        local pp = {}
+        for _, key in ipairs(mon.moves or {}) do
+            pp[#pp + 1] = key .. ":" .. tostring(mon.pp and mon.pp[key])
+        end
+        local stages = {}
+        for _, stat in ipairs({"atk", "def", "spa", "spd", "spe", "acc", "eva"}) do
+            stages[#stages + 1] = tostring(mon.statStages and mon.statStages[stat])
+        end
+        parts[index] = table.concat({
+            tostring(mon.hp), tostring(mon.maxHP), tostring(mon.xp), tostring(mon.level),
+            mon.status or "", tostring(mon.statusTurns), tostring(mon.sleepDuration or 0),
+            tostring(mon.confusion or 0), tostring(mon.flinched or false), mon.heldItem or "",
+            tostring(mon.pendingEvolution ~= nil), pendingStamp(mon),
+            table.concat(pp, ","), table.concat(stages, ","),
+        }, "/")
+    end
+    parts[#parts + 1] = "active:" .. tostring(active)
+    return table.concat(parts, ";")
+end
+local function leadView(game, party)
+    local lead = game:getPlayerPokemon()
+    if not lead then return {present = false} end
+    local members = game.session:party():members()
+    for index, mon in ipairs(members) do
+        if mon == lead and party.members[index] then return party.members[index] end
+    end
+    return pokemon(lead)
+end
+local function reusedViews(game)
+    local session = game.session
+    local flagGeneration, quest, trainers, dexGeneration, dex = session:diagnosticToken()
+    local slots, money = session:inventory():diagnosticToken()
+    local members = session:party():members()
+    local active = session:party():activeIndex()
+    local stamp = partyStamp(members, active)
+    local prior = remembered[session]
+    if prior and prior.flagGeneration == flagGeneration and prior.quest == quest
+        and prior.trainers == trainers and prior.dexGeneration == dexGeneration and prior.dex == dex
+        and prior.slots == slots and prior.money == money and prior.stamp == stamp then
+        return prior.party, prior.inventory, prior.flags, prior.pokedex
+    end
+    local party = {count = #members, active = active, members = {}}
+    for index, mon in ipairs(members) do party.members[index] = pokemon(mon) end
+    local inventory = {slots = session:inventory():slots(), money = money, quantities = {}}
+    for id in pairs(ItemData.definitions) do inventory.quantities[id] = session:inventory():quantity(id) end
+    local flags = session:flags()
+    local pokedex = session:pokedex()
+    remembered[session] = {flagGeneration = flagGeneration, quest = quest, trainers = trainers,
+        dexGeneration = dexGeneration, dex = dex, slots = slots, money = money, stamp = stamp,
+        party = party, inventory = inventory, flags = flags, pokedex = pokedex}
+    return party, inventory, flags, pokedex
+end
 function HarnessDiagnostics.snapshot(game)
     local root = game.machine
     local top = root:current()
@@ -113,10 +179,7 @@ function HarnessDiagnostics.snapshot(game)
             interacted = npc.hasInteracted and npc:hasInteracted() or npc.interacted,
             motion=game.npcManager.motion:actor(npc) }
     end
-    local party = {count = game.session:party():count(), active = game.session:party():activeIndex(), members = {}}
-    for i, mon in ipairs(game.session:party():members()) do party.members[i] = pokemon(mon) end
-    local inventory = {slots = game.session:inventory():slots(), money = game.session:inventory():money(), quantities = {}}
-    for id in pairs(ItemData.definitions) do inventory.quantities[id] = game.session:inventory():quantity(id) end
+    local party, inventory, sessionFlags, sessionDex = reusedViews(game)
     return {
         display = HarnessCapture.display(),
         field_encounter=game.lastEncounterSession==game.session and game.lastEncounterAttempt or {kind="none",reason="not-attempted"},
@@ -133,10 +196,11 @@ function HarnessDiagnostics.snapshot(game)
         root = root:getCurrent(), stack = root:stackNames(),
         overworld = world.sub:getCurrent(), zone = getCurrentZoneKey(),
         zone_id = currentZone and currentZone.stableID,
-        session = {item_storage=game.session:itemStorage():toData(),party = party, inventory = inventory, flags = game.session:flags(), checkpoint = game.session:checkpoint(),
-            pokedex = game.session:pokedex()},
+        session = {item_storage=game.session:itemStorage():toData(),party = party, inventory = inventory, flags = sessionFlags, checkpoint = game.session:checkpoint(),
+            pokedex = sessionDex},
         party = party, inventory = inventory,
         pause = ui(root:get("pause")), title = ui(root:get("title")),
+        title_metadata = root:get("title") and root:get("title").metadata or nil,
         field_move = ui(root:get("fieldMove")),
         party_ui = ui(root:get("party")), bag = ui(root:get("bag")),
         party_info = root:get("party"):getInfoSnapshot(),bag_held = root:get("bag"):getHeldSnapshot(),
@@ -151,7 +215,7 @@ function HarnessDiagnostics.snapshot(game)
             groundPixelX = player.groundPixelX, groundPixelY = player.groundPixelY,
             lastTraversalBlock = player.lastTraversalBlock,
             pendingEdgeDoor = player.pendingEdgeDoor ~= nil, tile = tile and tile[player.gridX + 1] } or { present = false },
-        pokemon = pokemon(game:getPlayerPokemon()),
+        pokemon = leadView(game, party),
         battle = battle and { presentation={player=shownVitals(battle,battle.player),enemy=shownVitals(battle,battle.enemy),xp_gauge="authoritative-model"},
             rewards=battle:getRewardSnapshot(), phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
             conditions = battle:getConditionsSnapshot(),
@@ -183,6 +247,7 @@ function HarnessDiagnostics.snapshot(game)
             instance = dialogState.generation,
             ready = root:is("dialog") and dialog.isActive and dialog.charIndex >= #(dialog.lines[dialog.currentLine] or "") },
         camera = { x = game.camera.x, y = game.camera.y }, npcs = npcs,
+        sprites = playdate.graphics.sprite.spriteCount(),
         learning = learningSnapshot(root:get("learning")),
         last_battle_outcome = game.lastBattleOutcome and {
             trainer_id = game.lastBattleOutcome.trainer_id,
@@ -233,19 +298,95 @@ local function armBoundary(game)
         -- SaveStore supplies a detached primitive record. Nothing here calls
         -- captureSession/captureTraversal or samples current moving actors.
         boundaries[game.saves] = {session=session, kind=kind, payload=payload,
-            sequence=metadata.sequence, reason=metadata.reason}
+            sequence=metadata.sequence, slot=metadata.slot, reason=metadata.reason}
     end
 end
-local function codecObservation(game, payload)
-    local deps = game:getSessionDependencies()
-    local valid, problem = SessionCodec.validate(payload, deps)
-    assert(valid, problem)
-    local detached = assert(SessionCodec.decode(payload, deps))
-    local encoded = assert(SessionCodec.encode(detached,
-        {root="overworld", overworld="explore", settled=true}))
-    assert(equal(payload, encoded), "noncanonical session boundary roundtrip")
-    return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=true, payload=payload}
+local function actorMap(list)
+    if type(list) ~= "table" or not Party._array(list, 64) then return end
+    local index = {}
+    for _, actor in ipairs(list) do
+        if type(actor) ~= "table" or getmetatable(actor) ~= nil
+            or type(actor.id) ~= "string" or index[actor.id] then return end
+        index[actor.id] = actor
+    end
+    return index
 end
+-- A corrected source visibility rule can leave a saved actor list
+-- non-canonical. Accept exactly that migration, report it, and require every
+-- surviving actor and every other field to re-encode byte-identically.
+-- Unknown or added ids, changed survivors or a removal that the current source
+-- descriptor and flags do not prove hidden still fail the canonical roundtrip.
+local function actorVisibilityMigration(payload, encoded)
+    local rawMotion = payload.worldMotion
+    local canonicalMotion = encoded.worldMotion
+    if type(rawMotion) ~= "table" or type(canonicalMotion) ~= "table" then return end
+    local raw, canonical = rawMotion.actors, canonicalMotion.actors
+    if type(raw) ~= "table" or type(canonical) ~= "table" then return end
+    local saved, kept = actorMap(raw.actors), actorMap(canonical.actors)
+    if not saved or not kept then return end
+    if raw.count ~= #raw.actors or canonical.count ~= #canonical.actors then return end
+    for id, actor in pairs(kept) do
+        if not equal(saved[id], actor) then return end
+    end
+    local dropped = {}
+    for id in pairs(saved) do
+        if kept[id] == nil then dropped[#dropped + 1] = id end
+    end
+    if #dropped == 0 then return end
+    local before, after = GameSession._copy(payload), GameSession._copy(encoded)
+    before.worldMotion.actors.count, after.worldMotion.actors.count = "actor-count", "actor-count"
+    before.worldMotion.actors.actors, after.worldMotion.actors.actors = "actor-list", "actor-list"
+    if not equal(before, after) then return end
+    -- Prove the removals against the saved candidate world/location/flags,
+    -- not live caller state or the validator's own report.
+    local flags = {quest = payload.questFlags, trainers = payload.trainerFlags}
+    local ok, proof = pcall(SourceActors.hidden, dropped, payload.world, payload.location, flags)
+    if not ok or type(proof) ~= "table" then return end
+    for _, id in ipairs(dropped) do
+        if proof[id] ~= true then return end
+    end
+    table.sort(dropped)
+    return {reason = "source-actor-visibility", dropped = dropped}
+end
+local function canonicalSession(session)
+    return assert(SessionCodec.encode(session,
+        {root="overworld", overworld="explore", settled=true}))
+end
+local function codecObservation(game, payload, trustedBoundary)
+    local deps = game:getSessionDependencies()
+    local encoded
+    if trustedBoundary then
+        -- A literal Save/Continue already matches the installed session, so
+        -- the common path does not decode the selected slot again. Any other
+        -- payload is canonicalized from those bytes. Later play must not
+        -- become the receipt.
+        encoded = canonicalSession(game.session)
+        if not equal(payload, encoded) then
+            local valid, problem = SessionCodec.validate(payload, deps)
+            assert(valid, problem)
+            encoded = canonicalSession(assert(SessionCodec.decode(payload, deps)))
+        end
+    else
+        local valid, problem = SessionCodec.validate(payload, deps)
+        assert(valid, problem)
+        encoded = canonicalSession(assert(SessionCodec.decode(payload, deps)))
+    end
+    local literal = equal(payload, encoded)
+    local migration
+    if not literal then
+        migration = actorVisibilityMigration(payload, encoded)
+        assert(migration, "noncanonical session boundary roundtrip")
+    end
+    -- Keep the raw selected-slot payload and sequence distinct from the
+    -- canonical re-encode. roundtrip_equal is literal equality only.
+    return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=literal,
+        migrated_equal=literal or migration ~= nil, migration=migration,
+        payload=payload, canonical=encoded}
+end
+-- Narrow development seams. The native contract suite proves these exact
+-- predicates without manufacturing a live Save/Continue boundary.
+HarnessDiagnostics._actorVisibilityMigration = actorVisibilityMigration
+HarnessDiagnostics._codecObservation = codecObservation
 local function observeOwners(game)
     local export = assert(json.decodeFile("dev/ceruleanJourney.json"), "missing owner projection")
     assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale owner projection")
@@ -283,16 +424,24 @@ local function observeOwners(game)
     return {kind="owners", valid=true, version=SessionCodec.VERSION}
 end
 function HarnessDiagnostics.observe(game, kind)
-    if kind == "midgame-owners" then
-        local registered, shops, compatibility = {}, {}, {}
-        for _, name in ipairs(SourceMaps.names()) do
-            local definition = SourceMaps.definition(name)
+    local ownerMap = kind:match("^midgame%-owners:([%w_]+)$")
+    if kind == "midgame-owners" or ownerMap then
+        local registered, shops, compatibility, trainers = {}, {}, {}, {}
+        local manifestHash = SourceMaps._sharedCompact().manifest_sha256
+        for _, name in ipairs(ownerMap and {ownerMap} or {}) do
+            local entry = SourceMaps.entry(name)
+            local record = SourceMaps.record("data/sourceMapCache/runtime-" .. name .. ".json")
+            local definition = record.definition
+            assert(record.manifest_sha256 == manifestHash and record.source_sha256 == entry.source_sha256
+                and definition.name == name and definition.id == entry.id,
+                "owner observation runtime metadata differs")
             local events = {}
             for _, group in ipairs({"objects", "background_events"}) do
                 for _, event in ipairs(definition.events[group]) do events[#events + 1] = event end
             end
             for _, event in ipairs(events) do
                 registered[event.id] = SourceEvents.has(event.id)
+                trainers[event.id] = SourceEvents.trainerDefinition(event.id)
                 local descriptor = SourceEvents.descriptor(event.id)
                 local step = descriptor and descriptor.kind == "program" and descriptor.steps[1]
                 if step and step.op == "shop" then
@@ -313,7 +462,7 @@ function HarnessDiagnostics.observe(game, kind)
         armBoundary(game)
         return {kind=kind, valid=true, version=SessionCodec.VERSION,
             registered_events=registered, shops=shops, hm_compatibility=compatibility,
-            trainers=SourceEvents.trainerDefinitions()}
+            trainers=trainers, map_name=ownerMap}
     end
     if kind == "midgame-state" then
         local event = game.machine:get("event")
@@ -417,15 +566,17 @@ function HarnessDiagnostics.observe(game, kind)
         local payload = assert(SessionCodec.encode(game.session,
             {root="overworld", overworld="explore", settled=true}))
         local result = codecObservation(game, payload)
-        -- Fresh validation is deliberately not a Save/Continue receipt.
-        result.payload, result.kind = nil, "validate"
+        -- Fresh validation is deliberately not a Save/Continue receipt and
+        -- must already be canonical: no loaded selected-slot migration here.
+        assert(result.roundtrip_equal, "fresh session validation is not canonical")
+        result.payload, result.canonical, result.kind = nil, nil, "validate"
         return result
     end
     assert(kind == "saved" or kind == "loaded", "unknown observation")
     local boundary = assert(boundaries[game.saves], "no observed Save/Continue boundary")
     assert(boundary.session == game.session and boundary.kind == kind,
         "stale or wrong Save/Continue boundary")
-    local result = codecObservation(game, boundary.payload)
-    result.kind, result.sequence = kind, boundary.sequence
+    local result = codecObservation(game, boundary.payload, true)
+    result.kind, result.sequence, result.slot = kind, boundary.sequence, boundary.slot
     return result
 end

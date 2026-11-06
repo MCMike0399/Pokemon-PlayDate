@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"MAX REPEL lasts"},{"op":"line","source_line":3,"text":"longer than SUPER"},{"op":"cont","source_line":4,"text":"REPEL for keeping"},{"op":"cont","source_line":5,"text":"weaker #MON"},{"op":"cont","source_line":6,"text":"away!"},{"op":"control","source":"done","source_line":7}],"source":"text/SaffronMart.asm"}

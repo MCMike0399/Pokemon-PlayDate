@@ -1,0 +1,15 @@
+{
+  "files": {
+    "constants/event_constants.asm": "691a373649740af5ea340d09e816b0966e9164d5f78ded57b1759e76ada57455",
+    "constants/item_constants.asm": "b5a1db015fbf0de637381eb39350f21f35a436a8088e2f6657f65c79f118f97f",
+    "data/maps/headers/CopycatsHouse2F.asm": "4c2f9cf8d80d934b0c54d5f2f561e1ce6e5444d8fae7885cc582cdad260623ad",
+    "data/maps/objects/CopycatsHouse2F.asm": "d26253fd35178356bada728d58cad4b4502d5435864b37529de4a2ea721427d9",
+    "home/give.asm": "8cfb75843694f5f32294534b766ce3c0dec1272c8cc00755050348ad38604b07",
+    "maps.asm": "692ff4f5a4d88178e336c7465dd3d1bc443dc42ede07938d09b0b7db26406b57",
+    "maps/RedsHouse2F.blk": "44e7fcf3e110f52272e63194d7d5561202d8eeb357d0263ce052d5158277cbe0",
+    "scripts/CopycatsHouse2F.asm": "13e7aae9c6b49c701585365dff2e2f3baf651525a47a724d3a3c5c891db86b4b",
+    "text/CopycatsHouse2F.asm": "fcfbb493691b429b255f8d7f227619a4d9e07994639bc8a32e160fdb2add8732"
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

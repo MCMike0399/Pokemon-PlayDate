@@ -28,20 +28,20 @@
         {
           "closed_block": 32,
           "closed_keys": [
-            "pokered:FACILITY:cell:01-01-01-01",
-            "pokered:FACILITY:cell:09-0a-19-1a",
-            "pokered:FACILITY:cell:01-01-01-01",
-            "pokered:FACILITY:cell:09-0a-19-1a"
+            "pokered:INTERIOR:cell:1f-1f-1f-1f",
+            "pokered:INTERIOR:cell:1f-1f-1f-1f",
+            "pokered:INTERIOR:cell:5d-5d-5e-5e",
+            "pokered:INTERIOR:cell:5d-5d-5e-5e"
           ],
           "flag": "EVENT_SILPH_CO_11_UNLOCKED_DOOR",
           "id": "pokered:SILPH_CO_11F:hidden_events:1001",
           "map": "SilphCo11F",
           "open_block": 3,
           "open_keys": [
-            "pokered:FACILITY:cell:01-01-01-01",
-            "pokered:FACILITY:cell:31-31-30-30",
-            "pokered:FACILITY:cell:31-31-30-30",
-            "pokered:FACILITY:cell:01-01-01-01"
+            "pokered:INTERIOR:cell:1f-1f-1f-1f",
+            "pokered:INTERIOR:cell:1f-1f-1f-1f",
+            "pokered:INTERIOR:cell:1f-1f-1f-1f",
+            "pokered:INTERIOR:cell:1f-1f-1f-1f"
           ],
           "x": 3,
           "y": 6
@@ -543,6 +543,16 @@
         "source_warp_byte": 1
       }
     ],
+    "fuji_rescue": {
+      "flag": "EVENT_RESCUED_MR_FUJI",
+      "hides": [
+        "pokered:SAFFRON_CITY:objects:14"
+      ],
+      "shows": [
+        "pokered:SAFFRON_CITY:objects:15"
+      ],
+      "source": "scripts/PokemonTower7F.asm"
+    },
     "giovanni": {
       "approach": [
         "down",
@@ -573,6 +583,17 @@
         }
       ]
     },
+    "inert_warps": [
+      {
+        "foot_tile": 31,
+        "id": "pokered:SILPH_CO_11F:warps:3",
+        "key": "pokered:INTERIOR:cell:1f-1f-1f-1f",
+        "map": "SilphCo11F",
+        "reason": "INTERIOR has no door tiles; $1f is not a warp tile; (5,5) is not a map edge",
+        "x": 5,
+        "y": 5
+      }
+    ],
     "rival": {
       "id": "pokered:SILPH_CO_7F:objects:9",
       "origin": {

@@ -1,0 +1,30 @@
+{
+  "base": "e7249cf459a19296e6573040c23c8272a04934ff",
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "host_checks": {
+    "passed": 38,
+    "skipped": 0
+  },
+  "generator_check": true,
+  "all_eight_text_recipes_equal_existing_pinned_C": true,
+  "sdk": "3.1.2",
+  "compiled": [
+    "unpatched production",
+    "unpatched harness",
+    "privately composed C and Copycat production",
+    "privately composed C and Copycat harness with one new behavior case"
+  ],
+  "behavior_cases_executed": 0,
+  "runtime_executed": false,
+  "accepted": false,
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/copycat-service-prep-20261030-01",
+  "sha256": {
+    "tools/integration/copycat/root-hooks.patch": "6d630f816452737921bc35ea7037e2c24fa5354232176397bb1a754187ab58a8",
+    "tools/integration/copycat/sdk-registration.patch": "68c27c63ed257825d77ef6197b462baa1a11f9a20ccca8cc5a32898fb3116721",
+    "Source/data/copycatService/service.json": "53db45206ad61d7c32bd2209139c251b6f3d6cff36789c1f774ee2ec91335888"
+  },
+  "compiled_main_sha256": {
+    "Copycat-root-hooks.pdx": "8f97d19a4dbcd6c7b75314dbbdc7eba0fefe2ba855af8be4b47385c8c905be57",
+    "Copycat-contract-compile.pdx": "42fafd4da920b5deb33dade778ba5f7db9f3268bb21a64459e9955deec129ccc"
+  }
+}

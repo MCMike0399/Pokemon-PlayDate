@@ -156,8 +156,14 @@ function BootTrace.requestCollect(phase)
     pendingCollection = phase
 end
 
-local function memoryBudgetEnabled()
+-- 6 MiB is the post-collection live cap on hardware. 8 MiB is the soft
+-- collection point. 9 MiB is the hard sample. Private harness sessions leave
+-- this budget off; they are not admission evidence.
+function BootTrace.memoryBudgetEnabled()
     return DEVICE_TEST_BUILD or not (HarnessBuild and HarnessBuild.enabled)
+end
+local function memoryBudgetEnabled()
+    return BootTrace.memoryBudgetEnabled()
 end
 
 function BootTrace.memoryCollectionStatus()

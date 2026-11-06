@@ -252,18 +252,70 @@ class ReceiptTests(unittest.TestCase):
     def test_codec_guard_rejects_invalid_roundtrip_version_and_aliasing(self):
         journey = cj.CeruleanJourney(NoRuntime(), "/unused", {"name": "cerulean-natural"})
         journey.export = {"session_codec": 1}
-        codec = {"version": 1, "valid": True, "roundtrip_equal": True, "payload": structural_payload()}
+        codec = {"version": 1, "valid": True, "roundtrip_equal": True, "migrated_equal": True,
+                 "payload": structural_payload(), "canonical": structural_payload(),
+                 "sequence": 1, "slot": "a"}
         journey.observe = lambda kind: codec
         payload = journey.codec_guard("saved")
         payload["party"]["changed"] = True
         self.assertEqual(codec["payload"]["party"], {})
-        for mutation in ({"version": 7}, {"valid": False}, {"roundtrip_equal": False}, {"payload": []}):
+        for mutation in ({"version": 7}, {"valid": False}, {"roundtrip_equal": False},
+                         {"migrated_equal": False}, {"payload": []}, {"canonical": []},
+                         {"slot": "c"}, {"sequence": "1"}):
             journey.observe = lambda kind: dict(codec, **mutation)
             with self.subTest(mutation=mutation), self.assertRaises(ProtocolError):
                 journey.codec_guard("saved")
         journey.observe = lambda kind: codec
         with self.assertRaises(ProtocolError):
             journey.codec_guard()  # validation cannot return a receipt payload
+
+    def test_actor_migration_checks_the_nested_saved_actor_envelope(self):
+        # SessionCodec worldMotion.actors is the envelope, not the actor list.
+        # A flat list at that key must not count as a successful migration.
+        blocker = {"id": "pokered:SAFFRON_CITY:objects:14", "x": 18, "y": 22, "facing": "down"}
+        sleeper = {"id": "pokered:SAFFRON_CITY:objects:15", "x": 18, "y": 21, "facing": "down"}
+
+        def payload(records):
+            value = structural_payload()
+            value["questFlags"] = {"EVENT_RESCUED_MR_FUJI": True}
+            value["worldMotion"] = {"version": 1, "rng": {"seed": 1}, "actors": {
+                "version": 1, "zone_id": "pokered:SAFFRON_CITY",
+                "definition_revision": "silph-v1", "count": len(records), "actors": records}}
+            return value
+
+        raw = payload([blocker, sleeper])
+        canonical = payload([sleeper])
+        migration = {"reason": "source-actor-visibility",
+                     "dropped": ["pokered:SAFFRON_CITY:objects:14"]}
+        cj.validate_actor_migration(raw, canonical, migration)
+        journey = cj.CeruleanJourney(NoRuntime(), "/unused", {"name": "cerulean-natural"})
+        journey.export = {"session_codec": 1}
+        journey.observe = lambda kind: {"version": 1, "valid": True, "roundtrip_equal": False,
+                                        "migrated_equal": True, "migration": migration,
+                                        "payload": raw, "canonical": canonical,
+                                        "sequence": 4, "slot": "b"}
+        self.assertEqual(journey.codec_guard("loaded"), raw)
+        flat = structural_payload()
+        flat["worldMotion"] = {"version": 1, "rng": {"seed": 1}, "count": 2,
+                               "actors": [blocker, sleeper]}
+        with self.assertRaises(ProtocolError):
+            cj.validate_actor_migration(flat, canonical, migration)
+        rejected = {}
+        rejected["zone"] = copy.deepcopy(canonical)
+        rejected["zone"]["worldMotion"]["actors"]["zone_id"] = "pokered:SILPH_CO_1F"
+        rejected["revision"] = copy.deepcopy(canonical)
+        rejected["revision"]["worldMotion"]["actors"]["definition_revision"] = "other"
+        rejected["survivor"] = copy.deepcopy(canonical)
+        rejected["survivor"]["worldMotion"]["actors"]["actors"][0]["x"] = 0
+        rejected["count"] = copy.deepcopy(canonical)
+        rejected["count"]["worldMotion"]["actors"]["count"] = 0
+        rejected["flags"] = copy.deepcopy(canonical)
+        rejected["flags"]["questFlags"] = {}
+        rejected["extra"] = copy.deepcopy(canonical)
+        rejected["extra"]["worldMotion"]["actors"]["extra"] = True
+        for name, changed in rejected.items():
+            with self.subTest(change=name), self.assertRaises(ProtocolError):
+                cj.validate_actor_migration(raw, changed, migration)
 
     def test_wrong_process_identity_and_incomplete_receipts_fail_before_io(self):
         state = receipt_state()
