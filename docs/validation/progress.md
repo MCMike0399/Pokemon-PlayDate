@@ -56,6 +56,32 @@ stale coverage Source fingerprint that this session did not regenerate. Errors
 are missing external reference trees (ability oracle, field-move pins, NPC-trade
 manifest) and `libproc`. This is not a green suite and does not requalify C.
 
+## Trace append handle missed the Linux gate — 2026-11-06
+
+`trace.jsonl` was opened, written, and closed on every command completion and
+every 30 journey frames (96 rows, 2.9 MB, prefix-sum about 132 MB if each open
+kept the bytes). Holding one append handle for the session, and flushing every
+row, never published `ready.json`: `file:flush` on that handle did not return.
+Publishing ready before the first append and not flushing per row did finish
+the probe. Same end state (`pokered:SILPH_CO_1F`, stage `done`, player
+`(8, 11)` down, action-bound error, one process) at **576.305 MiB** VmHWM.
+The tail of the trace was 93 rows rather than 96, because the handle was still
+open when the simulator was stopped. The change was reverted. It is not an
+adoption. Evidence: `linux-silph-entry-trace-handle-3`.
+
+The climb is live glibc heap, not WebKit and not freed-but-retained pages.
+`mallinfo2` at the peak reported `uordblks` about 506 MB, `fordblks` about
+3 MB, and `hblkhd` about 28 MB. WebKit's mapping stayed about 10.7 MB. Lua
+`collectgarbage` never passed **8.84 MiB**. A size histogram of still-live
+mallocs was about 4.99 million 24-byte objects (114 MB) and 6.60 million
+40-byte objects (252 MB), plus the 16 MB pool and one buffer that grew to
+about 27 MB. Sampled backtraces of the surviving 16–128 byte objects are
+`strdup` and a 40-byte node inside `PlaydateSimulator`, appending
+`%s %s:%i` frames (`nSl`) to a list that only grows. Removing the saved
+sampler and memory window rects from the simulator ini, keeping
+`MallocPoolSize=16645684`, still peaked at **575.750 MiB**. The cabin pilot
+was not relaunched.
+
 ## Silph elevator surround — 2026-11-06
 
 The live Silph Co. elevator (`pokered:SILPH_CO_ELEVATOR`, imported 13×4 cells,
