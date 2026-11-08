@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-08 door candidate rejected
+
+Build `6f2afa2621e04574b681471d341fd704`, source `d2d30ffb`, PDX `49ced8e69479738d27c52bf13bb460fcd59edf10c2ecdebe47e1c0736798434f`. Cycle `ok: true`, boot and playability not accepted. Same Squirtle route, unchanged error and crash logs. Door wall 3967 ms versus baseline `072ca581` at 3929 ms, 38 ms slower, not a 10 percent gain. Save 3408 ms, Continue 2637 ms, battle 22 ms, peak 6272.406 KiB. Post-GC live heap is null. The copy reduction is reverted on `main` by `95b0fad8`. The experiment remains at `d2d30ffb` and `469277cd`. The device still has this candidate PDX installed. The prior timing PDX `6f306e33…` was archived and was not restored.
+
 ## 2026-11-08 host baseline on b98c14b4
 
 Discover of `tools/tests` with the env venv and pinned pokered: 1204 tests, 4 failures, 2 errors, 0 skips. The two errors are a missing worktree B2W2 cache. With `POKEMON_ENV` set to `~/Developer/Pokemon-PlayDate-env`, `test_runtime_move_coverage` and `test_substitute_generation` pass, 14 tests. The four failures stay red on purpose. The coverage-matrix fingerprint still records snapshot `598f64d2`. `player.lua` still differs from `fd4561b4` because `75d90990` changed field-travel mode. `sessionCodec.lua` still differs from `1ffd6fa7` because later commits added validation reuse and `relieveHeap`. Refreshing those hashes would relabel the old proofs. No commit came from that check.
