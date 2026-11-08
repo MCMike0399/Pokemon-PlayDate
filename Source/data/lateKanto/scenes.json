@@ -1,0 +1,129 @@
+{
+  "scenes": {
+    "champion": {
+      "by_rival_starter": {
+        "STARTER1": {
+          "ace": "CHARIZARD",
+          "trainer_no": 3
+        },
+        "STARTER2": {
+          "ace": "BLASTOISE",
+          "trainer_no": 1
+        },
+        "STARTER3": {
+          "ace": "VENUSAUR",
+          "trainer_no": 2
+        }
+      },
+      "selector": "wRivalStarter"
+    },
+    "elite_four": [
+      "INDIGO_PLATEAU_LOBBY",
+      "LORELEIS_ROOM",
+      "BRUNOS_ROOM",
+      "AGATHAS_ROOM",
+      "LANCES_ROOM",
+      "CHAMPIONS_ROOM",
+      "HALL_OF_FAME"
+    ],
+    "hall_of_fame": {
+      "hides": [
+        "TOGGLE_CERULEAN_CAVE_GUY"
+      ]
+    },
+    "missing_maps": [
+      "SeafoamIslandsB4F",
+      "PokemonMansionB1F",
+      "CinnabarGym",
+      "PowerPlant",
+      "ViridianGym",
+      "VictoryRoad2F",
+      "CeruleanCaveB1F",
+      "IndigoPlateauLobby",
+      "LoreleisRoom",
+      "BrunosRoom",
+      "AgathasRoom",
+      "LancesRoom",
+      "ChampionsRoom",
+      "HallOfFame"
+    ],
+    "route23_badge_checks": [
+      "EARTHBADGE",
+      "VOLCANOBADGE",
+      "MARSHBADGE",
+      "SOULBADGE",
+      "RAINBOWBADGE",
+      "THUNDERBADGE",
+      "CASCADEBADGE"
+    ],
+    "secret_key": {
+      "id": "pokered:POKEMONMANSIONB1F:objects:8",
+      "kind": "static",
+      "level": null,
+      "map": "PokemonMansionB1F",
+      "species": "SECRET_KEY",
+      "x": 5,
+      "y": 13
+    },
+    "statics": {
+      "articuno": {
+        "id": "pokered:SEAFOAMISLANDSB4F:objects:3",
+        "kind": "static",
+        "level": 50,
+        "map": "SeafoamIslandsB4F",
+        "species": "ARTICUNO",
+        "x": 6,
+        "y": 1
+      },
+      "mewtwo": {
+        "id": "pokered:CERULEANCAVEB1F:objects:1",
+        "kind": "static",
+        "level": 70,
+        "map": "CeruleanCaveB1F",
+        "species": "MEWTWO",
+        "x": 27,
+        "y": 13
+      },
+      "moltres": {
+        "id": "pokered:VICTORYROAD2F:objects:6",
+        "kind": "static",
+        "level": 50,
+        "map": "VictoryRoad2F",
+        "species": "MOLTRES",
+        "x": 11,
+        "y": 5
+      },
+      "zapdos": {
+        "id": "pokered:POWERPLANT:objects:9",
+        "kind": "static",
+        "level": 50,
+        "map": "PowerPlant",
+        "species": "ZAPDOS",
+        "x": 4,
+        "y": 9
+      }
+    },
+    "trainers": {
+      "blaine": {
+        "id": "pokered:CINNABARGYM:objects:1",
+        "kind": "trainer",
+        "level": 1,
+        "map": "CinnabarGym",
+        "species": "OPP_BLAINE",
+        "x": 3,
+        "y": 3
+      },
+      "giovanni": {
+        "id": "pokered:VIRIDIANGYM:objects:1",
+        "kind": "trainer",
+        "level": 3,
+        "map": "ViridianGym",
+        "species": "OPP_GIOVANNI",
+        "x": 2,
+        "y": 1
+      }
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
