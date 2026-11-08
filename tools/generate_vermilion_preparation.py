@@ -221,6 +221,17 @@ def proposed_pipeline(artifacts, *, manifest=None):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(artifacts[name + '.json'] if name in additions
                                else (ROOT / 'Source' / entry['path']).read_bytes())
+        # The cache reads this auxiliary file whenever Silph floors are installed.
+        # A private manifest root may contain only the decoded maps.
+        if 'SilphCo3F' in manifest['maps'] and 'SilphCo11F' in manifest['maps']:
+            tiles = source / 'data/silphStory/tiles.json'
+            tiles.parent.mkdir(parents=True, exist_ok=True)
+            candidates = (ROOT / 'Source/data/silphStory/tiles.json',
+                          Path(__file__).resolve().parents[1] / 'Source/data/silphStory/tiles.json')
+            origin = next((path for path in candidates if path.is_file()), None)
+            if origin is None:
+                raise ValueError('pinned Silph callback tiles missing')
+            tiles.write_bytes(origin.read_bytes())
         cache = cache_build(manifest_path, source)
     return {'proposed-source-maps.json': raw,
             # Preparation owns only the original JSON proposal pair. The active
