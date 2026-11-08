@@ -51,6 +51,32 @@ class LateKantoSourceTests(unittest.TestCase):
         self.assertNotIn('level', giovanni)
         self.assertEqual(giovanni['map_constant'], 'VIRIDIAN_GYM')
 
+    def test_cinnabar_lab_fossil_revival_uses_the_source_scientist(self):
+        revival = self.scenes['fossil_revival']
+        scientist = revival['scientist']
+        self.assertEqual(scientist['id'], 'pokered:CINNABAR_LAB_FOSSIL_ROOM:objects:1')
+        self.assertEqual(
+            (scientist['map'], scientist['map_constant'], scientist['x'], scientist['y'], scientist['text_id']),
+            ('CinnabarLabFossilRoom', 'CINNABAR_LAB_FOSSIL_ROOM', 5, 2, 'TEXT_CINNABARLABFOSSILROOM_SCIENTIST1'))
+        self.assertEqual(revival['results'], [
+            {'item': 'DOME_FOSSIL', 'species': 'KABUTO'},
+            {'item': 'HELIX_FOSSIL', 'species': 'OMANYTE'},
+            {'item': 'OLD_AMBER', 'species': 'AERODACTYL'},
+        ])
+        self.assertEqual(revival['level'], 30)
+        self.assertEqual(revival['give_sets'], ['EVENT_GAVE_FOSSIL_TO_LAB', 'EVENT_LAB_STILL_REVIVING_FOSSIL'])
+        self.assertEqual(revival['handover_sets'], ['EVENT_LAB_HANDING_OVER_FOSSIL_MON'])
+        self.assertTrue(revival['handover_when_still_reviving_clear'])
+        self.assertEqual(revival['success_resets'], [
+            'EVENT_GAVE_FOSSIL_TO_LAB', 'EVENT_LAB_STILL_REVIVING_FOSSIL', 'EVENT_LAB_HANDING_OVER_FOSSIL_MON'])
+        self.assertEqual(revival['still_reviving_cleared_on_map_load'], {
+            'event': 'EVENT_LAB_STILL_REVIVING_FOSSIL',
+            'map': 'CinnabarIsland',
+            'map_constant': 'CINNABAR_ISLAND',
+        })
+        for name in (scientist['map'], revival['still_reviving_cleared_on_map_load']['map']):
+            self.assertIn(name, self.scenes['missing_maps'])
+
     def test_route23_checks_and_league_order_follow_the_source_warps(self):
         self.assertEqual(self.scenes['route23_badge_checks'], [
             'EARTHBADGE', 'VOLCANOBADGE', 'MARSHBADGE', 'SOULBADGE',

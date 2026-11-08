@@ -26,6 +26,49 @@
       "CHAMPIONS_ROOM",
       "HALL_OF_FAME"
     ],
+    "fossil_revival": {
+      "give_sets": [
+        "EVENT_GAVE_FOSSIL_TO_LAB",
+        "EVENT_LAB_STILL_REVIVING_FOSSIL"
+      ],
+      "handover_sets": [
+        "EVENT_LAB_HANDING_OVER_FOSSIL_MON"
+      ],
+      "handover_when_still_reviving_clear": true,
+      "level": 30,
+      "results": [
+        {
+          "item": "DOME_FOSSIL",
+          "species": "KABUTO"
+        },
+        {
+          "item": "HELIX_FOSSIL",
+          "species": "OMANYTE"
+        },
+        {
+          "item": "OLD_AMBER",
+          "species": "AERODACTYL"
+        }
+      ],
+      "scientist": {
+        "id": "pokered:CINNABAR_LAB_FOSSIL_ROOM:objects:1",
+        "map": "CinnabarLabFossilRoom",
+        "map_constant": "CINNABAR_LAB_FOSSIL_ROOM",
+        "text_id": "TEXT_CINNABARLABFOSSILROOM_SCIENTIST1",
+        "x": 5,
+        "y": 2
+      },
+      "still_reviving_cleared_on_map_load": {
+        "event": "EVENT_LAB_STILL_REVIVING_FOSSIL",
+        "map": "CinnabarIsland",
+        "map_constant": "CINNABAR_ISLAND"
+      },
+      "success_resets": [
+        "EVENT_GAVE_FOSSIL_TO_LAB",
+        "EVENT_LAB_STILL_REVIVING_FOSSIL",
+        "EVENT_LAB_HANDING_OVER_FOSSIL_MON"
+      ]
+    },
     "hall_of_fame": {
       "hides": [
         "TOGGLE_CERULEAN_CAVE_GUY"
@@ -45,7 +88,9 @@
       "AgathasRoom",
       "LancesRoom",
       "ChampionsRoom",
-      "HallOfFame"
+      "HallOfFame",
+      "CinnabarLabFossilRoom",
+      "CinnabarIsland"
     ],
     "route23_badge_checks": [
       "EARTHBADGE",

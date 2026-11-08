@@ -2,8 +2,8 @@
 """Pinned late-Kanto, League and postgame scene plan from pokered.
 
 The 171-map manifest does not install these maps yet. This plan records the
-source objects, badge gates and room order so a later map activation can use
-them without inventing coordinates or a Mew location.
+source objects, badge gates, fossil revival and room order so a later map
+activation can use them without inventing coordinates or a Mew location.
 """
 import argparse
 import hashlib
@@ -36,6 +36,12 @@ FILES = [
     'scripts/Route23.asm',
     'scripts/ChampionsRoom.asm',
     'scripts/HallOfFame.asm',
+    'scripts/CinnabarLabFossilRoom.asm',
+    'data/maps/objects/CinnabarLabFossilRoom.asm',
+    'scripts/CinnabarIsland.asm',
+    'engine/events/cinnabar_lab.asm',
+    'engine/events/give_pokemon.asm',
+    'home/give.asm',
     'data/trainers/parties.asm',
     'constants/pokemon_constants.asm',
     'constants/map_constants.asm',
@@ -44,7 +50,7 @@ MISSING_MAPS = [
     'SeafoamIslandsB4F', 'PokemonMansionB1F', 'CinnabarGym', 'PowerPlant',
     'ViridianGym', 'VictoryRoad2F', 'CeruleanCaveB1F', 'IndigoPlateauLobby',
     'LoreleisRoom', 'BrunosRoom', 'AgathasRoom', 'LancesRoom', 'ChampionsRoom',
-    'HallOfFame',
+    'HallOfFame', 'CinnabarLabFossilRoom', 'CinnabarIsland',
 ]
 STATICS = {
     'articuno': ('SeafoamIslandsB4F.asm', 'ARTICUNO'),
@@ -112,6 +118,115 @@ def north_room(source):
     return min(forward)[1]
 
 
+def asm_block(source, label):
+    tail = source.split(label + ':', 1)
+    if len(tail) != 2:
+        raise ValueError('missing ' + label)
+    end = re.search(r'^[A-Za-z_][\w]*:', tail[1], re.M)
+    return tail[1][:end.start()] if end else tail[1]
+
+
+def local_block(source, label):
+    tail = source.split('\n' + label + '\n', 1)
+    if len(tail) != 2:
+        raise ValueError('missing ' + label)
+    stops = [match.start() for match in (
+        re.search(r'(?m)^\.[A-Za-z_]', tail[1]),
+        re.search(r'(?m)^[A-Za-z_][\w]*:', tail[1]),
+    ) if match]
+    return tail[1][:min(stops)] if stops else tail[1]
+
+
+def event_names(line):
+    names = [part.strip() for part in line.split(',')]
+    if not names or any(not re.fullmatch(r'EVENT_[A-Z0-9_]+', name) for name in names):
+        raise ValueError('event list changed: ' + line)
+    return names
+
+
+def fossil_items(script):
+    rows = re.findall(r'^\s*db\s+(\w+)', asm_block(script, 'FossilsList'), re.M)
+    if not rows or rows[-1] != '0' or rows.count('0') != 1:
+        raise ValueError('fossil list terminator changed')
+    items = rows[:-1]
+    if not items or len(items) != len(set(items)):
+        raise ValueError('fossil list changed')
+    return items
+
+
+def fossil_results(engine, items):
+    body = re.split(r'(?m)^\.fossilSelected\b', engine.split('GiveFossilToCinnabarLab::', 1)[1], maxsplit=1)[0]
+    default = re.search(r'ld b, ([A-Z0-9_]+)', re.split(r'(?m)^\.', body, maxsplit=1)[0])
+    compares = re.findall(r'cp\s+([A-Z0-9_]+)\s+jr z, (\.\w+)', body)
+    branches = dict(re.findall(r'(?m)^(\.\w+)\s+ld b, ([A-Z0-9_]+)', body))
+    if default is None or not compares or {label for _, label in compares} != set(branches):
+        raise ValueError('fossil species selector changed')
+    chosen = {item: branches[label] for item, label in compares}
+    if set(chosen) - set(items) or len([item for item in items if item not in chosen]) != 1:
+        raise ValueError('fossil list and selector disagree')
+    results = [dict(item=item, species=chosen.get(item, default[1])) for item in items]
+    species = [row['species'] for row in results]
+    if len(species) != len(set(species)):
+        raise ValueError('fossil results are not distinct')
+    return results
+
+
+def fossil_revival(sources, constants):
+    script = sources['scripts/CinnabarLabFossilRoom.asm']
+    engine = sources['engine/events/cinnabar_lab.asm']
+    island = sources['scripts/CinnabarIsland.asm']
+    if not re.search(r'(?m)^GivePokemon::\s+; Give the player monster b at level c\.', sources['home/give.asm']):
+        raise ValueError('GivePokemon level register changed')
+    if not re.search(r'(?m)^_GivePokemon::\s+; returns success in carry', sources['engine/events/give_pokemon.asm']):
+        raise ValueError('GivePokemon carry convention changed')
+    pointers = re.findall(r'dw_const (\w+), (TEXT_[A-Z0-9_]+)', asm_block(script, 'CinnabarLabFossilRoom_TextPointers'))
+    revivers = []
+    for label, text_id in pointers:
+        body = asm_block(script, label)
+        if 'farcall GiveFossilToCinnabarLab' in body:
+            revivers.append((label, text_id, body))
+    if len(revivers) != 1:
+        raise ValueError('expected one fossil revival speaker')
+    _, text_id, body = revivers[0]
+    placed = object_row(sources['data/maps/objects/CinnabarLabFossilRoom.asm'], text_id, constants)
+    scientist = dict(id=placed['id'], map=placed['map'], map_constant=placed['map_constant'],
+                     text_id=text_id, x=placed['x'], y=placed['y'])
+    ready = re.search(r'CheckEventAfterBranchReuseA (EVENT_[A-Z0-9_]+), (EVENT_[A-Z0-9_]+)\s+jr z,\s+(\.\w+)', body)
+    if ready is None:
+        raise ValueError('fossil revival wait check changed')
+    still_reviving, gave_flag, ready_label = ready.groups()
+    ready_body = local_block(body, ready_label)
+    if 'GoForAWalk' in ready_body or 'call GivePokemon' not in ready_body:
+        raise ValueError('clear revive flag does not hand over the fossil')
+    handover = re.findall(r'SetEvent (EVENT_[A-Z0-9_]+)', ready_body)
+    give_body = re.split(r'(?m)^\.cancelledGivingFossil\b', engine.split('GiveFossilToCinnabarLab::', 1)[1], maxsplit=1)[0]
+    given = re.findall(r'SetEvents ([^\n]+)', give_body)
+    level = re.search(r'ld a, \[wFossilMon\]\s+ld b, a\s+ld c, (\d+)\s+call GivePokemon\s+jr nc, \.\w+\s+ResetEvents ([^\n]+)', ready_body)
+    if len(handover) != 1 or len(given) != 1 or level is None:
+        raise ValueError('fossil revival events changed')
+    give_sets = event_names(given[0])
+    success_resets = event_names(level[2])
+    if gave_flag not in give_sets or still_reviving not in give_sets:
+        raise ValueError('fossil give events changed')
+    if handover[0] not in success_resets or still_reviving not in success_resets or gave_flag not in success_resets:
+        raise ValueError('fossil success reset does not clear the revive flags')
+    header = island.split('CinnabarIsland_Script:', 1)[1].split('CinnabarIsland_ScriptPointers:', 1)[0]
+    if re.findall(r'ResetEvent (EVENT_[A-Z0-9_]+)', header).count(still_reviving) != 1:
+        raise ValueError('Cinnabar Island no longer clears fossil revival')
+    island_name = re.search(r'^(\w+)_Script:', island, re.M)[1]
+    return dict(
+        scientist=scientist,
+        results=fossil_results(engine, fossil_items(script)),
+        level=int(level[1]),
+        give_sets=give_sets,
+        handover_sets=handover,
+        handover_when_still_reviving_clear=True,
+        success_resets=success_resets,
+        still_reviving_cleared_on_map_load=dict(
+            map=island_name, map_constant=map_constant(island_name, constants), event=still_reviving),
+    )
+
+
 def champion_branches(script, parties):
     chunk = script.split('ld a, [wRivalStarter]', 1)[1].split('ld [wTrainerNo], a', 1)[0]
     found = dict(re.findall(r'cp (STARTER\d)\s+jr nz, \.\w+\s+ld a, \$(\d+)', chunk))
@@ -159,6 +274,10 @@ def build(reference):
                                     sources['constants/map_constants.asm'])
     secret = object_row(sources['data/maps/objects/PokemonMansionB1F.asm'], 'SECRET_KEY',
                         sources['constants/map_constants.asm'])
+    revival = fossil_revival(sources, sources['constants/map_constants.asm'])
+    referenced = [revival['scientist']['map'], revival['still_reviving_cleared_on_map_load']['map']]
+    if any(name not in MISSING_MAPS for name in referenced):
+        raise ValueError('fossil revival maps must stay uninstalled')
     checks = re.findall(r'EventFlagBit a, (EVENT_PASSED_\w+)', sources['scripts/Route23.asm'])
     if len(checks) != 7 or len(set(checks)) != 7:
         raise ValueError('Route 23 badge gates changed')
@@ -193,6 +312,7 @@ def build(reference):
         statics=encounters,
         trainers=trainers,
         secret_key=secret,
+        fossil_revival=revival,
         route23_badge_checks=[flag.removeprefix('EVENT_PASSED_').removesuffix('_CHECK') for flag in checks],
         elite_four=order,
         champion=dict(selector='wRivalStarter', by_rival_starter=champion_branches(sources['scripts/ChampionsRoom.asm'], parties)),
