@@ -38,6 +38,7 @@ FILES = [
     'scripts/HallOfFame.asm',
     'data/trainers/parties.asm',
     'constants/pokemon_constants.asm',
+    'constants/map_constants.asm',
 ]
 MISSING_MAPS = [
     'SeafoamIslandsB4F', 'PokemonMansionB1F', 'CinnabarGym', 'PowerPlant',
@@ -61,7 +62,16 @@ def encoded(value):
     return (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
 
 
-def object_row(source, species):
+def map_constant(label, constants):
+    folded = label.upper()
+    matches = [name for name in re.findall(r'^\s*map_const\s+([A-Z0-9_]+),', constants, re.M)
+               if name.replace('_', '') == folded]
+    if len(matches) != 1:
+        raise ValueError('map constant for ' + label + ': ' + repr(matches))
+    return matches[0]
+
+
+def object_row(source, species, constants):
     found = None
     index = 0
     for line in source.splitlines():
@@ -80,9 +90,18 @@ def object_row(source, species):
         raise ValueError('expected one ' + species + ' object')
     x, y, level, index = found
     map_name = re.search(r'^(\w+)_Object:', source, re.M)[1]
-    return dict(map=map_name, id='pokered:' + map_name.upper() + ':objects:' + str(index),
-                x=x, y=y, species=species, level=level,
-                kind='static' if not species.startswith('OPP_') else 'trainer')
+    constant = map_constant(map_name, constants)
+    trainer = species.startswith('OPP_')
+    row = dict(map=map_name, map_constant=constant,
+               id='pokered:' + constant + ':objects:' + str(index),
+               x=x, y=y, species=species, kind='trainer' if trainer else 'static')
+    if trainer:
+        if level is None:
+            raise ValueError('trainer party index missing: ' + species)
+        row['party_index'] = level
+    else:
+        row['level'] = level
+    return row
 
 
 def north_room(source):
@@ -130,13 +149,16 @@ def build(reference):
         raise ValueError('starter constants changed')
     encounters = {}
     for name, (filename, species) in STATICS.items():
-        encounters[name] = object_row(sources['data/maps/objects/' + filename], species)
+        encounters[name] = object_row(sources['data/maps/objects/' + filename], species,
+                                      sources['constants/map_constants.asm'])
         if encounters[name]['kind'] != 'static':
             raise ValueError(name + ' is not a static encounter')
     trainers = {}
     for name, (filename, species) in TRAINERS.items():
-        trainers[name] = object_row(sources['data/maps/objects/' + filename], species)
-    secret = object_row(sources['data/maps/objects/PokemonMansionB1F.asm'], 'SECRET_KEY')
+        trainers[name] = object_row(sources['data/maps/objects/' + filename], species,
+                                    sources['constants/map_constants.asm'])
+    secret = object_row(sources['data/maps/objects/PokemonMansionB1F.asm'], 'SECRET_KEY',
+                        sources['constants/map_constants.asm'])
     checks = re.findall(r'EventFlagBit a, (EVENT_PASSED_\w+)', sources['scripts/Route23.asm'])
     if len(checks) != 7 or len(set(checks)) != 7:
         raise ValueError('Route 23 badge gates changed')

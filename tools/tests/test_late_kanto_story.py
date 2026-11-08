@@ -25,7 +25,8 @@ class LateKantoSourceTests(unittest.TestCase):
         articuno = self.scenes['statics']['articuno']
         self.assertEqual((articuno['map'], articuno['x'], articuno['y'], articuno['level'], articuno['kind']),
                          ('SeafoamIslandsB4F', 6, 1, 50, 'static'))
-        self.assertEqual(articuno['id'], 'pokered:SEAFOAMISLANDSB4F:objects:3')
+        self.assertEqual(articuno['id'], 'pokered:SEAFOAM_ISLANDS_B4F:objects:3')
+        self.assertEqual(articuno['map_constant'], 'SEAFOAM_ISLANDS_B4F')
         zapdos = self.scenes['statics']['zapdos']
         self.assertEqual((zapdos['x'], zapdos['y'], zapdos['level']), (4, 9, 50))
         moltres = self.scenes['statics']['moltres']
@@ -41,10 +42,14 @@ class LateKantoSourceTests(unittest.TestCase):
         self.assertEqual((key['map'], key['x'], key['y'], key['species'], key['level']),
                          ('PokemonMansionB1F', 5, 13, 'SECRET_KEY', None))
         blaine = self.scenes['trainers']['blaine']
-        self.assertEqual((blaine['x'], blaine['y'], blaine['species'], blaine['level']), (3, 3, 'OPP_BLAINE', 1))
+        self.assertEqual((blaine['x'], blaine['y'], blaine['species'], blaine['party_index']), (3, 3, 'OPP_BLAINE', 1))
+        self.assertNotIn('level', blaine)
+        self.assertTrue(blaine['id'].startswith('pokered:CINNABAR_GYM:objects:'))
         giovanni = self.scenes['trainers']['giovanni']
-        self.assertEqual((giovanni['map'], giovanni['x'], giovanni['y'], giovanni['level']),
+        self.assertEqual((giovanni['map'], giovanni['x'], giovanni['y'], giovanni['party_index']),
                          ('ViridianGym', 2, 1, 3))
+        self.assertNotIn('level', giovanni)
+        self.assertEqual(giovanni['map_constant'], 'VIRIDIAN_GYM')
 
     def test_route23_checks_and_league_order_follow_the_source_warps(self):
         self.assertEqual(self.scenes['route23_badge_checks'], [

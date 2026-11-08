@@ -1,5 +1,6 @@
 {
   "files": {
+    "constants/map_constants.asm": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271",
     "constants/pokemon_constants.asm": "0914f9edb2bb72788d0e7b1e4ae7dedef2bb2f29533363375f8d874fec41e604",
     "data/maps/objects/AgathasRoom.asm": "2c07e82f659828dee0db1fa4baffd84e1d8bb403714ef12cd5e436b4c2ba6d75",
     "data/maps/objects/BrunosRoom.asm": "0dbb38b1a93bb0a93d877b64f94fc667e26fb63d4e4caf8130ae6cbcd4ca09bb",
