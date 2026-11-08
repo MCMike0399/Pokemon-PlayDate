@@ -29,17 +29,13 @@ function SilphStoryWorld.reconcile(game)
         return
     end
     local before <const> = WorldDeltas.export()
-    local specs = {}
+    local candidate = before
     local expected <const> = {flags = {}, items = {}}
     for _, door in ipairs(doors) do
         local opened <const> = game.session:questFlag(door.flag)
         expected.flags[door.flag] = opened
-        specs[#specs + 1] = {map = door.map, x = door.x, y = door.y,
-            keys = opened and door.open_keys or door.closed_keys}
+        candidate = doorWorld(candidate, door, opened)
     end
-    -- One projection for the whole floor. Repeating projectBlock copied the
-    -- exported world once per door on the way from the elevator to 2F.
-    local candidate <const> = RocketHideoutStoryWorld.projectBlocks(before, specs)
     local ok, reason = RocketHideoutStoryWorld.commitWorld(game, before, candidate, expected,
         {flags = {}, items = {}}, "SILPH_STORY_SCENE_V1_")
     assert(ok, reason)
