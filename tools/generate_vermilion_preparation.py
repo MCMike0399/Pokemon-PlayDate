@@ -236,8 +236,24 @@ def proposed_pipeline(artifacts, *, manifest=None):
     return {'proposed-source-maps.json': raw,
             # Preparation owns only the original JSON proposal pair. The active
             # cache generator also emits runtime map files for production.
-            **{'proposed-' + name: canonical(json.loads(cache[name]))
-               for name in ('compact.json', 'tile-grids.json')}}
+            'proposed-compact.json': proposal_compact(cache['compact.json']),
+            'proposed-tile-grids.json': canonical(json.loads(cache['tile-grids.json']))}
+
+
+def proposal_compact(cache_bytes):
+    """Keep the reviewed proposal on the e4dd170 compact schema.
+
+    The shared cache now records a warp-authority digest and an empty
+    non-triggering warp map on every descriptor. Those additions do not change
+    parsed maps. A non-empty classification stays, so a real warp change cannot
+    disappear into the frozen proposal.
+    """
+    value = json.loads(cache_bytes)
+    value.pop('warp_authority_sha256', None)
+    for descriptor in value['maps'].values():
+        if descriptor.get('non_triggering_warps') == {}:
+            del descriptor['non_triggering_warps']
+    return canonical(value)
 
 
 def build(reference_root):
