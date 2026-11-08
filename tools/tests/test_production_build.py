@@ -112,6 +112,9 @@ class ProductionBuildTests(unittest.TestCase):
         additions_before = {
             'game/rocketHideoutStory': [
                 'game/towerStory', 'game/snorlaxStory', 'game/towerStoryController'],
+            'game/midgameGymStory': [
+                'game/silphStory', 'game/silphStoryWorld', 'game/silphStoryController',
+                'game/saffronGuards', 'game/midgameGymStoryController'],
         }
         additions_after = {
             'dev/chargeLockContracts': ['dev/hmBattleContracts'],
@@ -124,6 +127,7 @@ class ProductionBuildTests(unittest.TestCase):
                 'domain/safariBattle', 'game/midgameServices', 'game/midgameServicesState',
                 'game/safariScene', 'game/safariBattleState', 'game/safariPassage',
                 'game/safariPassageState', 'game/safariRuntime'],
+            'game/celadonServicesController': ['game/copycatService'],
         }
         expected_imports = ['dev/harness_build', 'game/bootTrace', 'game/bootstrap', 'game/shippedDataPolicy']
         for name in BASELINE['imports']:
@@ -153,7 +157,7 @@ class ProductionBuildTests(unittest.TestCase):
                           or line.lstrip().startswith('VermilionCatalogExporter.register(')], expected_registrations)
 
     def test_staging_preserves_every_non_entry_source_asset(self):
-        policy = json.loads((PROJECT / 'tools/integration/checkpoint-b/production-exclusions.json').read_bytes())
+        policy = json.loads((PROJECT / 'tools/integration/checkpoint-c/production-exclusions.json').read_bytes())
         self.assertEqual(build.production_exclusions(PROJECT), policy['exclude'])
         active = json.loads((PROJECT / 'Source/data/sourceMaps.json').read_bytes())
         self.assertEqual(set(active['maps']), installed_map_names())

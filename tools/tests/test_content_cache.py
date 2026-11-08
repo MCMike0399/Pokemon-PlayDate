@@ -72,16 +72,9 @@ class ContentCacheTests(unittest.TestCase):
                 original = json.loads((SOURCE / root / (record + '.json')).read_bytes())
                 for field in fields:
                     expected = original[field]
-                    if root == 'data/midgameSouth/':
-                        if record in {'events', 'trainers'} and field != 'rival_classes':
-                            expected = {k: v for k, v in expected.items() if not k.startswith('pokered:ROUTE_16_FLY_HOUSE:')}
-                        elif record == 'dialogue':
-                            expected = {k: v for k, v in expected.items() if v.get('source') != 'text/Route16FlyHouse.asm'}
                     self.assertEqual(self.decode(index, record, field), expected, (root, record, field))
             events = json.loads((SOURCE / root / 'events.json').read_bytes())
             trainers = json.loads((SOURCE / root / 'trainers.json').read_bytes())['trainers']
-            if root == 'data/midgameSouth/':
-                events['events'] = {k: v for k, v in events['events'].items() if not k.startswith('pokered:ROUTE_16_FLY_HOUSE:')}
             expected = {key for key, event in events['events'].items() if event['kind'] == 'trainer'}
             self.assertEqual(set(index['ordinary_trainers']), expected)
             self.assertLessEqual(expected, trainers.keys())
@@ -101,15 +94,17 @@ class ContentCacheTests(unittest.TestCase):
                     for d in original}
         self.assertEqual(self.decode(index, 'trainers', 'trainers'), expected)
 
-    def test_pins_preserve_accepted_inputs_and_install_only_checkpoint_b(self):
+    def test_pins_preserve_accepted_inputs_and_install_exact_checkpoint_c(self):
         for path, digest in self.pins['inputs'].items():
             revision = '2dd9f3cc' if path.startswith(('data/midgameEast/', 'data/midgameSouth/')) else 'd858032'
+            if path.startswith('data/midgameSaffron/'):
+                revision = '24ea539cd68142af6b50ca57841cdb8ae350f519'
             baseline = subprocess.check_output(['git', 'show', revision + ':Source/' + path])
             self.assertEqual(hashlib.sha256(baseline).hexdigest(), digest, path)
         manifest = SOURCE / 'data/sourceMaps.json'
-        from tools.activate_checkpoint_b import manifest as expected
+        from tools.activate_checkpoint_c import manifest as expected
         self.assertEqual(json.loads(manifest.read_bytes()), expected())
-        self.assertEqual(len(expected()['maps']), 149)
+        self.assertEqual(len(expected()['maps']), 171)
 
     def test_registered_package_event_and_trainer_membership_stays_disjoint(self):
         base = json.loads(self.files['base.json'])

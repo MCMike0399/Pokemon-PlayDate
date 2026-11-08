@@ -22,12 +22,19 @@ class InventoryTests(unittest.TestCase):
         cls.source = PROJECT / 'Source'
         cls.manifest = json.loads((cls.source / 'data/sourceMaps.json').read_text())['maps']
         cls.expected = {
-            108: dict(warps=376, connections=43, boundary_cells=1274, last_map=128),
-            149: dict(warps=510, connections=61, boundary_cells=1922, last_map=169),
+            108: dict(warps=376, connections=43, boundary_cells=1274, last_map=128,
+                      scripted=15, surface_blocked=12),
+            149: dict(warps=510, connections=61, boundary_cells=1922, last_map=169,
+                      scripted=15, surface_blocked=12),
+            # Independently counted from all 171 pinned decoded maps. C adds
+            # eleven lift entrances and two cabin exits; the 11F correction
+            # retains its source warp without the old floor barrier.
+            171: dict(warps=637, connections=65, boundary_cells=2074, last_map=188,
+                      scripted=28, surface_blocked=11),
         }[len(cls.manifest)]
 
     def test_every_pinned_map_and_warp_exactly_once(self):
-        self.assertIn(len(self.manifest), (108, 149))
+        self.assertIn(len(self.manifest), (108, 149, 171))
         expected = {}
         for name, entry in self.manifest.items():
             raw = json.loads((self.source / entry['path']).read_text())
@@ -60,15 +67,20 @@ class InventoryTests(unittest.TestCase):
 
     def test_last_map_scripted_and_blocked_are_retained_without_fabricated_targets(self):
         warps = [r for r in self.inventory['entries'] if r['kind'] == 'warp']
-        self.assertEqual(sum(r['scripted'] for r in warps), 15)
-        self.assertEqual(sum(r['surface_blocked'] for r in warps), 12)
+        self.assertEqual(sum(r['scripted'] for r in warps), self.expected['scripted'])
+        self.assertEqual(sum(r['surface_blocked'] for r in warps), self.expected['surface_blocked'])
         self.assertEqual(sum(r['destination']['kind']=='last_outdoor_map' for r in warps), self.expected['last_map'])
         for row in warps:
             self.assertNotIn('to', row)
             self.assertNotIn('toX', row)
             self.assertTrue(row['approaches'])
             if row['destination']['kind'] == 'last_outdoor_map' and not row['scripted'] and not row['declared_blocked']:
-                self.assertIn(row['last_outdoor'], self.manifest)
+                # pokered maps/objects/SilphCo11F.asm: warp 3 is "LAST_MAP ; inaccessible".
+                if row['id'] == 'pokered:SILPH_CO_11F:warps:3':
+                    self.assertIsNone(row['last_outdoor'])
+                    self.assertFalse(row['destination']['resolved'])
+                else:
+                    self.assertIn(row['last_outdoor'], self.manifest)
 
     def test_source_collision_and_padding_independently_match_candidates(self):
         definitions = {name: json.loads((self.source / entry['path']).read_text()) for name, entry in self.manifest.items()}
