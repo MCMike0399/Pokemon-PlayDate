@@ -151,12 +151,20 @@ def smoke_gate(args, stage, pdx):
     safety_failures = [name for name, limit in safety_limits.items()
                        if recomputed['measurements'][name] is None
                        or recomputed['measurements'][name] > limit]
-    safety_failures += [name for name in recomputed['budget_failures']
-                        if name in {'runtime-error-or-no-frames', 'missing-title-or-Continue-live-heap'}]
+    # A timing build records no post-GC live sample. That sample stays null and
+    # the missing flag stays in the report. Peak and slice are the safety pair.
+    timing = build.get('diagnostic_collect') is False
+    blocking = {'runtime-error-or-no-frames'}
+    if not timing:
+        blocking.add('missing-title-or-Continue-live-heap')
+    safety_failures += [name for name in recomputed['budget_failures'] if name in blocking]
     failures = safety_failures if safety_only else recomputed['budget_failures']
+    def finite(name, value):
+        if timing and name == 'heap_live_bytes' and value is None:
+            return True
+        return type(value) in (int, float) and math.isfinite(value) and value >= 0
     if (failures
-            or any(type(v) not in (int, float) or not math.isfinite(v) or v < 0
-                   for v in recomputed['measurements'].values())
+            or any(not finite(name, value) for name, value in recomputed['measurements'].items())
             or any(report.get(k) != v for k, v in recomputed.items())):
         raise ValueError('Simulator smoke measurements changed or budgets failed')
     responses = json.loads((path.parent / 'responses.json').read_text())

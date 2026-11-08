@@ -221,6 +221,31 @@ class SmokeCycleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'measurements'):
             self.gate()
 
+    def test_timing_build_keeps_null_live_heap_and_admits_peak_and_slice(self):
+        from tools.device import simulator_smoke as smoke
+        self.args.safety_only = True
+        self.build['diagnostic_collect'] = False
+        (self.stage / 'build.json').write_text(json.dumps(self.build))
+        trace = self.evidence / 'runtime-data/boot-trace.tsv'
+        trace.write_text(trace.read_text()
+                         .replace('title.live.after_gc', 'title.live.diagnostic_collect_suppressed')
+                         .replace('Continue.live.after_gc', 'Continue.live.diagnostic_collect_suppressed'))
+        self.report['build'] = self.build
+        self.report.update(smoke.measurements(trace.parent, self.identity, 2))
+        self.report['status'] = 'failed'
+        self.write_report()
+        (self.evidence / 'run.json').write_text(json.dumps(self.report))
+        self.assertIsNone(self.report['measurements']['heap_live_bytes'])
+        self.assertIn('missing-title-or-Continue-live-heap', self.report['budget_failures'])
+        self.assertTrue(self.gate()[2]['safety_only'])
+        self.build['diagnostic_collect'] = True
+        (self.stage / 'build.json').write_text(json.dumps(self.build))
+        self.report['build'] = self.build
+        self.write_report()
+        (self.evidence / 'run.json').write_text(json.dumps(self.report))
+        with self.assertRaisesRegex(ValueError, 'budgets failed'):
+            self.gate()
+
     def test_measurement_safety_gate_keeps_runtime_and_slice_guards(self):
         from tools.device import simulator_smoke as smoke
         self.args.safety_only = True
