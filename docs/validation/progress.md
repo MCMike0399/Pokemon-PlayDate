@@ -1,5 +1,23 @@
 # Full-game execution ledger
 
+## 2026-11-08 timing build, forced collect off
+
+Build `072ca58128c34bc7bc5a678734c544d4`, PDX `6f306e33405c0653ad3d03f53164980231a5b8624a14685b48b2d4ad6d8203a8`. Cycle `ok: true`. `boot_accepted: false`. `device_gate_passed: false`. Same Squirtle route: Continue, Silph elevator to 2F, Save, Rocket sent out Golbat. Error and crash logs unchanged. No diagnostic full-GC windows. Soft collections only. Official `heap_live_bytes` is null. There is no post-GC `after_gc` sample. The uncollected probe heaps are separate and are not a 6 MiB live result: title 6269.655 KiB, Continue 5352.738 KiB, door 6116.572 KiB, Save 5898.279 KiB, battle 5818.854 KiB. Peak 6270.214 KiB. Walls: title 13143 ms, boot slice 1681 ms, Continue 2636 ms, Save 3385 ms, door 3929 ms, battle 23 ms. Longest slice 1888.641 ms. Compared with diagnostic build `634097fd`, the walls moved by tens of milliseconds. Turning the forced collection off did not close title, boot slice, Save, or door. The previous DeviceSmoke `9b086e4d…` was archived and was not restored. This build is what the device has installed.
+
+## 2026-11-08 Save and door attribution
+
+On the diagnostic-GC build `634097fd`, Save was 3434 ms and the Silph elevator door was 3990 ms. The 604–825 ms full collections sit outside those walls. Save capture is 1337 ms and publish is 2097 ms, including an 859 ms readback tail. The door’s largest marked cost is packed-row expansion plus the view array, 1078 ms. The unmarked 1362 ms gap is `SilphStoryWorld.reconcile` and `SourceActors.refresh`. A Save proof-reuse hook could touch about 10% of the Save wall and would not move the door. It is unmeasured, so it stays unapplied. The 10% hardware bar still applies before any adoption.
+
+## 2026-11-08 device smoke, not acceptance
+
+Build `634097fdcea6464f8c9769b14384570d`, source `ab2792f7`, PDX `9b086e4decad7ab028860c72647c928a529355e7011f2bba7293dac682caca55`. Cycle `ok: true`. `boot_accepted: false`. `device_gate_passed: false`. Diagnostic full collections were on. Earned Squirtle Continue, Silph elevator to 2F, Save, and a Rocket battle happened. Error and crash logs were unchanged. Walls: title 13239 ms, boot slice 1675 ms, Continue 2633 ms, Save 3434 ms, door 3990 ms, battle start 24 ms. Heap peak 6270.05 KiB. Separate diagnostic GC windows were 604–825 ms and are not shipped frame time.
+
+Durable copy: `~/Developer/Pokemon-PlayDate-env/evidence/main-c171-device-smoke-20261108-634097fd` with `RECEIPT.json`. Tree hashes: build `9d5d025c37cf5afc1c27ec20af5c3432e28c9371cf8a92e8712796ab49b1e49e`, simulator smoke 3 `4ebe06b2146c61c2b90d858a1820f1347229655738180feb677fd47280394da5`, device cycle `177328df29647c865b5d951a4dff5d07dd7ddd23a1e557218f4257cd8dd7b269`. Identities inside the run were not rewritten.
+
+After the cycle the data disk stayed mounted and there was no serial reader. `DeviceSmoke.pdx` on the device is this build. `PokemonPoC.pdx` is still present. The previous DeviceSmoke tree `426835278bf879df` was archived and was not restored. Lock files named dead PIDs; the flock was not held.
+
+Local `main` is `ab2792f7`, four commits ahead of `6e98024`, not pushed.
+
 Updated 2026-11-06 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map

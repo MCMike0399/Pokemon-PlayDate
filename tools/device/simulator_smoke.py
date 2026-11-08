@@ -176,7 +176,14 @@ def measurements(data, build_id, factor):
                 estimates.append(wall + (min(wall, active + 2) * max(0, factor - 1)))
                 start = None
         return max(estimates) if estimates else None
-    live = [row['heap_kib'] * 1024 for row in phases if row['phase'] in {'title.live.after_gc', 'Continue.live.after_gc'}]
+    def collected(prefix):
+        return [row['heap_kib'] * 1024 for row in phases if row['phase'] == prefix + '.after_gc']
+    def uncollected(prefix):
+        return [row['heap_kib'] * 1024 for row in phases
+                if row['phase'] == prefix + '.diagnostic_collect_suppressed']
+    live = collected('title.live') + collected('Continue.live')
+    uncollected_heap = {prefix: max(uncollected(prefix))
+                        for prefix in ('title.live', 'Continue.live') if uncollected(prefix)}
     measured = {'heap_live_bytes': max(live) if live else None,
                 'heap_peak_bytes': max([r['peak_kib'] * 1024 for r in phases] + [f['heap_kib'] * 1024 for f in frames], default=None),
                 'map_load_ms': span('door.map.begin', 'door.map.end'),
@@ -199,9 +206,10 @@ def measurements(data, build_id, factor):
     failures = [name for name, value in measured.items() if value is None or value > limits[name]]
     if not frames or any(f['kind'] == 'error' for f in frames) or any(r['phase'].startswith('error.') for r in phases):
         failures.append('runtime-error-or-no-frames')
-    if not all(any(r['phase'] == p for r in phases) for p in ('title.live.after_gc', 'Continue.live.after_gc')):
+    if not collected('title.live') or not collected('Continue.live'):
         failures.append('missing-title-or-Continue-live-heap')
     return {'measurements': measured, 'limits': limits, 'budget_failures': failures,
+            'uncollected_heap_bytes': uncollected_heap or None,
             'frames': frames, 'phases': phases, 'timing_factor': factor,
             'diagnostic_gc_windows': gc_windows(phases),
             'metric_classification': 'Simulator raw safety evidence; legacy factor estimates are not device acceptance',

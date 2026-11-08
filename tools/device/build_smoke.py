@@ -44,7 +44,7 @@ def diff(before, after):
         fromfile='a/Source/main.lua', tofile='b/Source/main.lua'))
 
 
-def prepare(project, sdk, output):
+def prepare(project, sdk, output, *, production_timing=False):
     # A new directory and random bundle ID isolate artifacts and device saves.
     output.mkdir(parents=True, exist_ok=False)
     source = stage_production(project, output)
@@ -67,6 +67,15 @@ def prepare(project, sdk, output):
     simulator_transport = b'DeviceSmoke.simulatorTransportVersion = 1' in module
     if simulator_transport:
         private += '\nDeviceSmoke.installSimulatorObserver()\n'
+    if production_timing:
+        # Device-test marks and guards stay. The forced full collections at
+        # title, Continue, door, Save and battle do not. Soft 8 MiB collection
+        # remains BootTrace.collectMemoryIfNeeded.
+        private += (
+            '\nBootTrace.collect = function(phase)\n'
+            '    BootTrace.mark(tostring(phase) .. ".diagnostic_collect_suppressed")\n'
+            'end\n'
+        )
     (source / 'main.lua').write_text(private)
     (output / 'private-main.patch').write_text(diff(original, private))
     (source / 'dev').mkdir()
@@ -101,6 +110,8 @@ def prepare(project, sdk, output):
         'pdx_sha256': tree_hash(inventory(bundle)),
         'compiler_sha256': hashlib.sha256((sdk / 'bin/pdc').read_bytes()).hexdigest(),
         'simulator_transport_version': 1 if simulator_transport else None,
+        'diagnostic_collect': not production_timing,
+        'timing_variant': 'shipped-equivalent-no-forced-diagnostic-collect' if production_timing else 'device-test-diagnostic-collect',
         'sdk_version': (sdk / 'VERSION.txt').read_text().strip(),
         'production_source_manifest': original_manifest, 'compiled_source_manifest': staged_manifest,
         'limitations': ['No runtime, serial, device, or Simulator execution.',
@@ -116,9 +127,11 @@ def main():
     parser.add_argument('--project', type=Path, default=PROJECT)
     parser.add_argument('--sdk', type=Path, default=Path('~/Developer/PlaydateSDK'))
     parser.add_argument('--output', type=Path, required=True, help='new private evidence directory')
+    parser.add_argument('--production-timing', action='store_true',
+                        help='device-test build with forced BootTrace.collect disabled')
     args = parser.parse_args()
     result = prepare(args.project.expanduser().resolve(), args.sdk.expanduser().resolve(),
-                     args.output.expanduser().resolve())
+                     args.output.expanduser().resolve(), production_timing=args.production_timing)
     print(json.dumps({key: result[key] for key in ('mode', 'build_id', 'bundle')}, indent=2))
 
 

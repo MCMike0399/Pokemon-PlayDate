@@ -130,6 +130,54 @@ class SmokeHostTests(unittest.TestCase):
         (self.root / 'device-smoke-frames.tsv').write_text(
             f'{BUILD}\t1\t1\tyield\t1\t5000\n{BUILD}\t1\t2\treturn\t1\t5000\n')
 
+    def write_trace(self, phases, heaps):
+        (self.root / 'boot-trace.tsv').write_text(
+            f'schema\t1\tbuild\t{BUILD}\tplatform\tsimulator\nheader\n' + ''.join(
+                f'{i}\t{phase}\t{clock}\t1\t1\t{heap}\t8000\n'
+                for i, ((phase, clock), heap) in enumerate(zip(phases, heaps))))
+        (self.root / 'device-smoke-frames.tsv').write_text(
+            f'{BUILD}\t1\t1\tyield\t1\t5000\n{BUILD}\t1\t2\treturn\t1\t5000\n')
+
+    def test_suppressed_collect_does_not_fill_post_gc_live_heap(self):
+        self.write_trace([
+            ('title.live.diagnostic_collect_suppressed', 0),
+            ('Continue.live.diagnostic_collect_suppressed', 1),
+            ('door.map.begin', 2), ('door.map.end', 3),
+            ('battle.start.begin', 4), ('battle.start.end', 5)],
+            [7000, 6200, 5000, 5000, 5000, 5000])
+        report = smoke.measurements(self.root, BUILD, 1)
+        self.assertIsNone(report['measurements']['heap_live_bytes'])
+        self.assertEqual(report['uncollected_heap_bytes'],
+                         {'title.live': 7000 * 1024, 'Continue.live': 6200 * 1024})
+        self.assertIn('heap_live_bytes', report['budget_failures'])
+        self.assertIn('missing-title-or-Continue-live-heap', report['budget_failures'])
+        self.assertEqual(report['diagnostic_gc_windows'], [])
+
+    def test_after_gc_live_heap_ignores_a_suppressed_sample(self):
+        self.write_trace([
+            ('title.live.after_gc', 0),
+            ('Continue.live.after_gc', 1),
+            ('title.live.diagnostic_collect_suppressed', 2),
+            ('door.map.begin', 3), ('door.map.end', 4),
+            ('battle.start.begin', 5), ('battle.start.end', 6)],
+            [4100, 4300, 9000, 5000, 5000, 5000, 5000])
+        report = smoke.measurements(self.root, BUILD, 1)
+        self.assertEqual(report['measurements']['heap_live_bytes'], 4300 * 1024)
+        self.assertNotIn('missing-title-or-Continue-live-heap', report['budget_failures'])
+        self.assertEqual(report['uncollected_heap_bytes']['title.live'], 9000 * 1024)
+
+    def test_one_missing_after_gc_keeps_live_heap_unavailable(self):
+        self.write_trace([
+            ('title.live.after_gc', 0),
+            ('Continue.live.diagnostic_collect_suppressed', 1),
+            ('door.map.begin', 2), ('door.map.end', 3),
+            ('battle.start.begin', 4), ('battle.start.end', 5)],
+            [4100, 6200, 5000, 5000, 5000, 5000])
+        report = smoke.measurements(self.root, BUILD, 1)
+        self.assertEqual(report['measurements']['heap_live_bytes'], 4100 * 1024)
+        self.assertIn('missing-title-or-Continue-live-heap', report['budget_failures'])
+        self.assertEqual(report['uncollected_heap_bytes'], {'Continue.live': 6200 * 1024})
+
     def test_active_frame_duration_does_not_use_suspended_phase_gap(self):
         self.trace()
         report = smoke.measurements(self.root, BUILD, 1)

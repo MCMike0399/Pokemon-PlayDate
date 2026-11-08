@@ -478,8 +478,15 @@ class Cycle:
                         values.append(row['clock_ms'] - start)
                         start = None
                 return max(values) if values else None
-            live = [row['heap_kib'] * 1024 for row in phases
-                    if row['phase'] in {'title.live.after_gc', 'Continue.live.after_gc'}]
+            def collected(prefix):
+                return [row['heap_kib'] * 1024 for row in phases if row['phase'] == prefix + '.after_gc']
+            def uncollected(prefix):
+                return [row['heap_kib'] * 1024 for row in phases
+                        if row['phase'] == prefix + '.diagnostic_collect_suppressed']
+            live = collected('title.live') + collected('Continue.live')
+            report['uncollected_heap_bytes'] = {
+                prefix: max(uncollected(prefix))
+                for prefix in ('title.live', 'Continue.live') if uncollected(prefix)} or None
             measured = {'heap_live_bytes': max(live) if live else None,
                         'heap_peak_bytes': max([r['peak_kib'] * 1024 for r in phases]
                                                + [f['heap_kib'] * 1024 for f in frames], default=None),
@@ -505,7 +512,7 @@ class Cycle:
             if not frames:
                 report['failures'].append('missing-device-frames')
             for phase in ('title.live.after_gc', 'Continue.live.after_gc'):
-                if not any(r['phase'] == phase for r in phases):
+                if not any(row['phase'] == phase for row in phases):
                     report['failures'].append('missing-' + phase)
         except (ValueError, OSError) as error:
             report['failures'].append('missing-or-invalid-device-metrics: ' + str(error))
