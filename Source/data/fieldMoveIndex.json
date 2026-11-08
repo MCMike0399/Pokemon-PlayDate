@@ -112,6 +112,10 @@
       "name": "Route9",
       "path": "data/fieldMoveMaps/Route9.json"
     },
+    "pokered:SAFFRON_CITY": {
+      "name": "SaffronCity",
+      "path": "data/fieldMoveMaps/SaffronCity.json"
+    },
     "pokered:VERMILION_CITY": {
       "name": "VermilionCity",
       "path": "data/fieldMoveMaps/VermilionCity.json"

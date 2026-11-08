@@ -29,7 +29,8 @@
     "Route15",
     "Route16",
     "Route17",
-    "Route18"
+    "Route18",
+    "SaffronCity"
   ],
   "pokered": {
     "constants/map_constants.asm": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271",
@@ -60,6 +61,7 @@
     "data/maps/headers/Route7.asm": "297cce9d69c20b0b433cf492b35c2bef0120d0a4b71c9b06e996302783a29c55",
     "data/maps/headers/Route8.asm": "c7c19107d6b966089b6799fa7dbddf2d5cc3b442dbeb01e1cff80023b6920602",
     "data/maps/headers/Route9.asm": "e3db7d7d25a64e31a5149f870d406050ff23f1261bd6ce1cc0495f035d1c1aa6",
+    "data/maps/headers/SaffronCity.asm": "8f27f9ff8434a4d52c8e4c0b37055e26c7d07d817c74a9759f47dda5edacd609",
     "data/maps/headers/VermilionCity.asm": "e448c3322f48619b52831818ab20949f00a90e2e87e59b28bda248794d39ac50",
     "data/maps/headers/VermilionGym.asm": "f8264473749458a277c87515197e09e4568ad162bd6528dd476f4ac38ac4af63",
     "data/maps/headers/ViridianCity.asm": "f00734789d39eb6526b2fe54a4ad87af35253655e2d146f4a2ed3d6537f016b6",
@@ -110,6 +112,7 @@
     "maps/Route7.blk": "ab6eea59b149b98989befd3b805ce4ae1ef56ffdefc2054e50d6036598875234",
     "maps/Route8.blk": "f34029dcd34c13d105703684ec758424252e0919d992c7195ad5101c7d49c511",
     "maps/Route9.blk": "d159adb3e793f29d2c9f1f2a662cf6328379414d6bd9f9edc3a2d204a7398c86",
+    "maps/SaffronCity.blk": "b3773db38b2ec6a951f3f72f50018ff9657231cb2848bf750b549ddde1b9c765",
     "maps/VermilionCity.blk": "bf81c1399b34e7c0e4e924268d00f90fecd7c67d9a7a3af87db3f587ef92f2c8",
     "maps/VermilionGym.blk": "6469e306f4e9d7a2c4e6cde4bb04151e6305c789ed2da0bad5db2ebe6096e755",
     "maps/ViridianCity.blk": "e5a3fb7713a3b75cf3ecba9ede35fe71fa4bff0c910fc10b6659ef7b0dc101ae",

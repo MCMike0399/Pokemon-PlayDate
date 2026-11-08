@@ -20830,6 +20830,15 @@
       "tileset": "OVERWORLD",
       "width": 60
     },
+    "pokered:SAFFRON_CITY": {
+      "grass_sites": [],
+      "height": 36,
+      "layout_sha256": "b3773db38b2ec6a951f3f72f50018ff9657231cb2848bf750b549ddde1b9c765",
+      "name": "SaffronCity",
+      "sites": [],
+      "tileset": "OVERWORLD",
+      "width": 40
+    },
     "pokered:VERMILION_CITY": {
       "grass_sites": [],
       "height": 36,

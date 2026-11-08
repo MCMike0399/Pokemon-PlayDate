@@ -1,0 +1,14 @@
+{
+  "id": "pokered:SAFFRON_CITY",
+  "record": {
+    "grass_sites": [],
+    "height": 36,
+    "layout_sha256": "b3773db38b2ec6a951f3f72f50018ff9657231cb2848bf750b549ddde1b9c765",
+    "name": "SaffronCity",
+    "sites": [],
+    "tileset": "OVERWORLD",
+    "width": 40
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
