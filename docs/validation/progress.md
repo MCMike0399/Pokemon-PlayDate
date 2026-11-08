@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-08 host baseline on b98c14b4
+
+Discover of `tools/tests` with the env venv and pinned pokered: 1204 tests, 4 failures, 2 errors, 0 skips. The two errors are a missing worktree B2W2 cache. With `POKEMON_ENV` set to `~/Developer/Pokemon-PlayDate-env`, `test_runtime_move_coverage` and `test_substitute_generation` pass, 14 tests. The four failures stay red on purpose. The coverage-matrix fingerprint still records snapshot `598f64d2`. `player.lua` still differs from `fd4561b4` because `75d90990` changed field-travel mode. `sessionCodec.lua` still differs from `1ffd6fa7` because later commits added validation reuse and `relieveHeap`. Refreshing those hashes would relabel the old proofs. No commit came from that check.
+
 ## 2026-11-08 timing build, forced collect off
 
 Build `072ca58128c34bc7bc5a678734c544d4`, PDX `6f306e33405c0653ad3d03f53164980231a5b8624a14685b48b2d4ad6d8203a8`. Cycle `ok: true`. `boot_accepted: false`. `device_gate_passed: false`. Same Squirtle route: Continue, Silph elevator to 2F, Save, Rocket sent out Golbat. Error and crash logs unchanged. No diagnostic full-GC windows. Soft collections only. Official `heap_live_bytes` is null. There is no post-GC `after_gc` sample. The uncollected probe heaps are separate and are not a 6 MiB live result: title 6269.655 KiB, Continue 5352.738 KiB, door 6116.572 KiB, Save 5898.279 KiB, battle 5818.854 KiB. Peak 6270.214 KiB. Walls: title 13143 ms, boot slice 1681 ms, Continue 2636 ms, Save 3385 ms, door 3929 ms, battle 23 ms. Longest slice 1888.641 ms. Compared with diagnostic build `634097fd`, the walls moved by tens of milliseconds. Turning the forced collection off did not close title, boot slice, Save, or door. The previous DeviceSmoke `9b086e4d…` was archived and was not restored. This build is what the device has installed.
