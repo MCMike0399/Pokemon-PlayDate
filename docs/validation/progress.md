@@ -1,5 +1,25 @@
 # Full-game execution ledger
 
+## 2026-11-09 style packet (Miguel 1b / 2b / 3a)
+
+Approved from the style-option screens: Bayer LIGHT 31.25% / DARK 68.75%
+everywhere, including Pallet and interiors; battle PNGs redrawn from the
+pinned four-shade sources through those Shade patterns; battle ground
+platforms kept. Native-size checks are the 32×32 Bayer fills (320 and 704
+black pixels) and nearest-neighbor views of the redrawn sprites. A new
+Simulator motion pass was not started. The previous overworld probe had
+already crossed 1 GiB VmHWM (1200940 kB) and was killed; another long
+walking process would repeat that leak. `tools/generate_battle_art.py
+--check` reports 302/302 exact. Map-generator tests pass except the
+pre-existing `/private/tmp` directory assumption on this Linux host.
+
+Host-memory phases from that probe, same process, VmHWM bytes: title stayed
+near 298 MB. Standing after Continue moved from about 298 MB to about 460 MB
+in 20 seconds, with the floor load as the large step. Walking continued from
+about 468 MB to 529 MB. The abandoned process then reached about 1.15 GiB.
+Ordinary overworld time grows the Linux simulator footprint. That remains
+the blocker for Card Key and later long journeys. The probe was not repeated.
+
 ## 2026-11-09 hourly clips and Gen V Dig
 
 `20261109T183245Z-silph-5f-card-key.mp4` is 22.0s and 330 frames of the

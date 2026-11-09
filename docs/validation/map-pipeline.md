@@ -176,24 +176,26 @@ connection adaptation and check arrivals/facing/story gates in the Simulator.
 Existing pre-Oak grass triggers must still intercept the first departure; the
 new seam must not bypass the starter/rival sequence.
 
-The native renderer reproduces the protected 8-row LIGHT/DARK byte patterns at
-output-pixel resolution, with 2× cell-shape scaling and phase `(0,0)`. LIGHT stays
-12.5% black; DARK stays 50%. Tests compare the pattern bytes to current
-[Shade](../../Source/lib/shade.lua); actual SDK pixel equivalence is a separate
-root-owned acceptance check using
-[TileFactory.renderGrid](../../Source/world/tilefactory.lua) and the installed
-SDK 3.1.2 `graphics.setPattern`/`image.new` semantics. Changing pattern density to
-smooth a generated preview is not permitted.
+The native renderer reproduces the approved 8-row LIGHT/DARK byte patterns at
+output-pixel resolution, with 2× cell-shape scaling and explicit phase `(0,0)`.
+On 2026-11-09 Miguel chose the imported Bayer densities for every Shade caller,
+including Pallet Town and its interiors: LIGHT is 31.25% black (320/1024 on a
+32×32 fill) and DARK is 68.75% black (704/1024). Tests compare those bytes to
+current [Shade](../../Source/lib/shade.lua) and to the map preview constants.
+Actual SDK pixel equivalence remains a separate root-owned acceptance check
+using [TileFactory.renderGrid](../../Source/world/tilefactory.lua) and the
+installed SDK 3.1.2 `graphics.setPattern`/`image.new` semantics. Do not change
+the density again to smooth a generated preview.
 
-Root-owned SDK3.1.2 probes found that omitted `setPattern(pattern)` phase and
-explicit `setPattern(pattern,0,0)` produce different LIGHT/DARK pixels. Whole
-fills, split rectangles and actual TileFactory uniform grids reproduce this;
-the deeper SDK cause is unproven. Explicit zero matches these preview byte
-vectors. A staged runtime adapter therefore requests explicit zero only for
-imported registry grids, preserving the original renderer path for authored
-art. The previews remained unchanged. Root's fresh SDK comparison passed with
-zero changed pixels for Route1 (640×1152) and ViridianMart (256×256), including
-opacity. See [accepted terrain evidence](accepted-world-foundation/acceptance.json).
+The earlier split kept authored Pallet, interiors, and character grids on
+LIGHT 12.5% / DARK 50%, and asked explicit phase only from imported registry
+grids. SDK 3.1.2 probes had shown that omitted `setPattern(pattern)` phase and
+explicit `setPattern(pattern,0,0)` differ. `Shade.set` now always passes
+`(0,0)`, so authored and imported grids share one phase and one pair of
+patterns. The 2026-10-28 Route 1 and Viridian Mart zero-diff captures remain
+the record of the previous imported-only adapter; they are not a claim that
+Pallet still uses 12.5%/50%. See
+[accepted terrain evidence](accepted-world-foundation/acceptance.json).
 
 ## Verification and limits
 

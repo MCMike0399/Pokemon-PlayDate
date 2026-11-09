@@ -145,9 +145,11 @@ Imported terrain uses one fixed-phase Bayer mapping: LIGHT 31.25% black and
 DARK 68.75%. Source grids remain unchanged. The reviewed 186 imported-terrain
 baseline changes are recorded in
 [the approval manifest](../validation/gb-tone-approved-images-20261028.json).
-Pallet, its interiors, RED, NPCs, battle art and UI retain their protected pixels.
-Ground whitening and the Pallet-share check remain withdrawn. Future display
-changes require source/current/proposed comparisons and native motion review.
+That split was superseded on 2026-11-09. Miguel chose Bayer LIGHT 31.25% /
+DARK 68.75% for every Shade caller, including Pallet Town and its interiors,
+and chose battle art redrawn by sampling the pinned four-shade sources through
+those same patterns. Ground whitening and the Pallet-share check remain
+withdrawn. The battle ground platforms stay as a Playdate presentation choice.
 
 ## Play quality direction — 2026-10-28 (latest user steer)
 
