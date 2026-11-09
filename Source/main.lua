@@ -89,6 +89,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/debugState"
     import "game/learningState"
     import "game/saves"
+    import "game/titleIdle"
     import "game/titleState"
     import "game/pauseState"
     import "game/partyState"

@@ -1,5 +1,23 @@
 # Full-game execution ledger
 
+## 2026-11-09 Blue title idle
+
+The title menu still lists Continue, New Game, and Options, and its cursor
+does not blink. The species slot starts on Squirtle and follows the Blue
+`TitleMons` cycle: 200 frames, scroll out, the starter ball bounce, then a
+different species scrolls in. The last device measurement of app start to
+title accepting A remains 13.191 s. This idle starts only after the menu
+phase, and it replaces the one Blastoise decode with the one Squirtle
+decode. It does not add a save inspect. A Simulator retiming of that device
+miss was not run.
+
+`20261109T214800Z-blue-title-idle.mp4` is 24.0 seconds and 720 frames of
+the 400x240 LCD. Squirtle holds, scrolls out of the right-hand slot, the
+Poké Ball shows, and later Blue title species scroll in. The menu cursor
+stays on CONTINUE. After the clip, A opened Silph Co. 3F at (18, 8).
+That process peaked at VmHWM 400617472. The earned adventure files were
+not rewritten.
+
 ## 2026-11-09 Silph host memory and the 7F rival
 
 Same-process Linux PlaydateSimulator 3.1.2, animations on, earned 3F door

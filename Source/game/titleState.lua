@@ -1,5 +1,45 @@
 import "game/optionsState"
 local gfx <const> = playdate.graphics
+-- gfx/sprites/poke_ball.png via Source/data/pewterSlice/sprites.json.
+-- Drawn with the same Shade patterns as imported terrain.
+local BALL_ROWS <const> = {
+    "................",
+    "................",
+    "......####......",
+    "....##2222##....",
+    "...#22211222#...",
+    "...#22211222#...",
+    "..#2222222222#..",
+    "..#2222222222#..",
+    "..#1122222211#..",
+    "..#1111111111#..",
+    "...#11111111#...",
+    "...#11111111#...",
+    "....##1111##....",
+    "......####......",
+    "................",
+    "................",
+}
+
+local function ballImage()
+    local image = gfx.image.new(32, 32, gfx.kColorWhite)
+    gfx.pushContext(image)
+    for y, row in ipairs(BALL_ROWS) do
+        for x = 1, 16 do
+            local shade = row:sub(x, x)
+            if shade ~= "." then
+                if shade == "#" then gfx.setColor(gfx.kColorBlack)
+                elseif shade == "1" then gfx.setPattern(Shade.LIGHT, 0, 0)
+                else gfx.setPattern(Shade.DARK, 0, 0) end
+                gfx.fillRect((x - 1) * 2, (y - 1) * 2, 2, 2)
+            end
+        end
+    end
+    Shade.reset()
+    gfx.popContext()
+    return image
+end
+
 Class("TitleState"):extends(State)
 
 function TitleState:init(game)
@@ -8,7 +48,9 @@ function TitleState:init(game)
     self.menu = BattleMenu()
     self.logo = assert(gfx.image.new("images/title/logo"))
     self.versionArt = assert(gfx.image.new("images/title/blue"))
-    self.pokemonArt = assert(gfx.image.new(PokemonArt.path("blastoise", "front")))
+    self.ballImage = ballImage()
+    self.idleArt = {}
+    self.idle = TitleIdle.start()
 end
 
 function TitleState:enter(options)
@@ -16,6 +58,7 @@ function TitleState:enter(options)
     self.game.camera:reset()
     self.epoch = (self.epoch or 0) + 1
     self.phase, self.message = "preparing", nil
+    self.idle = TitleIdle.start()
     self.menu:hide()
     if not (options and options.preparing) then self:finishStartup() end
 end
@@ -139,6 +182,22 @@ function TitleState:exit()
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
 end
 
+function TitleState:monImage()
+    local species = self.idle.species
+    local image = self.idleArt[species]
+    if not image then
+        image = assert(gfx.image.new(PokemonArt.path(species, "front")), "missing title mon: " .. species)
+        self.idleArt[species] = image
+    end
+    return image
+end
+
+function TitleState:update()
+    if self.phase == "menu" and self:isTop() then
+        TitleIdle.advance(self.idle, function(count) return math.random(count) end)
+    end
+end
+
 function TitleState:handleInput()
     if self.phase == "preparing" or self.phase == "closed" then return end
     if self.phase == "message" then
@@ -160,8 +219,21 @@ function TitleState:draw()
         local scale = crowded and 1 or 2
         self.logo:drawScaled(16, 8, scale)
         self.versionArt:drawScaled(crowded and 48 or 80, crowded and 66 or 120, scale)
-        local w, h = self.pokemonArt:getSize()
-        self.pokemonArt:drawScaled(336 - w, crowded and 40 or 20, 2)
+        local mon = self:monImage()
+        local w, _ = mon:getSize()
+        local homeX = 336 - w
+        local homeY = crowded and 40 or 20
+        -- Source scroll steps are Game Boy pixels. Four Playdate pixels per
+        -- step carries the scaled sprite fully through the right-hand slot.
+        -- The clip keeps that travel off the logo, the way the Game Boy
+        -- scroll only covers the mon's scanlines.
+        gfx.setClipRect(208, 0, 192, 142)
+        mon:drawScaled(homeX + self.idle.offset * 4, homeY, 2)
+        if self.idle.phase == "ball" and self.idle.ball > 0 then
+            local dy = (TitleIdle.BALL_Y[self.idle.ball] - TitleIdle.BALL_REST) * 2
+            self.ballImage:draw(homeX, homeY + dy)
+        end
+        gfx.clearClipRect()
         if self.phase == "preparing" then
             gfx.drawText("Preparing adventure...", 24, 180)
             return
