@@ -22,6 +22,16 @@ Final VmHWM and VmRSS were both 917110784, 156663040 bytes under 1 GiB.
 The host retains images for the life of the process. A restart is what
 clears the peak. The isolated Transform branch still has no diff to review.
 
+The door resume from that save, `linux-silph-card-door-20261109-02`,
+loaded 5F, 9F, the elevator and 3F, then a 3F trainer. VmRSS never fell.
+It crossed 997404672 at 56.9s and was killed at 1078272000. Lua stayed
+near 8 MiB. No newer save was written. The route now saves on the 3F
+landing, before that battle, and a Card Key resume inside Silph does not
+walk out to heal.
+
+Hourly clip `/opt/cursor/artifacts/hourly/20261109T183245Z-silph-5f-card-key.mp4`
+is 22 seconds of the 400x240 LCD, title only, with no Simulator dialog.
+`ShowElist=0` is now in the Linux Simulator ini beside `ShowPerfWarning=0`.
 Style comparisons remain screenshot-only in
 `/opt/cursor/artifacts/style-options/` with `captions.txt`. No default art
 changed.

@@ -1534,11 +1534,17 @@ class MidgameJourney(vj.VermilionJourney):
         at_card = (on_fifth and self.position() == (20 + padding, 16)
                    and self.quantity('cardKey') >= 1
                    and 'saffron-guard-entry' in self.completed_steps)
+        holding_key = (self.quantity('cardKey') >= 1
+                       and 'saffron-guard-entry' in self.completed_steps)
         if at_card:
-            # Same damaged party, now holding the key on the ball cell.
-            # Healing still leaves through 3F, 2F and 1F. Stay inside.
+            # Ball cell after the pickup. Healing still leaves through 3F,
+            # 2F and 1F. Stay inside, and save again on the 3F landing
+            # before that floor's battle. The 3F battle is what pushed the
+            # same process over 1 GiB after 9F and the elevator.
             self.summary['silph_card_resume'] = True
             self.summary['silph_card_skips_damaged_heal'] = True
+        elif inside and holding_key:
+            self.summary['silph_card_resume'] = True
         # A restored party already inside Silph does not need the Saffron
         # street. That street is what exhausts the 1 GiB host ceiling.
         elif inside and 'saffron-guard-entry' in self.completed_steps and self.party_is_restored():
@@ -1546,46 +1552,55 @@ class MidgameJourney(vj.VermilionJourney):
         else:
             self.heal_here('SaffronPokecenter')
             self.ensure_room('SaffronMart')
-        if not str(self.state.get('zone_id') or '').startswith('pokered:SILPH_CO_'):
-            self.travel(self.zone('SilphCo1F'))
-        self.ride_silph(5)
-        padding = self.model().padding
-        on_fifth = self.state.get('zone_id') == self.zone('SilphCo5F')
-        on_card_pad = on_fifth and self.position() == (9 + padding, 14)
-        at_card = (on_fifth and self.position() == (20 + padding, 16)
-                   and self.quantity('cardKey') >= 1)
-        if at_card:
-            self.summary['silph_card_resume'] = True
-        elif on_card_pad:
-            # This lifetime has not walked the approach. Take the 9F pad,
-            # return, and pick up the Card Key, then stop before the door.
-            self.summary['silph_card_pad_resume'] = True
-            self.fixed_warp(5, (9, 14))
-            self.require(zone_id=self.zone('SilphCo9F'))
-            self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
-            self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
-            self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
-            if self.summary.get('silph_resume_skips_opening_heal'):
-                self.save()
-                raise ProtocolError('earned Silph Card Key Save boundary')
+        on_third_landing = (holding_key
+                            and self.state.get('zone_id') == self.zone('SilphCo3F')
+                            and self.position() == (20 + self.model().padding, 0))
+        if on_third_landing:
+            self.summary['silph_3f_landing_resume'] = True
         else:
-            self.fixed_leg('silph-fixed-routes.json', 'card-key-approach')
-            if self.summary.get('silph_resume_skips_opening_heal'):
-                # The 9F pad load pushed the same process over 1 GiB after
-                # this approach. Save the pad and leave the warp to the next
-                # owned process.
-                self.save()
-                raise ProtocolError('earned Silph 5F pad Save boundary')
-            self.fixed_warp(5, (9, 14))
-            self.require(zone_id=self.zone('SilphCo9F'))
+            if not str(self.state.get('zone_id') or '').startswith('pokered:SILPH_CO_'):
+                self.travel(self.zone('SilphCo1F'))
+            self.ride_silph(5)
+            padding = self.model().padding
+            on_fifth = self.state.get('zone_id') == self.zone('SilphCo5F')
+            on_card_pad = on_fifth and self.position() == (9 + padding, 14)
+            at_card = (on_fifth and self.position() == (20 + padding, 16)
+                       and self.quantity('cardKey') >= 1)
+            if at_card:
+                self.summary['silph_card_resume'] = True
+            elif on_card_pad:
+                # This lifetime has not walked the approach. Take the 9F pad,
+                # return, and pick up the Card Key, then stop before the door.
+                self.summary['silph_card_pad_resume'] = True
+                self.fixed_warp(5, (9, 14))
+                self.require(zone_id=self.zone('SilphCo9F'))
+                self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
+                self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
+                self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
+                if self.summary.get('silph_resume_skips_opening_heal'):
+                    self.save()
+                    raise ProtocolError('earned Silph Card Key Save boundary')
+            else:
+                self.fixed_leg('silph-fixed-routes.json', 'card-key-approach')
+                if self.summary.get('silph_resume_skips_opening_heal'):
+                    # The 9F pad load pushed the same process over 1 GiB after
+                    # this approach. Save the pad and leave the warp to the next
+                    # owned process.
+                    self.save()
+                    raise ProtocolError('earned Silph 5F pad Save boundary')
+                self.fixed_warp(5, (9, 14))
+                self.require(zone_id=self.zone('SilphCo9F'))
+                self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
+                self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
+                self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
+            self.fixed_leg('silph-fixed-routes.json', 'card-key-return')
+            self.fixed_warp(5, (9, 16))
             self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
-            self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
-            self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
-        self.fixed_leg('silph-fixed-routes.json', 'card-key-return')
-        self.fixed_warp(5, (9, 16))
-        self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
-        self.fixed_leg('silph-fixed-routes.json', 'floor5-return')
-        self.ride_silph(3)
+            self.fixed_leg('silph-fixed-routes.json', 'floor5-return')
+            self.ride_silph(3)
+            if self.summary.get('silph_card_skips_damaged_heal'):
+                self.save()
+                raise ProtocolError('earned Silph 3F landing Save boundary')
         self.fixed_leg('silph-fixed-routes.json', 'floor3-door')
         self.key_door((18, 8), 'left', 'EVENT_SILPH_CO_3_UNLOCKED_DOOR2')
         self.fixed_leg('silph-fixed-routes.json', 'floor3-pad')
