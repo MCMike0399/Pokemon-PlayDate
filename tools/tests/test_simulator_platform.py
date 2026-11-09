@@ -9,8 +9,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.harness import run
-from tools.harness.protocol import ProtocolError
+from tools.harness import protocol, run
+from tools.harness.protocol import ProtocolError, shared_lock_directory
 
 
 class SimulatorPlatformTests(unittest.TestCase):
@@ -58,6 +58,49 @@ class SimulatorPlatformTests(unittest.TestCase):
             mac.write_text('#!/bin/sh\n')
             mac.chmod(mac.stat().st_mode | stat.S_IEXEC)
             self.assertEqual(run.simulator_executable(sdk), mac)
+
+    def test_lock_directory_stays_private_tmp_on_darwin_and_tmp_on_linux(self):
+        with patch.object(protocol.sys, 'platform', 'darwin'), patch.object(run.sys, 'platform', 'darwin'):
+            self.assertEqual(shared_lock_directory(), Path('/private/tmp'))
+            self.assertEqual(run.runtime_lock_path(Path('/sdk')).parent, Path('/private/tmp'))
+            self.assertEqual(run.device_lock_path().parent, Path('/private/tmp'))
+            self.assertEqual(run.eject_argv(Path('/Volumes/PLAYDATE'))[0], 'diskutil')
+        with patch.object(protocol.sys, 'platform', 'linux'), patch.object(run.sys, 'platform', 'linux'):
+            self.assertEqual(shared_lock_directory(), Path('/tmp'))
+            self.assertEqual(run.runtime_lock_path(Path('/sdk')).parent, Path('/tmp'))
+            self.assertEqual(run.device_lock_path().parent, Path('/tmp'))
+            self.assertEqual(run.eject_argv(Path('/media/PLAYDATE'))[:3], ['udisksctl', 'unmount', '-p'])
+
+    def test_linux_serial_scan_rejects_an_unusable_playdate_node(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sysfs = root / 'sys'
+            device = sysfs / 'ttyACM0' / 'device'
+            device.mkdir(parents=True)
+            (device / 'manufacturer').write_text('Panic Inc\n')
+            (device / 'product').write_text('Playdate\n')
+            dev = root / 'dev'
+            dev.mkdir()
+            node = dev / 'ttyACM0'
+            node.write_text('')
+            node.chmod(0)
+            with self.assertRaisesRegex(ProtocolError, 'not readable and writable'):
+                run.linux_playdate_serial_ports(sysfs, dev)
+            node.chmod(0o600)
+            self.assertEqual(run.linux_playdate_serial_ports(sysfs, dev), [str(node)])
+
+    def test_linux_serial_scan_ignores_other_acm_devices(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sysfs = root / 'sys'
+            device = sysfs / 'ttyACM0' / 'device'
+            device.mkdir(parents=True)
+            (device / 'manufacturer').write_text('Arduino\n')
+            (device / 'product').write_text('Uno\n')
+            dev = root / 'dev'
+            dev.mkdir()
+            (dev / 'ttyACM0').write_text('')
+            self.assertEqual(run.linux_playdate_serial_ports(sysfs, dev), [])
 
 
 if __name__ == '__main__':

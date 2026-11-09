@@ -5,7 +5,6 @@ Usage and the safety boundary are documented in tools/device-cycle.md.
 Importing this module performs no device operations.
 """
 import argparse
-import glob
 import hashlib
 import json
 import math
@@ -21,7 +20,8 @@ import time
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.harness.protocol import OwnerLock, atomic_json
-from tools.harness.run import device_lock_path, fingerprint, runtime_lock_path, sdk_path, simulator_usb_preflight
+from tools.harness.run import (device_lock_path, eject_argv, fingerprint, playdate_serial_ports,
+                                runtime_lock_path, sdk_path, simulator_usb_preflight)
 
 SLOTS = {'adventure.a.json', 'adventure.b.json'}
 IDENTITY = 'device-cycle-identity.json'
@@ -348,7 +348,7 @@ class Cycle:
         self.event('ready', description=description)
 
     def select_serial(self):
-        ports = sorted(glob.glob('/dev/cu.usbmodemPD*'))
+        ports = playdate_serial_ports()
         if self.args.serial:
             ports = [value for value in ports if value == self.args.serial]
         if len(ports) > 1:
@@ -760,7 +760,7 @@ class Cycle:
             if {k: v for k, v in before_data.items() if k not in allowed} != {k: v for k, v in after_data.items() if k not in allowed}:
                 raise ValueError('unrequested application Data change')
             self.step('eject')
-            self.command(['diskutil', 'eject', str(self.volume)])
+            self.command(eject_argv(self.volume))
             self.wait_for(lambda: not self.volume.exists(), 30, 'waiting for disk unmount')
             self.step('run')
             self.wait_for(self.select_serial, args.disk_timeout, 'waiting for serial after eject/unlock')
@@ -807,7 +807,7 @@ class Cycle:
                 raise attempt_error
             if getattr(args, 'leave_running', False):
                 self.step('return-to-running-app')
-                self.command(['diskutil', 'eject', str(self.volume)])
+                self.command(eject_argv(self.volume))
                 self.wait_for(lambda: not (self.volume / 'Games').exists(), 30, 'waiting for collected disk unmount')
                 self.wait_for(self.select_serial, args.disk_timeout, 'waiting for serial after collection')
                 simulator_usb_preflight()

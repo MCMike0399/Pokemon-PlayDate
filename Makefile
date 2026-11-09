@@ -2,7 +2,7 @@ SDK = $(if $(PLAYDATE_SDK_PATH),$(PLAYDATE_SDK_PATH),$(HOME)/Developer/PlaydateS
 PDC = $(SDK)/bin/pdc
 PDUTIL = $(SDK)/bin/pdutil
 PRODUCT = PokemonPoC.pdx
-DEVICE = $(shell ls /dev/cu.usbmodemPD* 2>/dev/null | head -1)
+DEVICE = $(shell python3 -c 'from tools.harness.run import playdate_serial_ports; ports = playdate_serial_ports(); print(ports[0] if ports else "")')
 
 build: compile
 	$(MAKE) run
@@ -25,28 +25,33 @@ run:
 
 # Deploy to physical Playdate: build, enter data disk, copy, eject & reboot
 deploy: compile
-	@DEVICE=$$(ls /dev/cu.usbmodemPD* 2>/dev/null | head -1); \
+	@DEVICE=$$(python3 -c 'from tools.harness.run import playdate_serial_ports; ports = playdate_serial_ports(); print(ports[0] if ports else "")'); \
 	if [ -z "$$DEVICE" ]; then \
-		echo "Error: No Playdate found. Connect via USB and unlock the device."; \
+		echo "Error: No Playdate serial node found. Connect via USB and unlock the device."; \
 		exit 1; \
 	fi; \
 	echo "Putting Playdate into Data Disk mode..."; \
 	$(PDUTIL) $$DEVICE datadisk; \
 	echo "Waiting for PLAYDATE volume to mount..."; \
 	TRIES=0; \
-	while [ ! -d /Volumes/PLAYDATE/Games ] && [ $$TRIES -lt 90 ]; do \
+	VOLUME=""; \
+	while [ $$TRIES -lt 90 ]; do \
+		VOLUME=$$(python3 -c 'from tools.harness.run import playdate_data_volume; volume = playdate_data_volume(); print(volume or "")'); \
+		if [ -n "$$VOLUME" ] && [ -d "$$VOLUME/Games" ]; then \
+			break; \
+		fi; \
 		sleep 1; \
 		TRIES=$$((TRIES + 1)); \
 	done; \
-	if [ ! -d /Volumes/PLAYDATE/Games ]; then \
+	if [ -z "$$VOLUME" ] || [ ! -d "$$VOLUME/Games" ]; then \
 		echo "Error: PLAYDATE volume did not mount after 90s."; \
 		exit 1; \
 	fi; \
 	echo "Copying $(PRODUCT) to Playdate..."; \
-	rm -rf /Volumes/PLAYDATE/Games/$(PRODUCT); \
-	cp -R $(PRODUCT) /Volumes/PLAYDATE/Games/; \
+	rm -rf "$$VOLUME/Games/$(PRODUCT)"; \
+	cp -R $(PRODUCT) "$$VOLUME/Games/"; \
 	echo "Ejecting Playdate (will reboot)..."; \
-	diskutil eject /Volumes/PLAYDATE; \
+	python3 -c 'from tools.harness.run import eject_argv; import subprocess, sys; from pathlib import Path; raise SystemExit(subprocess.call(eject_argv(Path(sys.argv[1]))))' "$$VOLUME"; \
 	echo "Done! Playdate will reboot with $(PRODUCT) installed."
 
 .PHONY: build clean compile run deploy harness-smoke test-harness

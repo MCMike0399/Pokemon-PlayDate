@@ -4,10 +4,22 @@ import json
 import math
 import os
 from pathlib import Path
+import sys
 import time
 import uuid
 
 PROTOCOL = 1
+
+
+def shared_lock_directory():
+    """Directory for the machine-wide harness flocks.
+
+    Darwin keeps /private/tmp. Linux uses /tmp, which is the same role.
+    Callers must not create a /private tree to imitate a Mac.
+    """
+    if sys.platform == 'darwin':
+        return Path('/private/tmp')
+    return Path('/tmp')
 
 
 class ProtocolError(RuntimeError):

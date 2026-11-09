@@ -19,6 +19,7 @@ import time
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.harness.cleanup_evidence import inventory, metadata_files, read_json
+from tools.harness.protocol import shared_lock_directory
 from tools.harness.share_archives import share_closed_traces
 from tools.harness.compress_archives import compress_closed_traces
 
@@ -259,7 +260,9 @@ def plan(project, root, refs, age_hours):
 
 
 def maintain(project, env, refs, minimum, target, age_hours, execute=False,
-             lock_dir=Path('/private/tmp')):
+             lock_dir=None):
+    if lock_dir is None:
+        lock_dir = shared_lock_directory()
     project = project.resolve(strict=True)
     # Reject a supplied alias rather than following it into another storage tree.
     env = env.expanduser().absolute()

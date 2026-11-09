@@ -15,18 +15,102 @@ import uuid
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from tools.harness.protocol import Client, OwnerLock, ProtocolError, atomic_json
+from tools.harness.protocol import Client, OwnerLock, ProtocolError, atomic_json, shared_lock_directory
 from tools.harness.build import overlay_imports
 
 PROJECT = Path(__file__).resolve().parents[2]
 
 
 def device_lock_path():
-    return Path('/private/tmp') / f'pokemon-playdate-device-{os.getuid()}.lock'
+    return shared_lock_directory() / f'pokemon-playdate-device-{os.getuid()}.lock'
+
+
+def _usb_text(path):
+    try:
+        return path.read_text(encoding='utf-8', errors='replace').strip()
+    except OSError as error:
+        raise ProtocolError('Cannot read Linux USB identity: ' + str(error)) from error
+
+
+def linux_playdate_serial_ports(sysfs=None, dev=None):
+    """ttyACM nodes whose USB parent is a Playdate.
+
+    An empty /dev/cu.usbmodemPD* result is not evidence that Linux has no
+    device. Missing sysfs identity or a node this user cannot open fails
+    closed instead of being reported as absent.
+    """
+    sysfs = Path('/sys/class/tty') if sysfs is None else Path(sysfs)
+    dev = Path('/dev') if dev is None else Path(dev)
+    if not sysfs.is_dir():
+        return []
+    ports = []
+    for node in sorted(sysfs.iterdir(), key=lambda item: item.name):
+        if not node.name.startswith('ttyACM'):
+            continue
+        device_link = node / 'device'
+        if not device_link.exists():
+            continue
+        try:
+            current = device_link.resolve()
+        except OSError as error:
+            raise ProtocolError('Cannot read Linux serial identity for ' + node.name + ': ' + str(error)) from error
+        product = ''
+        manufacturer = ''
+        for _ in range(8):
+            product_path = current / 'product'
+            manufacturer_path = current / 'manufacturer'
+            if not product and product_path.is_file():
+                product = _usb_text(product_path)
+            if not manufacturer and manufacturer_path.is_file():
+                manufacturer = _usb_text(manufacturer_path)
+            if current.parent == current:
+                break
+            current = current.parent
+        identity = (manufacturer + ' ' + product).casefold()
+        if 'playdate' not in identity and 'panic' not in identity:
+            continue
+        path = dev / node.name
+        if path.is_symlink() or not path.exists():
+            raise ProtocolError('Playdate serial node is missing: ' + str(path))
+        if not os.access(path, os.R_OK | os.W_OK):
+            raise ProtocolError('Playdate serial node is not readable and writable: ' + str(path))
+        ports.append(str(path))
+    return ports
+
+
+def playdate_serial_ports():
+    ports = set(glob.glob('/dev/cu.usbmodemPD*'))
+    ports.update(glob.glob('/dev/tty.usbmodemPD*'))
+    if sys.platform != 'darwin':
+        ports.update(linux_playdate_serial_ports())
+    return sorted(ports)
+
+
+def playdate_data_volume():
+    """Mounted Playdate data disk, or the Darwin path when it is not mounted."""
+    if sys.platform == 'darwin':
+        return Path('/Volumes/PLAYDATE')
+    mounts = Path('/proc/mounts')
+    if not mounts.is_file():
+        return None
+    for line in mounts.read_text(encoding='utf-8', errors='replace').splitlines():
+        fields = line.split()
+        if len(fields) < 2:
+            continue
+        target = Path(fields[1].replace('\\040', ' '))
+        if target.name == 'PLAYDATE' and (target / 'Games').is_dir():
+            return target
+    return None
+
+
+def eject_argv(volume):
+    if sys.platform == 'darwin':
+        return ['diskutil', 'eject', str(volume)]
+    return ['udisksctl', 'unmount', '-p', str(volume)]
 
 
 def simulator_usb_preflight():
-    ports = sorted(glob.glob('/dev/cu.usbmodemPD*') + glob.glob('/dev/tty.usbmodemPD*'))
+    ports = playdate_serial_ports()
     if not ports:
         return
     try:
@@ -426,9 +510,9 @@ def _run(args):
 
 
 def runtime_lock_path(sdk):
-    # Shared across repositories, SDK installations and UUID bundle IDs for
-    # this macOS user. Ownership precedes staging/building a runtime job.
-    return Path('/private/tmp') / f'pokemon-playdate-simulator-{os.getuid()}.lock'
+    # Shared across repositories, SDK installations and UUID bundle IDs.
+    # Ownership precedes staging/building a runtime job.
+    return shared_lock_directory() / f'pokemon-playdate-simulator-{os.getuid()}.lock'
 
 
 def run(args):

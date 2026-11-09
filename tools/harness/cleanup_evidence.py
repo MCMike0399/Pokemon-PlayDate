@@ -15,6 +15,10 @@ import subprocess
 import sys
 import time
 
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.harness.protocol import shared_lock_directory
+
 PROJECT = Path(__file__).resolve().parents[2]
 
 
@@ -336,7 +340,7 @@ def main():
                 # Cooperate with the existing runtime and suite ownership locks.
                 # Never truncate their owner records or import the Simulator runner.
                 for owner in ('suite', 'simulator'):
-                    lock = Path('/private/tmp') / f'pokemon-playdate-{owner}-{os.getuid()}.lock'
+                    lock = shared_lock_directory() / f'pokemon-playdate-{owner}-{os.getuid()}.lock'
                     stream = stack.enter_context(lock.open('a+'))
                     fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
             report = plan(project, root, args.min_age_hours)

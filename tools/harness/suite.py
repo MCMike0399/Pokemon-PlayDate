@@ -15,7 +15,7 @@ import time
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from tools.harness.protocol import OwnerLock, ProtocolError, atomic_json
+from tools.harness.protocol import OwnerLock, ProtocolError, atomic_json, shared_lock_directory
 from tools.harness.run import PROJECT, fingerprint, validate_recent_interval
 
 
@@ -61,7 +61,7 @@ def select_jobs(only=None, mutations=False):
 
 def suite_lock_path():
     # Distinct from run.py's runtime lock: children must acquire that themselves.
-    return Path('/private/tmp') / f'pokemon-playdate-suite-{os.getuid()}.lock'
+    return shared_lock_directory() / f'pokemon-playdate-suite-{os.getuid()}.lock'
 
 
 def launch_job(command, output, timeout):

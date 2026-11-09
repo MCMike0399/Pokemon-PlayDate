@@ -14,13 +14,13 @@ import time
 
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from tools.harness.protocol import OwnerLock, ProtocolError, atomic_json
+from tools.harness.protocol import OwnerLock, ProtocolError, atomic_json, shared_lock_directory
 
 POLICY = Path(__file__).with_name('pi_archive_allowlist.json')
 EVIDENCE = Path('/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence')
 RECEIPTS = Path.home() / '.local/state/pi-artifacts'
 QUEUE = EVIDENCE.parent / 'storage-maintenance-logs/pi-archive-queue.json'
-LOCK_DIRECTORY = Path('/private/tmp')
+LOCK_DIRECTORY = shared_lock_directory()
 LOCK_ORDER = ('storage-maintenance', 'suite', 'simulator', 'device')
 MAX_METADATA_SECONDS = 30
 
@@ -167,7 +167,7 @@ def plan(action, candidate, archive_id, policy):
             command += ['verify', '--id', archive_id]
     return {'action': action, 'source': str(source), 'argv': command,
             'execution_enabled': policy['execution_enabled'],
-            'locks': [f'/private/tmp/pokemon-playdate-{name}-{os.getuid()}.lock'
+            'locks': [str(LOCK_DIRECTORY / f'pokemon-playdate-{name}-{os.getuid()}.lock')
                       for name in LOCK_ORDER]}
 
 

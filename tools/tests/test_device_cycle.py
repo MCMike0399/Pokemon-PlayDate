@@ -29,7 +29,7 @@ class HostCycle(device.Cycle):
 
     def command(self, argv):
         self.event('host-mocked-command', argv=argv)
-        if argv[0] == 'diskutil':
+        if argv[0] in {'diskutil', 'udisksctl'}:
             self.volume.rename(self.volume.with_name('unmounted'))
 
     def disk(self):
