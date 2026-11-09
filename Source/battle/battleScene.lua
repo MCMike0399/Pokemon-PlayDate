@@ -67,6 +67,53 @@ function BattleScene.moveDetailLines(typeName, current, maxPP, disabled)
         string.rep(" ", 4) .. BattleScene.ppReadout(current, maxPP),
     }
 end
+-- FormatMovesString (engine/battle/misc.asm) writes every real name, then a
+-- "-" for each of the four slots that has no move. NUM_MOVES is 4.
+function BattleScene.moveSlots(names)
+    assert(type(names) == "table" and #names <= 4, "move list")
+    local slots = {}
+    for index = 1, 4 do
+        slots[index] = names[index] or "-"
+    end
+    return slots
+end
+-- MoveSelectionMenu's regular box is hlcoord 4,12 b=4 c=14. PrintMenuItem's
+-- box is hlcoord 0,8 b=3 c=9. TextBoxBorder fills that interior with spaces
+-- before any text, which is what removes the battle menu line. The battle
+-- menu template itself is tiles (8,12)-(19,17), inside the move box.
+-- The 400x240 battle UI uses 20px tiles across and 16px text rows, the same
+-- size as the command text, so four names fit without scrolling.
+function BattleScene.moveSelectLayout()
+    local line = 16
+    local moveH = 8 + 4 * line + 8
+    local typeH = 8 + 3 * line + 8
+    local moveY = 240 - moveH
+    local typeBox = {x = 0 * 20, y = moveY - typeH, w = 11 * 20, h = typeH}
+    local moveBox = {x = 4 * 20, y = moveY, w = 16 * 20, h = moveH}
+    return {
+        typeBox = typeBox,
+        moveBox = moveBox,
+        clears = {
+            typeBox,
+            moveBox,
+            {x = 0, y = 180, w = 4 * 20, h = 60},
+        },
+        rows = 4,
+        line = line,
+        promptDrawn = false,
+    }
+end
+function BattleScene.moveSelectPaint(names, detailLines)
+    local slots = BattleScene.moveSlots(names)
+    local texts = {}
+    for _, line in ipairs(detailLines) do
+        if line ~= "" then texts[#texts + 1] = line end
+    end
+    for index, name in ipairs(slots) do
+        texts[#texts + 1] = (index == 1 and ">" or " ") .. name
+    end
+    return {layout = BattleScene.moveSelectLayout(), slots = slots, texts = texts}
+end
 
 function BattleScene:init(battle)
     self.battle = battle
@@ -149,6 +196,7 @@ function BattleScene:enter()
                 return
             end
             -- Names only. TYPE/ and PP stay in the selected-move box.
+            -- Empty slots are the source "-", and they are not moves.
             self.inMoveSelect = true
             local moveNames = {}
             local moveKeys = {}
@@ -159,7 +207,9 @@ function BattleScene:enter()
             self.moveKeys = moveKeys
             self.moveDetailShown = nil
             self.moveMenu.columns = 1
-            self.moveMenu:show(moveNames, function(moveIndex)
+            self.moveMenu.rowPitch = BattleScene.moveSelectLayout().line
+            self.moveMenu:show(BattleScene.moveSlots(moveNames), function(moveIndex)
+                if not self.moveKeys[moveIndex] then return end
                 -- The rules API validates phase/index/PP before UI commits.
                 if not self.battle:selectMove(moveIndex) then return end
                 self.inMoveSelect = false
@@ -545,8 +595,12 @@ function BattleScene:drawBattleField()
     -- Hidden HUDs must still leave narration in its usual system font.
     gfx.setFont(gfx.getSystemFont())
 
-    -- Draw message box or menus
+    -- Draw message box or menus. Move selection replaces this box: pokered
+    -- TextBoxBorder clears the battle-menu text before TYPE/ and the names.
     local boxY = 180
+    if self.inMoveSelect and self.battle:isAwaitingCommand() and not self.battle.shiftChoice then
+        self:drawMoveSelect()
+    else
     gfx.setColor(gfx.kColorBlack)
     gfx.fillRect(0, boxY, 400, 60)
     gfx.setColor(gfx.kColorWhite)
@@ -570,13 +624,8 @@ function BattleScene:drawBattleField()
         prompt.image:draw(14, boxY + 28)
 
         -- Draw menu on right
-        if self.inMoveSelect then
-            self:drawMoveDetail(12, boxY + 8)
-            self.moveMenu:draw(200, boxY + 4, 196, 52)
-        else
-            if #self:mainOptions()==4 then self.mainMenu:draw(204, boxY + 4, 192, 52)
-            else self.mainMenu:draw(300, boxY + 4, 96, 52) end
-        end
+        if #self:mainOptions()==4 then self.mainMenu:draw(204, boxY + 4, 192, 52)
+        else self.mainMenu:draw(300, boxY + 4, 96, 52) end
     else
         -- Word-wrapped inside the frame so long messages never escape
         if self.messageDialog.isActive then
@@ -586,10 +635,34 @@ function BattleScene:drawBattleField()
             self:_wrapped("battle-message", message, 374, 44).image:draw(14, boxY + 10)
         end
     end
+    end
 
-    -- Separator line
+    if not self.inMoveSelect then
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawLine(0, 170, 400, 170)
+    end
+end
+
+function BattleScene:drawMoveSelect()
+    local layout = BattleScene.moveSelectLayout()
+    gfx.setColor(gfx.kColorWhite)
+    for _, rect in ipairs(layout.clears) do
+        gfx.fillRect(rect.x, rect.y, rect.w, rect.h)
+    end
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawLine(0, 170, 400, 170)
+    local typeBox = layout.typeBox
+    gfx.drawRect(typeBox.x, typeBox.y, typeBox.w, typeBox.h)
+    local moveBox = layout.moveBox
+    gfx.drawRect(moveBox.x, moveBox.y, moveBox.w, moveBox.h)
+    self:drawMoveDetail(typeBox.x + 12, typeBox.y + 8)
+    local font = gfx.getSystemFont()
+    local slots = self.moveMenu.options or {}
+    for index, name in ipairs(slots) do
+        local selected = index == self.moveMenu.selectedIndex
+        local label = (selected and ">" or " ") .. name
+        self:_text("move-name-" .. index .. (selected and "-s" or ""), label, font).image:draw(
+            moveBox.x + 16, moveBox.y + 8 + (index - 1) * layout.line)
+    end
 end
 
 function BattleScene:drawMoveDetail(x, y)

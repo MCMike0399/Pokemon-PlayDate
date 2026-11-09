@@ -255,5 +255,39 @@ for _, sample in ipairs({ detail("WATER", 5, 15, false), detail("GROUND", 10, 10
         error("move menu still draws an effectiveness mark: " .. sample)
     end
 end
+local function sameList(actual, expected, label)
+    eq(#actual, #expected, label .. " length")
+    for index, value in ipairs(expected) do
+        eq(actual[index], value, label .. " " .. index)
+    end
+end
+sameList(BattleScene.moveSlots({"STRENGTH", "SKULL BASH", "SURF", "BITE"}),
+    {"STRENGTH", "SKULL BASH", "SURF", "BITE"}, "four moves")
+sameList(BattleScene.moveSlots({"TACKLE"}), {"TACKLE", "-", "-", "-"}, "one move")
+local layout = BattleScene.moveSelectLayout()
+eq(layout.rows, 4, "four move rows")
+eq(layout.promptDrawn, false, "command line is not redrawn")
+eq(math.floor((layout.moveBox.h - 8) / layout.line) >= 4, true, "four names fit")
+local function covered(x, y)
+    for _, rect in ipairs(layout.clears) do
+        if x >= rect.x and y >= rect.y and x < rect.x + rect.w and y < rect.y + rect.h then
+            return true
+        end
+    end
+    return false
+end
+eq(covered(14, 190), true, "What will is inside a cleared box")
+eq(covered(14, 208), true, "name do? is inside a cleared box")
+local paint = BattleScene.moveSelectPaint(
+    {"STRENGTH", "SKULL BASH", "SURF", "BITE"},
+    BattleScene.moveDetailLines("NORMAL", 15, 15, false))
+sameList(paint.slots, {"STRENGTH", "SKULL BASH", "SURF", "BITE"}, "painted moves")
+for _, text in ipairs(paint.texts) do
+    if text:find("What will", 1, true) or text:find("do?", 1, true) or text:find("!", 1, true) then
+        error("move menu paints leftover command text: " .. text)
+    end
+end
+local single = BattleScene.moveSelectPaint({"TACKLE"}, BattleScene.moveDetailLines("NORMAL", 35, 35, false))
+sameList(single.slots, {"TACKLE", "-", "-", "-"}, "painted empty slots")
 
 print("battle-path-host ok")
