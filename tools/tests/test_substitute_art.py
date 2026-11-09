@@ -98,11 +98,13 @@ class SubstituteArtTests(unittest.TestCase):
             self.assertEqual((art.ROOT/name).read_bytes(), original(name), name)
 
     def test_mechanics_producer_schema_rng_and_existing_case_names_are_unchanged(self):
-        for name in ['Source/battle/battle.lua','Source/battle/conditions.lua','Source/battle/effects.lua','Source/battle/dsl.lua',
-                     'Source/battle/moves.lua','Source/battle/moveSupport.lua','Source/battle/ordinaryAbilities.lua',
+        # Transform owns battle.lua, conditions.lua, effects.lua, moveSupport.lua,
+        # and move-support.json. This freeze keeps the files Transform does not change.
+        for name in ['Source/battle/dsl.lua',
+                     'Source/battle/moves.lua','Source/battle/ordinaryAbilities.lua',
                      'Source/battle/contactAbilities.lua','Source/battle/substitutePolicy.lua',
                      'Source/domain/pokemonCodec.lua','Source/domain/sessionCodec.lua','Source/lib/rng.lua',
-                     'tools/references/move-producer-migrations.json','tools/references/move-support.json',
+                     'tools/references/move-producer-migrations.json',
                      'Source/dev/substituteContracts.lua','Source/dev/substituteSeamContracts.lua']:
             # Root's native-qualified runtime HM coverage is the current mechanics
             # baseline; the art/pose preservation baseline above stays fd456.

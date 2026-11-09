@@ -65,11 +65,12 @@ class MoveFailurePhazingTests(unittest.TestCase):
         keys = ('dig', 'razorWind', 'furyCutter', 'gyroBall',
                 'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
                 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
-                'transform', 'metronome',
+                'metronome',
                 'stockpile', 'swallow', 'memento', 'flatter', 'swagger', 'healPulse')
         for key in keys:
             with self.subTest(move=key):
                 self.assertTrue(self.inventory['moves'][key]['gap'])
+        self.assertEqual(self.inventory['moves']['transform'], {'handler': 'battle-condition'})
         self.assertEqual(self.inventory['moves']['selfDestruct'], {'handler': 'engine-dsl'})
         self.assertIn('selfDestruct = true', self.rows['selfDestruct'])
 

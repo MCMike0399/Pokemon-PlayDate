@@ -342,7 +342,7 @@ function BattleEffects:forewarn(mon,target)
     if not self:livingAbility(mon,108) or not self:active(target) or not alive(target)
         or mon==target then return false end
     local choices,best={},1
-    for _,key in ipairs(target.moves) do
+    for _,key in ipairs(self.battle.conditions:movesOf(target)) do
         local move=moveData[key]
         if not move or type(move.power)~="number" or not move.category then
             self.battle:recordAbilityGap(108,"forewarn-move-definition",mon)
@@ -434,7 +434,7 @@ function BattleEffects:attackStat(attacker,move,value)
     value=h and h.attack and h.attack(self,attacker,move,value) or value
     value = self.ordinaryAbilities:attackStat(attacker, move, value)
     -- B2W2 item attack modifier, after stat stages; never durable stats/power.
-    if attacker.species=="pikachu" and attacker.heldItem=="lightBall"
+    if self.battle.conditions:speciesOf(attacker)=="pikachu" and attacker.heldItem=="lightBall"
         and (move.category=="physical" or move.category=="special") then return value*2 end
     return value
 end

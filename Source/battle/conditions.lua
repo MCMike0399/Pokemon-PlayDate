@@ -1,4 +1,5 @@
 -- Concrete Gen V transient owner for early-route moves. No durable Pokemon fields.
+import "battle/speciesWeight"
 Class("BattleConditions")
 local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
 local function alive(mon) return mon and mon:isAlive() end
@@ -11,7 +12,11 @@ function BattleConditions:init(battle)
     self.battle=battle;self:clearAll()
 end
 function BattleConditions:clearAll()
-    self.members={};self.sides={player={},enemy={}}
+    for mon in pairs(self.members or {}) do
+        self:revertTransform(mon)
+    end
+    self.members = {}
+    self.sides = {player = {}, enemy = {}}
 end
 function BattleConditions:of(mon)
     if not self.members[mon] then self.members[mon]={} end
@@ -136,18 +141,202 @@ function BattleConditions:aromatherapy()
     end
     return true
 end
+-- Battle forme queries. Durable species, level, HP, status, moves and stats stay put.
+function BattleConditions:forme(mon)
+    local state = self.members[mon]
+    if state then
+        return state.transform
+    end
+    return nil
+end
+function BattleConditions:latentTypes(mon)
+    local first = mon.type
+    local second = mon.type2
+    local state = self.members[mon]
+    local forme = state and state.transform
+    if forme then
+        first = forme.type
+        second = forme.type2
+    end
+    if state and state.changedType then
+        first = state.changedType
+        second = nil
+    end
+    return first, second
+end
+function BattleConditions:movesOf(mon)
+    local forme = self:forme(mon)
+    if forme then
+        return forme.moves
+    end
+    return mon.moves
+end
+function BattleConditions:ppOf(mon, key)
+    local forme = self:forme(mon)
+    if forme then
+        return forme.pp[key] or 0
+    end
+    return mon.pp[key] or 0
+end
+function BattleConditions:maxPPOf(mon, key)
+    local forme = self:forme(mon)
+    if forme then
+        return forme.maxPP[key] or 0
+    end
+    local move = moveData[key]
+    if move then
+        return move.maxPP
+    end
+    return 0
+end
+function BattleConditions:statOf(mon, key)
+    local forme = self:forme(mon)
+    if forme and forme.stats[key] ~= nil then
+        return forme.stats[key]
+    end
+    return mon[key]
+end
+function BattleConditions:speciesOf(mon)
+    local forme = self:forme(mon)
+    if forme then
+        return forme.species
+    end
+    return mon.species
+end
+function BattleConditions:weightOf(mon)
+    local forme = self:forme(mon)
+    if forme then
+        return forme.weight
+    end
+    return SpeciesWeight.of(mon.species)
+end
+function BattleConditions:installMoveView(mon, forme)
+    mon.hasPP = function(_, key)
+        local current = forme.pp[key]
+        return current ~= nil and current > 0
+    end
+    mon.usePP = function(_, key)
+        local current = forme.pp[key]
+        if current and current > 0 then
+            forme.pp[key] = current - 1
+            return true
+        end
+        return false
+    end
+end
+function BattleConditions:revertTransform(mon)
+    local state = self.members[mon]
+    local forme = state and state.transform
+    if not forme then
+        return
+    end
+    mon.statStages.atk = forme.stages.atk
+    mon.statStages.def = forme.stages.def
+    mon.statStages.spa = forme.stages.spa
+    mon.statStages.spd = forme.stages.spd
+    mon.statStages.spe = forme.stages.spe
+    mon.statStages.acc = forme.stages.acc
+    mon.statStages.eva = forme.stages.eva
+    mon.hasPP = nil
+    mon.usePP = nil
+    state.transform = nil
+end
+-- Showdown 9b136a8 transformInto, gen 5 branch. Party identity is not rewritten.
+function BattleConditions:transform()
+    local battle = self.battle
+    local user = battle.attacker
+    local target = battle.defender
+    local function fail()
+        battle:say("But it failed!")
+        return false
+    end
+    if not battle.effects:active(user) or not battle.effects:active(target) or user == target then
+        return fail()
+    end
+    if not user:isAlive() or not target:isAlive() then
+        return fail()
+    end
+    if self:substituteHP(target) > 0 then
+        return fail()
+    end
+    if self:forme(target) then
+        return fail()
+    end
+    if self:forme(user) then
+        return fail()
+    end
+    local sourceMoves = self:movesOf(target)
+    local moves = {}
+    local pp = {}
+    local maxPP = {}
+    for _, key in ipairs(sourceMoves) do
+        local move = moveData[key]
+        assert(move and type(move.pp) == "number", "missing transform move")
+        local granted = math.min(5, move.pp)
+        moves[#moves + 1] = key
+        if pp[key] == nil then
+            pp[key] = granted
+            maxPP[key] = granted
+        end
+    end
+    assert(#moves > 0, "transform target has no moves")
+    local forme = {}
+    forme.species = self:speciesOf(target)
+    forme.type, forme.type2 = self:latentTypes(target)
+    forme.weight = self:weightOf(target)
+    forme.stats = {}
+    forme.stats.atk = self:statOf(target, "atk")
+    forme.stats.def = self:statOf(target, "def")
+    forme.stats.spa = self:statOf(target, "spa")
+    forme.stats.spd = self:statOf(target, "spd")
+    forme.stats.spe = self:statOf(target, "spe")
+    forme.moves = moves
+    forme.pp = pp
+    forme.maxPP = maxPP
+    forme.stages = {}
+    forme.stages.atk = user.statStages.atk
+    forme.stages.def = user.statStages.def
+    forme.stages.spa = user.statStages.spa
+    forme.stages.spd = user.statStages.spd
+    forme.stages.spe = user.statStages.spe
+    forme.stages.acc = user.statStages.acc
+    forme.stages.eva = user.statStages.eva
+    user.statStages.atk = target.statStages.atk
+    user.statStages.def = target.statStages.def
+    user.statStages.spa = target.statStages.spa
+    user.statStages.spd = target.statStages.spd
+    user.statStages.spe = target.statStages.spe
+    user.statStages.acc = target.statStages.acc
+    user.statStages.eva = target.statStages.eva
+    battle.effects.abilityOverrides[user] = battle.effects:effectiveAbility(target)
+    local state = self:of(user)
+    -- setType replaces the user's current types. Roost stays and still strips Flying.
+    state.changedType = nil
+    state.transform = forme
+    self:installMoveView(user, forme)
+    battle:say(user.name .. " transformed into " .. target.name .. "!")
+    return true
+end
 -- Read-only battle typing; durable Pokemon species types never change.
 function BattleConditions:types(mon)
-    local first,second=mon.type,mon.type2
-    local state=self.members[mon]
-    if state and state.changedType then first,second=state.changedType,nil end
+    local first, second = self:latentTypes(mon)
+    local state = self.members[mon]
     if state and state.roost then
-        if first=="flying" then first=nil end
-        if second=="flying" then second=nil end
-        if not first then first=second;second=nil end
-        if not first then first="normal" end -- GenV fallback, not GenIV ???.
+        if first == "flying" then
+            first = nil
+        end
+        if second == "flying" then
+            second = nil
+        end
+        if not first then
+            first = second
+            second = nil
+        end
+        if not first then
+            first = "normal"
+        end
     end
-    return first,second
+    return first, second
 end
 -- Disable inherits the pinned base condition in the Gen5 mod chain.
 function BattleConditions:disabled(mon,key)
@@ -158,8 +347,10 @@ function BattleConditions:canDisable(mon)
     local state=self.members[mon]
     local key=state and state.lastMove
     if not key or key=="struggle" or state.disable then return false end
-    for _,move in ipairs(mon.moves) do
-        if move==key then return mon:hasPP(key) end
+    for _, move in ipairs(self:movesOf(mon)) do
+        if move == key then
+            return mon:hasPP(key)
+        end
     end
     return false
 end
@@ -185,16 +376,20 @@ function BattleConditions:encoreKey(mon)
     local state = self.members[mon]
     local encore = state and state.encore
     if not encore then return nil end
-    for _, key in ipairs(mon.moves) do
-        if key == encore.key then return key end
+    for _, key in ipairs(self:movesOf(mon)) do
+        if key == encore.key then
+            return key
+        end
     end
 end
 function BattleConditions:canEncore(mon)
     local state = self.members[mon]
     local key = state and state.lastMove
     if not key or encoreFailures[key] or state.encore then return false end
-    for _, owned in ipairs(mon.moves) do
-        if owned == key then return mon:hasPP(key) end
+    for _, owned in ipairs(self:movesOf(mon)) do
+        if owned == key then
+            return mon:hasPP(key)
+        end
     end
     return false
 end
@@ -303,6 +498,7 @@ function BattleConditions:preventsStatus(mon,status,origin)
     return origin.cause=="move" or origin.cause=="ability" or origin.cause=="toxicSpikes"
 end
 function BattleConditions:clear(mon)
+    self:revertTransform(mon)
     self.members[mon]=nil
     for _,state in pairs(self.members) do
         if state.trap and state.trap.source==mon then state.trap=nil end

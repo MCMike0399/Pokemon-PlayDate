@@ -61,13 +61,21 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
 
     -- Pick offensive/defensive stats per the move's damage class
     local atkBase, defBase, atkStage, defStage
+    local atkKey = "atk"
+    local defKey = "def"
     if move.category == "special" then
-        atkBase, defBase = attacker.spa, defender.spd
-        atkStage, defStage = attacker.statStages.spa, defender.statStages.spd
-    else
-        atkBase, defBase = attacker.atk, defender.def
-        atkStage, defStage = attacker.statStages.atk, defender.statStages.def
+        atkKey = "spa"
+        defKey = "spd"
     end
+    if effects and effects.battle and effects.battle.conditions then
+        atkBase = effects.battle.conditions:statOf(attacker, atkKey)
+        defBase = effects.battle.conditions:statOf(defender, defKey)
+    else
+        atkBase = attacker[atkKey]
+        defBase = defender[defKey]
+    end
+    atkStage = attacker.statStages[atkKey]
+    defStage = defender.statStages[defKey]
 
     -- Move flags ignore both positive and negative defensive stages, while
     -- leaving base stats and subsequent ability/weather modifiers intact.
@@ -407,7 +415,7 @@ function Battle:update()
     local locked=self.conditions:locked(self.player)
     if self:isAwaitingCommand() and locked and self.player:isAlive() and self.enemy:isAlive() then
         local key=self.conditions:lockedKey(self.player);local index
-        for i,owned in ipairs(self.player.moves) do if owned==key then index=i end end
+        for i,owned in ipairs(self.conditions:movesOf(self.player)) do if owned==key then index=i end end
         if index then assert(self:selectMove(index))
         else
             -- A real learning choice may replace the slot while the volatile
@@ -491,7 +499,11 @@ end
 
 -- Effective speed: stage-modified, quartered by paralysis (Gen V)
 local function effectiveSpeed(pokemon, conditions, effects)
-    local speed = applyStageMod(pokemon.spe, pokemon.statStages.spe)
+    local speedStat = pokemon.spe
+    if conditions then
+        speedStat = conditions:statOf(pokemon, "spe")
+    end
+    local speed = applyStageMod(speedStat, pokemon.statStages.spe)
     if conditions then speed=conditions:speed(pokemon,speed) end
     if effects then
         speed = effects:speed(pokemon, speed)
@@ -515,7 +527,7 @@ end
 -- Read-only choices. Struggle is a runtime fallback, never a learned PP slot.
 function Battle:availableMoves(pokemon)
     local choices = {}
-    for index, key in ipairs(pokemon.moves) do
+    for index, key in ipairs(self.conditions:movesOf(pokemon)) do
         local move = moveData[key]
         if move and not move.noPP and pokemon:hasPP(key) and self.conditions:moveAllowed(pokemon,key) then
             choices[#choices + 1] = {index = index, key = key, move = move}
@@ -594,16 +606,17 @@ function Battle:selectMove(moveIndex)
     if not self:isAwaitingCommand() or self.outcome then return false, "wrong-phase" end
     if self.selectionKind then return false, "selection-open" end
     if not self.player:isAlive() or not self.enemy:isAlive() then return false, "fainted" end
+    local moves = self.conditions:movesOf(self.player)
     if type(moveIndex) ~= "number" or moveIndex ~= moveIndex or moveIndex < 0
-        or moveIndex > #self.player.moves or moveIndex ~= math.floor(moveIndex) then return false, "invalid-index" end
+        or moveIndex > #moves or moveIndex ~= math.floor(moveIndex) then return false, "invalid-index" end
     local locked=self.conditions:locked(self.player)
-    if locked and self.player.moves[moveIndex]~=self.conditions:lockedKey(self.player) then return false,"locked-move" end
+    if locked and moves[moveIndex]~=self.conditions:lockedKey(self.player) then return false,"locked-move" end
     local playerMove, key
     if moveIndex == 0 then
         if not self:needsStruggle() then return false, "moves-available" end
         playerMove = moveData.struggle
     else
-        key = self.player.moves[moveIndex]
+        key = moves[moveIndex]
         if moveIndex < 1 or not key then return false, "invalid-index" end
         playerMove = moveData[key]
         if not playerMove or playerMove.noPP then return false, "unknown-move" end
@@ -940,7 +953,8 @@ function Battle:tryRun()
         return true
     end
 
-    local playerSpe,enemySpe=self.player.spe,math.max(1,self.enemy.spe)
+    local playerSpe = self.conditions:statOf(self.player, "spe")
+    local enemySpe = math.max(1, self.conditions:statOf(self.enemy, "spe"))
     local chance=((playerSpe*4096)//enemySpe)*128//4096 + 30*self.runAttempts
     local escaped=self.effects:sureEscape(self.player) or playerSpe>enemySpe
     if not escaped then escaped=RulesRNG.random(0,255)<chance end
@@ -998,7 +1012,7 @@ function Battle:resolveTurn(turn)
     end
     local key = turn.key
     if not key then
-        for _,owned in ipairs(attacker.moves) do if moveData[owned]==turn.move then key=owned;break end end
+        for _,owned in ipairs(self.conditions:movesOf(attacker)) do if moveData[owned]==turn.move then key=owned;break end end
     end
     -- Override a queued selection too, when Encore lands before this action.
     -- This is an ordinary use with ordinary PP, never a locked continuation.
@@ -1072,8 +1086,8 @@ function Battle:resolveTurn(turn)
             attacker.confusion = attacker.confusion - 1
             self:say(attacker.name .. " is confused!")
             if RulesRNG.random(1, 2) == 1 then
-                local atkStat = applyStageMod(attacker.atk, attacker.statStages.atk)
-                local defStat = applyStageMod(attacker.def, attacker.statStages.def)
+                local atkStat = applyStageMod(self.conditions:statOf(attacker, "atk"), attacker.statStages.atk)
+                local defStat = applyStageMod(self.conditions:statOf(attacker, "def"), attacker.statStages.def)
                 local damage = math.floor(math.floor(
                     math.floor(2 * attacker.level / 5 + 2) * 40 * atkStat / defStat
                 ) / 50) + 2
@@ -1350,6 +1364,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         elseif self.currentMoveKey=="encore" then self.conditions:encore()
         elseif self.currentMoveKey=="waterSport" then self.conditions:waterSport()
         elseif self.currentMoveKey=="odorSleuth" then self.conditions:odorSleuth()
+        elseif self.currentMoveKey=="transform" then self.conditions:transform()
         else error("unsupported battle-condition move") end
         return nil
     end

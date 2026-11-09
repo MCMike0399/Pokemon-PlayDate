@@ -119,9 +119,11 @@ function BattleScene:enter()
             -- Fight: show move selection with type effectiveness icons and PP
             self.inMoveSelect = true
             local moveNames = {}
-            for _, moveKey in ipairs(self.battle.player.moves) do
+            local battler = self.battle.player
+            for _, moveKey in ipairs(self.battle.conditions:movesOf(battler)) do
                 local move = moveData[moveKey]
-                local pp = self.battle.player.pp[moveKey] or 0
+                local pp = self.battle.conditions:ppOf(battler, moveKey)
+                local maxPP = self.battle.conditions:maxPPOf(battler, moveKey)
                 local label = move.name
                 -- Show type effectiveness icon next to move name
                 local mult = self.battle:typeMatchup(move.type,self.battle.enemy)
@@ -130,7 +132,7 @@ function BattleScene:enter()
                     label = label .. " " .. icon
                 end
                 -- Show PP
-                label = label .. " " .. pp .. "/" .. move.maxPP
+                label = label .. " " .. pp .. "/" .. maxPP
                 -- Grey out if no PP
                 if pp <= 0 then
                     label = "~" .. label .. "~"
@@ -669,7 +671,7 @@ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
         end
     end
     gfx.setClipRect(x, y, 80, 80)
-    local species = mon.species
+    local species = self.battle.conditions:speciesOf(mon)
     local sendingOut = request and request.details.side == side and request.kind == "sendout"
     if not sendingOut and self.battle[side] == mon and self.battle.conditions:substituteHP(mon) > 0 then
         -- The source 7x7 canvas carries the doll's exact tile placement. Use

@@ -424,7 +424,7 @@
       "gap": "onTryMove"
     },
     "transform": {
-      "gap": "onHit"
+      "handler": "battle-condition"
     },
     "bubble": {
       "handler": "standard-damage"
