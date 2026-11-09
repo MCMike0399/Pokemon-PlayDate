@@ -1,5 +1,45 @@
 # Full-game execution ledger
 
+## 2026-11-09 Silph pad and confirmed mechanics gaps
+
+The Card Key walk in one Simulator lifetime still dies on the host ceiling.
+At `e27a514c` the earned resume reached Silph 5F `(9,16)` after the 9F pad
+and was killed at Linux VmHWM 1076424704 bytes. Lua heap was 8256 KiB. No
+Card Key. That probe is not rerun.
+
+`5aa95bd4` saved the earned 5F elevator exit `(20,0)` and stopped on the
+action bound under the ceiling (VmHWM 838070272). Marker
+`8554019638797c0157a174fa76e751f92cce6155a6a71bcfff1b6766044d5998`, ancestry
+`2204733359…`. `453a2703` then walked the Card Key approach and saved the
+pad `(9,14)` down on `pokered:SILPH_CO_5F`. Marker
+`4655fb13b1c976117eac8e8d8854365e61ebbec6dd7d92461a2721dcec8a04d7`,
+failed-exited `-9`, VmHWM 938696704, Lua 8160 KiB. The next owned process
+resumes that pad for the 9F warp and the pickup. This is not Card Key proof.
+
+Confirmed against this checkout, not yet fixed. `moveSupport.lua` still gaps
+Transform (`:141`; Route 13 grass includes level-25 Ditto), Low Kick (`:67`;
+`pokemon.lua` has no species weight), Hyper Beam (`:63`) and Giga Impact
+(`:347`), Thrash (`:38`) and Outrage (`:186`), Pay Day (`:9`), Fake Out
+(`:224`), Taunt (`:237`), Sunny Day (`:215`) and Hail (`:230`). Freeze thaw
+in `battle.lua` is only the 1-in-5 roll (`:1035-1046`); Flame Wheel is
+ordinary damage. `BattleEffects:setWeather` accepts only sandstorm and
+rain (`effects.lua:633`).
+
+`sourceEvents.lua:554` accepts `hidden_events` IDs. pret has 54 hidden item
+rows and 12 hidden coin rows. The only `HiddenItems` descriptors in the tree
+are two unbound Viridian Forest rows. Routes 10 and 12 have none installed.
+Itemfinder remains `effect = "unsupported"`. `coverage-current.md` still
+describes the historical B matrix (149 installed, 108 accepted through
+5.5a). Current install is 171. That header is not acceptance. Multi-hit code
+is 35/35/15/15 (`battle.lua:1368`); the old 1/3, 1/3, 1/6, 1/6 sentence in
+`CLAUDE.md` was wrong and is corrected. Dither density, undithered battle
+art, battle platforms and contradictory style lines stay unchanged pending
+Miguel's decision.
+
+Lead is grok-4.7 with fast mode and high effort, not the literal
+`grok-4.7-build-fast` name. Workers use `grok-4.7`. The Task tool has no
+reasoning-effort field.
+
 ## 2026-11-09 Linux resume
 
 Main `7a31867a` is the merged continuation. 171 source maps are installed.
