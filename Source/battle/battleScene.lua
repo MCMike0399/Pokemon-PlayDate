@@ -35,6 +35,29 @@ local statusLabels = {
     burn = "BRN", poison = "PSN", badPoison = "PSN", paralyze = "PAR",
     sleep = "SLP", freeze = "FRZ",
 }
+local FULL_OPTIONS <const> = {"FIGHT", "BAG", "POKEMON", "RUN"}
+local SHORT_OPTIONS <const> = {"FIGHT", "RUN"}
+local PLATFORM_SHADE <const> = {0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55}
+local function mirrored(anchor, offset)
+    if anchor.mirror then return -offset end
+    return offset
+end
+-- pokered prints both current and max PP with PrintNumber, bc = 1 byte / 2
+-- digits, and the leading-zero flag clear. Digits below 10 are a blank, not
+-- a zero or a hyphen (battle core: wBattleMenuCurrentPP and wMaxPP).
+function BattleScene.ppField(value)
+    assert(type(value) == "number" and value >= 0 and value <= 99 and value == math.floor(value), "pp digit")
+    if value < 10 then return " " .. tostring(value) end
+    return tostring(value)
+end
+function BattleScene.ppReadout(current, maxPP)
+    return BattleScene.ppField(current) .. "/" .. BattleScene.ppField(maxPP)
+end
+function BattleScene.moveOption(name, icon, current, maxPP)
+    local label = name
+    if icon ~= "" then label = label .. " " .. icon end
+    return label .. " " .. BattleScene.ppReadout(current, maxPP)
+end
 
 function BattleScene:init(battle)
     self.battle = battle
@@ -64,8 +87,8 @@ function BattleScene:init(battle)
 end
 
 function BattleScene:mainOptions()
-    if self.battle.party or self.battle.session then return {"FIGHT", "BAG", "POKEMON", "RUN"} end
-    return {"FIGHT", "RUN"} -- Existing single-mon callers retain their menu.
+    if self.battle.party or self.battle.session then return FULL_OPTIONS end
+    return SHORT_OPTIONS -- Existing single-mon callers retain their menu.
 end
 
 function BattleScene:requestSelection(kind)
@@ -124,15 +147,8 @@ function BattleScene:enter()
                 local move = moveData[moveKey]
                 local pp = self.battle.conditions:ppOf(battler, moveKey)
                 local maxPP = self.battle.conditions:maxPPOf(battler, moveKey)
-                local label = move.name
-                -- Show type effectiveness icon next to move name
                 local mult = self.battle:typeMatchup(move.type,self.battle.enemy)
-                local icon = TypeChart.icon(mult)
-                if icon ~= "" then
-                    label = label .. " " .. icon
-                end
-                -- Show PP
-                label = label .. " " .. pp .. "/" .. maxPP
+                local label = BattleScene.moveOption(move.name, TypeChart.icon(mult), pp, maxPP)
                 -- Grey out if no PP
                 if pp <= 0 then
                     label = "~" .. label .. "~"
@@ -221,14 +237,13 @@ function BattleScene:drawBackgroundBase()
 end
 
 function BattleScene:drawPlatforms()
-    local lightShade = {0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55}
 
     -- Enemy platform (top-right, like a cliff edge)
     if not self.trainerVisible then
     gfx.setColor(gfx.kColorBlack)
     gfx.fillRect(275, 84, 115, 3)
     gfx.drawLine(265, 87, 275, 84)
-    gfx.setPattern(lightShade)
+    gfx.setPattern(PLATFORM_SHADE)
     gfx.fillRect(268, 87, 122, 6)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawLine(268, 93, 390, 93)
@@ -239,7 +254,7 @@ function BattleScene:drawPlatforms()
     gfx.fillRect(15, 150, 160, 3)
     gfx.drawLine(5, 153, 15, 150)
     gfx.drawLine(175, 150, 185, 153)
-    gfx.setPattern(lightShade)
+    gfx.setPattern(PLATFORM_SHADE)
     gfx.fillRect(8, 153, 175, 8)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawLine(10, 161, 180, 161)
@@ -342,12 +357,17 @@ function BattleScene:draw()
         gfx.clear(gfx.kColorBlack)
         if self.irisRadius > 0 then
             -- Use stencil to mask the battle scene inside the circle
-            local stencilImg = gfx.image.new(400, 240, gfx.kColorBlack)
-            gfx.pushContext(stencilImg)
+            if not self.irisImage then
+                self.irisImage = gfx.image.new(400, 240, gfx.kColorBlack)
+            end
+            gfx.pushContext(self.irisImage)
+                gfx.setDrawOffset(0, 0)
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillRect(0, 0, 400, 240)
                 gfx.setColor(gfx.kColorWhite)
                 gfx.fillCircleAtPoint(200, 120, self.irisRadius)
             gfx.popContext()
-            gfx.setStencilImage(stencilImg)
+            gfx.setStencilImage(self.irisImage)
             self:drawBattleField()
             gfx.clearStencil()
         end
@@ -360,6 +380,54 @@ function BattleScene:draw()
     self:drawBattleField()
 end
 
+function BattleScene:_text(slot, text, font)
+    local cache = self.textCache
+    if not cache then
+        cache = {}
+        self.textCache = cache
+    end
+    local entry = cache[slot]
+    if entry and entry.text == text and entry.font == font then return entry end
+    local previous = gfx.getFont()
+    gfx.setFont(font)
+    local width, height = gfx.getTextSize(text)
+    if width < 1 then width = 1 end
+    if height < 1 then height = 1 end
+    local image = gfx.image.new(width, height, gfx.kColorClear)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    gfx.setFont(font)
+    gfx.drawText(text, 0, 0)
+    gfx.popContext()
+    gfx.setFont(previous)
+    entry = {text = text, font = font, image = image, width = width, height = height}
+    cache[slot] = entry
+    return entry
+end
+function BattleScene:_wrapped(slot, text, width, height)
+    local cache = self.textCache
+    if not cache then
+        cache = {}
+        self.textCache = cache
+    end
+    local entry = cache[slot]
+    if entry and entry.text == text and entry.width == width and entry.height == height then return entry end
+    local image = gfx.image.new(width, height, gfx.kColorClear)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setFont(gfx.getSystemFont())
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    gfx.drawTextInRect(text, 0, 0, width, height)
+    gfx.popContext()
+    entry = {text = text, image = image, width = width, height = height}
+    cache[slot] = entry
+    return entry
+end
 function BattleScene:drawBattleField()
     self:drawBackgroundBase()
 
@@ -390,21 +458,31 @@ function BattleScene:drawBattleField()
         -- so nothing pokes through the frame.
         local enemy = self.battle.enemy
         local enemyLevel,enemyHP,enemyMaxHP=self:shownVitals(enemy)
-        gfx.setFont(battleFont)
-        local enemyLabel = self.battle:opponentDisplayName() .. "  Lv" .. enemyLevel
-        local enemyTextW, _ = gfx.getTextSize(enemyLabel)
-        local eBoxW = math.max(140, enemyTextW + 20)
+        local name = self.battle:opponentDisplayName()
+        local hud = self.enemyHud
+        if not hud or hud.name ~= name or hud.level ~= enemyLevel or hud.status ~= enemy.status then
+            local label = self:_text("enemy-name", name .. "  Lv" .. enemyLevel, battleFont)
+            local hpLabel = self:_text("enemy-hp", "HP", gfx.getSystemFont())
+            local statusText = enemy.status and (statusLabels[enemy.status] or "???") or nil
+            hud = {
+                name = name, level = enemyLevel, status = enemy.status,
+                label = label, hpLabel = hpLabel,
+                statusImage = statusText and self:_text("enemy-status", statusText, gfx.getSystemFont()) or nil,
+                boxW = math.max(140, label.width + 20),
+            }
+            self.enemyHud = hud
+        end
+        local eBoxW = hud.boxW
         gfx.setColor(gfx.kColorWhite)
         gfx.fillRect(4, 4, eBoxW, 40)
         gfx.setColor(gfx.kColorBlack)
         gfx.drawRect(4, 4, eBoxW, 40)
-        gfx.drawText(enemyLabel, 12, 7)
-        gfx.setFont(gfx.getSystemFont())
-        gfx.drawText("HP", 12, 23)
+        hud.label.image:draw(12, 7)
+        hud.hpLabel.image:draw(12, 23)
         local eBarX, eBarW = 32, eBoxW - 44
-        if enemy.status then
+        if hud.statusImage then
             eBarW = eBarW - 36
-            gfx.drawText(statusLabels[enemy.status] or "???", eBarX + eBarW + 6, 23)
+            hud.statusImage.image:draw(eBarX + eBarW + 6, 23)
         end
         self:drawHPBar(eBarX, 26, eBarW, 8, enemyHP, enemyMaxHP)
     end
@@ -414,28 +492,41 @@ function BattleScene:drawBattleField()
         -- and a thin XP gauge along the bottom edge
         local player = self.battle.player
         local playerLevel,playerHP,playerMaxHP=self:shownVitals(player)
-        gfx.setFont(battleFont)
-        local playerLabel = player.name .. "  Lv" .. playerLevel
-        local playerTextW, _ = gfx.getTextSize(playerLabel)
-        local pBoxW = math.max(150, playerTextW + 20)
+        local hud = self.playerHud
+        if not hud or hud.name ~= player.name or hud.level ~= playerLevel or hud.status ~= player.status then
+            local label = self:_text("player-name", player.name .. "  Lv" .. playerLevel, battleFont)
+            local hpLabel = self:_text("player-hp", "HP", gfx.getSystemFont())
+            local statusText = player.status and (statusLabels[player.status] or "???") or nil
+            hud = {
+                name = player.name, level = playerLevel, status = player.status,
+                label = label, hpLabel = hpLabel,
+                statusImage = statusText and self:_text("player-status", statusText, gfx.getSystemFont()) or nil,
+                boxW = math.max(150, label.width + 20),
+            }
+            self.playerHud = hud
+        end
+        local numbers = self.playerHpText
+        if not numbers or numbers.hp ~= playerHP or numbers.max ~= playerMaxHP then
+            numbers = self:_text("player-hp-num", playerHP .. "/" .. playerMaxHP, gfx.getSystemFont())
+            numbers.hp, numbers.max = playerHP, playerMaxHP
+            self.playerHpText = numbers
+        end
+        local pBoxW = hud.boxW
         local pBoxX = 396 - pBoxW
         local pBoxY = 102
         gfx.setColor(gfx.kColorWhite)
         gfx.fillRect(pBoxX, pBoxY, pBoxW, 62)
         gfx.setColor(gfx.kColorBlack)
         gfx.drawRect(pBoxX, pBoxY, pBoxW, 62)
-        gfx.drawText(playerLabel, pBoxX + 8, pBoxY + 5)
-        gfx.setFont(gfx.getSystemFont())
-        gfx.drawText("HP", pBoxX + 8, pBoxY + 22)
+        hud.label.image:draw(pBoxX + 8, pBoxY + 5)
+        hud.hpLabel.image:draw(pBoxX + 8, pBoxY + 22)
         local pBarX, pBarW = pBoxX + 28, pBoxW - 40
-        if player.status then
+        if hud.statusImage then
             pBarW = pBarW - 36
-            gfx.drawText(statusLabels[player.status] or "???", pBarX + pBarW + 6, pBoxY + 22)
+            hud.statusImage.image:draw(pBarX + pBarW + 6, pBoxY + 22)
         end
         self:drawHPBar(pBarX, pBoxY + 25, pBarW, 8, playerHP, playerMaxHP)
-        local hpText = playerHP .. "/" .. playerMaxHP
-        local hpTextW, _ = gfx.getTextSize(hpText)
-        gfx.drawText(hpText, pBoxX + pBoxW - hpTextW - 8, pBoxY + 36)
+        numbers.image:draw(pBoxX + pBoxW - numbers.width - 8, pBoxY + 36)
         -- XP gauge
         local view = self:vitals(player)
         local xpCurrent = view.xp - player:xpForLevel(view.xpLevel)
@@ -461,12 +552,19 @@ function BattleScene:drawBattleField()
     gfx.drawRect(4, boxY + 4, 392, 52)
 
     if self.battle.shiftChoice then
-        gfx.drawTextInRect("Change POKEMON?", 14, boxY + 10, 180, 44)
+        self:_wrapped("shift-prompt", "Change POKEMON?", 180, 44).image:draw(14, boxY + 10)
         self.shiftMenu:draw(204, boxY + 4, 192, 52)
     elseif self.battle:isAwaitingCommand() then
         -- Draw text area on left
-        gfx.drawText("What will", 14, boxY + 10)
-        gfx.drawText(self.battle.player.name .. " do?", 14, boxY + 28)
+        self:_text("what-will", "What will", gfx.getSystemFont()).image:draw(14, boxY + 10)
+        local name = self.battle.player.name
+        local prompt = self.commandPrompt
+        if not prompt or prompt.name ~= name then
+            prompt = self:_text("command-prompt", name .. " do?", gfx.getSystemFont())
+            prompt.name = name
+            self.commandPrompt = prompt
+        end
+        prompt.image:draw(14, boxY + 28)
 
         -- Draw menu on right
         if self.inMoveSelect then
@@ -480,7 +578,8 @@ function BattleScene:drawBattleField()
         if self.messageDialog.isActive then
             self.messageDialog:draw()
         else
-            gfx.drawTextInRect(self.battle.message, 14, boxY + 10, 374, 44)
+            local message = self.battle.message or ""
+            self:_wrapped("battle-message", message, 374, 44).image:draw(14, boxY + 10)
         end
     end
 
@@ -498,21 +597,41 @@ function BattleScene:drawHPBar(x, y, w, h, hp, maxHP)
     end
 end
 
+function BattleScene:_scaledSprite(species, isBack, size, source)
+    local cache = self.scaledSprites
+    if not cache then
+        cache = {}
+        self.scaledSprites = cache
+    end
+    local key = species .. (isBack and ":b:" or ":f:") .. size
+    local scaled = cache[key]
+    if scaled then return scaled end
+    local iw, ih = source:getSize()
+    local scale = math.min(size / iw, size / ih)
+    local sw = math.max(1, math.floor(iw * scale))
+    local sh = math.max(1, math.floor(ih * scale))
+    local image = gfx.image.new(sw, sh, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    source:drawScaled(0, 0, scale)
+    gfx.popContext()
+    scaled = {image = image, sw = sw, sh = sh}
+    cache[key] = scaled
+    return scaled
+end
 function BattleScene:drawPokemonSprite(species, x, y, isBack, size)
     size = size or 80
     local sprites = getPokemonSprites(species)
     if sprites then
         local img = isBack and sprites.back or sprites.front
         if img then
-            local iw, ih = img:getSize()
-            local scale = math.min(size / iw, size / ih)
-            local sw = math.floor(iw * scale)
-            local sh = math.floor(ih * scale)
-            local dx = x + math.floor((size - sw) / 2)
-            local dy = y + math.floor((size - sh) / 2)
-            gfx.setColor(gfx.kColorWhite)
-            gfx.fillRect(dx, dy, sw, sh)
-            img:drawScaled(dx, dy, scale)
+            local scaled = self:_scaledSprite(species, isBack, size, img)
+            local dx = x + math.floor((size - scaled.sw) / 2)
+            local dy = y + math.floor((size - scaled.sh) / 2)
+            scaled.image:draw(dx, dy)
             return
         end
     end
@@ -544,8 +663,17 @@ function BattleScene:shownVitals(mon)
     return level, math.ceil(view.hp), view.maxHP
 end
 
+function BattleScene:_battlers()
+    local pair = self.battlerPair
+    if not pair then
+        pair = {false, false}
+        self.battlerPair = pair
+    end
+    pair[1], pair[2] = self.battle.player, self.battle.enemy
+    return pair
+end
 function BattleScene:updateVitals()
-    for _, mon in ipairs({self.battle.player, self.battle.enemy}) do
+    for _, mon in ipairs(self:_battlers()) do
         local view = self:vitals(mon)
         local level, hp, maxHP = self.battle:presentationVitals(mon)
         view.level = level
@@ -557,7 +685,7 @@ function BattleScene:updateVitals()
 end
 
 function BattleScene:isVitalsBlocking()
-    for _, mon in ipairs({self.battle.player, self.battle.enemy}) do
+    for _, mon in ipairs(self:_battlers()) do
         local _, hp = self.battle:presentationVitals(mon)
         if self:vitals(mon).hp ~= hp then
             return true
@@ -689,8 +817,9 @@ function BattleScene:drawTrainer()
     if not sourceClass then
         return
     end
-    local class = sourceClass:gsub("^OPP_", "")
-    if self.trainerImageClass ~= class then
+    if self.trainerClassKey ~= sourceClass then
+        self.trainerClassKey = sourceClass
+        local class = sourceClass:gsub("^OPP_", "")
         self.trainerImageClass = class
         self.trainerImage = gfx.image.new("images/title/trainers/" .. class)
     end
@@ -747,13 +876,10 @@ function BattleScene:drawPresentation()
         -- the other user moves pass false and stay on the mover.
         local anchor = Battle.moveAnchor(details.side, details.targetsFoe ~= false)
         local x, y = anchor.x, anchor.y
-        local function hx(offset)
-            return anchor.mirror and -offset or offset
-        end
         local motif = moveMotifs[details.moveType] or "impact"
         for index = 1, 6 do
             local phase = (frame + index * 4) % 24
-            local dx = hx((index - 3) * 12)
+            local dx = mirrored(anchor, (index - 3) * 12)
             local dy = (index % 3 - 1) * 15
             if motif == "impact" then
                 gfx.drawLine(x - phase, y - phase, x + phase, y + phase)
@@ -761,14 +887,14 @@ function BattleScene:drawPresentation()
             elseif motif == "flame" then
                 gfx.fillPolygon(x + dx, y + 24 - phase * 2, x + dx - 5, y + 34 - phase, x + dx + 5, y + 34 - phase)
             elseif motif == "wave" then
-                gfx.drawCircleAtPoint(x + hx(-24 + phase * 2), y + dy, 4 + index % 3)
+                gfx.drawCircleAtPoint(x + mirrored(anchor, -24 + phase * 2), y + dy, 4 + index % 3)
             elseif motif == "vine" then
-                gfx.drawLine(x + hx(-30) + dx, y + 30, x + hx(-20 + phase) + dx, y - phase)
-                gfx.drawLine(x + hx(-20 + phase) + dx, y - phase, x + hx(-26 + phase) + dx, y - phase - 6)
+                gfx.drawLine(x + mirrored(anchor, -30) + dx, y + 30, x + mirrored(anchor, -20 + phase) + dx, y - phase)
+                gfx.drawLine(x + mirrored(anchor, -20 + phase) + dx, y - phase, x + mirrored(anchor, -26 + phase) + dx, y - phase - 6)
             elseif motif == "bolt" then
-                gfx.drawLine(x + dx, y - 32, x + hx(-7) + dx, y - 4)
-                gfx.drawLine(x + hx(-7) + dx, y - 4, x + hx(6) + dx, y - 10)
-                gfx.drawLine(x + hx(6) + dx, y - 10, x + hx(-phase) + dx, y + 28)
+                gfx.drawLine(x + dx, y - 32, x + mirrored(anchor, -7) + dx, y - 4)
+                gfx.drawLine(x + mirrored(anchor, -7) + dx, y - 4, x + mirrored(anchor, 6) + dx, y - 10)
+                gfx.drawLine(x + mirrored(anchor, 6) + dx, y - 10, x + mirrored(anchor, -phase) + dx, y + 28)
             elseif motif == "shards" then
                 gfx.drawPolygon(x + dx, y - 32 + phase * 2, x + dx - 5, y - 24 + phase * 2,
                     x + dx, y - 16 + phase * 2, x + dx + 5, y - 24 + phase * 2)
@@ -779,7 +905,7 @@ function BattleScene:drawPresentation()
             elseif motif == "rings" then
                 gfx.drawCircleAtPoint(x, y, phase * 2 + index * 2)
             elseif motif == "wind" then
-                gfx.drawLine(x + hx(-45 + phase * 2), y + dy, x + hx(-20 + phase * 2), y + dy - 8)
+                gfx.drawLine(x + mirrored(anchor, -45 + phase * 2), y + dy, x + mirrored(anchor, -20 + phase * 2), y + dy - 8)
             end
         end
     end

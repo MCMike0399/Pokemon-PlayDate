@@ -230,4 +230,24 @@ eq(changed.player, bench2, "bench comes in")
 eq(changed.enemy, incoming2, "foe after the switch")
 eq(changed:phase(), "command", "switch returns to command")
 
+playdate.graphics = {
+    font = { new = function() return {} end },
+    image = { new = function() return {} end },
+    kColorWhite = 1, kColorBlack = 0, kColorClear = 2,
+    kDrawModeCopy = 0,
+}
+import "battle/captureAnimation"
+import "battle/battleScene"
+eq(BattleScene.ppReadout(5, 15), " 5/15", "single current PP")
+eq(BattleScene.ppReadout(13, 15), "13/15", "two-digit current PP")
+eq(BattleScene.ppReadout(23, 25), "23/25", "bite PP")
+eq(BattleScene.ppReadout(3, 5), " 3/ 5", "single current and max PP")
+eq(BattleScene.ppReadout(0, 5), " 0/ 5", "zero current PP")
+eq(BattleScene.moveOption("SURF", TypeChart.icon(0.5), 5, 15), "SURF  5/15", "resisted surf")
+eq(BattleScene.moveOption("STRENGTH", TypeChart.icon(1), 13, 15), "STRENGTH 13/15", "neutral strength")
+eq(BattleScene.moveOption("BITE", TypeChart.icon(2), 23, 25), "BITE ! 23/25", "super effective bite")
+if BattleScene.ppReadout(5, 15):find("-", 1, true) or BattleScene.moveOption("SURF", TypeChart.icon(0.5), 5, 15):find("-", 1, true) then
+    error("single-digit PP still draws a hyphen")
+end
+
 print("battle-path-host ok")
