@@ -1552,10 +1552,16 @@ class MidgameJourney(vj.VermilionJourney):
         else:
             self.heal_here('SaffronPokecenter')
             self.ensure_room('SaffronMart')
+        on_open_door = (holding_key and self.flag('EVENT_SILPH_CO_3_UNLOCKED_DOOR2')
+                        and self.state.get('zone_id') == self.zone('SilphCo3F')
+                        and self.position() == (18 + self.model().padding, 8))
         on_third_landing = (holding_key
                             and self.state.get('zone_id') == self.zone('SilphCo3F')
                             and self.position() == (20 + self.model().padding, 0))
-        if on_third_landing:
+        if on_open_door:
+            # Door already committed. The same process died loading 7F.
+            self.summary['silph_3f_door_resume'] = True
+        elif on_third_landing:
             self.summary['silph_3f_landing_resume'] = True
         else:
             if not str(self.state.get('zone_id') or '').startswith('pokered:SILPH_CO_'):
@@ -1601,8 +1607,13 @@ class MidgameJourney(vj.VermilionJourney):
             if self.summary.get('silph_card_skips_damaged_heal'):
                 self.save()
                 raise ProtocolError('earned Silph 3F landing Save boundary')
-        self.fixed_leg('silph-fixed-routes.json', 'floor3-door')
-        self.key_door((18, 8), 'left', 'EVENT_SILPH_CO_3_UNLOCKED_DOOR2')
+        if not on_open_door:
+            self.fixed_leg('silph-fixed-routes.json', 'floor3-door')
+            self.key_door((18, 8), 'left', 'EVENT_SILPH_CO_3_UNLOCKED_DOOR2')
+            if self.summary.get('silph_3f_landing_resume'):
+                # 3F plus its trainer stayed under the ceiling. 7F did not.
+                self.save()
+                raise ProtocolError('earned Silph 3F door Save boundary')
         self.fixed_leg('silph-fixed-routes.json', 'floor3-pad')
         self.fixed_warp(9, (11, 10))
         for point in ((4, 3), (4, 2), (3, 2)):
