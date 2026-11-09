@@ -29,6 +29,8 @@ function Move:init(m)
     self.attemptRule = m.attemptRule
     self.chargeRule = m.chargeRule
     self.lockRule = m.lockRule
+    self.recharge = m.recharge or false
+    self.defrost = m.defrost or false
     self.weatherAccuracy = m.weatherAccuracy or false
     self.ignoreDefensive = m.ignoreDefensive or false
     self.ignoreEvasion = m.ignoreEvasion or false
@@ -193,7 +195,7 @@ moveData = {
         return Move{ name = "TAKE DOWN", type = "normal", category = "physical", power = 90, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -25 }
     end,
     thrash = function()
-        return Move{ name = "THRASH", type = "normal", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+        return Move{ name = "THRASH", type = "normal", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, lockRule = "rampage" }
     end,
     doubleEdge = function()
         return Move{ name = "DOUBLE EDGE", type = "normal", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -33 }
@@ -268,7 +270,7 @@ moveData = {
         return Move{ name = "AURORA BEAM", type = "ice", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "atk", -1))) } }
     end,
     hyperBeam = function()
-        return Move{ name = "HYPER BEAM", type = "normal", category = "special", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+        return Move{ name = "HYPER BEAM", type = "normal", category = "special", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, recharge = true }
     end,
     peck = function()
         return Move{ name = "PECK", type = "flying", category = "physical", power = 35, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
@@ -565,7 +567,7 @@ moveData = {
         return Move{ name = "NIGHTMARE", type = "ghost", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
     end,
     flameWheel = function()
-        return Move{ name = "FLAME WHEEL", type = "fire", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+        return Move{ name = "FLAME WHEEL", type = "fire", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, defrost = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
     end,
     snore = function()
         return Move{ name = "SNORE", type = "normal", category = "special", power = 40, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, attemptRule = "snore", secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
@@ -637,7 +639,7 @@ moveData = {
         return Move{ name = "LOCK ON", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
     end,
     outrage = function()
-        return Move{ name = "OUTRAGE", type = "dragon", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+        return Move{ name = "OUTRAGE", type = "dragon", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, lockRule = "rampage" }
     end,
     sandstorm = function()
         return Move{ name = "SANDSTORM", type = "rock", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SandstormEffect() } }
@@ -1066,7 +1068,7 @@ moveData = {
         return Move{ name = "MAGNET RISE", type = "electric", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
     end,
     flareBlitz = function()
-        return Move{ name = "FLARE BLITZ", type = "fire", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, drain = -33, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+        return Move{ name = "FLARE BLITZ", type = "fire", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, drain = -33, defrost = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
     end,
     auraSphere = function()
         return Move{ name = "AURA SPHERE", type = "fighting", category = "special", power = 90, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
@@ -1120,7 +1122,7 @@ moveData = {
         return Move{ name = "SWITCHEROO", type = "dark", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
     end,
     gigaImpact = function()
-        return Move{ name = "GIGA IMPACT", type = "normal", category = "physical", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+        return Move{ name = "GIGA IMPACT", type = "normal", category = "physical", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, recharge = true }
     end,
     nastyPlot = function()
         return Move{ name = "NASTY PLOT", type = "dark", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spa", 2) } }

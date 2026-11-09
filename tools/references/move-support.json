@@ -115,7 +115,7 @@
       "handler": "standard-damage"
     },
     "thrash": {
-      "gap": "rampage lock and fatigue not implemented"
+      "handler": "engine-dsl"
     },
     "doubleEdge": {
       "handler": "standard-damage"
@@ -190,7 +190,7 @@
       "handler": "standard-damage"
     },
     "hyperBeam": {
-      "gap": "recharge turn not implemented"
+      "handler": "engine-dsl"
     },
     "peck": {
       "handler": "standard-damage"
@@ -559,7 +559,7 @@
       "gap": "onTryHit, onHit"
     },
     "outrage": {
-      "gap": "rampage lock and fatigue not implemented"
+      "handler": "engine-dsl"
     },
     "sandstorm": {
       "handler": "engine-dsl"
@@ -1042,7 +1042,7 @@
       "gap": "onTryImmunity, onHit"
     },
     "gigaImpact": {
-      "gap": "recharge turn not implemented"
+      "handler": "engine-dsl"
     },
     "nastyPlot": {
       "handler": "dsl"

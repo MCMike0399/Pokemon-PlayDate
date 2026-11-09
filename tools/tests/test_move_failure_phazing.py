@@ -63,7 +63,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
 
     def test_damage_and_partial_status_special_cases_cannot_pass_as_plain_attacks(self):
         keys = ('razorWind', 'gyroBall',
-                'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
+                'focusPunch', 'falseSwipe', 'dreamEater',
                 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
                 'metronome',
                 'stockpile', 'swallow', 'memento', 'flatter', 'swagger', 'healPulse')
@@ -75,6 +75,14 @@ class MoveFailurePhazingTests(unittest.TestCase):
         self.assertEqual(self.inventory['moves']['furyCutter'], {'handler': 'engine-dsl'})
         self.assertEqual(self.inventory['moves']['fakeOut'], {'handler': 'engine-dsl'})
         self.assertEqual(self.inventory['moves']['mirrorMove'], {'handler': 'battle-condition'})
+        self.assertEqual(self.inventory['moves']['hyperBeam'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['gigaImpact'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['thrash'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['outrage'], {'handler': 'engine-dsl'})
+        self.assertIn('recharge = true', self.rows['hyperBeam'])
+        self.assertIn('recharge = true', self.rows['gigaImpact'])
+        self.assertIn('lockRule = "rampage"', self.rows['thrash'])
+        self.assertIn('lockRule = "rampage"', self.rows['outrage'])
         self.assertEqual(self.rows['dig'].count('power = 80'), 1)
         self.assertNotIn('chargeRule', self.rows['dig'])
         self.assertEqual(self.inventory['moves']['selfDestruct'], {'handler': 'engine-dsl'})

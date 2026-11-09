@@ -1,5 +1,16 @@
 # Full-game execution ledger
 
+## 2026-11-09 recharge, rampage, and freeze thaw
+
+Hyper Beam and Giga Impact set a recharge receipt when the hit leaves the
+target alive. The next action says the user must recharge, spends no PP,
+and refuses a new move choice. A KO does not set the receipt. Thrash and
+Outrage use the Petal Dance rampage lock: two or three turns, then
+confusion. Freeze still thaws on a 1-in-5 roll. Flame Wheel and Flare
+Blitz thaw the user and still run. A damaging Fire move that hits a
+frozen target thaws that target. Host check
+`tools/tests/recharge_rampage_freeze_host.lua` passes.
+
 ## 2026-11-09 approved battle frame
 
 The approved 400×240 frame (Squirtle Lv5 19/19 vs wild Pidgey Lv3, platforms on) is SHA-256 `d02e55fa472c37c3dc687cf3c65387b1c80e4d6a99e348d60fd82ec37828315a`. It is pixel-identical to the PlaydateSimulator 3.1.2 captures of the threshold-128 PNGs (`2a` and `3a`, 0 changed pixels). It differs from the dithered style option `2b` by 1625 pixels. Scaled into the 80px slots, commit `b3ce7a01` misses 777 sprite blacks and adds 772. The threshold sprites miss 0 and add 0. Production is `threshold()` again. `tools/generate_battle_art.py --check` reports 302/302 exact against the pinned archive. Shade Bayer remains the map and character mapping. The platforms stay.

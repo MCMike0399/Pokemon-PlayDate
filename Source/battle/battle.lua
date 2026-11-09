@@ -413,6 +413,11 @@ end
 
 function Battle:update()
     self.machine:update()
+    if self:isAwaitingCommand() and self.player:isAlive() and self.enemy:isAlive()
+        and self.conditions:mustRecharge(self.player) then
+        commitFight(self,{side="player",actor=self.player,recharge=true})
+        return
+    end
     local locked=self.conditions:locked(self.player)
     if self:isAwaitingCommand() and locked and self.player:isAlive() and self.enemy:isAlive() then
         local key=self.conditions:lockedKey(self.player);local index
@@ -587,6 +592,9 @@ function Battle:enemyTurn()
     if self.sourceEncounter and self.sourceEncounter.unidentified then
         return {side="enemy", actor=self.enemy, move=moveData.struggle}
     end
+    if self.conditions:mustRecharge(self.enemy) then
+        return {side="enemy",actor=self.enemy,recharge=true}
+    end
     local locked=self.conditions:lockedKey(self.enemy)
     if locked then return {side="enemy",actor=self.enemy,move=moveData[locked],key=locked,continuation=true} end
     local choices = self:availableMoves(self.enemy)
@@ -606,6 +614,7 @@ function Battle:selectMove(moveIndex)
     -- All rejection paths precede every mutation and RNG draw.
     if not self:isAwaitingCommand() or self.outcome then return false, "wrong-phase" end
     if self.selectionKind then return false, "selection-open" end
+    if self.conditions:mustRecharge(self.player) then return false, "recharge" end
     if not self.player:isAlive() or not self.enemy:isAlive() then return false, "fainted" end
     local moves = self.conditions:movesOf(self.player)
     if type(moveIndex) ~= "number" or moveIndex ~= moveIndex or moveIndex < 0
@@ -634,11 +643,14 @@ end
 commitFight=function(self,playerTurn)
     assert(self:isAwaitingCommand() and not self.outcome and not self.selectionKind
         and self.player:isAlive() and self.enemy:isAlive(),"invalid fight commit")
-    local playerMove=playerTurn.move
     local enemyTurn = self:enemyTurn()
+    local function actionPriority(turn)
+        if turn.recharge or not turn.move then return 0 end
+        return turn.move.priority or 0
+    end
     local playerFirst
-    if playerMove.priority ~= enemyTurn.move.priority then
-        playerFirst = playerMove.priority > enemyTurn.move.priority
+    if actionPriority(playerTurn) ~= actionPriority(enemyTurn) then
+        playerFirst = actionPriority(playerTurn) > actionPriority(enemyTurn)
     else
         local playerSpeed,enemySpeed=self:effectiveSpeed(self.player),self:effectiveSpeed(self.enemy)
         if playerSpeed == enemySpeed then playerFirst = RulesRNG.random(1, 2) == 1
@@ -670,6 +682,7 @@ function Battle:beginSelection(kind)
     end
     if self.selectionKind then return false,"selection-open" end
     if self.conditions:locked(self.player) then return false,"locked-move" end
+    if self.conditions:mustRecharge(self.player) then return false,"recharge" end
     if kind == "party" then
         if not self.party then return false,"party-unavailable" end
     elseif kind == "bag" then
@@ -1031,6 +1044,12 @@ function Battle:resolveTurn(turn)
 
     -- Rage ends before the next attempt, even if sleep/flinch/paralysis stops it.
     self.conditions:of(attacker).rage=nil
+    if turn.recharge then
+        assert(self.conditions:mustRecharge(attacker),"recharge turn without a receipt")
+        self.conditions:of(attacker).recharge=nil
+        self:say(attacker.name.." must recharge!")
+        return nil
+    end
     local function interrupted()
         self.conditions:abortMove(attacker)
         return nil
@@ -1048,7 +1067,14 @@ function Battle:resolveTurn(turn)
             self:say(attacker.name .. " woke up!")
         end
     elseif attacker.status == "freeze" then
-        if RulesRNG.random(1, 5) == 1 then
+        -- Flame Wheel and Flare Blitz thaw the user and still run. Other
+        -- moves keep the 1-in-5 thaw. A damaging Fire hit thaws the target.
+        if turn.move.defrost then
+            attacker.status = nil
+            attacker.statusTurns = 0
+            attacker.sleepDuration = 0
+            self:say(attacker.name .. " thawed out!")
+        elseif RulesRNG.random(1, 5) == 1 then
             attacker.status = nil
             attacker.statusTurns = 0
             attacker.sleepDuration = 0
@@ -1465,6 +1491,13 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
                 self.effects:resolveSubstituteHit(receipt)
             else
                 self:say(defender.name .. " took " .. receipt.removed .. " damage!")
+                if move.type == "fire" and move.category ~= "status"
+                    and defender.status == "freeze" and defender:isAlive() then
+                    defender.status = nil
+                    defender.statusTurns = 0
+                    defender.sleepDuration = 0
+                    self:say(defender.name .. " thawed out!")
+                end
             end
             if result.isCrit then self:say("A critical hit!") end
             if not receipt.substitute then self.conditions:rageHit(defender) end
@@ -1516,6 +1549,9 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         local effectOutcome=self:applyMoveEffects(move, lastReceipt)
         if effectOutcome=="run" then return effectOutcome end
         self.conditions:moveFinished(move,true)
+        if move.recharge and attacker:isAlive() and defender:isAlive() then
+            self.conditions:of(attacker).recharge = true
+        end
 
         if move.selfDestruct then
             return nil

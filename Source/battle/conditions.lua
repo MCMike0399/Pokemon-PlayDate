@@ -505,6 +505,10 @@ function BattleConditions:clear(mon)
         if state.infatuation and state.infatuation.source==mon then state.infatuation=nil end
     end
 end
+function BattleConditions:mustRecharge(mon)
+    local state=self.members[mon]
+    return state~=nil and state.recharge==true
+end
 function BattleConditions:locked(mon)
     local state=self.members[mon]
     return state and (state.bide or state.charge or state.rampage or state.rollout)
