@@ -1,5 +1,31 @@
 # Full-game execution ledger
 
+## 2026-11-09 surveys: Seafoam entry and exposed move gaps
+
+[Seafoam slice plan](bc-eaffd220-a2c4-545f-9ae4-2ffdb30985bc) and
+[Exposed move gap survey](bc-98d70612-5448-503c-89aa-db2a3f9792ce) are
+read-only. Neither installed maps nor changed battle code.
+
+The first late-Kanto walk is not Seafoam B4F. `Route19`, `Route20`, and
+`SeafoamIslands1F` are absent from `Source/data/sourceMaps.json`. Fuchsia's
+south edge already aims at Route 19. Surf across the Route 19/20 seam is
+still rejected because the origin and arrival cells are collision 1, in
+`PewterWorld` and `KantoWorld`. Water encounters on those routes assert
+`water.rate_byte == 0` and then fail closed. B4F currents stay out of that
+packet. This does not start until checkpoint C is actually playable.
+
+Reachable fail-closed moves, in the survey's order: Dig (TM28 and Fuchsia
+Sandslash), Fury Cutter (Sandshrew line), Fake Out (Meowth), Mirror Move
+(Spearow and Fearow), Transform (wild Ditto on Routes 13–15). `moveSupport.lua`
+still gaps all five. Implementing Dig as a one-turn 80-power hit, or Fake Out
+without a first-turn check, would be the wrong Gen V behavior. Hyper Beam and
+Low Kick stay on the list but are less forced by current parties. A Transform
+candidate is isolated on `cursor/gen5-transform-fcc0` and is not integrated.
+
+The pad-resume Card Key process at `43e31ff6` still died at Linux VmHWM
+1074339840 without `cardKey`. The skip flag was absent and the partial
+location was Silph 1F. That run is not pickup proof and is not rerun as-is.
+
 ## 2026-11-09 Silph pad and confirmed mechanics gaps
 
 The Card Key walk in one Simulator lifetime still dies on the host ceiling.
