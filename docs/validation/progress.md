@@ -1,5 +1,16 @@
 # Full-game execution ledger
 
+## 2026-11-09 hidden items and the Itemfinder
+
+The 54 pinned hidden-item rows are imported from `hidden_events.asm` and
+`hidden_item_coords.asm`. Facing the tile and pressing A grants the item
+once. The Itemfinder uses the source window: item Y in (player Y - 5,
+player Y + 4] and item X in (player X - 5, player X + 5], low side clamped
+at 0. The 12 hidden coin rows were already owned by the Celadon service,
+including the source 40-coin credit of 20 and the shadowed last slot.
+`coverage-current.md` now says this checkout installs 171 source maps.
+Accepted Simulator maps remain 149/222 through checkpoint B.
+
 ## 2026-11-09 Low Kick, Pay Day, Taunt, sun, and hail
 
 Low Kick power follows the target's hectogram weight: 20, 40, 60, 80, 100,

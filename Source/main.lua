@@ -188,6 +188,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/midgameGymStory"
     import "game/midgameStoryWarps"
     import "game/celadonServices"
+    import "game/hiddenItems"
     import "game/celadonServicesController"
     import "game/copycatService"
     import "game/hideoutTowerContent"
@@ -288,6 +289,7 @@ local bootAccepted, bootProblem = pcall(function()
             BootTrace.mark("MidgameServices.install.end")
             BootTrace.mark("CeladonServices.install.begin")
             CeladonServices.install({reconcileActors=KantoScenes.reconcileActors})
+            HiddenItems.install()
             BootTrace.mark("CeladonServices.install.end")
             BootTrace.mark("MidgameStoryWarps.install.begin")
             MidgameStoryWarps.install()

@@ -22,6 +22,10 @@ local fieldKeyActions = {
         if not FieldGearState then return false, "field-gear-state-not-installed" end
         return FieldGearState.open(bag.game, bag, "superRod")
     end,
+    itemfinder = function(bag)
+        if not HiddenItems then return false, "hidden-items-not-installed" end
+        return HiddenItems.use(bag)
+    end,
 }
 
 function BagState.canRegister(id)

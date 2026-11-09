@@ -247,7 +247,8 @@ local function pickup(d, state, id)
         plan.steps[1] = dialog(d.full)
     else
         plan.expected, plan.changes = reward(d.item, d.flag, state)
-        plan.ram = { wStringBuffer = assert(ItemData.definitions[d.item]).name }
+        local itemName = assert(ItemData.definitions[d.item]).name
+        plan.ram = { wStringBuffer = itemName, wNameBuffer = itemName }
         plan.steps[1] = dialog(d.success, "receipt")
         plan.failure_labels, plan.pickup = copy(d.full), id
     end
