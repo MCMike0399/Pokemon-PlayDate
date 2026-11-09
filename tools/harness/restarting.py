@@ -551,16 +551,25 @@ def native_process_identity(pid):
     return dict(start_sec=sec, start_usec=usec, owner_pid=parent)
 
 
-def linux_vmhwm_bytes(pid):
-    """Peak resident set from /proc, not Darwin phys_footprint."""
+def linux_status_bytes(pid):
+    """VmHWM and VmRSS from /proc, in bytes. VmHWM is the peak, not current."""
     try:
         text = Path(f'/proc/{pid}/status').read_text()
     except OSError as error:
         raise ProtocolError('cannot inspect Linux resident set') from error
+    found = {}
     for line in text.splitlines():
-        if line.startswith('VmHWM:'):
-            return int(line.split()[1]) * 1024
-    raise ProtocolError('cannot inspect Linux resident set')
+        for key in ('VmHWM', 'VmRSS'):
+            if line.startswith(key + ':'):
+                found[key] = int(line.split()[1]) * 1024
+    if 'VmHWM' not in found:
+        raise ProtocolError('cannot inspect Linux resident set')
+    return found
+
+
+def linux_vmhwm_bytes(pid):
+    """Peak resident set from /proc, not Darwin phys_footprint."""
+    return linux_status_bytes(pid)['VmHWM']
 
 
 class LinuxResidentGuard:
@@ -574,20 +583,34 @@ class LinuxResidentGuard:
         self.output = output
         self.error = None
         self.peak_bytes = 0
+        self.samples = []
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._run, name='linux-resident-guard', daemon=True)
         self.thread.start()
+
+    def _sample(self, status):
+        row = {
+            't': time.monotonic(),
+            'vmhwm': status.get('VmHWM', 0),
+            'vmrss': status.get('VmRSS', 0),
+        }
+        self.samples.append(row)
+        # Append immediately so a hard stop still leaves the curve.
+        with (Path(self.output) / 'linux-resident-samples.jsonl').open('a') as stream:
+            stream.write(json.dumps(row) + '\n')
 
     def _run(self):
         while not self.stop.is_set():
             if self.process.poll() is not None:
                 return
             try:
-                current = linux_vmhwm_bytes(self.process.pid)
+                status = linux_status_bytes(self.process.pid)
             except ProtocolError as error:
                 self.error = str(error)
                 self.process.kill()
                 return
+            current = status['VmHWM']
+            self._sample(status)
             if current > self.peak_bytes:
                 self.peak_bytes = current
             if current > 1024**3:
@@ -608,6 +631,7 @@ class LinuxResidentGuard:
             'peak_bytes': self.peak_bytes,
             'limit_bytes': 1024**3,
             'error': self.error,
+            'samples': len(self.samples),
         })
 
 

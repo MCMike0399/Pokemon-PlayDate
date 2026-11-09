@@ -1510,15 +1510,34 @@ class MidgameJourney(vj.VermilionJourney):
     def route_c_silph(self):
         zone = self.state.get('zone_id') or ''
         inside = zone.startswith('pokered:SILPH_CO_')
-        # The earned elevator Save is already inside Silph with a restored
-        # party. Walking back through Saffron to heal is not a story gate, and
-        # that street is what exhausts the 1 GiB host ceiling before the Card Key.
+        self.scene_data('data/silphStory/scenes.json')
+        padding = self.model().padding
+        on_fifth = self.state.get('zone_id') == self.zone('SilphCo5F')
+        on_card_pad = on_fifth and self.position() == (9 + padding, 14)
+        # The 5F rival left this party short (Blastoise 134/146, Surf 10/15).
+        # party_is_restored() then walks the elevator out through 3F, 2F, 1F
+        # and Saffron, and packet 5.5c Saves every 16 cells on that walk.
+        # The pickup trace kept Lua around 8 MiB while that fresh process
+        # crossed 1 GiB VmHWM. The Card Key ball is not a battle, so take it
+        # before any heal.
+        if (on_card_pad and 'saffron-guard-entry' in self.completed_steps
+                and self.quantity('cardKey') < 1):
+            self.summary['silph_card_pad_resume'] = True
+            self.summary['silph_pad_skips_damaged_heal'] = True
+            self.fixed_warp(5, (9, 14))
+            self.require(zone_id=self.zone('SilphCo9F'))
+            self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
+            self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
+            self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
+            self.save()
+            raise ProtocolError('earned Silph Card Key Save boundary')
+        # A restored party already inside Silph does not need the Saffron
+        # street. That street is what exhausts the 1 GiB host ceiling.
         if inside and 'saffron-guard-entry' in self.completed_steps and self.party_is_restored():
             self.summary['silph_resume_skips_opening_heal'] = zone
         else:
             self.heal_here('SaffronPokecenter')
             self.ensure_room('SaffronMart')
-        self.scene_data('data/silphStory/scenes.json')
         if not str(self.state.get('zone_id') or '').startswith('pokered:SILPH_CO_'):
             self.travel(self.zone('SilphCo1F'))
         self.ride_silph(5)
