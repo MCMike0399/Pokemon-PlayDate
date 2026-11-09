@@ -700,9 +700,11 @@ function BattleConditions:trapped(mon)
     return trap and alive(trap.source) and (trap.source==self.battle.player or trap.source==self.battle.enemy) or false
 end
 -- Raw move-defined multipliers precede the single BasePower modifier chain.
+-- Fury Cutter keeps its next multiplier here (1, 2, 4, 8). A missing receipt is 20.
 function BattleConditions:rawPower(mon,move,power)
     power=power or move.power;local state=self.members[mon] or {}
     if move.rollout then power=power*2^((state.rollout and state.rollout.hits) or 0)*(state.defenseCurl and 2 or 1) end
+    if move==moveData.furyCutter then power=power*(state.furyCutter or 1) end
     return power
 end
 -- Pure active-holder observation; withdrawal/defeat cannot contribute a modifier.

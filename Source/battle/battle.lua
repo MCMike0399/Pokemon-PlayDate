@@ -1116,7 +1116,12 @@ function Battle:resolveTurn(turn)
             return interrupted()
         end
     end
-    self.conditions:of(attacker).lastMove=key or "struggle"
+    -- Committed action: PP and the interrupt gates have already passed.
+    -- Switch-in and faint drop this receipt through conditions:clear.
+    local committed=self.conditions:of(attacker)
+    if key~="furyCutter" then committed.furyCutter=nil end
+    committed.moveActions=(committed.moveActions or 0)+1
+    committed.lastMove=key or "struggle"
     return self:performMove(turn.move)
 end
 
@@ -1124,12 +1129,39 @@ end
 -- Opponent-targeted moves need the still-living opposing active battler.
 -- User/user-or-ally and side/field targets remain valid without that battler.
 local opponentTargets = {[1]=true,[2]=true,[8]=true,[9]=true,[10]=true,[11]=true}
+-- Non-ghost Curse is a self move even though its id is an opponent target.
+function Battle:targetsFoe(move)
+    if move.curse and not self:hasType(self.attacker,"ghost") then return false end
+    return opponentTargets[move.targetId or 10]==true
+end
 function Battle:moveHasTarget(move)
     if move.curse and not self:hasType(self.attacker,"ghost") then return true end
     local target=move.targetId or 10
     if target==3 or target==15 then return false end -- No other ally in singles.
     if opponentTargets[target] then return self.defender:isAlive() end
     return target==4 or target==5 or target==6 or target==7 or target==12 or target==13 or target==14
+end
+
+-- Gen V Mirror Move copies the last foe-targeted move aimed at the user.
+-- A miss still counts. Mirror Move, Struggle, and self-only moves fail.
+-- The called move is a normal execution and does not spend its own PP.
+function Battle:mirrorMove(move)
+    local attacker,defender=self.attacker,self.defender
+    if not self:moveHasTarget(move) then
+        self:say("But there was no target!")
+        self.conditions:moveFinished(move,false)
+        return nil
+    end
+    if self:targetsFoe(move) then self.conditions:of(defender).targetedBy="mirrorMove" end
+    local state=self.conditions.members[attacker]
+    local key=state and state.targetedBy
+    local copied=key and moveData[key]
+    if not copied or key=="mirrorMove" or key=="struggle" or not opponentTargets[copied.targetId or 10] then
+        self:say("But it failed!")
+        self.conditions:moveFinished(move,false)
+        return nil
+    end
+    return self:performMove(copied)
 end
 
 -- Keep a bounded, transient diagnostic in addition to the Simulator dev log.
@@ -1228,6 +1260,14 @@ function Battle:performMove(move)
         self.conditions:moveFinished(move, false)
         return nil
     end
+    -- Fake Out's onTry. moveActions already counts this committed action.
+    if self.currentMoveKey=="fakeOut" and (self.conditions:of(attacker).moveActions or 0)>1 then
+        self:say("But it failed!")
+        self.conditions:moveFinished(move, false)
+        return nil
+    end
+    -- Mirror Move spends its own PP, then runs the copied move on this path.
+    if self.currentMoveKey=="mirrorMove" then return self:mirrorMove(move) end
     if handler == "wild-escape" then
         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
         -- zero, no selfSwitch, trainer failure even with a usable reserve.
@@ -1272,19 +1312,30 @@ end
 -- Shared target resolution; the self-KO caller alone defers its checkpoint.
 function Battle:performMoveTarget(move, handler, preparedSecondary)
     local attacker, defender = self.attacker, self.defender
+    local function resetFury()
+        if self.currentMoveKey~="furyCutter" then return end
+        local state=self.conditions.members[attacker]
+        if state then state.furyCutter=nil end
+    end
     -- BeforeMove gates and PP already ran. A queued move can reach this point
     -- after the opponent self-KOs; do not damage or debuff a fainted target.
     if not self:moveHasTarget(move) then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
+        resetFury()
         self:say("But there was no target!")
         self.conditions:moveFinished(move,false)
         return nil
+    end
+    -- A miss still aimed this move at the defender. Self moves do not.
+    if self:targetsFoe(move) then
+        self.conditions:of(defender).targetedBy=self.currentMoveKey or "struggle"
     end
 
     -- Invulnerability is independent of ordinary accuracy, including Swift,
     -- OHKO and rain-accurate moves. No HP/effects/contact or RNG on rejection.
     if opponentTargets[move.targetId or 10] and (self.effects:airborneBlocks(move, attacker, defender)
         or self.effects:undergroundBlocks(move, attacker, defender)) then
+        resetFury()
         self:say(attacker.name .. "'s attack missed!")
         self.conditions:moveFinished(move, false)
         return nil
@@ -1298,6 +1349,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
        and (self:typeMatchup(move.type,defender)==0
             or self.effects:groundImmune(attacker, defender, move)) then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
+        resetFury()
         self:say("It doesn't affect " .. defender.name .. "...")
         self.conditions:moveFinished(move,false)
         return nil
@@ -1307,11 +1359,13 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
     -- gates/accuracy/HP/effects. A blocked attempt has no contact receipt.
     if self.conditions:blocks(move,attacker,defender) then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
+        resetFury()
         self.conditions:moveFinished(move,false)
         return nil
     end
 
     if opponentTargets[move.targetId or 10] and self.effects:absorbsMove(attacker,defender,move) then
+        resetFury()
         self.conditions:moveFinished(move,false)
         return nil
     end
@@ -1325,6 +1379,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         else
             self:say(attemptReason=="oblivious" and (defender.name.." is protected by Oblivious!") or "But it failed!")
         end
+        resetFury()
         self.conditions:moveFinished(move,false)
         return nil
     end
@@ -1349,6 +1404,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
     end
     if not checkAccuracy(move, attacker, defender, self.effects) then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
+        resetFury()
         self:say(attacker.name .. "'s attack missed!")
         self.conditions:moveFinished(move,false)
         return nil
@@ -1426,6 +1482,10 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         if move.rollout then
             local state=self.conditions:of(attacker);state.rollout.hits=state.rollout.hits+1
             if state.rollout.hits>=5 then state.rollout=nil end
+        end
+        if self.currentMoveKey=="furyCutter" and landed>0 then
+            local state=self.conditions:of(attacker)
+            state.furyCutter=math.min(8,(state.furyCutter or 1)*2)
         end
         self.lastDamage = total
         self.isFlashing = bodyHits > 0

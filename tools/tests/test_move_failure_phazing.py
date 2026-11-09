@@ -62,7 +62,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
                 support.render(root)
 
     def test_damage_and_partial_status_special_cases_cannot_pass_as_plain_attacks(self):
-        keys = ('razorWind', 'furyCutter', 'gyroBall',
+        keys = ('razorWind', 'gyroBall',
                 'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
                 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
                 'metronome',
@@ -72,6 +72,9 @@ class MoveFailurePhazingTests(unittest.TestCase):
                 self.assertTrue(self.inventory['moves'][key]['gap'])
         self.assertEqual(self.inventory['moves']['transform'], {'handler': 'battle-condition'})
         self.assertEqual(self.inventory['moves']['dig'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['furyCutter'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['fakeOut'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['mirrorMove'], {'handler': 'battle-condition'})
         self.assertEqual(self.rows['dig'].count('power = 80'), 1)
         self.assertNotIn('chargeRule', self.rows['dig'])
         self.assertEqual(self.inventory['moves']['selfDestruct'], {'handler': 'engine-dsl'})
