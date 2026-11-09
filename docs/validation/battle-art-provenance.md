@@ -1,8 +1,8 @@
 # Reproducing the protected battle artwork
 
-All **302 checked-in battle PNGs reproduce exactly** from immutable pret/pokered commit `af519899719f0754965776faac0e836a3b906e6d`, using native front/back images and one deterministic threshold: 0/85 become black, 170/255 become white. There is no resizing, cropping, padding, dithering or transparency conversion. The generated opaque 1-bit candidates have zero decoded pixel or opacity differences; with the current pinned Pillow 12.0.0 environment, all 302 PNG files are byte-identical too.
+All **302 checked-in battle PNGs reproduce exactly** from immutable pret/pokered commit `af519899719f0754965776faac0e836a3b906e6d`. On 2026-11-09 Miguel chose option 2b: redraw those assets from the pinned four-shade sources, sampling gray 85 through `Shade.LIGHT` and gray 170 through `Shade.DARK` at phase `(0,0)`. Black 0 and white 255 stay solid. There is no resizing, cropping, padding, or transparency conversion. The generator reads the pattern bytes from `Source/lib/shade.lua`, so the battle grays use the same Bayer patterns as the overworld (LIGHT 31.25% black, DARK 68.75% black). This is the pinned source-conversion pipeline, not hand-authored art.
 
-This proves an exact reproducible source/transformation for the accepted appearance. It does **not** establish which historical upstream revision/download or importer originally produced these files. Repository commit `f22b5022bd7be69e840140e63eb1c91109dd5ba6` introduced all 302; every current file's Git blob still matches that import. The historical upstream revision/script remains unknown. No Source image was rewritten to establish the new reference pin.
+The previous production mapping was native opaque threshold 128: 0/85 black and 170/255 white, with no dither. That mapping is what the 2026-11 historical search proved against the imported files, and it remains in `tools/generate_battle_art.py` as `threshold()`. It is not the current transform. `tools/references/battle-art.json` records `default_transform.method` as `shared-shade-phase-0` and `unchanged_since_import` as 0. Repository commit `f22b5022bd7be69e840140e63eb1c91109dd5ba6` introduced the undithered 302; those blobs are the historical import, not the current files. The historical upstream revision of that first import remains unknown.
 
 ## Original references and version policy
 
@@ -24,6 +24,8 @@ The production `Source/data/pokemon-art.json` remains the shared runtime alias a
 Every referenced original image is grayscale `L` with exactly four shades 0/85/170/255. The reference directories contain two additional fossil fronts outside the supported 151-species roster; they are not silently counted as supported Pokémon.
 
 ## Systematic measurement
+
+The search below was run against the historical threshold-128 import. It explains why that import matched one undithered mapping. It does not describe the current Bayer files.
 
 The source search tested **134,088 exact comparisons across 888 profiles**:
 
@@ -67,4 +69,4 @@ Seven self-contained host tests pass. They verify all current protected PNG hash
 
 Worker artifacts are `/private/tmp/pokemon-battle-art-check.json`, `pokemon-battle-art-tree-check.json`, `pokemon-battle-art-search.json`, `pokemon-battle-art-candidates.json` and the 302 candidates under `/private/tmp/pokemon-battle-art-candidates/`. Root should archive the accepted reports with its execution ledger after independent review. The manifest provides durable per-file reproduction/mismatch evidence even if temporary search outputs expire.
 
-No Simulator was launched, no Data/mailbox accessed, and no Source/RED/NPC/map/save/RNG files changed. The isolated image pipeline is proven; native battle-field composition and fractional display scaling remain the existing renderer's behavior. Root retains actual capture inspection and acceptance before any future migration. Exact reproduction does not authorize a bulk asset replacement or claim original-import history has been recovered.
+The 2026-11-09 redraw replaced the 302 production PNGs through that generator. Native battle-field composition and the 80px presentation slot are unchanged, so a dither drawn at source resolution is scaled when the scene presents it. The ground platforms stay; the fidelity ledger records that as presentation choice 3a. Exact reproduction of the new transform does not recover the unknown history of the first import.
