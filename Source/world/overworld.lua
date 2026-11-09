@@ -74,7 +74,26 @@ function WorldView:init(zone, options)
         self.sprite:add()
     end
 end
+-- Imported floors remap facility cells onto registry ids above the authored
+-- water, flower and shore slots. Rewriting those slots and marking the whole
+-- tilemap dirty still uploads the map texture on maps that never show them.
+function WorldView:_authoredMotion()
+    if self.authoredMotion ~= nil then return self.authoredMotion end
+    local found = false
+    for _, row in ipairs(self.zone.tiles) do
+        for _, id in ipairs(row) do
+            if id == WATER_ID or id == SHORE_ID or id == FLOWERS_ID then
+                found = true
+                break
+            end
+        end
+        if found then break end
+    end
+    self.authoredMotion = found
+    return found
+end
 function WorldView:updateAnimations()
+    if not self:_authoredMotion() then return end
     self.animTick = self.animTick + 1
     if self.animTick % HEARTBEAT ~= 0 then return end
     self.animStep = self.animStep + 1

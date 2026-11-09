@@ -1,5 +1,40 @@
 # Full-game execution ledger
 
+## 2026-11-09 Silph host memory and the 7F rival
+
+Same-process Linux PlaydateSimulator 3.1.2, animations on, earned 3F door
+save copied in before launch. Lua `heap_kib` stayed near 7.8–8.8 MB while
+VmHWM grew, so the growth is the native allocator, not a live Lua heap.
+
+Standing on 3F at (18, 8) for about 40 seconds after Continue is not flat.
+Continue settled at VmHWM 398299136 with heap 8103 KiB. Two later steps of
+about 16 MB, roughly 24 seconds apart, left the summary at VmHWM 433614848
+and heap 7807 KiB. Between those steps the rise is about 100–200 KB per
+2 seconds. A 25-step walk from (18, 8) to (1, 16) peaked at VmHWM 466268160
+with heap 7987 KiB, under 1 GiB.
+
+Continue from that same save then took the 3F stair at (11, 11) to Silph
+7F (5, 3) at VmHWM 532975616 and heap 8307 KiB, and `move left 2` opened
+the rival dialog at (3, 3). Summary: root `dialog`, stack
+`overworld>event>dialog`, zone `pokered:SILPH_CO_7F`, heap 8168 KiB,
+VmHWM 565895168. No host kill and no 900 MiB ceiling trip.
+
+The standing path no longer copies a trainer `definition()` or a full
+`getIntro()` every frame. `sightProfile` caches only id, map, range,
+talk-only, and the lab flag. Sight checks stay outside the facing cone.
+Cerulean `initialize` runs once per session. The camera skips a matching
+`setDrawOffset`, idle sprites skip a matching `setImage`, and imported
+floors skip the authored water and flower dirty marks. Those cuts slowed
+the earlier continuous climb. They did not remove the ~16 MB arena step,
+so the flat-after-settle bar is still open.
+
+`20261109T210700Z-silph-7f-rival.mp4` is 36.0 seconds, 400x240, 1080 frames
+of the LCD only. Continue walks the 3F hall, warps to 7F, and shows the
+rival line "I guess TEAM ROCKET slowed you down! Not that I care!"
+Thirty-five of thirty-six one-second samples differ. That process peaked
+at VmHWM 649617408 and was stopped. The earned adventure files were not
+rewritten. No battle, and no default art change.
+
 ## 2026-11-09 style packet (Miguel 1b / 2b / 3a)
 
 Approved from the style-option screens: Bayer LIGHT 31.25% / DARK 68.75%

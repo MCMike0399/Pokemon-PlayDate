@@ -10,6 +10,7 @@ local HIDDEN <const> = "TOGGLE_CERULEAN_ROCKET"
 local counter = {charmander="squirtle", squirtle="bulbasaur", bulbasaur="charmander"}
 local cached, integration
 local qualified = false
+local readySessions = setmetatable({}, {__mode = "k"})
 local decodeFile <const> = json.decodeFile
 local function copy(value) return GameSession._copy(value) end
 local function data()
@@ -185,9 +186,12 @@ function CeruleanRoutes.install(options)
     SourceEvents.registerTextSource(CONTENT,CeruleanRoutes.text)
 end
 function CeruleanRoutes.check(game)
-    if game.machine:getCurrent() ~= "overworld" or game.session:getIntro().stage ~= "done"
+    if game.machine:getCurrent() ~= "overworld" or game.session:introStage() ~= "done"
         or not game.player or game.player.isMoving or game.player.pendingEdgeDoor or game.player.pendingConnection then return false end
-    assert(CeruleanRoutes.initialize(game.session))
+    if not readySessions[game.session] then
+        assert(CeruleanRoutes.initialize(game.session))
+        readySessions[game.session] = true
+    end
     local zone, player = currentZone, game.player
     if not zone or (zone.stableID ~= "pokered:ROUTE_22" and zone.stableID ~= "pokered:CERULEAN_CITY"
         and zone.stableID ~= "pokered:ROUTE_24") then return false end

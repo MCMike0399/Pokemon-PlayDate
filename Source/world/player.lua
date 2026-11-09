@@ -141,7 +141,7 @@ function Player:updateExitArrow()
     local door = (not self.isMoving) and currentZone
         and currentZone:getEdgeDoorAt(self.gridX, self.gridY)
     if not door then
-        self.exitArrow:setVisible(false)
+        if self.exitArrow:isVisible() then self.exitArrow:setVisible(false) end
         self.arrowTimer = 0
         return
     end
@@ -160,9 +160,14 @@ end
 
 -- Show the grass overlay on the player's tile when standing in tall grass
 function Player:updateGrassOverlay()
-    if self.isJumping then self.grassOverlay:setVisible(false); return end
+    if self.isJumping then
+        if self.grassOverlay:isVisible() then self.grassOverlay:setVisible(false) end
+        return
+    end
     local onGrass = currentZone and currentZone:isTallGrass(self.gridX, self.gridY)
-    self.grassOverlay:setVisible(onGrass or false)
+    if self.grassOverlay:isVisible() ~= (onGrass or false) then
+        self.grassOverlay:setVisible(onGrass or false)
+    end
     if onGrass then
         local id = currentZone.tiles[self.gridY + 1][self.gridX + 1]
         if id > 37 then
@@ -388,7 +393,8 @@ function Player:update()
         if self.moveFrames <= strideFrames then
             self:setImage(self:movementImage(walkImages[self.facing], self.walkToggle and "walk" or "alternate"))
         else
-            self:setImage(self:movementImage(playerImages[self.facing], "stand"))
+            local standing = self:movementImage(playerImages[self.facing], "stand")
+            if self:getImage() ~= standing then self:setImage(standing) end
         end
 
         local px = self.startPixelX + (self.targetPixelX - self.startPixelX) * t
@@ -406,8 +412,9 @@ function Player:update()
             self:moveTo(px, py)
         end
     else
-        self:setImage(self:movementImage(playerImages[self.facing], "stand"))
-        if self.jumpShadow then self.jumpShadow:setVisible(false) end
+        local standing = self:movementImage(playerImages[self.facing], "stand")
+        if self:getImage() ~= standing then self:setImage(standing) end
+        if self.jumpShadow and self.jumpShadow:isVisible() then self.jumpShadow:setVisible(false) end
     end
 
     self:updateGrassOverlay()

@@ -14,6 +14,43 @@ local function info(self,token)
     return value
 end
 local function idOf(npc) return npc and (npc.trainerID or npc.def and npc.def.source_event_id) end
+-- Sight checks run every standing frame. Cache the few fields they read so a
+-- standing player does not deep-copy the trainer party on every frame.
+-- definition() still returns a fresh party copy for callers that mutate it.
+local function sightProfile(self, id)
+    local owner = owners[self]
+    local cache = owner.sightProfiles
+    if not cache then
+        cache = {}
+        owner.sightProfiles = cache
+    end
+    if type(id) ~= "string" then return nil end
+    local cached = cache[id]
+    if cached ~= nil then return cached or nil end
+    if id == LAB then
+        local record = definition(self, id)
+        if not record then return nil end
+        local profile = {
+            id = record.id, map_id = record.map_id,
+            sight_range_cells = record.sight_range_cells or 0,
+            talk_only = true, initial_lab = true,
+        }
+        cache[id] = profile
+        return profile
+    end
+    local record = owner.lookup(id)
+    local profile = false
+    if record then
+        profile = {
+            id = record.id, map_id = record.map_id,
+            sight_range_cells = record.sight_range_cells or 0,
+            talk_only = record.talk_only and true or false,
+            initial_lab = record.initial_lab and true or false,
+        }
+    end
+    cache[id] = profile
+    return profile or nil
+end
 local function definition(self,id)
     local owner=owners[self]
     if id==LAB then
@@ -54,8 +91,9 @@ function TrainerEvents:sourceFlag(id)
     return owner.game.session:questFlag(id)
 end
 function TrainerEvents:definition(id) return definition(self,id) end
+function TrainerEvents:sightProfile(id) return sightProfile(self, id) end
 function TrainerEvents:approach(npc,mode)
-    local game=owners[self].game;local player=game.player;local d=definition(self,idOf(npc))
+    local game=owners[self].game;local player=game.player;local d=sightProfile(self,idOf(npc))
     if not d then return nil,"unsupported-trainer" end
     if game.session:trainerDefeated(d.id) then return nil,"already-defeated" end
     if not d.initial_lab and currentZone.stableID~=d.map_id then return nil,"wrong-source-trainer-zone" end

@@ -40,6 +40,8 @@ end
 -- Legacy Viridian keeps its reviewed static sprites and empty motion envelope.
 -- This is a compatibility policy, not the default for newly decoded maps.
 local compatibility = { viridian = { motion = false } }
+local zoneProfiles = {}
+local facingSteps = {up = {0, -1}, down = {0, 1}, left = {-1, 0}, right = {1, 0}}
 local contentResolvers = {}
 
 function SourceActors.registerContent(profile, resolver)
@@ -318,16 +320,26 @@ function SourceActors.trySight(game)
     if not game.trainers or not player or not currentZone
         or game.machine:getCurrent() ~= "overworld" or game.machine:depth() ~= 1
         or player.isMoving or player.pendingEdgeDoor or player.pendingConnection
-        or game.session:getIntro().stage ~= "done" then return false end
-    local name = SourceMaps.nameForID(currentZone.stableID)
-    if not name then return false end
-    local profile = SourceMaps.entry(name).profile
-    if compatibility[profile] and not compatibility[profile].motion then return false end
+        or game.session:introStage() ~= "done" then return false end
+    local zoneID = currentZone.stableID
+    local profile = zoneProfiles[zoneID]
+    if profile == nil then
+        local name = SourceMaps.nameForID(zoneID)
+        profile = name and SourceMaps.entry(name).profile or false
+        zoneProfiles[zoneID] = profile
+    end
+    if not profile or (compatibility[profile] and not compatibility[profile].motion) then return false end
     for _, npc in ipairs(game.npcManager.npcs) do
         local id = npc.def and npc.def.source_event_id
-        local trainer = id and game.trainers:definition(id)
-        if trainer and trainer.map_id == currentZone.stableID and SourceEvents.has(id)
-            and not game.session:trainerDefeated(id) then
+        local trainer = id and game.trainers:sightProfile(id)
+        local direction = trainer and facingSteps[npc.facing]
+        local dx = direction and player.gridX - npc.gridX or 0
+        local dy = direction and player.gridY - npc.gridY or 0
+        local distance = math.abs(dx) + math.abs(dy)
+        if trainer and direction and trainer.map_id == zoneID and not trainer.talk_only
+            and distance >= 1 and distance <= trainer.sight_range_cells
+            and dx == direction[1] * distance and dy == direction[2] * distance
+            and SourceEvents.has(id) and not game.session:trainerDefeated(id) then
             local steps, reason = game.trainers:approach(npc, "sight")
             if steps then
                 SourceEvents.dispatch(game, id, {mode="sight"})

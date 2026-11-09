@@ -12,7 +12,7 @@ function TutorialEscort.has(id)
     return false
 end
 function TutorialEscort.trigger(game)
-    if game.session:getIntro().stage ~= "done" or game.player.isMoving then return nil end
+    if game.session:introStage() ~= "done" or game.player.isMoving then return nil end
     local p = game.player
     if currentZone.stableID == "pokered:VIRIDIAN_CITY" and not game.session:questFlag(data.tutorial.gate)
         and p.gridX == 19 and p.gridY == 9 then return data.actors.sleepy.id end

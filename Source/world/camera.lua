@@ -41,7 +41,12 @@ function Camera:snapTo(targetX, targetY, mapPixelW, mapPixelH)
 end
 
 function Camera:apply()
-    gfx.setDrawOffset(-self.x, -self.y)
+    -- setDrawOffset dirties the whole display. Standing still already holds
+    -- this offset, and repeating it every frame redraws the full floor.
+    local x, y = -self.x, -self.y
+    local ox, oy = gfx.getDrawOffset()
+    if ox == x and oy == y then return end
+    gfx.setDrawOffset(x, y)
 end
 
 function Camera:reset()
