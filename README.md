@@ -121,7 +121,7 @@ When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))
 
 **Status conditions** are processed per-turn: poison/burn deal 1/8 max HP, paralysis has 25% skip chance and halves speed, sleep blocks 1–3 turns, freeze blocks with 20% thaw chance.
 
-**Type effectiveness** is shown on the move-select screen before confirming — an intentional design change from the original. The player sees super effective / not very effective / no effect icons next to each move.
+**Move select** follows the original menu: each line is the move name, and the selected move has a separate `TYPE/` and PP box. There is no effectiveness icon on that screen.
 
 ### 2-Bit Color System (`lib/shade.lua` + `world/tilefactory.lua`)
 
@@ -182,7 +182,7 @@ Full-game implementation is active; [the progress ledger](docs/validation/progre
 - Physical/special split, multi-hit, drain/recoil, priority + effective-speed turn order
 - PP system — moves cost PP and can run out
 - Status conditions: poison, burn, paralysis, sleep, freeze, plus flinch/confusion volatiles
-- Type effectiveness preview on move select
+- Move select shows the move name and a separate TYPE/PP box
 - 151 Pokémon (Gen I dex) with Gen V base stats/types, movesets, 1-bit front/back sprites, XP and leveling
 - Trainer battles (the rival), with persistent "defeated" flags across world rebuilds
 - Debug menu: spawn any battle, heal, warp, zone select, skip/reset intro, toggle FPS/grid overlay

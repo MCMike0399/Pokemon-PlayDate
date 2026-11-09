@@ -243,11 +243,17 @@ eq(BattleScene.ppReadout(13, 15), "13/15", "two-digit current PP")
 eq(BattleScene.ppReadout(23, 25), "23/25", "bite PP")
 eq(BattleScene.ppReadout(3, 5), " 3/ 5", "single current and max PP")
 eq(BattleScene.ppReadout(0, 5), " 0/ 5", "zero current PP")
-eq(BattleScene.moveOption("SURF", TypeChart.icon(0.5), 5, 15), "SURF  5/15", "resisted surf")
-eq(BattleScene.moveOption("STRENGTH", TypeChart.icon(1), 13, 15), "STRENGTH 13/15", "neutral strength")
-eq(BattleScene.moveOption("BITE", TypeChart.icon(2), 23, 25), "BITE ! 23/25", "super effective bite")
-if BattleScene.ppReadout(5, 15):find("-", 1, true) or BattleScene.moveOption("SURF", TypeChart.icon(0.5), 5, 15):find("-", 1, true) then
-    error("single-digit PP still draws a hyphen")
+local function detail(typeName, current, maxPP, disabled)
+    return table.concat(BattleScene.moveDetailLines(typeName, current, maxPP, disabled), "\n")
+end
+eq(detail("WATER", 5, 15, false), "TYPE/\n WATER\n     5/15", "single current PP box")
+eq(detail("NORMAL", 13, 15, false), "TYPE/\n NORMAL\n    13/15", "two-digit PP box")
+eq(detail("DARK", 3, 5, false), "TYPE/\n DARK\n     3/ 5", "single current and max PP")
+eq(detail("WATER", 0, 15, true), "\ndisabled!\n", "disabled move box")
+for _, sample in ipairs({ detail("WATER", 5, 15, false), detail("GROUND", 10, 10, false), "SURF" }) do
+    if sample:find("!", 1, true) or sample:find(" X", 1, true) or sample:find("-", 1, true) then
+        error("move menu still draws an effectiveness mark: " .. sample)
+    end
 end
 
 print("battle-path-host ok")

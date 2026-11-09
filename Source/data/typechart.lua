@@ -39,10 +39,3 @@ function TypeChart.getMatchup(atkType, defType1, defType2)
     return mult
 end
 
-function TypeChart.icon(mult)
-    -- Not-very-effective used to be "-". That glyph sat in the PP field and
-    -- read as a stray hyphen before a single-digit current PP.
-    if mult == 0 then return "X"
-    elseif mult > 1 then return "!"
-    else return "" end
-end

@@ -53,10 +53,19 @@ end
 function BattleScene.ppReadout(current, maxPP)
     return BattleScene.ppField(current) .. "/" .. BattleScene.ppField(maxPP)
 end
-function BattleScene.moveOption(name, icon, current, maxPP)
-    local label = name
-    if icon ~= "" then label = label .. " " .. icon end
-    return label .. " " .. BattleScene.ppReadout(current, maxPP)
+-- PrintMenuItem (engine/battle/core.asm). The move list is names only.
+-- The selected-move box is three rows: TYPE/ at column 1, the type name from
+-- PrintMoveType at column 2 of the next row, then PrintNumber's 2-digit
+-- current PP at column 5, '/', and the 2-digit max PP. A disabled move
+-- prints "disabled!" on the middle row and skips the type and PP.
+function BattleScene.moveDetailLines(typeName, current, maxPP, disabled)
+    assert(type(typeName) == "string" and typeName == string.upper(typeName) and not typeName:find("%s"), "source type name")
+    if disabled then return { "", "disabled!", "" } end
+    return {
+        "TYPE/",
+        " " .. typeName,
+        string.rep(" ", 4) .. BattleScene.ppReadout(current, maxPP),
+    }
 end
 
 function BattleScene:init(battle)
@@ -139,23 +148,17 @@ function BattleScene:enter()
                 end
                 return
             end
-            -- Fight: show move selection with type effectiveness icons and PP
+            -- Names only. TYPE/ and PP stay in the selected-move box.
             self.inMoveSelect = true
             local moveNames = {}
-            local battler = self.battle.player
-            for _, moveKey in ipairs(self.battle.conditions:movesOf(battler)) do
-                local move = moveData[moveKey]
-                local pp = self.battle.conditions:ppOf(battler, moveKey)
-                local maxPP = self.battle.conditions:maxPPOf(battler, moveKey)
-                local mult = self.battle:typeMatchup(move.type,self.battle.enemy)
-                local label = BattleScene.moveOption(move.name, TypeChart.icon(mult), pp, maxPP)
-                -- Grey out if no PP
-                if pp <= 0 then
-                    label = "~" .. label .. "~"
-                end
-                table.insert(moveNames, label)
+            local moveKeys = {}
+            for _, moveKey in ipairs(self.battle.conditions:movesOf(self.battle.player)) do
+                moveKeys[#moveKeys + 1] = moveKey
+                moveNames[#moveNames + 1] = moveData[moveKey].name
             end
-            self.moveMenu.columns = 2
+            self.moveKeys = moveKeys
+            self.moveDetailShown = nil
+            self.moveMenu.columns = 1
             self.moveMenu:show(moveNames, function(moveIndex)
                 -- The rules API validates phase/index/PP before UI commits.
                 if not self.battle:selectMove(moveIndex) then return end
@@ -568,7 +571,8 @@ function BattleScene:drawBattleField()
 
         -- Draw menu on right
         if self.inMoveSelect then
-            self.moveMenu:draw(4, boxY + 4, 392, 52)
+            self:drawMoveDetail(12, boxY + 8)
+            self.moveMenu:draw(200, boxY + 4, 196, 52)
         else
             if #self:mainOptions()==4 then self.mainMenu:draw(204, boxY + 4, 192, 52)
             else self.mainMenu:draw(300, boxY + 4, 96, 52) end
@@ -586,6 +590,30 @@ function BattleScene:drawBattleField()
     -- Separator line
     gfx.setColor(gfx.kColorBlack)
     gfx.drawLine(0, 170, 400, 170)
+end
+
+function BattleScene:drawMoveDetail(x, y)
+    local key = self.moveKeys and self.moveKeys[self.moveMenu.selectedIndex]
+    if not key then return end
+    local move = moveData[key]
+    local battler = self.battle.player
+    local pp = self.battle.conditions:ppOf(battler, key)
+    local maxPP = self.battle.conditions:maxPPOf(battler, key)
+    local disabled = self.battle.conditions:disabled(battler, key)
+    local shown = self.moveDetailShown
+    if not shown or shown.key ~= key or shown.pp ~= pp or shown.max ~= maxPP or shown.disabled ~= disabled then
+        shown = {
+            key = key, pp = pp, max = maxPP, disabled = disabled,
+            lines = BattleScene.moveDetailLines(string.upper(move.type), pp, maxPP, disabled),
+        }
+        self.moveDetailShown = shown
+    end
+    local font = gfx.getSystemFont()
+    for index, line in ipairs(shown.lines) do
+        if line ~= "" then
+            self:_text("move-detail-" .. index, line, font).image:draw(x, y + (index - 1) * 16)
+        end
+    end
 end
 
 function BattleScene:drawHPBar(x, y, w, h, hp, maxHP)
