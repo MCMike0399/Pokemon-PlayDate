@@ -743,12 +743,17 @@ function BattleScene:drawPresentation()
             end
         end
     elseif request.kind == "move" then
-        local x = details.side == "player" and 340 or 95
-        local y = details.side == "player" and 60 or 112
+        -- Missing targetsFoe keeps the older foe-aimed picture. Agility and
+        -- the other user moves pass false and stay on the mover.
+        local anchor = Battle.moveAnchor(details.side, details.targetsFoe ~= false)
+        local x, y = anchor.x, anchor.y
+        local function hx(offset)
+            return anchor.mirror and -offset or offset
+        end
         local motif = moveMotifs[details.moveType] or "impact"
         for index = 1, 6 do
             local phase = (frame + index * 4) % 24
-            local dx = (index - 3) * 12
+            local dx = hx((index - 3) * 12)
             local dy = (index % 3 - 1) * 15
             if motif == "impact" then
                 gfx.drawLine(x - phase, y - phase, x + phase, y + phase)
@@ -756,14 +761,14 @@ function BattleScene:drawPresentation()
             elseif motif == "flame" then
                 gfx.fillPolygon(x + dx, y + 24 - phase * 2, x + dx - 5, y + 34 - phase, x + dx + 5, y + 34 - phase)
             elseif motif == "wave" then
-                gfx.drawCircleAtPoint(x - 24 + phase * 2, y + dy, 4 + index % 3)
+                gfx.drawCircleAtPoint(x + hx(-24 + phase * 2), y + dy, 4 + index % 3)
             elseif motif == "vine" then
-                gfx.drawLine(x - 30 + dx, y + 30, x - 20 + dx + phase, y - phase)
-                gfx.drawLine(x - 20 + dx + phase, y - phase, x - 26 + dx + phase, y - phase - 6)
+                gfx.drawLine(x + hx(-30) + dx, y + 30, x + hx(-20 + phase) + dx, y - phase)
+                gfx.drawLine(x + hx(-20 + phase) + dx, y - phase, x + hx(-26 + phase) + dx, y - phase - 6)
             elseif motif == "bolt" then
-                gfx.drawLine(x + dx, y - 32, x + dx - 7, y - 4)
-                gfx.drawLine(x + dx - 7, y - 4, x + dx + 6, y - 10)
-                gfx.drawLine(x + dx + 6, y - 10, x + dx - phase, y + 28)
+                gfx.drawLine(x + dx, y - 32, x + hx(-7) + dx, y - 4)
+                gfx.drawLine(x + hx(-7) + dx, y - 4, x + hx(6) + dx, y - 10)
+                gfx.drawLine(x + hx(6) + dx, y - 10, x + hx(-phase) + dx, y + 28)
             elseif motif == "shards" then
                 gfx.drawPolygon(x + dx, y - 32 + phase * 2, x + dx - 5, y - 24 + phase * 2,
                     x + dx, y - 16 + phase * 2, x + dx + 5, y - 24 + phase * 2)
@@ -774,7 +779,7 @@ function BattleScene:drawPresentation()
             elseif motif == "rings" then
                 gfx.drawCircleAtPoint(x, y, phase * 2 + index * 2)
             elseif motif == "wind" then
-                gfx.drawLine(x - 45 + phase * 2, y + dy, x - 20 + phase * 2, y + dy - 8)
+                gfx.drawLine(x + hx(-45 + phase * 2), y + dy, x + hx(-20 + phase * 2), y + dy - 8)
             end
         end
     end

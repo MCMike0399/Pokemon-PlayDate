@@ -537,7 +537,8 @@ function BattleEffects:primaryHit(source, target, move, amount, hitNumber)
     return self:hit(source, target, move, amount, hitNumber)
 end
 function BattleEffects:announceSubstituteHit(receipt)
-    self.battle:say(receipt.target.name .. "'s substitute took " .. receipt.removed .. " damage!")
+    -- pokered _SubstituteTookDamageText has no damage total.
+    self.battle:say("The SUBSTITUTE took damage for " .. receipt.target.name .. "!")
     if receipt.substituteBroken then
         self.battle:say(receipt.target.name .. "'s substitute faded!")
     end

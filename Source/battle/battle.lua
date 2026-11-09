@@ -455,6 +455,14 @@ function Battle:say(text)
     coroutine.yield("say", text)
 end
 
+-- Blue and Gen V drain the HP bar and print effectiveness, a critical hit,
+-- and the other source lines. They do not print the damage total. The line
+-- stays available for a script waypoint when this flag is set on the battle.
+function Battle:announceDealtDamage(name, amount)
+    if self.debugDamageNumbers ~= true then return end
+    self:say(name .. " took " .. amount .. " damage!")
+end
+
 -- Only the owner may claim once, present LearningState, then resume this exact
 -- coroutine. Rejections never advance rules or consume RNG.
 function Battle:takeLearningRequest()
@@ -1159,6 +1167,19 @@ end
 -- Opponent-targeted moves need the still-living opposing active battler.
 -- User/user-or-ally and side/field targets remain valid without that battler.
 local opponentTargets = {[1]=true,[2]=true,[8]=true,[9]=true,[10]=true,[11]=true}
+-- pokered engine/battle/animations.asm GetSubanimationTransform1 keeps a
+-- non-ENEMY picture on the user and mirrors it on the foe's turn.
+-- GetSubanimationTransform2 aims an ENEMY picture at the other battler and
+-- HFLIPs it on the player's turn. The player stands lower-left; the foe
+-- stands upper-right. Self moves such as Agility (target id 7) are the
+-- user case. Damaging moves are the ENEMY case.
+function Battle.moveAnchor(userSide, targetsFoe)
+    local onPlayer = (userSide == "player") ~= targetsFoe
+    if onPlayer then
+        return {x = 95, y = 112, side = "player", mirror = false}
+    end
+    return {x = 340, y = 60, side = "enemy", mirror = true}
+end
 -- Non-ghost Curse is a self move even though its id is an opponent target.
 function Battle:targetsFoe(move)
     if move.curse and not self:hasType(self.attacker,"ghost") then return false end
@@ -1282,7 +1303,11 @@ function Battle:performMove(move)
     end
 
     self:say(attacker.name .. " used " .. move.name .. "!")
-    self:present("move", {moveType = move.type, side = self.attackerSide})
+    self:present("move", {
+        moveType = move.type,
+        side = self.attackerSide,
+        targetsFoe = self:targetsFoe(move),
+    })
     if magnitude then self:say("Magnitude " .. magnitude .. "!") end
     -- Snore's TryMove runs after waking/PP, before target and hit gates.
     if move.attemptRule == "snore" and attacker.status ~= "sleep" then
@@ -1495,7 +1520,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
                 self.effects:announceSubstituteHit(receipt)
                 self.effects:resolveSubstituteHit(receipt)
             else
-                self:say(defender.name .. " took " .. receipt.removed .. " damage!")
+                self:announceDealtDamage(defender.name, receipt.removed)
                 if move.type == "fire" and move.category ~= "status"
                     and defender.status == "freeze" and defender:isAlive() then
                     defender.status = nil
@@ -1893,6 +1918,17 @@ function Battle:useItem(id,partyIndex,moveSlot)
     return true,result
 end
 
+-- pokered _AlreadyOutText is "<nick> is already out!" The other three
+-- lines are the party menu's existing rejection copy.
+function Battle.partyRejection(mon, reason)
+    if reason == "already-active" then
+        return (mon and mon.name or "That POKEMON") .. " is already out!"
+    end
+    if reason == "fainted" then return "That POKEMON has fainted." end
+    if reason == "trapped" then return "Your POKEMON is trapped!" end
+    return "That POKEMON can't be selected."
+end
+
 function Battle:declineShift()
     if not self.shiftChoice or self.selectionKind or self.outcome or self:phase() ~= "script" then
         return false
@@ -1907,9 +1943,12 @@ function Battle:chooseShiftParty(index)
         return false, "wrong-phase"
     end
     local chosen = self.party:get(index)
-    if not chosen or chosen == self.player or not chosen:isAlive() then
-        return false, "invalid-replacement"
-    end
+    -- pokered HandleEnemyMonFainted: the active mon prints _AlreadyOutText
+    -- and returns to the party menu. A fainted choice does the same. B
+    -- leaves the menu and the foe is sent without a player switch.
+    if not chosen then return false, "invalid-replacement" end
+    if chosen == self.player then return false, "already-active" end
+    if not chosen:isAlive() then return false, "fainted" end
     if self.conditions:trapped(self.player) or self.effects:withdrawBlocked(self.player) then
         return false, "trapped"
     end

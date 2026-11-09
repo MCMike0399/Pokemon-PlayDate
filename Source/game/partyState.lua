@@ -145,6 +145,14 @@ function PartyState:handleInput()
         return
     end
     if self.phase=="held-wait" or self.phase=="field-wait" then return end
+    -- pokered PrintText waits for a button, then GoBackToPartyMenu. The A
+    -- that opened this notice must not immediately choose the same slot.
+    if self.phase == "notice" then
+        if playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonJustPressed(playdate.kButtonB) then
+            self.phase, self.message = "list", nil
+        end
+        return
+    end
     if self.phase == "stats" or self.phase=="info" then
         if playdate.buttonJustPressed(playdate.kButtonB) then self.phase="list";self.menu:hide()
         elseif playdate.buttonJustPressed(playdate.kButtonA) then self.phase=self.phase=="stats" and "info" or "stats" end
@@ -173,10 +181,9 @@ function PartyState:handleInput()
                 local ok, reason = self.options.trySelect(self.selected)
                 if ok then self:close(self.selected)
                 else
-                    self.message = reason == "fainted" and "That POKEMON has fainted."
-                        or reason == "already-active" and "That POKEMON is already out!"
-                        or reason == "trapped" and "Your POKEMON is trapped!"
-                        or "That POKEMON can't be selected."
+                    local mon = party:get(self.selected)
+                    self.message = Battle.partyRejection(mon, reason)
+                    self.phase = "notice"
                 end
             elseif self.options.onSelect then self:close(self.selected)
             else self:actions() end

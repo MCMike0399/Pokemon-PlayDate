@@ -465,7 +465,7 @@ function DirectDamage:apply(battle)
         battle.effects:announceSubstituteHit(receipt)
         battle.effects:resolveSubstituteHit(receipt)
     else
-        battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
+        battle:announceDealtDamage(pokemon.name, battle.lastDamage)
     end
     if receipt then
         battle.effects:announceEndure(receipt)
@@ -514,7 +514,7 @@ function PsywaveDamage:apply(battle)
         battle.effects:announceSubstituteHit(receipt)
         battle.effects:resolveSubstituteHit(receipt)
     else
-        battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
+        battle:announceDealtDamage(defender.name, battle.lastDamage)
     end
     if receipt then
         battle.effects:announceEndure(receipt)

@@ -390,7 +390,7 @@ function SubstituteContracts.run()
         own(b.player, {"revenge"})
         local observed = false
         use(b, 73, function(current)
-            if current.message and current.message:find("'s substitute took", 1, true) then
+            if current.message and current.message:find("SUBSTITUTE took damage", 1, true) then
                 observed = true
                 eq(current.effects:damagedThisRound(current.player), false)
                 eq(current.effects.round.attackedBy[current.player], nil)
@@ -506,7 +506,7 @@ function SubstituteContracts.run()
         local b = doll({"tackle"})
         local hp = b.enemy.hp
         local text = use(b)
-        assert(text:find("'s substitute took", 1, true))
+        assert(text:find("SUBSTITUTE took damage", 1, true))
         eq(b.enemy.hp, hp)
         local scene = BattleScene(b)
         local image = assert(gfx.image.new(400, 240, gfx.kColorWhite))

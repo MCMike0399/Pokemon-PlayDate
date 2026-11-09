@@ -129,6 +129,7 @@ function SelfKOMoveContracts.run()
             b.player.atk = 1
             b.enemy.def = 1000
             local before = b.enemy.hp
+            b.debugDamageNumbers = true
             local sawHit = false
             use(b, 73, function(current)
                 if current.message:find("took", 1, true) then

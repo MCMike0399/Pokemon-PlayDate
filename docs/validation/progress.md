@@ -1,5 +1,34 @@
 # Full-game execution ledger
 
+## 2026-11-09 Silph 7F battle path: Agility side, damage text, text box, party
+
+Clip `20261109T214145Z-silph-7f-rival-battle.mp4`. The foe's Agility was
+drawn on the defender. pokered `GetSubanimationTransform1` keeps a user
+animation on the mover and mirrors it on the foe's turn;
+`GetSubanimationTransform2` aims a foe animation at the other battler.
+Agility (target id 7) now anchors on the user for both sides. A player's
+damaging move still anchors on the foe. `tools/tests/test_battle_path.py`
+checks all four.
+
+Blue and Gen V do not print damage totals. The "took N damage!" line is
+behind `debugDamageNumbers`, off unless a contract sets it. The HP bar
+still drains. The substitute line is the source sentence, with no number.
+Effectiveness and critical-hit lines are unchanged.
+
+The clip's last stretch stays on that box because the harness mash
+returned and no further A was sent. A waiting say advances on A once
+`messageTimer` is past 10 frames. The same host check presses A and the
+next source line appears. It is not a softlock.
+
+After the faint, SHIFT still opens on CHANGE, matching the source YES
+default. A on the active mon returns `already-active` and "BLASTOISE is
+already out!", then waits for a separate button before another choice.
+A fainted mon is rejected. B cancels and the foe is sent. A living bench
+mon switches in. Mashing A on the lead stays in the party menu, which is
+the source loop. The rival is still not defeated. Checkpoint C is not
+earned. Standing and battle VmHWM growth is unchanged from the section
+below.
+
 ## 2026-11-09 Silph 7F rival battle started
 
 Continue from the earned opened-3F-door save, copied in, same hashes.
