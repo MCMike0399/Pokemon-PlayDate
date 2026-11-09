@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-08 current timing build installed
+
+Build `6a009335fd584b77ab67aa5c1fd0cd5a`, source `c1383c63`, PDX `66d5b81688381d349793a938b3cbe2e75904df8477e63e8126010ad1fe7bf017` is the installed DeviceSmoke. Cycle `ok: true`, boot and playability not accepted. It replaced rejected PDX `49ced8e6…`. Same elevator route: Continue 2633 ms, door 3948 ms, Save 3379 ms, battle 24 ms, peak 6272.67 KiB. Post-GC live heap is null. Error and crash logs unchanged. The data disk stayed mounted. This is not the Card Key route.
+
 ## 2026-11-08 fossil service stays isolated
 
 Commit `5cf04d6c` adds `FossilRevival` on top of `c1383c63`. It is not imported, and the lab maps stay uninstalled. The host driver stubs the session: it does not call `GameSession:transact` or `GameSession:recruit`. The chosen fossil is a weak table on the live session object, so a Continue would not restore `wFossilItem`. It stays off `main`.
