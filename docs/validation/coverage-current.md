@@ -1,8 +1,9 @@
 # Current whole-game coverage
 
-This private B matrix identifies 149 installed source maps. Accepted main remains
-108/222 Simulator checkpoint maps through 5.5a, and 0/222 device-playable maps.
-The full campaign remains unfinished.
+This checkout installs 171 source maps. The earlier header that said 108/222
+was the 5.5a checkpoint, and it is not the current install. Accepted Simulator
+campaign maps remain the historical 149/222 through checkpoint B. Device-playable
+maps remain 0/222. The full campaign remains unfinished.
 
 The 41 B map rows are partial/source-only. The named Chip Away and Snorlax SDK
 proofs qualify only their recorded behavior, not campaign completion. Existing
