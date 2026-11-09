@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-08 packed-row door candidate not adopted
+
+Commit `108448e3` on top of `c1383c63` reads packed zone rows without the native `gsub` and `unpack` passes. A host Lua 5.4 test says the Silph maps match the dense path and the previous constructor, and `fromMapDefinition` allocation falls from 1234 KiB to 1166 KiB, about 5.5 percent, with a rough host timing of about 6 percent. That is not 10 percent of the 3929 ms door wall. The packed constructor handoff kept the native checks on purpose. The commit stays off `main`. No device run was started for it.
+
 ## 2026-11-08 Card Key seam is already wired
 
 No commit. `pokered:SILPH_CO_5F:objects:8` is the content-cache pickup of `cardKey`, flag `PICKUP:pokered:SILPH_CO_5F:objects:8`. Interaction goes through `SourceActors.interact`, `SourceEvents.dispatch`, and the pickup plan, which sets that flag and adds one Card Key. Each Silph door is a bespoke event. `SilphStory.plan` returns the fail text when the quantity is 0 and `already-complete` when the door flag is set. `SilphStoryWorld.unlock` requires the faced door and `cardKey` quantity above 0, then `commitWorld` sets the door flag and leaves the quantity unchanged. The next earned step is to play that pickup and one door from the elevator save. `route_c_silph` is the existing leg, inside the long journey that the 1 GiB host stop already blocks when run whole. A longer device route is not covered by the elevator smoke admission.
