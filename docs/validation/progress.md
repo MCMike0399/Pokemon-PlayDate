@@ -36,6 +36,13 @@ Style comparisons remain screenshot-only in
 `/opt/cursor/artifacts/style-options/` with `captions.txt`. No default art
 changed.
 
+`fa6b861e` saves on the 3F elevator cell before the trainer.
+`linux-silph-3f-landing-20261109-01`, partial
+`b8f37f2346d314ac3b07ec11b23c9a06d1c5f31113964def7dde1750f7d70a19`.
+Live slot A is sequence 125 at 3F `(20, 0)` facing down, still holding
+the Card Key, money 52117. Trace is 5F, 9F, 5F, elevator, 3F. VmRSS never
+fell. Peak VmHWM 845139968, 228601856 bytes under 1 GiB.
+
 ## 2026-11-09 surveys: Seafoam entry and exposed move gaps
 
 [Seafoam slice plan](bc-eaffd220-a2c4-545f-9ae4-2ffdb30985bc) and
