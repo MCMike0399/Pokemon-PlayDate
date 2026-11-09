@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-08 fossil service stays isolated
+
+Commit `5cf04d6c` adds `FossilRevival` on top of `c1383c63`. It is not imported, and the lab maps stay uninstalled. The host driver stubs the session: it does not call `GameSession:transact` or `GameSession:recruit`. The chosen fossil is a weak table on the live session object, so a Continue would not restore `wFossilItem`. It stays off `main`.
+
 ## 2026-11-08 packed-row door candidate not adopted
 
 Commit `108448e3` on top of `c1383c63` reads packed zone rows without the native `gsub` and `unpack` passes. A host Lua 5.4 test says the Silph maps match the dense path and the previous constructor, and `fromMapDefinition` allocation falls from 1234 KiB to 1166 KiB, about 5.5 percent, with a rough host timing of about 6 percent. That is not 10 percent of the 3929 ms door wall. The packed constructor handoff kept the native checks on purpose. The commit stays off `main`. No device run was started for it.
