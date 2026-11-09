@@ -406,9 +406,25 @@ function BattleConditions:encore()
     b:say(mon.name .. " received an encore!")
     return true
 end
+function BattleConditions:taunted(mon)
+    local state=self.members[mon]
+    return state~=nil and state.taunt~=nil
+end
+function BattleConditions:taunt()
+    local b=self.battle
+    local mon=b.defender
+    if not alive(mon) then b:say("But it failed!"); return false end
+    local state=self:of(mon)
+    if state.taunt then b:say("But it failed!"); return false end
+    state.taunt={turns=3}
+    b:say(mon.name.." fell for the taunt!")
+    return true
+end
 function BattleConditions:moveAllowed(mon, key)
     local encore = self:encoreKey(mon)
-    return not self:disabled(mon, key) and (not encore or encore == key)
+    local move = moveData[key]
+    local blocked = move and move.category=="status" and self:taunted(mon)
+    return not self:disabled(mon, key) and (not encore or encore == key) and not blocked
 end
 function BattleConditions:camouflage()
     local battle = self.battle
@@ -829,6 +845,7 @@ function BattleConditions:events()
             end
             if state.disable then add("disable",17) end
             if state.encore then add("encore",16) end
+            if state.taunt then add("taunt",15) end
             if state.seed then add("seed",8) end
             if mon.status=="poison" or mon.status=="badPoison" then add("status",9) end
             if mon.status=="burn" then add("status",10) end
@@ -885,6 +902,12 @@ function BattleConditions:residual(event)
                 end,
             }
             ApplyStatus(recipient, "sleep", {source=source, cause="yawn"}):apply(b)
+        end
+    elseif event.kind == "taunt" and state.taunt then
+        state.taunt.turns = state.taunt.turns - 1
+        if state.taunt.turns == 0 then
+            state.taunt = nil
+            b:say(mon.name .. "'s taunt wore off!")
         end
     elseif event.kind == "encore" and state.encore then
         state.encore.turns = state.encore.turns - 1

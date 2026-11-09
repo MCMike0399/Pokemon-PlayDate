@@ -282,7 +282,7 @@ moveData = {
         return Move{ name = "SUBMISSION", type = "fighting", category = "physical", power = 80, accuracy = 80, pp = 25, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -25 }
     end,
     lowKick = function()
-        return Move{ name = "LOW KICK", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+        return Move{ name = "LOW KICK", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, powerRule = "lowKick" }
     end,
     counter = function()
         return Move{ name = "COUNTER", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 1, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -5 }
@@ -726,7 +726,7 @@ moveData = {
         return Move{ name = "RAIN DANCE", type = "water", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherEffect("raindance") } }
     end,
     sunnyDay = function()
-        return Move{ name = "SUNNY DAY", type = "fire", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+        return Move{ name = "SUNNY DAY", type = "fire", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherEffect("sunnyday") } }
     end,
     crunch = function()
         return Move{ name = "CRUNCH", type = "dark", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ModifyStat(DEFENDER, "def", -1))) } }
@@ -771,7 +771,7 @@ moveData = {
         return Move{ name = "HEAT WAVE", type = "fire", category = "special", power = 100, accuracy = 90, pp = 10, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
     end,
     hail = function()
-        return Move{ name = "HAIL", type = "ice", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+        return Move{ name = "HAIL", type = "ice", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherEffect("hail") } }
     end,
     flatter = function()
         return Move{ name = "FLATTER", type = "dark", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse"), ModifyStat(DEFENDER, "spa", 1) } }

@@ -96,6 +96,12 @@ function BattleState:finish(won, kind)
             assert(game.session:halveMoneyOnBlackout(game.session:inventory():money()))
         end
     end
+    local coins = won and self.battle and self.battle.payDayCoins or 0
+    if coins > 0 then
+        local bag = game.session:inventory()
+        local grant = math.min(coins, Inventory.MONEY_LIMIT - bag:money())
+        if grant > 0 then assert(bag:credit(grant)) end
+    end
     local pickupOK, pickupReceipt = game.session:resolvePickupBattle(self.battle, won, kind)
     assert(pickupOK, pickupReceipt)
     local sourceOK, sourceReceipt = FieldBattle.resolveSourceEncounter(game, self.battle, won, kind)

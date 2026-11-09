@@ -300,6 +300,15 @@ end
 -- Move-defined power precedes conditional field modifiers (e.g. Mud Sport).
 function BattleEffects:movePower(move,power,attacker,defender)
     if move==moveData.pursuit and self.round and self.round.withdrawing==defender then return power*2 end
+    if move.powerRule=="lowKick" then
+        local weight=SpeciesWeight.of(defender.species)
+        if weight>=2000 then return 120 end
+        if weight>=1000 then return 100 end
+        if weight>=500 then return 80 end
+        if weight>=250 then return 60 end
+        if weight>=100 then return 40 end
+        return 20
+    end
     if move.powerRule=="electroBall" then
         local ratio=self.battle:effectiveSpeed(attacker)//math.max(1,self.battle:effectiveSpeed(defender))
         return ({[0]=40,60,80,120,150})[math.min(4,ratio)]
@@ -313,8 +322,7 @@ function BattleEffects:movePower(move,power,attacker,defender)
     end
     return power
 end
--- Canonical GenV query seam. Only Sand has a current producer; other IDs
--- are policy inputs for future real weather owners, not new acquisition.
+-- Canonical Gen V query seam. Sand, rain, sun, and hail are produced here.
 function BattleEffects:weatherId()
     return self.weather and (self.weather.id or "sandstorm") or "none"
 end
@@ -650,22 +658,31 @@ function BattleEffects:ohko(attacker,defender,move)
     return RulesRNG.random(0,99)<move.accuracy+attacker.level-defender.level,"accuracy"
 end
 -- Weather is a field lifetime, not owned by either current active Pokemon.
--- Existing sand-only entry points delegate here; no Sun/Hail producer exists.
+-- Sand, rain, sun, and hail share this owner. Snow is not a Gen V field.
 function BattleEffects:setWeather(id)
     if self.closed then return false,"closed-battle" end
-    if id~="sandstorm" and id~="raindance" then return false,"unsupported-weather" end
+    if id~="sandstorm" and id~="raindance" and id~="sunnyday" and id~="hail" then return false,"unsupported-weather" end
     if self:weatherId()==id then self.battle:say("But it failed!");return false,"same-weather" end
     self.weather={id=id,turns=5}
-    self.battle:say(id=="sandstorm" and "A sandstorm kicked up!" or "It started to rain!")
+    local line=id=="sandstorm" and "A sandstorm kicked up!"
+        or id=="raindance" and "It started to rain!"
+        or id=="sunnyday" and "The sunlight turned harsh!"
+        or "It started to hail!"
+    self.battle:say(line)
     return true
 end
 function BattleEffects:setSandstorm() return self:setWeather("sandstorm") end
 -- This hook is after base damage+2, before crit/random/STAB; never a base-power
 -- modifier. Fixed damage doesn't enter calcDamage and is unaffected.
 function BattleEffects:weatherDamage(move,damage)
-    if self:weatherId()~="raindance" then return damage end
-    if move.type=="water" then return round(damage,6144) end
-    if move.type=="fire" then return round(damage,2048) end
+    local weather=self:weatherId()
+    if weather=="raindance" then
+        if move.type=="water" then return round(damage,6144) end
+        if move.type=="fire" then return round(damage,2048) end
+    elseif weather=="sunnyday" then
+        if move.type=="fire" then return round(damage,6144) end
+        if move.type=="water" then return round(damage,2048) end
+    end
     return damage
 end
 function BattleEffects:events()
@@ -677,6 +694,7 @@ function BattleEffects:events()
             local heldEvent = PickupHeld.event(self, mon, side)
             if heldEvent then events[#events + 1] = heldEvent end
             if self:weatherId()=="sandstorm" then events[#events+1]={kind="sand",order=1,side=side,pokemon=mon,owner="effects"} end
+            if self:weatherId()=="hail" then events[#events+1]={kind="hail",order=1,side=side,pokemon=mon,owner="effects"} end
             if self:effectiveAbility(mon)==87 and self:weatherId()=="raindance" then
                 events[#events+1]={kind="drySkin",order=1,side=side,pokemon=mon,owner="effects"}
             end
@@ -694,14 +712,23 @@ function BattleEffects:residual(event)
             self.weather.turns=self.weather.turns-1
             if self.weather.turns==0 then
                 local id=self:weatherId();self.weather=nil
-                b:say(id=="sandstorm" and "The sandstorm subsided." or "The rain stopped.")
-            elseif self:weatherId()=="raindance" then b:say("Rain continues to fall.") end
+                b:say(id=="sandstorm" and "The sandstorm subsided."
+                    or id=="raindance" and "The rain stopped."
+                    or id=="sunnyday" and "The sunlight faded."
+                    or "The hail stopped.")
+            elseif self:weatherId()=="raindance" then b:say("Rain continues to fall.")
+            elseif self:weatherId()=="sunnyday" then b:say("The sunlight is strong.")
+            elseif self:weatherId()=="hail" then b:say("Hail continues to fall.") end
         end
     elseif event.kind=="drySkin" and self:weatherId()=="raindance" and self:active(mon) and alive(mon)
         and self:effectiveAbility(mon)==87 then
         local before=mon.hp
         mon:heal(math.max(1,mon.maxHP//8))
         if mon.hp>before then b:say(mon.name.." was healed by Dry Skin!") end
+    elseif event.kind=="hail" and self:weatherId()=="hail" and self:active(mon) and alive(mon) then
+        if not has(self,mon,"ice") and not ContactAbilities.preventDamage(self,mon,"weather") then
+            self:damage(mon,math.max(1,mon.maxHP//16),"weather");b:say(mon.name .. " is buffeted by the hail!")
+        end
     elseif event.kind=="sand" and self:weatherId()=="sandstorm" and self:active(mon) and alive(mon) then
         if not has(self,mon,"rock") and not has(self,mon,"ground") and not has(self,mon,"steel") and self:effectiveAbility(mon)~=8 and not ContactAbilities.preventDamage(self,mon,"weather") then
             self:damage(mon,math.max(1,mon.maxHP//16),"weather");b:say(mon.name .. " is buffeted by the sandstorm!")

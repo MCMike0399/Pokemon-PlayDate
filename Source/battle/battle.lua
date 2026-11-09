@@ -1102,6 +1102,10 @@ function Battle:resolveTurn(turn)
         self:say(attacker.name.."'s "..turn.move.name.." is disabled!")
         return interrupted()
     end
+    if turn.move.category=="status" and self.conditions:taunted(attacker) then
+        self:say(attacker.name.." can't use "..turn.move.name.." after the taunt!")
+        return interrupted()
+    end
 
     -- Confusion (volatile, decrements per attacking turn; 50% self-hit
     -- with a 40-power typeless physical attack)
@@ -1451,6 +1455,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         elseif self.currentMoveKey=="waterSport" then self.conditions:waterSport()
         elseif self.currentMoveKey=="odorSleuth" then self.conditions:odorSleuth()
         elseif self.currentMoveKey=="transform" then self.conditions:transform()
+        elseif self.currentMoveKey=="taunt" then self.conditions:taunt()
         else error("unsupported battle-condition move") end
         return nil
     end
@@ -1519,6 +1524,10 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         if self.currentMoveKey=="furyCutter" and landed>0 then
             local state=self.conditions:of(attacker)
             state.furyCutter=math.min(8,(state.furyCutter or 1)*2)
+        end
+        if self.currentMoveKey=="payDay" and landed>0 and attacker:isAlive() then
+            self.payDayCoins=(self.payDayCoins or 0)+5*attacker.level
+            self:say("Coins scattered everywhere!")
         end
         self.lastDamage = total
         self.isFlashing = bodyHits > 0

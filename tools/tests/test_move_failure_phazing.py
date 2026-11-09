@@ -64,7 +64,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
     def test_damage_and_partial_status_special_cases_cannot_pass_as_plain_attacks(self):
         keys = ('razorWind', 'gyroBall',
                 'focusPunch', 'falseSwipe', 'dreamEater',
-                'payDay', 'circleThrow', 'dragonTail', 'bugBite',
+                'circleThrow', 'dragonTail', 'bugBite',
                 'metronome',
                 'stockpile', 'swallow', 'memento', 'flatter', 'swagger', 'healPulse')
         for key in keys:
@@ -79,6 +79,14 @@ class MoveFailurePhazingTests(unittest.TestCase):
         self.assertEqual(self.inventory['moves']['gigaImpact'], {'handler': 'engine-dsl'})
         self.assertEqual(self.inventory['moves']['thrash'], {'handler': 'engine-dsl'})
         self.assertEqual(self.inventory['moves']['outrage'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['payDay'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['lowKick'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['sunnyDay'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['hail'], {'handler': 'engine-dsl'})
+        self.assertEqual(self.inventory['moves']['taunt'], {'handler': 'battle-condition'})
+        self.assertIn('powerRule = "lowKick"', self.rows['lowKick'])
+        self.assertIn('WeatherEffect("sunnyday")', self.rows['sunnyDay'])
+        self.assertIn('WeatherEffect("hail")', self.rows['hail'])
         self.assertIn('recharge = true', self.rows['hyperBeam'])
         self.assertIn('recharge = true', self.rows['gigaImpact'])
         self.assertIn('lockRule = "rampage"', self.rows['thrash'])

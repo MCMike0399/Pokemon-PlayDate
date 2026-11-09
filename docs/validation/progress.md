@@ -1,5 +1,15 @@
 # Full-game execution ledger
 
+## 2026-11-09 Low Kick, Pay Day, Taunt, sun, and hail
+
+Low Kick power follows the target's hectogram weight: 20, 40, 60, 80, 100,
+or 120. Pay Day adds five coins times the user's level and the player
+collects them on a win. Taunt lasts three residual ticks and blocks status
+moves. Sunny Day and Hail are field weather for five turns. Sun boosts Fire
+and weakens Water. Hail chips non-Ice Pokémon for 1/16 max HP. Host check
+`tools/tests/low_kick_payday_taunt_weather_host.lua` passes. Snowscape stays
+rejected.
+
 ## 2026-11-09 recharge, rampage, and freeze thaw
 
 Hyper Beam and Giga Impact set a recharge receipt when the hit leaves the
