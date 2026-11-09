@@ -1417,6 +1417,8 @@ class MidgameJourney(vj.VermilionJourney):
         self.refresh_world()
 
     def ride_silph(self, floor):
+        if self.state['zone_id'] == self.zone('SilphCo' + str(floor) + 'F'):
+            return
         if self.state['zone_id'] != self.zone('SilphCoElevator'):
             # The cabin's raw UNUSED_MAP destination is resolved by the source
             # scene. Use real ingress input, never a debug warp or host rewrite.
@@ -1520,6 +1522,11 @@ class MidgameJourney(vj.VermilionJourney):
         if not str(self.state.get('zone_id') or '').startswith('pokered:SILPH_CO_'):
             self.travel(self.zone('SilphCo1F'))
         self.ride_silph(5)
+        if self.summary.get('silph_resume_skips_opening_heal'):
+            # Fresh process boundary before the 5F/9F pad walk. The same
+            # process otherwise accumulates the Simulator host log past 1 GiB
+            # before the Card Key pickup.
+            self.save()
         self.fixed_leg('silph-fixed-routes.json', 'card-key-approach')
         self.fixed_warp(5, (9, 14))
         self.require(zone_id=self.zone('SilphCo9F'))
