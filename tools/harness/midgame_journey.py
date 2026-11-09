@@ -1499,11 +1499,26 @@ class MidgameJourney(vj.VermilionJourney):
         self.checkpoint('guard-drink-saffron-entry')
         self.complete_at_center('saffron-guard-entry')
 
+    def party_is_restored(self):
+        party = self.party()
+        return bool(party) and all(
+            mon['hp'] == mon['maxHP'] and mon['status'] in {None, 'none'}
+            and mon['pp'] == mon['maxPP'] for mon in party)
+
     def route_c_silph(self):
-        self.heal_here('SaffronPokecenter')
-        self.ensure_room('SaffronMart')
+        zone = self.state.get('zone_id') or ''
+        inside = zone.startswith('pokered:SILPH_CO_')
+        # The earned elevator Save is already inside Silph with a restored
+        # party. Walking back through Saffron to heal is not a story gate, and
+        # that street is what exhausts the 1 GiB host ceiling before the Card Key.
+        if inside and 'saffron-guard-entry' in self.completed_steps and self.party_is_restored():
+            self.summary['silph_resume_skips_opening_heal'] = zone
+        else:
+            self.heal_here('SaffronPokecenter')
+            self.ensure_room('SaffronMart')
         self.scene_data('data/silphStory/scenes.json')
-        self.travel(self.zone('SilphCo1F'))
+        if not str(self.state.get('zone_id') or '').startswith('pokered:SILPH_CO_'):
+            self.travel(self.zone('SilphCo1F'))
         self.ride_silph(5)
         self.fixed_leg('silph-fixed-routes.json', 'card-key-approach')
         self.fixed_warp(5, (9, 14))

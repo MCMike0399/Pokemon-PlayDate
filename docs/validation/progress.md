@@ -1,5 +1,28 @@
 # Full-game execution ledger
 
+## 2026-11-09 Linux resume
+
+Main `7a31867a` is the merged continuation. 171 source maps are installed.
+Simulator campaign acceptance is still the historical 149/222 through
+checkpoint B. C is wired and unaccepted. Device-playable acceptance is 0/222.
+`LateKantoStory` still only reads its plan. Fossil revival is durable and
+unactivated. NPC trades stay parked. Audible playback is still open.
+
+The earned bundle hash
+`7484be40784e0bf0973798664fe5da2c46856a0fcc6fc60733ced1846f1e9a95`
+imports on this main through `import_chain_save` and
+`POKEMON_EVIDENCE_MIRROR`. Squirtle matches the elevator marker
+`2204733359…` with only `saffron-guard-entry`. Bulbasaur and Charmander
+match their accepted-B slots.
+
+Linux SDK 3.1.2 runs. Locks live in `/tmp`. No USB bus is present in this
+VM, so device acceptance is blocked outside the checkout. The historical
+smoke scenario now stops on the title menu, which is the current new-game
+front. The short Squirtle Silph probe at `17d1afa5` reached
+`kanto_silph_co_1f` `(8,11)` down, stage `done`, Card Key absent, Lua heap
+7745 KiB, and stopped on the semantic action bound. That run did not record
+VmHWM. It is not a 1 GiB failure and not Card Key proof.
+
 ## 2026-11-08 current timing build installed
 
 Build `6a009335fd584b77ab67aa5c1fd0cd5a`, source `c1383c63`, PDX `66d5b81688381d349793a938b3cbe2e75904df8477e63e8126010ad1fe7bf017` is the installed DeviceSmoke. Cycle `ok: true`, boot and playability not accepted. It replaced rejected PDX `49ced8e6…`. Same elevator route: Continue 2633 ms, door 3948 ms, Save 3379 ms, battle 24 ms, peak 6272.67 KiB. Post-GC live heap is null. Error and crash logs unchanged. The data disk stayed mounted. This is not the Card Key route.

@@ -573,6 +573,7 @@ class LinuxResidentGuard:
         self.process = process
         self.output = output
         self.error = None
+        self.peak_bytes = 0
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._run, name='linux-resident-guard', daemon=True)
         self.thread.start()
@@ -582,21 +583,32 @@ class LinuxResidentGuard:
             if self.process.poll() is not None:
                 return
             try:
-                if linux_vmhwm_bytes(self.process.pid) > 1024**3:
-                    self.error = 'owned Simulator exceeds 1 GiB Linux VmHWM'
-                elif shutil.disk_usage(self.output).free < 30 * 1024**3:
-                    self.error = 'journey disk reserve below 30 GiB'
-                else:
-                    self.stop.wait(0.25)
-                    continue
+                current = linux_vmhwm_bytes(self.process.pid)
             except ProtocolError as error:
                 self.error = str(error)
+                self.process.kill()
+                return
+            if current > self.peak_bytes:
+                self.peak_bytes = current
+            if current > 1024**3:
+                self.error = 'owned Simulator exceeds 1 GiB Linux VmHWM'
+            elif shutil.disk_usage(self.output).free < 30 * 1024**3:
+                self.error = 'journey disk reserve below 30 GiB'
+            else:
+                self.stop.wait(0.25)
+                continue
             self.process.kill()
             return
 
     def close(self):
         self.stop.set()
         self.thread.join(2)
+        atomic_json(Path(self.output) / 'linux-resident.json', {
+            'metric': 'VmHWM',
+            'peak_bytes': self.peak_bytes,
+            'limit_bytes': 1024**3,
+            'error': self.error,
+        })
 
 
 def host_footprint(pid):
