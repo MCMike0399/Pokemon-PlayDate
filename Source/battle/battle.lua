@@ -125,6 +125,7 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
     -- GenV final screen modifier follows minimum1, so a real hit may do0.
     if effects then
         damage=effects:airborneDamage(move,defender,damage)
+        damage=effects:undergroundDamage(move,defender,damage)
         damage=effects.battle.conditions:screenDamage(attacker,defender,move,damage,isCrit)
         damage=effects:finalDamage(attacker,damage,isCrit)
     end
@@ -1242,6 +1243,8 @@ function Battle:performMove(move)
     end
     -- Charging is a TryMove stage before target/type/accuracy. Skull Bash can
     -- prepare against Ghost, then fail its Normal release without an accuracy roll.
+    -- Dig is a second receipt. It does not enter the reviewed charge() body.
+    if self.currentMoveKey == "dig" and self.conditions:digCharge() then return nil end
     if move.chargeRule and self.conditions:charge(move) then return nil end
     if move.selfDestruct then
         -- Gen V TryMove (Damp) precedes the user's faint, which precedes all
@@ -1280,7 +1283,8 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
 
     -- Invulnerability is independent of ordinary accuracy, including Swift,
     -- OHKO and rain-accurate moves. No HP/effects/contact or RNG on rejection.
-    if opponentTargets[move.targetId or 10] and self.effects:airborneBlocks(move, attacker, defender) then
+    if opponentTargets[move.targetId or 10] and (self.effects:airborneBlocks(move, attacker, defender)
+        or self.effects:undergroundBlocks(move, attacker, defender)) then
         self:say(attacker.name .. "'s attack missed!")
         self.conditions:moveFinished(move, false)
         return nil

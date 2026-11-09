@@ -557,6 +557,27 @@ function BattleConditions:airborne(mon)
     local state = self.members[mon]
     return state ~= nil and state.charge ~= nil and state.charge.key == "fly"
 end
+-- Showdown 9b136a8 Dig. The shared charge() body stays the reviewed
+-- Solar Beam / Skull Bash / Fly owner. Dig uses the same receipt: one
+-- PP on the burrow, locked release, and clear on interrupt, switch, or faint.
+-- Earthquake and Magnitude are the only hits. Type and Levitate immunity stay.
+function BattleConditions:digCharge()
+    local b = self.battle
+    local user = b.attacker
+    local state = self:of(user)
+    if state.charge then
+        assert(state.charge.key == "dig", "wrong-charge-continuation")
+        state.charge = nil
+        return false
+    end
+    state.charge = {key = "dig"}
+    b:say(user.name .. " burrowed its way underground!")
+    return true
+end
+function BattleConditions:underground(mon)
+    local state = self.members[mon]
+    return state ~= nil and state.charge ~= nil and state.charge.key == "dig"
+end
 -- Successful self-effect precedes contact reactions, as the pinned dispatcher
 -- does. First miss/immune/absent target never creates a lock or duration draw.
 function BattleConditions:landedMove(move)

@@ -150,6 +150,29 @@ function BattleEffects:airborneDamage(move, target, damage)
     end
     return damage
 end
+-- Magnitude's active-use copy is not the registry move. The action key
+-- still names it. Earthquake keeps its registry identity.
+function BattleEffects:digBreaker(move)
+    if move == moveData.earthquake then
+        return true
+    end
+    return self.battle.currentMoveKey == "magnitude"
+end
+function BattleEffects:undergroundBlocks(move, source, target)
+    if not self.battle.conditions:underground(target) then
+        return false
+    end
+    if self:moveUserAbility(source, 99, move) or self:livingAbility(target, 99) then
+        return false
+    end
+    return not self:digBreaker(move)
+end
+function BattleEffects:undergroundDamage(move, target, damage)
+    if self.battle.conditions:underground(target) and self:digBreaker(move) then
+        return damage * 2
+    end
+    return damage
+end
 -- CriticalHit runs AFTER the critical trial, including guaranteed criticals.
 -- Shell Armor changes the result, never the number of critical RNG trials.
 function BattleEffects:criticalAllowed(target)

@@ -271,7 +271,7 @@
       "handler": "engine-dsl"
     },
     "dig": {
-      "gap": "onTryMove"
+      "handler": "engine-dsl"
     },
     "confusion": {
       "handler": "standard-damage"
