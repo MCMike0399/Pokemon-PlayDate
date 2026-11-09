@@ -34,7 +34,7 @@ frozen target thaws that target. Host check
 
 ## 2026-11-09 approved battle frame
 
-The approved 400×240 frame (Squirtle Lv5 19/19 vs wild Pidgey Lv3, platforms on) is SHA-256 `d02e55fa472c37c3dc687cf3c65387b1c80e4d6a99e348d60fd82ec37828315a`. It is pixel-identical to the PlaydateSimulator 3.1.2 captures of the threshold-128 PNGs (`2a` and `3a`, 0 changed pixels). It differs from the dithered style option `2b` by 1625 pixels. Scaled into the 80px slots, commit `b3ce7a01` misses 777 sprite blacks and adds 772. The threshold sprites miss 0 and add 0. Production is `threshold()` again. `tools/generate_battle_art.py --check` reports 302/302 exact against the pinned archive. Shade Bayer remains the map and character mapping. The platforms stay.
+The approved 400×240 frame (Squirtle Lv5 19/19 vs wild Pidgey Lv3, platforms on) is SHA-256 `d02e55fa472c37c3dc687cf3c65387b1c80e4d6a99e348d60fd82ec37828315a`. It is pixel-identical to the PlaydateSimulator 3.1.2 captures of the threshold-128 PNGs (`2a` and `3a`, 0 changed pixels). It differs from the dithered style option `2b` by 1625 pixels. Scaled into the 80px slots, commit `b3ce7a01` misses 777 sprite blacks and adds 772. The threshold sprites miss 0 and add 0. Production is `threshold()` again, committed as `251c12dc`. `b3ce7a01`'s Bayer battle art is superseded for battles. `tools/generate_battle_art.py --check` reports 302/302 exact against the pinned archive. Shade Bayer remains the map and character mapping. The platforms stay.
 
 ## 2026-11-09 Blue title idle
 

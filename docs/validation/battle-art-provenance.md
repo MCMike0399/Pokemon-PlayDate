@@ -4,6 +4,8 @@ All **302 checked-in battle PNGs reproduce exactly** from immutable pret/pokered
 
 Miguel's approved battle frame is the 400×240 PlaydateSimulator 3.1.2 LCD capture at `/home/ubuntu/.cursor/projects/agent-repos-Pokemon-PlayDate/assets/approved-battle-reference.png`, SHA-256 `d02e55fa472c37c3dc687cf3c65387b1c80e4d6a99e348d60fd82ec37828315a`. It is Squirtle Lv5 19/19 against a wild Pidgey Lv3, with the ground platforms. It is pixel-identical to the style-option captures `2a-battle-undithered.png` and `3a-battle-with-platforms.png` (0 changed pixels). Those captures were the checked-in threshold PNGs, drawn by `BattleScene` into the 80px slots at enemy `(300, 20)` and player `(55, 70)`, then scaled with `min(80/iw, 80/ih)` and nearest `floor`. It differs from `2b-battle-dithered-shared-gray.png` by 1625 pixels. Commit `b3ce7a01` sampled gray 85 through `Shade.LIGHT` and gray 170 through `Shade.DARK` at phase `(0, 0)` inside the PNGs. Scaled the same way, those sprites miss 777 blacks in the two slots and add 772 blacks that the approved frame does not have. The threshold PNGs from `946c4b00`, which this pipeline writes again, miss 0 and add 0 inside those slots once the platform rectangles are left out. The approved frame matches the threshold art. It does not match `b3ce7a01`.
 
+Commit `b3ce7a01` redrew the 302 battle PNGs through Shade Bayer. That Bayer battle art is superseded. Commit `251c12dc` is the battle-sprite baseline because those threshold PNGs match this approved frame. Shade Bayer from `946c4b00` stays the world and character mapping, including Pallet and interiors. It is not reapplied to battle sprites.
+
 Shade Bayer (LIGHT 31.25% black, DARK 68.75% black, phase `(0, 0)`) stays the mapping for Shade callers, including Pallet and interiors. The ground platforms stay. Option 2b is not the battle-sprite baseline once this frame is the reference. Repository commit `f22b5022bd7be69e840140e63eb1c91109dd5ba6` introduced the undithered 302; the historical upstream revision of that first import remains unknown.
 
 ## Original references and version policy
@@ -27,7 +29,7 @@ Every referenced original image is grayscale `L` with exactly four shades 0/85/1
 
 ## Systematic measurement
 
-The search below was run against the historical threshold-128 import. It explains why that import matched one undithered mapping. It does not describe the current Bayer files.
+The search below was run against the historical threshold-128 import. It explains why that import matched one undithered mapping. It does not describe the superseded `b3ce7a01` Bayer redraw.
 
 The source search tested **134,088 exact comparisons across 888 profiles**:
 
