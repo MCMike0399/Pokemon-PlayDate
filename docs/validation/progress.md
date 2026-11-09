@@ -43,6 +43,15 @@ Live slot A is sequence 125 at 3F `(20, 0)` facing down, still holding
 the Card Key, money 52117. Trace is 5F, 9F, 5F, elevator, 3F. VmRSS never
 fell. Peak VmHWM 845139968, 228601856 bytes under 1 GiB.
 
+The next process from that landing won Rocket
+`pokered:SILPH_CO_3F:objects:2` (840) and opened
+`EVENT_SILPH_CO_3_UNLOCKED_DOOR2`, then died loading 7F at VmHWM
+1074098176. RSS still never fell. `b4ee9a61` saves on the opened door.
+`linux-silph-3f-door-save-20261109-01`, partial
+`31df0692be795c1b957bb309708a9bd1424730c33a1ffb8fcc88e2ca500ea02c`.
+Live slot B is sequence 126 at 3F `(18, 8)` facing left, door open,
+Card Key held, money 52957. Peak VmHWM 846131200.
+
 ## 2026-11-09 surveys: Seafoam entry and exposed move gaps
 
 [Seafoam slice plan](bc-eaffd220-a2c4-545f-9ae4-2ffdb30985bc) and
