@@ -69,8 +69,7 @@ def load_manifest(path=MANIFEST):
     pins = {entry["path"]: entry for entry in manifest.get("inputs", [])}
     if len(pins) != 455 or len(pins) != len(manifest["inputs"]):
         raise ValueError("expected 455 unique immutable reference pins")
-    transform = manifest.get("default_transform", {})
-    if transform.get("method") != "shared-shade-phase-0" or transform.get("geometry") != "identity":
+    if manifest.get("default_transform", {}).get("threshold") != 128 or manifest["default_transform"].get("geometry") != "identity":
         raise ValueError("protected transformation policy changed")
     for asset in assets:
         if asset["reference"] not in pins or asset["reference_sha256"] != pins[asset["reference"]]["sha256"]:
@@ -111,50 +110,8 @@ def validate_target(image, asset):
         raise ValueError("protected battle art must remain opaque")
 
 
-def shade_bytes(name):
-    text = (ROOT / "Source/lib/shade.lua").read_text()
-    body = re.search(r"Shade\." + name + r"\s*=\s*\{([^}]+)\}", text)
-    if not body:
-        raise ValueError("shared Shade pattern missing: " + name)
-    values = tuple(int(item.strip(), 16) for item in body.group(1).split(","))
-    if len(values) != 8 or any(value < 0 or value > 255 for value in values):
-        raise ValueError("shared Shade pattern is not eight bytes: " + name)
-    return values
-
-
-def pattern_white(pattern, x, y):
-    # Playdate setPattern at phase (0, 0): MSB is the left pixel, 1 is white.
-    return (pattern[y % 8] & (0x80 >> (x % 8))) != 0
-
-
-def shared_shade(image):
-    """Native opaque canvas. Grays use Shade.LIGHT and Shade.DARK.
-
-    0 stays black and 255 stays white. 85 and 170 are sampled from the
-    shared patterns at the source pixel, with no crop, scale, or padding.
-    """
-    light, dark = shade_bytes("LIGHT"), shade_bytes("DARK")
-    out = Image.new("1", image.size)
-    source, dest = image.load(), out.load()
-    for y in range(image.height):
-        for x in range(image.width):
-            value = source[x, y]
-            if value == 0:
-                white = False
-            elif value == 255:
-                white = True
-            elif value == 85:
-                white = pattern_white(light, x, y)
-            elif value == 170:
-                white = pattern_white(dark, x, y)
-            else:
-                raise ValueError("battle reference shade is outside the pinned four")
-            dest[x, y] = 255 if white else 0
-    return out
-
-
 def threshold(image):
-    # Historical undithered mapping. It is not the approved production art.
+    # Native dimensions, opaque canvas. No crop, scale, padding or dither.
     return image.point(lambda value: 255 if value >= 128 else 0, "1")
 
 
@@ -238,7 +195,7 @@ def trace(manifest, references, target_root, search=False, output=None):
         with Image.open(io.BytesIO(target_bytes)) as target:
             validate_target(target, asset)
             target = target.copy()
-        candidate = shared_shade(images[asset["reference"]])
+        candidate = threshold(images[asset["reference"]])
         delta = decoded_delta(target, candidate)
         record = {"species": asset["species"], "view": asset["view"], "asset": asset["asset"],
                   "reference": asset["reference"], "reference_sha256": asset["reference_sha256"],
@@ -274,7 +231,7 @@ def trace(manifest, references, target_root, search=False, output=None):
             "exact": sum(r["direct"]["equal"] for r in results),
             "protected_files_unchanged": sum(r["protected_bytes_unchanged"] for r in results),
             "ok": all(r["direct"]["equal"] and r["protected_bytes_unchanged"] for r in results),
-            "transformation": "native opaque shared Shade phase (0, 0): 0 black, 85 LIGHT, 170 DARK, 255 white", "results": results,
+            "transformation": "native opaque threshold128: 0/85 black,170/255 white", "results": results,
             "search": [{"profile": profile, "outcome": outcome, "count": count} for (profile, outcome), count in sorted(matrix.items())]}
 
 

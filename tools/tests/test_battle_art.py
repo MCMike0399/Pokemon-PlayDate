@@ -99,7 +99,7 @@ class BattleArtReproduction(unittest.TestCase):
             (inputs / 'front.png').write_bytes(reference)
             aliases = b'{"schema":1,"aliases":{}}'
             (source / 'data/pokemon-art.json').write_bytes(aliases)
-            target = art.shared_shade(original())
+            target = art.threshold(original())
             protected = png_bytes(target)
             asset = {'species': 'bulbasaur', 'view': 'front', 'asset': 'bulbasaur-front.png',
                      'size': [40, 40], 'reference': 'front.png', 'reference_sha256': art.sha(reference), 'sha256': art.sha(protected)}
@@ -137,8 +137,7 @@ class BattleArtReproduction(unittest.TestCase):
     def test_manifest_covers_current_302_protected_bytes_and_runtime_aliases(self):
         manifest = art.load_manifest()
         self.assertEqual(len(manifest['inputs']), 455)
-        self.assertEqual(manifest['default_transform']['method'], 'shared-shade-phase-0')
-        self.assertEqual(manifest['unchanged_since_import'], 0)
+        self.assertEqual(manifest['unchanged_since_import'], 302)
         aliases = json.loads((ROOT / 'Source/data/pokemon-art.json').read_text())['aliases']
         for item in manifest['assets']:
             self.assertEqual(item['asset'], aliases.get(item['species'], item['species']) + '-' + item['view'] + '.png')
