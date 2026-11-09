@@ -109,7 +109,7 @@ class GeneratorTests(unittest.TestCase):
         with self.assertRaisesRegex(GEN.MapError,'unsupported version'):GEN.blue_text('IF DEF(_YELLOW)\nx\nENDC')
 
     def test_native_pattern_has_fine_dots_and_exact_densities(self):
-        for code,black in [('1',128),('2',512),('#',1024),('.',0)]:
+        for code,black in [('1',320),('2',704),('#',1024),('.',0)]:
             definition={'dimensions':{'cells':[1,1]},'grids':[{'id':1,'grid':[code*16]*16}],'tile_ids':[[1]]}
             data=GEN.render_map(definition)
             header,rows=unpack_png(data)

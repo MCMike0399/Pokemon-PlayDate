@@ -1,8 +1,10 @@
--- Independent reviewed byte vectors, shared by terrain catalog expectations.
--- Actor and authored-art expectations retain the legacy vectors.
+-- Independent reviewed byte vectors. Terrain and authored Shade callers
+-- share the approved Bayer bytes. The legacy table remains only so a test
+-- can still name the superseded 12.5%/50% patterns.
 ImportedToneReference = {}
 local gfx <const> = playdate.graphics
-local legacy <const> = {
+-- Superseded 12.5% / 50% bytes. Callers no longer sample these.
+ImportedToneReference.legacy = {
     light = {0xBB, 0xFF, 0xEE, 0xFF, 0xBB, 0xFF, 0xEE, 0xFF},
     dark = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA},
 }
@@ -20,14 +22,11 @@ function ImportedToneReference.color(code, x, y, terrain)
         return gfx.kColorBlack
     end
     assert(code == "1" or code == "2", "source shade required")
-    local patterns = legacy
     if terrain then
         policy = policy or assert(json.decodeFile("data/importedTonePatterns.json"))
-        if policy.enabled then
-            assert(policy.family == "bayer8", "unreviewed terrain tone family")
-            patterns = reviewed
-        end
+        assert(policy.enabled and policy.family == "bayer8", "unreviewed terrain tone family")
     end
+    local patterns = reviewed
     local byte = (code == "1" and patterns.light or patterns.dark)[y % 8 + 1]
     return byte & (0x80 >> (x % 8)) ~= 0 and gfx.kColorWhite or gfx.kColorBlack
 end

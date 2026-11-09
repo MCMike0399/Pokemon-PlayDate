@@ -9,8 +9,8 @@
 --
 -- Grid shade codes:
 --   .  WHITE  (ground, highlights, window shine)
---   1  LIGHT  (~12.5% dither — paths, glass, plank shadows)
---   2  DARK   (50% checkerboard — roofs, doors, tree canopy)
+--   1  LIGHT  (31.25% fixed-phase Bayer — paths, glass, plank shadows)
+--   2  DARK   (68.75% fixed-phase Bayer — roofs, doors, tree canopy)
 --   #  BLACK  (outlines, ridges, blades)
 
 local gfx <const> = playdate.graphics

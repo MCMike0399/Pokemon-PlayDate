@@ -96,8 +96,8 @@ function WorldContracts.run()
     end)
     test("explicit imported phase uniform and mixed runs match independent byte vectors", function()
         local gfx = playdate.graphics
-        local light = { 0xBB, 0xFF, 0xEE, 0xFF, 0xBB, 0xFF, 0xEE, 0xFF }
-        local dark = { 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA }
+        local light = { 0x55, 0xBB, 0x55, 0xFF, 0x55, 0xBB, 0x55, 0xFF }
+        local dark = { 0x00, 0xAA, 0x44, 0xAA, 0x00, 0xAA, 0x44, 0xAA }
         for _, rows in ipairs({ grid("1"), grid("2"), {
             "1.22###111..22##", "11112222....####", "#12.#12.#12.#12.", "..111.22##11.2.#",
             "21111##22..12.#.", ".1.2.#.1.2.#.1.2", "##222111...#12..", "1.22###111..22##",
