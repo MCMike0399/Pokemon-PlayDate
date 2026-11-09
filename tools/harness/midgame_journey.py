@@ -1522,12 +1522,21 @@ class MidgameJourney(vj.VermilionJourney):
         if not str(self.state.get('zone_id') or '').startswith('pokered:SILPH_CO_'):
             self.travel(self.zone('SilphCo1F'))
         self.ride_silph(5)
-        if self.summary.get('silph_resume_skips_opening_heal'):
-            # Fresh process boundary before the 5F/9F pad walk. The same
-            # process otherwise accumulates the Simulator host log past 1 GiB
-            # before the Card Key pickup.
-            self.save()
-        self.fixed_leg('silph-fixed-routes.json', 'card-key-approach')
+        padding = self.model().padding
+        on_card_pad = (self.state.get('zone_id') == self.zone('SilphCo5F')
+                       and self.position() == (9 + padding, 14))
+        if on_card_pad:
+            # A later process already saved on the pad. Load 9F only there,
+            # where this Simulator lifetime has not already walked the approach.
+            self.summary['silph_card_pad_resume'] = True
+        else:
+            self.fixed_leg('silph-fixed-routes.json', 'card-key-approach')
+            if self.summary.get('silph_resume_skips_opening_heal'):
+                # The 9F pad load is what pushed the same process over 1 GiB
+                # after this approach. Save the earned pad position and stop.
+                # The next owned process resumes this marker and takes the warp.
+                self.save()
+                raise ProtocolError('earned Silph 5F pad Save boundary')
         self.fixed_warp(5, (9, 14))
         self.require(zone_id=self.zone('SilphCo9F'))
         self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
