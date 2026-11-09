@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-08 Card Key seam is already wired
+
+No commit. `pokered:SILPH_CO_5F:objects:8` is the content-cache pickup of `cardKey`, flag `PICKUP:pokered:SILPH_CO_5F:objects:8`. Interaction goes through `SourceActors.interact`, `SourceEvents.dispatch`, and the pickup plan, which sets that flag and adds one Card Key. Each Silph door is a bespoke event. `SilphStory.plan` returns the fail text when the quantity is 0 and `already-complete` when the door flag is set. `SilphStoryWorld.unlock` requires the faced door and `cardKey` quantity above 0, then `commitWorld` sets the door flag and leaves the quantity unchanged. The next earned step is to play that pickup and one door from the elevator save. `route_c_silph` is the existing leg, inside the long journey that the 1 GiB host stop already blocks when run whole. A longer device route is not covered by the elevator smoke admission.
+
+Current-source timing build `6a009335fd584b77ab67aa5c1fd0cd5a` at `c1383c63` passed the 16 MiB route on peak 8.62 MiB and raw slice 86 ms. Post-GC live heap is null. The device copy was not started: the tool permission request failed before the command ran. The installed PDX is still rejected build `6f2afa26`.
+
 ## 2026-11-08 door candidate rejected
 
 Build `6f2afa2621e04574b681471d341fd704`, source `d2d30ffb`, PDX `49ced8e69479738d27c52bf13bb460fcd59edf10c2ecdebe47e1c0736798434f`. Cycle `ok: true`, boot and playability not accepted. Same Squirtle route, unchanged error and crash logs. Door wall 3967 ms versus baseline `072ca581` at 3929 ms, 38 ms slower, not a 10 percent gain. Save 3408 ms, Continue 2637 ms, battle 22 ms, peak 6272.406 KiB. Post-GC live heap is null. The copy reduction is reverted on `main` by `95b0fad8`. The experiment remains at `d2d30ffb` and `469277cd`. The device still has this candidate PDX installed. The prior timing PDX `6f306e33…` was archived and was not restored.
