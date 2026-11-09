@@ -1531,9 +1531,17 @@ class MidgameJourney(vj.VermilionJourney):
             self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
             self.save()
             raise ProtocolError('earned Silph Card Key Save boundary')
+        at_card = (on_fifth and self.position() == (20 + padding, 16)
+                   and self.quantity('cardKey') >= 1
+                   and 'saffron-guard-entry' in self.completed_steps)
+        if at_card:
+            # Same damaged party, now holding the key on the ball cell.
+            # Healing still leaves through 3F, 2F and 1F. Stay inside.
+            self.summary['silph_card_resume'] = True
+            self.summary['silph_card_skips_damaged_heal'] = True
         # A restored party already inside Silph does not need the Saffron
         # street. That street is what exhausts the 1 GiB host ceiling.
-        if inside and 'saffron-guard-entry' in self.completed_steps and self.party_is_restored():
+        elif inside and 'saffron-guard-entry' in self.completed_steps and self.party_is_restored():
             self.summary['silph_resume_skips_opening_heal'] = zone
         else:
             self.heal_here('SaffronPokecenter')

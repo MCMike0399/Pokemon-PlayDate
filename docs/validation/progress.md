@@ -1,5 +1,31 @@
 # Full-game execution ledger
 
+## 2026-11-09 Card Key earned under the host ceiling
+
+The failed pickup at `43e31ff6` did not attempt the ball. Continue on 5F
+`(9, 14)` had Blastoise at 134/146 and Surf at 10/15, so
+`party_is_restored()` was false. `heal_here` walked 5F to 3F to 2F to 1F
+to Saffron, and packet 5.5c Saved every 16 cells (four Save cycles). Lua
+`heap_kib` stayed between 7719 and 8039. That fresh process was killed at
+VmHWM 1074339840.
+
+`3bd1752c` takes the 9F pad and the ball before any heal. Evidence
+`linux-silph-card-key-20261109-02`, partial
+`5070abaa2bd1e72fd03766470bd4b96076d3b7758edbd6ce4f381532d3bb35eb`.
+Trace zones are 5F, 9F, 5F. Rocket `pokered:SILPH_CO_5F:objects:2` paid 990.
+`pokered:SILPH_CO_5F:objects:8` is the Card Key. Live slot B is sequence
+124 at 5F `(20, 16)` facing right, with `cardKey` 1, money 52117, and Surf
+9. Slot A remains sequence 123, the previous pad generation.
+
+The new guard curve has 103 samples over 25.6 seconds. VmRSS never fell.
+Final VmHWM and VmRSS were both 917110784, 156663040 bytes under 1 GiB.
+The host retains images for the life of the process. A restart is what
+clears the peak. The isolated Transform branch still has no diff to review.
+
+Style comparisons remain screenshot-only in
+`/opt/cursor/artifacts/style-options/` with `captions.txt`. No default art
+changed.
+
 ## 2026-11-09 surveys: Seafoam entry and exposed move gaps
 
 [Seafoam slice plan](bc-eaffd220-a2c4-545f-9ae4-2ffdb30985bc) and
