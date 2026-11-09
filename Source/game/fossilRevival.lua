@@ -3,10 +3,16 @@
 -- ROOT_HOOK: import "game/fossilRevival"
 -- ROOT_ANCHOR: import "domain/gameSession"
 -- That line belongs directly after the anchor. Loading the module does not make the lab playable.
+-- wFossilItem and wFossilMon are not codec fields. The choice is two quest flags,
+-- wFossilItem:<item> and wFossilMon:<species>. Continue reads that pair from the
+-- decoded session. No sessionCodec, GameSession, or SaveStore patch is required.
+import "domain/party"
+import "domain/storage"
 import "game/lateKantoStory"
 
 FossilRevival = {}
-local pending = setmetatable({}, {__mode = "k"})
+local ITEM_PREFIX = "wFossilItem:"
+local MON_PREFIX = "wFossilMon:"
 local speciesByName
 
 local function speciesId(symbol)
@@ -93,12 +99,73 @@ local function pack(ok, status, extra)
     return result
 end
 
+local function flagId(prefix, value)
+    local id = prefix .. value
+    assert(type(id) == "string" and #id >= 1 and #id <= 128
+        and id:match("^[A-Za-z0-9][A-Za-z0-9_:.%/-]*$") ~= nil, "fossil choice is not a durable flag")
+    return id
+end
+
+local function eachChoiceFlag(session, visit)
+    for id, value in pairs(session:flags().quest) do
+        if value == true and (id:sub(1, #ITEM_PREFIX) == ITEM_PREFIX or id:sub(1, #MON_PREFIX) == MON_PREFIX) then
+            visit(id)
+        end
+    end
+end
+
+-- Both halves are required. A lone item or species is a torn choice, not a default.
+local function durableChoice(session)
+    local item, species
+    eachChoiceFlag(session, function(id)
+        if id:sub(1, #ITEM_PREFIX) == ITEM_PREFIX then
+            assert(item == nil, "duplicate fossil item")
+            item = id:sub(#ITEM_PREFIX + 1)
+        else
+            assert(species == nil, "duplicate fossil mon")
+            species = id:sub(#MON_PREFIX + 1)
+        end
+    end)
+    if item == nil and species == nil then return nil end
+    assert(item ~= nil and species ~= nil, "incomplete fossil choice")
+    return {item = item, species = species}
+end
+
+local function publishChoice(session, item, species)
+    local itemFlag = flagId(ITEM_PREFIX, item)
+    local monFlag = flagId(MON_PREFIX, species)
+    local clear = {}
+    eachChoiceFlag(session, function(id)
+        if id ~= itemFlag and id ~= monFlag then clear[#clear + 1] = id end
+    end)
+    for _, id in ipairs(clear) do
+        assert(session:setQuestFlag(id, false) == true, "fossil choice clear failed")
+    end
+    assert(session:setQuestFlag(itemFlag, true) == true, "fossil item flag failed")
+    assert(session:setQuestFlag(monFlag, true) == true, "fossil mon flag failed")
+end
+
+local function clearChoice(session)
+    local clear = {}
+    eachChoiceFlag(session, function(id) clear[#clear + 1] = id end)
+    for _, id in ipairs(clear) do
+        assert(session:setQuestFlag(id, false) == true, "fossil choice clear failed")
+    end
+end
+
+-- GivePokemon receives into the party, then the current box only.
+local function openDestination(session)
+    if session:party():count() < Party.CAPACITY then return "party" end
+    if session:storage():count() < Storage.BOX_CAPACITY then return "storage" end
+    return nil
+end
+
 function FossilRevival.plan()
     return GameSession._copy(bind(nil))
 end
 
 function FossilRevival.pending(session)
-    local value = pending[session]
+    local value = durableChoice(session)
     if not value then return nil end
     return {item = value.item, species = value.species}
 end
@@ -137,7 +204,7 @@ function FossilRevival.confirm(session, itemSymbol, accepted, revival)
     if session:inventory():quantity(id) < 1 then
         return pack(false, "no-fossil")
     end
-    pending[session] = {item = row.item, species = row.species}
+    publishChoice(session, row.item, row.species)
     if not accepted then
         return pack(true, "cancelled")
     end
@@ -158,14 +225,19 @@ end
 local function handover(session, revival)
     local gave, still, handing, level = identity(revival)
     assert(session:questFlag(gave) and not session:questFlag(still), "fossil is not ready")
-    local record = pending[session]
+    local record = durableChoice(session)
     if not record then
         return pack(false, "missing-fossil-mon")
     end
     local row = rows(revival)[record.item]
     assert(row and row.species == record.species, "fossil selection changed")
     -- Source sets the handover flag before GivePokemon and leaves it set on failure.
+    -- Full party and full current box stop before Specimen.create, so this failure
+    -- commits the flag and no receipt, dex bit, Pokemon, or RNG draw.
     assert(session:setQuestFlag(handing, true) == true, "fossil handover flag failed")
+    if openDestination(session) == nil then
+        return pack(false, "box-full")
+    end
     local stream = RulesRNG.new(1)
     stream:restoreData(session:rngData())
     local mon, receipt = Specimen.create(speciesId(record.species), level, "gift", stream)
@@ -179,6 +251,7 @@ local function handover(session, revival)
     for _, flag in ipairs(revival.success_resets) do
         assert(session:setQuestFlag(flag, false) == true, "fossil success reset failed")
     end
+    clearChoice(session)
     RulesRNG.restore(stream:snapshot())
     return pack(true, "revived", {destination = result.destination, box = result.box,
         species = record.species, level = level, index = result.index})

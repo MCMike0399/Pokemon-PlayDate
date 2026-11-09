@@ -201,9 +201,21 @@ import "domain/itemStorage"
 import "domain/coinWallet"
 import "domain/safariGame"
 import "domain/fieldTravel"
+import "domain/decimalInteger"
 import "domain/gameSession"
+import "domain/npcTrades"
+import "domain/pokemonCodec"
 import "game/daycare"
+import "domain/sessionCodec"
 import "game/fossilRevival"
+
+local processes = setmetatable({}, {__mode = "k"})
+local processCount = 0
+local function adopt(session)
+    processCount = processCount + 1
+    processes[session] = processCount
+    return session
+end
 
 local function newSession()
     local function accept(value) return value end
@@ -217,7 +229,27 @@ local function newSession()
         seed = 1,
     })
     assert(session:activateRNG())
-    return session
+    return adopt(session)
+end
+
+local GATE = {root = "overworld", overworld = "explore", settled = true}
+local function continueSession(session)
+    local record, reason = SessionCodec.encode(session, GATE)
+    if not record then return nil, reason end
+    local bytes = encode(record)
+    local decoded = decodeJson(bytes)
+    local deps = GameSession._state(session).deps
+    local loaded, why = SessionCodec.decode(decoded, {
+        validateWorld = deps.validateWorld,
+        resolveLocation = deps.resolveLocation,
+        resolvePlayerLocation = deps.resolvePlayerLocation,
+        validateActors = deps.validateActors,
+        hiddenActors = deps.hiddenActors,
+        itemDefinitions = ItemData.definitions,
+    })
+    if not loaded then return nil, why end
+    assert(loaded ~= session, "continue reused the live session")
+    return adopt(loaded), bytes
 end
 
 local function countSpecies(session, species)
@@ -253,6 +285,13 @@ local function snapshot(session, revival)
         counts[row.species] = countSpecies(session, id)
     end
     local record = FossilRevival.pending(session)
+    local choice = {}
+    for id, value in pairs(session:flags().quest) do
+        if value == true and (id:sub(1, 12) == "wFossilItem:" or id:sub(1, 11) == "wFossilMon:") then
+            choice[#choice + 1] = id
+        end
+    end
+    table.sort(choice)
     return {
         flags = {[gave] = session:questFlag(gave), [still] = session:questFlag(still), [handing] = session:questFlag(handing)},
         items = items,
@@ -262,42 +301,58 @@ local function snapshot(session, revival)
         box = session:storage():count(),
         boxIndex = session:storage():activeBox(),
         pending = record or NULL,
+        choice = choice,
+        process = processes[session],
         rolls = session:rngData().rolls,
     }
 end
 
 local function fill(session, partyOnly)
-    local limit = partyOnly and Party.CAPACITY or (Party.CAPACITY + Storage.BOX_CAPACITY)
-    for _ = 1, limit do
-        local ok, reason = session:recruit(Pokemon("pidgey", 2))
+    local function add(species, level)
+        local ok, reason = session:recruit(Pokemon(species, level))
         if not ok then error(reason) end
     end
+    -- A saved party needs an owned starter. The fossil species stays out of this fill.
+    add("squirtle", 5)
+    local limit = partyOnly and (Party.CAPACITY - 1) or (Party.CAPACITY - 1 + Storage.BOX_CAPACITY)
+    for _ = 1, limit do add("pidgey", 2) end
+    local ready, problem = session:setIntro({stage = "done", starter = "squirtle", rivalStarter = "bulbasaur"})
+    if not ready then error(problem) end
     return {ok = true, status = partyOnly and "party-filled" or "party-and-box-filled"}
 end
 
 local function perform(session, revival, step)
     local op = step.op
+    local result
     if op == "add" then
         local ok, reason = session:inventory():add(assert(ItemData.bySymbol[step.symbol]), 1)
-        return {ok = ok and true or false, status = ok and "added" or reason}
+        result = {ok = ok and true or false, status = ok and "added" or reason}
     elseif op == "take" then
         local ok, reason = session:inventory():handoffKey(assert(ItemData.bySymbol[step.symbol]))
-        return {ok = ok and true or false, status = ok and "taken" or reason}
+        result = {ok = ok and true or false, status = ok and "taken" or reason}
     elseif op == "confirm" then
-        return FossilRevival.confirm(session, step.item, step.accepted, revival)
+        result = FossilRevival.confirm(session, step.item, step.accepted, revival)
     elseif op == "cancel" then
-        return FossilRevival.cancel()
+        result = FossilRevival.cancel()
     elseif op == "talk" then
-        return FossilRevival.talk(session, revival)
+        result = FossilRevival.talk(session, revival)
     elseif op == "map" then
-        return FossilRevival.onMapLoad(session, step.map, revival)
+        result = FossilRevival.onMapLoad(session, step.map, revival)
     elseif op == "fill" then
-        return fill(session, step.partyOnly == true)
+        result = fill(session, step.partyOnly == true)
     elseif op == "box" then
         local ok, reason = session:storage():selectBox(step.index)
-        return {ok = ok and true or false, status = ok and "box-selected" or reason}
+        result = {ok = ok and true or false, status = ok and "box-selected" or reason}
+    elseif op == "continue" then
+        local loaded, bytes = continueSession(session)
+        if not loaded then
+            return {ok = false, status = "continue-failed", detail = tostring(bytes)}, session
+        end
+        return {ok = true, status = "continued", bytes = bytes, codec = SessionCodec.VERSION}, loaded
+    else
+        error("unknown fossil host op: " .. tostring(op))
     end
-    error("unknown fossil host op: " .. tostring(op))
+    return result, session
 end
 
 local function main()
@@ -309,7 +364,8 @@ local function main()
         local session = newSession()
         local steps = {}
         for _, step in ipairs(scenario.steps) do
-            local result = perform(session, revival, step)
+            local result, nextSession = perform(session, revival, step)
+            session = nextSession
             steps[#steps + 1] = {op = step.op, result = result, state = snapshot(session, revival)}
         end
         output.scenarios[scenario.name] = steps

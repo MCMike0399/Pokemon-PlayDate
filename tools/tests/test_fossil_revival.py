@@ -121,6 +121,34 @@ class FossilRevivalServiceTests(unittest.TestCase):
                 {'op': 'map', 'map': patched['still_reviving_cleared_on_map_load']['map_constant']},
                 {'op': 'talk'},
             ]},
+            {'name': 'continue-declined', 'revival': cls.revival, 'steps': [
+                {'op': 'add', 'symbol': cls.dome['item']},
+                {'op': 'confirm', 'item': cls.dome['item'], 'accepted': False},
+                {'op': 'continue'},
+            ]},
+            {'name': 'continue-choice', 'revival': cls.revival, 'steps': [
+                {'op': 'add', 'symbol': cls.dome['item']},
+                {'op': 'confirm', 'item': cls.dome['item'], 'accepted': True},
+                {'op': 'continue'},
+                {'op': 'map', 'map': cls.lab},
+                {'op': 'map', 'map': cls.island},
+                {'op': 'talk'},
+                {'op': 'talk'},
+            ]},
+            {'name': 'continue-box-full', 'revival': cls.revival, 'steps': [
+                {'op': 'fill', 'partyOnly': False},
+                {'op': 'add', 'symbol': cls.amber['item']},
+                {'op': 'confirm', 'item': cls.amber['item'], 'accepted': True},
+                {'op': 'talk'},
+                {'op': 'map', 'map': cls.island},
+                {'op': 'talk'},
+                {'op': 'continue'},
+                {'op': 'talk'},
+                {'op': 'box', 'index': 2},
+                {'op': 'talk'},
+                {'op': 'continue'},
+                {'op': 'talk'},
+            ]},
         ])
 
     def scenario(self, name):
@@ -143,6 +171,22 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertNotIn('lateKantoStory', main)
         self.assertNotIn('function FossilRevival.install', text)
         self.assertNotIn('SourceEvents', text)
+        self.assertNotIn('__mode', text)
+        self.assertIn('wFossilItem:', text)
+        self.assertIn('wFossilMon:', text)
+        host_text = HOST.read_text()
+        self.assertIn('SessionCodec.encode', host_text)
+        self.assertIn('SessionCodec.decode', host_text)
+        for relative in (
+            'Source/main.lua',
+            'Source/data/sourceMaps.json',
+            'Source/domain/sessionCodec.lua',
+            'Source/domain/gameSession.lua',
+            'Source/domain/saveStore.lua',
+        ):
+            untouched = (ROOT / relative).read_text()
+            self.assertNotIn('wFossil', untouched)
+            self.assertNotIn('fossilRevival', untouched)
         installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_text())['maps']
         for name in (self.revival['scientist']['map'], self.revival['still_reviving_cleared_on_map_load']['map']):
             self.assertIn(name, self.scenes['missing_maps'])
@@ -251,6 +295,118 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertEqual(self.flags(revived), (False, False, False))
         self.assertEqual(revived['state']['party'], 6)
         self.assertEqual(revived['state']['counts'][self.helix['species']], 1)
+
+    def choice_ids(self, item, species):
+        return [f'wFossilItem:{item}', f'wFossilMon:{species}']
+
+    def test_a_declined_choice_survives_codec_bytes(self):
+        steps = self.scenario('continue-declined')
+        chosen = steps[1]
+        self.assertEqual(chosen['state']['pending'], {'item': self.dome['item'], 'species': self.dome['species']})
+        self.assertEqual(self.flags(chosen), (False, False, False))
+        continued = steps[2]
+        self.assertEqual(continued['result']['status'], 'continued')
+        self.assertEqual(continued['result']['codec'], 4)
+        self.assertNotEqual(continued['state']['process'], chosen['state']['process'])
+        self.assertEqual(continued['state']['pending'], chosen['state']['pending'])
+        self.assertEqual(continued['state']['choice'], self.choice_ids(self.dome['item'], self.dome['species']))
+        self.assertEqual(self.flags(continued), (False, False, False))
+        self.assertEqual(continued['state']['items'][self.dome['item']], 1)
+        self.assertEqual(continued['state']['counts'][self.dome['species']], 0)
+        for flag in self.choice_ids(self.dome['item'], self.dome['species']):
+            self.assertIn(f'"{flag}":true', continued['result']['bytes'])
+
+    def test_the_given_fossil_revives_from_a_second_session(self):
+        steps = self.scenario('continue-choice')
+        given = steps[1]
+        self.assertEqual(given['result']['status'], 'reviving')
+        self.assertEqual(given['state']['items'][self.dome['item']], 0)
+        continued = steps[2]
+        self.assertEqual(continued['result']['status'], 'continued')
+        self.assertEqual(continued['result']['codec'], 4)
+        self.assertNotEqual(continued['state']['process'], given['state']['process'])
+        self.assertEqual(continued['state']['pending'], {'item': self.dome['item'], 'species': self.dome['species']})
+        self.assertEqual(continued['state']['choice'], self.choice_ids(self.dome['item'], self.dome['species']))
+        self.assertEqual(self.flags(continued), (True, True, False))
+        self.assertEqual(continued['state']['counts'][self.dome['species']], 0)
+        for flag in self.choice_ids(self.dome['item'], self.dome['species']):
+            self.assertIn(f'"{flag}":true', continued['result']['bytes'])
+        self.assertEqual(steps[3]['result']['status'], 'ignored')
+        self.assertEqual(steps[4]['result']['status'], 'cleared')
+        revived = steps[5]
+        self.assertEqual(revived['result']['status'], 'revived')
+        self.assertEqual(revived['result']['destination'], 'party')
+        self.assertEqual(revived['result']['species'], self.dome['species'])
+        self.assertEqual(revived['result']['level'], self.revival['level'])
+        self.assertEqual(revived['state']['counts'][self.dome['species']], 1)
+        self.assertTrue(revived['state']['owned'][self.dome['species']])
+        self.assertEqual(revived['state']['choice'], [])
+        self.assertIsNone(revived['state']['pending'])
+        self.assertEqual(self.flags(revived), (False, False, False))
+        self.assertEqual(steps[6]['result']['status'], 'no-fossils')
+        self.assertEqual(steps[6]['state']['counts'][self.dome['species']], 1)
+
+    def test_full_party_and_current_box_fail_atomically_across_continue(self):
+        steps = self.scenario('continue-box-full')
+        given = steps[2]
+        self.assertEqual(given['result']['status'], 'reviving')
+        self.assertEqual(given['state']['party'], 6)
+        self.assertEqual(given['state']['box'], 20)
+        self.assertEqual(steps[3]['result']['status'], 'still-reviving')
+        failed = steps[5]
+        self.assertEqual(failed['result'], {'ok': False, 'status': 'box-full'})
+        self.assertEqual(self.flags(failed), (True, False, True))
+        self.assertEqual(failed['state']['counts'][self.amber['species']], 0)
+        self.assertFalse(failed['state']['owned'][self.amber['species']])
+        self.assertEqual(failed['state']['party'], 6)
+        self.assertEqual(failed['state']['box'], 20)
+        self.assertEqual(failed['state']['rolls'], steps[4]['state']['rolls'])
+        self.assertEqual(failed['state']['pending'], {'item': self.amber['item'], 'species': self.amber['species']})
+        continued = steps[6]
+        ids = self.choice_ids(self.amber['item'], self.amber['species'])
+        self.assertEqual(continued['result']['status'], 'continued')
+        self.assertEqual(continued['result']['codec'], 4)
+        self.assertNotEqual(continued['state']['process'], failed['state']['process'])
+        self.assertEqual(continued['state']['party'], 6)
+        self.assertEqual(continued['state']['box'], 20)
+        self.assertEqual(continued['state']['boxIndex'], 1)
+        self.assertEqual(continued['state']['pending'], failed['state']['pending'])
+        self.assertEqual(continued['state']['choice'], ids)
+        self.assertEqual(self.flags(continued), (True, False, True))
+        self.assertEqual(continued['state']['counts'][self.amber['species']], 0)
+        self.assertIn(f'"{self.handing}":true', continued['result']['bytes'])
+        for flag in ids:
+            self.assertIn(f'"{flag}":true', continued['result']['bytes'])
+        again = steps[7]
+        self.assertEqual(again['result'], {'ok': False, 'status': 'box-full'})
+        self.assertEqual(self.flags(again), (True, False, True))
+        self.assertEqual(again['state']['counts'][self.amber['species']], 0)
+        self.assertFalse(again['state']['owned'][self.amber['species']])
+        self.assertEqual(again['state']['party'], 6)
+        self.assertEqual(again['state']['box'], 20)
+        self.assertEqual(again['state']['rolls'], failed['state']['rolls'])
+        self.assertEqual(again['state']['pending'], failed['state']['pending'])
+        revived = steps[9]
+        self.assertEqual(revived['result']['status'], 'revived')
+        self.assertEqual(revived['result']['destination'], 'storage')
+        self.assertEqual(revived['result']['box'], 2)
+        self.assertEqual(revived['result']['species'], self.amber['species'])
+        self.assertEqual(revived['result']['level'], self.revival['level'])
+        self.assertEqual(revived['state']['counts'][self.amber['species']], 1)
+        self.assertTrue(revived['state']['owned'][self.amber['species']])
+        self.assertEqual(self.flags(revived), (False, False, False))
+        self.assertEqual(revived['state']['choice'], [])
+        self.assertIsNone(revived['state']['pending'])
+        saved = steps[10]
+        self.assertEqual(saved['result']['status'], 'continued')
+        self.assertNotEqual(saved['state']['process'], revived['state']['process'])
+        self.assertEqual(saved['state']['counts'][self.amber['species']], 1)
+        self.assertIsNone(saved['state']['pending'])
+        self.assertEqual(saved['state']['choice'], [])
+        for flag in ids:
+            self.assertNotIn(f'"{flag}":true', saved['result']['bytes'])
+        self.assertEqual(steps[11]['result']['status'], 'no-fossils')
+        self.assertEqual(steps[11]['state']['counts'][self.amber['species']], 1)
 
     def test_species_and_level_come_from_the_generator_table(self):
         revived = self.scenario('follows-table')[3]
