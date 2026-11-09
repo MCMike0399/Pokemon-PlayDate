@@ -52,6 +52,11 @@ The next process from that landing won Rocket
 Live slot B is sequence 126 at 3F `(18, 8)` facing left, door open,
 Card Key held, money 52957. Peak VmHWM 846131200.
 
+`linux-silph-7f-20261109-01` resumed that door and reached 7F. The rival
+intro `m55c-silph_co_7f-source-trainer-0-intro` started, no battle result
+was committed, and the process was killed at VmHWM 1074069504. RSS did not
+fall. Do not repeat that 7F walk in one process that also retained 3F.
+
 ## 2026-11-09 surveys: Seafoam entry and exposed move gaps
 
 [Seafoam slice plan](bc-eaffd220-a2c4-545f-9ae4-2ffdb30985bc) and
