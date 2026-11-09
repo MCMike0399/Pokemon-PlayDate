@@ -1,5 +1,23 @@
 # Full-game execution ledger
 
+## 2026-11-09 Silph 7F rival battle started
+
+Continue from the earned opened-3F-door save, copied in, same hashes.
+The stair path landed on Silph 7F (5, 3). Two steps left opened the rival
+at (3, 3) and the battle started. No host kill on that walk.
+
+`20261109T214145Z-silph-7f-rival-battle.mp4` is 28.0 seconds, 400x240, 840
+frames of the LCD only. It shows "BLUE sent out PIDGEOT!" and then
+Blastoise using Strength. That process peaked at VmHWM 667054080. Lua heap
+during the clip was 8444 KiB. The earned adventure files were not rewritten.
+
+A second process from the same save reached the same battle. Pidgeot
+fainted. Blastoise went from Lv47 125/146 to Lv48 128/149. The stack then
+stayed `battle>party` while A was mashed, and VmHWM climbed from about
+649 MB to 760 MB with no further battle text. That process was stopped
+before the 900 MB ceiling. The rival is not defeated. This is not
+checkpoint C.
+
 ## 2026-11-09 hidden items and the Itemfinder
 
 The 54 pinned hidden-item rows are imported from `hidden_events.asm` and
