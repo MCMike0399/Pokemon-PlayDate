@@ -1,5 +1,41 @@
 # Full-game execution ledger
 
+## 2026-11-09 hourly clips and Gen V Dig
+
+`20261109T183245Z-silph-5f-card-key.mp4` is 22.0s and 330 frames of the
+400x240 title. The frames are not one stored picture. TitleState draws a
+static Blastoise and a static menu cursor, so the title does not cycle
+Pokémon or blink the way Pokémon Blue's title demo does. The same harness
+build still accepts menu input: a Down press moved the cursor from NEW GAME
+to OPTIONS. Hardware keys do nothing in that build because the harness
+replaces the button queries.
+
+`20261109T175100Z-title-and-silph-continue.mp4` is a 39.2s desktop recording.
+It opens on a Silph interior under the Simulator "Heads up!" dialog, the
+Simulator window disappears between 4.6s and 4.7s with no crash dialog, and
+the desktop remains until the recording's two-second end card. The entry
+runner had already stopped at 17:50:08 on its action bound and terminates
+the Simulator during cleanup. The 1 GiB card-door Simulator log starts at
+17:53:52, after this file. No Simulator log records a segfault. It is not
+treated as a game crash, and the old note was wrong.
+
+`20261109T190243Z-silph-3f-walk.mp4` is 36.0s of the 400x240 LCD only.
+Continue from the earned 3F door save walks the 3F hall and returns to
+(18, 8). Thirty-two of thirty-six one-second samples differ. The manual
+process climbed to VmHWM 1059057664 and was stopped. The earned
+adventure files in the door-save evidence were not rewritten.
+
+Style comparisons remain screenshot-only in
+`/opt/cursor/artifacts/style-options/` with `captions.txt`. No default art
+changed.
+
+Gen V Dig is a two-turn underground move. The first turn says it burrowed
+and spends one PP. The locked second turn is the 80-power hit. Earthquake
+and Magnitude double final damage against that target. Other moves miss
+unless No Guard is up. Flying-type and Levitate immunity still apply.
+The reviewed Solar Beam, Skull Bash, and Fly charge function was not edited.
+Host check `tools/tests/dig_host.lua` passes.
+
 ## 2026-11-09 Card Key earned under the host ceiling
 
 The failed pickup at `43e31ff6` did not attempt the ball. Continue on 5F
