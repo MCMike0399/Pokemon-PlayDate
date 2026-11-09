@@ -1523,25 +1523,37 @@ class MidgameJourney(vj.VermilionJourney):
             self.travel(self.zone('SilphCo1F'))
         self.ride_silph(5)
         padding = self.model().padding
-        on_card_pad = (self.state.get('zone_id') == self.zone('SilphCo5F')
-                       and self.position() == (9 + padding, 14))
-        if on_card_pad:
-            # A later process already saved on the pad. Load 9F only there,
-            # where this Simulator lifetime has not already walked the approach.
+        on_fifth = self.state.get('zone_id') == self.zone('SilphCo5F')
+        on_card_pad = on_fifth and self.position() == (9 + padding, 14)
+        at_card = (on_fifth and self.position() == (20 + padding, 16)
+                   and self.quantity('cardKey') >= 1)
+        if at_card:
+            self.summary['silph_card_resume'] = True
+        elif on_card_pad:
+            # This lifetime has not walked the approach. Take the 9F pad,
+            # return, and pick up the Card Key, then stop before the door.
             self.summary['silph_card_pad_resume'] = True
+            self.fixed_warp(5, (9, 14))
+            self.require(zone_id=self.zone('SilphCo9F'))
+            self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
+            self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
+            self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
+            if self.summary.get('silph_resume_skips_opening_heal'):
+                self.save()
+                raise ProtocolError('earned Silph Card Key Save boundary')
         else:
             self.fixed_leg('silph-fixed-routes.json', 'card-key-approach')
             if self.summary.get('silph_resume_skips_opening_heal'):
-                # The 9F pad load is what pushed the same process over 1 GiB
-                # after this approach. Save the earned pad position and stop.
-                # The next owned process resumes this marker and takes the warp.
+                # The 9F pad load pushed the same process over 1 GiB after
+                # this approach. Save the pad and leave the warp to the next
+                # owned process.
                 self.save()
                 raise ProtocolError('earned Silph 5F pad Save boundary')
-        self.fixed_warp(5, (9, 14))
-        self.require(zone_id=self.zone('SilphCo9F'))
-        self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
-        self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
-        self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
+            self.fixed_warp(5, (9, 14))
+            self.require(zone_id=self.zone('SilphCo9F'))
+            self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
+            self.fixed_leg('silph-fixed-routes.json', 'card-key-corridor')
+            self.pickup(cj.sid('SILPH_CO_5F', 8), 'cardKey')
         self.fixed_leg('silph-fixed-routes.json', 'card-key-return')
         self.fixed_warp(5, (9, 16))
         self.warp(self.zone('SilphCo5F'), 'pokered:SILPH_CO_9F:warps:5')
