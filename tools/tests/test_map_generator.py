@@ -8,6 +8,8 @@ import tempfile
 import unittest
 import zlib
 
+from tools.harness.protocol import shared_lock_directory
+
 PATH = Path(__file__).resolve().parents[1] / 'generate_kanto_maps.py'
 SPEC = importlib.util.spec_from_file_location('generate_kanto_maps', PATH)
 GEN = importlib.util.module_from_spec(SPEC)
@@ -143,15 +145,21 @@ class GeneratorTests(unittest.TestCase):
             GEN.object_events(Source('warp_event 3,7,LAST_MAP,0'),'X','X',8,8,{})
 
     def test_check_only_rejects_changed_or_extra_artifact_without_rewriting(self):
-        with tempfile.TemporaryDirectory(prefix='pokemon-map-pilot-test-',dir='/private/tmp') as directory:
+        allowed=shared_lock_directory()
+        self.assertEqual(GEN.shared_lock_directory(),allowed)
+        with tempfile.TemporaryDirectory(prefix='pokemon-map-pilot-test-',dir=allowed) as directory:
             root=Path(directory)
+            self.assertEqual(root.parent,allowed)
             (root/'map.json').write_bytes(b'original')
             GEN.publish({'map.json':b'original'},root,True)
             with self.assertRaisesRegex(GEN.MapError,'differs'):GEN.publish({'map.json':b'changed'},root,True)
             self.assertEqual((root/'map.json').read_bytes(),b'original')
             (root/'extra').mkdir()
             with self.assertRaisesRegex(GEN.MapError,'inventory'):GEN.publish({'map.json':b'original'},root,True)
-        with self.assertRaisesRegex(GEN.MapError,'output must'):GEN.publish({},PATH.parents[1]/'Source')
+        with self.assertRaisesRegex(GEN.MapError,f'output must be {allowed}/pokemon-map-pilot'):
+            GEN.publish({},PATH.parents[1]/'Source')
+        with self.assertRaisesRegex(GEN.MapError,'pokemon-map-pilot'):
+            GEN.publish({},allowed/'outside-prefix')
 
 
 @unittest.skipUnless(os.environ.get('KANTO_REFERENCE'),'set KANTO_REFERENCE for pinned real-source checks')

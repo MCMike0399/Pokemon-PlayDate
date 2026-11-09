@@ -15,6 +15,8 @@ import sys
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.harness.protocol import shared_lock_directory
 REVISION = 'af519899719f0754965776faac0e836a3b906e6d'
 SCHEMA = 1
 PILOT_MAPS = ('Route1', 'ViridianMart')
@@ -502,8 +504,9 @@ def artifacts(reference, names):
 
 def publish(artifacts_by_name, output, check=False):
     output=Path(output).expanduser().resolve()
-    if output.parent!=Path('/private/tmp') or not output.name.startswith('pokemon-map-pilot'):
-        raise MapError('output must be /private/tmp/pokemon-map-pilot or a sibling with that prefix')
+    allowed=shared_lock_directory()
+    if output.parent!=allowed or not output.name.startswith('pokemon-map-pilot'):
+        raise MapError(f'output must be {allowed}/pokemon-map-pilot or a sibling with that prefix')
     if check:
         if not output.is_dir(): raise MapError('check output directory missing')
         actual={path.name for path in output.iterdir()}
