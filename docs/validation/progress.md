@@ -1,5 +1,17 @@
 # Full-game execution ledger
 
+## 2026-11-10 Marsh Badge, the Fighting Dojo, and the Route 7 edge
+
+Lane A stays on `cursor/linux-runtime-seams-fcc0`. `0721a2b2` is that HEAD and includes `61ea7445` and `86816e8f`. Surf, the faint slide, the YES/NO shift prompt, and the single-box Intimidate line are already in `86816e8f`. Nothing from that batch was still open.
+
+Continue used the earned Giovanni save. Sabrina was won on attempt 1. Evidence is `linux-saffron-marsh-badge-20261110-01`. Slot B is sequence 130, sha256 `48231ad03ad6f29d2272edd75036b8053664fa64705b01f993fbcd94bd84120f`, at Saffron Gym (9, 9) facing up. Slot A is still the Giovanni file, sha256 `2093432634b6313b0d5645cf6c747ed29b3f81239cfeed5ccdf73b67ed9bcbec`. `BADGE_MARSH` and `EVENT_BEAT_SABRINA` are set. Blastoise was Lv50 with 103/155 HP.
+
+The gym exit is the bottom-row edge door. The party healed to full at the Saffron Pokécenter. The Dojo's four blackbelts fell to Surf. The Karate Master started on stepping onto source (4, 3), grid (5, 3). His party was Hitmonlee then Hitmonchan, both Lv37. That was one master fight and no blackout. Skull Bash charged and hit, and the shift prompt was declined with B. Hitmonlee came from the left ball and went to box storage because the party was full. `EVENT_GOT_HITMONCHAN` stays clear. Evidence is `linux-fighting-dojo-20261110-01`. Slot A is sequence 131, sha256 `0e893b6be25f3e1b5751241ff92d5990a77d5b8af124c4d6690580c3bc058268`, in the Dojo at grid (5, 2) facing up. Slot B is still the badge file. Blastoise is Lv51 with 144 HP.
+
+Saffron (0, 10) facing left is an edge door onto Route 7 (19, 2). The Saffron drink flag was already set. HM02 is not received. The next walk is the Route 7 gate, Celadon, and the Route 16 Fly house. Route 16 Snorlax is already beaten, so that one-tile road is open.
+
+Clip `20261110T051809Z-saffron-sabrina.mp4` is 90 seconds, 400x240, the Dojo battle. VmHWM stayed at 231960 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on.
+
 ## 2026-11-10 Move select, level-up stats, learn move, and é
 
 Clip `20261110T031342Z` (`battle-flow-fidelity`). Five fixes, each with a contract. Pokered is `af519899719f0754965776faac0e836a3b906e6d`.
