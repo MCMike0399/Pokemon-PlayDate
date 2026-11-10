@@ -95,6 +95,65 @@ function BattleLearningContracts.run()
         local index;for i,key in ipairs(p.moves) do if key=="bubble" then index=i end end
         assert(b:selectMove(index));settle(b);eq(p.pp.bubble,29)
     end)
+    test("Learned Bubble stays in the battle text box over the scene", function()
+        local game, owner = setup()
+        faint(owner)
+        local learning = overlay(game, owner)
+        eq(learning.phase, "message")
+        local line = learning.dialog.lines[1]
+        assert(line:find("learned", 1, true), line)
+        assert(line:find(moveData[learning.pendingMove].name, 1, true), line)
+        assert(not line:find("MOVE LEARNING", 1, true), line)
+        learning.dialog.charIndex = #line
+        local image = playdate.graphics.image.new(400, 240, playdate.graphics.kColorWhite)
+        playdate.graphics.pushContext(image)
+        game.machine:draw()
+        playdate.graphics.popContext()
+        local gfx = playdate.graphics
+        local function blackIn(x0, y0, x1, y1)
+            local count = 0
+            for y = y0, y1 do
+                for x = x0, x1 do
+                    if image:sample(x, y) == gfx.kColorBlack then count = count + 1 end
+                end
+            end
+            return count
+        end
+        -- The fainted enemy's panel is gone. The player platform is not on the
+        -- old white "MOVE LEARNING" page, and that title is not at the top.
+        eq(image:sample(20, 150), gfx.kColorBlack)
+        assert(blackIn(16, 4, 220, 22) < 10, "no MOVE LEARNING title")
+        assert(blackIn(14, 190, 280, 230) > 15, "learned line in the text box")
+    end)
+    test("A full moveset uses the Blue trying-to-learn and forget prompts", function()
+        local game, owner, p = setup(nil, nil, {"tackle", "tailWhip", "withdraw", "waterGun"})
+        faint(owner)
+        local learning = overlay(game, owner)
+        eq(learning.phase, "ask")
+        eq(learning.menu.options[1], "YES")
+        eq(learning.menu.options[2], "NO")
+        assert(learning.prompt:find("trying to learn", 1, true))
+        assert(learning.prompt:find("can't learn more", 1, true))
+        assert(learning.prompt:find("than 4 moves", 1, true))
+        local image = playdate.graphics.image.new(400, 240, playdate.graphics.kColorWhite)
+        playdate.graphics.pushContext(image)
+        game.machine:draw()
+        playdate.graphics.popContext()
+        eq(image:sample(20, 150), playdate.graphics.kColorBlack)
+        learning.menu.onSelect(1)
+        eq(learning.phase, "replace")
+        assert(learning.prompt:find("Which move should", 1, true))
+        assert(learning.prompt:find("be forgotten?", 1, true))
+        learning.menu.onCancel()
+        eq(learning.phase, "ask")
+        learning.menu.onSelect(2)
+        eq(learning.phase, "stop")
+        assert(learning.prompt:find("Abandon learning", 1, true))
+        assert(learning.prompt:find(moveData[learning.pendingMove].name, 1, true))
+        learning.menu.onSelect(2)
+        eq(learning.phase, "ask")
+        eq(p:hasMove("bubble"), false)
+    end)
     test("Full moveset back and refusal preserve all old moves and PP",function()
         local game,owner,p=setup(nil,nil,{"tackle","tailWhip","withdraw","waterGun"});p.pp.tackle=3
         local b=faint(owner);local learning=overlay(game,owner);eq(learning.phase,"ask")

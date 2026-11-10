@@ -514,6 +514,48 @@ function BattlePresentationContracts.run()
         scene:drawBattleField()
         gfx.popContext()
         equal(scene.textCache["shift-prompt"].text, prompt)
+        local font = gfx.getSystemFont()
+        local page = SourceTextFont.paginate(prompt, font, 276)[1]
+        equal(page, prompt)
+        local glyph = gfx.image.new(16, 16, gfx.kColorWhite)
+        gfx.pushContext(glyph)
+        gfx.setDrawOffset(0, 0)
+        SourceTextFont.draw("é", 0, 0, font)
+        gfx.popContext()
+        local blacks, anchorX, anchorY = 0, nil, nil
+        for gy = 0, 15 do
+            for gx = 0, 15 do
+                if glyph:sample(gx, gy) == gfx.kColorBlack then
+                    blacks = blacks + 1
+                    if not anchorX then anchorX, anchorY = gx, gy end
+                end
+            end
+        end
+        assert(blacks > 20, "pokered é glyph has ink")
+        local function patternAt(ox, oy)
+            for gy = 0, 15 do
+                for gx = 0, 15 do
+                    if glyph:sample(gx, gy) ~= image:sample(ox + gx, oy + gy) then
+                        return false
+                    end
+                end
+            end
+            return true
+        end
+        -- The system font has no é (charmap $ba). The prompt must contain
+        -- the pinned font.png glyph, not a missing-glyph box.
+        local found = false
+        for y = 188, 224 do
+            for x = 14, 270 do
+                if image:sample(x, y) == gfx.kColorBlack
+                    and patternAt(x - anchorX, y - anchorY) then
+                    found = true
+                    break
+                end
+            end
+            if found then break end
+        end
+        assert(found, "shift prompt is missing the pokered é glyph")
         scene.shiftMenu.onSelect(2)
         equal(battle.shiftChoice, nil)
         equal(battle.player, lead)
@@ -648,6 +690,62 @@ function BattlePresentationContracts.run()
             end
         end
         equal(feet.squirtle, slotBottom)
+    end)
+
+    test("Move select keeps the back sprite and one shared box border", function()
+        local battle, scene, mon = commandScene("squirtle", "magikarp")
+        scene.playerShown = mon
+        scene.enemyShown = battle.enemy
+        local names = {}
+        scene.moveKeys = {}
+        for _, key in ipairs(battle.player.moves) do
+            scene.moveKeys[#scene.moveKeys + 1] = key
+            names[#names + 1] = moveData[key].name
+        end
+        scene.inMoveSelect = true
+        scene.moveMenu:show(BattleScene.moveSlots(names), function() end)
+        local layout = BattleScene.moveSelectLayout()
+        equal(layout.typeBox.y + layout.typeBox.h - 1, layout.moveBox.y)
+        equal(layout.sharedRow, layout.moveBox.y)
+        equal(layout.typeBox.x, 0)
+        equal(layout.typeBox.w, 220)
+        equal(layout.moveBox.x, 80)
+        equal(layout.moveBox.w, 320)
+        equal(layout.junctionX, 219)
+        local function field()
+            local image = gfx.image.new(400, 240, gfx.kColorWhite)
+            gfx.pushContext(image)
+            gfx.setDrawOffset(0, 0)
+            gfx.clearClipRect()
+            scene:drawBattleField()
+            gfx.clearClipRect()
+            gfx.popContext()
+            return image
+        end
+        local function band(image)
+            local count = 0
+            for y = 88, layout.typeBox.y - 1 do
+                for x = 55, 135 do
+                    if image:sample(x, y) == gfx.kColorBlack then count = count + 1 end
+                end
+            end
+            return count
+        end
+        local shown = field()
+        scene.playerShown = nil
+        local hidden = field()
+        scene.playerShown = mon
+        assert(band(shown) - band(hidden) > 40, "back sprite above the type box")
+        local shared = layout.sharedRow
+        equal(shown:sample(4, shared - 1), gfx.kColorWhite)
+        equal(shown:sample(4, shared), gfx.kColorBlack)
+        equal(shown:sample(4, shared + 1), gfx.kColorWhite)
+        equal(shown:sample(120, shared - 1), gfx.kColorWhite)
+        equal(shown:sample(120, shared), gfx.kColorBlack)
+        equal(shown:sample(120, shared + 1), gfx.kColorWhite)
+        equal(shown:sample(layout.junctionX, shared), gfx.kColorBlack)
+        equal(shown:sample(4, 161), gfx.kColorWhite)
+        scene:exit()
     end)
 
     test("Player send-out plants back-sprite feet on the slot bottom", function()

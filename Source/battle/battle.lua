@@ -1707,12 +1707,13 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
                     -- pokered engine/battle/experience.asm prints GrewLevelText
                     -- and then PrintStatsBox with d = LEVEL_UP_STATS_BOX, and
                     -- waits (WaitForTextScrollButtonPress) before LearnMove.
-                    -- status_screen.asm PrintStatsBox lists ATTACK, DEFENSE,
-                    -- SPEED, and SPECIAL. This engine's special is split; the
-                    -- Blue box's SPECIAL line shows special attack.
+                    -- status_screen.asm .StatsText lists one SPECIAL. The
+                    -- port's stats stay the Gen V split (docs/plans/full-game-goal.md;
+                    -- calcDamage uses spa against spd), so the box shows both.
                     self.levelStats = {
                         attack = row.after.atk, defense = row.after.def,
-                        speed = row.after.spe, special = row.after.spa,
+                        speed = row.after.spe,
+                        spAttack = row.after.spa, spDefense = row.after.spd,
                     }
                     coroutine.yield("levelStats")
                     self.levelStats = nil
@@ -1755,7 +1756,8 @@ function Battle:finishRound()
                 and self.player:isAlive() and self.party and #self:eligibleForcedReplacements(self.player) > 0 then
                 -- pokered data/text/text_2.asm _TrainerAboutToUseText, shown
                 -- with TWO_OPTION_MENU (engine/battle/core.asm). The # glyph
-                -- is POKé; this font draws it as POKéMON.
+                -- is POKé. constants/charmap.asm maps é to $ba, and the
+                -- battle text draws that source glyph.
                 local title = self.session and self.session:title()
                 local playerName = title and title.playerName or "RED"
                 self:say(self.trainerName .. " is about to use " .. incoming.name

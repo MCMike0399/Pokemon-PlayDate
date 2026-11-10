@@ -1,5 +1,19 @@
 # Full-game execution ledger
 
+## 2026-11-10 Move select, level-up stats, learn move, and é
+
+Clip `20261110T031342Z` (`battle-flow-fidelity`). Five fixes, each with a contract. Pokered is `af519899719f0754965776faac0e836a3b906e6d`.
+
+The back sprite stays missing on move select because `252dd911` plants the feet on the slot bottom and the type box at y=96 covers that ink. `MoveSelectionMenu` (`engine/battle/core.asm`) and `PrintMenuItem` share row 12: the move box is `hlcoord 4,12` `b=4` `c=14` with `[4,12]='─'` and `[10,12]='┘'`, then the type box is `hlcoord 0,8` `b=3` `c=9`. `TextBoxBorder` (`home/text.asm`) is the box. The Playdate boxes now share one pixel row, the left gutter below that row is cleared (the stray lines were the platform at y=161 and y=168), and the player picture is redrawn above the type box after the white fill. The foot anchor itself is unchanged.
+
+Level-up stats show SP. ATK and SP. DEF, not SPECIAL. `docs/plans/full-game-goal.md` (the source-of-truth table) makes battle rules, base stats, and the physical/special split Gen V. `calcDamage` in `Source/battle/battle.lua` already uses `spa` when `move.category == "special"` and `spd` on the defender. Pokered `PrintStatsBox` (`.LevelUpStatsBox` / `.StatsText` in `engine/pokemon/status_screen.asm`) prints one SPECIAL. Copying that line would hide special defense, so the box lists ATTACK, DEFENSE, SP. ATK, SP. DEF, and SPEED. The single SPECIAL line is not kept.
+
+Learning Bubble no longer clears to a white "MOVE LEARNING" page. `LearnMove` (`engine/pokemon/learn_move.asm`) prints `_LearnedMove1Text` (`data/text/text_4.asm`) in the text box over the saved screen. A full set uses `_TryingToLearnText` (YES continues, NO abandons), `_WhichMoveToForgetText` with the `hlcoord 4,7` list, `_AbandonLearningText`, `_DidNotLearnText`, and `_HMCantDeleteText`. The session still asks before it writes the forgotten slot. The phase indexes are the same.
+
+The shift line's é is the pokered glyph. `constants/charmap.asm` maps `é` to `$ba`, and the pinned rows in `sourceText.json` are that glyph from `gfx/font/font.png`. Battle text now draws through `SourceTextFont` instead of the system font's missing-glyph box.
+
+The matching full-frame back-sprite shots are already in the artifacts: `player-back-sprite-before-full.png` and `player-back-sprite-after-full.png`. This batch does not move the foot line, so those frames still match the anchor.
+
 ## 2026-11-10 The Bayer shade file is the 946c4b00 blob
 
 `test_preexisting_input_art_and_old_manifest_entries_are_unchanged` compared

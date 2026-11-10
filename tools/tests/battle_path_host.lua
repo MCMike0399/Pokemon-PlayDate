@@ -267,6 +267,13 @@ sameList(BattleScene.moveSlots({"TACKLE"}), {"TACKLE", "-", "-", "-"}, "one move
 local layout = BattleScene.moveSelectLayout()
 eq(layout.rows, 4, "four move rows")
 eq(layout.promptDrawn, false, "command line is not redrawn")
+eq(layout.typeBox.y + layout.typeBox.h - 1, layout.moveBox.y, "one shared border row")
+eq(layout.sharedRow, layout.moveBox.y, "shared row is the move box top")
+eq(layout.typeBox.x, 0, "type box starts at column 0")
+eq(layout.typeBox.w, 11 * 20, "type box is 11 tiles wide")
+eq(layout.moveBox.x, 4 * 20, "move box starts at column 4")
+eq(layout.moveBox.w, 16 * 20, "move box is 16 tiles wide")
+eq(layout.junctionX, 11 * 20 - 1, "corner sits on column 10")
 eq(math.floor((layout.moveBox.h - 8) / layout.line) >= 4, true, "four names fit")
 local function covered(x, y)
     for _, rect in ipairs(layout.clears) do

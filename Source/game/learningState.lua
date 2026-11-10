@@ -141,6 +141,7 @@ function LearningState:nextChoice()
             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
         elseif #self.pokemon.moves < 4 then
             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
+            -- data/text/text_4.asm _LearnedMove1Text, printed by PrintLearnedMove.
             self:message({self.pokemon.name .. " learned " .. moveData[choice.move].name .. "!"}, "learned")
             return
         else
@@ -156,8 +157,15 @@ function LearningState:showAsk()
     self.phase = "ask"
     self.messageKind = nil
     self.slot = nil
+    local name = moveData[self.pendingMove].name
+    local mon = self.pokemon.name
+    -- data/text/text_4.asm _TryingToLearnText. YES is menu item 0:
+    -- TryingToLearn does `rra` / `ret c`, so item 0 continues into the
+    -- forget list and item 1 (NO) returns carry to AbandonLearning.
+    self.prompt = mon .. " is\ntrying to learn\n" .. name
+        .. "!\n\nBut, " .. mon .. "\ncan't learn more\nthan 4 moves!\n\nDelete an older\nmove to make room\nfor " .. name .. "?"
     self.menu.columns = 1
-    self.menu:show({"LEARN", "KEEP MOVES"}, self:guard(function(index)
+    self.menu:show({"YES", "NO"}, self:guard(function(index)
         if index == 1 then
             self:showReplacement()
         else
@@ -170,11 +178,14 @@ function LearningState:showStopConfirmation()
     self.viewGeneration = self.viewGeneration + 1
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
     self.phase = "stop"
+    -- _AbandonLearningText. YES (item 0) falls through to DidNotLearnText.
+    -- NO (item 1) jumps back to DontAbandonLearning.
+    self.prompt = "Abandon learning\n" .. moveData[self.pendingMove].name .. "?"
     self.menu:show({"YES", "NO"}, self:guard(function(index)
         if index == 2 then self:showAsk(); return end
         local result = self:resolveChoice("decline")
         self.results[#self.results + 1] = result
-        self:message({self.pokemon.name .. " did not learn " .. moveData[self.pendingMove].name .. "."}, "declined")
+        self:message({self.pokemon.name .. " did not learn " .. moveData[self.pendingMove].name .. "!"}, "declined")
     end), self:guard(function() self:showAsk() end))
 end
 
@@ -182,6 +193,8 @@ function LearningState:showReplacement(selected)
     self.viewGeneration = self.viewGeneration + 1
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
     self.phase = "replace"
+    -- _WhichMoveToForgetText, then the hlcoord 4,7 b=4 c=14 list.
+    self.prompt = "Which move should\nbe forgotten?"
     local options = {}
     for _, key in ipairs(self.pokemon.moves) do
         local move = moveData[key]
@@ -199,10 +212,16 @@ function LearningState:showConfirmation()
     self.viewGeneration = self.viewGeneration + 1
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
     self.phase = "confirm"
-    self.menu:show({"FORGET MOVE", "BACK"}, self:guard(function(index)
+    local forgotten = moveData[self.pokemon.moves[self.slot]].name
+    local name = moveData[self.pendingMove].name
+    -- LearnMove writes the move as soon as the list returns it. This
+    -- session still asks before that write. YES commits; NO returns to
+    -- the same list slot. _HMCantDeleteText blocks an HM.
+    self.prompt = "Forget " .. forgotten .. " and\nlearn " .. name .. "?"
+    self.menu:show({"YES", "NO"}, self:guard(function(index)
         if index == 2 then self:showReplacement(self.slot); return end
         if Teaching.protectedMove(self.pokemon.moves[self.slot]) then
-            self:message({"HM moves can't be forgotten here."},"protected-hm");return
+            self:message({"HM techniques can't be deleted!"},"protected-hm");return
         end
         local result = self:resolveChoice("learn", self.slot)
         self.results[#self.results + 1] = result
@@ -248,10 +267,35 @@ function LearningState:getSnapshot()
         pokemon = self.pokemon and self.pokemon.species or ""}
 end
 
-local function box(x, y, width, height, text)
-    gfx.setColor(gfx.kColorWhite); gfx.fillRect(x, y, width, height)
-    gfx.setColor(gfx.kColorBlack); gfx.drawRect(x, y, width, height)
-    if text then gfx.drawTextInRect(text, x + 10, y + 9, width - 20, height - 12) end
+function LearningState:battleUnderneath()
+    local machine = self.machine
+    if not machine or type(machine.stack) ~= "table" then return nil end
+    for _, state in ipairs(machine.stack) do
+        if state == self then return nil end
+        if state.name == "battle" and state.scene then return state end
+    end
+    return nil
+end
+
+local function battleText(text, width)
+    local boxY, boxH = 180, 60
+    gfx.setColor(gfx.kColorBlack)
+    gfx.fillRect(0, boxY, 400, boxH)
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(4, boxY + 4, 392, boxH - 8)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(4, boxY + 4, 392, boxH - 8)
+    if not text or text == "" then return end
+    local font = gfx.getSystemFont()
+    gfx.setFont(font)
+    local page = SourceTextFont.paginate(text, font, width or 360)[1] or ""
+    local y = boxY + 8
+    local step = font:getHeight() + font:getLeading()
+    for row in (page .. "\n"):gmatch("(.-)\n") do
+        if y + font:getHeight() > boxY + boxH - 4 then break end
+        SourceTextFont.draw(row, 14, y, font)
+        y = y + step
+    end
 end
 
 function LearningState:draw()
@@ -260,28 +304,20 @@ function LearningState:draw()
     local font = gfx.getFont()
     gfx.setDrawOffset(0, 0)
     gfx.setFont(gfx.getSystemFont())
-    gfx.clear(gfx.kColorWhite)
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawText(self.pokemon.name .. "  MOVE LEARNING", 16, 4)
+    -- LearnMove prints into the battle text box over the saved screen
+    -- (SaveScreenTilesToBuffer1). A battle under this state stays up.
+    -- There is no separate "MOVE LEARNING" page.
+    local battle = self:battleUnderneath()
+    if battle then battle:draw() else gfx.clear(gfx.kColorWhite) end
     if self.phase == "message" then
         self.dialog:draw()
-    elseif self.phase ~= "idle" then
-        local name = moveData[self.pendingMove].name
-        if self.phase == "replace" then
-            box(12, 26, 376, 38, "Choose a move to forget.")
-            self.menu:draw(12, 72, 376, 96)
-            box(4, 184, 392, 52, "Learning " .. name .. ".  B: Back")
-        elseif self.phase == "stop" then
-            self.menu:draw(12, 112, 376, 60)
-            box(4, 184, 392, 52, "Stop trying to learn " .. name .. "?")
-        elseif self.phase == "confirm" then
-            local forgotten = moveData[self.pokemon.moves[self.slot]].name
-            self.menu:draw(12, 112, 376, 60)
-            box(4, 184, 392, 52, "Forget " .. forgotten .. " and learn " .. name .. "?")
-        else
-            self.menu:draw(12, 112, 376, 60)
-            box(4, 184, 392, 52, self.pokemon.name .. " wants to learn " .. name .. ".")
-        end
+    elseif self.phase == "replace" then
+        -- hlcoord 4,7 b=4 c=14, above WhichMoveToForgetText.
+        self.menu:draw(80, 84, 308, 88)
+        battleText(self.prompt, 360)
+    elseif self.phase ~= "idle" and self.phase ~= "closed" then
+        battleText(self.prompt, 270)
+        self.menu:draw(300, 184, 92, 52)
     end
     gfx.setFont(font)
     gfx.setDrawOffset(x, y)

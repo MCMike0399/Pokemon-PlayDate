@@ -77,26 +77,37 @@ function BattleScene.moveSlots(names)
     end
     return slots
 end
--- MoveSelectionMenu's regular box is hlcoord 4,12 b=4 c=14. PrintMenuItem's
--- box is hlcoord 0,8 b=3 c=9. TextBoxBorder fills that interior with spaces
--- before any text, which is what removes the battle menu line. The battle
--- menu template itself is tiles (8,12)-(19,17), inside the move box.
--- The 400x240 battle UI uses 20px tiles across and 16px text rows, the same
--- size as the command text, so four names fit without scrolling.
+-- MoveSelectionMenu's regular box is hlcoord 4,12 b=4 c=14
+-- (engine/battle/core.asm). It then patches [4,12] to '─' and [10,12] to
+-- '┘'. PrintMenuItem draws hlcoord 0,8 b=3 c=9 afterwards, so that bottom
+-- row is one shared line: the type box's bottom and the left of the move
+-- box's top. TextBoxBorder (home/text.asm) fills the interior with spaces,
+-- which is what removes the battle menu line. The menu template itself is
+-- tiles (8,12)-(19,17), inside the move box.
+-- The 400x240 battle UI uses 20px columns and 16px text rows. The shared
+-- edge is one pixel, not two stacked strokes. The type box starts below
+-- the upper body of the back sprite. Commit 252dd911 plants those feet on
+-- the slot bottom, so a box at the old y=96 covered the picture.
 function BattleScene.moveSelectLayout()
     local line = 16
-    local moveH = 8 + 4 * line + 8
-    local typeH = 8 + 3 * line + 8
+    local moveH = 8 + 4 * line
     local moveY = 240 - moveH
-    local typeBox = {x = 0 * 20, y = moveY - typeH, w = 11 * 20, h = typeH}
+    local typeH = 4 + 3 * line + 1
+    local typeY = moveY - typeH + 1
+    local typeBox = {x = 0 * 20, y = typeY, w = 11 * 20, h = typeH}
     local moveBox = {x = 4 * 20, y = moveY, w = 16 * 20, h = moveH}
     return {
         typeBox = typeBox,
         moveBox = moveBox,
+        sharedRow = moveY,
+        junctionX = typeBox.x + typeBox.w - 1,
         clears = {
             typeBox,
             moveBox,
-            {x = 0, y = 180, w = 4 * 20, h = 60},
+            -- Columns 0-3 under the shared row are outside the move box.
+            -- Filling them removes the platform lines that used to survive
+            -- at y=161 and y=168.
+            {x = 0, y = moveY, w = 4 * 20, h = moveH},
         },
         rows = 4,
         line = line,
@@ -473,9 +484,20 @@ function BattleScene:_wrapped(slot, text, width, height)
     gfx.setDrawOffset(0, 0)
     gfx.clearClipRect()
     gfx.clearStencil()
-    gfx.setFont(gfx.getSystemFont())
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
-    gfx.drawTextInRect(text, 0, 0, width, height)
+    local font = gfx.getSystemFont()
+    gfx.setFont(font)
+    -- constants/charmap.asm maps "é" to $ba. The pinned 8x8 rows live in
+    -- sourceText.json (gfx/font/font.png). The system font draws that byte
+    -- as a missing-glyph box, so battle text uses the source glyph.
+    local page = SourceTextFont.paginate(text, font, width)[1] or ""
+    local y = 0
+    local step = font:getHeight() + font:getLeading()
+    for row in (page .. "\n"):gmatch("(.-)\n") do
+        if y + font:getHeight() > height then break end
+        SourceTextFont.draw(row, 0, y, font)
+        y = y + step
+    end
     gfx.popContext()
     entry = {text = text, image = image, width = width, height = height}
     cache[slot] = entry
@@ -654,7 +676,7 @@ function BattleScene:drawBattleField()
         gfx.drawLine(0, 170, 400, 170)
     end
     -- pokered PrintStatsBox draws the level-up window over the battlefield.
-    -- Paint it after the player panel so ATTACK/DEFENSE/SPEED/SPECIAL stay whole.
+    -- Paint it after the player panel so the stat lines stay whole.
     self:drawLevelStats()
 end
 
@@ -664,19 +686,28 @@ function BattleScene:drawMoveSelect()
     for _, rect in ipairs(layout.clears) do
         gfx.fillRect(rect.x, rect.y, rect.w, rect.h)
     end
+    -- The white fill covers the feet the foot anchor planted on the slot
+    -- bottom. Put the picture above the type box back. The clip is applied
+    -- inside drawPresentedPokemon, which replaces any clip of its own.
+    if self.playerShown and not self:isFaintSlide("player")
+        and not (self.flashHide and self.battle.attackerSide == "enemy") then
+        self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true, layout.typeBox.y)
+    end
     gfx.setColor(gfx.kColorBlack)
-    local typeBox = layout.typeBox
-    gfx.drawRect(typeBox.x, typeBox.y, typeBox.w, typeBox.h)
+    -- Move box first, then the type box, so the shared row and the ┘ at
+    -- column 10 belong to PrintMenuItem.
     local moveBox = layout.moveBox
     gfx.drawRect(moveBox.x, moveBox.y, moveBox.w, moveBox.h)
-    self:drawMoveDetail(typeBox.x + 12, typeBox.y + 8)
+    local typeBox = layout.typeBox
+    gfx.drawRect(typeBox.x, typeBox.y, typeBox.w, typeBox.h)
+    self:drawMoveDetail(typeBox.x + 12, typeBox.y + 4)
     local font = gfx.getSystemFont()
     local slots = self.moveMenu.options or {}
     for index, name in ipairs(slots) do
         local selected = index == self.moveMenu.selectedIndex
         local label = (selected and ">" or " ") .. name
         self:_text("move-name-" .. index .. (selected and "-s" or ""), label, font).image:draw(
-            moveBox.x + 16, moveBox.y + 8 + (index - 1) * layout.line)
+            moveBox.x + 16, moveBox.y + 4 + (index - 1) * layout.line)
     end
 end
 
@@ -917,7 +948,7 @@ function BattleScene:updateVisualEvent(request)
     self.battle:completePresentation(request)
 end
 
-function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
+function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack, maxY)
     local request = self.activePresentation
     local frame = self.presentationFrame or 0
     local size = 80
@@ -940,7 +971,10 @@ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
     if request and request.details.side == side and request.kind == "faint" then
         gfx.setClipRect(0, 0, 400, 168)
     else
-        gfx.setClipRect(x, y, 80, 80)
+        local clipH = 80
+        if maxY and maxY < y + 80 then clipH = maxY - y end
+        if clipH <= 0 then return end
+        gfx.setClipRect(x, y, 80, clipH)
     end
     local species = self.battle.conditions:speciesOf(mon)
     local sendingOut = request and request.details.side == side and request.kind == "sendout"
@@ -961,7 +995,21 @@ function BattleScene:isFaintSlide(side)
     return request ~= nil and request.kind == "faint" and request.details.side == side
 end
 
--- pokered status_screen.asm PrintStatsBox .LevelUpStatsBox / .StatsText.
+-- pokered status_screen.asm PrintStatsBox .LevelUpStatsBox prints one
+-- SPECIAL line (.StatsText). This battle's stats are the Gen V split
+-- (docs/plans/full-game-goal.md; calcDamage reads spa and spd), so the
+-- window lists SP. ATK and SP. DEF instead of that single SPECIAL.
+function BattleScene.levelStatLines(box)
+    assert(type(box) == "table", "level-up stats")
+    assert(type(box.spAttack) == "number" and type(box.spDefense) == "number", "split specials")
+    return {
+        {label = "ATTACK", value = box.attack},
+        {label = "DEFENSE", value = box.defense},
+        {label = "SP. ATK", value = box.spAttack},
+        {label = "SP. DEF", value = box.spDefense},
+        {label = "SPEED", value = box.speed},
+    }
+end
 function BattleScene:drawLevelStats()
     local box = self.battle.levelStats
     if not box then return end
@@ -970,16 +1018,10 @@ function BattleScene:drawLevelStats()
     gfx.fillRect(x, y, w, h)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawRect(x, y, w, h)
-    local lines = {
-        "ATTACK", string.format("%3d", box.attack),
-        "DEFENSE", string.format("%3d", box.defense),
-        "SPEED", string.format("%3d", box.speed),
-        "SPECIAL", string.format("%3d", box.special),
-    }
     local font = gfx.getSystemFont()
     gfx.setFont(font)
-    for index, line in ipairs(lines) do
-        gfx.drawText(line, x + 10, y + 6 + (index - 1) * 15)
+    for index, row in ipairs(BattleScene.levelStatLines(box)) do
+        gfx.drawText(string.format("%-8s%3d", row.label, row.value), x + 10, y + 8 + (index - 1) * 22)
     end
 end
 

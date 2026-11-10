@@ -16,9 +16,11 @@ Import `dev/learningContracts` and register `Contracts.register("learning", Lear
 
 A free slot learns immediately through `Pokemon:resolveMoveChoice`, then shows the standard learned-move message. The state keeps input ownership until the player acknowledges it. Existing PP remains unchanged; the newly learned move starts at its defined maximum PP.
 
-A full set shows LEARN / KEEP MOVES. LEARN opens the four known moves with current/max PP. Selecting a move opens FORGET MOVE / BACK; no model change occurs until FORGET MOVE is explicitly confirmed. B at confirmation returns to the same highlighted replacement slot; B in the move list returns to the initial prompt. The confirmed action shows separate forgotten/learned narration through the standard Dialog.
+A full set shows the pokered trying-to-learn text (`data/text/text_4.asm` `_TryingToLearnText`) with YES/NO. YES opens the four known moves with current/max PP and “Which move should be forgotten?”. Selecting a move asks before the write; YES commits and NO returns to the same slot. B at that question returns to the same highlighted slot; B in the move list returns to the trying-to-learn prompt. The confirmed action shows separate forgotten/learned narration through the standard Dialog.
 
-KEEP MOVES or B at the initial prompt opens “Stop trying to learn …?” with YES/NO. YES explicitly declines the current event and narrates that result; NO or B returns to the initial prompt. There is no normal “Later” dismissal or hidden decline. Cancel/back does not change moves, PP or pending choices. Each resolved message leads to the next pending event in order, including multiple moves at the same level.
+NO or B at the trying-to-learn prompt opens “Abandon learning …?” with YES/NO (`_AbandonLearningText`). YES declines and narrates `_DidNotLearnText`; NO or B returns to the trying-to-learn prompt. There is no normal “Later” dismissal or hidden decline. Cancel/back does not change moves, PP or pending choices. Each resolved message leads to the next pending event in order, including multiple moves at the same level.
+
+Over a battle, the overlay draws that battle first and prints into the battle text box. It does not clear the screen or draw a “MOVE LEARNING” title. A field session with no battle underneath still uses the same text box on a blank field.
 
 A choice that has become already known is consumed without refilling PP or presenting a spurious replacement prompt. Auto-appending into a free slot is committed before its learned message; a later forced reset is not an undo operation. Unresolved choices remain on the Pokémon if presentation is interrupted.
 
