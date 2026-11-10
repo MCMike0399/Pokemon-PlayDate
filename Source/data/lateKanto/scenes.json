@@ -1,5 +1,18 @@
 {
   "scenes": {
+    "cerulean_cave": {
+      "destination": "CERULEAN_CAVE_1F",
+      "destination_warp": 1,
+      "guard_id": "pokered:CERULEAN_CITY:objects:10",
+      "guard_initial": "ON",
+      "guard_x": 4,
+      "guard_y": 12,
+      "hide": "TOGGLE_CERULEAN_CAVE_GUY",
+      "opens_when": "HallOfFame HideObject",
+      "warp_id": "pokered:CERULEAN_CITY:warps:7",
+      "warp_x": 4,
+      "warp_y": 11
+    },
     "champion": {
       "by_rival_starter": {
         "STARTER1": {
@@ -74,10 +87,7 @@
         "TOGGLE_CERULEAN_CAVE_GUY"
       ]
     },
-    "missing_maps": [
-      "PowerPlant",
-      "CeruleanCaveB1F"
-    ],
+    "missing_maps": [],
     "route23_badge_checks": [
       "EARTHBADGE",
       "VOLCANOBADGE",

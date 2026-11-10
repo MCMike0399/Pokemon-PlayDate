@@ -149,7 +149,8 @@ function EventState:enter(id,options)
             assert(index==#plan.steps,"warp must terminate source plan")
             self.ops[#self.ops+1]=step
         elseif step.op=="shop" or step.op=="heal" or step.op=="random-dialog"
-            or step.op=="source-audio" or step.op=="show-pokemon" then self.ops[#self.ops+1]=step
+            or step.op=="source-audio" or step.op=="show-pokemon" or step.op=="credits" then
+            self.ops[#self.ops+1]=step
         else error("unsupported slice operation: "..tostring(step.op)) end
     end
     if plan.scene=="oak-pokedex" then self.ops[#self.ops+1]={op="oak-depart"} end
@@ -169,6 +170,11 @@ function EventState:finish()
     self.phase,self.waiting="complete","none"
     self.machine:pop()
     if warp then self.machine:get("overworld").sub:change("doorWarp",warp) end
+    -- The cartridge's Hall of Fame returns through Init. That is the title.
+    -- The session hide stays in memory. This does not write a save.
+    if not warp and self.plan and self.plan.return_to == "title" and self.plan.saves == false then
+        self.machine:change("title")
+    end
 end
 function EventState:commit()
     if self.plan.expected then
@@ -238,6 +244,9 @@ function EventState:advance()
     elseif step.op=="shop" then
         self.phase,self.waiting="shop",step.id
         self.machine:push("shop",{martId=step.id,onComplete=self:guard(function() self:advance() end)})
+    elseif step.op=="credits" then
+        self.credits = CreditsPlayer.start(EndgameStory.credits(), EndgameStory.creditTiming())
+        self.phase = "credits"
     elseif step.op=="heal" then self:heal(step)
     elseif step.op=="oak-arrive" then self:startRival(false)
     elseif step.op=="oak-depart" then self:startRival(true)
@@ -370,6 +379,13 @@ function EventState:update()
     elseif self.phase=="heal-animation" then
         self.healClock=self.healClock+1
         if self.healClock>=15*self.healCount+56 then self:finishHealing() end
+    elseif self.phase=="credits" then
+        CreditsPlayer.advance(self.credits)
+        if self.credits.done then
+            assert(self.credits.return_to == "title", "credits must return to the title")
+            self.phase = "running"
+            self:advance()
+        end
     end
     if self:valid() and self.game.camera then
         local x,y=self.player:getPixelCenter();local w,h=getMapPixelSize()
@@ -446,8 +462,26 @@ function EventState:getSnapshot()
 end
 function EventState:draw()
     if not self:valid() then return end
-    if self.phase=="heal-animation" then gfx.sprite.addDirtyRect(0,0,400,240) end
+    if self.phase=="heal-animation" or self.phase=="credits" then gfx.sprite.addDirtyRect(0,0,400,240) end
     EventState.redrawSprites()
+    if self.phase=="credits" then
+        local view = CreditsPlayer.view(self.credits)
+        gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
+        gfx.setFont(gfx.getSystemFont());gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.setColor(gfx.kColorBlack);gfx.fillRect(0,0,400,240)
+        gfx.setColor(gfx.kColorWhite)
+        if view.phase ~= "preamble" then
+            local text = table.concat(view.lines or {}, "\n")
+            if view.ending and view.phase == "done" then
+                text = "THE END"
+            elseif view.mon then
+                text = text .. "\n" .. view.mon
+            end
+            gfx.drawText(text, 120, 80)
+        end
+        gfx.popContext()
+        return
+    end
     if self.phase=="heal-animation" then
         HealingComposition.draw(self.zone,self.healCount,self.healClock,self.game.camera)
         return

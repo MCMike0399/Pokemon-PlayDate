@@ -484,6 +484,7 @@
     "blackout_map": "PALLET_TOWN",
     "credits": [
       {
+        "command": "CRED_TEXT_FADE_MON",
         "lines": [
           "#MON",
           "BLUE VERSION STAFF"
@@ -491,6 +492,7 @@
         "mon": "venusaur"
       },
       {
+        "command": "CRED_TEXT_FADE_MON",
         "lines": [
           "DIRECTOR",
           "SATOSHI TAJIRI"
@@ -498,6 +500,7 @@
         "mon": "arbok"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "PROGRAMMERS",
           "TAKENORI OOTA",
@@ -505,6 +508,7 @@
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "PROGRAMMERS",
           "TETSUYA WATANABE",
@@ -514,6 +518,7 @@
         "mon": "rhyhorn"
       },
       {
+        "command": "CRED_TEXT_FADE_MON",
         "lines": [
           "CHARACTER DESIGN",
           "KEN SUGIMORI",
@@ -522,12 +527,14 @@
         "mon": "fearow"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "MUSIC",
           "JUNICHI MASUDA"
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "SOUND EFFECTS",
           "JUNICHI MASUDA"
@@ -535,6 +542,7 @@
         "mon": "abra"
       },
       {
+        "command": "CRED_TEXT_FADE_MON",
         "lines": [
           "GAME DESIGN",
           "SATOSHI TAJIRI"
@@ -542,6 +550,7 @@
         "mon": "graveler"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "MONSTER DESIGN",
           "KEN SUGIMORI",
@@ -550,6 +559,7 @@
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "MONSTER DESIGN",
           "SHIGEKI MORIMOTO",
@@ -559,12 +569,14 @@
         "mon": "hitmonlee"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "GAME SCENARIO",
           "SATOSHI TAJIRI"
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "GAME SCENARIO",
           "RYOHSUKE TANIGUCHI",
@@ -574,6 +586,7 @@
         "mon": "tangela"
       },
       {
+        "command": "CRED_TEXT_FADE_MON",
         "lines": [
           "PARAMETRIC DESIGN",
           "KOHJI NISINO",
@@ -582,6 +595,7 @@
         "mon": "starmie"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "MAP DESIGN",
           "SATOSHI TAJIRI",
@@ -589,6 +603,7 @@
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "MAP DESIGN",
           "KENJI MATSUSIMA",
@@ -598,6 +613,7 @@
         "mon": "gyarados"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "PRODUCT TESTING",
           "AKIYOSHI KAKEI",
@@ -605,6 +621,7 @@
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "PRODUCT TESTING",
           "TAKEO NAKAMURA",
@@ -613,6 +630,7 @@
         "mon": "ditto"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "SPECIAL THANKS",
           "TATSUYA HISHIDA",
@@ -620,6 +638,7 @@
         ]
       },
       {
+        "command": "CRED_TEXT",
         "lines": [
           "SPECIAL THANKS",
           "WATARU YAMAGUCHI",
@@ -627,6 +646,7 @@
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "SPECIAL THANKS",
           "AKIHITO TOMISAWA",
@@ -636,18 +656,21 @@
         "mon": "omastar"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "PRODUCERS",
           "SHIGERU MIYAMOTO"
         ]
       },
       {
+        "command": "CRED_TEXT",
         "lines": [
           "PRODUCERS",
           "TAKASHI KAWAGUCHI"
         ]
       },
       {
+        "command": "CRED_TEXT_MON",
         "lines": [
           "PRODUCERS",
           "TSUNEKAZU ISHIHARA"
@@ -655,17 +678,20 @@
         "mon": "vileplume"
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "US VERSION STAFF"
         ]
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "US COORDINATION",
           "GAIL TILDEN"
         ]
       },
       {
+        "command": "CRED_TEXT",
         "lines": [
           "US COORDINATION",
           "NAOKO KAWAKAMI",
@@ -673,6 +699,7 @@
         ]
       },
       {
+        "command": "CRED_TEXT",
         "lines": [
           "US COORDINATION",
           "WILLIAM GIESE",
@@ -680,12 +707,14 @@
         ]
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "TEXT TRANSLATION",
           "NOB OGASAWARA"
         ]
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "PROGRAMMERS",
           "TERUKI MURAKAWA",
@@ -693,18 +722,21 @@
         ]
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "SPECIAL THANKS",
           "SATORU IWATA"
         ]
       },
       {
+        "command": "CRED_TEXT",
         "lines": [
           "SPECIAL THANKS",
           "TAKAHIRO HARADA"
         ]
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "PRODUCT TESTING",
           "PAAD TESTING",
@@ -712,12 +744,14 @@
         ]
       },
       {
+        "command": "CRED_TEXT_FADE",
         "lines": [
           "PRODUCER",
           "TAKEHIRO IZUSHI"
         ]
       },
       {
+        "command": "CRED_TEXT_FADE_MON",
         "lines": [
           "EXECUTIVE PRODUCER",
           "HIROSHI YAMAUCHI"
@@ -725,11 +759,13 @@
         "mon": "nidoking"
       },
       {
+        "command": "CRED_TEXT_FADE_MON",
         "copyright": true,
         "lines": [],
         "mon": "parasect"
       },
       {
+        "command": "CRED_THE_END",
         "end": true,
         "graphic": "gfx/credits/the_end.2bpp",
         "lines": []
@@ -740,6 +776,27 @@
     ],
     "oak_id": "pokered:HALL_OF_FAME:objects:1",
     "oak_text": "_HallOfFameOakText",
+    "return_to": "title",
+    "saves": false,
+    "timing": {
+      "fade_hold": 5,
+      "fade_steps": 4,
+      "hold": {
+        "CRED_TEXT": 140,
+        "CRED_TEXT_FADE": 120,
+        "CRED_TEXT_FADE_MON": 90,
+        "CRED_TEXT_MON": 110,
+        "CRED_THE_END": 16
+      },
+      "preamble_frames": [
+        100,
+        128
+      ],
+      "scroll_tiles": [
+        7,
+        20
+      ]
+    },
     "walk": [
       {
         "count": 5,

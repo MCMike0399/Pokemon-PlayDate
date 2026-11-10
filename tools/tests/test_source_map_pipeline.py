@@ -16,7 +16,7 @@ class SourceMapManifestTests(unittest.TestCase):
         cls.maps = cls.manifest["maps"]
         cls.pewter = json.loads((ROOT / "Source/data/pewterSlice/descriptors.json").read_text())["maps"]
         cls.packages = {}
-        for package in ("sourceSlice", "vermilionPreparation", "midgameEast", "midgameSouth", "midgameSaffron", "zCoast", "zEndgame"):
+        for package in ("sourceSlice", "vermilionPreparation", "midgameEast", "midgameSouth", "midgameSaffron", "zCoast", "zEndgame", "zRemainder"):
             entries = json.loads((ROOT / f"Source/data/{package}/manifest-entries.json").read_bytes())["maps"]
             for name, entry in entries.items():
                 if name in cls.maps:
@@ -94,7 +94,7 @@ class SourceMapManifestTests(unittest.TestCase):
                 self.assertEqual(entry["width"], max(13, width))
                 self.assertEqual(entry["height"], height)
                 self.assertEqual(entry["padding"], max(0, (13 - width) // 2))
-                if package.startswith("midgame") or package == "zCoast" or package == "zEndgame":
+                if package.startswith("midgame") or package in ("zCoast", "zEndgame", "zRemainder"):
                     self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),
                                      self.packages[name][1]["source_sha256"])
                 else:
@@ -185,15 +185,15 @@ class GeneratedSourceCacheTests(unittest.TestCase):
         for name, original in old["maps"].items():
             for field, value in original.items():
                 if name == "PewterCity" and field == "blocked":
-                    opened = {"pokered:PEWTER_CITY:warps:1", "pokered:PEWTER_CITY:warps:2"}
+                    opened = {"pokered:PEWTER_CITY:warps:1", "pokered:PEWTER_CITY:warps:2",
+                              "pokered:PEWTER_CITY:warps:4", "pokered:PEWTER_CITY:warps:6"}
                     value = {cell: event for cell, event in value.items() if event not in opened}
                 if name == "Route2" and field == "blocked":
                     opened = {f'pokered:ROUTE_2:warps:{index}' for index in (1, 3, 4, 5)}
                     value = {cell: event for cell, event in value.items() if event not in opened}
                 self.assertEqual(self.compact["maps"][name][field], value, (name, field))
         city = self.compact["maps"]["ViridianCity"]
-        self.assertEqual(set(city["blocked"].values()), {
-            "pokered:VIRIDIAN_CITY:warps:3", "pokered:VIRIDIAN_CITY:warps:4", "pokered:VIRIDIAN_CITY:warps:5"})
+        self.assertEqual(set(city["blocked"].values()), set())
         for name, descriptor in self.compact["maps"].items():
             if name != "ViridianCity" and self.manifest["maps"][name]["profile"] == "viridian":
                 self.assertEqual(descriptor["blocked"], {})
@@ -332,7 +332,7 @@ class SourceMapExtensionTests(unittest.TestCase):
         self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(fixture))
         compact = fixture['data/sourceMapCache/compact.json']
         installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
-        self.assertEqual(set(compact['maps']), set(installed) | {'ViridianSchoolHouse'})
+        self.assertEqual(set(compact['maps']), set(installed))
         self.assertNotIn('pokered:VIRIDIAN_CITY:warps:3', compact['maps']['ViridianCity']['blocked'].values())
         for name in ('Route22', 'ViridianSchoolHouse'):
             d = fixture[f'dev/source-map-extension/{name}.json']
@@ -340,8 +340,6 @@ class SourceMapExtensionTests(unittest.TestCase):
             self.assertEqual(compact['maps'][name]['connections'], d['connections'])
             self.assertEqual(fixture['data/sourceMaps.json']['maps'][name]['profile'], 'source')
             active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
-            if name == 'Route22':
-                self.assertIn(name, active)
-                self.assertNotEqual(active[name]['key'], fixture['data/sourceMaps.json']['maps'][name]['key'])
-            else:
-                self.assertNotIn(name, active)
+            self.assertIn(name, active)
+            self.assertNotEqual(active[name]['key'], fixture['data/sourceMaps.json']['maps'][name]['key'])
+            self.assertNotEqual(active[name]['path'], fixture['data/sourceMaps.json']['maps'][name]['path'])

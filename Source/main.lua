@@ -119,6 +119,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/eventText"
     import "game/eventArt"
     import "game/healingComposition"
+    import "game/creditsPlayer"
     import "game/eventState"
     import "data/ceruleanContent"
     import "game/ceruleanStory"

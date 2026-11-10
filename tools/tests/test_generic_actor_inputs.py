@@ -19,9 +19,10 @@ class GenericActorInputTests(unittest.TestCase):
     def test_fixture_extends_manifest_without_editing_regional_inventory(self):
         live = json.loads((ROOT / 'Source/data/sourceMaps.json').read_text())
         self.assertEqual(set(live['maps']), installed_map_names())
-        self.assertEqual(set(self.records['data/sourceMaps.json']['maps']),
-                         set(live['maps']) | {self.raw['name']})
-        self.assertNotIn(self.raw['name'], live['maps'])
+        self.assertEqual(set(self.records['data/sourceMaps.json']['maps']), set(live['maps']))
+        self.assertIn(self.raw['name'], live['maps'])
+        self.assertNotEqual(self.entry['path'], live['maps'][self.raw['name']]['path'])
+        self.assertEqual(self.entry['key'], 'fixture_ViridianSchoolHouse')
         self.assertEqual(self.entry['profile'], 'source')
         self.assertEqual(self.fixture['source_revision'], live['source_revision'])
         self.assertEqual([a['id'] for a in self.fixture['objects']],

@@ -14,7 +14,10 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def installed_map_names():
     installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
-    if len(installed['maps']) == 205:
+    if len(installed['maps']) == 222:
+        from tools.activate_remainder import manifest as remainder_manifest
+        expected = remainder_manifest(ROOT)
+    elif len(installed['maps']) == 205:
         from tools.activate_endgame import manifest as endgame_manifest
         expected = endgame_manifest(ROOT)
     elif len(installed['maps']) == 191:

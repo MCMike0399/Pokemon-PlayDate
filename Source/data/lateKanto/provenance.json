@@ -2,9 +2,11 @@
   "files": {
     "constants/map_constants.asm": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271",
     "constants/pokemon_constants.asm": "0914f9edb2bb72788d0e7b1e4ae7dedef2bb2f29533363375f8d874fec41e604",
+    "constants/toggle_constants.asm": "b028dd3cbcc2e6ef0135ab282d7fbf5ed41213f83555466d5d96b4c9d5e3812b",
     "data/maps/objects/AgathasRoom.asm": "2c07e82f659828dee0db1fa4baffd84e1d8bb403714ef12cd5e436b4c2ba6d75",
     "data/maps/objects/BrunosRoom.asm": "0dbb38b1a93bb0a93d877b64f94fc667e26fb63d4e4caf8130ae6cbcd4ca09bb",
     "data/maps/objects/CeruleanCaveB1F.asm": "bf2d66c3428becc3659e3bc9b74983d53604af0aae608177641b48a739d39ae4",
+    "data/maps/objects/CeruleanCity.asm": "c28fa2a17d5649d7a6c0a03a3bfa6a25203e63ddd5cd7423c5b6b1ab5dae8cb3",
     "data/maps/objects/ChampionsRoom.asm": "3cf6d071ecf9737ae2f9a91c56aaa343b4a07305f1136d281c4d6bf116d43d26",
     "data/maps/objects/CinnabarGym.asm": "40cf155b13b481e74b29094117b0b21f465b27c8a69629c69304f690d47797c4",
     "data/maps/objects/CinnabarLabFossilRoom.asm": "76440f1aafc4e715ffc8c52d1b3d69c776456347834eaa372ac68ca0dea9479e",
@@ -17,6 +19,7 @@
     "data/maps/objects/SeafoamIslandsB4F.asm": "31ec0a1b026863e22c81c9eaf8894ebcb0748ae0f20d6ef110de0ab0e37c08fb",
     "data/maps/objects/VictoryRoad2F.asm": "e3a503cc86a345f61ba5cbb8b1ad1fffd25e6c2639514be9a705b4bddf2cffb9",
     "data/maps/objects/ViridianGym.asm": "1198ab1f7c863f6dc860bb2b250e0acdeadb3a96d362213a08e383f255bfaf90",
+    "data/maps/toggleable_objects.asm": "8dc2fafaebe2ee98c83eca34d486d861117ce95b6c6f94da7760b7b1c88f8cf4",
     "data/trainers/parties.asm": "61eac58fe43a181fcd936d5366457a940cf805ee15c787ff5957e175f83b217d",
     "engine/events/cinnabar_lab.asm": "aded051088ac2467d8d5516c53a1d9eafacbde21cdf1ae946fed9144ec625994",
     "engine/events/give_pokemon.asm": "99789f756812f8db1c99f3142126bc2f27cae3f8ee9144d8c5cd3326f6a3e50b",
@@ -29,5 +32,5 @@
   },
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "status": "PowerPlant and CeruleanCaveB1F stay uninstalled. Fossil revival stays a plan. League maps are installed by the endgame packet."
+  "status": "Remainder maps are installed, including Power Plant and Cerulean Cave. Fossil revival stays a plan. No badge write and no campaign save."
 }

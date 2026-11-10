@@ -1,6 +1,7 @@
 -- Composition only: source owners retain their plans, transactions and leases.
 -- Import after EventState; install after ordinary Cerulean content registration.
 import "game/ceruleanStory"
+import "game/lateKantoStory"
 import "game/ceruleanRoutes"
 import "game/ceruleanRoutesState"
 import "game/tutorialEscort"
@@ -16,7 +17,12 @@ local storyZones = { ["pokered:BILLS_HOUSE"]=true, ["pokered:MT_MOON_B2F"]=true 
 -- validation/catalog metadata; only an explicit runtime context sees receipts.
 function KantoScenes.actorMetadata(definition, event, game)
     local result = {visibility={}}
-    for _, metadata in ipairs({CeruleanStory.actorMetadata(event.id), CeruleanRoutes.actorMetadata(event.id,game)}) do
+    local owners = {
+        CeruleanStory.actorMetadata(event.id),
+        CeruleanRoutes.actorMetadata(event.id,game),
+        LateKantoStory.actorMetadata(event.id),
+    }
+    for _, metadata in ipairs(owners) do
         for _, condition in ipairs(metadata.visibility or {}) do
             result.visibility[#result.visibility+1] = Party._primitive(condition)
         end

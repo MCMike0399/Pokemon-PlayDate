@@ -25,11 +25,12 @@ class SourceMapActivationInputs(unittest.TestCase):
     def test_sdk_witness_uses_the_exact_existing_pinned_extension_fixture(self):
         self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(self.fixture))
         maps = self.fixture['data/sourceMaps.json']['maps']
-        self.assertEqual(set(maps), installed_map_names() | {'ViridianSchoolHouse'})
+        self.assertEqual(set(maps), installed_map_names())
         self.assertEqual(maps['ViridianSchoolHouse']['profile'], 'source')
         self.assertEqual(maps['Route22']['profile'], 'source')
         active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
-        self.assertEqual(set(maps) - set(active), {'ViridianSchoolHouse'})
+        self.assertEqual(set(maps) - set(active), set())
+        self.assertNotEqual(maps['ViridianSchoolHouse']['path'], active['ViridianSchoolHouse']['path'])
         self.assertEqual(set(active), installed_map_names())
         self.assertNotEqual(maps['Route22']['path'], active['Route22']['path'])
         self.assertEqual(active['Route22']['key'], 'kanto_route_22')
@@ -46,7 +47,9 @@ class SourceMapActivationInputs(unittest.TestCase):
         self.assertEqual(fixture, self.fixture)
         installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
         private = fixture['data/sourceMaps.json']['maps']
-        self.assertEqual(set(private) - set(installed), {'ViridianSchoolHouse'})
+        self.assertEqual(set(private) - set(installed), set())
+        self.assertEqual(private['ViridianSchoolHouse']['key'], 'fixture_ViridianSchoolHouse')
+        self.assertNotEqual(private['ViridianSchoolHouse']['path'], installed['ViridianSchoolHouse']['path'])
         self.assertEqual(private['Route22']['key'], 'fixture_Route22')
         self.assertEqual(installed['ViridianCity']['blocked_connections'], [])
         self.assertEqual(private['ViridianCity']['blocked_connections'], [])

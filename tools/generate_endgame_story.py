@@ -393,6 +393,46 @@ def champion_labels(script):
     return labels
 
 
+def credit_timing(movie):
+    """Frame counts from engine/movie/credits.asm, in source order."""
+    pc = movie.split('HallOfFamePC:', 1)[1].split('FadeInCredits:', 1)[0]
+    preamble = [int(value) for value in re.findall(r'ld c, (\d+)\s+call DelayFrames', pc)]
+    fade = re.search(r'FadeInCredits:\s+ld hl, HoFGBPalettes\s+ld b, (\d+)', movie)
+    fade_hold = re.search(r'\.loop\s+ld a, \[hli\]\s+ldh \[rBGP\], a\s+ld c, (\d+)\s+call DelayFrames', movie)
+    scroll = re.search(r'ld bc, (\d+)\s+\.scrollLoop1', movie)
+    scroll_window = re.search(r'ld c, (\d+)\s+\.scrollLoop2', movie)
+    holds = {}
+    label = None
+    wanted = {
+        'fadeInTextAndShowMon': 'CRED_TEXT_FADE_MON',
+        'showTextAndShowMon': 'CRED_TEXT_MON',
+        'fadeInText': 'CRED_TEXT_FADE',
+        'showText': 'CRED_TEXT',
+        'showTheEnd': 'CRED_THE_END',
+    }
+    for line in movie.split('Credits:', 1)[1].split('TheEndTextString:', 1)[0].splitlines():
+        clean = line.split(';', 1)[0].strip()
+        named = re.fullmatch(r'\.(\w+)', clean)
+        if named:
+            label = named[1]
+            continue
+        delay = re.fullmatch(r'ld c, (\d+)', clean)
+        if delay and label in wanted and wanted[label] not in holds:
+            holds[wanted[label]] = int(delay[1])
+    if (preamble != [100, 128] or not fade or fade[1] != '4' or not fade_hold or fade_hold[1] != '5'
+            or not scroll or scroll[1] != '7' or not scroll_window or scroll_window[1] != '20'
+            or holds != {'CRED_TEXT_FADE_MON': 90, 'CRED_TEXT_MON': 110, 'CRED_TEXT_FADE': 120,
+                         'CRED_TEXT': 140, 'CRED_THE_END': 16}):
+        raise ValueError('credits frame timing changed')
+    return {
+        'preamble_frames': preamble,
+        'fade_steps': int(fade[1]),
+        'fade_hold': int(fade_hold[1]),
+        'scroll_tiles': [int(scroll[1]), int(scroll_window[1])],
+        'hold': holds,
+    }
+
+
 def hall(script, objects, credits_text, order_text, monsters, constants, movie):
     need(script, r'predef HallOfFamePC', 'hall of fame credits')
     need(script, r'ld a, PALLET_TOWN\s+ld \[wLastBlackoutMap\], a', 'pallet blackout')
@@ -412,6 +452,7 @@ def hall(script, objects, credits_text, order_text, monsters, constants, movie):
     commands = {'CRED_TEXT_FADE_MON', 'CRED_TEXT_MON', 'CRED_TEXT_FADE', 'CRED_TEXT', 'CRED_THE_END'}
     frames, pending, mon_index = [], [], 0
     copyright_line = False
+    timing = credit_timing(movie)
     mons = re.findall(r'^\s*db ([A-Z0-9_]+)\s*$', monsters.split('CreditsMons:', 1)[1], re.M)
     order_body = '\n'.join(line.split(';', 1)[0] for line in order_text.split('CreditsOrder:', 1)[1].splitlines())
     for token in re.findall(r'\b(CRED_[A-Z0-9_]+)\b', order_body):
@@ -420,7 +461,7 @@ def hall(script, objects, credits_text, order_text, monsters, constants, movie):
             copyright_line = True
             continue
         if token in commands:
-            frame = {'lines': [strings[item]['text'] for item in pending]}
+            frame = {'command': token, 'lines': [strings[item]['text'] for item in pending]}
             pending = []
             if copyright_line:
                 frame['copyright'] = True
@@ -447,7 +488,8 @@ def hall(script, objects, credits_text, order_text, monsters, constants, movie):
     return {'oak_id': 'pokered:HALL_OF_FAME:objects:1',
             'oak_text': far_label(script, 'HallOfFameOakText'), 'walk': rle(script, 'HallOfFameEntryMovement'),
             'hides': ['TOGGLE_CERULEAN_CAVE_GUY'], 'blackout_map': 'PALLET_TOWN',
-            'credits': frames}
+            'return_to': 'title', 'saves': False,
+            'timing': timing, 'credits': frames}
 
 
 def build(reference):

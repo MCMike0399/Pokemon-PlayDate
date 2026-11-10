@@ -354,6 +354,13 @@ def build(reference_root, packet, pins=None, manifest=None, ingress_map=None):
                             descriptor = dict(kind='trainer', before=labels[0], won=labels[1], after=labels[2])
                     else:
                         reason = reason or 'scripted trainer/reward; story worker'
+            elif event['kind'] == 'item' and event['extra'] == ['0']:
+                # A seventh argument of 0 is the object byte, not an item id.
+                # BluesHouse uses it for Daisy's walking sprite and the town map.
+                if ordinary and not reason:
+                    descriptor = dict(kind='program', steps=[dict(op='dialog', labels=ordinary)])
+                else:
+                    reason = reason or 'object byte 0 is not an item'
             elif event['kind'] == 'item':
                 descriptor = dict(kind='pickup', item=item_map[event['extra'][0]],
                     flag='PICKUP:' + event['id'], success=['_FoundItemText'], full=['_NoMoreRoomForItemText'])

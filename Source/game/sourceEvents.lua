@@ -335,6 +335,8 @@ function SourceEvents.validateStep(step)
     elseif op == "warp" then
         assert(type(step.to) == "string" and boundedInteger(step.toX, 0, 1023) and boundedInteger(step.toY, 0, 1023)
             and directions[step.facing], "bounded warp destination required")
+    elseif op == "credits" then
+        assert(step.to == nil and step.labels == nil, "credits roll has no warp or dialogue payload")
     else
         error("unsupported source operation: " .. tostring(op))
     end

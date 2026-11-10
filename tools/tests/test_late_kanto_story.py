@@ -76,7 +76,12 @@ class LateKantoSourceTests(unittest.TestCase):
         })
         for name in (scientist['map'], revival['still_reviving_cleared_on_map_load']['map']):
             self.assertNotIn(name, self.scenes['missing_maps'])
-        self.assertEqual(self.scenes['missing_maps'], ['PowerPlant', 'CeruleanCaveB1F'])
+        self.assertEqual(self.scenes['missing_maps'], [])
+        cave = self.scenes['cerulean_cave']
+        self.assertEqual((cave['guard_id'], cave['guard_x'], cave['guard_y'], cave['guard_initial']),
+                         ('pokered:CERULEAN_CITY:objects:10', 4, 12, 'ON'))
+        self.assertEqual((cave['warp_id'], cave['warp_x'], cave['warp_y'], cave['destination'], cave['hide']),
+                         ('pokered:CERULEAN_CITY:warps:7', 4, 11, 'CERULEAN_CAVE_1F', 'TOGGLE_CERULEAN_CAVE_GUY'))
 
     def test_route23_checks_and_league_order_follow_the_source_warps(self):
         self.assertEqual(self.scenes['route23_badge_checks'], [
@@ -94,6 +99,42 @@ class LateKantoSourceTests(unittest.TestCase):
         self.assertEqual(teams['STARTER3']['ace'], 'VENUSAUR')
         self.assertEqual(teams['STARTER1']['ace'], 'CHARIZARD')
 
-    def test_plan_maps_are_not_in_the_installed_manifest(self):
+    def test_remainder_maps_are_installed_and_the_cave_stays_closed(self):
+        import subprocess
+        import tempfile
+        from tools.tests.test_endgame_story import lua_binary, lua_literal
         installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
-        self.assertTrue(set(self.scenes['missing_maps']).isdisjoint(installed))
+        self.assertEqual(self.scenes['missing_maps'], [])
+        for name in ('PowerPlant', 'CeruleanCave1F', 'CeruleanCave2F', 'CeruleanCaveB1F'):
+            self.assertIn(name, installed)
+        module = ROOT / 'Source/game/lateKantoStory.lua'
+        document = json.loads((GEN.OUTPUT / 'scenes.json').read_text())
+        probe = r'''
+json = { decodeFile = function() return document end }
+pokemonData = {articuno=true, zapdos=true, moltres=true, mewtwo=true}
+dofile(module_path)
+local function check(actual, expected, label)
+    if actual ~= expected then
+        error(label .. " got " .. tostring(actual) .. " expected " .. tostring(expected))
+    end
+end
+check(LateKantoStory.caveEntry({}), "blocked", "cave closed")
+check(LateKantoStory.caveEntry({TOGGLE_CERULEAN_CAVE_GUY = true}), "open", "cave open")
+check(LateKantoStory.staticBattle("zapdos").level, 50, "zapdos")
+check(LateKantoStory.staticBattle("zapdos").map_id, "pokered:POWER_PLANT", "zapdos map")
+check(LateKantoStory.staticBattle("zapdos").species, "zapdos", "zapdos species")
+check(LateKantoStory.staticBattle("zapdos").source, "object_event", "zapdos source")
+check(LateKantoStory.staticBattle("mewtwo").level, 70, "mewtwo")
+check(LateKantoStory.staticBattle("moltres").level, 50, "moltres")
+check(LateKantoStory.staticBattle("moltres").map_id, "pokered:VICTORY_ROAD_2F", "moltres map")
+check(LateKantoStory.staticBattle("articuno").species, "articuno", "articuno")
+check(LateKantoStory.actorMetadata("pokered:CERULEAN_CITY:objects:10").visibility[1].equals, false, "guard visible")
+print("late-kanto ok")
+'''
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'probe.lua'
+            path.write_text('document = ' + lua_literal(document)
+                            + '\nmodule_path = ' + json.dumps(str(module)) + '\n' + probe)
+            completed = subprocess.run([lua_binary(), str(path)], check=False, capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
+        self.assertIn('late-kanto ok', completed.stdout)

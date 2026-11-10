@@ -44,7 +44,9 @@ class SourceWarpEligibility(unittest.TestCase):
                 self.assertEqual(raw, original(B, 'Source/' + entry['path']))
                 b_counts.update(classifications)
         self.assertEqual(b_counts, dict(standing_tile=220, function2=82, edge=208))
-        self.assertEqual(counts, dict(standing_tile=369, function2=82, edge=256, non_triggering=2))
+        # 191 maps classified 709 warps. The league and remainder packets add
+        # the gym, the gate, the cave, the plant and the early houses.
+        self.assertEqual(counts, dict(standing_tile=407, function2=86, edge=307, non_triggering=2))
 
     def test_all_function2_overrides_and_ship3_function1_remain_conservative(self):
         self.assertEqual(self.authority['map_rules'], dict(SS_ANNE_3F='1', ROCKET_HIDEOUT_B1F='2',
@@ -155,7 +157,13 @@ class SourceWarpEligibility(unittest.TestCase):
                 changed[name] = set(before['blocked']) - set(d['blocked'])
                 self.assertEqual(set(d['blocked']) - set(before['blocked']), set())
             if name in previous:
-                self.assertEqual({k: v for k, v in d.items() if k != 'non_triggering_warps'}, before)
+                expected = {k: v for k, v in before.items() if k != 'non_triggering_warps'}
+                actual = {k: v for k, v in d.items() if k != 'non_triggering_warps'}
+                # A blocked door in the 171-map cache was an uninstalled target.
+                # The later packets install those targets, so the door opens.
+                if before['blocked'] != d['blocked']:
+                    expected = dict(expected, blocked=d['blocked'])
+                self.assertEqual(actual, expected)
             before_cells = original(C, 'Source/data/sourceMapCells/' + name + '.bin')
             after_cells = (ROOT / 'Source/data/sourceMapCells' / (name + '.bin')).read_bytes()
             self.assertEqual(before_cells[CELL_HEADER.size:], after_cells[CELL_HEADER.size:])
@@ -163,4 +171,8 @@ class SourceWarpEligibility(unittest.TestCase):
             self.assertEqual(CELL_HEADER.unpack_from(before_cells)[5], CELL_HEADER.unpack_from(after_cells)[5])
         self.assertEqual(changed, {**{f'SilphCo{floor}F': {str((21 if floor <= 5 else 19) if floor <= 9 else 13)}
                                                     for floor in range(1, 11)},
-                                  'SilphCo11F': {'14', '96'}, 'SilphCoElevator': {'45', '46'}})
+                                  'SilphCo11F': {'14', '96'}, 'SilphCoElevator': {'45', '46'},
+                                  'CeruleanCity': {'370', '445', '450', '614'},
+                                  'PewterCity': {'1168', '550'},
+                                  'Route10': {'787'}, 'Route22': {'209'},
+                                  'ViridianCity': {'313', '382', '622'}})

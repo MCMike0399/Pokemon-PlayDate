@@ -91,6 +91,10 @@ function EndgameStory.credits()
     return story().hall_of_fame.credits
 end
 
+function EndgameStory.creditTiming()
+    return story().hall_of_fame.timing
+end
+
 local function copy(value)
     if GameSession then
         return GameSession._copy(value)
@@ -189,7 +193,12 @@ function EndgameStory.plan(id, observation)
         local plan <const> = flagPlan(observation, {[hall.hides[1]] = true}, {hall.oak_text})
         local steps <const> = moves(hall.walk)
         steps[#steps + 1] = plan.steps[1]
+        -- HallOfFamePC plays the credits, then the cartridge returns to the
+        -- title. The hide flag is the in-memory session write. No save.
+        steps[#steps + 1] = {op = "credits"}
         plan.steps = steps
+        plan.return_to = hall.return_to
+        plan.saves = false
         return plan
     end
     for _, guard in ipairs(data.route23.guards) do

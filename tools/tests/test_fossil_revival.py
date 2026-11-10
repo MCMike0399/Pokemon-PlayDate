@@ -188,9 +188,9 @@ class FossilRevivalServiceTests(unittest.TestCase):
             self.assertNotIn('wFossil', untouched)
             self.assertNotIn('fossilRevival', untouched)
         installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_text())['maps']
+        self.assertEqual(self.scenes['missing_maps'], [])
         for name in (self.revival['scientist']['map'], self.revival['still_reviving_cleared_on_map_load']['map']):
-            self.assertIn(name, self.scenes['missing_maps'])
-            self.assertNotIn(name, installed)
+            self.assertIn(name, installed)
 
     def test_cancellation_and_a_missing_fossil_leave_the_source_flags_clear(self):
         steps = self.scenario('decline')

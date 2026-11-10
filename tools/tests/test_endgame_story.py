@@ -102,9 +102,15 @@ class EndgameStoryTests(unittest.TestCase):
         opening = self.story['hall_of_fame']['credits'][0]
         self.assertEqual(opening['lines'], ['#MON', 'BLUE VERSION STAFF'])
         self.assertEqual(opening['mon'], 'venusaur')
+        self.assertEqual(opening['command'], 'CRED_TEXT_FADE_MON')
         closing = self.story['hall_of_fame']['credits'][-1]
         self.assertTrue(closing['end'])
+        self.assertEqual(closing['command'], 'CRED_THE_END')
         self.assertEqual(closing['graphic'], 'gfx/credits/the_end.2bpp')
+        self.assertEqual(self.story['hall_of_fame']['return_to'], 'title')
+        self.assertFalse(self.story['hall_of_fame']['saves'])
+        self.assertEqual(self.story['hall_of_fame']['timing']['preamble_frames'], [100, 128])
+        self.assertEqual(self.story['hall_of_fame']['timing']['scroll_tiles'], [7, 20])
         self.assertEqual(self.story['hall_of_fame']['oak_id'], 'pokered:HALL_OF_FAME:objects:1')
         gate = self.story['route22_gate']
         self.assertEqual(gate['y_split'], 4)
@@ -156,13 +162,55 @@ check(arrow.steps[2].count, 1, "arrow remainder")
 check(arrow.steps[1].direction, "up", "arrow direction")
 local credits = EndgameStory.credits()
 check(credits[1].lines[2], "BLUE VERSION STAFF", "credits")
+check(credits[1].command, "CRED_TEXT_FADE_MON", "opening command")
 check(credits[#credits].graphic, "gfx/credits/the_end.2bpp", "the end")
+dofile(credits_path)
+local player = CreditsPlayer.start(credits, EndgameStory.creditTiming())
+local frames = 0
+while not player.done do
+    CreditsPlayer.advance(player)
+    frames = frames + 1
+    if frames > 20000 then error("credits did not finish") end
+end
+check(player.return_to, "title", "credits return")
+check(frames, expected_frames, "credits length")
+local hall = EndgameStory.plan(EndgameStory.story().hall_of_fame.oak_id, {flags = {}})
+check(hall.return_to, "title", "hall returns")
+check(hall.saves, false, "hall does not save")
+check(hall.steps[#hall.steps].op, "credits", "hall credits")
+check(hall.changes.flags.TOGGLE_CERULEAN_CAVE_GUY, true, "cave guy hides")
+local badges = 0
+for name in pairs(hall.changes.flags) do
+    if string.find(name, "BADGE_", 1, true) then badges = badges + 1 end
+end
+check(badges, 0, "no badge write")
 print("endgame-decisions ok")
 '''
+        timing = self.story['hall_of_fame']['timing']
+        fade = timing['fade_steps'] * timing['fade_hold']
+        scroll = sum(timing['scroll_tiles'])
+        holds = timing['hold']
+        expected = sum(timing['preamble_frames'])
+        for frame in self.story['hall_of_fame']['credits']:
+            command = frame['command']
+            if command == 'CRED_TEXT_FADE_MON':
+                expected += fade + holds[command] + scroll
+            elif command == 'CRED_TEXT_MON':
+                expected += holds[command] + scroll
+            elif command == 'CRED_TEXT_FADE':
+                expected += fade + holds[command]
+            elif command == 'CRED_TEXT':
+                expected += holds[command]
+            elif command == 'CRED_THE_END':
+                expected += holds[command] + fade
+            else:
+                self.fail(command)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'probe.lua'
             path.write_text('story = ' + lua_literal(self.story) + '\nmodule_path = '
-                            + json.dumps(str(module)) + '\n' + probe)
+                            + json.dumps(str(module)) + '\ncredits_path = '
+                            + json.dumps(str(ROOT / 'Source/game/creditsPlayer.lua'))
+                            + '\nexpected_frames = ' + str(expected) + '\n' + probe)
             completed = subprocess.run([lua_binary(), str(path)], check=False, capture_output=True, text=True)
         self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
         self.assertIn('endgame-decisions ok', completed.stdout)

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Pinned late-Kanto, League and postgame scene plan from pokered.
 
-The 171-map manifest does not install these maps yet. This plan records the
-source objects, badge gates, fossil revival and room order so a later map
-activation can use them without inventing coordinates or a Mew location.
+The league maps and the remainder packet are installed. This plan records
+the source objects, the Cerulean Cave guard, fossil revival and room order.
+It does not invent coordinates or a Mew location.
 """
 import argparse
 import hashlib
@@ -45,8 +45,11 @@ FILES = [
     'data/trainers/parties.asm',
     'constants/pokemon_constants.asm',
     'constants/map_constants.asm',
+    'constants/toggle_constants.asm',
+    'data/maps/toggleable_objects.asm',
+    'data/maps/objects/CeruleanCity.asm',
 ]
-MISSING_MAPS = ['PowerPlant', 'CeruleanCaveB1F']
+MISSING_MAPS = []
 STATICS = {
     'articuno': ('SeafoamIslandsB4F.asm', 'ARTICUNO'),
     'zapdos': ('PowerPlant.asm', 'ZAPDOS'),
@@ -222,6 +225,42 @@ def fossil_revival(sources, constants):
     )
 
 
+def cerulean_cave(objects, toggles, constants, hall):
+    rows = [line for line in objects.splitlines() if line.strip().startswith('object_event')]
+    guard = None
+    for index, line in enumerate(rows, 1):
+        if 'TEXT_CERULEANCITY_SUPER_NERD3' not in line:
+            continue
+        parts = [part.strip() for part in line.split(',')]
+        guard = dict(index=index, x=int(parts[0].split()[-1]), y=int(parts[1]))
+    warps = [line for line in objects.splitlines() if line.strip().startswith('warp_event')]
+    door = None
+    for index, line in enumerate(warps, 1):
+        if 'CERULEAN_CAVE_1F' not in line:
+            continue
+        parts = [part.strip() for part in line.split(',')]
+        door = dict(index=index, x=int(parts[0].split()[-1]), y=int(parts[1]),
+                    destination='CERULEAN_CAVE_1F', warp_index=int(parts[3]))
+    block = toggles.split('toggleable_objects_for CERULEAN_CITY', 1)[1]
+    block = block.split('toggleable_objects_for', 1)[0]
+    states = re.findall(r'toggle_object_state\s+(\w+),\s+(ON|OFF)', block)
+    names = re.findall(r'const (TOGGLE_\w+)', constants.split('toggle_consts_for CERULEAN_CITY', 1)[1]
+                       .split('toggle_consts_for', 1)[0])
+    if (guard is None or door is None or len(states) < 4 or len(names) < 4
+            or states[3] != ('CERULEANCITY_SUPER_NERD3', 'ON')
+            or names[3] != 'TOGGLE_CERULEAN_CAVE_GUY'
+            or 'predef HideObject' not in hall.split('TOGGLE_CERULEAN_CAVE_GUY', 1)[1][:160]):
+        raise ValueError('Cerulean Cave guard changed')
+    return dict(
+        guard_id='pokered:CERULEAN_CITY:objects:' + str(guard['index']),
+        guard_x=guard['x'], guard_y=guard['y'], guard_initial='ON',
+        warp_id='pokered:CERULEAN_CITY:warps:' + str(door['index']),
+        warp_x=door['x'], warp_y=door['y'], destination=door['destination'],
+        destination_warp=door['warp_index'], hide='TOGGLE_CERULEAN_CAVE_GUY',
+        opens_when='HallOfFame HideObject',
+    )
+
+
 def champion_branches(script, parties):
     chunk = script.split('ld a, [wRivalStarter]', 1)[1].split('ld [wTrainerNo], a', 1)[0]
     found = dict(re.findall(r'cp (STARTER\d)\s+jr nz, \.\w+\s+ld a, \$(\d+)', chunk))
@@ -312,11 +351,16 @@ def build(reference):
         elite_four=order,
         champion=dict(selector='wRivalStarter', by_rival_starter=champion_branches(sources['scripts/ChampionsRoom.asm'], parties)),
         hall_of_fame=dict(hides=['TOGGLE_CERULEAN_CAVE_GUY']),
+        cerulean_cave=cerulean_cave(
+            sources['data/maps/objects/CeruleanCity.asm'],
+            sources['data/maps/toggleable_objects.asm'],
+            sources['constants/toggle_constants.asm'],
+            sources['scripts/HallOfFame.asm']),
     )
     return {
         'scenes.json': encoded(dict(schema=1, source_revision=REVISION, scenes=scenes)),
         'provenance.json': encoded(dict(schema=1, source_revision=REVISION, files=pins,
-                                        status='PowerPlant and CeruleanCaveB1F stay uninstalled. Fossil revival stays a plan. League maps are installed by the endgame packet.')),
+                                        status='Remainder maps are installed, including Power Plant and Cerulean Cave. Fossil revival stays a plan. No badge write and no campaign save.')),
     }
 
 

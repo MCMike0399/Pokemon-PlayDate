@@ -1,5 +1,19 @@
 # Full-game execution ledger
 
+## 2026-11-10 The remaining maps, the credits roll, and the source legendaries
+
+Pokered `af519899719f0754965776faac0e836a3b906e6d` has 248 `map_const` entries. The 205-map manifest was missing 43 constants. Twenty-two are unused 0×0 maps (`UNUSED_MAP_0B` through `UNUSED_MAP_F4`) and were not given invented layouts. Three constants are header aliases of maps that were already installed: `CERULEAN_TRASHED_HOUSE_COPY`, `UNDERGROUND_PATH_ROUTE_6_COPY`, and `CINNABAR_MART_COPY`. `UNDERGROUND_PATH_ROUTE_7_COPY` declares the same constant as the installed Underground Path Route 7 header, so it is not a second map. Diglett's Cave, Rock Tunnel, Route 2, the forest, and both forest gates were already in the manifest.
+
+The other 17 constants are installed from source: Pallet Town, Red's house, Blue's house, Oak's Lab, the Viridian school and nickname houses, the Pewter Nidoran and speech houses, the Cerulean trade and badge houses, the Power Plant, Cerulean Cave 1F, 2F and B1F, the Trade Center, and the Colosseum. `Source/data/sourceMaps.json` now has 222 maps. The shared cache and cell bins were rebuilt. Door census for that inventory is 802 warps, 78 connections, 2362 boundary cells, 238 last-map exits, 28 scripted warps, and 0 surface-blocked warps. The authored Pallet Town, Red's house and Oak's Lab stay the playable early zones. The source copies are the decoded maps.
+
+The credits player follows `engine/movie/credits.asm`. The Hall of Fame PC waits 100 frames and then 128. Each fade is 4 palette steps of 5 frames. A mon frame holds, then scrolls 7 tiles and 20 more. Holds are 90, 110, 120, 140 and 16 frames for the five commands. The roll opens on `#MON` / `BLUE VERSION STAFF` with Venusaur and ends on `CRED_THE_END`. The Hall of Fame walk and Oak's text still hide the Cerulean Cave guard. The credits step then returns to the title. That return does not write a save and does not set a badge. The cave guard starts visible on the tile south of warp `pokered:CERULEAN_CITY:warps:7`. The cave opens only after `TOGGLE_CERULEAN_CAVE_GUY`.
+
+Moltres is Victory Road 2F object 6 at (11, 5), level 50. Zapdos is Power Plant object 9 at (4, 9), level 50. Articuno is Seafoam Islands B4F object 3 at (6, 1), level 50. Mewtwo is Cerulean Cave B1F object 1 at (27, 13), level 70. None of those species is in the wild table of its map. Both Snorlax scripts write `SNORLAX` and level 30 to `wCurEnemyLevel` after the Poké Flute sets the fight flag. The flute request uses that species and level. Route 12 and Route 16 wild tables do not contain Snorlax.
+
+No campaign save was written and no badge was set. Real play still waits on lane B's Volcano Badge. Fossil revival stays a plan. `Source/lib/shade.lua` and the gym floor were not edited. `MallocPoolSize=16645684` and the 1 GiB guard stayed on.
+
+Seafoam B3F warps 6 and 7 land on B4F foot tile $14. That water arrival now binds, and map entry sets the surf state. Solid and blocked arrivals stay rejected. The fix is the commit immediately before this checkpoint.
+
 ## 2026-11-10 The league is generated and waiting on the Volcano Badge
 
 Fourteen maps were regenerated from pokered `af519899719f0754965776faac0e836a3b906e6d` and installed on the 191-map coast manifest. `Source/data/sourceMaps.json` now has 205 maps: Viridian Gym, Route 22 Gate, Route 23, Victory Road 1F–3F, Indigo Plateau, its lobby, Lorelei, Bruno, Agatha, Lance, the Champion's room, and the Hall of Fame. The shared cache and cell bins were rebuilt. The Viridian City gym door is the source warp at (32, 7). Route 22's north connection is Route 23. The gate script sets the outdoor map from the player's y: south of y 4 returns to Route 22, and the north doors return to Route 23 warps 1 and 2. The guard at (4, 2) and (5, 2) still requires the Boulder Badge.

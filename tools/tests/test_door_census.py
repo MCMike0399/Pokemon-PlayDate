@@ -41,10 +41,15 @@ class InventoryTests(unittest.TestCase):
             # adds its source connections.
             205: dict(warps=759, connections=76, boundary_cells=2322, last_map=214,
                       scripted=28, surface_blocked=9),
+            # Counted after the remainder packet. Power Plant, Cerulean Cave
+            # and the early houses resolve the last outdoor exits that the
+            # 205-map inventory still left blocked.
+            222: dict(warps=802, connections=78, boundary_cells=2362, last_map=238,
+                      scripted=28, surface_blocked=0),
         }[len(cls.manifest)]
 
     def test_every_pinned_map_and_warp_exactly_once(self):
-        self.assertIn(len(self.manifest), (108, 149, 171, 191, 205))
+        self.assertIn(len(self.manifest), (108, 149, 171, 191, 205, 222))
         expected = {}
         for name, entry in self.manifest.items():
             raw = json.loads((self.source / entry['path']).read_text())
