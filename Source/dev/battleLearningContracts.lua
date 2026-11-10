@@ -182,7 +182,13 @@ function BattleLearningContracts.run()
         owner.scene:syncMessage()
         owner.scene.messageDialog:advance()
         b.machine:get("script").messageTimer=11;owner.scene.introPhase="ready";owner.scene.introDrawing=false
-        Autopilot.step({"hold","a"},game);game.machine:handleInput();eq(game.machine:getCurrent(),"learning")
+        -- The A that leaves "grew to" opens the stats box. It must not also
+        -- confirm the move-learning prompt that follows the box.
+        Autopilot.step({"hold","a"},game);game.machine:handleInput();eq(game.machine:getCurrent(),"battle")
+        eq(b.levelStats.attack, p.atk);eq(b:getLearningSnapshot().pending, false)
+        Autopilot.beginFrame();game.machine:handleInput();eq(b.levelStats ~= nil, true)
+        Autopilot.step({"release","a"},game);b.machine:get("script").messageTimer=11
+        Autopilot.step({"press","a"},game);game.machine:handleInput();eq(game.machine:getCurrent(),"learning")
         local learning=game.machine:get("learning");eq(learning.phase,"ask");Autopilot.beginFrame();game.machine:handleInput();eq(learning.phase,"ask")
         eq(p:hasMove("bubble"),false);eq(#p:getPendingMoveChoices(),1)
     end)

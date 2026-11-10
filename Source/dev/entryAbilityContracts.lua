@@ -81,6 +81,17 @@ function EntryAbilityContracts.run()
         end
     end
 
+    test("Intimidate drop is one Gen V line", function()
+        local b = Battle(mon("blastoise"), mon("gyarados"))
+        local text = settle(b)
+        local line = "GYARADOS's Intimidate cut BLASTOISE's ATTACK!"
+        assert(text:find(line, 1, true))
+        assert(not text:find("ATTACK fell", 1, true))
+        local _, mentions = text:gsub("Intimidate", "")
+        eq(mentions, 1)
+        eq(b.player.statStages.atk, -1)
+    end)
+
     test("Intimidate real initial entry lowers living Inner Focus opponent without RNG", function()
         RulesRNG.seed(1)
         local p, e = mon("zubat"), mon("ekans")

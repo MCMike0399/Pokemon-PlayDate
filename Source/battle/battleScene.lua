@@ -490,16 +490,27 @@ function BattleScene:drawBattleField()
     if self.trainerVisible then
         self:drawTrainer()
     end
-    if self.enemyShown and (not self.captureAnimation or self.captureAnimation:isEnemyVisible())
+    if self.enemyShown and not self:isFaintSlide("enemy")
+        and (not self.captureAnimation or self.captureAnimation:isEnemyVisible())
         and not (flashHide and self.battle.attackerSide == "player") then
         self:drawPresentedPokemon(self.enemyShown, "enemy", 300, 20, false)
     end
-    if self.playerShown and not (flashHide and self.battle.attackerSide == "enemy") then
+    if self.playerShown and not self:isFaintSlide("player")
+        and not (flashHide and self.battle.attackerSide == "enemy") then
         self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
     end
 
-    -- Draw platforms on top of sprites
+    -- Draw platforms on top of resting sprites. A faint slide is drawn after
+    -- them so the picture can travel down across the platform.
     self:drawPlatforms()
+    if self.enemyShown and self:isFaintSlide("enemy")
+        and not (flashHide and self.battle.attackerSide == "player") then
+        self:drawPresentedPokemon(self.enemyShown, "enemy", 300, 20, false)
+    end
+    if self.playerShown and self:isFaintSlide("player")
+        and not (flashHide and self.battle.attackerSide == "enemy") then
+        self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
+    end
     if self.captureAnimation then self.captureAnimation:draw() end
     self:drawPresentation()
 
@@ -609,8 +620,9 @@ function BattleScene:drawBattleField()
     gfx.drawRect(4, boxY + 4, 392, 52)
 
     if self.battle.shiftChoice then
-        self:_wrapped("shift-prompt", "Change POKEMON?", 180, 44).image:draw(14, boxY + 10)
-        self.shiftMenu:draw(204, boxY + 4, 192, 52)
+        -- pokered _TrainerAboutToUseText plus the YES/NO box (TWO_OPTION_MENU).
+        self:_wrapped("shift-prompt", self.battle.message or "", 276, 44).image:draw(14, boxY + 8)
+        self.shiftMenu:draw(300, boxY + 4, 92, 52)
     elseif self.battle:isAwaitingCommand() then
         -- Draw text area on left
         self:_text("what-will", "What will", gfx.getSystemFont()).image:draw(14, boxY + 10)
@@ -641,6 +653,9 @@ function BattleScene:drawBattleField()
         gfx.setColor(gfx.kColorBlack)
         gfx.drawLine(0, 170, 400, 170)
     end
+    -- pokered PrintStatsBox draws the level-up window over the battlefield.
+    -- Paint it after the player panel so ATTACK/DEFENSE/SPEED/SPECIAL stay whole.
+    self:drawLevelStats()
 end
 
 function BattleScene:drawMoveSelect()
@@ -849,7 +864,8 @@ function BattleScene:updateShiftMenu()
     local choice = self.battle.shiftChoice
     if choice and self.shiftSeen ~= choice then
         self.shiftSeen = choice
-        self.shiftMenu:show({"CHANGE", "KEEP"}, function(index)
+        self.shiftMenu.columns = 1
+        self.shiftMenu:show({"YES", "NO"}, function(index)
             if index == 1 then
                 if self:requestSelection("party") then
                     self.shiftMenu:hide()
@@ -914,10 +930,18 @@ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
             size = math.min(80, math.max(4, (frame - 9) * 8))
         end
         if request.kind == "faint" then
-            drop = frame * 5
+            -- pokered engine/battle/core.asm SlideDownFaintedMonPic shifts the
+            -- picture down one tile row at a time (SE_SLIDE_MON_DOWN, $F6).
+            -- Eight pixels is one Game Boy tile. The slide is not clipped to
+            -- the slot, so it stays visible until it leaves the field.
+            drop = frame * 8
         end
     end
-    gfx.setClipRect(x, y, 80, 80)
+    if request and request.details.side == side and request.kind == "faint" then
+        gfx.setClipRect(0, 0, 400, 168)
+    else
+        gfx.setClipRect(x, y, 80, 80)
+    end
     local species = self.battle.conditions:speciesOf(mon)
     local sendingOut = request and request.details.side == side and request.kind == "sendout"
     if not sendingOut and self.battle[side] == mon and self.battle.conditions:substituteHP(mon) > 0 then
@@ -930,6 +954,33 @@ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
     end
     self:drawPokemonSprite(species, x + (80 - size) // 2, y + (80 - size) // 2 + drop, isBack, size)
     gfx.clearClipRect()
+end
+
+function BattleScene:isFaintSlide(side)
+    local request = self.activePresentation
+    return request ~= nil and request.kind == "faint" and request.details.side == side
+end
+
+-- pokered status_screen.asm PrintStatsBox .LevelUpStatsBox / .StatsText.
+function BattleScene:drawLevelStats()
+    local box = self.battle.levelStats
+    if not box then return end
+    local x, y, w, h = 214, 8, 168, 128
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(x, y, w, h)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(x, y, w, h)
+    local lines = {
+        "ATTACK", string.format("%3d", box.attack),
+        "DEFENSE", string.format("%3d", box.defense),
+        "SPEED", string.format("%3d", box.speed),
+        "SPECIAL", string.format("%3d", box.special),
+    }
+    local font = gfx.getSystemFont()
+    gfx.setFont(font)
+    for index, line in ipairs(lines) do
+        gfx.drawText(line, x + 10, y + 6 + (index - 1) * 15)
+    end
 end
 
 function BattleScene:drawTrainer()
@@ -990,6 +1041,25 @@ function BattleScene:drawPresentation()
                 gfx.drawLine(x + math.cos(angle) * radius, y + math.sin(angle) * radius,
                     x + math.cos(angle) * (radius + 6), y + math.sin(angle) * (radius + 6))
             end
+        end
+    elseif request.kind == "move" and details.moveKey == "surf" then
+        -- pokered data/moves/animations.asm SurfAnim:
+        --   battle_anim SURF, SE_WATER_DROPLETS_EVERYWHERE
+        --   battle_anim HYDRO_PUMP, SUBANIM_0_WATER_COLUMNS, 0, 6
+        -- SE_WATER_DROPLETS_EVERYWHERE is $FA (move_animation_constants.asm).
+        -- The generic water wave is Water Gun's droplet toss, not this script.
+        local anchor = Battle.moveAnchor(details.side, details.targetsFoe ~= false)
+        for row = 0, 4 do
+            for col = 0, 9 do
+                local px = 18 + col * 38 + (frame % 2) * 5
+                local py = 14 + row * 28 + ((frame + col) % 3) * 4
+                gfx.drawCircleAtPoint(px, py, 2)
+            end
+        end
+        for index = 0, 2 do
+            local height = 12 + ((frame + index * 3) % 16) * 3
+            local cx = anchor.x + mirrored(anchor, (index - 1) * 16)
+            gfx.fillRect(cx - 3, anchor.y + 24 - height, 6, height)
         end
     elseif request.kind == "move" then
         -- Missing targetsFoe keeps the older foe-aimed picture. Agility and

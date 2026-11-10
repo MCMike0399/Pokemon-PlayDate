@@ -21,7 +21,7 @@ local function fields(value, allowed)
     for key in pairs(value) do assert(allowed[key], "unknown fixture field: " .. tostring(key)) end
 end
 local function preparePokemon(spec)
-    fields(spec, {species=true,level=true,hp=true,status=true,status_turns=true,sleep_duration=true,pp=true,nature_id=true,ability_slot=true,held_item=true})
+    fields(spec, {species=true,level=true,hp=true,status=true,status_turns=true,sleep_duration=true,pp=true,nature_id=true,ability_slot=true,held_item=true,moves=true})
     assert(pokemonData[spec.species] and integer(spec.level,1,100), "invalid fixture Pokemon")
     local mon = Pokemon(spec.species, spec.level, {natureId=spec.nature_id==nil and 0 or spec.nature_id,
         abilitySlot=spec.ability_slot==nil and "first" or spec.ability_slot,
@@ -34,6 +34,17 @@ local function preparePokemon(spec)
     end
     mon.statusTurns = spec.status_turns == nil and 0 or spec.status_turns
     mon.sleepDuration = spec.sleep_duration == nil and (mon.status == "sleep" and mon.statusTurns or 0) or spec.sleep_duration
+    if spec.moves ~= nil then
+        assert(type(spec.moves) == "table" and #spec.moves >= 1 and #spec.moves <= 4, "fixture moves require one to four keys")
+        local seen = {}
+        mon.moves, mon.pp = {}, {}
+        for index, key in ipairs(spec.moves) do
+            assert(type(key) == "string" and moveData[key] and not moveData[key].noPP and not seen[key], "invalid fixture move")
+            seen[key] = true
+            mon.moves[index] = key
+            mon.pp[key] = moveData[key].maxPP
+        end
+    end
     if spec.pp ~= nil then
         assert(type(spec.pp) == "table", "fixture PP must be an object")
         for key, amount in pairs(spec.pp) do

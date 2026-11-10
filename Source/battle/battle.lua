@@ -207,6 +207,7 @@ end
 
 function BattleScriptPhase:exit()
     self.battle.shiftChoice = nil
+    self.battle.levelStats = nil
     self.battle.presentationRequest = nil
     self.battle.effects:endRound()
     self.battle:cancelPendingLearning()
@@ -243,6 +244,11 @@ function BattleScriptPhase:advance()
     elseif kind == "presentation" then
         self.battle.presentationRequest = value
         self.waiting = false
+    elseif kind == "levelStats" then
+        -- The grew line stays up. A dismisses the stats box, same as
+        -- WaitForTextScrollButtonPress after PrintStatsBox.
+        self.waiting = true
+        self.messageTimer = 0
     elseif kind == "shift" then
         self.battle.shiftChoice = {incoming = value}
         self.waiting = false
@@ -1303,8 +1309,12 @@ function Battle:performMove(move)
     end
 
     self:say(attacker.name .. " used " .. move.name .. "!")
+    -- pokered data/moves/animations.asm AttackAnimationPointers: Surf is
+    -- SurfAnim (SE_WATER_DROPLETS_EVERYWHERE, then SUBANIM_0_WATER_COLUMNS),
+    -- not the type-wide water motif. The key lets the scene play that script.
     self:present("move", {
         moveType = move.type,
+        moveKey = self.currentMoveKey,
         side = self.attackerSide,
         targetsFoe = self:targetsFoe(move),
     })
@@ -1692,7 +1702,21 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
                 self:say(mon.name .. " gained " .. row.xp .. " EXP!")
                 self:present("experience", {pokemon = mon, fromXP = beforeXP[mon], fromLevel = row.fromLevel})
                 local shown,why=BattleRewards.acknowledge(self,receipt.id,row.index);assert(shown,why)
-                if row.leveled then self:say(mon.name .. " grew to Lv" .. mon.level .. "!")end
+                if row.leveled then
+                    self:say(mon.name .. " grew to Lv" .. mon.level .. "!")
+                    -- pokered engine/battle/experience.asm prints GrewLevelText
+                    -- and then PrintStatsBox with d = LEVEL_UP_STATS_BOX, and
+                    -- waits (WaitForTextScrollButtonPress) before LearnMove.
+                    -- status_screen.asm PrintStatsBox lists ATTACK, DEFENSE,
+                    -- SPEED, and SPECIAL. This engine's special is split; the
+                    -- Blue box's SPECIAL line shows special attack.
+                    self.levelStats = {
+                        attack = row.after.atk, defense = row.after.def,
+                        speed = row.after.spe, special = row.after.spa,
+                    }
+                    coroutine.yield("levelStats")
+                    self.levelStats = nil
+                end
                 if #mon:getPendingMoveChoices()>0 then coroutine.yield("learning",mon)end
             end
         end
@@ -1729,7 +1753,13 @@ function Battle:finishRound()
             local incoming = self.enemyParty:get(index)
             if self.presentationAttached and GameOptions.battleStyle() == "SHIFT"
                 and self.player:isAlive() and self.party and #self:eligibleForcedReplacements(self.player) > 0 then
-                self:say(self.trainerName .. " is about to use " .. incoming.name .. ". Change POKEMON?")
+                -- pokered data/text/text_2.asm _TrainerAboutToUseText, shown
+                -- with TWO_OPTION_MENU (engine/battle/core.asm). The # glyph
+                -- is POKé; this font draws it as POKéMON.
+                local title = self.session and self.session:title()
+                local playerName = title and title.playerName or "RED"
+                self:say(self.trainerName .. " is about to use " .. incoming.name
+                    .. "!\nWill " .. playerName .. " change POKéMON?")
                 coroutine.yield("shift", incoming)
                 local selected = self.shiftSelected
                 self.shiftSelected = nil

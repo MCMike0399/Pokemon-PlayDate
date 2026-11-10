@@ -189,7 +189,7 @@ function RewardContracts.run()
     local n=0;while not b.message:find(" gained ",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
     eq(p.level,7);eq(p.hp,20);eq(p.maxHP,22);local before=RulesRNG.snapshot()
     for _=1,64 do local level,hp,maximum=b:presentationVitals(p);eq(level,6);eq(hp,18);eq(maximum,20)end;same(RulesRNG.snapshot(),before)
-    local scene=BattleScene(b);local bars={};local draw=scene.drawHPBar
+    local scene=BattleScene(b);scene.playerShown=b.player;local bars={};local draw=scene.drawHPBar
     scene.drawHPBar=function(self,x,y,w,h,hp,maximum)bars[#bars+1]={hp,maximum};return draw(self,x,y,w,h,hp,maximum)end
     local image=playdate.graphics.image.new(400,240,playdate.graphics.kColorWhite);playdate.graphics.pushContext(image);scene:drawBattleField();playdate.graphics.popContext();eq(bars[2][1],18);eq(bars[2][2],20)
     assert(b.machine:get("script"):advance())
@@ -213,7 +213,9 @@ function RewardContracts.run()
     b:runScript(function()return b:handleFaint("enemy")end);local n=0
     while not b.message:find("SQUIRTLE gained ",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
     eq(p.level,7);eq(q.level,7);local level,hp,maximum=b:presentationVitals(q);eq(level,6);eq(hp,20);eq(maximum,20)
-    assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),6);assert(b.machine:get("script"):advance());eq(b:getLearningSnapshot().pending,true)
+    assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),6)
+    assert(b.machine:get("script"):advance());eq(b.levelStats.speed, p.spe);eq(select(1,b:presentationVitals(q)),6)
+    assert(b.machine:get("script"):advance());eq(b.levelStats, nil);eq(b:getLearningSnapshot().pending,true)
     local request,mon=b:takeLearningRequest();eq(mon,p);while #p:getPendingMoveChoices()>0 do assert(p:resolveMoveChoice(p:getPendingMoveChoices()[1].id,"learn"))end;assert(b:resumeLearning(request))
     assert(b.message:find("CHARMANDER gained ",1,true));eq(select(1,b:presentationVitals(q)),6);assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),7);eq(party:active(),q);b:clearVolatiles()
  end)
@@ -221,6 +223,43 @@ function RewardContracts.run()
     local p=Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;local b=fresh(p,Pokemon("rattata",5));local r=award(b);eq(select(1,b:presentationVitals(p)),6)
     local before=RulesRNG.snapshot();eq(BattleRewards.acknowledge(b,r.id+1,1),false);eq(select(1,b:presentationVitals(p)),6);b:clearVolatiles();eq(#b:getRewardSnapshot().holds,0)
     eq(BattleRewards.acknowledge(b,r.id,1),false);p:takeDamage(1);local level,hp,maximum=b:presentationVitals(p);eq(level,p.level);eq(hp,p.hp);eq(maximum,p.maxHP);same(RulesRNG.snapshot(),before)
+ end)
+ test("level-up stats box follows the grew line and waits before learning",function()
+    local p=Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;local b=fresh(p,Pokemon("rattata",5));b.enemy.hp=0
+    b:runScript(function()return b:handleFaint("enemy")end)
+    local scene=BattleScene(b)
+    settle(b, scene, " grew to Lv7!")
+    assert(b.message:find(" grew to Lv7!", 1, true))
+    eq(b.levelStats, nil)
+    eq(b:getLearningSnapshot().pending, false)
+    assert(b.machine:get("script"):advance())
+    eq(b.levelStats.attack, p.atk)
+    eq(b.levelStats.defense, p.def)
+    eq(b.levelStats.speed, p.spe)
+    eq(b.levelStats.special, p.spa)
+    eq(b:getLearningSnapshot().pending, false)
+    scene.playerShown=b.player
+    local image=playdate.graphics.image.new(400,240,playdate.graphics.kColorWhite)
+    playdate.graphics.pushContext(image);scene:drawBattleField();playdate.graphics.popContext()
+    local gfx=playdate.graphics
+    local border=0
+    for x=214,381 do
+        if image:sample(x, 8)==gfx.kColorBlack then border=border+1 end
+    end
+    assert(border>100, "level-up stats box border")
+    -- The player panel's top edge sits inside this window. The box is on top.
+    eq(image:sample(300, 102), gfx.kColorWhite)
+    local label=0
+    for y=14,120 do
+        for x=224,370 do
+            if image:sample(x, y)==gfx.kColorBlack then label=label+1 end
+        end
+    end
+    assert(label>40, "level-up stats text")
+    assert(b.machine:get("script"):advance())
+    eq(b.levelStats, nil)
+    eq(b:getLearningSnapshot().pending, true)
+    scene:exit();b:clearVolatiles()
  end)
  test("closed or aborted reward owner flushes durable EV without opening new grants",function()
     local p=Pokemon("squirtle",50);local b=fresh(p,Pokemon("pikachu",5));award(b);local before=cp(p.evs);b:clearVolatiles();eq(b:getRewardSnapshot().closed,true);eq(BattleRewards.prepare(b,b.enemy),nil);same(p.evs,before);eq(p.spe,p:calculatedStats().spe)

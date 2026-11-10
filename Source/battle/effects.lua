@@ -417,16 +417,21 @@ function BattleEffects:entry(mon)
                 return true
             end
             -- Gen5 Inner Focus does NOT block Intimidate. Commit before yielding.
+            -- Intimidate is not a pokered string. The drop is one Gen V line.
+            -- A blocked drop and the minus-six floor keep their own sentences.
             local old=other.statStages.atk
             local allowed, prevention = self:canDropStat(mon, other, "atk", -1)
             if allowed then
                 other.statStages.atk = math.max(-6, old - 1)
             end
-            self.battle:say(mon.name.."'s Intimidate!")
             if not allowed then
+                self.battle:say(mon.name.."'s Intimidate!")
                 self.battle:say(other.name .. "'s " .. prevention .. " prevents stat loss!")
+            elseif old <= -6 then
+                self.battle:say(mon.name.."'s Intimidate!")
+                self.battle:say(other.name .. "'s ATTACK won't go any lower!")
             else
-                self.battle:say(other.name .. (old > -6 and "'s ATTACK fell!" or "'s ATTACK won't go any lower!"))
+                self.battle:say(mon.name .. "'s Intimidate cut " .. other.name .. "'s ATTACK!")
             end
             return true
         elseif self:effectiveAbility(mon)==108 then return self:forewarn(mon,other) end

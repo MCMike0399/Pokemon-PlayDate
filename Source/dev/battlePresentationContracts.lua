@@ -84,6 +84,17 @@ local function referencePicture(path, size, drop)
             16 + (80 - size) // 2 + drop + math.floor((size - math.floor(h * scale)) / 2), scale)
     end)
 end
+-- Same placement as referencePicture, without the slot clip, so a faint
+-- slide can leave ink below the 80-pixel window.
+local function openPicture(path, size, drop)
+    return renderPicture(function()
+        local image = assert(gfx.image.new(path))
+        local w, h = image:getSize()
+        local scale = math.min(size / w, size / h)
+        image:drawScaled(16 + (80 - size) // 2 + math.floor((size - math.floor(w * scale)) / 2),
+            16 + (80 - size) // 2 + drop + math.floor((size - math.floor(h * scale)) / 2), scale)
+    end)
+end
 -- Player backs keep referencePicture's scale and horizontal center, then move
 -- the lowest black row of that scaled bitmap onto the slot's last line.
 local function playerBackPicture(path, size, drop)
@@ -476,6 +487,139 @@ function BattlePresentationContracts.run()
         end
     end)
 
+    test("SHIFT prompt matches the Blue about-to-use text and YES/NO menu", function()
+        assert(GameOptions.set("battleStyle", "SHIFT"))
+        assert(GameOptions.set("battleAnimations", "OFF"))
+        local lead = Pokemon("squirtle", 20)
+        local reserve = Pokemon("pidgey", 20)
+        local foe = Pokemon("rattata", 3)
+        local incoming = Pokemon("gyarados", 20)
+        local battle = Battle(lead, foe, "BLUE", {party = party(lead, reserve), enemyParty = party(foe, incoming)})
+        local scene = BattleScene(battle)
+        settle(battle, scene)
+        foe.hp = 0
+        battle:runScript(function()
+            local result = battle:handleFaint("enemy")
+            if result ~= "replacement" then return result end
+            return battle:finishRound()
+        end)
+        settle(battle, scene, true)
+        local prompt = "BLUE is about to use GYARADOS!\nWill RED change POKéMON?"
+        equal(battle.message, prompt)
+        equal(scene.shiftMenu.options[1], "YES")
+        equal(scene.shiftMenu.options[2], "NO")
+        equal(#scene.shiftMenu.options, 2)
+        local image = gfx.image.new(400, 240, gfx.kColorWhite)
+        gfx.pushContext(image)
+        scene:drawBattleField()
+        gfx.popContext()
+        equal(scene.textCache["shift-prompt"].text, prompt)
+        scene.shiftMenu.onSelect(2)
+        equal(battle.shiftChoice, nil)
+        equal(battle.player, lead)
+        scene:exit()
+    end)
+
+    test("Surf draws droplets across the field and water columns at the target", function()
+        assert(GameOptions.set("battleAnimations", "ON"))
+        local battle, scene = commandScene("blastoise", "pidgeot")
+        local function render(details)
+            scene.activePresentation = {kind = "move", details = details}
+            scene.presentationFrame = 8
+            local image = gfx.image.new(400, 240, gfx.kColorWhite)
+            gfx.pushContext(image)
+            gfx.setDrawOffset(0, 0)
+            gfx.clearClipRect()
+            scene:drawPresentation()
+            gfx.clearClipRect()
+            gfx.popContext()
+            return image
+        end
+        local function blackIn(image, x0, y0, x1, y1)
+            local count = 0
+            for y = y0, y1 do
+                for x = x0, x1 do
+                    if image:sample(x, y) == gfx.kColorBlack then count = count + 1 end
+                end
+            end
+            return count
+        end
+        local function tallestRun(image, x0, x1, y0, y1)
+            local best = 0
+            for x = x0, x1 do
+                local run = 0
+                for y = y0, y1 do
+                    if image:sample(x, y) == gfx.kColorBlack then
+                        run = run + 1
+                        if run > best then best = run end
+                    else
+                        run = 0
+                    end
+                end
+            end
+            return best
+        end
+        local surf = render({side = "player", moveType = "water", moveKey = "surf", targetsFoe = true})
+        local wave = render({side = "player", moveType = "water", moveKey = "waterGun", targetsFoe = true})
+        local agility = render({side = "player", moveType = "psychic", moveKey = "agility", targetsFoe = false})
+        assert(blackIn(surf, 8, 8, 70, 150) > 20)
+        equal(blackIn(wave, 8, 8, 70, 150), 0)
+        assert(tallestRun(surf, 250, 399, 0, 167) > 24)
+        assert(tallestRun(wave, 250, 399, 0, 167) < 16)
+        assert(blackIn(agility, 70, 80, 130, 150) > 10)
+        equal(blackIn(agility, 8, 8, 40, 40), 0)
+        equal(scene.presentationFrame, 8)
+        scene:exit()
+    end)
+
+    test("Faint slides the picture down past the slot until it leaves the field", function()
+        local battle, scene, mon, enemy = commandScene("blastoise", "pidgeot")
+        scene.enemyShown = enemy
+        scene.playerShown = mon
+        local function field()
+            local image = gfx.image.new(400, 240, gfx.kColorWhite)
+            gfx.pushContext(image)
+            gfx.setDrawOffset(0, 0)
+            gfx.clearClipRect()
+            scene:drawBattleField()
+            gfx.clearClipRect()
+            gfx.popContext()
+            return image
+        end
+        local function slidPixels(shown, side, frame, x0, x1, y0, y1)
+            scene.enemyShown = side == "enemy" and shown or nil
+            scene.playerShown = side == "player" and shown or nil
+            scene.activePresentation = nil
+            local plain = field()
+            scene.enemyShown = side == "enemy" and shown or enemy
+            scene.playerShown = side == "player" and shown or mon
+            scene.activePresentation = {kind = "faint", details = {side = side, pokemon = shown}}
+            scene.presentationFrame = frame
+            local slid = field()
+            local count = 0
+            for y = y0, y1 do
+                for x = x0, x1 do
+                    if plain:sample(x, y) == gfx.kColorWhite and slid:sample(x, y) == gfx.kColorBlack then
+                        count = count + 1
+                    end
+                end
+            end
+            return count
+        end
+        -- Enemy slot is y=20..100. Frame 8 has dropped 64px, so ink is below it.
+        assert(slidPixels(enemy, "enemy", 8, 280, 390, 104, 160) > 30)
+        -- Player slot is y=70..150. The back sprite continues past that line.
+        assert(slidPixels(mon, "player", 6, 40, 140, 152, 167) > 10)
+        scene.activePresentation = {kind = "faint", details = {side = "enemy", pokemon = enemy}}
+        scene.presentationFrame = 0
+        scene.enemyShown = enemy
+        for _ = 1, 20 do scene:updateVisualEvent(scene.activePresentation) end
+        equal(scene.enemyShown, nil)
+        equal(scene.activePresentation, nil)
+        equal(battle.presentationRequest, nil)
+        scene:exit()
+    end)
+
     test("Player back sprites share a foot line on the slot bottom", function()
         local slotX, slotY = 16, 16
         local slotBottom = slotY + 79
@@ -564,12 +708,15 @@ function BattlePresentationContracts.run()
         equal(scene.presentationFrame, 10)
         scene:exit()
     end)
-    test("Substitute shares faint drop and slot clipping without moving the presentation clock", function()
+    test("Substitute shares the faint slide without moving the presentation clock", function()
         local battle, scene, mon = substituteScene("enemy")
         scene.activePresentation = {kind="faint", details={side="enemy", pokemon=mon}}
         scene.presentationFrame = 3
         local actual = renderPicture(function() scene:drawPresentedPokemon(mon, "enemy", 16, 16, false) end)
-        equalPictures(actual, referencePicture("images/battle-effects/substitute-front", 80, 15))
+        -- Frame 3 steps three Game Boy tile rows (24px) and is not clipped
+        -- back into the slot, matching SlideDownFaintedMonPic.
+        equalPictures(actual, openPicture("images/battle-effects/substitute-front", 80, 24))
+        assert(lowestBlackRow(actual) > 16 + 79)
         equal(scene.presentationFrame, 3)
         scene:exit()
     end)
