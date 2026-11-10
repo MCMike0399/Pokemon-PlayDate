@@ -1,5 +1,13 @@
 # Full-game execution ledger
 
+## 2026-11-10 Silph president gave the Master Ball
+
+Continued from the Copycat save with real steps. Copycat's stairs return to 1F, and the door exits to Saffron (7, 6). Silph's door is (18, 21) and lands on 1F (10, 17). The elevator panel is source (3, 1). 3F was already the unlocked floor (`EVENT_SILPH_CO_3_UNLOCKED_DOOR2`), and its warp (11, 11) lands on 7F (5, 3). 7F's warp (5, 7) lands on 11F (3, 2), the side of the floor that reaches the president. The 11F elevator itself lands on the other side. The tile (5, 5) is the inert warp into his room; stepping on it stays on 11F. The president stands at (7, 5) facing down, and the tile south of him is a wall. Standing at (6, 5) facing right received the Master Ball. `EVENT_GOT_MASTER_BALL` is set. The bag holds one `masterBall` and still holds one `tm31`. There is no Poké Doll. Money is still 68008. No battle and no blackout. VmHWM stayed at 344712 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on. `Source/lib/shade.lua` and the gym floor were not edited.
+
+Evidence is `linux-silph-11f-masterball-20261110-01`. Slot B is sequence 138, sha256 `32527e03287f6deb3ecc56da406068d19263e1a23871dbe851d651ad4ca9f339`, at Silph Co. 11F (6, 5) facing right. Slot A is still the Copycat file, sequence 137, sha256 `66aec9e7ddc710cc7d53efc5900addbdff763fe1d1c9027538f6cbc4cb492e3a`. The Copycat, doll, Mr. Psychic, Dojo, and Giovanni files are unchanged.
+
+Pokered opens Viridian Gym only when every badge except Earth is set, which includes the Volcano Badge. That badge stays with lane B. `ViridianGym` is still one of the missing late-Kanto maps, so this save does not walk in. Cinnabar, Seafoam, and the Mansion stay with lane B.
+
 ## 2026-11-10 Poké Doll from Celadon Mart 4F, then Copycat's TM31
 
 Continued from the Mr. Psychic save with real steps. No item was injected. Spearow flew from Saffron to Celadon and landed at (41, 10). The department store door is (8, 13). 1F's elevator warp is (1, 1). The elevator panel is source (3, 0); standing at (3, 1) facing up opened the floor list 1F through 5F. 4F's clerk is source (5, 7), behind the counter. Standing at (5, 5) facing down bought one Poké Doll, the first item in pokered's `CeladonMart4FClerkText` mart. The price is 1000. Money went from 69008 to 68008 and the bag went from 17 slots to 18. The elevator returned to 1F and the exit landed on Celadon (8, 14). No battle and no blackout. VmHWM stayed at 316564 KiB.
