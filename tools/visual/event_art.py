@@ -51,9 +51,10 @@ def load_sources(root):
     return result
 
 
-def source_grid(image,index,small=False,greyhair=False):
+def source_grid(image,index,small=False,greyhair=False,opaque_white=False):
     size=8 if small else 16
-    mapping={255:'.',170:'.' if greyhair else '1',85:'2',0:'#'}
+    # opaque_white maps pokered 170 to sprite code "w" (solid, not a hole).
+    mapping={255:'.',170:'.' if greyhair else 'w' if opaque_white else '1',85:'2',0:'#'}
     rows=[''.join(mapping[image.getpixel((x,index*size+y))] for x in range(size)) for y in range(size)]
     if small:rows=[row+'.'*8 for row in rows]+['.'*16]*8
     return rows
@@ -64,7 +65,7 @@ def raster(grid,legacy_inversion=0):
     pixels=[]
     for y in range(32):
         for x in range(32):
-            code=grid[y//2][x//2];white=code=='.'
+            code=grid[y//2][x//2];white=code=='.' or code=='w'
             if code in ('1','2'):
                 pattern=LIGHT if code=='1' else DARK
                 white=bool(pattern[y%8] & (0x80>>(x%8)))

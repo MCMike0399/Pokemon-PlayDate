@@ -203,7 +203,10 @@ function CeruleanContent.poseImage(source, pose, facing)
         -- its additive strides in that family; never normalize protected art.
         local greyhair = {}
         for row, cells in ipairs(grid) do
-            greyhair[row] = cells:gsub("1", ".")
+            -- Protected BLUE walking still collapses OBJ color 1 to the
+            -- greyhair white. Faithful imports now store that shade as
+            -- opaque "w"; "1" remains for any older grid.
+            greyhair[row] = cells:gsub("w", "."):gsub("1", ".")
         end
         image = SpriteFactory.makeSprite(greyhair)
     else

@@ -22,7 +22,7 @@ class SliceTests(unittest.TestCase):
   mart=self.maps['ViridianMart']['events']['objects'];self.assertEqual([(e['x'],e['y'],e['sprite']) for e in mart],[(0,5,'SPRITE_CLERK'),(5,5,'SPRITE_YOUNGSTER'),(3,3,'SPRITE_COOLTRAINER_M')])
   sprites=json.loads(self.art['sprites.json'])['sprites'];self.assertEqual(set(sprites),set(g.SPRITES))
   for name,data in sprites.items():
-   im=Image.open(REFERENCE/data['source']).convert('L');values={255:'.',170:'1',85:'2',0:'#'}
+   im=Image.open(REFERENCE/data['source']).convert('L');values={255:'.',170:'w',85:'2',0:'#'}
    for frame,grid in data['frames'].items():
     for y,row in enumerate(grid):self.assertEqual(row,''.join(values[im.getpixel((x,int(frame)*16+y))] for x in range(16)))
  def test_blue_route_slot_levels_species_weights(self):

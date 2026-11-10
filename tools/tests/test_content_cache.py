@@ -95,12 +95,18 @@ class ContentCacheTests(unittest.TestCase):
         self.assertEqual(self.decode(index, 'trainers', 'trainers'), expected)
 
     def test_pins_preserve_accepted_inputs_and_install_exact_checkpoint_c(self):
+        from tools.generate_overworld_sprites import same_except_opaque_white
         for path, digest in self.pins['inputs'].items():
             revision = '2dd9f3cc' if path.startswith(('data/midgameEast/', 'data/midgameSouth/')) else 'd858032'
             if path.startswith('data/midgameSaffron/'):
                 revision = '24ea539cd68142af6b50ca57841cdb8ae350f519'
             baseline = subprocess.check_output(['git', 'show', revision + ':Source/' + path])
-            self.assertEqual(hashlib.sha256(baseline).hexdigest(), digest, path)
+            if path.endswith('/sprites.json'):
+                current = (SOURCE / path).read_bytes()
+                self.assertEqual(hashlib.sha256(current).hexdigest(), digest, path)
+                self.assertTrue(same_except_opaque_white(current, baseline), path)
+            else:
+                self.assertEqual(hashlib.sha256(baseline).hexdigest(), digest, path)
         manifest = SOURCE / 'data/sourceMaps.json'
         from tools.activate_checkpoint_c import manifest as expected
         self.assertEqual(json.loads(manifest.read_bytes()), expected())

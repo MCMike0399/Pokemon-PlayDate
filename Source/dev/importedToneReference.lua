@@ -15,7 +15,9 @@ local reviewed <const> = {
 local policy
 
 function ImportedToneReference.color(code, x, y, terrain)
-    if code == "." then
+    -- "." is flood-fill white. "w" is the same solid white, but the
+    -- sprite mask treats it as opaque (imported OBJ color 1).
+    if code == "." or code == "w" then
         return gfx.kColorWhite
     end
     if code == "#" then

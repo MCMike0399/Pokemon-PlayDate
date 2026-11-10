@@ -2,7 +2,7 @@
   "schema_version": 1,
   "snapshot": {
     "commit": "598f64d2cea8840fe962015d4d51f4abfb411b3d",
-    "source_sha256": "cfd9850ddda0d80a4d9a2dca90e68b51ae5eb4dae2018cbb08adbf172ca1dec7",
+    "source_sha256": "6114486f49a7850dd36c8812582fb51695edd2333b1d22d1dec9ec99274a7f0b",
     "policy_date": "2026-11-04",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Main149 accepted; development named-contract dispatch only. Production unchanged; C171 unaccepted and latency gates remain open.",

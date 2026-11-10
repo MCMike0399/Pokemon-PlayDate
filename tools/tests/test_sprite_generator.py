@@ -129,6 +129,18 @@ class PinnedSpriteGeneration(unittest.TestCase):
         self.assertGreater(delta["changed_mask_pixels"], 4)
         self.assertEqual(generator.mask_bytes(leaked)[16*32+16], 0)
 
+    def test_opaque_white_is_not_a_flood_fill_hole(self):
+        solid = ["w" * 16 for _ in range(16)]
+        self.assertEqual(set(generator.mask_bytes(solid)), {255})
+        border = ["." * 16 for _ in range(16)]
+        border[0] = "w" + "." * 15
+        mask = generator.mask_bytes(border)
+        self.assertEqual(mask[0], 255)
+        self.assertEqual(mask[2], 0)
+        self.assertEqual(generator.MAPS["faithful"][170], "w")
+        self.assertEqual(generator.MAPS["faithful"][255], ".")
+        self.assertEqual(generator.MAPS["faithful"][85], "2")
+
 
 if __name__ == "__main__":
     unittest.main()

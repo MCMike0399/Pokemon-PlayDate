@@ -51,6 +51,17 @@ class VermilionPreparationTests(unittest.TestCase):
                 if path == 'Source/world/spritefactory.lua':
                     from tools.source_preservation import assert_startup_preserved
                     assert_startup_preserved(path, original, current)
+                elif path.endswith('/sprites.json'):
+                    from tools.generate_overworld_sprites import same_except_opaque_white
+                    self.assertTrue(same_except_opaque_white(current, original), path)
+                elif path.endswith('/provenance.json'):
+                    current_doc = json.loads(current)
+                    original_doc = json.loads(original)
+                    art = current_doc.get('artifacts')
+                    old_art = original_doc.get('artifacts')
+                    if isinstance(art, dict) and isinstance(old_art, dict) and 'sprites.json' in art:
+                        art['sprites.json'] = old_art['sprites.json']
+                    self.assertEqual(current_doc, original_doc, path)
                 else:
                     self.assertEqual(current, original, path)
         # The reviewed P0 change caches image tables and yields while building
@@ -151,7 +162,7 @@ class VermilionPreparationTests(unittest.TestCase):
 
     def test_all_sprite_frames_match_pinned_png_and_protected_blue_policy_is_preserved(self):
         sprites = json.loads(self.artifacts['sprites.json'])['sprites']
-        shades = {255: '.', 170: '1', 85: '2', 0: '#'}
+        shades = {255: '.', 170: 'w', 85: '2', 0: '#'}
         for sprite in sprites.values():
             image = Image.open(self.ref / sprite['source']).convert('L')
             for frame, grid in sprite['frames'].items():

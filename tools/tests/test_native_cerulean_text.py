@@ -55,6 +55,10 @@ class NativeCeruleanTextTests(unittest.TestCase):
                 continue
             original = subprocess.check_output([
                 'git', 'show', 'a316baf:Source/data/sourceSlice/' + name], cwd=content.ROOT)
+            if name == 'sprites.json':
+                from tools.generate_overworld_sprites import same_except_opaque_white
+                self.assertTrue(same_except_opaque_white(raw, original), name)
+                continue
             if name in ('trainers.json', 'scripts.json'):
                 self.assertEqual(json.loads(raw), json.loads(original), name)
                 self.assertNotIn(b'\\u', raw)

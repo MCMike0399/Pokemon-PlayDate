@@ -120,8 +120,9 @@ class CeruleanCatalogInputTests(unittest.TestCase):
                 self.assertEqual(strip['sha256'], self.pins[strip['source']])
                 self.assertEqual(list(image.size), strip['size'])
                 self.assertEqual(set(strip['frames']), {str(index) for index in range(image.height // 16)})
+                sprite_shades = {255: '.', 170: 'w', 85: '2', 0: '#'}
                 for index, grid in strip['frames'].items():
-                    expected = [''.join(SHADES[image.getpixel((x, int(index)*16+y))] for x in range(16))
+                    expected = [''.join(sprite_shades[image.getpixel((x, int(index)*16+y))] for x in range(16))
                                 for y in range(16)]
                     self.assertEqual(grid, expected)
                 for direction in ('down', 'up', 'left', 'right'):
@@ -153,7 +154,7 @@ class CeruleanCatalogInputTests(unittest.TestCase):
         for index in strip['walking'].values():
             expected = [''.join(greyhair[image.getpixel((x, index*16+y))] for x in range(16))
                         for y in range(16)]
-            mapped = [row.replace('1', '.') for row in strip['frames'][str(index)]]
+            mapped = [row.replace('w', '.').replace('1', '.') for row in strip['frames'][str(index)]]
             self.assertEqual(mapped, expected)
             self.assertIn('2', ''.join(mapped))
             self.assertEqual(set(protected_sprites.mask_bytes(mapped)), {0, 255})

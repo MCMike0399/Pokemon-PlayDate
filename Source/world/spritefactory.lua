@@ -2,16 +2,19 @@
 -- SpriteFactory: runtime overworld-sprite generation
 -- ============================================================
 -- The companion to TileFactory. Characters are authored as 16x16
--- four-shade grids (same convention as tiles: . white / 1 light /
--- 2 dark / # black) and rendered at native 32x32 through the shared
+-- grids (. white / 1 light / 2 dark / # black, plus w for opaque
+-- solid white) and rendered at native 32x32 through the shared
 -- TileFactory.renderGrid, then given an ALPHA MASK so the character
 -- shape sits transparently over the world.
 --
 -- The mask is a cell-level border flood-fill: a "." cell reachable
 -- from the edge through other "." cells is OUTSIDE (transparent);
--- every other cell -- shaded cells and any "." enclosed by a solid
--- "#" outline -- is body (opaque). A body must therefore be sealed by
--- a continuous "#" outline or the fill leaks in.
+-- every other cell -- "1", "2", "#", "w", and any "." enclosed by a
+-- solid outline -- is body (opaque). "w" is pokered OBJ color 1 on
+-- imported overworld sprites: solid white, and never a flood-fill
+-- hole. Shade 255 / color 0 stays "." and is the only transparent
+-- shade. A body must therefore be sealed by a continuous outline or
+-- the fill leaks in.
 --
 -- Right-facing frames are the left frame flipped, exactly like the
 -- old PNG pipeline. This replaces the Python generators; visuals are
@@ -70,6 +73,21 @@ end
 function SpriteFactory.makeSprite(grid, patternPhase)
     assert(#grid == 16, "sprite grid must have 16 rows")
     local img = TileFactory.renderGrid(grid, nil, patternPhase)
+    -- TileFactory leaves unknown codes unpainted. Paint "w" as solid
+    -- white here so opaque OBJ color 1 does not depend on that, and so
+    -- it never picks up a dither pattern. computeMask still walks "."
+    -- only, so these cells stay opaque even on the sprite border.
+    gfx.pushContext(img)
+    gfx.setColor(gfx.kColorWhite)
+    for y = 1, 16 do
+        local row = grid[y]
+        for x = 1, 16 do
+            if row:sub(x, x) == "w" then
+                gfx.fillRect((x - 1) * 2, (y - 1) * 2, 2, 2)
+            end
+        end
+    end
+    gfx.popContext()
     img:setMaskImage(computeMask(grid))
     return img
 end

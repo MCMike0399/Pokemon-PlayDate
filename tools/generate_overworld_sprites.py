@@ -23,7 +23,10 @@ OUTPUT = ROOT / "Source/world/sprites"
 CHARS = {"blue": "rival", "oak": "oak", "mom": "mom", "daisy": "daisy"}
 FACINGS = ("down", "up", "left")
 MAPS = {
-    "faithful": {255: ".", 170: "1", 85: "2", 0: "#"},
+    # 170 is pokered OBJ color 1. Imported overworld sprites paint it as opaque
+    # solid white ("w"), not Bayer "1" and not flood-fill ".". Shade 255 / color
+    # 0 stays "." and is the only transparent shade. Shade 85 stays DARK Bayer.
+    "faithful": {255: ".", 170: "w", 85: "2", 0: "#"},
     "bw": {255: ".", 170: ".", 85: "#", 0: "#"},
     "greyhair": {255: ".", 170: ".", 85: "2", 0: "#"},
     "outline": {255: ".", 170: ".", 85: ".", 0: "#"},
@@ -115,9 +118,33 @@ def mask_bytes(grid):
     return bytes(0 if (x//2, y//2) in outside else 255 for y in range(32) for x in range(32))
 
 
+def same_except_opaque_white(current, historical):
+    """Sprite JSON matches a reviewed file except frame code w standing in for 1.
+
+    Imported OBJ color 1 used to be Bayer code 1. It is now opaque white. Callers
+    that pin an older blob can accept that remap and still reject any other edit.
+    """
+    left = json.loads(current)
+    right = json.loads(historical)
+    sprites = left.get("sprites")
+    if not isinstance(sprites, dict) or not isinstance(right.get("sprites"), dict):
+        return False
+    for strip in sprites.values():
+        frames = strip.get("frames") if isinstance(strip, dict) else None
+        if not isinstance(frames, dict):
+            return False
+        for key, grid in frames.items():
+            if not isinstance(grid, list) or any(not isinstance(row, str) for row in grid):
+                return False
+            frames[key] = [row.replace("w", "1") for row in grid]
+    return left == right
+
+
 def validate_grid(grid):
-    if len(grid) != 16 or any(not re.fullmatch(r"[.#12]{16}", row) for row in grid):
-        raise ValueError("sprite frame requires 16 rows of 16 . # 1 2 cells")
+    # "w" is opaque white. The flood-fill in mask_bytes walks "." only, so a
+    # border-touching "w" stays inside the silhouette.
+    if len(grid) != 16 or any(not re.fullmatch(r"[.#12w]{16}", row) for row in grid):
+        raise ValueError("sprite frame requires 16 rows of 16 . # 1 2 w cells")
 
 
 def parse_grids(text, key):

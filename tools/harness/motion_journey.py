@@ -307,7 +307,7 @@ def verify_rendered_poses(build_evidence,png,state):
         try:
             frame = strip['standing' if pose == 'stand' else 'walking'][lookup_direction]
             grid = strip['frames'][str(frame)]
-            if len(grid) != 16 or any(len(row) != 16 or set(row) - set('.12#') for row in grid):
+            if len(grid) != 16 or any(len(row) != 16 or set(row) - set('.12#w') for row in grid):
                 raise ValueError('invalid grid')
             expected = raster(grid)
         except (KeyError, ValueError) as error:

@@ -29,7 +29,11 @@ class VermilionAmbientTests(unittest.TestCase):
             if name.endswith('.json') and name not in {
                 'events.json', 'scripts.json', 'reservations.json', 'provenance.json'}:
                 old = subprocess.check_output(['git', 'show', 'e4dd170:Source/data/vermilionPreparation/' + name])
-                self.assertEqual(data, old, name)
+                if name == 'sprites.json':
+                    from tools.generate_overworld_sprites import same_except_opaque_white
+                    self.assertTrue(same_except_opaque_white(data, old), name)
+                else:
+                    self.assertEqual(data, old, name)
 
     def test_fan_cross_flags_and_clear_branch_from_primary(self):
         source = self.primary('scripts/PokemonFanClub.asm')

@@ -125,8 +125,9 @@ class VermilionCatalogInputs(unittest.TestCase):
                 self.assertEqual(strip['sha256'], self.pins[strip['source']])
                 self.assertEqual(list(image.size), strip['size'])
                 self.assertEqual(set(strip['frames']), {str(i) for i in range(image.height // 16)})
+                sprite_shades = {255: '.', 170: 'w', 85: '2', 0: '#'}
                 for index, rows in strip['frames'].items():
-                    self.assertEqual(rows, [''.join(SHADES[image.getpixel((x, int(index) * 16 + y))]
+                    self.assertEqual(rows, [''.join(sprite_shades[image.getpixel((x, int(index) * 16 + y))]
                                                     for x in range(16)) for y in range(16)])
                 for poses in (strip['standing'], strip['walking']):
                     for index in poses.values():

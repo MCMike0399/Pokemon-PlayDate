@@ -229,7 +229,7 @@ class CeruleanContentTests(unittest.TestCase):
     def test_immutable_sprite_converter_preserves_every_source_frame(self):
         sprites = json.loads(self.artifacts['sprites.json'])['sprites']
         self.assertEqual(len(sprites), 28)
-        shades = {255: '.', 170: '1', 85: '2', 0: '#'}
+        shades = {255: '.', 170: 'w', 85: '2', 0: '#'}
         for strip in sprites.values():
             image = Image.open(self.reference / strip['source']).convert('L')
             for index, grid in strip['frames'].items():

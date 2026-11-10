@@ -32,7 +32,9 @@ def sprite_data(reference,name):
  path='gfx/sprites/'+name+'.png';raw=reference.bytes(path)
  im=Image.open(io.BytesIO(raw));im.load()
  if im.mode!='L' or im.width!=16 or im.height not in (16,48,96) or set(im.getdata())!={0,85,170,255}:raise ValueError('unexpected sprite strip '+name)
- frames={};mapping={255:'.',170:'1',85:'2',0:'#'}
+ frames={}
+ from tools.generate_overworld_sprites import MAPS
+ mapping=MAPS['faithful']
  for index in range(im.height//16):frames[str(index)]=[''.join(mapping[im.getpixel((x,index*16+y))] for x in range(16)) for y in range(16)]
  return {'id':'pokered:sprite:'+name,'source':path,'sha256':hashlib.sha256(raw).hexdigest(),'mapping':'faithful four original shades; candidate, no protected NPC changes','size':list(im.size),'fixed':im.height==16,'standing':{'down':0,'up':1,'left':2} if im.height>=48 else {'down':0},'walking':{'down':3,'up':4,'left':5} if im.height==96 else {},'right':'mirror original left frame when directional','frames':frames}
 
@@ -64,7 +66,10 @@ def build(reference):
  catalog=[]
  for name,sprite in sprites.items():
   for frame,grid in sprite['frames'].items():
-   raw=g.render_map({'dimensions':{'cells':[1,1]},'grids':[{'id':1,'grid':grid}],'tile_ids':[[1]]})
+   # "w" is opaque solid white. The map raster only knows Bayer codes, so the
+   # preview paints it as "." and the sprite mask keeps the cell opaque.
+   preview=[''.join('.' if cell=='w' else cell for cell in row) for row in grid]
+   raw=g.render_map({'dimensions':{'cells':[1,1]},'grids':[{'id':1,'grid':preview}],'tile_ids':[[1]]})
    image=Image.open(io.BytesIO(raw)).convert('RGBA');mask=Image.frombytes('L',(32,32),sg.mask_bytes(grid));image.putalpha(mask)
    for kind,im in [('image',image),('mask',mask)]:
     stream=io.BytesIO();im.save(stream,format='PNG');filename=f'catalog/sprite-{name}-{frame}-{kind}.png';out[filename]=stream.getvalue()

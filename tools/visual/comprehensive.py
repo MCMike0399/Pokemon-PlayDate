@@ -56,7 +56,7 @@ def expected(project,reference,pins):
         if strip['source'] not in pins['files'] or strip['sha256']!=pins['files'][strip['source']]:raise ValueError('sprite provenance drift')
         raw=refs.bytes(strip['source']);im=Image.open(io.BytesIO(raw)).convert('L')
         if im.size!=tuple(strip['size']) or not set(im.getdata())<={0,85,170,255}:raise ValueError('source strip dimensions/palette')
-        grid=source_grid(im,index)
+        grid=source_grid(im,index,opaque_white=True)
         if grid!=strip['frames'][str(index)]:raise ValueError('runtime sprite grid differs from source')
         result=raster(grid)
         return clear_transparent_rgb(ImageOps.mirror(result)) if flip else result

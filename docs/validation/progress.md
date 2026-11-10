@@ -1,5 +1,25 @@
 # Full-game execution ledger
 
+## 2026-11-10 Imported overworld OBJ color 1 is opaque white
+
+Lane C `ea3f9d69` (bundle `0a8f381015796b346a3b5c83c5573c17d581e1a03bbc6b809e460b40178664cd`,
+base `17b00af0`) is Miguel's option A. Pokered shade 170 is sprite code `w`:
+solid white, and not a flood-fill hole. Shade 255 stays `.`. Shade 85 stays
+Bayer `2`. The floor Bayer patterns are unchanged.
+
+The code hunks are in `spritefactory.lua` (it paints `w`), `ceruleanContent.lua`
+(BLUE's walk still collapses `w`, then `1`, to `.`), the faithful sprite map,
+and the tests that accept that remap. Sprite JSON was still the base bytes, so
+each 16-cell frame row was remapped in place. Those files match lane C's
+bytes. `generate_content_cache.py` rebuilt `Source/data/contentCache`.
+`generate_overworld_sprites.py --check` is clean and still covers only rival,
+oak, mom, and daisy.
+
+A 400×240 simulator frame of the Fuchsia Pokécenter nurse is
+`/opt/cursor/artifacts/npc-sprite-fix-fuchsia.png`. The uniform and hat are
+solid white. The floor dither around them is still the Bayer pattern.
+`player.lua` and `sourceActors.lua` were not edited.
+
 ## 2026-11-10 Coast maps stay a sidecar until one manifest promotion
 
 Lane B's Routes 19–21, Seafoam, Cinnabar, and Mansion decode is not a second
