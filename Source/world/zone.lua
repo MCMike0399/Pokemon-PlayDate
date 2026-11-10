@@ -948,10 +948,16 @@ end
 -- Step-triggered warp at grid position (player coords are 0-based).
 -- Edge doors are excluded: they fire on walking INTO the edge, not on
 -- landing (see getEdgeDoorAt).
+local function rejectUnresolvedWarp(self, gx, gy)
+    local issue = blockedAt(zoneData[self], gx, gy)
+    if type(issue) == "table" and issue.kind == "warps" then
+        error("unresolved source warp: " .. issue.id)
+    end
+end
 function Zone:getDoorAt(gx, gy)
     if self.imported then
-        local issue = self:bindingAt(gx, gy)
-        assert(not issue or issue.kind ~= "warps", "unresolved source warp: " .. (issue and issue.id or ""))
+        bounds(self, gx, gy)
+        rejectUnresolvedWarp(self, gx, gy)
     end
     for _, door in ipairs(self.doors) do
         if not door.edge and door.x == gx and door.y == gy then return door end
@@ -964,8 +970,7 @@ end
 -- `dir` nil matches any edge door at the tile (used to point the exit arrow).
 function Zone:getEdgeDoorAt(gx, gy, dir)
     if self.imported and integer(gx) and integer(gy) and gx >= 0 and gy >= 0 and gx < self.width and gy < self.height then
-        local issue = self:bindingAt(gx, gy)
-        assert(not issue or issue.kind ~= "warps", "unresolved source warp: " .. (issue and issue.id or ""))
+        rejectUnresolvedWarp(self, gx, gy)
     end
     for _, door in ipairs(self.doors) do
         if door.edge and door.x == gx and door.y == gy
