@@ -31,10 +31,15 @@ class InventoryTests(unittest.TestCase):
             # retains its source warp without the old floor barrier.
             171: dict(warps=637, connections=65, boundary_cells=2074, last_map=188,
                       scripted=28, surface_blocked=11),
+            # Independently counted after the coast packet. Routes 19–21,
+            # Seafoam, Cinnabar and the Mansion add the new warps and the
+            # Fuchsia south connection. Scripted warps stay the Silph set.
+            191: dict(warps=709, connections=73, boundary_cells=2262, last_map=206,
+                      scripted=28, surface_blocked=11),
         }[len(cls.manifest)]
 
     def test_every_pinned_map_and_warp_exactly_once(self):
-        self.assertIn(len(self.manifest), (108, 149, 171))
+        self.assertIn(len(self.manifest), (108, 149, 171, 191))
         expected = {}
         for name, entry in self.manifest.items():
             raw = json.loads((self.source / entry['path']).read_text())

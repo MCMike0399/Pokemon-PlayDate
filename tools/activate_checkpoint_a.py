@@ -53,6 +53,15 @@ def production_exclusions(project):
             raise ValueError('unsupported production map inventory; explicit release policy required')
         expected = dict(previous['maps'], **additions)
         policy = ROOT / 'tools/integration/checkpoint-c/production-exclusions.json'
+    elif len(names) == 191:
+        from tools.activate_coast import COAST
+        from tools.activate_checkpoint_c import inventories as c_inventories
+        previous, additions = c_inventories(project)
+        coast = json.loads((project / 'Source/data/zCoast/manifest-entries.json').read_bytes())['maps']
+        if names != set(previous['maps']) | set(additions) | set(COAST) or set(coast) != set(COAST):
+            raise ValueError('unsupported production map inventory; explicit release policy required')
+        expected = dict(previous['maps'], **additions, **coast)
+        policy = ROOT / 'tools/integration/coast/production-exclusions.json'
     else:
         raise ValueError('unsupported production map inventory; explicit release policy required')
     for name, entry in expected.items():

@@ -21,6 +21,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "world/tilefactory"
     import "world/tileRegistry"
     import "world/spritefactory"
+    import "game/waterEncounters"
     import "world/zone"
     BootTrace.mark("import.foundations.end")
     BootTrace.mark("import.pokemonRules.begin")

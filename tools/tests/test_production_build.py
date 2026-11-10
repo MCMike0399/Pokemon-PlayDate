@@ -157,7 +157,7 @@ class ProductionBuildTests(unittest.TestCase):
                           or line.lstrip().startswith('VermilionCatalogExporter.register(')], expected_registrations)
 
     def test_staging_preserves_every_non_entry_source_asset(self):
-        policy = json.loads((PROJECT / 'tools/integration/checkpoint-c/production-exclusions.json').read_bytes())
+        policy = json.loads((PROJECT / 'tools/integration/coast/production-exclusions.json').read_bytes())
         self.assertEqual(build.production_exclusions(PROJECT), policy['exclude'])
         active = json.loads((PROJECT / 'Source/data/sourceMaps.json').read_bytes())
         self.assertEqual(set(active['maps']), installed_map_names())

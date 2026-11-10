@@ -1020,13 +1020,11 @@ function Zone._readEncounterMapPolicy(zone, destination, mode)
         if not zone.imported or not water then
             return nil, "unbound-encounter-policy"
         end
-        assert(Party._integer(water.rate_byte, 0, 255), "invalid Blue water encounter byte")
-        -- Nonzero water bindings are outside this exact-B port. Fail rather
-        -- than substitute a land rate, species distribution or RNG protocol.
-        assert(water.rate_byte == 0, "unbound-water-encounter-policy")
-        assert(Party._array(water.slots, 64) and #water.slots == 0, "invalid disabled water slots")
-        policy.rate.kind, policy.rate.value = "byte", water.rate_byte
-        policy.slots = water.slots
+        -- Blue water is that map's own table. A zero byte stays disabled.
+        -- A nonzero byte is projected by WaterEncounters, not copied from grass.
+        local projected = WaterEncounters.project(water)
+        policy.rate.kind, policy.rate.value = projected.kind, projected.value
+        policy.slots = projected.slots
         return policy
     end
     policy.rate.kind = zone.imported and "byte" or "unit"

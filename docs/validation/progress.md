@@ -1,5 +1,22 @@
 # Full-game execution ledger
 
+## 2026-11-10 Route 19 and the coast maps are in the shared manifest
+
+The 171-map inventory now has the 20 coast maps regenerated from pokered
+`af519899719f0754965776faac0e836a3b906e6d` by `tools/generate_lane_b_coast.py`.
+They are `Route19`, `Route20`, `Route21`, the five Seafoam floors, Cinnabar
+Island, its Center, Mart, Gym, Lab and three lab rooms, and the four Mansion
+floors. `Source/data/sourceMaps.json` is still the only runtime inventory:
+191 maps. `tools/generate_source_map_cache.py --check` rebuilt the shared
+compact cache and cell bins. Fuchsia's south connection targets `ROUTE_19`,
+and Route 19's north connection targets `FUCHSIA_CITY`.
+
+Route 19 and Route 20 water is SeaRoutes: rate 5, ten Tentacool, weights
+51/51/39/25/25/25/13/13/11/3. `Zone._readEncounterMapPolicy` projects that
+table through `WaterEncounters`. A zero water byte stays disabled. Coast
+event sidecars stay out of the content cache. `Source/lib/shade.lua` and the
+gym floor were not edited.
+
 ## 2026-11-10 The Fly house path does not meet the Celadon entrance
 
 Continued from the Dojo save with real steps. Saffron (0, 10) is an edge door to Route 7 (19, 2). The Route 7 gate's east door is (18, 9), landing at source (5, 3). Its west door is source (0, 3), landing at Route 7 (11, 10). Route 7 (0, 2) is an edge door to Celadon (49, 10). Celadon (0, 18) is an edge door to Route 16 (39, 10). Snorlax's tile was empty. The south-east gate door (24, 10) landed at Route 16 Gate 1F source (7, 8). No wild battle and no blackout. VmHWM stayed at 226256 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on.

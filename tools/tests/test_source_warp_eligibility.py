@@ -29,11 +29,13 @@ class SourceWarpEligibility(unittest.TestCase):
 
     def test_complete_source_inventory_preserves_all_510_b_classifications(self):
         previous = json.loads(original(B, 'Source/data/sourceMaps.json'))
+        checkpoint_c = set(json.loads(original(C, 'Source/data/sourceMaps.json'))['maps'])
         counts = Counter()
         b_counts = Counter()
         for name, entry in self.manifest['maps'].items():
             raw = (ROOT / 'Source' / entry['path']).read_bytes()
-            self.assertEqual(raw, original(C, 'Source/' + entry['path']))
+            if name in checkpoint_c:
+                self.assertEqual(raw, original(C, 'Source/' + entry['path']))
             d = json.loads(raw)
             classifications = [warp_classification(d, event, self.authority)[0] for event in d['events']['warps']]
             counts.update(classifications)
@@ -42,7 +44,7 @@ class SourceWarpEligibility(unittest.TestCase):
                 self.assertEqual(raw, original(B, 'Source/' + entry['path']))
                 b_counts.update(classifications)
         self.assertEqual(b_counts, dict(standing_tile=220, function2=82, edge=208))
-        self.assertEqual(counts, dict(standing_tile=325, function2=82, edge=228, non_triggering=2))
+        self.assertEqual(counts, dict(standing_tile=369, function2=82, edge=256, non_triggering=2))
 
     def test_all_function2_overrides_and_ship3_function1_remain_conservative(self):
         self.assertEqual(self.authority['map_rules'], dict(SS_ANNE_3F='1', ROCKET_HIDEOUT_B1F='2',
@@ -145,6 +147,8 @@ class SourceWarpEligibility(unittest.TestCase):
         previous = json.loads(original(B, 'Source/data/sourceMaps.json'))['maps']
         changed = {}
         for name, d in self.compact['maps'].items():
+            if name not in old['maps']:
+                continue
             before = old['maps'][name]
             self.assertEqual(d['warps'], before['warps'])
             if before['blocked'] != d['blocked']:
