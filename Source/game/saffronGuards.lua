@@ -75,6 +75,19 @@ function SaffronGuards.plan(id, observation)
     steps[#steps + 1] = {op="move", direction=automatic and guard.entry_push or guard.talk_push, count=1}
     return {status="thirsty", steps=steps}
 end
+local guardIndex
+local function guardsByZone()
+    if guardIndex then return guardIndex end
+    guardIndex = {}
+    for id, guard in pairs(data().guards) do
+        if guard.active then
+            guardIndex[#guardIndex + 1] = {
+                id = id, guard = guard, zone = "pokered:" .. id:match("^pokered:([^:]+):"),
+            }
+        end
+    end
+    return guardIndex
+end
 function SaffronGuards.check(game)
     local player <const> = game.player
     if game.machine:getCurrent() ~= "overworld" or game.machine:depth() ~= 1
@@ -83,8 +96,9 @@ function SaffronGuards.check(game)
         or game.session:questFlag(data().flag) then
         return false
     end
-    for id, guard in pairs(data().guards) do
-        if guard.active and currentZone.stableID == "pokered:" .. id:match("^pokered:([^:]+):") then
+    for _, row in ipairs(guardsByZone()) do
+        local id, guard = row.id, row.guard
+        if currentZone.stableID == row.zone then
             local entry <const> = assert(SourceMaps.entry(guard.map))
             for _, point in ipairs(guard.trigger) do
                 if player.gridX == point.x + entry.padding and player.gridY == point.y then

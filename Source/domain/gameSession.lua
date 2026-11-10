@@ -1163,6 +1163,15 @@ end
 function GameSession:safariData()
     return copy(state[self].safari)
 end
+-- Frame checks read one field. safariData() copies the whole record.
+function GameSession:safariEnding()
+    local safari = state[self].safari
+    return safari and safari.ending or "none"
+end
+function GameSession:safariActive()
+    local safari = state[self].safari
+    return safari and safari.active and true or false
+end
 function GameSession:commitSafari(plan, expectedEpoch)
     local current = state[self]
     if current.fieldEpoch ~= expectedEpoch then

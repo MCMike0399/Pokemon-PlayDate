@@ -35,6 +35,7 @@ function SafariRuntime.check(game)
         or not game.player or game.player.isMoving then
         return false
     end
+    if game.session:safariEnding() == "none" then return false end
     local data = game.session:safariData()
     if data.ending ~= "none" then
         local mutation = assert(SafariGame.leave(data, false))
@@ -47,7 +48,7 @@ function SafariRuntime.check(game)
     return false
 end
 function SafariRuntime.startEncounter(game, enemy)
-    if not game.session:safariData().active or not SafariGame.isBattleMap(currentZone.stableID) then
+    if not game.session:safariActive() or not SafariGame.isBattleMap(currentZone.stableID) then
         return false, "not-safari"
     end
     return SafariBattleState.open(game, enemy)
@@ -56,7 +57,7 @@ function SafariRuntime.allowDoor(game, door)
     local provider = WorldDeltas.definitionProvider()
     local target = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
     if currentZone.stableID == "pokered:SAFARI_ZONE_GATE" and SafariGame.isBattleMap(target)
-        and not game.session:safariData().active then
+        and not game.session:safariActive() then
         return false, "Safari admission required"
     end
     return true

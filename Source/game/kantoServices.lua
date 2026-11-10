@@ -46,7 +46,7 @@ function KantoServices.onMapEnter(session, zoneID)
     return true
 end
 function KantoServices.check(game)
-    if game.machine:getCurrent() ~= "overworld" or game.session:getIntro().stage ~= "done"
+    if game.machine:getCurrent() ~= "overworld" or game.session:introStage() ~= "done"
         or not currentZone or currentZone.stableID ~= "pokered:MUSEUM_1F" then return false end
     local player = game.player
     if not player or player.isMoving or player.pendingEdgeDoor or player.pendingConnection then return false end

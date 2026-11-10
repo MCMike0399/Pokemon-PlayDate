@@ -13,6 +13,7 @@ function PartyState:enter(options)
     self.view=0;self.active=true;self.session=self.game.session
     self.options = options or {}
     self.selected, self.phase, self.swapFrom, self.message = 1, "list", nil, nil
+    self.paint = nil
     self.menu:hide()
 end
 
@@ -193,13 +194,67 @@ function PartyState:handleInput()
     end
 end
 
-function PartyState:draw()
-    if self.phase == "field-wait" then return end
-    local x, y = gfx.getDrawOffset()
-    gfx.setDrawOffset(0, 0)
+local PARTY_STATUS <const> = {poison="PSN",badPoison="PSN",burn="BRN",paralyze="PAR",sleep="SLP",freeze="FRZ"}
+
+function PartyState:_screenDirty(party)
+    local paint = self.paint
+    local count = party:count()
+    if not self.screenImage or not paint or paint.phase ~= self.phase or paint.selected ~= self.selected
+        or paint.message ~= self.message or paint.count ~= count
+        or paint.prompt ~= (self.options and self.options.prompt)
+        or paint.menuIndex ~= self.menu.selectedIndex or paint.menuOn ~= self.menu.isActive then
+        return true
+    end
+    for i = 1, count do
+        local member = party:get(i)
+        local row = paint.rows[i]
+        if not row or row.mon ~= member or row.hp ~= member.hp or row.max ~= member.maxHP
+            or row.level ~= member.level or row.status ~= member.status or row.name ~= member.name
+            or row.atk ~= member.atk or row.def ~= member.def or row.spa ~= member.spa
+            or row.spd ~= member.spd or row.spe ~= member.spe or row.xp ~= member.xp
+            or row.nature ~= member.natureId or row.held ~= member.heldItem then
+            return true
+        end
+        if (self.phase == "info" or self.phase == "stats") and row.ability ~= member:ability() then
+            return true
+        end
+        local moves = member.moves
+        if row.moveCount ~= #moves then return true end
+        for index = 1, #moves do
+            local key = moves[index]
+            if row.moves[index] ~= key or row.pp[index] ~= member.pp[key] then return true end
+        end
+    end
+    return false
+end
+
+function PartyState:_rememberScreen(party)
+    local rows = {}
+    for i = 1, party:count() do
+        local member = party:get(i)
+        local moves, pp = {}, {}
+        for index, key in ipairs(member.moves) do
+            moves[index] = key
+            pp[index] = member.pp[key]
+        end
+        rows[i] = {
+            mon = member, hp = member.hp, max = member.maxHP, level = member.level, status = member.status,
+            name = member.name, atk = member.atk, def = member.def, spa = member.spa, spd = member.spd,
+            spe = member.spe, xp = member.xp, nature = member.natureId, held = member.heldItem,
+            ability = (self.phase == "info" or self.phase == "stats") and member:ability() or nil,
+            moves = moves, pp = pp, moveCount = #moves,
+        }
+    end
+    self.paint = {
+        phase = self.phase, selected = self.selected, message = self.message, count = party:count(),
+        prompt = self.options and self.options.prompt, menuIndex = self.menu.selectedIndex,
+        menuOn = self.menu.isActive, rows = rows,
+    }
+end
+
+function PartyState:_paintScreen(party)
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
-    local party = self.game.session:party()
     local mon = party:get(self.selected)
     if self.phase == "stats" and mon then
         gfx.drawText(mon.name .. "  Lv" .. mon.level, 12, 10)
@@ -223,19 +278,19 @@ function PartyState:draw()
     else
         gfx.drawText("POKEMON", 12, 6)
         if party:count() == 0 then gfx.drawText("You have no POKEMON yet.", 16, 64) end
-        for i, member in ipairs(party:members()) do
+        for i = 1, party:count() do
+            local member = party:get(i)
             local top = 30 + (i - 1) * 29
             gfx.drawText((i == self.selected and "> " or "  ") .. member.name, 8, top)
             gfx.drawText("Lv" .. member.level, 196, top)
             gfx.drawText(member.hp .. "/" .. member.maxHP, 256, top)
-            local status = {poison="PSN",badPoison="PSN",burn="BRN",paralyze="PAR",sleep="SLP",freeze="FRZ"}
-            gfx.drawText(member.hp == 0 and "FNT" or status[member.status] or "", 354, top)
+            gfx.drawText(member.hp == 0 and "FNT" or PARTY_STATUS[member.status] or "", 354, top)
             gfx.drawRect(30, top + 21, 140, 4)
             local fill = math.floor(138 * member.hp / member.maxHP)
             if fill > 0 then gfx.fillRect(31, top + 22, fill, 2) end
         end
         local prompt = self.phase == "swap" and "Move to which position?"
-            or self.message or self.options.prompt or "Choose a POKEMON.  B: Back"
+            or self.message or (self.options and self.options.prompt) or "Choose a POKEMON.  B: Back"
         gfx.drawText(prompt, 12, 216)
         if self.phase=="actions" then self.menu:draw(210,222-(16+(self.actionCount or 4)*20),180,16+(self.actionCount or 4)*20)
         elseif self.phase=="held-actions" then self.menu:draw(210,146,180,76) end
@@ -245,7 +300,29 @@ function PartyState:draw()
             gfx.drawTextInRect(self.message,14,184,372,42)
         end
     end
-    gfx.setDrawOffset(x, y)
+end
+
+function PartyState:draw()
+    if self.phase == "field-wait" then return end
+    local x, y = gfx.getDrawOffset()
+    if x ~= 0 or y ~= 0 then gfx.setDrawOffset(0, 0) end
+    local party = self.game.session:party()
+    if self:_screenDirty(party) then
+        if not self.screenImage then
+            self.screenImage = gfx.image.new(400, 240, gfx.kColorWhite)
+        end
+        gfx.pushContext(self.screenImage)
+        gfx.setDrawOffset(0, 0)
+        gfx.clearClipRect()
+        gfx.clearStencil()
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.setFont(gfx.getSystemFont())
+        self:_paintScreen(party)
+        gfx.popContext()
+        self:_rememberScreen(party)
+    end
+    self.screenImage:draw(0, 0)
+    if x ~= 0 or y ~= 0 then gfx.setDrawOffset(x, y) end
 end
 
 function PartyState:resume()
