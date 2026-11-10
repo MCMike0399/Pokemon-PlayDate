@@ -1,5 +1,38 @@
 # Full-game execution ledger
 
+## 2026-11-10 Silph Lapras, the 11F door, and Giovanni
+
+Continue used a copy of the earned 7F rival save. That folder was not written.
+Lapras was received at Silph 7F (2, 5), facing the worker: `BIT_GOT_LAPRAS`,
+level 15, sent to box 0 because the party was full. The game was saved before
+the warp. Evidence is `linux-silph-7f-lapras-save-20261110-01`. Slot B is
+sequence 128, sha256
+`4f56b20009ea9ef2f8c88a2e13f978f17204218fb27e5e7fcc9e34f6dc435506`. Slot A is
+still the rival file, sha256
+`ab17c2c49f261a116836230a84b94d1139aa5c78695393d08320b93c19cfceb7`.
+
+The 11F walk crossed the Rocket at (3, 16). Cubone, Drowzee, and Marowak fell.
+The card-key door in front of (6, 14) stays solid until
+`EVENT_SILPH_CO_11_UNLOCKED_DOOR`. Facing up there and pressing A opened it.
+The step onto (6, 13) is Giovanni's trigger. One earlier approach reached
+(6, 14) and stopped on that locked door. It never started Giovanni, so it is
+not an attempt.
+
+Giovanni attempt 1 won under the same frozen policy as the rival. No second
+attempt. The party was Nidorino 37, Kangaskhan 35, Rhyhorn 37, Nidoqueen 41.
+Blastoise fainted against Nidoqueen, was revived, and finished her.
+`EVENT_BEAT_SILPH_CO_GIOVANNI` is set. Evidence is
+`linux-silph-11f-giovanni-save-20261110-01`. Slot A is sequence 129, sha256
+`2093432634b6313b0d5645cf6c747ed29b3f81239cfeed5ccdf73b67ed9bcbec`, at 11F
+(6, 13) facing up. The rival save and the Lapras save still match the hashes
+above. Blastoise is Lv49 with 28 HP. The bench is fainted or unevolved.
+Lapras remains in box 0.
+
+Opening the malloc log with Alt-L during boot kept VmHWM at 238968 KiB through
+the Giovanni save. `MallocPoolSize=16645684` and the 1 GiB guard stayed on.
+Clip `20261110T020912Z-silph-lapras-giovanni.mp4` is 90 seconds, 400x240, LCD
+only. Sabrina, the Fighting Dojo, and Fly are the next walk from this save.
+
 ## 2026-11-10 Linux sim malloc-log artifact
 
 The climbing VmHWM is the Simulator malloc-history log, not the Lua heap.
