@@ -1,5 +1,46 @@
 # Full-game execution ledger
 
+## 2026-11-10 Linux sim malloc-log artifact
+
+The climbing VmHWM is the Simulator malloc-history log, not the Lua heap.
+`MallocPoolSize=16645684` and the 1 GiB host guard stayed on. Nothing was raised
+or turned off. The same fixture battle, Metapod Lv7 versus Metapod Lv7 using
+Harden, ran eight turns. Both sides stayed at 24/24 HP. Lua is
+`collectgarbage("count")`. Pool is the Malloc Log footer "Heap Used", which is
+the 16 MiB pool high water and does not reset when the history is cleared.
+
+A left the history alone. B clicked Clear Malloc History after every harness
+command through `tools/harness/linux_malloc_history.py` (xdotool on the wx
+Malloc Log; the control is the unlabeled icon left of "Automatically Refresh").
+
+| Turn | A VmHWM KiB | A Lua KiB | B VmHWM KiB | B RSS KiB | B Lua KiB | B pool | B items |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| boot | 489244 | 7254.9 | 493036 | 493036 | 7253.6 | 8.38 MB | 5 |
+| 1 | 517844 | 7412.1 | 494096 | 494096 | 7413.4 | 9.45 MB | 5 |
+| 2 | 529012 | 7449.6 | 494096 | 494096 | 7448.0 | 9.45 MB | 5 |
+| 3 | 541120 | 7451.2 | 494096 | 494096 | 7448.5 | 9.45 MB | 5 |
+| 4 | 555036 | 7452.2 | 494096 | 494096 | 7449.1 | 9.45 MB | 5 |
+| 5 | 556144 | 7454.6 | 494096 | 494096 | 7450.3 | 9.45 MB | 7 |
+| 6 | 571712 | 7455.5 | 494096 | 494096 | 7450.7 | 9.45 MB | 6 |
+| 7 | 572788 | 7456.3 | 494096 | 494096 | 7451.2 | 9.45 MB | 6 |
+| 8 | 590220 | 7458.7 | 494096 | 494096 | 7453.1 | 9.45 MB | 6 |
+| settled | 610132 | 7459.6 | 494100 | 494100 | 7455.1 | 9.45 MB | 5 |
+
+A climbed 120888 KiB from boot to settled (489244 to 610132). B rose 1060 KiB
+on the first command and then stayed at 494096 KiB through turn 8; settled is
+494100 KiB. RSS on B matched VmHWM, so it did not climb either. Lua stayed
+inside 7.09–7.29 MiB on both arms. A's pool footer was not refreshed, so its
+item count stayed at the boot reading of 74641 and is not a live count. B's
+footer was read after each clear: the pool moved from 8.38 MB to 9.45 MB when
+the battle started and then held, and the history item count stayed at 5–7.
+A later open of the same log without clearing still showed about 74634 items
+and 8.38 MB while that process's VmHWM crept from 761848 to 793036 KiB, which
+is the same direction as A. One uncleared launch was stopped by the 1 GiB
+guard at 1096323072 bytes before its first command sample. That is the guard
+working, not a limit change.
+
+No battle-text bisect. B is flat and A climbs.
+
 ## 2026-11-09 Silph 7F battle path: Agility side, damage text, text box, party
 
 Clip `20261109T214145Z-silph-7f-rival-battle.mp4`. The foe's Agility was

@@ -284,3 +284,14 @@ exact earned Route 14 partial described by
 `bb2246417b96b01e8dfd5a664d0566fe43acc11d46375bb11dfd661a417bc380`).
 Canonical B startup alone cannot qualify that resume. This candidate has no
 native reclamation, timing, long-journey or C acceptance claim.
+
+## Linux
+
+`linux_malloc_history.py` is the Linux SDK 3.1.2 clear. The wx Malloc Log has
+no labeled AX broom. The helper OCRs the footer and clicks the icon 49 px left
+of "Automatically Refresh", which is the binary's Clear Malloc History control
+on the inspected 738×451 layout. A missing label, a point outside that window,
+or an item count that does not fall refuses the click. `status` only reads
+Heap Used. Neither path writes `Playdate Simulator.ini`. `MallocPoolSize` stays
+`16645684`. Host checks that do not launch the Simulator are
+`tools/tests/test_linux_malloc_history.py`.
