@@ -1,5 +1,15 @@
 # Full-game execution ledger
 
+## 2026-11-10 Poké Doll from Celadon Mart 4F, then Copycat's TM31
+
+Continued from the Mr. Psychic save with real steps. No item was injected. Spearow flew from Saffron to Celadon and landed at (41, 10). The department store door is (8, 13). 1F's elevator warp is (1, 1). The elevator panel is source (3, 0); standing at (3, 1) facing up opened the floor list 1F through 5F. 4F's clerk is source (5, 7), behind the counter. Standing at (5, 5) facing down bought one Poké Doll, the first item in pokered's `CeladonMart4FClerkText` mart. The price is 1000. Money went from 69008 to 68008 and the bag went from 17 slots to 18. The elevator returned to 1F and the exit landed on Celadon (8, 14). No battle and no blackout. VmHWM stayed at 316564 KiB.
+
+Evidence of the doll, still in the bag, is `linux-celadon-pokedoll-20261110-01`. Slot B is sequence 136, sha256 `6dc860d2dace35f0e05768e5cf9f4b2c5adf577cde7dd847188a6bd4e0e46833`, at Celadon (8, 14) facing down. Slot A is still the Mr. Psychic file, sequence 135, sha256 `f42b3070976efc4186cfa21ae9ac950f5d7942a6c16f703d7cdc5f395b219c42`.
+
+From that save, Spearow flew back to Saffron (9, 30). Copycat's door is (7, 5). The stairs from 1F land on 2F source (7, 1). Copycat walks, so the four tiles around her spawn did not reach her. She was at source (6, 1). Standing at source (6, 2) facing up played her script. `EVENT_GOT_TM31` is set, the Poké Doll is gone, and the bag holds one `tm31` in 18 slots. Money is still 68008. No battle and no blackout. VmHWM stayed at 315388 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on. `Source/lib/shade.lua` and the gym floor were not edited.
+
+Evidence is `linux-saffron-tm31-20261110-01`. Slot A is sequence 137, sha256 `66aec9e7ddc710cc7d53efc5900addbdff763fe1d1c9027538f6cbc4cb492e3a`, in Copycat's room. The save stores grid (8, 2) facing up; the house padding is 2, so that is source (6, 2). Slot B is still the Celadon doll file, sequence 136. Spearow still knows Fly. The Mr. Psychic, doll, Dojo, and Giovanni files are unchanged. Cinnabar, Seafoam, and the Mansion stay with lane B.
+
 ## 2026-11-10 Mr. Psychic gave TM29
 
 Continued from the Fly arrival with real steps. Saffron (9, 30) reaches Mr. Psychic's door at (29, 29) in 23 open tiles. The house warp lands on source (2, 7). The fishing guru stands at source (5, 3) facing left. Standing at source (5, 4) facing up received TM29. `EVENT_GOT_TM29` is set and the bag holds one `tm29`. No battle and no blackout. VmHWM stayed at 302628 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on. `Source/lib/shade.lua` and the gym floor were not edited.
