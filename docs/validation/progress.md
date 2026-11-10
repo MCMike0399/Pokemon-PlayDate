@@ -1,5 +1,53 @@
 # Full-game execution ledger
 
+## 2026-11-10 Coast maps stay a sidecar until one manifest promotion
+
+Lane B's Routes 19–21, Seafoam, Cinnabar, and Mansion decode is not a second
+runtime. `Source/data/sourceMaps.json` is the only inventory (171 maps, pin
+`af519899719f0754965776faac0e836a3b906e6d`). `SourceMaps.connection` returns
+nil when `nameForID("pokered:" .. target)` misses (`sourceMaps.lua`).
+`FuchsiaCity.json` already records south to `ROUTE_19` (offset 5 blocks,
+entry adjustment -10). West to Route 18 and east to Route 15 resolve.
+South does not, because Route 19 is not in the catalogue.
+
+Adoption is a promotion of their checked JSON into that catalogue, not a
+sidecar loader:
+
+1. Add one `source` manifest entry per coast map: id, key, path, padding,
+   size, spawn, and `source_sha256` of the sidecar bytes. Keep their path
+   if the file moves into this tree unchanged.
+2. Rebuild the shared compact cache and `sourceMapCells` bins with
+   `tools/generate_source_map_cache.py`. `--check` must see the new grids.
+   No parallel manifest.
+3. Fuchsia south then uses the existing offset math. Route 19's north
+   connection has to be in that map's own JSON or the walk back stays nil.
+   Do not invent a Pallet-style seam.
+4. Land water projection in the same change as Route 19/20. A nonzero
+   `rate_byte` still hits `unbound-water-encounter-policy` in
+   `Zone._readEncounterMapPolicy`. Surfing those maps before the projection
+   fail-closes. The SeaRoutes table is rate 5, ten Tentacool, weights
+   51/51/39/25/25/25/13/13/11/3 (`data/wild/maps/SeaRoutes.asm`, pointed at
+   by `data/wild/grass_water.asm`). A zero byte stays disabled.
+5. Map scripts and events stay Lane B's. Installing JSON does not bind
+   them. Bayer floor shading stays. Sprite masks stay Lane C's.
+6. Host checks that freeze 171, including the content-cache drift tests and
+   `docs/validation/coverage-current.md`, move in that same commit.
+
+The earlier note that Route 19/20 seam cells are collision 1 is about
+`PewterWorld` and `KantoWorld`, not this importer. Recheck the decoded
+water cells at promotion. Imported surf uses `FieldTravel.surfSurface` and
+the decoded collision.
+
+Lane B's water patch is not in this checkout. `cursor/lane-b-south-loop` at
+`0cc8ef2b` and `docs/validation/lane-a-water-encounters.patch` were not
+delivered as a bundle. Do not land `Zone._readEncounterMapPolicy` from a
+transcript. When the bundle arrives, the review is: import
+`game/waterEncounters` before `world/zone` in `main.lua`, replace the
+nonzero-rate assert with `WaterEncounters.project`, and run
+`tools/tests/test_lane_b_searoutes.py` against the pinned SeaRoutes bytes.
+Sabrina, the Fighting Dojo, and Fly are still the next walk from the
+Giovanni save. This note does not start them.
+
 ## 2026-11-10 Silph Lapras, the 11F door, and Giovanni
 
 Continue used a copy of the earned 7F rival save. That folder was not written.
