@@ -42,11 +42,25 @@ class SourceMapManifestTests(unittest.TestCase):
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
                         "Source/data/viridianSlice", "Source/data/pewterSlice",
                         "Source/world/sprites", "Source/images",
-                        "Source/lib/shade.lua",
+                        ":(exclude)Source/data/viridianSlice/sprites.json",
+                        ":(exclude)Source/data/pewterSlice/sprites.json",
                         ":(exclude)Source/images/title",
                     ":(exclude)Source/images/battle-effects/substitute-front.png",
                     ":(exclude)Source/images/battle-effects/substitute-back.png"],
                        cwd=ROOT, check=True, capture_output=True)
+        from tools.generate_overworld_sprites import same_except_opaque_white
+        for path in ("Source/data/viridianSlice/sprites.json", "Source/data/pewterSlice/sprites.json"):
+            original = subprocess.check_output(["git", "show", BASE + ":" + path], cwd=ROOT)
+            self.assertTrue(same_except_opaque_white((ROOT / path).read_bytes(), original), path)
+        shade = json.loads((ROOT / "tools/references/shade-bayer-approval.json").read_bytes())
+        path = shade["path"]
+        current = (ROOT / path).read_bytes()
+        baseline = subprocess.check_output(["git", "show", BASE + ":" + path], cwd=ROOT)
+        approved = subprocess.check_output(["git", "show", shade["approved"]["commit"] + ":" + path], cwd=ROOT)
+        self.assertEqual(hashlib.sha256(baseline).hexdigest(), shade["baseline"]["sha256"])
+        self.assertEqual(hashlib.sha256(approved).hexdigest(), shade["approved"]["sha256"])
+        self.assertEqual(current, approved, path)
+        self.assertNotEqual(current, baseline, path)
         from tools.source_preservation import assert_startup_preserved
         path = "Source/data/maps.lua"
         original = subprocess.check_output(["git", "show", BASE + ":" + path], cwd=ROOT)
@@ -59,7 +73,11 @@ class SourceMapManifestTests(unittest.TestCase):
         current = (ROOT / path).read_text()
         def drawing(text):
             return re.sub(r"-- PUBLIC API.*?-- TILE DEFINITIONS", "-- TILE DEFINITIONS", text, flags=re.S)
-        self.assertEqual(drawing(current), drawing(original))
+        header = current
+        for change in shade["tilefactory_header"]["replacements"]:
+            self.assertEqual(header.count(change["approved"]), 1, path)
+            header = header.replace(change["approved"], change["baseline"], 1)
+        self.assertEqual(drawing(header), drawing(original))
 
     def test_paths_revision_dimensions_and_padding_match_immutable_maps(self):
         for name, entry in self.maps.items():

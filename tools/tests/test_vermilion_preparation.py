@@ -50,7 +50,45 @@ class VermilionPreparationTests(unittest.TestCase):
                 current = (g.ROOT / path).read_bytes()
                 if path == 'Source/world/spritefactory.lua':
                     from tools.source_preservation import assert_startup_preserved
-                    assert_startup_preserved(path, original, current)
+                    # The yield wrapper is still the reviewed startup normalization.
+                    # The only extra body is the opaque-white paint from 61ea7445.
+                    record = json.loads((g.ROOT / 'tools/references/spritefactory-opaque-white.json').read_bytes())
+                    self.assertEqual(record['schema'], 1)
+                    self.assertEqual(record['path'], path)
+                    self.assertEqual(record['baseline']['commit'], BASE)
+                    self.assertEqual(hashlib.sha256(current).hexdigest(), record['approved']['sha256'])
+                    approved = subprocess.check_output(['git', 'show', record['approved']['commit'] + ':' + path])
+                    self.assertEqual(current, approved, path)
+                    restored = current.decode()
+                    for change in record['replacements']:
+                        self.assertEqual(restored.count(change['approved']), 1, path)
+                        self.assertNotIn(change['baseline'], restored)
+                        restored = restored.replace(change['approved'], change['baseline'], 1)
+                    assert_startup_preserved(path, original, restored.encode())
+                elif path == 'Source/lib/shade.lua':
+                    # c6882b69 still holds the 12.5%/50% patterns. The only
+                    # accepted replacement is 946c4b00, pinned with its bytes.
+                    record = json.loads((g.ROOT / 'tools/references/shade-bayer-approval.json').read_bytes())
+                    self.assertEqual(record['schema'], 1)
+                    self.assertEqual(record['path'], path)
+                    self.assertEqual(record['baseline']['commit'], BASE)
+                    baseline = subprocess.check_output(['git', 'show', record['baseline']['commit'] + ':' + path])
+                    approved_commit = record['approved']['commit']
+                    approved = subprocess.check_output(['git', 'show', approved_commit + ':' + path])
+                    self.assertEqual(hashlib.sha256(baseline).hexdigest(), record['baseline']['sha256'])
+                    self.assertEqual(hashlib.sha256(approved).hexdigest(), record['approved']['sha256'])
+                    self.assertEqual(original, baseline)
+                    self.assertNotEqual(approved, baseline)
+                    self.assertEqual(current, approved, path)
+                    between = subprocess.check_output(
+                        ['git', 'log', '--format=%H',
+                         record['baseline']['commit'] + '..' + approved_commit, '--', path],
+                        text=True).split()
+                    self.assertEqual(between, [approved_commit])
+                    later = subprocess.check_output(
+                        ['git', 'log', '--format=%H', approved_commit + '..HEAD', '--', path],
+                        text=True).strip()
+                    self.assertEqual(later, '')
                 elif path.endswith('/sprites.json'):
                     from tools.generate_overworld_sprites import same_except_opaque_white
                     self.assertTrue(same_except_opaque_white(current, original), path)
@@ -75,7 +113,13 @@ class VermilionPreparationTests(unittest.TestCase):
         for marker in (public, definitions):
             self.assertEqual(original.count(marker), 1)
             self.assertEqual(current.count(marker), 1)
-        self.assertEqual(current.split(public)[0], original.split(public)[0], path)
+        shade = json.loads((g.ROOT / 'tools/references/shade-bayer-approval.json').read_bytes())
+        header = current.split(public)[0].decode()
+        for change in shade['tilefactory_header']['replacements']:
+            self.assertEqual(header.count(change['approved']), 1, path)
+            self.assertNotIn(change['baseline'], header)
+            header = header.replace(change['approved'], change['baseline'], 1)
+        self.assertEqual(header.encode(), original.split(public)[0], path)
         self.assertEqual(current.split(definitions)[1], original.split(definitions)[1], path)
         # Only the exact image-table caching section reviewed at 309194ee is
         # exempt from the older byte comparison. Further edits need review.

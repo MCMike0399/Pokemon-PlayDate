@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "path": "Source/lib/shade.lua",
+  "baseline": {
+    "commit": "c6882b696fa9e0b8b4f43e7bb46fffacceeb11f6",
+    "sha256": "f7f36f86785c58419d5bbfaa15f188e801dd9fa36974a600c52be7dad7ec3fdd"
+  },
+  "approved": {
+    "commit": "946c4b00b736632ebf7fa08e7a25ea118e7deb9c",
+    "sha256": "3626b148542cdd797f59369cbbefae38182fb5310f07465b04cc6b8ccd338877",
+    "reason": "Miguel's 2026-11-09 choice. Every Shade caller, including Pallet and interiors, uses fixed-phase Bayer LIGHT 31.25% and DARK 68.75%. Shade.set passes phase (0, 0). No later commit may change this file without a new record."
+  },
+  "tilefactory_header": {
+    "path": "Source/world/tilefactory.lua",
+    "reason": "Same 946c4b00 approval. Only the two shade-code comments in the header before PUBLIC API. The cache section hash and the tile definitions stay on their existing checks.",
+    "replacements": [
+      {
+        "approved": "--   1  LIGHT  (31.25% fixed-phase Bayer \u2014 paths, glass, plank shadows)\n",
+        "baseline": "--   1  LIGHT  (~12.5% dither \u2014 paths, glass, plank shadows)\n"
+      },
+      {
+        "approved": "--   2  DARK   (68.75% fixed-phase Bayer \u2014 roofs, doors, tree canopy)\n",
+        "baseline": "--   2  DARK   (50% checkerboard \u2014 roofs, doors, tree canopy)\n"
+      }
+    ]
+  }
+}

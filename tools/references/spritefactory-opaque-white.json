@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "path": "Source/world/spritefactory.lua",
+  "baseline": {
+    "commit": "c6882b696fa9e0b8b4f43e7bb46fffacceeb11f6"
+  },
+  "approved": {
+    "commit": "61ea7445f4f783113ff359f68b167cf5273a8b69",
+    "sha256": "844fe1a562b1eb90407195133dd2b0001a40e05a3c7a4a3a60714b031d964a10",
+    "reason": "Miguel approved option A. Pokered OBJ color 1 / shade 170 is code w, painted as opaque solid white. The startup wrapper stays the reviewed normalization. Reversing these three snippets restores the c6882b69 body."
+  },
+  "replacements": [
+    {
+      "approved": "-- grids (. white / 1 light / 2 dark / # black, plus w for opaque\n-- solid white) and rendered at native 32x32 through the shared\n",
+      "baseline": "-- four-shade grids (same convention as tiles: . white / 1 light /\n-- 2 dark / # black) and rendered at native 32x32 through the shared\n"
+    },
+    {
+      "approved": "-- every other cell -- \"1\", \"2\", \"#\", \"w\", and any \".\" enclosed by a\n-- solid outline -- is body (opaque). \"w\" is pokered OBJ color 1 on\n-- imported overworld sprites: solid white, and never a flood-fill\n-- hole. Shade 255 / color 0 stays \".\" and is the only transparent\n-- shade. A body must therefore be sealed by a continuous outline or\n-- the fill leaks in.\n",
+      "baseline": "-- every other cell -- shaded cells and any \".\" enclosed by a solid\n-- \"#\" outline -- is body (opaque). A body must therefore be sealed by\n-- a continuous \"#\" outline or the fill leaks in.\n"
+    },
+    {
+      "approved": "    local img = TileFactory.renderGrid(grid, nil, patternPhase)\n    -- TileFactory leaves unknown codes unpainted. Paint \"w\" as solid\n    -- white here so opaque OBJ color 1 does not depend on that, and so\n    -- it never picks up a dither pattern. computeMask still walks \".\"\n    -- only, so these cells stay opaque even on the sprite border.\n    gfx.pushContext(img)\n    gfx.setColor(gfx.kColorWhite)\n    for y = 1, 16 do\n        local row = grid[y]\n        for x = 1, 16 do\n            if row:sub(x, x) == \"w\" then\n                gfx.fillRect((x - 1) * 2, (y - 1) * 2, 2, 2)\n            end\n        end\n    end\n    gfx.popContext()\n    img:setMaskImage(computeMask(grid))\n",
+      "baseline": "    local img = TileFactory.renderGrid(grid, nil, patternPhase)\n    img:setMaskImage(computeMask(grid))\n"
+    }
+  ]
+}

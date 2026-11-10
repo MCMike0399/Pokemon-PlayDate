@@ -1,5 +1,34 @@
 # Full-game execution ledger
 
+## 2026-11-10 The Bayer shade file is the 946c4b00 blob
+
+`test_preexisting_input_art_and_old_manifest_entries_are_unchanged` compared
+`Source/lib/shade.lua` with `c6882b69`. That baseline is the 12.5%/50%
+patterns. The only later edit is `946c4b00` ("Use the approved Bayer shades
+for every Shade caller"). HEAD still matches that blob, sha256
+`3626b148542cdd797f59369cbbefae38182fb5310f07465b04cc6b8ccd338877`.
+
+The test now reads `tools/references/shade-bayer-approval.json`. It checks
+the baseline hash, the approved commit hash, that `946c4b00` is the only
+commit between them, that nothing after that commit touches the file, and
+that the working bytes are the approved blob. A new edit still fails.
+
+Pinning that file exposed the next miss: `Source/world/spritefactory.lua`.
+Its startup wrapper is still the reviewed normalization. The extra body is
+the opaque-white paint landed in `61ea7445`.
+`tools/references/spritefactory-opaque-white.json` pins that file's sha256
+`844fe1a562b1eb90407195133dd2b0001a40e05a3c7a4a3a60714b031d964a10` and the
+three snippets. The test reverses those snippets, then runs the same
+startup oracle against `c6882b69`. Any other edit still fails.
+
+The same approval also rewrote the two shade-code comments at the top of
+`Source/world/tilefactory.lua`. Those two lines are in the shade record.
+The test puts the `c6882b69` wording back, then compares that header. The
+image-table cache hash and the tile definitions are unchanged.
+`test_original_map_inputs_authored_pallet_and_renderers_are_unchanged` uses
+the same record. `895a874` has the same pre-Bayer shade bytes. Its pewter
+and viridian sprite sheets are checked with `same_except_opaque_white`.
+
 ## 2026-11-10 Imported overworld OBJ color 1 is opaque white
 
 Lane C `ea3f9d69` (bundle `0a8f381015796b346a3b5c83c5573c17d581e1a03bbc6b809e460b40178664cd`,
