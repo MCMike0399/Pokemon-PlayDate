@@ -17,6 +17,7 @@ function NPCMotion:clear()
         actor.npc.isMoving = false
     end
     s.actors,s.specs,s.byNPC={},{},setmetatable({},{__mode="k"})
+    s.orderedIds=nil
     s.game,s.zone,s.session,s.descriptor,s.pending,s.interaction,s.migration=nil,nil,nil,nil,nil,nil,nil
 end
 function NPCMotion:_pose(actor)
@@ -73,6 +74,7 @@ function NPCMotion:remove(npc)
     local s=stores[self];local actor=s.byNPC[npc]
     if not actor then return end
     s.actors[actor.value.id],s.byNPC[npc]=nil,nil
+    s.orderedIds=nil
     if s.pending and s.pending.id==actor.value.id then s.pending=nil end
     if s.interaction and s.interaction.id==actor.value.id then s.interaction=nil end
 end
@@ -131,13 +133,25 @@ function NPCMotion:_finishQueued()
     self:requestInteraction(actor.npc,pending.id)
     KantoWorld.dispatch(s.game,pending.id);return true
 end
+function NPCMotion:_orderedIds()
+    local s=stores[self]
+    local ids=s.orderedIds
+    if ids then return ids end
+    ids={}
+    for id in pairs(s.actors)do ids[#ids+1]=id end
+    table.sort(ids,function(a,b)
+        local left,right=s.specs[a].order,s.specs[b].order
+        if left==right then return a<b end
+        return left<right
+    end)
+    s.orderedIds=ids
+    return ids
+end
 function NPCMotion:tick()
     local s=stores[self]
     if not s.zone or held(s)then return false end
     if self:_finishQueued()then return true end
-    local ids={};for id in pairs(s.actors)do ids[#ids+1]=id end
-    table.sort(ids,function(a,b)return s.specs[a].order==s.specs[b].order and a<b or s.specs[a].order<s.specs[b].order end)
-    for _,id in ipairs(ids)do
+    for _,id in ipairs(self:_orderedIds())do
         local actor=s.actors[id];local v,spec=actor.value,actor.spec
         if spec.random and not actor.script and visible(s,actor)then
             if v.phase=="delay"then
