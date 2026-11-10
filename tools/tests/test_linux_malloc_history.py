@@ -41,7 +41,7 @@ class LinuxMallocHistoryTests(unittest.TestCase):
             {'text': 'Maio', 'top': 329, 'left': 255, 'width': 44, 'height': 14},
             {'text': 'Log', 'top': 331, 'left': 305, 'width': 23, 'height': 14},
         ]
-        self.assertEqual(_malloc_menu_word(words)['text'], 'Log')
+        self.assertEqual(_malloc_menu_word(words)['text'], 'Maio')
         self.assertIsNone(_malloc_menu_word([{'text': 'Show', 'top': 10, 'left': 0, 'width': 10, 'height': 10}]))
 
     def test_refresh_point_is_left_of_the_clear_icon(self):

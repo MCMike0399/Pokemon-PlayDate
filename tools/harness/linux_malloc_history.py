@@ -247,8 +247,10 @@ def _malloc_menu_word(words):
             rows.append([word])
     for row in rows:
         texts = [word['text'] for word in row]
-        if 'Show' in texts and 'Log' in texts:
-            return next(word for word in row if word['text'] == 'Log')
+        if 'Show' not in texts or 'Log' not in texts:
+            continue
+        named = next((word for word in row if 'all' in word['text'].lower() or word['text'].lower().startswith('ma')), None)
+        return named or next(word for word in row if word['text'] == 'Log')
     return None
 
 
