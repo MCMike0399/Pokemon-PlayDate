@@ -255,7 +255,18 @@ def _malloc_menu_word(words):
 
 
 def _open_from_view_menu(simulator, directory):
-    # Keys with --window land in the device view. Focus the frame, then Alt+V.
+    # Keys with --window land in the device view. Focus the frame, then the
+    # View accelerator. Show Malloc Log is Alt-L in this SDK; the menu click
+    # remains if that accelerator does not map a window.
+    _run(['xdotool', 'windowactivate', '--sync', simulator])
+    time.sleep(0.05)
+    _run(['xdotool', 'key', 'alt+l'])
+    deadline = time.monotonic() + 6
+    while time.monotonic() < deadline:
+        found = search_windows(r'^Malloc Log$')
+        if len(found) == 1:
+            return found[0]
+        time.sleep(0.1)
     image = Path(directory) / 'view-menu.png'
     for attempt in range(3):
         _run(['xdotool', 'windowactivate', '--sync', simulator])
