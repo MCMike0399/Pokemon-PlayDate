@@ -226,17 +226,24 @@ function SilphStory.install(options)
             return door and SourceEvents.dispatch(game, door.id) or false
         end,
         explore = function(game)
-            for _, id in ipairs({SilphStory.RIVAL, SilphStory.GIOVANNI}) do
-                local zoneID <const> = "pokered:" .. id:match("^pokered:([^:]+):")
-                if currentZone.stableID == zoneID then
-                    if id == SilphStory.RIVAL and game.session:trainerDefeated(id)
-                        and not game.session:questFlag(SilphStory.RIVAL_LEFT) then
-                        return SourceEvents.dispatch(game, id)
-                    end
-                    local variant <const> = SilphStory.variant(id, game.player.gridX - SilphStory.padding(zoneID), game.player.gridY)
-                    if variant and not game.session:trainerDefeated(id) then
-                        return SourceEvents.dispatch(game, id)
-                    end
+            -- Zone ids are constants. Building the rival/Giovanni pair and
+            -- matching their map names allocated on every standing frame.
+            local zoneID <const> = currentZone.stableID
+            if zoneID == "pokered:SILPH_CO_7F" then
+                if game.session:trainerDefeated(SilphStory.RIVAL)
+                    and not game.session:questFlag(SilphStory.RIVAL_LEFT) then
+                    return SourceEvents.dispatch(game, SilphStory.RIVAL)
+                end
+                local variant <const> = SilphStory.variant(SilphStory.RIVAL,
+                    game.player.gridX - SilphStory.padding(zoneID), game.player.gridY)
+                if variant and not game.session:trainerDefeated(SilphStory.RIVAL) then
+                    return SourceEvents.dispatch(game, SilphStory.RIVAL)
+                end
+            elseif zoneID == "pokered:SILPH_CO_11F" then
+                local variant <const> = SilphStory.variant(SilphStory.GIOVANNI,
+                    game.player.gridX - SilphStory.padding(zoneID), game.player.gridY)
+                if variant and not game.session:trainerDefeated(SilphStory.GIOVANNI) then
+                    return SourceEvents.dispatch(game, SilphStory.GIOVANNI)
                 end
             end
             return false
