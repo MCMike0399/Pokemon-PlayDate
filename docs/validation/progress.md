@@ -1,5 +1,17 @@
 # Full-game execution ledger
 
+## 2026-11-10 HM02 and Fly to Saffron
+
+Surf, the faint slide, the YES/NO shift prompt, and the single-box Intimidate line are already in `86816e8f`. Nothing from that batch was still open. `Source/lib/shade.lua` and the gym floor were not edited.
+
+Continued from the Dojo save with real steps. Cut from Route 16 (34, 10) facing up opened the tree at (34, 9). The north gate door (24, 4) lands in Route 16 Gate 1F source (7, 2). The north room's west door (0, 2) exits to Route 16 (17, 4). The Fly house door is (7, 5). The brunette girl gave HM02. One Doduo battle, no blackout. Leaving Route 16 restored the tree, which matches pokered `LoadTileBlockMap`: a cut is not saved. The return from (34, 8) was blocked until Cut was used again, facing down. That second cut stayed open long enough to walk south onto the cycling road and edge right into Celadon (0, 18).
+
+Evidence of the gift, still on the north side of the restored tree, is `linux-route16-fly-20261110-01`. Slot A is sequence 133, sha256 `e3144dae71023a427cd86097ae9d2f15a3de485ab025381b861340195b6e6ff5`, at Route 16 (34, 8) facing down. Slot B is sha256 `1f4a3abcd2124343f3add2d2ac136196a6bccf70a67c7382078f3c65c092533f`.
+
+From that save, Celadon's Center stored Rattata and withdrew Spearow. HM02 replaced Growl. Spearow used Fly outdoors. The destination list was Cerulean, Lavender, Vermilion, Celadon, Fuchsia, and Saffron. YES confirmed Saffron. Arrival is Saffron (9, 30) facing down. Evidence is `linux-route16-fly-saffron-20261110-01`. Slot B is sequence 134, sha256 `8aea990c9dfc83e8b865395bde6598b7c07102e83d4cb16f29cf12366f875ba6`. Slot A is still the Route 16 file. The return had no wild battle and no blackout. VmHWM stayed at 337936 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on.
+
+The Dojo save is unchanged. Slot A is `0e893b6be25f3e1b5751241ff92d5990a77d5b8af124c4d6690580c3bc058268`. Slot B is `48231ad03ad6f29d2272edd75036b8053664fa64705b01f993fbcd94bd84120f`. The Giovanni, Marsh Badge, Lapras, and rival files are unchanged. `EVENT_GOT_TM29` is still clear. Mr. Psychic's door is Saffron (29, 29).
+
 ## 2026-11-10 Route 19 and the coast maps are in the shared manifest
 
 The 171-map inventory now has the 20 coast maps regenerated from pokered
