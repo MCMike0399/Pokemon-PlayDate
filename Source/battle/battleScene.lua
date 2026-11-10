@@ -719,7 +719,19 @@ function BattleScene:_scaledSprite(species, isBack, size, source)
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
     source:drawScaled(0, 0, scale)
     gfx.popContext()
-    scaled = {image = image, sw = sw, sh = sh}
+    -- One scan of this cached bitmap. kColorBlack is ink; an all-white
+    -- image keeps inkBottom nil so the drawer does not shift it.
+    local inkBottom = nil
+    for row = sh - 1, 0, -1 do
+        for col = 0, sw - 1 do
+            if image:sample(col, row) == gfx.kColorBlack then
+                inkBottom = row
+                break
+            end
+        end
+        if inkBottom ~= nil then break end
+    end
+    scaled = {image = image, sw = sw, sh = sh, inkBottom = inkBottom}
     cache[key] = scaled
     return scaled
 end
@@ -732,6 +744,12 @@ function BattleScene:drawPokemonSprite(species, x, y, isBack, size)
             local scaled = self:_scaledSprite(species, isBack, size, img)
             local dx = x + math.floor((size - scaled.sw) / 2)
             local dy = y + math.floor((size - scaled.sh) / 2)
+            if isBack and scaled.inkBottom ~= nil then
+                -- y is the centered size-box origin and already includes faint
+                -- drop: slotTop + (80 - size) // 2 + drop. Feet stay on the
+                -- slot's last row: dy = slotTop + drop + 79 - inkBottom.
+                dy = y - (80 - size) // 2 + 79 - scaled.inkBottom
+            end
             scaled.image:draw(dx, dy)
             return
         end
@@ -904,7 +922,8 @@ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
     local sendingOut = request and request.details.side == side and request.kind == "sendout"
     if not sendingOut and self.battle[side] == mon and self.battle.conditions:substituteHP(mon) > 0 then
         -- The source 7x7 canvas carries the doll's exact tile placement. Use
-        -- the same fit, centering, pose offset and clipping as Pokemon art.
+        -- the same fit, horizontal centering, pose offset and clipping as
+        -- Pokemon art, including the player-back foot anchor.
         species = "source-substitute"
     elseif side == "enemy" and self.battle.sourceEncounter and self.battle.sourceEncounter.unidentified then
         species = "source-unidentified-ghost"

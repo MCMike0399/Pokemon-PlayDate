@@ -84,6 +84,61 @@ local function referencePicture(path, size, drop)
             16 + (80 - size) // 2 + drop + math.floor((size - math.floor(h * scale)) / 2), scale)
     end)
 end
+-- Player backs keep referencePicture's scale and horizontal center, then move
+-- the lowest black row of that scaled bitmap onto the slot's last line.
+local function playerBackPicture(path, size, drop)
+    local image = assert(gfx.image.new(path))
+    local w, h = image:getSize()
+    local scale = math.min(size / w, size / h)
+    local sw = math.max(1, math.floor(w * scale))
+    local sh = math.max(1, math.floor(h * scale))
+    local scaled = assert(gfx.image.new(sw, sh, gfx.kColorWhite))
+    gfx.pushContext(scaled)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    image:drawScaled(0, 0, scale)
+    gfx.popContext()
+    local inkBottom = nil
+    for row = sh - 1, 0, -1 do
+        for col = 0, sw - 1 do
+            if scaled:sample(col, row) == gfx.kColorBlack then
+                inkBottom = row
+                break
+            end
+        end
+        if inkBottom ~= nil then break end
+    end
+    return renderPicture(function()
+        gfx.setClipRect(16, 16, 80, 80)
+        local dx = 16 + (80 - size) // 2 + math.floor((size - sw) / 2)
+        local dy = 16 + (80 - size) // 2 + drop + math.floor((size - sh) / 2)
+        if inkBottom ~= nil then
+            dy = 16 + drop + 79 - inkBottom
+        end
+        scaled:draw(dx, dy)
+    end)
+end
+local function lowestBlackRow(image)
+    for y = 111, 0, -1 do
+        for x = 0, 111 do
+            if image:sample(x, y) == gfx.kColorBlack then
+                return y
+            end
+        end
+    end
+    return nil
+end
+local function commandScene(playerSpecies, enemySpecies)
+    local battle = Battle(Pokemon(playerSpecies, 50), Pokemon(enemySpecies, 5))
+    for _ = 1, 100 do
+        if battle:phase() ~= "script" then break end
+        battle.machine:get("script"):advance()
+    end
+    assert(battle:phase() == "command")
+    return battle, BattleScene(battle), battle.player, battle.enemy
+end
 
 function BattlePresentationContracts.run()
     local report = {ok = true, passed = 0, failed = 0, tests = {}}
@@ -421,6 +476,65 @@ function BattlePresentationContracts.run()
         end
     end)
 
+    test("Player back sprites share a foot line on the slot bottom", function()
+        local slotX, slotY = 16, 16
+        local slotBottom = slotY + 79
+        local feet = {}
+        for _, species in ipairs({"blastoise", "pidgeot", "venusaur", "squirtle"}) do
+            local battle, scene, mon = commandScene(species, "rattata")
+            local actual = renderPicture(function()
+                scene:drawPresentedPokemon(mon, "player", slotX, slotY, true)
+            end)
+            equal(lowestBlackRow(actual), slotBottom)
+            equalPictures(actual, playerBackPicture(PokemonArt.path(species, "back"), 80, 0))
+            feet[species] = lowestBlackRow(actual)
+            scene:exit()
+        end
+        equal(feet.blastoise, feet.pidgeot)
+        equal(feet.pidgeot, feet.venusaur)
+        equal(feet.venusaur, feet.squirtle)
+        -- Squirtle is the shorter body. Centering that back leaves a black-free
+        -- gap under the ink; the foot anchor puts the ink on the slot's last row.
+        local centered = referencePicture(PokemonArt.path("squirtle", "back"), 80, 0)
+        local centeredLow = lowestBlackRow(centered)
+        assert(centeredLow < slotBottom)
+        for row = centeredLow + 1, slotBottom do
+            for col = slotX, slotX + 79 do
+                assert(centered:sample(col, row) ~= gfx.kColorBlack)
+            end
+        end
+        equal(feet.squirtle, slotBottom)
+    end)
+
+    test("Player send-out plants back-sprite feet on the slot bottom", function()
+        local slotBottom = 16 + 79
+        for _, species in ipairs({"blastoise", "pidgeot", "venusaur", "squirtle"}) do
+            local battle, scene, mon = commandScene(species, "rattata")
+            for _, frame in ipairs({10, 19}) do
+                local size = math.min(80, math.max(4, (frame - 9) * 8))
+                scene.activePresentation = {kind = "sendout", details = {side = "player", pokemon = mon}}
+                scene.presentationFrame = frame
+                local actual = renderPicture(function()
+                    scene:drawPresentedPokemon(mon, "player", 16, 16, true)
+                end)
+                equal(lowestBlackRow(actual), slotBottom)
+                equalPictures(actual, playerBackPicture(PokemonArt.path(species, "back"), size, 0))
+                equal(scene.presentationFrame, frame)
+                equal(scene.activePresentation.kind, "sendout")
+            end
+            scene:exit()
+        end
+    end)
+
+    test("Enemy front stays on the centered reference picture", function()
+        local battle, scene, _, enemy = commandScene("rattata", "blastoise")
+        local actual = renderPicture(function()
+            scene:drawPresentedPokemon(enemy, "enemy", 16, 16, false)
+        end)
+        equalPictures(actual, referencePicture(PokemonArt.path("blastoise", "front"), 80, 0))
+        scene:exit()
+    end)
+
     test("Substitute front and back render exact pinned source canvases without a numeric doll HUD", function()
         for _, side in ipairs({"enemy", "player"}) do
             local battle, scene, mon = substituteScene(side)
@@ -428,7 +542,8 @@ function BattlePresentationContracts.run()
             local hp = mon.hp
             local before = RulesRNG.snapshot()
             local actual = renderPicture(function() scene:drawPresentedPokemon(mon, side, 16, 16, back) end)
-            local expected = referencePicture("images/battle-effects/substitute-" .. (back and "back" or "front"), 80, 0)
+            local path = "images/battle-effects/substitute-" .. (back and "back" or "front")
+            local expected = back and playerBackPicture(path, 80, 0) or referencePicture(path, 80, 0)
             equalPictures(actual, expected)
             equal(mon.hp, hp)
             equal(RulesRNG.snapshot().state, before.state)
@@ -436,13 +551,15 @@ function BattlePresentationContracts.run()
             scene:exit()
         end
     end)
-    test("Substitute uses the existing recall scale and centering without advancing its pose", function()
+    test("Substitute uses the existing recall scale and player-back foot anchor without advancing its pose", function()
         local battle, scene, mon = substituteScene("player")
         local request = {kind="recall", details={side="player", pokemon=mon}}
         scene.activePresentation = request
         scene.presentationFrame = 10
         local actual = renderPicture(function() scene:drawPresentedPokemon(mon, "player", 16, 16, true) end)
-        equalPictures(actual, referencePicture("images/battle-effects/substitute-back", 40, 0))
+        -- Frame 10 still scales to 40. Feet stay on the slot bottom instead of
+        -- the size box floating to the slot center.
+        equalPictures(actual, playerBackPicture("images/battle-effects/substitute-back", 40, 0))
         equal(scene.activePresentation, request)
         equal(scene.presentationFrame, 10)
         scene:exit()
@@ -501,7 +618,7 @@ function BattlePresentationContracts.run()
         assert(incoming ~= outgoing)
         settle(battle, scene)
         local actual = renderPicture(function() scene:drawPresentedPokemon(outgoing, "player", 16, 16, true) end)
-        equalPictures(actual, referencePicture(PokemonArt.path(outgoing.species, "back"), 80, 0))
+        equalPictures(actual, playerBackPicture(PokemonArt.path(outgoing.species, "back"), 80, 0))
         equal(battle.conditions:substituteHP(incoming), 0)
         scene:exit()
     end)
