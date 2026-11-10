@@ -1,5 +1,13 @@
 # Full-game execution ledger
 
+## 2026-11-10 The Fly house path does not meet the Celadon entrance
+
+Continued from the Dojo save with real steps. Saffron (0, 10) is an edge door to Route 7 (19, 2). The Route 7 gate's east door is (18, 9), landing at source (5, 3). Its west door is source (0, 3), landing at Route 7 (11, 10). Route 7 (0, 2) is an edge door to Celadon (49, 10). Celadon (0, 18) is an edge door to Route 16 (39, 10). Snorlax's tile was empty. The south-east gate door (24, 10) landed at Route 16 Gate 1F source (7, 8). No wild battle and no blackout. VmHWM stayed at 226256 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on.
+
+That south room does not connect to the north room. The north door, source (0, 2), is the one that exits onto the Fly house path. The imported collision matches the pinned blocks: a cell is open when the bottom-left tile of its quadrant is a passable tileset id. On Route 16 the house door (7, 5) is on a north path, x=1 through 17, y=2 through 8. The east half of that path is x=24 through 35. The gate's north doors are the only link between the halves. Neither half touches the cycling road at y=10 or the map edge. The Celadon entrance is only (39, 10). HM02 was not received. No map generator was run, and the collision grid was not edited.
+
+The Dojo save is unchanged. Slot A is `0e893b6be25f3e1b5751241ff92d5990a77d5b8af124c4d6690580c3bc058268`. Slot B is `48231ad03ad6f29d2272edd75036b8053664fa64705b01f993fbcd94bd84120f`.
+
 ## 2026-11-10 Marsh Badge, the Fighting Dojo, and the Route 7 edge
 
 Lane A stays on `cursor/linux-runtime-seams-fcc0`. `0721a2b2` is that HEAD and includes `61ea7445` and `86816e8f`. Surf, the faint slide, the YES/NO shift prompt, and the single-box Intimidate line are already in `86816e8f`. Nothing from that batch was still open.
