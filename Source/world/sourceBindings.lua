@@ -112,7 +112,8 @@ function SourceBindings.prepare(d, specs, options)
             local verified = SourceMaps.warpSpec(name, event)
             assert(verified.status == "bound", "source warp is not an ordinary transition")
             for _, field in ipairs({ "to", "toX", "toY", "facing", "preserveFacing", "target_name", "target_warp",
-                "source_target_map", "source_target_warp", "source_target_x", "source_target_y", "arrival_advance" }) do
+                "source_target_map", "source_target_warp", "source_target_x", "source_target_y", "arrival_advance",
+                "travel" }) do
                 assert(spec[field] == verified[field], "warp differs from pinned source projection")
             end
             local interior = d.tileset.constant ~= "OVERWORLD" and d.tileset.constant ~= "FOREST"

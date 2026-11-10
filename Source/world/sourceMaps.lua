@@ -684,18 +684,29 @@ function SourceMaps.warpSpec(name, event)
     local advance = door and arrival.y + 1 < d.height
         and SourceMaps.cell(target, arrival.x, arrival.y + 1).collision == 0 and 1 or 0
     local x, y = arrival.x, arrival.y + advance
+    -- CollisionCheckOnWater (home/overworld.asm) keeps foot tile $14 passable
+    -- while surfing. CheckTilePassable's land list does not include it, so the
+    -- stored collision is 1, but an original warp may still arrive there.
+    -- water_candidate is that same water-tileset $14 tile. The walk state for
+    -- the arrival is surfing. Every other solid tile still fails closed.
+    local arrived = SourceMaps.cell(target, x, y)
+    local water = arrived.terrain.water_candidate == true and arrived.terrain.foot_tile == 0x14
     assert(y < d.height and not d.blocked[tostring(y * d.width + x + 1)]
-        and SourceMaps.cell(target, x, y).collision == 0,
+        and (arrived.collision == 0 or water),
         "original warp arrival is blocked")
+    local result
     if entry.profile == "viridian" then
-        return { status = "bound", to = d.key, toX = x, toY = y,
+        result = { status = "bound", to = d.key, toX = x, toY = y,
             facing = door and "down" or "up", source_target_map = d.source_map_constant,
             source_target_warp = destination.warp_index, source_target_x = arrival.x, source_target_y = arrival.y,
             arrival_advance = advance, reason = "explicit LAST_MAP resolves only to original Viridian exterior" }
+    else
+        result = { status = "bound", to = d.key, toX = x, toY = y, facing = door and "down" or nil,
+            preserveFacing = not door, target_name = target, target_warp = destination.warp_index,
+            source_target_x = arrival.source_x, source_target_y = arrival.source_y, arrival_advance = advance }
     end
-    return { status = "bound", to = d.key, toX = x, toY = y, facing = door and "down" or nil,
-        preserveFacing = not door, target_name = target, target_warp = destination.warp_index,
-        source_target_x = arrival.source_x, source_target_y = arrival.source_y, arrival_advance = advance }
+    if water then result.travel = "surfing" end
+    return result
 end
 
 local directions = { up = "north", down = "south", left = "west", right = "east" }

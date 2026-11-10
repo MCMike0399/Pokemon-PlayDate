@@ -182,11 +182,18 @@ end
 -- commit. It can also be checked before a door starts its native transition.
 function FieldWorld.entryTravel(game, position, world, reason)
     local mode = game.session:fieldTravelData().mode
+    local cell, surface = FieldTravelWorld.cell(position, world, game.sessionLocationPolicy)
+    local tileset = cell and surface.tileset.constant
+    -- The same $14 water tile CollisionCheckOnWater accepts. A warp that lands
+    -- on it enters the surf state. Blackout, escape and fly stay on foot.
+    local waterArrival = cell and cell.water_candidate == true and cell.foot_tile == 0x14
+        and FieldTravel.surfSurface(cell, tileset)
     if reason == "escape" or reason == "blackout" or reason == "fly" then
         mode = "walking"
+    elseif waterArrival then
+        mode = "surfing"
     elseif mode == "surfing" then
-        local cell, descriptor = FieldTravelWorld.cell(position, world, game.sessionLocationPolicy)
-        if not cell or not FieldTravel.surfSurface(cell, descriptor.tileset.constant) then
+        if not cell or not FieldTravel.surfSurface(cell, tileset) then
             mode = "walking"
         end
     end
