@@ -91,10 +91,25 @@ function BattleMenu:draw(x, y, w, h)
         local row = math.floor((i - 1) / cols)
         local optX = x + col * colW + 8
         local optY = y + 8 + (row - firstRow) * 20
-        if i == self.selectedIndex then
-            gfx.drawText(">" .. option, optX, optY)
-        else
-            gfx.drawText(" " .. option, optX, optY)
+        local selected = i == self.selectedIndex
+        local glyphs = self.glyphs
+        if not glyphs then glyphs = {}; self.glyphs = glyphs end
+        local glyph = glyphs[i]
+        if not glyph or glyph.option ~= option or glyph.selected ~= selected then
+            local label = (selected and ">" or " ") .. option
+            local width, height = gfx.getTextSize(label)
+            local image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
+            gfx.pushContext(image)
+            gfx.setDrawOffset(0, 0)
+            gfx.clearClipRect()
+            gfx.clearStencil()
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+            gfx.setFont(gfx.getFont())
+            gfx.drawText(label, 0, 0)
+            gfx.popContext()
+            glyph = {option = option, selected = selected, image = image}
+            glyphs[i] = glyph
         end
+        glyph.image:draw(optX, optY)
     end
 end

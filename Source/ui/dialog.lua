@@ -106,6 +106,36 @@ function Dialog:advance()
     end
 end
 
+function Dialog:_pageImage()
+    local key = self.currentLine * 100000 + self.charIndex
+    if self.pageKey == key then return self.pageImage end
+    self.pageKey = key
+    if not self.pageImage then
+        self.pageImage = gfx.image.new(372, 42, gfx.kColorWhite)
+    end
+    local line = self.lines[self.currentLine]
+    local displayText = string.sub(line, 1, self.charIndex)
+    gfx.pushContext(self.pageImage)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    gfx.setFont(self.font or gfx.getSystemFont())
+    gfx.clear(gfx.kColorWhite)
+    if self.legacy[self.currentLine] then
+        gfx.drawTextInRect(displayText, 0, 0, 372, 42)
+    else
+        local y = 0
+        local font = self.font
+        for row in (displayText .. "\n"):gmatch("(.-)\n") do
+            SourceTextFont.draw(row, 0, y, font)
+            y = y + font:getHeight() + font:getLeading()
+        end
+    end
+    gfx.popContext()
+    return self.pageImage
+end
+
 function Dialog:draw()
     if not self.isActive then return end
 
@@ -118,22 +148,21 @@ function Dialog:draw()
     gfx.setColor(gfx.kColorBlack)
     gfx.drawRect(4, boxY + 4, 392, boxH - 8)
 
-    local line = self.lines[self.currentLine]
-    local displayText = string.sub(line, 1, self.charIndex)
-    -- Word-wrapped inside the frame so long lines never escape the box
-    if self.legacy[self.currentLine] then
-        gfx.drawTextInRect(displayText, 14, boxY + 12, 372, 42)
-    else
-        local y = boxY + 12
-        for row in (displayText .. "\n"):gmatch("(.-)\n") do
-            SourceTextFont.draw(row, 14, y, self.font)
-            y = y + self.font:getHeight() + self.font:getLeading()
-        end
-    end
+    self:_pageImage():draw(14, boxY + 12)
 
+    local line = self.lines[self.currentLine]
     if self.charIndex >= #line and math.floor(self.blinkTimer / 15) % 2 == 0 then
         if self.legacy[self.currentLine] then
-            gfx.drawText("v", 380, boxY + 40)
+            if not self.arrowImage then
+                local width, height = gfx.getTextSize("v")
+                self.arrowImage = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
+                gfx.pushContext(self.arrowImage)
+                gfx.setDrawOffset(0, 0)
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                gfx.drawText("v", 0, 0)
+                gfx.popContext()
+            end
+            self.arrowImage:draw(380, boxY + 40)
         else
             -- A small source-style down arrow has a dedicated gutter and fits
             -- entirely inside the frame, independent of the SDK font ascent.
