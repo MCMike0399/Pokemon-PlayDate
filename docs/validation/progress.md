@@ -1,5 +1,13 @@
 # Full-game execution ledger
 
+## 2026-11-10 Mr. Psychic gave TM29
+
+Continued from the Fly arrival with real steps. Saffron (9, 30) reaches Mr. Psychic's door at (29, 29) in 23 open tiles. The house warp lands on source (2, 7). The fishing guru stands at source (5, 3) facing left. Standing at source (5, 4) facing up received TM29. `EVENT_GOT_TM29` is set and the bag holds one `tm29`. No battle and no blackout. VmHWM stayed at 302628 KiB. `MallocPoolSize=16645684` and the 1 GiB guard stayed on. `Source/lib/shade.lua` and the gym floor were not edited.
+
+Evidence is `linux-saffron-tm29-20261110-01`. Slot A is sequence 135, sha256 `f42b3070976efc4186cfa21ae9ac950f5d7942a6c16f703d7cdc5f395b219c42`, in Mr. Psychic's house. The save stores grid (7, 4) facing up; the house padding is 2, so that is source (5, 4). Slot B is still the Fly file, sequence 134, sha256 `8aea990c9dfc83e8b865395bde6598b7c07102e83d4cb16f29cf12366f875ba6`. Spearow still knows Fly.
+
+The Fly arrival, the HM02 save, and the Dojo save are unchanged. Copycat is the next Saffron gap. `CopycatsHouse2FCopycatText` is still unbound. Pokered gives TM31 only when a Poké Doll is in the bag, then removes the doll. This party has no Poké Doll. Cinnabar, Seafoam, and the Mansion stay with lane B.
+
 ## 2026-11-10 HM02 and Fly to Saffron
 
 Surf, the faint slide, the YES/NO shift prompt, and the single-box Intimidate line are already in `86816e8f`. Nothing from that batch was still open. `Source/lib/shade.lua` and the gym floor were not edited.
