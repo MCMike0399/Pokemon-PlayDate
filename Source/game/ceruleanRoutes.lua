@@ -37,7 +37,12 @@ local function at(points, x, y)
     end
 end
 function CeruleanRoutes.scenes() return copy(data()) end
-function CeruleanRoutes.text(label) return CeruleanContent.text(label) end
+function CeruleanRoutes.text(label)
+    local ok, row = pcall(CeruleanContent.text, label)
+    if ok then return row end
+    if EndgameStory then return EndgameStory.text(label) end
+    error(row, 0)
+end
 
 -- The ordinary importer already owns the Rockets. Only rivals need new
 -- definitions. Each variant is a defensive projection of its imported class.
@@ -80,9 +85,22 @@ function CeruleanRoutes.descriptors()
                 "EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE", "EVENT_1ST_ROUTE22_RIVAL_BATTLE", "EVENT_ROUTE22_RIVAL_WANTS_BATTLE"}
                 or {"EVENT_BEAT_CERULEAN_RIVAL"}, flags=flags}}
     end
-    -- Bind the overlapping source object as explicitly unavailable, rather
-    -- than leaving an unresolved blocker on top of the first rival's origin.
-    events["pokered:ROUTE_22:objects:2"] = {kind="bespoke",content=CONTENT,scene_script="later-rival"}
+    -- The second rival stands on the first rival's origin. The league story
+    -- owns the roster; this event stays claimed so the object is never unbound.
+    local second = {kind="bespoke",content=CONTENT,scene_script="later-rival"}
+    if EndgameStory then
+        local rival = EndgameStory.story().route22_rival
+        local flags = {[rival.beat_flag]=true}
+        local guards = {rival.beat_flag}
+        for _, name in ipairs(rival.clear_flags) do
+            flags[name] = false
+            guards[#guards+1] = name
+        end
+        second = {kind="trainer", content=CONTENT, scene_script="later-rival",
+            before=copy(rival.before), won=copy(rival.won), after=copy(rival.after), lost=copy(rival.lost),
+            victory={flags=flags, guard_flags=guards}}
+    end
+    events["pokered:ROUTE_22:objects:2"] = second
     events[NUGGET] = {kind="bespoke", content=CONTENT, item="nugget", scene_script="nugget",
         lost={"_Route24CooltrainerM1DefeatedText"},
         victory={guard_flags={"EVENT_BEAT_ROUTE24_ROCKET"}, flags={EVENT_BEAT_ROUTE24_ROCKET=true}}}
@@ -199,6 +217,12 @@ function CeruleanRoutes.check(game)
     local id
     if zone.stableID == "pokered:ROUTE_22" and not game.session:trainerDefeated(ROUTE)
         and game.session:questFlag("EVENT_ROUTE22_RIVAL_WANTS_BATTLE") and at(data().triggers.route22,x,y) then id=ROUTE
+    elseif zone.stableID == "pokered:ROUTE_22" and EndgameStory
+        and game.session:trainerDefeated(ROUTE)
+        and game.session:questFlag("EVENT_2ND_ROUTE22_RIVAL_BATTLE")
+        and game.session:questFlag("EVENT_ROUTE22_RIVAL_WANTS_BATTLE")
+        and not game.session:questFlag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE")
+        and at(data().triggers.route22,x,y) then id="pokered:ROUTE_22:objects:2"
     elseif zone.stableID == "pokered:CERULEAN_CITY" then
         if not game.session:trainerDefeated(THIEF) and at(data().triggers.thief,x,y) then id=THIEF
         elseif not game.session:trainerDefeated(RIVAL) and at(data().triggers.cerulean,x,y) then id=RIVAL end

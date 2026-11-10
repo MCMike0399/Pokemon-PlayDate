@@ -177,6 +177,14 @@ function FieldTravelState:update()
     if self.phase == "push" then
         local complete, reason = self.game.npcManager.motion:updateBoulderPush(self.boulder)
         if complete then
+            local npc = self.boulder
+            if EndgameStory and npc and currentZone then
+                local mapName = SourceMaps.nameForID(currentZone.stableID)
+                local entry = mapName and SourceMaps.entry(mapName)
+                if entry then
+                    EndgameStory.boulderLanded(self.game, mapName, npc.gridX - entry.padding, npc.gridY)
+                end
+            end
             self.boulder = nil
             self.game.lastFieldTravel = {key = "strength", kind = "pushed"}
             self:close(true)

@@ -281,9 +281,10 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
                     "shared Silph callback tile differs: " + key)
             atlas["tiles"][key] = tile
             compact["tiles"][key] = {field: value for field, value in tile.items() if field != "grid"}
-    # LAST_MAP is stateful in the source. Infer its ordinary unique OVERWORLD
-    # ingress; an ambiguous context requires an explicit manifest override (or
-    # ultimately a bespoke runtime script), never a regional Lua name branch.
+    # LAST_MAP is stateful in the source. Infer its ordinary unique outdoor
+    # ingress. OVERWORLD and PLATEAU are the outdoor tilesets; an ambiguous
+    # context requires an explicit manifest override, never a regional Lua
+    # name branch.
     for name, descriptor in compact["maps"].items():
         blocked_events = manifest["maps"][name].get("blocked_events", [])
         dynamic = [warp for warp in descriptor["warps"]
@@ -295,7 +296,7 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
             continue
         candidates = set()
         for other_name, other in compact["maps"].items():
-            if other["tileset"]["constant"] != "OVERWORLD":
+            if other["tileset"]["constant"] not in ("OVERWORLD", "PLATEAU"):
                 continue
             for event in dynamic:
                 index = event["destination"]["warp_index"]
@@ -330,6 +331,8 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
                                else names_by_constant.get(destination["map"]))
                 target = compact["maps"].get(target_name)
                 if target is None:
+                    continue
+                if not 1 <= destination["warp_index"] <= len(target["warps"]):
                     continue
                 arrival = target["warps"][destination["warp_index"] - 1]
                 arrival_cell = str(arrival["y"] * target["width"] + arrival["x"] + 1)

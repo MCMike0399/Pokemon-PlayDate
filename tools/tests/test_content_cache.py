@@ -108,9 +108,9 @@ class ContentCacheTests(unittest.TestCase):
             else:
                 self.assertEqual(hashlib.sha256(baseline).hexdigest(), digest, path)
         manifest = SOURCE / 'data/sourceMaps.json'
-        from tools.activate_coast import manifest as expected
+        from tools.activate_endgame import manifest as expected
         self.assertEqual(json.loads(manifest.read_bytes()), expected())
-        self.assertEqual(len(expected()['maps']), 191)
+        self.assertEqual(len(expected()['maps']), 205)
 
     def test_registered_package_event_and_trainer_membership_stays_disjoint(self):
         base = json.loads(self.files['base.json'])

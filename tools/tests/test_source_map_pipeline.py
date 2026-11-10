@@ -16,7 +16,7 @@ class SourceMapManifestTests(unittest.TestCase):
         cls.maps = cls.manifest["maps"]
         cls.pewter = json.loads((ROOT / "Source/data/pewterSlice/descriptors.json").read_text())["maps"]
         cls.packages = {}
-        for package in ("sourceSlice", "vermilionPreparation", "midgameEast", "midgameSouth", "midgameSaffron", "zCoast"):
+        for package in ("sourceSlice", "vermilionPreparation", "midgameEast", "midgameSouth", "midgameSaffron", "zCoast", "zEndgame"):
             entries = json.loads((ROOT / f"Source/data/{package}/manifest-entries.json").read_bytes())["maps"]
             for name, entry in entries.items():
                 if name in cls.maps:
@@ -94,7 +94,7 @@ class SourceMapManifestTests(unittest.TestCase):
                 self.assertEqual(entry["width"], max(13, width))
                 self.assertEqual(entry["height"], height)
                 self.assertEqual(entry["padding"], max(0, (13 - width) // 2))
-                if package.startswith("midgame") or package == "zCoast":
+                if package.startswith("midgame") or package == "zCoast" or package == "zEndgame":
                     self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),
                                      self.packages[name][1]["source_sha256"])
                 else:

@@ -46,12 +46,7 @@ FILES = [
     'constants/pokemon_constants.asm',
     'constants/map_constants.asm',
 ]
-MISSING_MAPS = [
-    'SeafoamIslandsB4F', 'PokemonMansionB1F', 'CinnabarGym', 'PowerPlant',
-    'ViridianGym', 'VictoryRoad2F', 'CeruleanCaveB1F', 'IndigoPlateauLobby',
-    'LoreleisRoom', 'BrunosRoom', 'AgathasRoom', 'LancesRoom', 'ChampionsRoom',
-    'HallOfFame', 'CinnabarLabFossilRoom', 'CinnabarIsland',
-]
+MISSING_MAPS = ['PowerPlant', 'CeruleanCaveB1F']
 STATICS = {
     'articuno': ('SeafoamIslandsB4F.asm', 'ARTICUNO'),
     'zapdos': ('PowerPlant.asm', 'ZAPDOS'),
@@ -276,8 +271,8 @@ def build(reference):
                         sources['constants/map_constants.asm'])
     revival = fossil_revival(sources, sources['constants/map_constants.asm'])
     referenced = [revival['scientist']['map'], revival['still_reviving_cleared_on_map_load']['map']]
-    if any(name not in MISSING_MAPS for name in referenced):
-        raise ValueError('fossil revival maps must stay uninstalled')
+    if referenced != ['CinnabarLabFossilRoom', 'CinnabarIsland']:
+        raise ValueError('fossil revival maps changed')
     checks = re.findall(r'EventFlagBit a, (EVENT_PASSED_\w+)', sources['scripts/Route23.asm'])
     if len(checks) != 7 or len(set(checks)) != 7:
         raise ValueError('Route 23 badge gates changed')
@@ -321,7 +316,7 @@ def build(reference):
     return {
         'scenes.json': encoded(dict(schema=1, source_revision=REVISION, scenes=scenes)),
         'provenance.json': encoded(dict(schema=1, source_revision=REVISION, files=pins,
-                                        status='source plan only; maps are not installed and this is not campaign acceptance')),
+                                        status='PowerPlant and CeruleanCaveB1F stay uninstalled. Fossil revival stays a plan. League maps are installed by the endgame packet.')),
     }
 
 

@@ -1,0 +1,5148 @@
+{
+  "badge_bits": [
+    "BADGE_BOULDER",
+    "BADGE_CASCADE",
+    "BADGE_THUNDER",
+    "BADGE_RAINBOW",
+    "BADGE_SOUL",
+    "BADGE_MARSH",
+    "BADGE_VOLCANO",
+    "BADGE_EARTH"
+  ],
+  "champion": {
+    "aces": {
+      "STARTER1": "CHARIZARD",
+      "STARTER2": "BLASTOISE",
+      "STARTER3": "VENUSAUR"
+    },
+    "after": [
+      "_ChampionsRoomRivalAfterBattleText"
+    ],
+    "before": [
+      "_ChampionsRoomRivalIntroText"
+    ],
+    "by_rival_starter": {
+      "STARTER1": 3,
+      "STARTER2": 1,
+      "STARTER3": 2
+    },
+    "class_source": "OPP_RIVAL3",
+    "flag": "EVENT_BEAT_CHAMPION_RIVAL",
+    "id": "pokered:CHAMPIONS_ROOM:objects:1",
+    "lost": [
+      "_RivalVictoryText"
+    ],
+    "map_id": "pokered:CHAMPIONS_ROOM",
+    "parties_by_player_starter": {
+      "bulbasaur": {
+        "party": [
+          {
+            "level": 61,
+            "species": "pidgeot"
+          },
+          {
+            "level": 59,
+            "species": "alakazam"
+          },
+          {
+            "level": 61,
+            "species": "rhydon"
+          },
+          {
+            "level": 61,
+            "species": "exeggutor"
+          },
+          {
+            "level": 63,
+            "species": "gyarados"
+          },
+          {
+            "level": 65,
+            "species": "charizard"
+          }
+        ],
+        "payout": 6435
+      },
+      "charmander": {
+        "party": [
+          {
+            "level": 61,
+            "species": "pidgeot"
+          },
+          {
+            "level": 59,
+            "species": "alakazam"
+          },
+          {
+            "level": 61,
+            "species": "rhydon"
+          },
+          {
+            "level": 61,
+            "species": "arcanine"
+          },
+          {
+            "level": 63,
+            "species": "exeggutor"
+          },
+          {
+            "level": 65,
+            "species": "blastoise"
+          }
+        ],
+        "payout": 6435
+      },
+      "squirtle": {
+        "party": [
+          {
+            "level": 61,
+            "species": "pidgeot"
+          },
+          {
+            "level": 59,
+            "species": "alakazam"
+          },
+          {
+            "level": 61,
+            "species": "rhydon"
+          },
+          {
+            "level": 61,
+            "species": "gyarados"
+          },
+          {
+            "level": 63,
+            "species": "arcanine"
+          },
+          {
+            "level": 65,
+            "species": "venusaur"
+          }
+        ],
+        "payout": 6435
+      }
+    },
+    "selector": "wRivalStarter",
+    "sprite_source": "SPRITE_BLUE",
+    "walk": [
+      {
+        "count": 1,
+        "direction": "up"
+      },
+      {
+        "count": 1,
+        "direction": "right"
+      },
+      {
+        "count": 3,
+        "direction": "up"
+      }
+    ],
+    "won": [
+      "_RivalDefeatedText"
+    ]
+  },
+  "elite_four": [
+    {
+      "after": [
+        "_LoreleisRoomLoreleiAfterBattleText"
+      ],
+      "autowalk_event": "EVENT_AUTOWALKED_INTO_LORELEIS_ROOM",
+      "before": [
+        "_LoreleisRoomLoreleiBeforeBattleText"
+      ],
+      "class_source": "OPP_LORELEI",
+      "dont_run_text": "_LoreleisRoomLoreleiDontRunAwayText",
+      "entrance": [
+        {
+          "x": 4,
+          "y": 10
+        },
+        {
+          "x": 5,
+          "y": 10
+        },
+        {
+          "x": 4,
+          "y": 11
+        },
+        {
+          "x": 5,
+          "y": 11
+        }
+      ],
+      "exit_block": {
+        "x": 2,
+        "y": 0
+      },
+      "flag": "EVENT_BEAT_LORELEIS_ROOM_TRAINER_0",
+      "id": "pokered:LORELEIS_ROOM:objects:1",
+      "map": "LoreleisRoom",
+      "map_id": "pokered:LORELEIS_ROOM",
+      "name": "LORELEI",
+      "party": [
+        {
+          "level": 54,
+          "species": "dewgong"
+        },
+        {
+          "level": 53,
+          "species": "cloyster"
+        },
+        {
+          "level": 54,
+          "species": "slowbro"
+        },
+        {
+          "level": 56,
+          "species": "jynx"
+        },
+        {
+          "level": 56,
+          "species": "lapras"
+        }
+      ],
+      "payout": 5544,
+      "roster": 1,
+      "sight": 0,
+      "sprite_source": "SPRITE_LORELEI",
+      "walk_in": [
+        {
+          "count": 6,
+          "direction": "up"
+        }
+      ],
+      "won": [
+        "_LoreleisRoomLoreleiEndBattleText"
+      ],
+      "x": 5,
+      "y": 2
+    },
+    {
+      "after": [
+        "_BrunoAfterBattleText"
+      ],
+      "autowalk_event": "EVENT_AUTOWALKED_INTO_BRUNOS_ROOM",
+      "before": [
+        "_BrunoBeforeBattleText"
+      ],
+      "class_source": "OPP_BRUNO",
+      "dont_run_text": "_BrunosRoomBrunoDontRunAwayText",
+      "entrance": [
+        {
+          "x": 4,
+          "y": 10
+        },
+        {
+          "x": 5,
+          "y": 10
+        },
+        {
+          "x": 4,
+          "y": 11
+        },
+        {
+          "x": 5,
+          "y": 11
+        }
+      ],
+      "exit_block": {
+        "x": 2,
+        "y": 0
+      },
+      "flag": "EVENT_BEAT_BRUNOS_ROOM_TRAINER_0",
+      "id": "pokered:BRUNOS_ROOM:objects:1",
+      "map": "BrunosRoom",
+      "map_id": "pokered:BRUNOS_ROOM",
+      "name": "BRUNO",
+      "party": [
+        {
+          "level": 53,
+          "species": "onix"
+        },
+        {
+          "level": 55,
+          "species": "hitmonchan"
+        },
+        {
+          "level": 55,
+          "species": "hitmonlee"
+        },
+        {
+          "level": 56,
+          "species": "onix"
+        },
+        {
+          "level": 58,
+          "species": "machamp"
+        }
+      ],
+      "payout": 5742,
+      "roster": 1,
+      "sight": 0,
+      "sprite_source": "SPRITE_BRUNO",
+      "walk_in": [
+        {
+          "count": 6,
+          "direction": "up"
+        }
+      ],
+      "won": [
+        "_BrunoEndBattleText"
+      ],
+      "x": 5,
+      "y": 2
+    },
+    {
+      "after": [
+        "_AgathaAfterBattleText"
+      ],
+      "autowalk_event": "EVENT_AUTOWALKED_INTO_AGATHAS_ROOM",
+      "before": [
+        "_AgathaBeforeBattleText"
+      ],
+      "class_source": "OPP_AGATHA",
+      "dont_run_text": "_AgathasRoomAgathaDontRunAwayText",
+      "entrance": [
+        {
+          "x": 4,
+          "y": 10
+        },
+        {
+          "x": 5,
+          "y": 10
+        },
+        {
+          "x": 4,
+          "y": 11
+        },
+        {
+          "x": 5,
+          "y": 11
+        }
+      ],
+      "exit_block": {
+        "x": 2,
+        "y": 0
+      },
+      "flag": "EVENT_BEAT_AGATHAS_ROOM_TRAINER_0",
+      "id": "pokered:AGATHAS_ROOM:objects:1",
+      "map": "AgathasRoom",
+      "map_id": "pokered:AGATHAS_ROOM",
+      "name": "AGATHA",
+      "party": [
+        {
+          "level": 56,
+          "species": "gengar"
+        },
+        {
+          "level": 56,
+          "species": "golbat"
+        },
+        {
+          "level": 55,
+          "species": "haunter"
+        },
+        {
+          "level": 58,
+          "species": "arbok"
+        },
+        {
+          "level": 60,
+          "species": "gengar"
+        }
+      ],
+      "payout": 5940,
+      "roster": 1,
+      "sight": 0,
+      "sprite_source": "SPRITE_AGATHA",
+      "walk_in": [
+        {
+          "count": 6,
+          "direction": "up"
+        }
+      ],
+      "won": [
+        "_AgathaEndBattleText"
+      ],
+      "x": 5,
+      "y": 2
+    },
+    {
+      "after": [
+        "_LancesRoomLanceAfterBattleText"
+      ],
+      "beat_event": "EVENT_BEAT_LANCE",
+      "before": [
+        "_LancesRoomLanceBeforeBattleText"
+      ],
+      "class_source": "OPP_LANCE",
+      "entrance_blocks": [
+        {
+          "x": 2,
+          "y": 6
+        },
+        {
+          "x": 3,
+          "y": 6
+        }
+      ],
+      "flag": "EVENT_BEAT_LANCES_ROOM_TRAINER_0",
+      "id": "pokered:LANCES_ROOM:objects:1",
+      "lock_coords": [
+        {
+          "x": 5,
+          "y": 11
+        },
+        {
+          "x": 6,
+          "y": 11
+        }
+      ],
+      "lock_event": "EVENT_LANCES_ROOM_LOCK_DOOR",
+      "map": "LancesRoom",
+      "map_id": "pokered:LANCES_ROOM",
+      "name": "LANCE",
+      "party": [
+        {
+          "level": 58,
+          "species": "gyarados"
+        },
+        {
+          "level": 56,
+          "species": "dragonair"
+        },
+        {
+          "level": 56,
+          "species": "dragonair"
+        },
+        {
+          "level": 60,
+          "species": "aerodactyl"
+        },
+        {
+          "level": 62,
+          "species": "dragonite"
+        }
+      ],
+      "payout": 6138,
+      "roster": 1,
+      "sight": 0,
+      "sprite_source": "SPRITE_LANCE",
+      "trigger": [
+        {
+          "x": 5,
+          "y": 1
+        },
+        {
+          "x": 6,
+          "y": 2
+        },
+        {
+          "x": 5,
+          "y": 11
+        },
+        {
+          "x": 6,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 16
+        }
+      ],
+      "walk": [
+        {
+          "count": 12,
+          "direction": "up"
+        },
+        {
+          "count": 12,
+          "direction": "left"
+        },
+        {
+          "count": 7,
+          "direction": "down"
+        },
+        {
+          "count": 6,
+          "direction": "left"
+        }
+      ],
+      "walk_coord": {
+        "x": 24,
+        "y": 16
+      },
+      "won": [
+        "_LancesRoomLanceEndBattleText"
+      ],
+      "x": 6,
+      "y": 1
+    }
+  ],
+  "hall_of_fame": {
+    "blackout_map": "PALLET_TOWN",
+    "credits": [
+      {
+        "lines": [
+          "#MON",
+          "BLUE VERSION STAFF"
+        ],
+        "mon": "venusaur"
+      },
+      {
+        "lines": [
+          "DIRECTOR",
+          "SATOSHI TAJIRI"
+        ],
+        "mon": "arbok"
+      },
+      {
+        "lines": [
+          "PROGRAMMERS",
+          "TAKENORI OOTA",
+          "SHIGEKI MORIMOTO"
+        ]
+      },
+      {
+        "lines": [
+          "PROGRAMMERS",
+          "TETSUYA WATANABE",
+          "JUNICHI MASUDA",
+          "SOUSUKE TAMADA"
+        ],
+        "mon": "rhyhorn"
+      },
+      {
+        "lines": [
+          "CHARACTER DESIGN",
+          "KEN SUGIMORI",
+          "ATSUKO NISHIDA"
+        ],
+        "mon": "fearow"
+      },
+      {
+        "lines": [
+          "MUSIC",
+          "JUNICHI MASUDA"
+        ]
+      },
+      {
+        "lines": [
+          "SOUND EFFECTS",
+          "JUNICHI MASUDA"
+        ],
+        "mon": "abra"
+      },
+      {
+        "lines": [
+          "GAME DESIGN",
+          "SATOSHI TAJIRI"
+        ],
+        "mon": "graveler"
+      },
+      {
+        "lines": [
+          "MONSTER DESIGN",
+          "KEN SUGIMORI",
+          "ATSUKO NISHIDA",
+          "MOTOFUMI FUZIWARA"
+        ]
+      },
+      {
+        "lines": [
+          "MONSTER DESIGN",
+          "SHIGEKI MORIMOTO",
+          "SATOSHI OOTA",
+          "RENA YOSHIKAWA"
+        ],
+        "mon": "hitmonlee"
+      },
+      {
+        "lines": [
+          "GAME SCENARIO",
+          "SATOSHI TAJIRI"
+        ]
+      },
+      {
+        "lines": [
+          "GAME SCENARIO",
+          "RYOHSUKE TANIGUCHI",
+          "FUMIHIRO NONOMURA",
+          "HIROYUKI ZINNAI"
+        ],
+        "mon": "tangela"
+      },
+      {
+        "lines": [
+          "PARAMETRIC DESIGN",
+          "KOHJI NISINO",
+          "TAKEO NAKAMURA"
+        ],
+        "mon": "starmie"
+      },
+      {
+        "lines": [
+          "MAP DESIGN",
+          "SATOSHI TAJIRI",
+          "KOHJI NISINO"
+        ]
+      },
+      {
+        "lines": [
+          "MAP DESIGN",
+          "KENJI MATSUSIMA",
+          "FUMIHIRO NONOMURA",
+          "RYOHSUKE TANIGUCHI"
+        ],
+        "mon": "gyarados"
+      },
+      {
+        "lines": [
+          "PRODUCT TESTING",
+          "AKIYOSHI KAKEI",
+          "KAZUKI TSUCHIYA"
+        ]
+      },
+      {
+        "lines": [
+          "PRODUCT TESTING",
+          "TAKEO NAKAMURA",
+          "MASAMITSU YUDA"
+        ],
+        "mon": "ditto"
+      },
+      {
+        "lines": [
+          "SPECIAL THANKS",
+          "TATSUYA HISHIDA",
+          "YASUHIRO SAKAI"
+        ]
+      },
+      {
+        "lines": [
+          "SPECIAL THANKS",
+          "WATARU YAMAGUCHI",
+          "KAZUYUKI YAMAMOTO"
+        ]
+      },
+      {
+        "lines": [
+          "SPECIAL THANKS",
+          "AKIHITO TOMISAWA",
+          "HIROSHI KAWAMOTO",
+          "TOMOMICHI OOTA"
+        ],
+        "mon": "omastar"
+      },
+      {
+        "lines": [
+          "PRODUCERS",
+          "SHIGERU MIYAMOTO"
+        ]
+      },
+      {
+        "lines": [
+          "PRODUCERS",
+          "TAKASHI KAWAGUCHI"
+        ]
+      },
+      {
+        "lines": [
+          "PRODUCERS",
+          "TSUNEKAZU ISHIHARA"
+        ],
+        "mon": "vileplume"
+      },
+      {
+        "lines": [
+          "US VERSION STAFF"
+        ]
+      },
+      {
+        "lines": [
+          "US COORDINATION",
+          "GAIL TILDEN"
+        ]
+      },
+      {
+        "lines": [
+          "US COORDINATION",
+          "NAOKO KAWAKAMI",
+          "HIRO NAKAMURA"
+        ]
+      },
+      {
+        "lines": [
+          "US COORDINATION",
+          "WILLIAM GIESE",
+          "SARA OSBORNE"
+        ]
+      },
+      {
+        "lines": [
+          "TEXT TRANSLATION",
+          "NOB OGASAWARA"
+        ]
+      },
+      {
+        "lines": [
+          "PROGRAMMERS",
+          "TERUKI MURAKAWA",
+          "KOHTA FUKUI"
+        ]
+      },
+      {
+        "lines": [
+          "SPECIAL THANKS",
+          "SATORU IWATA"
+        ]
+      },
+      {
+        "lines": [
+          "SPECIAL THANKS",
+          "TAKAHIRO HARADA"
+        ]
+      },
+      {
+        "lines": [
+          "PRODUCT TESTING",
+          "PAAD TESTING",
+          "NCL SUPER MARIO CLUB"
+        ]
+      },
+      {
+        "lines": [
+          "PRODUCER",
+          "TAKEHIRO IZUSHI"
+        ]
+      },
+      {
+        "lines": [
+          "EXECUTIVE PRODUCER",
+          "HIROSHI YAMAUCHI"
+        ],
+        "mon": "nidoking"
+      },
+      {
+        "copyright": true,
+        "lines": [],
+        "mon": "parasect"
+      },
+      {
+        "end": true,
+        "graphic": "gfx/credits/the_end.2bpp",
+        "lines": []
+      }
+    ],
+    "hides": [
+      "TOGGLE_CERULEAN_CAVE_GUY"
+    ],
+    "oak_id": "pokered:HALL_OF_FAME:objects:1",
+    "oak_text": "_HallOfFameOakText",
+    "walk": [
+      {
+        "count": 5,
+        "direction": "up"
+      }
+    ]
+  },
+  "route22_gate": {
+    "accepted_text": [
+      "_Route22GateGuardGoRightAheadText"
+    ],
+    "badge": "BADGE_BOULDER",
+    "coords": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 2
+      }
+    ],
+    "denied_text": [
+      "_Route22GateGuardNoBoulderbadgeText",
+      "_Route22GateGuardICantLetYouPassText"
+    ],
+    "id": "pokered:ROUTE_22_GATE:objects:1",
+    "north_map": "ROUTE_23",
+    "south_map": "ROUTE_22",
+    "y_split": 4
+  },
+  "route22_rival": {
+    "after": [
+      "_Route22RivalAfterBattleText2"
+    ],
+    "beat_flag": "EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE",
+    "before": [
+      "_Route22RivalBeforeBattleText2"
+    ],
+    "by_rival_starter": {
+      "STARTER1": 12,
+      "STARTER2": 10,
+      "STARTER3": 11
+    },
+    "class_source": "OPP_RIVAL2",
+    "clear_flags": [
+      "EVENT_2ND_ROUTE22_RIVAL_BATTLE",
+      "EVENT_ROUTE22_RIVAL_WANTS_BATTLE"
+    ],
+    "coords": [
+      {
+        "x": 29,
+        "y": 4
+      },
+      {
+        "x": 29,
+        "y": 5
+      }
+    ],
+    "id": "pokered:ROUTE_22:objects:2",
+    "lost": [
+      "_Route22Rival2VictoryText"
+    ],
+    "map_id": "pokered:ROUTE_22",
+    "parties_by_player_starter": {
+      "bulbasaur": {
+        "party": [
+          {
+            "level": 47,
+            "species": "pidgeot"
+          },
+          {
+            "level": 45,
+            "species": "rhyhorn"
+          },
+          {
+            "level": 45,
+            "species": "exeggcute"
+          },
+          {
+            "level": 47,
+            "species": "gyarados"
+          },
+          {
+            "level": 50,
+            "species": "alakazam"
+          },
+          {
+            "level": 53,
+            "species": "charizard"
+          }
+        ],
+        "payout": 3445
+      },
+      "charmander": {
+        "party": [
+          {
+            "level": 47,
+            "species": "pidgeot"
+          },
+          {
+            "level": 45,
+            "species": "rhyhorn"
+          },
+          {
+            "level": 45,
+            "species": "growlithe"
+          },
+          {
+            "level": 47,
+            "species": "exeggcute"
+          },
+          {
+            "level": 50,
+            "species": "alakazam"
+          },
+          {
+            "level": 53,
+            "species": "blastoise"
+          }
+        ],
+        "payout": 3445
+      },
+      "squirtle": {
+        "party": [
+          {
+            "level": 47,
+            "species": "pidgeot"
+          },
+          {
+            "level": 45,
+            "species": "rhyhorn"
+          },
+          {
+            "level": 45,
+            "species": "gyarados"
+          },
+          {
+            "level": 47,
+            "species": "growlithe"
+          },
+          {
+            "level": 50,
+            "species": "alakazam"
+          },
+          {
+            "level": 53,
+            "species": "venusaur"
+          }
+        ],
+        "payout": 3445
+      }
+    },
+    "show_flags": [
+      "EVENT_2ND_ROUTE22_RIVAL_BATTLE",
+      "EVENT_ROUTE22_RIVAL_WANTS_BATTLE"
+    ],
+    "sprite_source": "SPRITE_BLUE",
+    "won": [
+      "_Route22Rival2DefeatedText"
+    ]
+  },
+  "route23": {
+    "accepted_text": [
+      "_Route23OhThatIsTheBadgeText",
+      "_Route23GoRightAheadText"
+    ],
+    "denied_text": "_Route23YouDontHaveTheBadgeYetText",
+    "guards": [
+      {
+        "badge": "BADGE_EARTH",
+        "id": "pokered:ROUTE_23:objects:1",
+        "object_index": 1,
+        "passed": "EVENT_PASSED_EARTHBADGE_CHECK",
+        "x_below": 14,
+        "y": 35
+      },
+      {
+        "badge": "BADGE_VOLCANO",
+        "id": "pokered:ROUTE_23:objects:2",
+        "object_index": 2,
+        "passed": "EVENT_PASSED_VOLCANOBADGE_CHECK",
+        "y": 56
+      },
+      {
+        "badge": "BADGE_MARSH",
+        "id": "pokered:ROUTE_23:objects:3",
+        "object_index": 3,
+        "passed": "EVENT_PASSED_MARSHBADGE_CHECK",
+        "y": 85
+      },
+      {
+        "badge": "BADGE_SOUL",
+        "id": "pokered:ROUTE_23:objects:4",
+        "object_index": 4,
+        "passed": "EVENT_PASSED_SOULBADGE_CHECK",
+        "y": 96
+      },
+      {
+        "badge": "BADGE_RAINBOW",
+        "id": "pokered:ROUTE_23:objects:5",
+        "object_index": 5,
+        "passed": "EVENT_PASSED_RAINBOWBADGE_CHECK",
+        "y": 105
+      },
+      {
+        "badge": "BADGE_THUNDER",
+        "id": "pokered:ROUTE_23:objects:6",
+        "object_index": 6,
+        "passed": "EVENT_PASSED_THUNDERBADGE_CHECK",
+        "y": 119
+      },
+      {
+        "badge": "BADGE_CASCADE",
+        "id": "pokered:ROUTE_23:objects:7",
+        "object_index": 7,
+        "passed": "EVENT_PASSED_CASCADEBADGE_CHECK",
+        "y": 136
+      }
+    ],
+    "hide_toggle": "TOGGLE_VICTORY_ROAD_2F_BOULDER",
+    "reset_events": [
+      "EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1",
+      "EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2",
+      "EVENT_VICTORY_ROAD_3_BOULDER_ON_SWITCH1",
+      "EVENT_VICTORY_ROAD_3_BOULDER_ON_SWITCH2"
+    ],
+    "show_toggle": "TOGGLE_VICTORY_ROAD_3F_BOULDER",
+    "sign_text": "_Route23VictoryRoadGateSignText"
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_AgathaAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 32,
+          "text": "You win! I see"
+        },
+        {
+          "op": "line",
+          "source_line": 33,
+          "text": "what the old duff"
+        },
+        {
+          "op": "cont",
+          "source_line": 34,
+          "text": "sees in you now!"
+        },
+        {
+          "op": "para",
+          "source_line": 36,
+          "text": "I have nothing"
+        },
+        {
+          "op": "line",
+          "source_line": 37,
+          "text": "else to say! Run"
+        },
+        {
+          "op": "cont",
+          "source_line": 38,
+          "text": "along now, child!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 39
+        }
+      ],
+      "source": "text/AgathasRoom.asm"
+    },
+    "_AgathaBeforeBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I am AGATHA of"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "the ELITE FOUR!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "OAK's taken a lot"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "of interest in"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "you, child!"
+        },
+        {
+          "op": "para",
+          "source_line": 9,
+          "text": "That old duff was"
+        },
+        {
+          "op": "line",
+          "source_line": 10,
+          "text": "once tough and"
+        },
+        {
+          "op": "cont",
+          "source_line": 11,
+          "text": "handsome! That"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "was decades ago!"
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "Now he just wants"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "to fiddle with"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "his #DEX! He's"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "wrong! #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "are for fighting!"
+        },
+        {
+          "op": "para",
+          "source_line": 20,
+          "text": "<PLAYER>! I'll show"
+        },
+        {
+          "op": "line",
+          "source_line": 21,
+          "text": "you how a real"
+        },
+        {
+          "op": "cont",
+          "source_line": 22,
+          "text": "trainer fights!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 23
+        }
+      ],
+      "source": "text/AgathasRoom.asm"
+    },
+    "_AgathaEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 26,
+          "text": "Oh ho!"
+        },
+        {
+          "op": "line",
+          "source_line": 27,
+          "text": "You're something"
+        },
+        {
+          "op": "cont",
+          "source_line": 28,
+          "text": "special, child!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 29
+        }
+      ],
+      "source": "text/AgathasRoom.asm"
+    },
+    "_AgathasRoomAgathaDontRunAwayText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 42,
+          "text": "Someone's voice:"
+        },
+        {
+          "op": "line",
+          "source_line": 43,
+          "text": "Don't run away!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 44
+        }
+      ],
+      "source": "text/AgathasRoom.asm"
+    },
+    "_BrunoAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": "My job is done!"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "Go face your next"
+        },
+        {
+          "op": "cont",
+          "source_line": 31,
+          "text": "challenge!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 32
+        }
+      ],
+      "source": "text/BrunosRoom.asm"
+    },
+    "_BrunoBeforeBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I am BRUNO of"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "the ELITE FOUR!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "Through rigorous"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "training, people"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "and #MON can"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "become stronger!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "I've weight"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "trained with"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "my #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "<PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 16,
+          "text": "We will grind you"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "down with our"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "superior power!"
+        },
+        {
+          "op": "para",
+          "source_line": 20,
+          "text": "Hoo hah!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 21
+        }
+      ],
+      "source": "text/BrunosRoom.asm"
+    },
+    "_BrunoEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 24,
+          "text": "Why?"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "How could I lose?"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 26
+        }
+      ],
+      "source": "text/BrunosRoom.asm"
+    },
+    "_BrunosRoomBrunoDontRunAwayText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 35,
+          "text": "Someone's voice:"
+        },
+        {
+          "op": "line",
+          "source_line": 36,
+          "text": "Don't run away!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 37
+        }
+      ],
+      "source": "text/BrunosRoom.asm"
+    },
+    "_ChampionsRoomRivalAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 69,
+          "text": "Why?"
+        },
+        {
+          "op": "line",
+          "source_line": 70,
+          "text": "Why did I lose?"
+        },
+        {
+          "op": "para",
+          "source_line": 72,
+          "text": "I never made any"
+        },
+        {
+          "op": "line",
+          "source_line": 73,
+          "text": "mistakes raising"
+        },
+        {
+          "op": "cont",
+          "source_line": 74,
+          "text": "my #MON..."
+        },
+        {
+          "op": "para",
+          "source_line": 76,
+          "text": "Darn it! You're"
+        },
+        {
+          "op": "line",
+          "source_line": 77,
+          "text": "the new #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 78,
+          "text": "LEAGUE champion!"
+        },
+        {
+          "op": "para",
+          "source_line": 80,
+          "text": "Although I don't"
+        },
+        {
+          "op": "line",
+          "source_line": 81,
+          "text": "like to admit it."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 82
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_ChampionsRoomRivalIntroText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "<RIVAL>: Hey!"
+        },
+        {
+          "op": "para",
+          "source_line": 4,
+          "text": "I was looking"
+        },
+        {
+          "op": "line",
+          "source_line": 5,
+          "text": "forward to seeing"
+        },
+        {
+          "op": "cont",
+          "source_line": 6,
+          "text": "you, <PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 8,
+          "text": "My rival should"
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "be strong to keep"
+        },
+        {
+          "op": "cont",
+          "source_line": 10,
+          "text": "me sharp!"
+        },
+        {
+          "op": "para",
+          "source_line": 12,
+          "text": "While working on"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "#DEX, I looked"
+        },
+        {
+          "op": "cont",
+          "source_line": 14,
+          "text": "all over for"
+        },
+        {
+          "op": "cont",
+          "source_line": 15,
+          "text": "powerful #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 17,
+          "text": "Not only that, I"
+        },
+        {
+          "op": "line",
+          "source_line": 18,
+          "text": "assembled teams"
+        },
+        {
+          "op": "cont",
+          "source_line": 19,
+          "text": "that would beat"
+        },
+        {
+          "op": "cont",
+          "source_line": 20,
+          "text": "any #MON type!"
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "And now!"
+        },
+        {
+          "op": "para",
+          "source_line": 24,
+          "text": "I'm the #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "LEAGUE champion!"
+        },
+        {
+          "op": "para",
+          "source_line": 27,
+          "text": "<PLAYER>! Do you"
+        },
+        {
+          "op": "line",
+          "source_line": 28,
+          "text": "know what that"
+        },
+        {
+          "op": "cont",
+          "source_line": 29,
+          "text": "means?"
+        },
+        {
+          "op": "para",
+          "source_line": 31,
+          "text": "I'll tell you!"
+        },
+        {
+          "op": "para",
+          "source_line": 33,
+          "text": "I am the most"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "powerful trainer"
+        },
+        {
+          "op": "cont",
+          "source_line": 35,
+          "text": "in the world!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 36
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_HallOfFameOakText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "OAK: Er-hem!"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "Congratulations"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "<PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "This floor is the"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "#MON HALL OF"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "FAME!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "#MON LEAGUE"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "champions are"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "honored for their"
+        },
+        {
+          "op": "cont",
+          "source_line": 13,
+          "text": "exploits here!"
+        },
+        {
+          "op": "para",
+          "source_line": 15,
+          "text": "Their #MON are"
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "also recorded in"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "the HALL OF FAME!"
+        },
+        {
+          "op": "para",
+          "source_line": 19,
+          "text": "<PLAYER>! You have"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "endeavored hard"
+        },
+        {
+          "op": "cont",
+          "source_line": 21,
+          "text": "to become the new"
+        },
+        {
+          "op": "cont",
+          "source_line": 22,
+          "text": "LEAGUE champion!"
+        },
+        {
+          "op": "para",
+          "source_line": 24,
+          "text": "Congratulations,"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "<PLAYER>, you and"
+        },
+        {
+          "op": "cont",
+          "source_line": 26,
+          "text": "your #MON are"
+        },
+        {
+          "op": "cont",
+          "source_line": 27,
+          "text": "HALL OF FAMERs!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 28
+        }
+      ],
+      "source": "text/HallOfFame.asm"
+    },
+    "_LancesRoomLanceAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "I still can't"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "believe my"
+        },
+        {
+          "op": "cont",
+          "source_line": 41,
+          "text": "dragons lost to"
+        },
+        {
+          "op": "cont",
+          "source_line": 42,
+          "text": "you, <PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 44,
+          "text": "You are now the"
+        },
+        {
+          "op": "line",
+          "source_line": 45,
+          "text": "#MON LEAGUE"
+        },
+        {
+          "op": "cont",
+          "source_line": 46,
+          "text": "champion!"
+        },
+        {
+          "op": "para",
+          "source_line": 48,
+          "text": "...Or, you would"
+        },
+        {
+          "op": "line",
+          "source_line": 49,
+          "text": "have been, but"
+        },
+        {
+          "op": "cont",
+          "source_line": 50,
+          "text": "you have one more"
+        },
+        {
+          "op": "cont",
+          "source_line": 51,
+          "text": "challenge ahead."
+        },
+        {
+          "op": "para",
+          "source_line": 53,
+          "text": "You have to face"
+        },
+        {
+          "op": "line",
+          "source_line": 54,
+          "text": "another trainer!"
+        },
+        {
+          "op": "cont",
+          "source_line": 55,
+          "text": "His name is..."
+        },
+        {
+          "op": "para",
+          "source_line": 57,
+          "text": "<RIVAL>!"
+        },
+        {
+          "op": "line",
+          "source_line": 58,
+          "text": "He beat the ELITE"
+        },
+        {
+          "op": "cont",
+          "source_line": 59,
+          "text": "FOUR before you!"
+        },
+        {
+          "op": "para",
+          "source_line": 61,
+          "text": "He is the real"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "#MON LEAGUE"
+        },
+        {
+          "op": "cont",
+          "source_line": 63,
+          "text": "champion!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 64
+        }
+      ],
+      "source": "text/LancesRoom.asm"
+    },
+    "_LancesRoomLanceBeforeBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Ah! I heard about"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "you <PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "I lead the ELITE"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "FOUR! You can"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "call me LANCE the"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "dragon trainer!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "You know that"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "dragons are"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "mythical #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "They're hard to"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "catch and raise,"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "but their powers"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "are superior!"
+        },
+        {
+          "op": "para",
+          "source_line": 19,
+          "text": "They're virtually"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "indestructible!"
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "Well, are you"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "ready to lose?"
+        },
+        {
+          "op": "para",
+          "source_line": 25,
+          "text": "Your LEAGUE"
+        },
+        {
+          "op": "line",
+          "source_line": 26,
+          "text": "challenge ends"
+        },
+        {
+          "op": "cont",
+          "source_line": 27,
+          "text": "with me, <PLAYER>!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 28
+        }
+      ],
+      "source": "text/LancesRoom.asm"
+    },
+    "_LancesRoomLanceEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 31,
+          "text": "That's it!"
+        },
+        {
+          "op": "para",
+          "source_line": 33,
+          "text": "I hate to admit"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "it, but you are a"
+        },
+        {
+          "op": "cont",
+          "source_line": 35,
+          "text": "#MON master!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 36
+        }
+      ],
+      "source": "text/LancesRoom.asm"
+    },
+    "_LoreleisRoomLoreleiAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 30,
+          "text": "You're better"
+        },
+        {
+          "op": "line",
+          "source_line": 31,
+          "text": "than I thought!"
+        },
+        {
+          "op": "cont",
+          "source_line": 32,
+          "text": "Go on ahead!"
+        },
+        {
+          "op": "para",
+          "source_line": 34,
+          "text": "You only got a"
+        },
+        {
+          "op": "line",
+          "source_line": 35,
+          "text": "taste of #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 36,
+          "text": "LEAGUE power!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 37
+        }
+      ],
+      "source": "text/LoreleisRoom.asm"
+    },
+    "_LoreleisRoomLoreleiBeforeBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Welcome to"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "#MON LEAGUE!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "I am LORELEI of"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "the ELITE FOUR!"
+        },
+        {
+          "op": "para",
+          "source_line": 8,
+          "text": "No one can best"
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "me when it comes"
+        },
+        {
+          "op": "cont",
+          "source_line": 10,
+          "text": "to icy #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 12,
+          "text": "Freezing moves"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "are powerful!"
+        },
+        {
+          "op": "para",
+          "source_line": 15,
+          "text": "Your #MON will"
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "be at my mercy"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "when they are"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "frozen solid!"
+        },
+        {
+          "op": "para",
+          "source_line": 20,
+          "text": "Hahaha!"
+        },
+        {
+          "op": "line",
+          "source_line": 21,
+          "text": "Are you ready?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 22
+        }
+      ],
+      "source": "text/LoreleisRoom.asm"
+    },
+    "_LoreleisRoomLoreleiDontRunAwayText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 40,
+          "text": "Someone's voice:"
+        },
+        {
+          "op": "line",
+          "source_line": 41,
+          "text": "Don't run away!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 42
+        }
+      ],
+      "source": "text/LoreleisRoom.asm"
+    },
+    "_LoreleisRoomLoreleiEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 25,
+          "text": "How"
+        },
+        {
+          "op": "line",
+          "source_line": 26,
+          "text": "dare you!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 27
+        }
+      ],
+      "source": "text/LoreleisRoom.asm"
+    },
+    "_RivalDefeatedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "NO!"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "That can't be!"
+        },
+        {
+          "op": "cont",
+          "source_line": 41,
+          "text": "You beat my best!"
+        },
+        {
+          "op": "para",
+          "source_line": 43,
+          "text": "After all that"
+        },
+        {
+          "op": "line",
+          "source_line": 44,
+          "text": "work to become"
+        },
+        {
+          "op": "cont",
+          "source_line": 45,
+          "text": "LEAGUE champ?"
+        },
+        {
+          "op": "para",
+          "source_line": 47,
+          "text": "My reign is over"
+        },
+        {
+          "op": "line",
+          "source_line": 48,
+          "text": "already?"
+        },
+        {
+          "op": "cont",
+          "source_line": 49,
+          "text": "It's not fair!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 50
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_RivalVictoryText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 53,
+          "text": "Hahaha!"
+        },
+        {
+          "op": "line",
+          "source_line": 54,
+          "text": "I won, I won!"
+        },
+        {
+          "op": "para",
+          "source_line": 56,
+          "text": "I'm too good for"
+        },
+        {
+          "op": "line",
+          "source_line": 57,
+          "text": "you, <PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 59,
+          "text": "You did well to"
+        },
+        {
+          "op": "line",
+          "source_line": 60,
+          "text": "even reach me,"
+        },
+        {
+          "op": "cont",
+          "source_line": 61,
+          "text": "<RIVAL>, the"
+        },
+        {
+          "op": "cont",
+          "source_line": 62,
+          "text": "#MON genius!"
+        },
+        {
+          "op": "para",
+          "source_line": 64,
+          "text": "Nice try, loser!"
+        },
+        {
+          "op": "line",
+          "source_line": 65,
+          "text": "Hahaha!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 66
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_Route22GateGuardGoRightAheadText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 19,
+          "text": "Oh! That is the"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "BOULDERBADGE!"
+        },
+        {
+          "op": "cont",
+          "source_line": 21,
+          "text": "Go right ahead!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 22
+        }
+      ],
+      "source": "text/Route22Gate.asm"
+    },
+    "_Route22GateGuardICantLetYouPassText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 11
+        },
+        {
+          "op": "para",
+          "source_line": 13,
+          "text": "The rules are"
+        },
+        {
+          "op": "line",
+          "source_line": 14,
+          "text": "rules. I can't"
+        },
+        {
+          "op": "cont",
+          "source_line": 15,
+          "text": "let you pass."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 16
+        }
+      ],
+      "source": "text/Route22Gate.asm"
+    },
+    "_Route22GateGuardNoBoulderbadgeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Only truly skilled"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "trainers are"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "allowed through."
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "You don't have the"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "BOULDERBADGE yet!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 8
+        }
+      ],
+      "source": "text/Route22Gate.asm"
+    },
+    "_Route22Rival2DefeatedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 84,
+          "text": "What!?"
+        },
+        {
+          "op": "para",
+          "source_line": 86,
+          "text": "I was just"
+        },
+        {
+          "op": "line",
+          "source_line": 87,
+          "text": "careless!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 88
+        }
+      ],
+      "source": "text/Route22.asm"
+    },
+    "_Route22Rival2VictoryText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 91,
+          "text": "<RIVAL>: Hahaha!"
+        },
+        {
+          "op": "line",
+          "source_line": 92,
+          "text": "<PLAYER>! That's"
+        },
+        {
+          "op": "cont",
+          "source_line": 93,
+          "text": "your best? You're"
+        },
+        {
+          "op": "cont",
+          "source_line": 94,
+          "text": "nowhere near as"
+        },
+        {
+          "op": "cont",
+          "source_line": 95,
+          "text": "good as me, pal!"
+        },
+        {
+          "op": "para",
+          "source_line": 97,
+          "text": "Go train some"
+        },
+        {
+          "op": "line",
+          "source_line": 98,
+          "text": "more! You loser!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 99
+        }
+      ],
+      "source": "text/Route22.asm"
+    },
+    "_Route22RivalAfterBattleText2": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 71,
+          "text": "That loosened me"
+        },
+        {
+          "op": "line",
+          "source_line": 72,
+          "text": "up! I'm ready for"
+        },
+        {
+          "op": "cont",
+          "source_line": 73,
+          "text": "#MON LEAGUE!"
+        },
+        {
+          "op": "para",
+          "source_line": 75,
+          "text": "<PLAYER>, you need"
+        },
+        {
+          "op": "line",
+          "source_line": 76,
+          "text": "more practice!"
+        },
+        {
+          "op": "para",
+          "source_line": 78,
+          "text": "But hey, you know"
+        },
+        {
+          "op": "line",
+          "source_line": 79,
+          "text": "that! I'm out of"
+        },
+        {
+          "op": "cont",
+          "source_line": 80,
+          "text": "here. Smell ya!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 81
+        }
+      ],
+      "source": "text/Route22.asm"
+    },
+    "_Route22RivalBeforeBattleText2": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 50,
+          "text": "<RIVAL>: What?"
+        },
+        {
+          "op": "line",
+          "source_line": 51,
+          "text": "<PLAYER>! What a"
+        },
+        {
+          "op": "cont",
+          "source_line": 52,
+          "text": "surprise to see"
+        },
+        {
+          "op": "cont",
+          "source_line": 53,
+          "text": "you here!"
+        },
+        {
+          "op": "para",
+          "source_line": 55,
+          "text": "So you're going to"
+        },
+        {
+          "op": "line",
+          "source_line": 56,
+          "text": "#MON LEAGUE?"
+        },
+        {
+          "op": "para",
+          "source_line": 58,
+          "text": "You collected all"
+        },
+        {
+          "op": "line",
+          "source_line": 59,
+          "text": "the BADGEs too?"
+        },
+        {
+          "op": "cont",
+          "source_line": 60,
+          "text": "That's cool!"
+        },
+        {
+          "op": "para",
+          "source_line": 62,
+          "text": "Then I'll whip you"
+        },
+        {
+          "op": "line",
+          "source_line": 63,
+          "text": "<PLAYER> as a"
+        },
+        {
+          "op": "cont",
+          "source_line": 64,
+          "text": "warm up for"
+        },
+        {
+          "op": "cont",
+          "source_line": 65,
+          "text": "#MON LEAGUE!"
+        },
+        {
+          "op": "para",
+          "source_line": 67,
+          "text": "Come on!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 68
+        }
+      ],
+      "source": "text/Route22.asm"
+    },
+    "_Route23GoRightAheadText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 32
+        },
+        {
+          "op": "para",
+          "source_line": 34,
+          "text": "OK then! Please,"
+        },
+        {
+          "op": "line",
+          "source_line": 35,
+          "text": "go right ahead!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 36
+        }
+      ],
+      "source": "text/Route23.asm"
+    },
+    "_Route23OhThatIsTheBadgeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 19,
+          "text": "You can pass here"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "only if you have"
+        },
+        {
+          "op": "cont",
+          "source_line": 21,
+          "text": "the @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 22,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 23,
+          "text": "!"
+        },
+        {
+          "op": "para",
+          "source_line": 25,
+          "text": "Oh! That is the"
+        },
+        {
+          "op": "line",
+          "source_line": 26,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 27,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 28,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 29
+        }
+      ],
+      "source": "text/Route23.asm"
+    },
+    "_Route23VictoryRoadGateSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "VICTORY ROAD GATE"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "- #MON LEAGUE"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 41
+        }
+      ],
+      "source": "text/Route23.asm"
+    },
+    "_Route23YouDontHaveTheBadgeYetText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "You can pass here"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "only if you have"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "the @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 5,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 6,
+          "text": "!"
+        },
+        {
+          "op": "para",
+          "source_line": 8,
+          "text": "You don't have the"
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 10,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 11,
+          "text": " yet!"
+        },
+        {
+          "op": "para",
+          "source_line": 13,
+          "text": "You have to have"
+        },
+        {
+          "op": "line",
+          "source_line": 14,
+          "text": "it to get to"
+        },
+        {
+          "op": "cont",
+          "source_line": 15,
+          "text": "#MON LEAGUE!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 16
+        }
+      ],
+      "source": "text/Route23.asm"
+    },
+    "_VictoryRoad1FCooltrainerFAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 13,
+          "text": "I never wanted to"
+        },
+        {
+          "op": "line",
+          "source_line": 14,
+          "text": "lose to anybody!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 15
+        }
+      ],
+      "source": "text/VictoryRoad1F.asm"
+    },
+    "_VictoryRoad1FCooltrainerFBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I wonder if you"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "are good enough"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "for me!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 5
+        }
+      ],
+      "source": "text/VictoryRoad1F.asm"
+    },
+    "_VictoryRoad1FCooltrainerFEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 8,
+          "text": "I"
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "lost out!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 10
+        }
+      ],
+      "source": "text/VictoryRoad1F.asm"
+    },
+    "_VictoryRoad1FCooltrainerMAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": "I concede, you're"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "better than me!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 31
+        }
+      ],
+      "source": "text/VictoryRoad1F.asm"
+    },
+    "_VictoryRoad1FCooltrainerMBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 18,
+          "text": "I can see you're"
+        },
+        {
+          "op": "line",
+          "source_line": 19,
+          "text": "good! Let me see"
+        },
+        {
+          "op": "cont",
+          "source_line": 20,
+          "text": "exactly how good!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 21
+        }
+      ],
+      "source": "text/VictoryRoad1F.asm"
+    },
+    "_VictoryRoad1FCooltrainerMEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 24,
+          "text": "I"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "had a chance..."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 26
+        }
+      ],
+      "source": "text/VictoryRoad1F.asm"
+    },
+    "_VictoryRoad2FCooltrainerMAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 48,
+          "text": "You earned the"
+        },
+        {
+          "op": "line",
+          "source_line": 49,
+          "text": "right to be on"
+        },
+        {
+          "op": "cont",
+          "source_line": 50,
+          "text": "VICTORY ROAD!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 51
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FCooltrainerMBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 38,
+          "text": "Come on!"
+        },
+        {
+          "op": "line",
+          "source_line": 39,
+          "text": "I'll whip you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 40
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FCooltrainerMEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 43,
+          "text": "I got"
+        },
+        {
+          "op": "line",
+          "source_line": 44,
+          "text": "whipped!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 45
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FHikerAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 16,
+          "text": "If you get stuck,"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "try moving some"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "boulders around!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 19
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FHikerBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 6,
+          "text": "VICTORY ROAD is"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "the final test"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "for trainers!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FHikerEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "Aiyah!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 13
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd1AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 33,
+          "text": "<RIVAL> also came"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "through here!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 35
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd1BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 22,
+          "text": "Ah, so you wish"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "to challenge the"
+        },
+        {
+          "op": "cont",
+          "source_line": 24,
+          "text": "ELITE FOUR?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 25
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd1EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 28,
+          "text": "You"
+        },
+        {
+          "op": "line",
+          "source_line": 29,
+          "text": "got me!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 30
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd2AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 66,
+          "text": "I can beat you"
+        },
+        {
+          "op": "line",
+          "source_line": 67,
+          "text": "when it comes to"
+        },
+        {
+          "op": "cont",
+          "source_line": 68,
+          "text": "knowledge about"
+        },
+        {
+          "op": "cont",
+          "source_line": 69,
+          "text": "#MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 70
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd2BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 54,
+          "text": "If you can get"
+        },
+        {
+          "op": "line",
+          "source_line": 55,
+          "text": "through here, you"
+        },
+        {
+          "op": "cont",
+          "source_line": 56,
+          "text": "can go meet the"
+        },
+        {
+          "op": "cont",
+          "source_line": 57,
+          "text": "ELITE FOUR!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 58
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd2EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 61,
+          "text": "No!"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "Unbelievable!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 63
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd3AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 83,
+          "text": "Many trainers give"
+        },
+        {
+          "op": "line",
+          "source_line": 84,
+          "text": "up the challenge"
+        },
+        {
+          "op": "cont",
+          "source_line": 85,
+          "text": "here."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 86
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd3BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 73,
+          "text": "Is VICTORY ROAD"
+        },
+        {
+          "op": "line",
+          "source_line": 74,
+          "text": "too tough?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 75
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad2FSuperNerd3EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 78,
+          "text": "Well"
+        },
+        {
+          "op": "line",
+          "source_line": 79,
+          "text": "done!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 80
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_VictoryRoad3FCooltrainerF1AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 27,
+          "text": "You showed me just"
+        },
+        {
+          "op": "line",
+          "source_line": 28,
+          "text": "how good I was!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 29
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerF1BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 17,
+          "text": "I'll show you just"
+        },
+        {
+          "op": "line",
+          "source_line": 18,
+          "text": "how good you are!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 19
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerF1EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 22,
+          "text": "I'm"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "furious!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 24
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerF2AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 60,
+          "text": "By fighting tough"
+        },
+        {
+          "op": "line",
+          "source_line": 61,
+          "text": "battles, you get"
+        },
+        {
+          "op": "cont",
+          "source_line": 62,
+          "text": "stronger!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 63
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerF2BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 49,
+          "text": "Trainers live to"
+        },
+        {
+          "op": "line",
+          "source_line": 50,
+          "text": "seek stronger"
+        },
+        {
+          "op": "cont",
+          "source_line": 51,
+          "text": "opponents!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 52
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerF2EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 55,
+          "text": "Oh!"
+        },
+        {
+          "op": "line",
+          "source_line": 56,
+          "text": "So strong!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 57
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerM1AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "You beat GIOVANNI"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "of TEAM ROCKET?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 14
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerM1BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I heard rumors of"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "a child prodigy!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 4
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerM1EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 7,
+          "text": "The"
+        },
+        {
+          "op": "line",
+          "source_line": 8,
+          "text": "rumors were true!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 9
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerM2AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 42,
+          "text": "All trainers here"
+        },
+        {
+          "op": "line",
+          "source_line": 43,
+          "text": "are headed to the"
+        },
+        {
+          "op": "cont",
+          "source_line": 44,
+          "text": "#MON LEAGUE!"
+        },
+        {
+          "op": "cont",
+          "source_line": 45,
+          "text": "Be careful!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 46
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerM2BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 32,
+          "text": "Only the chosen"
+        },
+        {
+          "op": "line",
+          "source_line": 33,
+          "text": "can pass here!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 34
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_VictoryRoad3FCooltrainerM2EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 37,
+          "text": "I"
+        },
+        {
+          "op": "line",
+          "source_line": 38,
+          "text": "don't believe it!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 39
+        }
+      ],
+      "source": "text/VictoryRoad3F.asm"
+    },
+    "_ViridianCityGymLockedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 179,
+          "text": "The GYM's doors"
+        },
+        {
+          "op": "line",
+          "source_line": 180,
+          "text": "are locked..."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 181
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianGymCooltrainerM1AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 99,
+          "text": "You need power to"
+        },
+        {
+          "op": "line",
+          "source_line": 100,
+          "text": "keep up with our"
+        },
+        {
+          "op": "cont",
+          "source_line": 101,
+          "text": "GYM LEADER!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 102
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM1BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 88,
+          "text": "Heh! You must be"
+        },
+        {
+          "op": "line",
+          "source_line": 89,
+          "text": "running out of"
+        },
+        {
+          "op": "cont",
+          "source_line": 90,
+          "text": "steam by now!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 91
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM1EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 94,
+          "text": "I"
+        },
+        {
+          "op": "line",
+          "source_line": 95,
+          "text": "ran out of gas!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 96
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM2AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 163,
+          "text": "The LEADER will"
+        },
+        {
+          "op": "line",
+          "source_line": 164,
+          "text": "scold me!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 165
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM2BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 153,
+          "text": "The truly talented"
+        },
+        {
+          "op": "line",
+          "source_line": 154,
+          "text": "win with style!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 155
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM2EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 158,
+          "text": "I"
+        },
+        {
+          "op": "line",
+          "source_line": 159,
+          "text": "lost my grip!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 160
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM3AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 212,
+          "text": "You can go onto"
+        },
+        {
+          "op": "line",
+          "source_line": 213,
+          "text": "#MON LEAGUE"
+        },
+        {
+          "op": "cont",
+          "source_line": 214,
+          "text": "only by defeating"
+        },
+        {
+          "op": "cont",
+          "source_line": 215,
+          "text": "our GYM LEADER!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 216
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM3BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 200,
+          "text": "VIRIDIAN GYM was"
+        },
+        {
+          "op": "line",
+          "source_line": 201,
+          "text": "closed for a long"
+        },
+        {
+          "op": "cont",
+          "source_line": 202,
+          "text": "time, but now our"
+        },
+        {
+          "op": "cont",
+          "source_line": 203,
+          "text": "LEADER is back!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 204
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymCooltrainerM3EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 207,
+          "text": "I"
+        },
+        {
+          "op": "line",
+          "source_line": 208,
+          "text": "was beaten?"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 209
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGiovanniEarthBadgeInfoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 47,
+          "text": "The EARTHBADGE"
+        },
+        {
+          "op": "line",
+          "source_line": 48,
+          "text": "makes #MON of"
+        },
+        {
+          "op": "cont",
+          "source_line": 49,
+          "text": "any level obey!"
+        },
+        {
+          "op": "para",
+          "source_line": 51,
+          "text": "It is evidence of"
+        },
+        {
+          "op": "line",
+          "source_line": 52,
+          "text": "your mastery as a"
+        },
+        {
+          "op": "cont",
+          "source_line": 53,
+          "text": "#MON trainer!"
+        },
+        {
+          "op": "para",
+          "source_line": 55,
+          "text": "With it, you can"
+        },
+        {
+          "op": "line",
+          "source_line": 56,
+          "text": "enter the #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 57,
+          "text": "LEAGUE!"
+        },
+        {
+          "op": "para",
+          "source_line": 59,
+          "text": "It is my gift for"
+        },
+        {
+          "op": "line",
+          "source_line": 60,
+          "text": "your #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 61,
+          "text": "LEAGUE challenge!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 62
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGiovanniPostBattleAdviceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 31,
+          "text": "Having lost, I"
+        },
+        {
+          "op": "line",
+          "source_line": 32,
+          "text": "cannot face my"
+        },
+        {
+          "op": "cont",
+          "source_line": 33,
+          "text": "underlings!"
+        },
+        {
+          "op": "cont",
+          "source_line": 34,
+          "text": "TEAM ROCKET is"
+        },
+        {
+          "op": "cont",
+          "source_line": 35,
+          "text": "finished forever!"
+        },
+        {
+          "op": "para",
+          "source_line": 37,
+          "text": "I will dedicate my"
+        },
+        {
+          "op": "line",
+          "source_line": 38,
+          "text": "life to the study"
+        },
+        {
+          "op": "cont",
+          "source_line": 39,
+          "text": "of #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 41,
+          "text": "Let us meet again"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "some day!"
+        },
+        {
+          "op": "cont",
+          "source_line": 43,
+          "text": "Farewell!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 44
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGiovanniPreBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Fwahahaha! This is"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "my hideout!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "I planned to"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "resurrect TEAM"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "ROCKET here!"
+        },
+        {
+          "op": "para",
+          "source_line": 9,
+          "text": "But, you have"
+        },
+        {
+          "op": "line",
+          "source_line": 10,
+          "text": "caught me again!"
+        },
+        {
+          "op": "cont",
+          "source_line": 11,
+          "text": "So be it! This"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "time, I'm not"
+        },
+        {
+          "op": "cont",
+          "source_line": 13,
+          "text": "holding back!"
+        },
+        {
+          "op": "para",
+          "source_line": 15,
+          "text": "Once more, you"
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "shall face"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "GIOVANNI, the"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "greatest trainer!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 19
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGiovanniReceivedEarthBadgeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 22,
+          "text": "Ha!"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "That was a truly"
+        },
+        {
+          "op": "cont",
+          "source_line": 24,
+          "text": "intense fight!"
+        },
+        {
+          "op": "cont",
+          "source_line": 25,
+          "text": "You have won!"
+        },
+        {
+          "op": "cont",
+          "source_line": 26,
+          "text": "As proof, here is"
+        },
+        {
+          "op": "cont",
+          "source_line": 27,
+          "text": "the EARTHBADGE!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 28
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGiovanniReceivedTM27Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 65,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 66,
+          "text": "TM27!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 67
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGiovanniTM27ExplanationText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 70
+        },
+        {
+          "op": "para",
+          "source_line": 72,
+          "text": "TM27 is FISSURE!"
+        },
+        {
+          "op": "line",
+          "source_line": 73,
+          "text": "It will take out"
+        },
+        {
+          "op": "cont",
+          "source_line": 74,
+          "text": "#MON with just"
+        },
+        {
+          "op": "cont",
+          "source_line": 75,
+          "text": "one hit!"
+        },
+        {
+          "op": "para",
+          "source_line": 77,
+          "text": "I made it when I"
+        },
+        {
+          "op": "line",
+          "source_line": 78,
+          "text": "ran the GYM here,"
+        },
+        {
+          "op": "cont",
+          "source_line": 79,
+          "text": "too long ago..."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 80
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGiovanniTM27NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 83,
+          "text": "You do not have"
+        },
+        {
+          "op": "line",
+          "source_line": 84,
+          "text": "space for this!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 85
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker1AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 115,
+          "text": "I'm still not"
+        },
+        {
+          "op": "line",
+          "source_line": 116,
+          "text": "worthy!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 117
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker1BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 105,
+          "text": "Rrrroar! I'm"
+        },
+        {
+          "op": "line",
+          "source_line": 106,
+          "text": "working myself"
+        },
+        {
+          "op": "cont",
+          "source_line": 107,
+          "text": "into a rage!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 108
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker1EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 111,
+          "text": "Wargh!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 112
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker2AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 147,
+          "text": "If my #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 148,
+          "text": "were as good at"
+        },
+        {
+          "op": "cont",
+          "source_line": 149,
+          "text": "Karate as I..."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 150
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker2BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 137,
+          "text": "Karate is the"
+        },
+        {
+          "op": "line",
+          "source_line": 138,
+          "text": "ultimate form of"
+        },
+        {
+          "op": "cont",
+          "source_line": 139,
+          "text": "martial arts!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 140
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker2EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 143,
+          "text": "Atcho!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 144
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker3AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 178,
+          "text": "#MON LEAGUE?"
+        },
+        {
+          "op": "line",
+          "source_line": 179,
+          "text": "You? Don't get"
+        },
+        {
+          "op": "cont",
+          "source_line": 180,
+          "text": "cocky!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 181
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker3BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 168,
+          "text": "I'm the KARATE"
+        },
+        {
+          "op": "line",
+          "source_line": 169,
+          "text": "KING! Your fate"
+        },
+        {
+          "op": "cont",
+          "source_line": 170,
+          "text": "rests with me!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 171
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymHiker3EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 174,
+          "text": "Ayah!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 175
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymRocker1AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 131,
+          "text": "Do you know the"
+        },
+        {
+          "op": "line",
+          "source_line": 132,
+          "text": "identity of our"
+        },
+        {
+          "op": "cont",
+          "source_line": 133,
+          "text": "GYM LEADER?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 134
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymRocker1BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 120,
+          "text": "#MON and I, we"
+        },
+        {
+          "op": "line",
+          "source_line": 121,
+          "text": "make wonderful"
+        },
+        {
+          "op": "cont",
+          "source_line": 122,
+          "text": "music together!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 123
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymRocker1EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 126,
+          "text": "You are in"
+        },
+        {
+          "op": "line",
+          "source_line": 127,
+          "text": "perfect harmony!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 128
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymRocker2AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 195,
+          "text": "Wait! I was just"
+        },
+        {
+          "op": "line",
+          "source_line": 196,
+          "text": "careless!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 197
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymRocker2BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 184,
+          "text": "Your #MON will"
+        },
+        {
+          "op": "line",
+          "source_line": 185,
+          "text": "cower at the"
+        },
+        {
+          "op": "cont",
+          "source_line": 186,
+          "text": "crack of my whip!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 187
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymRocker2EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 190,
+          "text": "Yowch!"
+        },
+        {
+          "op": "line",
+          "source_line": 191,
+          "text": "Whiplash!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 192
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    }
+  },
+  "victory_road": {
+    "hole": {
+      "event": "EVENT_VICTORY_ROAD_3_BOULDER_ON_SWITCH2",
+      "hide_toggle": "TOGGLE_VICTORY_ROAD_3F_BOULDER",
+      "map": "VictoryRoad3F",
+      "show_toggle": "TOGGLE_VICTORY_ROAD_2F_BOULDER",
+      "x": 23,
+      "y": 15
+    },
+    "switches": [
+      {
+        "block": {
+          "x": 4,
+          "y": 6
+        },
+        "event": "EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH",
+        "map": "VictoryRoad1F",
+        "map_id": "pokered:VICTORY_ROAD_1F",
+        "tile": 29,
+        "x": 17,
+        "y": 13
+      },
+      {
+        "block": {
+          "x": 3,
+          "y": 4
+        },
+        "event": "EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1",
+        "map": "VictoryRoad2F",
+        "map_id": "pokered:VICTORY_ROAD_2F",
+        "tile": 21,
+        "x": 1,
+        "y": 16
+      },
+      {
+        "block": {
+          "x": 11,
+          "y": 7
+        },
+        "event": "EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2",
+        "map": "VictoryRoad2F",
+        "map_id": "pokered:VICTORY_ROAD_2F",
+        "tile": 29,
+        "x": 9,
+        "y": 16
+      },
+      {
+        "block": {
+          "x": 3,
+          "y": 5
+        },
+        "event": "EVENT_VICTORY_ROAD_3_BOULDER_ON_SWITCH1",
+        "map": "VictoryRoad3F",
+        "map_id": "pokered:VICTORY_ROAD_3F",
+        "tile": 29,
+        "x": 3,
+        "y": 5
+      }
+    ],
+    "trainers": [
+      {
+        "after": [
+          "_VictoryRoad1FCooltrainerFAfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad1FCooltrainerFBattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_F",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_1_TRAINER_0",
+        "id": "pokered:VICTORY_ROAD_1F:objects:1",
+        "map": "VictoryRoad1F",
+        "map_id": "pokered:VICTORY_ROAD_1F",
+        "name": "COOLTRAINER\u2640",
+        "party": [
+          {
+            "level": 44,
+            "species": "persian"
+          },
+          {
+            "level": 44,
+            "species": "ninetales"
+          }
+        ],
+        "payout": 1540,
+        "roster": 5,
+        "sight": 2,
+        "sprite_source": "SPRITE_COOLTRAINER_F",
+        "won": [
+          "_VictoryRoad1FCooltrainerFEndBattleText"
+        ],
+        "x": 7,
+        "y": 5
+      },
+      {
+        "after": [
+          "_VictoryRoad1FCooltrainerMAfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad1FCooltrainerMBattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_M",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_1_TRAINER_1",
+        "id": "pokered:VICTORY_ROAD_1F:objects:2",
+        "map": "VictoryRoad1F",
+        "map_id": "pokered:VICTORY_ROAD_1F",
+        "name": "COOLTRAINER\u2642",
+        "party": [
+          {
+            "level": 42,
+            "species": "ivysaur"
+          },
+          {
+            "level": 42,
+            "species": "wartortle"
+          },
+          {
+            "level": 42,
+            "species": "charmeleon"
+          },
+          {
+            "level": 42,
+            "species": "charizard"
+          }
+        ],
+        "payout": 1470,
+        "roster": 5,
+        "sight": 2,
+        "sprite_source": "SPRITE_COOLTRAINER_M",
+        "won": [
+          "_VictoryRoad1FCooltrainerMEndBattleText"
+        ],
+        "x": 3,
+        "y": 2
+      },
+      {
+        "after": [
+          "_VictoryRoad2FHikerAfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad2FHikerBattleText"
+        ],
+        "class_source": "OPP_BLACKBELT",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_2_TRAINER_0",
+        "id": "pokered:VICTORY_ROAD_2F:objects:1",
+        "map": "VictoryRoad2F",
+        "map_id": "pokered:VICTORY_ROAD_2F",
+        "name": "BLACKBELT",
+        "party": [
+          {
+            "level": 43,
+            "species": "machoke"
+          },
+          {
+            "level": 43,
+            "species": "machop"
+          },
+          {
+            "level": 43,
+            "species": "machoke"
+          }
+        ],
+        "payout": 1075,
+        "roster": 9,
+        "sight": 4,
+        "sprite_source": "SPRITE_HIKER",
+        "won": [
+          "_VictoryRoad2FHikerEndBattleText"
+        ],
+        "x": 12,
+        "y": 9
+      },
+      {
+        "after": [
+          "_VictoryRoad2FSuperNerd1AfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad2FSuperNerd1BattleText"
+        ],
+        "class_source": "OPP_JUGGLER",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_2_TRAINER_1",
+        "id": "pokered:VICTORY_ROAD_2F:objects:2",
+        "map": "VictoryRoad2F",
+        "map_id": "pokered:VICTORY_ROAD_2F",
+        "name": "JUGGLER",
+        "party": [
+          {
+            "level": 41,
+            "species": "drowzee"
+          },
+          {
+            "level": 41,
+            "species": "hypno"
+          },
+          {
+            "level": 41,
+            "species": "kadabra"
+          },
+          {
+            "level": 41,
+            "species": "kadabra"
+          }
+        ],
+        "payout": 1435,
+        "roster": 2,
+        "sight": 3,
+        "sprite_source": "SPRITE_SUPER_NERD",
+        "won": [
+          "_VictoryRoad2FSuperNerd1EndBattleText"
+        ],
+        "x": 21,
+        "y": 13
+      },
+      {
+        "after": [
+          "_VictoryRoad2FCooltrainerMAfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad2FCooltrainerMBattleText"
+        ],
+        "class_source": "OPP_TAMER",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_2_TRAINER_2",
+        "id": "pokered:VICTORY_ROAD_2F:objects:3",
+        "map": "VictoryRoad2F",
+        "map_id": "pokered:VICTORY_ROAD_2F",
+        "name": "TAMER",
+        "party": [
+          {
+            "level": 44,
+            "species": "persian"
+          },
+          {
+            "level": 44,
+            "species": "golduck"
+          }
+        ],
+        "payout": 1760,
+        "roster": 5,
+        "sight": 3,
+        "sprite_source": "SPRITE_COOLTRAINER_M",
+        "won": [
+          "_VictoryRoad2FCooltrainerMEndBattleText"
+        ],
+        "x": 19,
+        "y": 8
+      },
+      {
+        "after": [
+          "_VictoryRoad2FSuperNerd2AfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad2FSuperNerd2BattleText"
+        ],
+        "class_source": "OPP_POKEMANIAC",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_2_TRAINER_3",
+        "id": "pokered:VICTORY_ROAD_2F:objects:4",
+        "map": "VictoryRoad2F",
+        "map_id": "pokered:VICTORY_ROAD_2F",
+        "name": "POK\u00e9MANIAC",
+        "party": [
+          {
+            "level": 40,
+            "species": "charmeleon"
+          },
+          {
+            "level": 40,
+            "species": "lapras"
+          },
+          {
+            "level": 40,
+            "species": "lickitung"
+          }
+        ],
+        "payout": 2000,
+        "roster": 6,
+        "sight": 1,
+        "sprite_source": "SPRITE_SUPER_NERD",
+        "won": [
+          "_VictoryRoad2FSuperNerd2EndBattleText"
+        ],
+        "x": 4,
+        "y": 2
+      },
+      {
+        "after": [
+          "_VictoryRoad2FSuperNerd3AfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad2FSuperNerd3BattleText"
+        ],
+        "class_source": "OPP_JUGGLER",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_2_TRAINER_4",
+        "id": "pokered:VICTORY_ROAD_2F:objects:5",
+        "map": "VictoryRoad2F",
+        "map_id": "pokered:VICTORY_ROAD_2F",
+        "name": "JUGGLER",
+        "party": [
+          {
+            "level": 48,
+            "species": "mr"
+          }
+        ],
+        "payout": 1680,
+        "roster": 5,
+        "sight": 3,
+        "sprite_source": "SPRITE_SUPER_NERD",
+        "won": [
+          "_VictoryRoad2FSuperNerd3EndBattleText"
+        ],
+        "x": 26,
+        "y": 3
+      },
+      {
+        "after": [
+          "_VictoryRoad3FCooltrainerM1AfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad3FCooltrainerM1BattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_M",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_3_TRAINER_0",
+        "id": "pokered:VICTORY_ROAD_3F:objects:1",
+        "map": "VictoryRoad3F",
+        "map_id": "pokered:VICTORY_ROAD_3F",
+        "name": "COOLTRAINER\u2642",
+        "party": [
+          {
+            "level": 43,
+            "species": "exeggutor"
+          },
+          {
+            "level": 43,
+            "species": "cloyster"
+          },
+          {
+            "level": 43,
+            "species": "arcanine"
+          }
+        ],
+        "payout": 1505,
+        "roster": 2,
+        "sight": 1,
+        "sprite_source": "SPRITE_COOLTRAINER_M",
+        "won": [
+          "_VictoryRoad3FCooltrainerM1EndBattleText"
+        ],
+        "x": 28,
+        "y": 5
+      },
+      {
+        "after": [
+          "_VictoryRoad3FCooltrainerF1AfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad3FCooltrainerF1BattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_F",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_3_TRAINER_1",
+        "id": "pokered:VICTORY_ROAD_3F:objects:2",
+        "map": "VictoryRoad3F",
+        "map_id": "pokered:VICTORY_ROAD_3F",
+        "name": "COOLTRAINER\u2640",
+        "party": [
+          {
+            "level": 43,
+            "species": "bellsprout"
+          },
+          {
+            "level": 43,
+            "species": "weepinbell"
+          },
+          {
+            "level": 43,
+            "species": "victreebel"
+          }
+        ],
+        "payout": 1505,
+        "roster": 2,
+        "sight": 4,
+        "sprite_source": "SPRITE_COOLTRAINER_F",
+        "won": [
+          "_VictoryRoad3FCooltrainerF1EndBattleText"
+        ],
+        "x": 7,
+        "y": 13
+      },
+      {
+        "after": [
+          "_VictoryRoad3FCooltrainerM2AfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad3FCooltrainerM2BattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_M",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_3_TRAINER_2",
+        "id": "pokered:VICTORY_ROAD_3F:objects:3",
+        "map": "VictoryRoad3F",
+        "map_id": "pokered:VICTORY_ROAD_3F",
+        "name": "COOLTRAINER\u2642",
+        "party": [
+          {
+            "level": 43,
+            "species": "kingler"
+          },
+          {
+            "level": 43,
+            "species": "tentacruel"
+          },
+          {
+            "level": 43,
+            "species": "blastoise"
+          }
+        ],
+        "payout": 1505,
+        "roster": 3,
+        "sight": 4,
+        "sprite_source": "SPRITE_COOLTRAINER_M",
+        "won": [
+          "_VictoryRoad3FCooltrainerM2EndBattleText"
+        ],
+        "x": 6,
+        "y": 14
+      },
+      {
+        "after": [
+          "_VictoryRoad3FCooltrainerF2AfterBattleText"
+        ],
+        "before": [
+          "_VictoryRoad3FCooltrainerF2BattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_F",
+        "flag": "EVENT_BEAT_VICTORY_ROAD_3_TRAINER_3",
+        "id": "pokered:VICTORY_ROAD_3F:objects:4",
+        "map": "VictoryRoad3F",
+        "map_id": "pokered:VICTORY_ROAD_3F",
+        "name": "COOLTRAINER\u2640",
+        "party": [
+          {
+            "level": 43,
+            "species": "parasect"
+          },
+          {
+            "level": 43,
+            "species": "dewgong"
+          },
+          {
+            "level": 43,
+            "species": "chansey"
+          }
+        ],
+        "payout": 1505,
+        "roster": 3,
+        "sight": 4,
+        "sprite_source": "SPRITE_COOLTRAINER_F",
+        "won": [
+          "_VictoryRoad3FCooltrainerF2EndBattleText"
+        ],
+        "x": 13,
+        "y": 3
+      }
+    ]
+  },
+  "viridian_gym": {
+    "arrows": [
+      {
+        "steps": [
+          {
+            "count": 9,
+            "direction": "up"
+          }
+        ],
+        "x": 19,
+        "y": 11
+      },
+      {
+        "steps": [
+          {
+            "count": 8,
+            "direction": "left"
+          }
+        ],
+        "x": 19,
+        "y": 1
+      },
+      {
+        "steps": [
+          {
+            "count": 9,
+            "direction": "down"
+          }
+        ],
+        "x": 18,
+        "y": 2
+      },
+      {
+        "steps": [
+          {
+            "count": 6,
+            "direction": "right"
+          }
+        ],
+        "x": 11,
+        "y": 2
+      },
+      {
+        "steps": [
+          {
+            "count": 2,
+            "direction": "down"
+          }
+        ],
+        "x": 16,
+        "y": 10
+      },
+      {
+        "steps": [
+          {
+            "count": 7,
+            "direction": "down"
+          }
+        ],
+        "x": 4,
+        "y": 6
+      },
+      {
+        "steps": [
+          {
+            "count": 8,
+            "direction": "right"
+          }
+        ],
+        "x": 5,
+        "y": 13
+      },
+      {
+        "steps": [
+          {
+            "count": 9,
+            "direction": "right"
+          }
+        ],
+        "x": 4,
+        "y": 14
+      },
+      {
+        "steps": [
+          {
+            "count": 8,
+            "direction": "up"
+          }
+        ],
+        "x": 0,
+        "y": 15
+      },
+      {
+        "steps": [
+          {
+            "count": 6,
+            "direction": "up"
+          }
+        ],
+        "x": 1,
+        "y": 15
+      },
+      {
+        "steps": [
+          {
+            "count": 6,
+            "direction": "left"
+          }
+        ],
+        "x": 13,
+        "y": 16
+      },
+      {
+        "steps": [
+          {
+            "count": 12,
+            "direction": "left"
+          }
+        ],
+        "x": 13,
+        "y": 17
+      }
+    ],
+    "door": {
+      "x": 32,
+      "y": 7
+    },
+    "earth_bit": 7,
+    "leader": {
+      "after": [
+        "_ViridianGymGiovanniPostBattleAdviceText"
+      ],
+      "badge": "BADGE_EARTH",
+      "before": [
+        "_ViridianGymGiovanniPreBattleText"
+      ],
+      "class_source": "OPP_GIOVANNI",
+      "id": "pokered:VIRIDIAN_GYM:objects:1",
+      "item": "tm27",
+      "map_id": "pokered:VIRIDIAN_GYM",
+      "name": "GIOVANNI",
+      "party": [
+        {
+          "level": 45,
+          "species": "rhyhorn"
+        },
+        {
+          "level": 42,
+          "species": "dugtrio"
+        },
+        {
+          "level": 44,
+          "species": "nidoqueen"
+        },
+        {
+          "level": 45,
+          "species": "nidoking"
+        },
+        {
+          "level": 50,
+          "species": "rhydon"
+        }
+      ],
+      "payout": 4950,
+      "reward_before": [
+        "_ViridianGymGiovanniEarthBadgeInfoText"
+      ],
+      "reward_flag": "EVENT_GOT_TM27",
+      "reward_full": [
+        "_ViridianGymGiovanniTM27NoRoomText"
+      ],
+      "reward_success": [
+        "_ViridianGymGiovanniReceivedTM27Text",
+        "_ViridianGymGiovanniTM27ExplanationText"
+      ],
+      "roster": 3,
+      "sprite_source": "SPRITE_GIOVANNI",
+      "victory_flags": [
+        "EVENT_BEAT_VIRIDIAN_GYM_GIOVANNI",
+        "BADGE_EARTH",
+        "EVENT_2ND_ROUTE22_RIVAL_BATTLE",
+        "EVENT_ROUTE22_RIVAL_WANTS_BATTLE"
+      ],
+      "won": [
+        "_ViridianGymGiovanniReceivedEarthBadgeText"
+      ],
+      "x": 2,
+      "y": 1
+    },
+    "locked_text": "_ViridianCityGymLockedText",
+    "open_event": "EVENT_VIRIDIAN_GYM_OPEN",
+    "required_mask": 127,
+    "trainers": [
+      {
+        "after": [
+          "_ViridianGymCooltrainerM1AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymCooltrainerM1BattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_M",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_0",
+        "id": "pokered:VIRIDIAN_GYM:objects:2",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "COOLTRAINER\u2642",
+        "party": [
+          {
+            "level": 39,
+            "species": "sandslash"
+          },
+          {
+            "level": 39,
+            "species": "dugtrio"
+          }
+        ],
+        "payout": 1365,
+        "roster": 9,
+        "sight": 4,
+        "sprite_source": "SPRITE_COOLTRAINER_M",
+        "won": [
+          "_ViridianGymCooltrainerM1EndBattleText"
+        ],
+        "x": 12,
+        "y": 7
+      },
+      {
+        "after": [
+          "_ViridianGymHiker1AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymHiker1BattleText"
+        ],
+        "class_source": "OPP_BLACKBELT",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_1",
+        "id": "pokered:VIRIDIAN_GYM:objects:3",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "BLACKBELT",
+        "party": [
+          {
+            "level": 40,
+            "species": "machop"
+          },
+          {
+            "level": 40,
+            "species": "machoke"
+          }
+        ],
+        "payout": 1000,
+        "roster": 6,
+        "sight": 4,
+        "sprite_source": "SPRITE_HIKER",
+        "won": [
+          "_ViridianGymHiker1EndBattleText"
+        ],
+        "x": 11,
+        "y": 11
+      },
+      {
+        "after": [
+          "_ViridianGymRocker1AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymRocker1BattleText"
+        ],
+        "class_source": "OPP_TAMER",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_2",
+        "id": "pokered:VIRIDIAN_GYM:objects:4",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "TAMER",
+        "party": [
+          {
+            "level": 43,
+            "species": "rhyhorn"
+          }
+        ],
+        "payout": 1720,
+        "roster": 3,
+        "sight": 4,
+        "sprite_source": "SPRITE_ROCKER",
+        "won": [
+          "_ViridianGymRocker1EndBattleText"
+        ],
+        "x": 10,
+        "y": 7
+      },
+      {
+        "after": [
+          "_ViridianGymHiker2AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymHiker2BattleText"
+        ],
+        "class_source": "OPP_BLACKBELT",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_3",
+        "id": "pokered:VIRIDIAN_GYM:objects:5",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "BLACKBELT",
+        "party": [
+          {
+            "level": 43,
+            "species": "machoke"
+          }
+        ],
+        "payout": 1075,
+        "roster": 7,
+        "sight": 2,
+        "sprite_source": "SPRITE_HIKER",
+        "won": [
+          "_ViridianGymHiker2EndBattleText"
+        ],
+        "x": 3,
+        "y": 7
+      },
+      {
+        "after": [
+          "_ViridianGymCooltrainerM2AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymCooltrainerM2BattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_M",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_4",
+        "id": "pokered:VIRIDIAN_GYM:objects:6",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "COOLTRAINER\u2642",
+        "party": [
+          {
+            "level": 43,
+            "species": "rhyhorn"
+          }
+        ],
+        "payout": 1505,
+        "roster": 10,
+        "sight": 3,
+        "sprite_source": "SPRITE_COOLTRAINER_M",
+        "won": [
+          "_ViridianGymCooltrainerM2EndBattleText"
+        ],
+        "x": 13,
+        "y": 5
+      },
+      {
+        "after": [
+          "_ViridianGymHiker3AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymHiker3BattleText"
+        ],
+        "class_source": "OPP_BLACKBELT",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_5",
+        "id": "pokered:VIRIDIAN_GYM:objects:7",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "BLACKBELT",
+        "party": [
+          {
+            "level": 38,
+            "species": "machoke"
+          },
+          {
+            "level": 38,
+            "species": "machop"
+          },
+          {
+            "level": 38,
+            "species": "machoke"
+          }
+        ],
+        "payout": 950,
+        "roster": 8,
+        "sight": 4,
+        "sprite_source": "SPRITE_HIKER",
+        "won": [
+          "_ViridianGymHiker3EndBattleText"
+        ],
+        "x": 10,
+        "y": 1
+      },
+      {
+        "after": [
+          "_ViridianGymRocker2AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymRocker2BattleText"
+        ],
+        "class_source": "OPP_TAMER",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_6",
+        "id": "pokered:VIRIDIAN_GYM:objects:8",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "TAMER",
+        "party": [
+          {
+            "level": 39,
+            "species": "arbok"
+          },
+          {
+            "level": 39,
+            "species": "tauros"
+          }
+        ],
+        "payout": 1560,
+        "roster": 4,
+        "sight": 3,
+        "sprite_source": "SPRITE_ROCKER",
+        "won": [
+          "_ViridianGymRocker2EndBattleText"
+        ],
+        "x": 2,
+        "y": 16
+      },
+      {
+        "after": [
+          "_ViridianGymCooltrainerM3AfterBattleText"
+        ],
+        "before": [
+          "_ViridianGymCooltrainerM3BattleText"
+        ],
+        "class_source": "OPP_COOLTRAINER_M",
+        "flag": "EVENT_BEAT_VIRIDIAN_GYM_TRAINER_7",
+        "id": "pokered:VIRIDIAN_GYM:objects:9",
+        "map": "ViridianGym",
+        "map_id": "pokered:VIRIDIAN_GYM",
+        "name": "COOLTRAINER\u2642",
+        "party": [
+          {
+            "level": 39,
+            "species": "nidorino"
+          },
+          {
+            "level": 39,
+            "species": "nidoking"
+          }
+        ],
+        "payout": 1365,
+        "roster": 1,
+        "sight": 4,
+        "sprite_source": "SPRITE_COOLTRAINER_M",
+        "won": [
+          "_ViridianGymCooltrainerM3EndBattleText"
+        ],
+        "x": 6,
+        "y": 5
+      }
+    ],
+    "trigger": {
+      "x": 32,
+      "y": 8
+    }
+  }
+}

@@ -552,7 +552,8 @@ local function registerEvents(name, events, readOnly)
     for id, descriptor in pairs(events) do
         local stable = type(id) == "string" and (id:match("^pokered:[^:]+:objects:%d+$")
             or id:match("^pokered:[^:]+:background_events:%d+$")
-            or id:match("^pokered:[^:]+:hidden_events:%d+$"))
+            or id:match("^pokered:[^:]+:hidden_events:%d+$")
+            or id:match("^pokered:[^:]+:script:[%w%-]+$"))
         assert(stable
             and not eventExists(id) and type(descriptor) == "table" and descriptor.content == name,
             "unique stable source object descriptor required")

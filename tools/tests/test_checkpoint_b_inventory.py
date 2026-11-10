@@ -9,7 +9,7 @@ import unittest
 from tools.activate_checkpoint_a import production_exclusions
 from tools.activate_checkpoint_b import inventories, manifest
 from tools.activate_checkpoint_c import manifest as checkpoint_c, BASE as CURRENT_BASE
-from tools.activate_coast import manifest as current_manifest
+from tools.activate_endgame import ENDGAME, manifest as current_manifest
 from tools.generate_source_map_cache import build
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,7 +22,7 @@ class CheckpointBInventory(unittest.TestCase):
         checkpoint_b = manifest()
         self.assertEqual(active, current_manifest())
         prior = checkpoint_c()
-        self.assertEqual(len(active['maps']), 191)
+        self.assertEqual(len(active['maps']), 205)
         self.assertEqual(len(prior['maps']), 171)
         self.assertEqual(len(checkpoint_b['maps']), 149)
         self.assertEqual({name: active['maps'][name] for name in checkpoint_b['maps']}, checkpoint_b['maps'])
@@ -36,12 +36,13 @@ class CheckpointBInventory(unittest.TestCase):
             entry = active['maps'][name]
             raw = (ROOT / 'Source' / entry['path']).read_bytes()
             self.assertEqual(hashlib.sha256(raw).hexdigest(), entry['source_sha256'], name)
-            self.assertTrue(entry['path'].startswith('data/zCoast/'), name)
+            prefix = 'data/zEndgame/' if name in ENDGAME else 'data/zCoast/'
+            self.assertTrue(entry['path'].startswith(prefix), name)
         for name, entry in accepted['maps'].items():
             self.assertEqual(active['maps'][name], entry)
         self.assertNotIn('Route16FlyHouse', checkpoint_b['maps'])
         self.assertFalse(any(n.startswith(('Saffron', 'SilphCo', 'FightingDojo')) for n in checkpoint_b['maps']))
-        self.assertEqual(len(set(active['maps']) - set(checkpoint_b['maps'])), 42)
+        self.assertEqual(len(set(active['maps']) - set(checkpoint_b['maps'])), 56)
 
     def test_binary_cells_and_runtime_records_have_exact_release_inventory(self):
         names = set(current_manifest()['maps'])
@@ -74,7 +75,7 @@ class CheckpointBInventory(unittest.TestCase):
 
     def test_b_policy_keeps_a_policy_and_excludes_future_content(self):
         policy = json.loads((ROOT / 'tools/integration/checkpoint-b/production-exclusions.json').read_bytes())
-        current_policy = json.loads((ROOT / 'tools/integration/coast/production-exclusions.json').read_bytes())
+        current_policy = json.loads((ROOT / 'tools/integration/endgame/production-exclusions.json').read_bytes())
         self.assertEqual(production_exclusions(ROOT), current_policy['exclude'])
         self.assertIn('data/midgameSaffron/', policy['exclude'])
         self.assertIn('data/midgameSouth/Route16FlyHouse.json', policy['exclude'])

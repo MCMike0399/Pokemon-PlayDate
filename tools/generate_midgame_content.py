@@ -258,7 +258,7 @@ def proposal(artifacts, packet, base=None):
             **{'proposed-' + name: canonical(json.loads(data)) for name, data in cache.items()}}
 
 
-def build(reference_root, packet, pins=None, manifest=None):
+def build(reference_root, packet, pins=None, manifest=None, ingress_map=None):
     names = PACKETS[packet]
     if pins is None:
         pin = json.loads(pin_path(packet).read_bytes())
@@ -365,6 +365,12 @@ def build(reference_root, packet, pins=None, manifest=None):
                 ingress = [(outer, w) for outer, outside in definitions.items()
                            for w in outside['events']['warps']
                            if w['destination'].get('map') == d['source_map_constant']]
+                chosen = (ingress_map or {}).get(name)
+                if chosen:
+                    # A league lobby is entered from the plateau and from the
+                    # first Elite Four room. The nurse checkpoint is the outside
+                    # door. Two adjacent plateau doors are the same return map.
+                    ingress = [row for row in ingress if row[0] == chosen][:1]
                 if len(ingress) != 1:
                     raise ValueError('ambiguous source Center ingress: ' + name)
                 outer, warp = ingress[0]

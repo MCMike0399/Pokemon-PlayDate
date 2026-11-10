@@ -36,10 +36,15 @@ class InventoryTests(unittest.TestCase):
             # Fuchsia south connection. Scripted warps stay the Silph set.
             191: dict(warps=709, connections=73, boundary_cells=2262, last_map=206,
                       scripted=28, surface_blocked=11),
+            # Counted from the installed league packet. The Viridian Gym door
+            # and the Route 22 gate are no longer unresolved, and Route 23
+            # adds its source connections.
+            205: dict(warps=759, connections=76, boundary_cells=2322, last_map=214,
+                      scripted=28, surface_blocked=9),
         }[len(cls.manifest)]
 
     def test_every_pinned_map_and_warp_exactly_once(self):
-        self.assertIn(len(self.manifest), (108, 149, 171, 191))
+        self.assertIn(len(self.manifest), (108, 149, 171, 191, 205))
         expected = {}
         for name, entry in self.manifest.items():
             raw = json.loads((self.source / entry['path']).read_text())

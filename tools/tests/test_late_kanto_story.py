@@ -75,7 +75,8 @@ class LateKantoSourceTests(unittest.TestCase):
             'map_constant': 'CINNABAR_ISLAND',
         })
         for name in (scientist['map'], revival['still_reviving_cleared_on_map_load']['map']):
-            self.assertIn(name, self.scenes['missing_maps'])
+            self.assertNotIn(name, self.scenes['missing_maps'])
+        self.assertEqual(self.scenes['missing_maps'], ['PowerPlant', 'CeruleanCaveB1F'])
 
     def test_route23_checks_and_league_order_follow_the_source_warps(self):
         self.assertEqual(self.scenes['route23_badge_checks'], [

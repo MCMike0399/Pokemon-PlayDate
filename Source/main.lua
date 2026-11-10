@@ -185,6 +185,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/silphStoryWorld"
     import "game/silphStoryController"
     import "game/saffronGuards"
+    import "game/endgameStory"
     import "game/midgameGymStoryController"
     import "game/midgameGymStory"
     import "game/midgameStoryWarps"
@@ -278,6 +279,7 @@ local bootAccepted, bootProblem = pcall(function()
             BootTrace.mark("Daycare.install.end")
             -- NPC trades remain parked.
             SaffronGuards.install()
+            EndgameStory.install()
             BootTrace.mark("HideoutTowerContent.install.begin")
             HideoutTowerContent.install()
             CopycatService.install()

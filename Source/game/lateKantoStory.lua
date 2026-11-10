@@ -1,6 +1,7 @@
--- Source plan for late Kanto, the League and the original postgame.
--- The maps are not installed. This module only reads the pinned plan.
--- It does not register world hooks, write quest flags, or place Mew.
+-- Source plan for late Kanto and the original postgame.
+-- The league maps are installed by the endgame packet. This module only
+-- reads the pinned plan. It does not register world hooks, write quest
+-- flags, or place Mew. PowerPlant and CeruleanCaveB1F stay uninstalled.
 LateKantoStory = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local cached

@@ -62,6 +62,18 @@ def production_exclusions(project):
             raise ValueError('unsupported production map inventory; explicit release policy required')
         expected = dict(previous['maps'], **additions, **coast)
         policy = ROOT / 'tools/integration/coast/production-exclusions.json'
+    elif len(names) == 205:
+        from tools.activate_endgame import ENDGAME
+        from tools.activate_coast import COAST
+        from tools.activate_checkpoint_c import inventories as c_inventories
+        previous, additions = c_inventories(project)
+        coast = json.loads((project / 'Source/data/zCoast/manifest-entries.json').read_bytes())['maps']
+        league = json.loads((project / 'Source/data/zEndgame/manifest-entries.json').read_bytes())['maps']
+        if (names != set(previous['maps']) | set(additions) | set(COAST) | set(ENDGAME)
+                or set(coast) != set(COAST) or set(league) != set(ENDGAME)):
+            raise ValueError('unsupported production map inventory; explicit release policy required')
+        expected = dict(previous['maps'], **additions, **coast, **league)
+        policy = ROOT / 'tools/integration/endgame/production-exclusions.json'
     else:
         raise ValueError('unsupported production map inventory; explicit release policy required')
     for name, entry in expected.items():

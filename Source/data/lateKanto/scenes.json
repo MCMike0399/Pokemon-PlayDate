@@ -75,22 +75,8 @@
       ]
     },
     "missing_maps": [
-      "SeafoamIslandsB4F",
-      "PokemonMansionB1F",
-      "CinnabarGym",
       "PowerPlant",
-      "ViridianGym",
-      "VictoryRoad2F",
-      "CeruleanCaveB1F",
-      "IndigoPlateauLobby",
-      "LoreleisRoom",
-      "BrunosRoom",
-      "AgathasRoom",
-      "LancesRoom",
-      "ChampionsRoom",
-      "HallOfFame",
-      "CinnabarLabFossilRoom",
-      "CinnabarIsland"
+      "CeruleanCaveB1F"
     ],
     "route23_badge_checks": [
       "EARTHBADGE",
