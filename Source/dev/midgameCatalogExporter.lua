@@ -34,7 +34,9 @@ function MidgameCatalogExporter.maps()
     return result
 end
 
-function MidgameCatalogExporter.actors()
+local preparedActors
+
+local function collectActors()
     local result = {}
     local previous = {}
     for _, package in ipairs({{root="sourceSlice", owner="cerulean"}, {root="vermilionPreparation", owner="vermilion"}}) do
@@ -46,20 +48,54 @@ function MidgameCatalogExporter.actors()
             end
         end
     end
+    local stripsByPackage = {}
+    for _, package in ipairs(packages) do
+        stripsByPackage[package] = SourceMaps.record("data/" .. package .. "/sprites.json").sprites
+    end
+    local resolved = {}
     -- Include only actors actually used by the active new maps.
+    -- The same 12 MiB startup collection as GameBootstrap.checkpoint, without
+    -- copying a definition per object. One yield check per map is enough.
+    if collectgarbage("count") >= 12 * 1024 then
+        collectgarbage("collect")
+    end
     for _, name in ipairs(MidgameCatalogExporter.maps()) do
         local package <const> = packageFor(name)
-        local strips <const> = SourceMaps.record("data/" .. package .. "/sprites.json").sprites
-        for _, event in ipairs(SourceMaps.definition(name).events.objects) do
-            local source <const> = event.sprite
+        local strips <const> = stripsByPackage[package]
+        -- Read sprite ids from the decoded map and drop it. SourceMaps.definition
+        -- copies grids, collision, and tile rows, and those copies held the
+        -- title on "Preparing adventure...".
+        local decoded <const> = SourceMaps.record(SourceMaps.entry(name).path)
+        local objects <const> = type(decoded.events) == "table" and decoded.events.objects or nil
+        assert(type(objects) == "table", "source map objects missing")
+        local sprites = {}
+        for index, event in ipairs(objects) do
+            sprites[index] = event.sprite
+        end
+        for _, source in ipairs(sprites) do
             local strip <const> = assert(strips[source], "active map source strip missing")
-            assert(CatalogRuntime.same(CeruleanContent.sprite(source), strip), "production source resolver differs")
+            local production = resolved[source]
+            if production == nil then
+                production = CeruleanContent.sprite(source)
+                resolved[source] = production
+            end
+            assert(CatalogRuntime.same(production, strip), "production source resolver differs")
             local old <const> = previous[source] or result[source]
             assert(not old or CatalogRuntime.same(old.strip, strip), "conflicting midgame strip")
             result[source] = {owner=old and old.owner or "midgame", strip=strip}
         end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
     return result
+end
+
+function MidgameCatalogExporter.actors()
+    if preparedActors then
+        return preparedActors
+    end
+    return collectActors()
 end
 
 function MidgameCatalogExporter.tiles()
@@ -222,12 +258,13 @@ function MidgameCatalogExporter.register()
     for _, name in ipairs(MidgameCatalogExporter.maps()) do
         maps[SourceMaps.entry(name).id] = true
     end
-    for source, entry in pairs(MidgameCatalogExporter.actors()) do
+    preparedActors = collectActors()
+    for source, entry in pairs(preparedActors) do
         if entry.owner == "midgame" then
             npcs[CeruleanContent.key(source)] = true
         end
     end
-    local exporter = VisualCatalog.registerExporter("midgame", {
+    local ok, exporter = pcall(VisualCatalog.registerExporter, "midgame", {
         inventory=MidgameCatalogExporter.inventory,
         writer=MidgameCatalogExporter.writer,
         ownsZone=function(zone)
@@ -240,6 +277,10 @@ function MidgameCatalogExporter.register()
             return npcs[key] == true
         end,
     })
+    preparedActors = nil
+    if not ok then
+        error(exporter, 0)
+    end
     if BootTrace then BootTrace.mark("MidgameCatalogExporter.register.end") end
     return exporter
 end

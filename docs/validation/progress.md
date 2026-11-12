@@ -1,5 +1,17 @@
 # Full-game execution ledger
 
+## 2026-11-12 The title menu was waiting on midgame map copies
+
+The 20261112T104318Z clip stayed on the logo, Blue Version, Squirtle, and "Preparing adventure...". `initialize.ready` for session `c289f88170bf42e0a58bdb0ae89c9e4b` was 22758 ms, after that fixed 22 s grab. The heartbeat was quiescent at 22861 ms. Init had not hung. `title.visible` was 972 ms. `MidgameCatalogExporter.register` ran from 1802 ms to 21514 ms. That build id starts at `e6d4105b`, and `e6d4105b` still calls `SourceMaps.definition` for every midgame map. The copy includes grids and collision. The 093817Z boot on `93d58071` had the same stall: register 1979–20264 ms, ready 21479 ms. Its 22 s clip ended on the menu only because ready landed inside the window.
+
+Registration now reads each map's object sprite ids from the decoded record and drops that record. It does not copy the definition. `MallocPoolSize` stays `16645684`. The 14000 KiB boot budget is unchanged. The LCD capture waits for `initialize.ready` and fails if the mark is absent after 90 s.
+
+Session `9f0192b5c3e74f689da7c516fc50c94c` reached `title.visible` at 1032 ms and `initialize.ready` at 5482 ms. `MidgameCatalogExporter.register` was 1854–4171 ms. Sampled peak 13312.873 KiB. `tools/measure_boot_budget.py` passed. The heartbeat was quiescent at 5617 ms. The LCD clip is `/opt/cursor/artifacts/hourly/20261112T112118Z-boot-to-title.mp4`, 8.1 seconds, 400×240, sha256 `3fb739c0c325a782712005e873a9a9c7084ea88c3005fac940a2f6dd22422f4d`. It starts on the loading screen and ends on NEW GAME / OPTIONS. No Simulator chrome.
+
+The coverage snapshot is `e1553b69c3126b4ecc6bf0b7a7ea8837f4cee86691829643277b7f588f2f72a7`. The previous snapshot is nested. No row was relabeled.
+
+`python3 -m unittest discover -s tools/tests` ran 1296 tests: OK, 11 skipped.
+
 ## 2026-11-12 Declining a move after Articuno does not reopen it
 
 Lane B's note was a hunch: after beating Articuno (level 50, Seafoam Islands B4F), declining the move-learn prompt seemed to reopen it, and the win never saved. Pokered `engine/pokemon/learn_move.asm` returns to AbandonLearning when the player says NO to `_TryingToLearnText`. YES on `_AbandonLearningText` ("Abandon learning" plus the move name and "?") prints `_DidNotLearnText` and ends that move.
