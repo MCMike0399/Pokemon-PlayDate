@@ -582,6 +582,13 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("the S.S. Anne did not leave")
             self.save()
         if not self.flag("BADGE_THUNDER"):
+            # The staged city grid leaves the tree walkable. The game blocks it.
+            # Mark the Cut target solid so the walk stops beside the tree.
+            site = self.vermilion["cut_sites"][0]
+            model = self.models[self.zone("VermilionCity")]
+            for target in site["targets"]:
+                cell = (target["x"] + model.padding, target["y"])
+                model.collision[cell[1]][cell[0]] = 1
             cutter = next(i for i, mon in enumerate(self.party(), 1) if "cut" in mon["moves"])
             self.field_cut(cutter)
             for trainer_index in (4, 3, 2):
