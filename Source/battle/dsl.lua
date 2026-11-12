@@ -564,7 +564,8 @@ function SecondaryEffect:apply(battle, receipt)
 end
 Class("WeatherEffect")
 function WeatherEffect:init(id)
-    assert(id=="raindance" or id=="sandstorm","unsupported-weather")
+    -- Same Gen V fields setWeather produces. Snow is not one of them.
+    assert(id=="raindance" or id=="sandstorm" or id=="sunnyday" or id=="hail","unsupported-weather")
     self.id=id
 end
 function WeatherEffect:apply(battle) return battle.effects:setWeather(self.id) end

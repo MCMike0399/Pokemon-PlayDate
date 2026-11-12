@@ -281,6 +281,23 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
                     "shared Silph callback tile differs: " + key)
             atlas["tiles"][key] = tile
             compact["tiles"][key] = {field: value for field, value in tile.items() if field != "grid"}
+    # Agatha's closed door is cemetery block $3b. It is not placed on the
+    # decoded map, so the map grids never emit it. The endgame visual file
+    # keeps that one composed cell. It belongs in the tile atlas for drawing
+    # and stays out of compact membership, which is the placed-map catalogue.
+    visual_path = source_root / "data/endgame/visual.json"
+    if visual_path.is_file():
+        visual = json.loads(visual_path.read_bytes())
+        missing = visual.get("missing_tiles") or {}
+        require(isinstance(missing, dict), "endgame missing tiles are not an object")
+        for key, record in missing.items():
+            require(isinstance(record, dict) and record.get("key") == key, "missing tile identity differs")
+            terrain = record["terrain"]
+            tile = {"key": key, "grid": record["grid"], "terrain": terrain,
+                    "collision": int(not terrain["land_passable"])}
+            require(record["collision"] == tile["collision"], "missing tile collision differs from terrain")
+            require(key not in atlas["tiles"], "missing tile is already in a decoded map: " + key)
+            atlas["tiles"][key] = tile
     # LAST_MAP is stateful in the source. Infer its ordinary unique outdoor
     # ingress. OVERWORLD and PLATEAU are the outdoor tilesets; an ambiguous
     # context requires an explicit manifest override, never a regional Lua
