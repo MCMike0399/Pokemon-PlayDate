@@ -1463,17 +1463,20 @@ class CharmanderRun(BrockJourney):
         from tools.harness.brock_journey import NaturalBlackout
         from tools.harness.cerulean_journey import CeruleanJourney
         trainer_id = lookup(self.state, "event.id")
-        label = key_fight(name, trainer_id)
+        # A finished trainer leaves event.id set. The next wild fight must not
+        # be checked against that leftover id.
+        trainer_battle = bool(lookup(self.state, "battle.trainerName"))
+        label = key_fight(name, trainer_id if trainer_battle else None)
         recorder = getattr(self, "record_fight", None)
         started = recorder(label) if recorder and label else None
         try:
             try:
                 result = super().battle(name, strategy, expected)
             except NaturalBlackout:
-                if getattr(self, "stage", None) == "cerulean":
+                if getattr(self, "stage", None) == "cerulean" and trainer_battle:
                     CeruleanJourney.record_source_outcome(self, trainer_id)
                 raise
-            if getattr(self, "stage", None) == "cerulean":
+            if getattr(self, "stage", None) == "cerulean" and trainer_battle:
                 CeruleanJourney.record_source_outcome(self, trainer_id)
             return result
         finally:
