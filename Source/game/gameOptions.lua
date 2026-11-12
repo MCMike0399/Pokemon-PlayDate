@@ -9,6 +9,18 @@ local allowed <const> = {
 }
 local defaults <const> = {textSpeed = "FAST", battleAnimations = "ON", battleStyle = "SHIFT", crankScrolling = "OFF"}
 
+-- main_menu.asm TextSpeedOptionText, BattleAnimationOptionText,
+-- BattleStyleOptionText, OptionMenuCancelText. CRANK SCROLL is the
+-- approved Playdate row and is not in pokered. Text speed stays FAST
+-- by the approved options decision; pokered InitOptions uses MEDIUM.
+GameOptions.rows = {
+    {key = "textSpeed", label = "TEXT SPEED", choices = {"FAST", "MEDIUM", "SLOW"}},
+    {key = "battleAnimations", label = "BATTLE ANIMATION", choices = {"ON", "OFF"}},
+    {key = "battleStyle", label = "BATTLE STYLE", choices = {"SHIFT", "SET"}},
+    {key = "crankScrolling", label = "CRANK SCROLL", choices = {"OFF", "ON"}},
+}
+GameOptions.cancelLabel = "CANCEL"
+
 local function registeredKey(id)
     if id == "none" then
         return true

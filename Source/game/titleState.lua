@@ -1,44 +1,7 @@
 import "game/optionsState"
+import "game/namingState"
+import "game/introMovie"
 local gfx <const> = playdate.graphics
--- gfx/sprites/poke_ball.png via Source/data/pewterSlice/sprites.json.
--- Drawn with the same Shade patterns as imported terrain.
-local BALL_ROWS <const> = {
-    "................",
-    "................",
-    "......####......",
-    "....##2222##....",
-    "...#22211222#...",
-    "...#22211222#...",
-    "..#2222222222#..",
-    "..#2222222222#..",
-    "..#1122222211#..",
-    "..#1111111111#..",
-    "...#11111111#...",
-    "...#11111111#...",
-    "....##1111##....",
-    "......####......",
-    "................",
-    "................",
-}
-
-local function ballImage()
-    local image = gfx.image.new(32, 32, gfx.kColorWhite)
-    gfx.pushContext(image)
-    for y, row in ipairs(BALL_ROWS) do
-        for x = 1, 16 do
-            local shade = row:sub(x, x)
-            if shade ~= "." then
-                if shade == "#" then gfx.setColor(gfx.kColorBlack)
-                elseif shade == "1" then gfx.setPattern(Shade.LIGHT, 0, 0)
-                else gfx.setPattern(Shade.DARK, 0, 0) end
-                gfx.fillRect((x - 1) * 2, (y - 1) * 2, 2, 2)
-            end
-        end
-    end
-    Shade.reset()
-    gfx.popContext()
-    return image
-end
 
 Class("TitleState"):extends(State)
 
@@ -48,9 +11,24 @@ function TitleState:init(game)
     self.menu = BattleMenu()
     self.logo = assert(gfx.image.new("images/title/logo"))
     self.versionArt = assert(gfx.image.new("images/title/blue"))
-    self.ballImage = ballImage()
+    self.playerSheet = assert(gfx.image.new("images/title/player"))
+    self.ballTile = self:cutBallTile()
     self.idleArt = {}
     self.idle = TitleIdle.start()
+    self.introDone = false
+    if game.machine and not game.machine:get("naming") and NamingState then
+        game.machine:register("naming", NamingState(game))
+    end
+end
+
+function TitleState:cutBallTile()
+    local col, row = TitleIdle.ballTile()
+    local tile = TitleIdle.TILE
+    local image = gfx.image.new(tile, tile, gfx.kColorWhite)
+    gfx.pushContext(image)
+    self.playerSheet:draw(-col * tile, -row * tile)
+    gfx.popContext()
+    return image
 end
 
 function TitleState:enter(options)
@@ -60,15 +38,34 @@ function TitleState:enter(options)
     gfx.sprite.removeAll()
     self.game.camera:reset()
     self.epoch = (self.epoch or 0) + 1
-    self.phase, self.message = "preparing", nil
+    self.message = nil
     self.idle = TitleIdle.start()
     self.menu:hide()
-    if not (options and options.preparing) then self:finishStartup() end
+    self.menuDelay = 0
+    self.afterRefresh = nil
+    self.startupReady = not (options and options.preparing)
+    if not self.introDone then
+        self.intro = IntroMovie.start()
+        self.phase = "intro"
+        IntroMovie.sound("intro")
+    else
+        self.phase = "preparing"
+        if self.startupReady then self:finishStartup() end
+    end
 end
 
 function TitleState:finishStartup()
+    self.startupReady = true
     if self.phase ~= "preparing" or not self:isTop() then return end
     self:refresh()
+end
+
+function TitleState:showTitle()
+    self.phase = "title"
+    self.menu:hide()
+    self.menuDelay = 0
+    -- engine/movie/title.asm plays MUSIC_TITLE_SCREEN after the version scroll.
+    TitleIdle.playMusic()
 end
 
 function TitleState:refresh()
@@ -98,36 +95,77 @@ function TitleState:refresh()
         end
         if epoch ~= self.epoch or not self:isTop() then return end
         self.candidate, self.metadata = candidate, metadata
-        self.phase = "menu"
-        self:showChoices(epoch)
+        if self.afterRefresh == "menu" then
+            self.afterRefresh = nil
+            self:openMainMenu()
+        else
+            self:showTitle()
+        end
     end, function()
         self:draw()
         return true
     end)
 end
 
-function TitleState:showChoices(epoch)
-    local options, actions = {}, {}
+function TitleState:openMainMenu()
+    local epoch = self.epoch
+    local labels, actions = {}, {}
     local function add(text, action)
-        options[#options + 1], actions[#actions + 1] = text, action
+        labels[#labels + 1], actions[#actions + 1] = text, action
     end
-    if self.candidate then add("CONTINUE", "continue") end
-    if self.metadata.reason == "recoverable-candidate" then
+    -- main_menu.asm ContinueText / NewGameText. Recovery rows are the
+    -- Playdate save store; they follow OPTION so the source rows stay first.
+    local source = TitleIdle.mainMenu(self.candidate ~= nil)
+    for _, text in ipairs(source) do
+        local action = text == "CONTINUE" and "continue" or text == "NEW GAME" and "new" or "options"
+        add(text, action)
+    end
+    if self.metadata and self.metadata.reason == "recoverable-candidate" then
         add("RECOVER SAVE", "candidate")
-    elseif self.candidate and (self.metadata.hasCorruption or self.metadata.pendingCandidate) then
+    elseif self.candidate and self.metadata and (self.metadata.hasCorruption or self.metadata.pendingCandidate) then
         add("REPAIR SAVE", "published")
     end
-    if self.metadata.proposalAvailable then add("RECOVER NEW SAVE", "proposal") end
-    if self.metadata.backupPublished then add("RESTORE BACKUP", "backup-published") end
-    if self.metadata.backupCandidate then add("RESTORE CANDIDATE", "backup-candidate") end
-    add("NEW GAME", "new")
-    add("OPTIONS", "options")
+    if self.metadata and self.metadata.proposalAvailable then add("RECOVER NEW SAVE", "proposal") end
+    if self.metadata and self.metadata.backupPublished then add("RESTORE BACKUP", "backup-published") end
+    if self.metadata and self.metadata.backupCandidate then add("RESTORE CANDIDATE", "backup-candidate") end
     self.actions = actions
-    self.menu:show(options, function(index)
-        if self.epoch == epoch and self:isTop() and self.phase == "menu" then
+    self.phase = "menu"
+    self.menuDelay = TitleIdle.MENU_DELAY
+    self.menu:show(labels, function(index)
+        if self.epoch == epoch and self:isTop() and self.phase == "menu" and self.menuDelay == 0 then
             self:choose(actions[index])
         end
+    end, function()
+        if self.epoch == epoch and self:isTop() and self.phase == "menu" and self.menuDelay == 0 then
+            self:showTitle()
+        end
     end)
+end
+
+function TitleState:continueInfo(session)
+    local title = session.title and session:title() or {}
+    local flags = {}
+    if session.questFlag then
+        for _, id in ipairs(TitleIdle.BADGE_FLAGS) do
+            flags[id] = session:questFlag(id) == true
+        end
+    end
+    local owned = 0
+    if session.pokedex then
+        local dex = session:pokedex()
+        for _, value in pairs(dex.owned or {}) do
+            if value then owned = owned + 1 end
+        end
+    end
+    local clock = session.playTime and session:playTime() or {hours = 0, minutes = 0}
+    local name = title.playerName
+    if type(name) ~= "string" or name == "" then name = Story.playerName(self.game) end
+    return {
+        {label = "PLAYER", value = name},
+        {label = "BADGES", value = string.format("%2d", TitleIdle.countFlags(flags))},
+        {label = "POKéDEX", value = string.format("%3d", owned)},
+        {label = "TIME", value = TitleIdle.playTimeText(clock.hours, clock.minutes)},
+    }
 end
 
 function TitleState:choose(action)
@@ -139,38 +177,45 @@ function TitleState:choose(action)
     if action == "options" then
         self.machine:push("options")
     elseif action == "continue" then
-        local saves = self.game.saves
-        local continueGame = saves.continuePreparedTitle or saves.continueGame
-        local ok = continueGame(saves)
-        if not ok then self:showMessage("The save could not be opened.") end
+        self.phase = "continue-info"
+        self.menuDelay = TitleIdle.CONTINUE_DELAY
+        self.info = self:continueInfo(self.candidate)
     elseif action == "new" then
         self.phase = "confirm-new"
         self.menu:show({"NO", "YES"}, function(index)
             if not current("confirm-new") then return end
-            if index == 1 then self.phase = "menu"; self:refresh(); return end
+            if index == 1 then self.afterRefresh = "menu"; self:refresh(); return end
             local ok = self.game.saves:beginNewGame(RulesRNG.snapshot().seed)
-            if ok then self.game.machine:push("dialog", Story.openingLines)
+            if ok then Story.beginOakSpeech(self.game)
             else self:showMessage("The new adventure could not be started.") end
         end, function()
-            if current("confirm-new") then self:refresh() end
+            if current("confirm-new") then self.afterRefresh = "menu"; self:refresh() end
         end)
     else
         self.phase = "confirm-recovery"
         self.menu:show({"NO", "YES"}, function(index)
             if not current("confirm-recovery") then return end
-            if index == 1 then self.phase = "menu"; self:refresh(); return end
+            if index == 1 then self.afterRefresh = "menu"; self:refresh(); return end
             local ok = self.game.saves:recover(action)
             self:showMessage(ok and "Your save has been recovered." or "The save could not be recovered.")
         end, function()
-            if current("confirm-recovery") then self:refresh() end
+            if current("confirm-recovery") then self.afterRefresh = "menu"; self:refresh() end
         end)
     end
+end
+
+function TitleState:confirmContinue()
+    local saves = self.game.saves
+    local continueGame = saves.continuePreparedTitle or saves.continueGame
+    local ok = continueGame(saves)
+    if not ok then self:showMessage("The save could not be opened.") end
 end
 
 function TitleState:showMessage(message)
     if not self:isTop() then return end
     self.phase, self.message = "message", message
     self.menu:hide()
+    self.afterRefresh = "menu"
 end
 
 function TitleState:exit()
@@ -195,17 +240,53 @@ function TitleState:monImage()
     return image
 end
 
+function TitleState:frontImage(species)
+    self.frontArt = self.frontArt or {}
+    local image = self.frontArt[species]
+    if image == nil then
+        local ok, loaded = pcall(gfx.image.new, PokemonArt.path(species, "front"))
+        image = ok and loaded or false
+        self.frontArt[species] = image
+    end
+    if image then return image end
+end
+
 function TitleState:update()
-    if self.phase == "menu" and self:isTop() then
+    if not self:isTop() then return end
+    if self.phase == "intro" then
+        local pressed = playdate.buttonJustPressed(playdate.kButtonA) or false
+        IntroMovie.advance(self.intro, pressed)
+        if self.intro.done then
+            self.introDone = true
+            self.phase = "preparing"
+            if self.startupReady then self:refresh() end
+        end
+        return
+    end
+    if self.phase == "title" then
         TitleIdle.advance(self.idle, function(count) return math.random(count) end)
+    elseif (self.phase == "menu" or self.phase == "continue-info") and self.menuDelay > 0 then
+        self.menuDelay = self.menuDelay - 1
     end
 end
 
 function TitleState:handleInput()
-    if self.phase == "preparing" or self.phase == "closed" then return end
-    if self.phase == "message" then
+    if self.phase == "preparing" or self.phase == "closed" or self.phase == "intro" then return end
+    if self.menuDelay > 0 then return end
+    if self.phase == "title" then
+        -- CheckForUserInterruption accepts A or Start. Playdate uses A.
+        if playdate.buttonJustPressed(playdate.kButtonA) then
+            self:openMainMenu()
+        end
+    elseif self.phase == "continue-info" then
+        if playdate.buttonJustPressed(playdate.kButtonA) then
+            self:confirmContinue()
+        elseif playdate.buttonJustPressed(playdate.kButtonB) then
+            self:openMainMenu()
+        end
+    elseif self.phase == "message" then
         if playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonJustPressed(playdate.kButtonB) then
-            self.phase, self.message = "menu", nil
+            self.phase, self.message = "preparing", nil
             self:refresh()
         end
     else
@@ -213,52 +294,91 @@ function TitleState:handleInput()
     end
 end
 
+function TitleState:drawTitleArt()
+    local layout = TitleIdle.LAYOUT
+    self.logo:drawScaled(layout.logo.x, layout.logo.y, layout.logo.scale)
+    self.versionArt:drawScaled(layout.version.x, layout.version.y, layout.version.scale)
+    local mon = self:monImage()
+    local clip = layout.monClip
+    gfx.setClipRect(clip.x, clip.y, clip.w, clip.h)
+    mon:drawScaled(layout.mon.x + self.idle.offset * 4, layout.mon.y, layout.mon.scale)
+    gfx.clearClipRect()
+    self:drawPlayer()
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawText(TitleIdle.COPYRIGHT, layout.copyright.x, layout.copyright.y)
+end
+
+function TitleState:drawPlayer()
+    local layout = TitleIdle.LAYOUT.player
+    local scale = layout.scale
+    local px, py = layout.x, layout.y
+    self.playerSheet:drawScaled(px, py, scale)
+    local col, row = TitleIdle.ballTile()
+    local tile = TitleIdle.TILE * scale
+    local cellX = px + col * tile
+    local cellY = py + row * tile
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(cellX, cellY, tile, tile)
+    local packed = TitleIdle.PLAYER_OAM_Y + row * TitleIdle.TILE
+    local dy = (TitleIdle.ballOamY(self.idle) - packed) * scale
+    self.ballTile:drawScaled(cellX, cellY + dy, scale)
+end
+
+function TitleState:drawIntroMon(species, x, y)
+    local image = self:frontImage(species)
+    if image then image:drawScaled(x, y, 2) end
+end
+
 function TitleState:draw()
     self.game.camera:reset()
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
-    if self.phase == "menu" or self.phase == "preparing" then
-        local crowded = self.phase == "menu" and #self.actions > 3
-        local scale = crowded and 1 or 2
-        self.logo:drawScaled(16, 8, scale)
-        self.versionArt:drawScaled(crowded and 48 or 80, crowded and 66 or 120, scale)
-        local mon = self:monImage()
-        local w, _ = mon:getSize()
-        local homeX = 336 - w
-        local homeY = crowded and 40 or 20
-        -- Source scroll steps are Game Boy pixels. Four Playdate pixels per
-        -- step carries the scaled sprite fully through the right-hand slot.
-        -- The clip keeps that travel off the logo, the way the Game Boy
-        -- scroll only covers the mon's scanlines.
-        gfx.setClipRect(208, 0, 192, 142)
-        mon:drawScaled(homeX + self.idle.offset * 4, homeY, 2)
-        if self.idle.phase == "ball" and self.idle.ball > 0 then
-            local dy = (TitleIdle.BALL_Y[self.idle.ball] - TitleIdle.BALL_REST) * 2
-            self.ballImage:draw(homeX, homeY + dy)
+    if self.phase == "intro" then
+        IntroMovie.draw(self.intro, gfx)
+        local scene = self.intro and IntroMovie.SCENES[self.intro.index]
+        if scene and scene.cast then
+            if scene.cast == "nidorino" or scene.cast == "both" then
+                self:drawIntroMon("nidorino", 36, 64)
+            end
+            if scene.cast == "gengar" or scene.cast == "both" then
+                self:drawIntroMon("gengar", 210, 64)
+            end
         end
-        gfx.clearClipRect()
+        return
+    end
+    if self.phase == "title" or self.phase == "preparing" then
+        self:drawTitleArt()
         if self.phase == "preparing" then
-            gfx.drawText("Preparing adventure...", 24, 180)
-            return
+            gfx.setColor(gfx.kColorWhite)
+            gfx.fillRect(8, 200, 220, 28)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawText("Preparing adventure...", 16, 206)
         end
-        local menuY = crowded and 82 or 146
-        local menuHeight = math.min(150, 16 + #self.actions * 20)
-        self.menu:draw(16, menuY, 208, menuHeight)
-        if self.candidate then
-            gfx.drawText("PLAYER  RED", 240, 158)
-            gfx.drawText("POKEMON  " .. self.candidate:party():count(), 240, 180)
-            gfx.drawText("$" .. self.candidate:inventory():money(), 240, 202)
-        elseif self.metadata.reason ~= "empty" then
-            gfx.drawTextInRect("Your save needs attention. It has not been overwritten.", 240, 158, 150, 74)
-        end
-    elseif self.phase == "message" then
+        return
+    end
+    if self.phase == "message" then
         gfx.drawTextInRect(self.message .. "\n\nA: OK", 20, 60, 360, 160)
-    else
+        return
+    end
+    if self.phase == "confirm-new" or self.phase == "confirm-recovery" then
         local text = self.phase == "confirm-new"
             and "Start a new adventure?\nOn SAVE, old save files will be kept as a backup before replacement."
             or "Recover this save? Current save files will first be kept as a backup."
         gfx.drawTextInRect(text, 20, 40, 360, 96)
         self.menu:draw(200, 140, 180, 60)
+        return
+    end
+    self.menu:draw(8, 8, 220, 16 + #self.menu.options * 20)
+    if self.phase == "continue-info" and self.info then
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRect(8, 150, 384, 82)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawRect(8, 150, 384, 82)
+        for index, row in ipairs(self.info) do
+            gfx.drawText(row.label, 20, 156 + (index - 1) * 18)
+            gfx.drawText(row.value, 140, 156 + (index - 1) * 18)
+        end
+        gfx.drawText("A: Continue    B: Back", 240, 210)
     end
 end
 

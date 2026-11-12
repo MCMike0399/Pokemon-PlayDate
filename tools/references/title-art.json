@@ -25,6 +25,16 @@
       "scale": 1
     },
     {
+      "path": "gfx/title/player.png",
+      "sha256": "d8c5b2ded27a989786a20fa4e56b108cd466dde6b79c0f29798c3e9aa2d8b1ca",
+      "size": [
+        40,
+        56
+      ],
+      "output": "player.png",
+      "scale": 1
+    },
+    {
       "path": "gfx/trainers/youngster.png",
       "sha256": "fcd90393b16f207c94fd47b89f327f81f5836d5166ffa94767bf543eb7717ec9",
       "size": [

@@ -54,21 +54,124 @@ local BALLS <const> = {
 }
 
 -- ------------------------------------------------------------
--- Dialog content (lines kept short for the 2-line dialog box)
+-- Oak's speech. engine/movie/oak_speech/oak_speech.asm OakSpeech
+-- and data/text/text_2.asm _OakSpeechText1 through _OakSpeechText3.
+-- Names come from the session. The fallback matches the codec default.
 -- ------------------------------------------------------------
 
-Story.openingLines = {
-    "OAK: Hello there! Welcome to the world of POKEMON!",
-    "My name is OAK. People call me the POKEMON PROF.",
-    "This world is inhabited by creatures called POKEMON!",
-    "For some people, POKEMON are pets. Others use them for fights.",
-    "Myself... I study POKEMON as a profession.",
-    "Now, what is your name? ...Right! RED!",
-    "This is my grandson. He's been your rival since you were a baby.",
-    "...Erm, what is his name again? Oh, that's right -- BLUE!",
-    "RED! Your very own POKEMON legend is about to unfold!",
-    "A world of dreams and adventures awaits! Let's go!",
-}
+Story._names = setmetatable({}, {__mode = "k"})
+
+function Story.playerName(game)
+    local session = game and game.session
+    local bag = session and Story._names[session]
+    if bag and type(bag.player) == "string" and bag.player ~= "" then return bag.player end
+    if session and type(session.playerName) == "function" then
+        local ok, name = pcall(session.playerName, session)
+        if ok and type(name) == "string" and name ~= "" then return name end
+    end
+    if session and type(session.title) == "function" then
+        local ok, title = pcall(session.title, session)
+        if ok and type(title) == "table" and type(title.playerName) == "string" and title.playerName ~= "" then
+            return title.playerName
+        end
+    end
+    return "RED"
+end
+
+function Story.rivalName(game)
+    local session = game and game.session
+    local bag = session and Story._names[session]
+    if bag and type(bag.rival) == "string" and bag.rival ~= "" then return bag.rival end
+    if session and type(session.rivalName) == "function" then
+        local ok, name = pcall(session.rivalName, session)
+        if ok and type(name) == "string" and name ~= "" then return name end
+    end
+    if session and type(session.title) == "function" then
+        local ok, title = pcall(session.title, session)
+        if ok and type(title) == "table" and type(title.rivalName) == "string" and title.rivalName ~= "" then
+            return title.rivalName
+        end
+    end
+    return "BLUE"
+end
+
+function Story.remember(game, who, name)
+    if who ~= "player" and who ~= "rival" then return false end
+    if type(name) ~= "string" or name == "" then return false end
+    local session = game and game.session
+    if session then
+        local bag = Story._names[session]
+        if not bag then
+            bag = {}
+            Story._names[session] = bag
+        end
+        bag[who] = name
+        local setter = who == "player" and session.setPlayerName or session.setRivalName
+        if type(setter) == "function" then pcall(setter, session, name) end
+    end
+    return true
+end
+
+-- Pokemon codec accepts 1-10 printable ASCII. Longer or tile glyphs wait
+-- for the lane E name field. The naming screen still produces them.
+function Story.storeNickname(mon, name)
+    if not mon or type(name) ~= "string" or name == "" then return false end
+    if #name > 10 or name:find("[^ -~]") then return false end
+    mon.name = name
+    return true
+end
+
+function Story.oakSteps()
+    return {
+        {kind = "text", source = "OakSpeechText1", lines = {
+            "Hello there!",
+            "Welcome to the world of POKEMON!",
+            "My name is OAK! People call me the POKEMON PROF!",
+        }},
+        {kind = "text", source = "OakSpeechText2", cry = "nidorina", lines = {
+            "This world is inhabited by creatures called POKEMON!",
+            "For some people, POKEMON are pets. Others use them for fights.",
+            "Myself...",
+            "I study POKEMON as a profession.",
+        }},
+        {kind = "text", source = "IntroducePlayerText", lines = {
+            "First, what is your name?",
+        }},
+        {kind = "name", who = "player"},
+        {kind = "text", source = "YourNameIsText", lines = function(game)
+            return {"Right! So your name is " .. Story.playerName(game) .. "!"}
+        end},
+        {kind = "text", source = "IntroduceRivalText", lines = {
+            "This is my grandson. He's been your rival since you were a baby.",
+            "...Erm, what is his name again?",
+        }},
+        {kind = "name", who = "rival"},
+        {kind = "text", source = "HisNameIsText", lines = function(game)
+            return {"That's right! I remember now! His name is " .. Story.rivalName(game) .. "!"}
+        end},
+        {kind = "text", source = "OakSpeechText3", lines = function(game)
+            local player = Story.playerName(game)
+            return {
+                player .. "!",
+                "Your very own POKEMON legend is about to unfold!",
+                "A world of dreams and adventures with POKEMON awaits! Let's go!",
+            }
+        end},
+    }
+end
+
+function Story.refreshOpeningLines(game)
+    local lines = {}
+    for _, step in ipairs(Story.oakSteps()) do
+        if step.kind == "text" then
+            local chunk = step.lines
+            if type(chunk) == "function" then chunk = chunk(game) end
+            for _, line in ipairs(chunk) do lines[#lines + 1] = line end
+        end
+    end
+    Story.openingLines = lines
+    return lines
+end
 
 local OAK_STOP <const> = {
     "OAK: Hey! Wait! Don't go out!",
@@ -77,30 +180,36 @@ local OAK_STOP <const> = {
     "I know! Here, come with me!",
 }
 
-local LAB_GREET <const> = {
-    "BLUE: Gramps! I'm fed up with waiting!",
-    "OAK: BLUE? Let me think... Oh, that's right, I told you to come! Just wait!",
-    "Here, RED! There are 3 POKEMON here.",
-    "When I was young, I was a serious POKEMON trainer!",
-    "In my old age, I have only 3 left, but you can have one! Choose!",
-}
+function Story.labGreet(game)
+    local player = Story.playerName(game)
+    local rival = Story.rivalName(game)
+    return {
+        rival .. ": Gramps! I'm fed up with waiting!",
+        "OAK: " .. rival .. "? Let me think... Oh, that's right, I told you to come! Just wait!",
+        "Here, " .. player .. "! There are 3 POKEMON here.",
+        "When I was young, I was a serious POKEMON trainer!",
+        "In my old age, I have only 3 left, but you can have one! Choose!",
+    }
+end
 
-local RIVAL_CHALLENGE <const> = {
-    "BLUE: Wait, RED! Let's check out our POKEMON!",
-    "Come on, I'll take you on!",
-}
+function Story.rivalChallenge(game)
+    return {
+        Story.rivalName(game) .. ": Wait, " .. Story.playerName(game) .. "! Let's check out our POKEMON!",
+        "Come on, I'll take you on!",
+    }
+end
 
-local GOODBYE_WON <const> = {
-    "BLUE: WHAT? Unbelievable! I picked the wrong POKEMON!",
-    "Okay! I'll make my POKEMON fight to toughen it up!",
-    "RED! Gramps! Smell you later!",
-}
-
-local GOODBYE_LOST <const> = {
-    "BLUE: Yeah! Am I great or what?",
-    "Okay! I'll make my POKEMON fight to toughen it up!",
-    "RED! Gramps! Smell you later!",
-}
+function Story.goodbye(game, won)
+    local rival = Story.rivalName(game)
+    local player = Story.playerName(game)
+    local first = won and (rival .. ": WHAT? Unbelievable! I picked the wrong POKEMON!")
+        or (rival .. ": Yeah! Am I great or what?")
+    return {
+        first,
+        "Okay! I'll make my POKEMON fight to toughen it up!",
+        player .. "! Gramps! Smell you later!",
+    }
+end
 
 -- ------------------------------------------------------------
 -- Helpers
@@ -159,13 +268,13 @@ function Story.check(game, overworldState)
     -- Scene triggers: fire on BEING somewhere, not on a step
     if stage == "lab_greet" and currentZone == zoneRegistry.oaks_lab then
         update(game,{stage="choose"})
-        game.machine:push("dialog", LAB_GREET)
+        game.machine:push("dialog", Story.labGreet(game))
         return true
     end
 
     if stage == "goodbye" and currentZone == zoneRegistry.oaks_lab then
         update(game,{stage="done"})
-        local lines = Story.get(game).rivalOutcome and GOODBYE_WON or GOODBYE_LOST
+        local lines = Story.goodbye(game, Story.get(game).rivalOutcome)
         game.machine:push("dialog", lines, function()
             local blue = game.npcManager:findByName("BLUE")
             if blue then game.npcManager:removeNPC(blue) end
@@ -193,7 +302,7 @@ function Story.check(game, overworldState)
     if stage == "pre_rival" and currentZone == zoneRegistry.oaks_lab
        and player.gridY >= 8 then
         local session=game.session
-        game.machine:push("dialog", RIVAL_CHALLENGE, function()
+        game.machine:push("dialog", Story.rivalChallenge(game), function()
             if game.session~=session or not Specimen.isActiveSession(session) or not game.machine:is("overworld") or not session:party():firstUsable() then return false,"stale-rival-creation" end
             local blue = game.npcManager:findByName("BLUE")
             local enemy = starterPokemon(game, Story.get(game).rivalStarter, "trainer")
@@ -229,12 +338,79 @@ function Story.chooseStarter(game, species)
     assert(game.session:setIntro({stage="pre_rival",starter=species,rivalStarter=COUNTER[species]}))
     takeBall(species)
     takeBall(Story.get(game).rivalStarter)
+    local mon = game:getPlayerPokemon()
+    local speciesName = pokemonData[species].name
     game.machine:push("dialog", {
         "OAK: This POKEMON is really energetic!",
-        "RED received a " .. pokemonData[species].name .. "!",
-        "BLUE: I'll take this one, then!",
-        "BLUE received a " .. pokemonData[Story.get(game).rivalStarter].name .. "!",
+    }, function()
+        -- naming_screen.asm AskName. Declining keeps the species name.
+        Story.promptNickname(game, mon, speciesName, function()
+            local rival = Story.rivalName(game)
+            local player = Story.playerName(game)
+            local got = mon and mon.name or speciesName
+            game.machine:push("dialog", {
+                player .. " received a " .. got .. "!",
+                rival .. ": I'll take this one, then!",
+                rival .. " received a " .. pokemonData[Story.get(game).rivalStarter].name .. "!",
+            })
+        end)
+    end)
+end
+
+function Story.promptNickname(game, mon, speciesName, done)
+    local function finish()
+        if done then done(mon and mon.name) end
+    end
+    if not game or not game.machine or not game.machine.get or not game.machine:get("naming") then
+        finish()
+        return false
+    end
+    game.machine:push("naming", {
+        kind = "mon",
+        speciesName = speciesName,
+        ask = true,
+        onDone = function(name)
+            if type(name) == "string" then Story.storeNickname(mon, name) end
+            finish()
+        end,
     })
+    return true
+end
+
+function Story.beginOakSpeech(game)
+    Story._oak = {index = 1, game = game}
+    if game and game.session then Story._names[game.session] = {} end
+    Story.advanceOak(game)
+end
+
+function Story.advanceOak(game)
+    local cursor = Story._oak
+    if not cursor or cursor.game ~= game then return end
+    local step = Story.oakSteps()[cursor.index]
+    if not step then
+        Story._oak = nil
+        Story.refreshOpeningLines(game)
+        return
+    end
+    cursor.index = cursor.index + 1
+    if step.kind == "text" then
+        local lines = step.lines
+        if type(lines) == "function" then lines = lines(game) end
+        if step.cry and type(KantoAudio) == "table" and type(KantoAudio.playCry) == "function" then
+            pcall(KantoAudio.playCry, step.cry)
+        end
+        game.machine:push("dialog", lines, function()
+            Story.advanceOak(game)
+        end)
+    elseif step.kind == "name" then
+        game.machine:push("naming", {
+            kind = step.who,
+            onDone = function(name)
+                if type(name) == "string" then Story.remember(game, step.who, name) end
+                Story.advanceOak(game)
+            end,
+        })
+    end
 end
 
 -- Called by BattleState when any battle resolves
@@ -260,3 +436,5 @@ end
 function Story.resetIntro(game)
     return game:beginNewSession(RulesRNG.snapshot().seed)
 end
+
+Story.refreshOpeningLines(nil)
