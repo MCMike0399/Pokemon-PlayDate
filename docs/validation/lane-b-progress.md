@@ -1219,5 +1219,12 @@ the win, sha256
 (`seq158-adventure.a.json`). `BADGE_MARSH`, `EVENT_BEAT_SABRINA`, and
 `EVENT_GOT_TM46` are set. Venusaur is level 51, 81/159. Money is 6813.
 `revive` is 1. The clip is `20261112T182228Z-saffron-gym-sabrina.mp4`,
-400×240 h264, 53.36 seconds, 1600 frames, the whole fight. The continue
-is sequence 158. Viridian Gym is the next door.
+400×240 h264, 53.36 seconds, 1600 frames, the whole fight.
+
+The gym door mat does not leave until the step south off it. Sequence
+166 is outside the Saffron Center, `(9, 30)` facing down, sha256
+`7481c4c07dfa38cebe60ca3e8d638abd64985bbc255c9b013f0914484b3c8dd4`
+(`seq166-adventure.a.json`). Venusaur is 159/159. Money is 813.
+`hyperPotion` is 3 and `revive` is 2. `BADGE_MARSH` and
+`EVENT_BEAT_SILPH_CO_GIOVANNI` are set. The continue is sequence 166.
+Viridian Gym is the next door.
