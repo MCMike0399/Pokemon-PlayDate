@@ -435,6 +435,34 @@ class CharmanderRun(BrockJourney):
         self._toward_vermilion()
         self.summary.update(acceptance="Reached Vermilion", natural=True, forbidden_shortcuts=False)
 
+    def bill_scene(self):
+        """Talk to Bill, then use the PC. Overworld A fires on the release frame."""
+        import tools.harness.cerulean_journey as cerulean
+        from tools.harness.journeys import DIRECTIONS
+        self.travel(self.zone("BillsHouse"))
+        self.interact(source_id=cerulean.BILL)
+        if not self.flag("EVENT_BILL_SAID_USE_CELL_SEPARATOR"):
+            raise ProtocolError("Bill setup integration missing")
+        pc = self.export.get("bill_pc_player")
+        if not isinstance(pc, dict) or pc.get("id") != cerulean.PC or pc.get("facing") not in DIRECTIONS or any(
+                type(pc.get(key)) is not int for key in ("x", "y")):
+            raise ProtocolError("missing root source-valid Bill PC player-pose export")
+        point = (pc["x"] + self.model().padding, pc["y"])
+        if not self.model().inside(point) or self.model().collision[point[1]][point[0]]:
+            raise ProtocolError("missing root Bill PC integration: declared player cell is blocked in staged geometry")
+        self.navigate(point)
+        self.face(pc["facing"])
+        self.send("press a", "wait 12")
+        if lookup(self.state, "event.id") != cerulean.PC and self.state.get("root") == "overworld":
+            self.send("press a", "wait 12")
+        if lookup(self.state, "event.id") != cerulean.PC:
+            raise ProtocolError("Bill PC hidden stable-ID dispatch missing")
+        self.drain()
+        for flag in ("EVENT_USED_CELL_SEPARATOR_ON_BILL", "EVENT_MET_BILL", "EVENT_MET_BILL_2"):
+            if not self.flag(flag):
+                raise ProtocolError("Bill cell separator did not commit: " + flag)
+        self.checkpoint("cerulean-bill-restored")
+
     def _toward_vermilion(self):
         """Walk south to Vermilion. Wild fights are fled. Surge is the next gym."""
         self.training_mode = None
