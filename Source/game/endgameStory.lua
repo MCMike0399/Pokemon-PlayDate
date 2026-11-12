@@ -324,10 +324,19 @@ function EndgameStory.championPlan(id, observation)
         plan.ram = plan.ram or {}
         plan.ram.wNameBuffer = starterName(observation)
         plan.steps[#plan.steps + 1] = {op = "dialog", labels = copy(champ.after)}
+        plan.steps[#plan.steps + 1] = {op = "set-flag", id = OAK_SHOW, value = true}
+        plan.steps[#plan.steps + 1] = {op = "move-npc", id = "pokered:CHAMPIONS_ROOM:objects:2", direction = "up", count = 5}
         plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakText"}}
         plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakCongratulatesPlayerText"}}
         plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakDisappointedWithRivalText"}}
         plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakComeWithMeText"}}
+        plan.steps[#plan.steps + 1] = {op = "move-npc", id = "pokered:CHAMPIONS_ROOM:objects:2", direction = "up", count = 2}
+        plan.steps[#plan.steps + 1] = {op = "set-flag", id = OAK_SHOW, value = false}
+        -- The simulated list is consumed in reverse: left, then four ups.
+        -- The last up steps off the Hall of Fame warp. These three ups land
+        -- on it, and the warp below takes that last step.
+        plan.steps[#plan.steps + 1] = {op = "move", direction = "left", count = 1}
+        plan.steps[#plan.steps + 1] = {op = "move", direction = "up", count = 3}
         plan.steps[#plan.steps + 1] = {op = "warp", to = "kanto_hall_of_fame", toX = 5, toY = 7, facing = "up"}
     end
     return plan
@@ -781,7 +790,18 @@ function EndgameStory.install()
     end
     events["pokered:VICTORY_ROAD_3F:script:hole"] = {kind = "bespoke", content = CONTENT}
     events[MOLTRES] = {kind = "bespoke", content = CONTENT}
-    events["pokered:CHAMPIONS_ROOM:objects:2"] = {kind = "bespoke", content = CONTENT}
+    local oakPositions = {}
+    local champions <const> = SourceMaps._runtimePadded("ChampionsRoom")
+    for _, event in ipairs(champions.events.objects) do
+        if event.id == "pokered:CHAMPIONS_ROOM:objects:2" then
+            for y = event.y - 1, 0, -1 do
+                oakPositions[#oakPositions + 1] = {x = event.x, y = y}
+            end
+        end
+    end
+    assert(#oakPositions == 7, "oak's walk from the lance warp to the hall door")
+    events["pokered:CHAMPIONS_ROOM:objects:2"] = {kind = "bespoke", content = CONTENT,
+        script_positions = oakPositions}
     events["pokered:VIRIDIAN_GYM:objects:10"] = {kind = "cases", content = CONTENT, cases = {{
         when = {flags = {EVENT_BEAT_VIRIDIAN_GYM_GIOVANNI = true}},
         ["then"] = {kind = "program", steps = {{op = "dialog", labels = {"_ViridianGymGuidePostBattleText"}}}},

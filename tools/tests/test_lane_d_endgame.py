@@ -147,6 +147,15 @@ EndgameStory.noteStarter("bulbasaur")
 local oak = EndgameStory.championPlan(champ, {flags = {}, trainers = {[champ] = true},
     receipt = {won = true, payout = 6435}})
 check(oak.ram.wNameBuffer, "BULBASAUR", "oak names the starter")
+local oakWalks = 0
+local followed = false
+for _, step in ipairs(oak.steps) do
+    if step.op == "move-npc" and step.direction == "up" then oakWalks = oakWalks + step.count end
+    if step.op == "move" and step.direction == "up" and step.count == 3 then followed = true end
+end
+check(#oak.steps <= 16, true, "oak scene fits the event step limit")
+check(oakWalks, 7, "oak walks up off the warp and onto the hall door")
+check(followed, true, "player follows onto the hall warp")
 check(oak.steps[#oak.steps].op, "warp", "oak leads to the hall")
 check(oak.steps[#oak.steps].to, "kanto_hall_of_fame", "hall warp")
 check(EndgameStory.championParty("squirtle").party[6].species, "venusaur", "squirtle champion")

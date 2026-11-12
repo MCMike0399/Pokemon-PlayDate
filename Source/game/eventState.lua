@@ -135,7 +135,7 @@ function EventState:enter(id,options)
         elseif step.op=="trainer" then
             assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
             self.ops[#self.ops+1]=step
-        elseif step.op=="face-player" or step.op=="face-npc" then
+        elseif step.op=="face-player" or step.op=="face-npc" or step.op=="set-flag" then
             SourceEvents.validateStep(step)
             self.ops[#self.ops+1]=step
         elseif step.op=="move" then
@@ -244,6 +244,14 @@ function EventState:advance()
         end
         if not npc then self:fail("absent-source-actor"); return end
         npc:setFacing(step.direction)
+        self:advance()
+    elseif step.op=="set-flag" then
+        self:cancelNPCMove()
+        local accepted, problem = self.session:setQuestFlag(step.id, step.value)
+        if not accepted then self:fail(problem); return end
+        if KantoScenes and KantoScenes.reconcileActors then
+            KantoScenes.reconcileActors(self.game)
+        end
         self:advance()
     elseif step.op=="move" then self:startMove(step.direction)
     elseif step.op=="move-npc" then self:startNPCMove(step)

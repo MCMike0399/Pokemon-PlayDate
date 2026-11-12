@@ -201,6 +201,11 @@ function SourceActors.describeSource(zoneID, world, game)
             if (towerExit or towerRivalExit or silphExit) and warps[cell] then
                 transit = true
             end
+            -- A declared route may stand on and leave a real warp. Connection
+            -- edges stay protected unless a pinned route already named them.
+            if warps[cell] then
+                transit = true
+            end
             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
             if transit then
                 spec.script_transit = spec.script_transit or {}
