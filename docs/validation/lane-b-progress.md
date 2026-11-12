@@ -1024,4 +1024,13 @@ the forced-bicycle bit. Sequence 133 is Celadon `(0, 18)` facing
 right, walking, sha256
 `cec36007801d19a604b5516f6ebc663e4a27173a8f1fdbd060b4ad0a43f7efda`
 (`seq133-adventure.b.json`). Money is still 4755. The bag still has
-no Fresh Water. The continue is sequence 133.
+no Fresh Water. The continue was sequence 133.
+
+## Fresh Water
+
+Sequence 133 took the mart's west door, the elevator to 5F, and the
+stairs to the roof. The left vending machine lists Fresh Water first,
+at 200. Sequence 134 is the roof at `(10, 2)` facing up, sha256
+`55a61f85378da191d7b551b800500a4626ba79ce966c5d577826fdb8bcb27a7b`
+(`seq134-adventure.b.json`). Money is 4555. `freshWater` quantity is
+1. The Saffron guard flag is still unset. The continue is sequence 134.
