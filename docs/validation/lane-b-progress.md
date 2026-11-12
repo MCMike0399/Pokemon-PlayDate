@@ -302,3 +302,20 @@ was not edited.
 
 Sequence 71 has the Thunder Badge and no HM02. No party member knows
 Fly, so the walk to Pallet stays on foot.
+
+The merge and the narrowed patch are
+`d6181f5d3a394f447b0d6edb66955d336f0274bf`, pushed to
+`origin/cursor/lane-b-south-loop`. Bundle
+`/opt/cursor/artifacts/lane-b/lane-b-d6181f5d.bundle`, range
+`7a31867a..HEAD`, sha256
+`35c1418b750c5863f43f459797b8fe459351bcca31a68bf00ea143d49cc5c23f`.
+
+Continue from sequence 71 walked Route 13 to `(51,0)` and stepped
+north. Route 12 `(11,107)` is open land, and the ordinary connection
+accepted the step. Pause SAVE wrote sequence 72 at Route 12 `(11,107)`
+facing up, sha256
+`368d8198e941a95f1f4dd13a5059236a250ca3489eb82ef0ace27df7e5036c93`
+(`seq72-adventure.b.json`). The clip is
+`/opt/cursor/artifacts/lane-b/20261112T045913Z-route13-route12.mp4`,
+400×240 h264, 75.76 seconds, 2272 frames. Sequence 72 is the continue
+point. The road north is Lavender.
