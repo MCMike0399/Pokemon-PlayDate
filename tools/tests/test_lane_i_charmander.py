@@ -21,10 +21,13 @@ REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from tools.harness.brock_journey import BrockJourney
+from tools.harness.brock_journey import BROCK, FOREST, JR, MAPS, BrockJourney
 from tools.harness.journeys import lookup
+from tools.harness.parcel_journey import NAMES as PARCEL_NAMES
 from tools.harness.parcel_journey import sequence
 from tools.harness.protocol import ProtocolError
+
+ACTION_PAUSE = 17000
 
 FORBIDDEN_OPS = {"fixture", "warp", "debug", "intro", "seed", "battle", "encounters", "face"}
 LCD_OFFSET = (18, 45)
@@ -67,6 +70,14 @@ def pause_press(commands, state):
     if commands != ("press b",) or state.get("root") != "overworld":
         return commands
     return ("wait 4", "press b", "wait 2")
+
+
+class ActionPause(ProtocolError):
+    """The live save was written. A new session can continue it."""
+
+
+def needs_action_pause(actions, state, stopping):
+    return (not stopping) and actions >= ACTION_PAUSE and (state or {}).get("root") == "overworld"
 
 
 def key_fight(name, trainer_id):
@@ -116,9 +127,112 @@ class CharmanderRun(BrockJourney):
         self.send({"op": "await", "path": "zone", "equals": "reds_house_2f", "frames": 180})
 
     def send(self, *commands):
+        if needs_action_pause(self.actions, self.state, getattr(self, "_stopping", False)):
+            self._stopping = True
+            self.save()
+            raise ActionPause("charmander saved so the next session can continue")
         commands = pause_press(ball_press(commands, self.state), self.state)
         real_input(commands)
         return super().send(*commands)
+
+    def training_battle(self):
+        super().training_battle()
+        count = len(self.summary.get("training") or [])
+        if count % 10 == 0 and self.state.get("root") == "overworld" and not getattr(self, "_stopping", False):
+            self.save()
+
+    def continue_earned(self):
+        """Title CONTINUE, then the Brock steps the save has not finished."""
+        self.dependencies()
+        self.send({"op": "await", "path": "title.phase", "equals": "menu", "frames": 1200})
+        options = sequence(lookup(self.state, "title.menu.options"), "title options")
+        if options.count("CONTINUE") != 1:
+            raise ProtocolError("earned save did not offer CONTINUE")
+        self.select("title.menu.selected", options.index("CONTINUE") + 1)
+        self.send("press a", "wait 8")
+        for _ in range(40):
+            if self.state.get("root") in {"overworld", "dialog", "event"}:
+                break
+            self.send("wait 8")
+        else:
+            raise ProtocolError("continue did not leave the title")
+        self.drain()
+        if not self.flag("EVENT_GOT_POKEDEX"):
+            raise ProtocolError("continued save has not received the Pokedex")
+        self.initialized = True
+        self.brock_after_parcel()
+
+    def _starter_level(self):
+        return self.party()[self.starter_index() - 1]["level"]
+
+    def _to_training_grass(self):
+        zone = self.state.get("zone_id")
+        if zone in {MAPS["Route2"], MAPS["ViridianForest"]}:
+            return
+        if zone == PARCEL_NAMES["ViridianPokecenter"]:
+            self.warp(PARCEL_NAMES["ViridianCity"])
+        elif zone == MAPS["PewterPokecenter"]:
+            self.warp(MAPS["PewterCity"])
+        self.reach_training_zone(MAPS["Route2"])
+
+    def brock_after_parcel(self):
+        """Finish Boulder Badge from whatever the earned save already did."""
+        if self.defeated(BROCK) and self.flag("BADGE_BOULDER"):
+            self.save()
+            self.summary["acceptance"] = "Brock badge already saved"
+            return
+        if not all(self.defeated(trainer) for trainer in FOREST):
+            if len(self.party()) < 2 and self.quantity("pokeBall") < 5:
+                if self.state.get("zone_id") == PARCEL_NAMES["ViridianPokecenter"]:
+                    self.warp(PARCEL_NAMES["ViridianCity"])
+                self.warp(PARCEL_NAMES["ViridianMart"])
+                self.buy_item("pokered:VIRIDIAN_MART:objects:1", "antidote", 3, 100)
+                self.buy_item("pokered:VIRIDIAN_MART:objects:1", "pokeBall", 5, 200)
+                self.warp(PARCEL_NAMES["ViridianCity"])
+            self._to_training_grass()
+            if self._starter_level() < 8 or len(self.party()) < 2:
+                self.train_to(8, capture=len(self.party()) < 2)
+            if self.state.get("zone_id") != MAPS["ViridianForest"]:
+                self.warp(MAPS["ViridianForestSouthGate"])
+                self.warp(MAPS["ViridianForest"])
+            self.interact(source_id="pokered:VIRIDIAN_FOREST:objects:6")
+            for trainer in FOREST:
+                self.field_recover()
+                if not self.defeated(trainer):
+                    self.defeat_source(trainer)
+                if not self.defeated(trainer):
+                    raise ProtocolError("source Forest trainer was not actually defeated: " + trainer)
+                self.repeat_trainer(trainer)
+                self.checkpoint("forest-defeated-" + trainer.rsplit(":", 1)[1])
+        primary = self.party()[self.starter_index() - 1]
+        target = self.config.get("training_level", 16)
+        if primary["level"] < target or primary["species"] == self.starter:
+            self._to_training_grass()
+            if self.state.get("zone_id") != MAPS["ViridianForest"]:
+                self.reach_training_zone(MAPS["ViridianForest"])
+            self.train_to(target)
+        if not self.defeated(BROCK):
+            self.return_to_pewter()
+            count = max(0, min(3 - self.quantity("potion"), self.inventory()["money"] // 300))
+            if count:
+                self.warp(MAPS["PewterMart"])
+                self.buy_item("pokered:PEWTER_MART:objects:1", "potion", count, 300)
+                self.warp(MAPS["PewterCity"])
+            self.warp(MAPS["PewterGym"])
+            self.defeat_source(JR)
+            if not self.defeated(JR):
+                raise ProtocolError("source Jr trainer victory missing")
+            self.repeat_trainer(JR)
+            self.warp(MAPS["PewterCity"])
+            self.center(MAPS["PewterCity"])
+            self.warp(MAPS["PewterGym"])
+            self.defeat_source(BROCK)
+        if not self.defeated(BROCK) or not self.flag("BADGE_BOULDER") or self.quantity("tm34") != 1:
+            raise ProtocolError("Brock reward transaction incomplete")
+        self.repeat_trainer(BROCK)
+        self.checkpoint("brock-badge-tm34")
+        self.save()
+        self.summary.update(acceptance="Brock path completed and saved", natural=True, forbidden_shortcuts=False)
 
     def battle(self, name, strategy="attack", expected=None):
         trainer_id = lookup(self.state, "event.id")
@@ -226,6 +340,12 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:1"), "brock")
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:2"), "pewter-jr")
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
+
+    def test_action_pause_only_happens_in_the_overworld(self):
+        self.assertTrue(needs_action_pause(ACTION_PAUSE, {"root": "overworld"}, False))
+        self.assertFalse(needs_action_pause(ACTION_PAUSE, {"root": "battle"}, False))
+        self.assertFalse(needs_action_pause(ACTION_PAUSE - 1, {"root": "overworld"}, False))
+        self.assertFalse(needs_action_pause(ACTION_PAUSE, {"root": "overworld"}, True))
 
     def test_overworld_pause_lets_the_previous_gesture_finish(self):
         overworld = {"root": "overworld", "zone": "kanto_route2"}
@@ -398,7 +518,44 @@ class FightRecorder:
         return clips
 
 
-def play(output, probe=False):
+def install_save(data_dir, save_dir):
+    """Copy earned slot bytes into a new session. The files are not rewritten."""
+    data_dir = Path(data_dir)
+    copied = []
+    for path in sorted(Path(save_dir).glob("adventure*.json")):
+        if not path.is_file():
+            continue
+        shutil.copy2(path, data_dir / path.name)
+        copied.append(path.name)
+    if not any(name.startswith("adventure.") for name in copied):
+        raise ProtocolError("resume directory has no published adventure slot")
+    return copied
+
+
+def latest_earned_save(output):
+    best = None
+    best_seq = -1
+    saves = Path(output) / "saves"
+    if not saves.is_dir():
+        return None
+    for folder in sorted(saves.iterdir()):
+        if not folder.is_dir():
+            continue
+        for name in ("adventure.a.json", "adventure.b.json"):
+            path = folder / name
+            if not path.is_file():
+                continue
+            try:
+                seq = int(json.loads(path.read_text(encoding="utf-8")).get("sequence") or 0)
+            except (OSError, ValueError):
+                seq = 0
+            if seq >= best_seq:
+                best_seq = seq
+                best = folder
+    return best
+
+
+def play(output, probe=False, resume_save=None):
     from tools.harness.protocol import Client, OwnerLock
     from tools.harness.run import (device_lock_path, prepare, runtime_lock_path,
                                    sdk_path, simulator_preflight)
@@ -429,6 +586,9 @@ def play(output, probe=False):
         metadata = prepare(REPO, sdk, output, session, journey=True)
         data = Path(metadata["data_dir"])
         data.mkdir(parents=True, exist_ok=False)
+        if resume_save is not None:
+            summary["resumed_from"] = str(resume_save)
+            summary["installed_save"] = install_save(data, resume_save)
         owner = OwnerLock(data / "owner.lock")
         owner.__enter__()
         try:
@@ -479,9 +639,19 @@ def play(output, probe=False):
 
             run.record_fight = record_fight
             try:
-                run.natural()
+                if resume_save is None:
+                    run.natural()
+                else:
+                    run.continue_earned()
                 summary["ok"] = True
                 summary["acceptance"] = run.summary.get("acceptance")
+            except ActionPause as error:
+                summary["ok"] = True
+                summary["paused_for_budget"] = True
+                summary["pause_reason"] = str(error)
+                summary["acceptance"] = run.summary.get("acceptance")
+                (output / "journey-summary.json").write_text(
+                    json.dumps(run.summary, indent=2, default=str)[:2000000], encoding="utf-8")
             except BaseException as error:
                 summary["ok"] = False
                 summary["error"] = str(error)
@@ -520,6 +690,24 @@ def play(output, probe=False):
     return summary
 
 
+def campaign(root, probe=False):
+    """Play, and when the action budget saves, continue that file in a new session."""
+    root = Path(root)
+    root.mkdir(parents=True, exist_ok=True)
+    resume = None
+    summary = None
+    for leg in range(1, 7):
+        summary = play(root / f"leg-{leg}", probe=probe, resume_save=resume)
+        if probe or not summary.get("paused_for_budget"):
+            return summary
+        resume = latest_earned_save(root / f"leg-{leg}")
+        if resume is None:
+            summary["ok"] = False
+            summary["error"] = "action pause did not leave an adventure slot"
+            return summary
+    return summary
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--play", type=Path, help="run the Simulator path into this new directory")
@@ -528,7 +716,7 @@ def main(argv=None):
     if args.play:
         os.environ.setdefault("PLAYDATE_SDK_PATH", str(Path.home() / "Developer/PlaydateSDK"))
         os.environ.setdefault("DISPLAY", ":1")
-        summary = play(args.play, probe=args.probe)
+        summary = campaign(args.play, probe=args.probe)
         return 0 if summary.get("ok") else 1
     unittest.main(argv=[sys.argv[0], *remaining])
 
