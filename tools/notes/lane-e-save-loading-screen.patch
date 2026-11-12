@@ -1,0 +1,30 @@
+--- a/Source/game/saves.lua
++++ b/Source/game/saves.lua
+@@ -41,18 +41,24 @@
+ end
+ 
+ function GameSaves:save()
++    -- Keep the pause menu and the save text on the LCD. The default loading
++    -- draw clears the screen and paints BootTrace ("Save.begin", "Phase N").
++    -- pokered af519899 saves inside the text box.
+     return GameBootstrap.withLoading("Save", function()
+         return saveGame(self, function()
+             return self.game:captureSession()
+         end)
+-    end)
++    end, function()
++        return true
++    end)
+ end
+ function GameSaves:saveFromHall(event)
+     return GameBootstrap.withLoading("Save", function()
+         return saveGame(self, function()
+             return self.game:captureSessionFromHall(event)
+         end)
+-    end)
++    end, function()
++        return true
++    end)
+ end
+ 
+ -- Both permitted capture boundaries share the exact same publication authority.

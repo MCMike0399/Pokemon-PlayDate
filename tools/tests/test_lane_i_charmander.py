@@ -289,6 +289,24 @@ class CharmanderRun(BrockJourney):
         if self.flag("BADGE_CASCADE") and self.defeated(cerulean.MISTY):
             self._after_cascade()
             return
+        # A Cerulean Mart or Center save already walked Route 3 and Mt. Moon.
+        # Heal and fight Misty from here. Do not walk back to Pewter.
+        zone_id = self.state.get("zone_id") or ""
+        if "CERULEAN" in zone_id and (
+            self.flag("EVENT_GOT_DOME_FOSSIL") or self.flag("EVENT_GOT_HELIX_FOSSIL")
+        ):
+            self.heal_here("CeruleanPokecenter")
+            self.stock_up("CeruleanMart")
+            self.save()
+            if not self.defeated(cerulean.MISTY):
+                self.fight(cerulean.MISTY)
+            if not all(self.flag(flag) for flag in ("BADGE_CASCADE", "EVENT_BEAT_MISTY", "EVENT_GOT_TM11")) or self.quantity("tm11") != 1:
+                raise ProtocolError("Misty badge or TM11 was not received")
+            self.checkpoint("cascade-badge-tm11")
+            self.heal_here("CeruleanPokecenter")
+            self.save()
+            self._after_cascade()
+            return
         self.heal_here("PewterPokecenter")
         self.stock_up("PewterMart")
         self.save()
@@ -544,6 +562,12 @@ class CharmanderTitleTests(unittest.TestCase):
             "BADGE_BOULDER": True, "EVENT_GOT_TM34": True}}}}
         self.assertEqual(earned_save_label(boulder, 2), "002-1-BOULDER-pewter_gym")
         self.assertEqual(earned_save_label({"zone": "viridian_city"}, 1), "001-pre-badge-viridian_city")
+
+    def test_cerulean_resume_stays_in_cerulean(self):
+        source = Path(__file__).read_text(encoding="utf-8")
+        body = source.split("def after_boulder", 1)[1].split("def _after_cascade", 1)[0]
+        self.assertIn("CERULEAN", body)
+        self.assertLess(body.index("EVENT_GOT_DOME_FOSSIL"), body.index('self.heal_here("PewterPokecenter")'))
 
     def test_forbidden_ops(self):
         with self.assertRaises(ProtocolError):
