@@ -350,6 +350,10 @@ local function mapImages(name, sink, packagePrefix, hiddenEvents)
         terrain = nil
         definition = nil
         zone = nil
+        -- Warp specs reload the compact catalogue. The strip and pose pass
+        -- does not read it, and the report copy needs that room.
+        if SourceMaps._releaseSharedCompact then SourceMaps._releaseSharedCompact() end
+        if SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
         collectgarbage("collect")
         return report
     end)
@@ -408,6 +412,10 @@ function CeruleanCatalogExporter.writer(sink)
         report.tutorial[#report.tutorial + 1] = { name = name, source_path = art.source,
             width = art.width, height = art.height }
     end
+    tutorialImages = nil
+    baseTiles = nil
+    if SourceMaps._releaseSharedCompact then SourceMaps._releaseSharedCompact() end
+    collectgarbage("collect")
     return report
 end
 

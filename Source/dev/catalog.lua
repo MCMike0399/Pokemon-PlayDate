@@ -208,7 +208,27 @@ function VisualCatalog.runExporter(name,consume,prepared)
         end
         local metadata=record.writer(sink)
         for path in pairs(allowed) do assert(seen[path],"missing declared exporter output: "..path) end
-        return Party._primitive(metadata or {})
+        allowed=nil
+        inventory.images, inventory.shared_images = nil, nil
+        if VisualCatalog._dropSavedDeclarations then VisualCatalog._dropSavedDeclarations() end
+        if SourceMaps and SourceMaps._releaseSharedCompact then SourceMaps._releaseSharedCompact() end
+        if SourceMaps and SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+        collectgarbage("collect")
+        -- Copy one top-level record at a time so the source report can be
+        -- collected before the next map or pose list is duplicated.
+        local function detachReport(value, depth)
+            if type(value) ~= "table" then return value end
+            local out, keys = {}, {}
+            for key in pairs(value) do keys[#keys + 1] = key end
+            for index, key in ipairs(keys) do
+                local item = value[key]
+                value[key] = nil
+                out[key] = detachReport(item, depth + 1)
+                if depth == 1 and index % 8 == 0 then collectgarbage("collect") end
+            end
+            return out
+        end
+        return detachReport(metadata or {}, 0)
     end) end))
     collecting=false;assert(values[1],values[2]);return table.unpack(values,2,values.n)
 end
