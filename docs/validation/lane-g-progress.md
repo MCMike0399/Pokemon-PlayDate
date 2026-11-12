@@ -67,11 +67,13 @@ The naming grid is `data/text/alphabets.asm`: row 4 is `× ( ) : ; [ ] PK MN` an
 
 `CRANK SCROLL` stays. It sits on the row under the third `options.asm` box. `CANCEL` has the following row to itself, with a blank row between them.
 
-The title copyright is the fourteen tiles `$41`–`$4E` (`gfx/splash/copyright.png` first five tiles, then `gfx/title/gamefreak_inc.png`). `LoadTitleMonSprite` is `hlcoord 5, 10`, seven tiles, so the picture ends on row 16. The copyright is `hlcoord 2, 17`. Every TitleMon is sampled into that slot and clipped to it. `tools/tests/test_lane_g_front_end.py` checks the grid against the alphabet and checks every TitleMon against the copyright row.
+The title copyright is `.tileScreenCopyrightTiles`: `$41,$42,$43,$42,$44,$42,$45,$46`–`$4E`. `$42` is the `'9` tile and is drawn three times, so the row reads `©'95.'96.'98 GAME FREAK inc.` `LoadTitleMonSprite` is `hlcoord 5, 10`, seven tiles, so the picture ends on row 16. The copyright is `hlcoord 2, 17`. Every TitleMon is sampled into that slot and clipped to it. `tools/tests/test_lane_g_front_end.py` checks the grid against the alphabet, parses the copyright sequence from `title.asm`, and checks every TitleMon against the copyright row.
 
 Oak's speech is a white screen. It shows Oak, then Nidorino (slide), then the player, then the rival, then the player again. The text is the pixel font and reads `POKéMON`. The dialog owner is unchanged.
 
 Playdate Simulator 3.1.2, production bundle `source_sha256` `8ca9b2687c421e0d96f3172e36a4fd20f62ba89b7f2d63d29a04f663c5bacc38`. Captures are in `artifacts/lane-g/r4/`: the title, the keyboard, options, each Oak stage, the Continue menu and info box, and the Continue landing in Pallet Town. The Continue file is the bedroom save with `location` set to `pallet_town` `(5, 6)`, `EVENT_BEAT_CHAMPION_RIVAL`, and one Hall of Fame team. The codec still prints `RED`.
+
+The r4 title row listed `$41` through `$4E` once each, so `$42` (the `'9` tile) was drawn once and the years read `©'95.68`. The row is now the `.tileScreenCopyrightTiles` sequence with `$42` three times. `artifacts/lane-g/r5/title.png` is that screen, bundle `36f846d031cafdc10b3f4addfb50754cf0c22664500c244c54eaee3fcce8087d`.
 
 ## Blockers
 

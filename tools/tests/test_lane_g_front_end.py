@@ -115,7 +115,10 @@ class LaneGFrontEndTests(unittest.TestCase):
         self.assertIn("TitleIdle.titleMonSlot()", draw)
         self.assertIn("setClipRect(0, slot.y, 400, slot.h)", draw)
         self.assertNotIn("drawScaled(layout.mon", draw)
-        self.assertIn("images/title/font/title_copyright", draw)
+        self.assertIn("TitleIdle.COPYRIGHT_TILES", draw)
+        self.assertIn("TitleIdle.copyrightSource", draw)
+        self.assertIn("images/title/font/copyright_tiles", draw)
+        self.assertIn("images/title/font/gamefreak_inc", draw)
         species = []
         collecting = False
         for line in idle.splitlines():
@@ -129,7 +132,7 @@ class LaneGFrontEndTests(unittest.TestCase):
         aliases = json.loads((ROOT / "Source/data/pokemon-art.json").read_text())["aliases"]
         col, row = 20, 13
         slot = (5 * col, 10 * row, 7 * col, 7 * row)
-        copyright_rect = (2 * col, 17 * row, 14 * col, row)
+        copyright_rect = (2 * col, 17 * row, 16 * col, row)
         self.assertLessEqual(slot[1] + slot[3], copyright_rect[1])
         for name in species:
             path = ROOT / "Source/images/pokemon" / f"{aliases.get(name, name)}-front.png"
@@ -137,9 +140,15 @@ class LaneGFrontEndTests(unittest.TestCase):
                 self.assertGreater(image.size[0], 0, name)
                 self.assertGreater(image.size[1], 0, name)
             self.assertFalse(_rects_overlap(slot, copyright_rect), name)
+        sequence = _copyright_tiles_from_asm()
+        rendered = _lua_copyright_tiles(idle)
+        self.assertEqual(rendered, sequence)
+        self.assertEqual(rendered.count(0x42), 3)
         with Image.open(ROOT / "Source/images/title/font/title_copyright.png") as strip:
-            self.assertEqual(strip.size, (112, 8))
+            self.assertEqual(strip.size, (8 * len(sequence), 8))
             self.assertEqual(strip.mode, "1")
+            rendered_row = _render_copyright_row(sequence)
+            self.assertEqual(strip.tobytes(), rendered_row.tobytes())
         with Image.open(ROOT / "Source/images/title/font/ed.png") as ed:
             self.assertEqual(ed.size, (8, 8))
             self.assertEqual(ed.mode, "1")
@@ -156,6 +165,41 @@ def _lua_grid(source, name):
         if cells:
             rows.append(cells)
     return rows
+
+
+def _copyright_tiles_from_asm():
+    roots = [os.environ.get("POKERED"), "/tmp/pokered"]
+    text = None
+    for root in roots:
+        if not root:
+            continue
+        path = Path(root) / "engine/movie/title.asm"
+        if path.is_file():
+            text = path.read_text()
+            break
+    if text is None:
+        raise AssertionError("engine/movie/title.asm is required to parse .tileScreenCopyrightTiles")
+    from tools.generate_title_art import copyright_tile_sequence
+    return copyright_tile_sequence(text)
+
+
+def _lua_copyright_tiles(source):
+    import re
+    match = re.search(r"TitleIdle\.COPYRIGHT_TILES = \{([^}]+)\}", source)
+    if not match:
+        raise AssertionError("copyright tile list missing")
+    return [int(item, 16) for item in re.findall(r"0x([0-9A-Fa-f]+)", match.group(1))]
+
+
+def _render_copyright_row(sequence):
+    from PIL import Image
+    nintendo = Image.open(ROOT / "Source/images/title/font/copyright_tiles.png").convert("1")
+    freak = Image.open(ROOT / "Source/images/title/font/gamefreak_inc.png").convert("1")
+    from tools.generate_title_art import copyright_tile
+    strip = Image.new("1", (8 * len(sequence), 8), 1)
+    for index, tile in enumerate(sequence):
+        strip.paste(copyright_tile(nintendo, freak, tile), (index * 8, 0))
+    return strip
 
 
 def _rects_overlap(a, b):

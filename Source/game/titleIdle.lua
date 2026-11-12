@@ -114,12 +114,12 @@ TitleIdle.TILE = 8
 TitleIdle.MENU_DELAY = 20
 TitleIdle.CONTINUE_DELAY = 30
 TitleIdle.CONTINUE_LABELS = {"PLAYER", "BADGES", "POKéDEX", "TIME"}
--- title.asm .tileScreenCopyrightTiles, $41 through $4E. DisplayTitleScreen
--- fills that run with five Nintendo copyright tiles and nine Game Freak tiles.
-TitleIdle.COPYRIGHT_TILES = {}
-for tile = 0x41, 0x4E do
-    TitleIdle.COPYRIGHT_TILES[#TitleIdle.COPYRIGHT_TILES + 1] = tile
-end
+-- title.asm .tileScreenCopyrightTiles. $42 is the '9 tile and is stored
+-- three times. A $41..$4E range would draw that tile once.
+TitleIdle.COPYRIGHT_TILES = {
+    0x41, 0x42, 0x43, 0x42, 0x44, 0x42, 0x45,
+    0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E,
+}
 -- LoadTitleMonSprite is hlcoord 5, 10. A front pic is 7 tiles, so it
 -- ends on row 16. The copyright row is 17 and is not part of the pic.
 TitleIdle.MON_COL = 5
@@ -138,8 +138,20 @@ TitleIdle.LAYOUT = {
     version = {x = 24, y = 112, scale = 2},
     player = {x = 308, y = 118, scale = 2},
     mon = {col = 5, row = 10, tiles = 7},
-    copyright = {col = 2, row = 17, tiles = 14},
+    copyright = {col = 2, row = 17, tiles = #TitleIdle.COPYRIGHT_TILES},
 }
+
+-- vTitleLogo2 tile 16 is $41. Five Nintendo tiles, then nine Game Freak tiles.
+-- The same source tile is drawn again wherever the tilemap repeats it.
+function TitleIdle.copyrightSource(tile)
+    if tile >= 0x41 and tile <= 0x45 then
+        return "copyright", tile - 0x41
+    end
+    if tile >= 0x46 and tile <= 0x4E then
+        return "gamefreak", tile - 0x46
+    end
+    error("copyright tile out of range")
+end
 
 function TitleIdle.ballTile()
     local index = TitleIdle.BALL_SPRITE

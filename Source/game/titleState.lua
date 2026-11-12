@@ -331,12 +331,47 @@ function TitleState:fitted(cache, key, source, width, height)
     return image
 end
 
-function TitleState:copyrightImage()
+function TitleState:copyrightSheets()
     if self.copyrightArt then return self.copyrightArt end
-    local strip = assert(gfx.image.new("images/title/font/title_copyright"), "missing title copyright tiles")
-    local rect = TitleIdle.copyrightRect()
-    self.copyrightArt = self:fitted({}, "copyright", strip, rect.w, rect.h)
+    self.copyrightArt = {
+        copyright = assert(gfx.image.new("images/title/font/copyright_tiles"), "missing Nintendo copyright tiles"),
+        gamefreak = assert(gfx.image.new("images/title/font/gamefreak_inc"), "missing Game Freak tiles"),
+        cells = {},
+    }
     return self.copyrightArt
+end
+
+function TitleState:copyrightCell(sheetName, index)
+    local sheets = self:copyrightSheets()
+    local key = sheetName .. ":" .. index
+    local cached = sheets.cells[key]
+    if cached then return cached end
+    local source = sheets[sheetName]
+    -- Clear, not white, so a repeated tile drawn over Red keeps his pixels
+    -- everywhere the glyph itself is blank.
+    local image = gfx.image.new(TitleIdle.COL, TitleIdle.ROW)
+    gfx.pushContext(image)
+    gfx.setColor(gfx.kColorBlack)
+    for y = 0, TitleIdle.ROW - 1 do
+        local sourceY = math.floor(y * 8 / TitleIdle.ROW)
+        for x = 0, TitleIdle.COL - 1 do
+            local sourceX = index * 8 + math.floor(x * 8 / TitleIdle.COL)
+            if source:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(x, y)
+            end
+        end
+    end
+    gfx.popContext()
+    sheets.cells[key] = image
+    return image
+end
+
+function TitleState:drawCopyright()
+    local origin = TitleIdle.copyrightRect()
+    for index, tile in ipairs(TitleIdle.COPYRIGHT_TILES) do
+        local sheetName, sourceIndex = TitleIdle.copyrightSource(tile)
+        self:copyrightCell(sheetName, sourceIndex):draw(origin.x + (index - 1) * TitleIdle.COL, origin.y)
+    end
 end
 
 function TitleState:drawTitleArt()
@@ -349,9 +384,8 @@ function TitleState:drawTitleArt()
     gfx.setClipRect(0, slot.y, 400, slot.h)
     mon:draw(slot.x + dx, slot.y)
     gfx.clearClipRect()
-    local copyright = TitleIdle.copyrightRect()
-    self:copyrightImage():draw(copyright.x, copyright.y)
     self:drawPlayer()
+    self:drawCopyright()
 end
 
 function TitleState:drawPlayer()

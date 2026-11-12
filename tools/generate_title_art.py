@@ -20,6 +20,23 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / 'tools/references/title-art.json'
 
 
+def copyright_tile_sequence(text):
+    """title.asm .tileScreenCopyrightTiles, repeats included."""
+    label = text.index('.tileScreenCopyrightTiles\n')
+    line = text[label:].split('db', 1)[1].split('\n', 1)[0].split(';', 1)[0]
+    return [int(item, 16) for item in line.replace('$', ' ').replace(',', ' ').split() if item]
+
+
+def copyright_tile(nintendo, freak, tile):
+    if 0x41 <= tile <= 0x45:
+        offset = (tile - 0x41) * 8
+        return nintendo.crop((offset, 0, offset + 8, 8))
+    if 0x46 <= tile <= 0x4E:
+        offset = (tile - 0x46) * 8
+        return freak.crop((offset, 0, offset + 8, 8))
+    raise ValueError('copyright tile out of range')
+
+
 def generate(reference_root, output, check=False):
     manifest = json.loads(MANIFEST.read_text())
     if manifest['schema'] != 1 or manifest['revision'] != REVISION:
@@ -44,10 +61,12 @@ def generate(reference_root, output, check=False):
     nintendo = by_output.get('font/copyright_tiles.png')
     freak = by_output.get('font/gamefreak_inc.png')
     if nintendo is not None and freak is not None:
-        # title.asm copies the first five copyright tiles, then gamefreak_inc.
-        strip = Image.new('1', (40 + freak.width, 8), 1)
-        strip.paste(nintendo.crop((0, 0, 40, 8)), (0, 0))
-        strip.paste(freak, (40, 0))
+        # .tileScreenCopyrightTiles repeats $42. The row is that sequence,
+        # not the fourteen unique tiles in VRAM order.
+        sequence = copyright_tile_sequence(reader.read('engine/movie/title.asm').decode())
+        strip = Image.new('1', (8 * len(sequence), 8), 1)
+        for index, tile in enumerate(sequence):
+            strip.paste(copyright_tile(nintendo, freak, tile), (index * 8, 0))
         prepared.append(('font/title_copyright.png', strip))
     for relative, image in prepared:
         target = output / relative
