@@ -121,9 +121,15 @@ local function compactData()
     if separateCaches and tileGrids and tileGrids[1] then
         tileGrids = nil
         collectgarbage("collect")
+        local released = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+        if released then released:write("grids-released\t" .. tostring(collectgarbage("count")) .. "\n"); released:close() end
     end
     if not compact then
         local data = SourceMaps.record("data/sourceMapCache/compact.json")
+        if separateCaches then
+            local decoded = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+            if decoded then decoded:write("compact-decoded\t" .. tostring(collectgarbage("count")) .. "\n"); decoded:close() end
+        end
         if not (ShippedDataPolicy and ShippedDataPolicy.maps() and not recordOverrides) then
             for name, descriptor in pairs(data.maps) do
                 local entry = assert(catalogue()[name], "generated map outside source manifest")
@@ -139,6 +145,10 @@ local function compactData()
             end
         end
         compact = data
+        if separateCaches then
+            local loaded = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+            if loaded then loaded:write("compact-loaded\t" .. tostring(collectgarbage("count")) .. "\n"); loaded:close() end
+        end
     end
     return compact
 end
@@ -166,6 +176,10 @@ end
 -- as read-only; public compact/descriptor/tile getters still return copies.
 function SourceMaps._releaseSharedCompact()
     compact, tileGrids = nil, nil
+end
+
+function SourceMaps._releaseTileGrids()
+    tileGrids = nil
 end
 
 function SourceMaps._sharedCompact()

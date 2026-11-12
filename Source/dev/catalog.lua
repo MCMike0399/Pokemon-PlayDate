@@ -192,7 +192,7 @@ function VisualCatalog.runExporter(name,consume,prepared)
             assert(not seen[path],"duplicate exporter path: "..path)
             local w,h=image:getSize()
             assert(w==declared.width and h==declared.height and category==declared.category and (mask or false)==declared.mask,"exporter dimensions/metadata mismatch: "..path)
-            seen[path]=true;consume(stem,image,category,mask)
+            seen[path]=true;consume(stem,image,category,mask);allowed[path]=nil
         end
         function sink.asset(stem,image,category,backgrounds)
             sink.save(stem,image,category)
@@ -629,10 +629,125 @@ local function writeCatalog(outputDir)
         localImages = nil
         collectgarbage("collect")
         if SourceMaps and SourceMaps._separateCatalogueCaches then SourceMaps._separateCatalogueCaches(true) end
-        for _,name in ipairs(keys(exporters)) do
+        -- One exporter's rows plus the compact catalogue fit. All four
+        -- inventories together do not, so the idle ones are spilled to files
+        -- and restored when that exporter draws.
+        local function eachEntry(list, fn)
+            if type(list) ~= "table" then return end
+            local count = #list
+            for index = 1, count do
+                local entry = list[index]
+                if type(entry) == "table" and entry.path then fn(entry) end
+            end
+        end
+        local function spill(name, kind, list)
+            local file = playdate.file.open("catalog-keep-" .. name .. "-" .. kind .. ".txt", playdate.file.kFileWrite)
+            assert(file, "catalog keep file")
+            eachEntry(list, function(entry)
+                file:write(entry.path .. "\t" .. tostring(entry.width) .. "\t" .. tostring(entry.height) .. "\t" .. entry.category .. "\t" .. (entry.mask and "1" or "0") .. "\n")
+            end)
+            file:close()
+        end
+        local function restore(name, kind)
+            local list = {}
+            local file = playdate.file.open("catalog-keep-" .. name .. "-" .. kind .. ".txt")
+            if file then
+                while true do
+                    local line = file:readline()
+                    if not line or line == "" then break end
+                    local path, width, height, category, mask = line:match("^([^\t]+)\t(%d+)\t(%d+)\t([^\t]+)\t([01])$")
+                    assert(path, "catalog keep line")
+                    local entry = {path = path, width = tonumber(width), height = tonumber(height), category = category, mask = mask == "1"}
+                    local slot = pathSlot(path)
+                    if not seen[slot][path] then
+                        list[#list + 1] = entry
+                        declarations[slot][path] = entry
+                    end
+                end
+                file:close()
+            end
+            return list
+        end
+        local owned = pathBuckets()
+        for _, name in ipairs(keys(exporters)) do
+            local inventory = expected.exporters[name]
+            spill(name, "images", inventory.images)
+            spill(name, "shared", inventory.shared_images)
+            eachEntry(inventory.images, function(entry) owned[pathSlot(entry.path)][entry.path] = name end)
+            eachEntry(inventory.shared_images, function(entry) owned[pathSlot(entry.path)][entry.path] = name end)
+        end
+        local function parkOthers(active)
+            -- A later exporter can list the same path in shared_images. That
+            -- must not drop the row while the exporter that writes it is active.
+            local keep = pathBuckets()
+            local activeInventory = expected.exporters[active]
+            if activeInventory then
+                eachEntry(activeInventory.images, function(entry) keep[pathSlot(entry.path)][entry.path] = true end)
+                eachEntry(activeInventory.shared_images, function(entry) keep[pathSlot(entry.path)][entry.path] = true end)
+            end
+            for slot = 1, PATH_BUCKETS do
+                for path, owner in pairs(owned[slot]) do
+                    if seen[slot][path] or (owner ~= active and not keep[slot][path]) then
+                        declarations[slot][path] = nil
+                    end
+                end
+                for path in pairs(seen[slot]) do declarations[slot][path] = nil end
+            end
+            expected.image_chunks = nil
+            for other, inventory in pairs(expected.exporters) do
+                if other ~= active then inventory.images, inventory.shared_images = nil, nil end
+            end
+            local inventory = expected.exporters[active]
+            local function compact(list)
+                local out = {}
+                eachEntry(list, function(entry)
+                    if not seen[pathSlot(entry.path)][entry.path] then out[#out + 1] = entry end
+                end)
+                return out
+            end
+            if inventory then
+                inventory.images = compact(inventory.images)
+                inventory.shared_images = compact(inventory.shared_images)
+            end
+            collectgarbage("collect")
+        end
+        -- Saved rows stay in the manifest. The declaration copies of those
+        -- rows are what push the next catalogue decode over the pool.
+        VisualCatalog._dropSavedDeclarations = function()
+            for slot = 1, PATH_BUCKETS do
+                for path in pairs(seen[slot]) do declarations[slot][path] = nil end
+            end
+            local function drop(list)
+                if type(list) ~= "table" then return end
+                local count = #list
+                for index = 1, count do
+                    local entry = list[index]
+                    if type(entry) == "table" and entry.path and seen[pathSlot(entry.path)][entry.path] then
+                        list[index] = nil
+                    end
+                end
+            end
+            if expected.image_chunks then
+                for _, chunk in ipairs(expected.image_chunks) do drop(chunk) end
+            end
+            for _, inventory in pairs(expected.exporters) do
+                drop(inventory.images)
+                drop(inventory.shared_images)
+            end
+            collectgarbage("collect")
+        end
+        local exporterNames=keys(exporters)
+        for index,name in ipairs(exporterNames) do
+            if index > 1 then
+                local inventory=expected.exporters[name]
+                inventory.images=restore(name,"images")
+                inventory.shared_images=restore(name,"shared")
+            end
+            parkOthers(name)
             local exporterMark=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
             if exporterMark then exporterMark:write("exporter "..name.."\t"..tostring(collectgarbage("count")).."\n"); exporterMark:close() end
             manifest.exporters[name]=VisualCatalog.runExporter(name,save,expected.exporters[name])
+            expected.exporters[name].images, expected.exporters[name].shared_images = nil, nil
             if provider and provider.releaseCatalogue and SourceMaps and SourceMaps._releaseSharedCompact then
                 provider:releaseCatalogue()
                 SourceMaps._releaseSharedCompact()

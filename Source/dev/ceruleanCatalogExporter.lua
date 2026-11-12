@@ -91,6 +91,40 @@ function CeruleanCatalogExporter.poses()
     return CeruleanCatalogExporter.poseInventory(actors(), "cerulean")
 end
 
+local baseTiles
+local function baseTile(id)
+    if not baseTiles then baseTiles = TileFactory.generateAll(nil) end
+    return baseTiles:getImage(id)
+end
+
+-- One full-size bitmap. The tilemap path keeps a second native buffer of the
+-- same size, and the city frame does not fit beside it.
+local function paintTerrain(zone)
+    local width, height = zone.width * TILE_SIZE, zone.height * TILE_SIZE
+    local image = assert(gfx.image.new(width, height, gfx.kColorWhite), "catalog image allocation failed")
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    local cache = {}
+    for y = 1, zone.height do
+        local row = zone.tiles[y]
+        for x = 1, zone.width do
+            local id = row[x]
+            local tile = cache[id]
+            if not tile then
+                tile = id > 37 and zone.registry:renderImported(id, TileFactory.renderGrid) or baseTile(id)
+                cache[id] = tile
+            end
+            tile:draw((x - 1) * TILE_SIZE, (y - 1) * TILE_SIZE)
+        end
+        if GameBootstrap and y % 3 == 0 then GameBootstrap.yieldIfDue() end
+    end
+    gfx.popContext()
+    return image
+end
+
 local function render(width, height, color, callback)
     local image = assert(gfx.image.new(width, height, color), "catalog image allocation failed")
     gfx.pushContext(image)
@@ -192,8 +226,8 @@ function CeruleanCatalogExporter.inventory()
     return result
 end
 
-function CeruleanCatalogExporter.hiddenEvents(name, scriptPath)
-    local descriptor = SourceMaps.descriptor(name)
+function CeruleanCatalogExporter.hiddenEvents(name, scriptPath, descriptor)
+    descriptor = descriptor or SourceMaps.descriptor(name)
     local result = {}
     for _, event in ipairs(SourceMaps.record(scriptPath or "data/sourceSlice/scripts.json").hidden_events) do
         if event.map_id == descriptor.id then
@@ -208,6 +242,7 @@ function CeruleanCatalogExporter.hiddenEvents(name, scriptPath)
 end
 
 local function mapImages(name, sink, packagePrefix, hiddenEvents)
+    if VisualCatalog._dropSavedDeclarations then VisualCatalog._dropSavedDeclarations() end
     local mark = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
     if mark then mark:write("map-image " .. tostring(packagePrefix or "cerulean") .. " " .. name .. "\t" .. tostring(collectgarbage("count")) .. "\n"); mark:close() end
     local descriptor = SourceMaps.descriptor(name)
@@ -216,90 +251,108 @@ local function mapImages(name, sink, packagePrefix, hiddenEvents)
     local prepared = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
     if prepared then prepared:write("map-prepared " .. name .. "\t" .. tostring(collectgarbage("count")) .. "\n"); prepared:close() end
     assert(zone.registry ~= WorldTiles, "catalog requires a private palette")
-    local view
+    -- The zone already owns its tile ids. The padded copy, the compact
+    -- catalogue, and the tile-grid file are a second and third copy, and the
+    -- city bitmap does not fit beside them.
+    definition.tile_ids, definition.collision, definition.grids = nil, nil, nil
+    descriptor.tile_rows = nil
+    if SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+    if SourceMaps._releaseSharedCompact then SourceMaps._releaseSharedCompact() end
+    collectgarbage("collect")
+    local slim = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+    if slim then slim:write("map-slim " .. name .. "\t" .. tostring(collectgarbage("count")) .. "\n"); slim:close() end
+    local width, height = zone.width * TILE_SIZE, zone.height * TILE_SIZE
+    local prefix = (packagePrefix or "cerulean") .. "-" .. name .. "-"
     local ok, result = pcall(function()
-        view = WorldView(zone, { attach = false })
-        local terrain = view:render()
-        local width, height = terrain:getSize()
-        local prefix = (packagePrefix or "cerulean") .. "-" .. name .. "-"
+        -- Collision does not need the terrain bitmap. Allocate it first,
+        -- while no other full-size image is live.
+        sink.save(prefix .. "collision", render(width, height, gfx.kColorWhite, function()
+            for y, row in ipairs(zone.collision) do
+                for x, value in ipairs(row) do
+                    if value == 1 then gfx.fillRect((x-1)*TILE_SIZE, (y-1)*TILE_SIZE, TILE_SIZE, TILE_SIZE) end
+                end
+                if GameBootstrap and y % 3 == 0 then GameBootstrap.yieldIfDue() end
+            end
+        end), "collision")
+        collectgarbage("collect")
+        local terrain = paintTerrain(zone)
         sink.save(prefix .. "terrain", terrain, "terrain")
         local cx = math.max(0, math.min(width - 400, zone.spawn.x * TILE_SIZE - 200))
         local cy = math.max(0, math.min(height - 240, zone.spawn.y * TILE_SIZE - 120))
         sink.save(prefix .. "viewport", render(400, 240, gfx.kColorWhite, function()
             terrain:draw(-cx, -cy)
         end), "map-viewport")
-        sink.save(prefix .. "collision", render(width, height, gfx.kColorWhite, function()
-            for y, row in ipairs(zone.collision) do
-                for x, value in ipairs(row) do
-                    if value == 1 then gfx.fillRect((x-1)*TILE_SIZE, (y-1)*TILE_SIZE, TILE_SIZE, TILE_SIZE) end
-                end
-            end
-        end), "collision")
+        terrain = nil
+        collectgarbage("collect")
         local actorRows = {}
-        sink.save(prefix .. "actors", render(width, height, gfx.kColorWhite, function()
-            terrain:draw(0, 0)
-            -- Every source row, including hidden/fossil/rival alternatives.
-            -- Never evaluate def.appearsIf or invoke a Story/session reader.
-            for _, def in ipairs(zone.npcDefs) do
-                local strip = CeruleanContent.sprite(def.source_sprite)
-                local direction = def.facing
-                local index = strip.standing[strip.fixed and "down" or direction == "right" and "left" or direction]
-                local image = CeruleanContent.poseImage(def.source_sprite, "stand", direction)
-                image:draw(def.gridX*TILE_SIZE, def.gridY*TILE_SIZE-8)
-                actorRows[#actorRows + 1] = { id = def.source_event_id, sprite = def.source_sprite,
-                    x = def.gridX, y = def.gridY, direction = direction, frame = index,
-                    visibility_policy = "all source rows; predicates never evaluated" }
-            end
-        end), "actors")
+        terrain = paintTerrain(zone)
+        gfx.pushContext(terrain)
+        -- Every source row, including hidden/fossil/rival alternatives.
+        -- Never evaluate def.appearsIf or invoke a Story/session reader.
+        for _, def in ipairs(zone.npcDefs) do
+            local strip = CeruleanContent.sprite(def.source_sprite)
+            local direction = def.facing
+            local index = strip.standing[strip.fixed and "down" or direction == "right" and "left" or direction]
+            local image = CeruleanContent.poseImage(def.source_sprite, "stand", direction)
+            image:draw(def.gridX*TILE_SIZE, def.gridY*TILE_SIZE-8)
+            actorRows[#actorRows + 1] = { id = def.source_event_id, sprite = def.source_sprite,
+                x = def.gridX, y = def.gridY, direction = direction, frame = index,
+                visibility_policy = "all source rows; predicates never evaluated" }
+        end
+        gfx.popContext()
+        sink.save(prefix .. "actors", terrain, "actors")
+        terrain = nil
+        collectgarbage("collect")
         local specs = SourceBindings.specs(name, definition, SourceEvents.has)
         local events, connections = {}, {}
-        sink.save(prefix .. "events", render(width, height, gfx.kColorWhite, function()
-            terrain:draw(0, 0)
-            local function label(x, y, text)
-                gfx.setColor(gfx.kColorWhite)
-                gfx.fillRect(x+1, y+1, 30, 22)
-                gfx.setColor(gfx.kColorBlack)
-                gfx.drawRect(x+1, y+1, 30, 22)
-                gfx.drawText(text, x+3, y+3)
+        local hiddenRows = hiddenEvents and hiddenEvents(name, descriptor) or CeruleanCatalogExporter.hiddenEvents(name, nil, descriptor)
+        terrain = paintTerrain(zone)
+        gfx.pushContext(terrain)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.setFont(gfx.getSystemFont())
+        local function label(x, y, text)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.fillRect(x+1, y+1, 30, 22)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawRect(x+1, y+1, 30, 22)
+            gfx.drawText(text, x+3, y+3)
+        end
+        for _, kind in ipairs({ "objects", "background_events", "warps" }) do
+            for index, event in ipairs(definition.events[kind]) do
+                label(event.x*TILE_SIZE, event.y*TILE_SIZE,
+                    (kind == "objects" and "O" or kind == "warps" and "W" or "B") .. index)
+                events[#events + 1] = { id = event.id, kind = kind, x = event.x, y = event.y,
+                    source_x = event.source_x or event.x-descriptor.padding, source_y = event.source_y or event.y,
+                    status = assert(specs[event.id]).status, destination = event.destination, sprite = event.sprite }
             end
-            for _, kind in ipairs({ "objects", "background_events", "warps" }) do
-                for index, event in ipairs(definition.events[kind]) do
-                    label(event.x*TILE_SIZE, event.y*TILE_SIZE,
-                        (kind == "objects" and "O" or kind == "warps" and "W" or "B") .. index)
-                    events[#events + 1] = { id = event.id, kind = kind, x = event.x, y = event.y,
-                        source_x = event.source_x or event.x-descriptor.padding, source_y = event.source_y or event.y,
-                        status = assert(specs[event.id]).status, destination = event.destination, sprite = event.sprite }
-                end
-            end
-            for index, event in ipairs((hiddenEvents or CeruleanCatalogExporter.hiddenEvents)(name)) do
-                label(event.x*TILE_SIZE, event.y*TILE_SIZE, "H" .. index)
-                events[#events + 1] = event
-            end
-            for _, connection in ipairs(definition.connections) do
-                local direction = connection.direction
-                local x = direction == "west" and 0 or direction == "east" and width-32 or width//2-16
-                local y = direction == "north" and 0 or direction == "south" and height-32 or height//2-16
-                label(x, y, direction:sub(1,1):upper())
-                local id = direction .. ":" .. connection.target_map
-                connections[#connections + 1] = { id = id, direction = direction, target_map = connection.target_map,
-                    entry_lateral_adjustment_cells = connection.entry_lateral_adjustment_cells,
-                    status = assert(specs[id]).status }
-            end
-        end), "events-warps-connections")
+        end
+        for index, event in ipairs(hiddenRows) do
+            label(event.x*TILE_SIZE, event.y*TILE_SIZE, "H" .. index)
+            events[#events + 1] = event
+        end
+        for _, connection in ipairs(definition.connections) do
+            local direction = connection.direction
+            local x = direction == "west" and 0 or direction == "east" and width-32 or width//2-16
+            local y = direction == "north" and 0 or direction == "south" and height-32 or height//2-16
+            label(x, y, direction:sub(1,1):upper())
+            local id = direction .. ":" .. connection.target_map
+            connections[#connections + 1] = { id = id, direction = direction, target_map = connection.target_map,
+                entry_lateral_adjustment_cells = connection.entry_lateral_adjustment_cells,
+                status = assert(specs[id]).status }
+        end
+        gfx.popContext()
+        sink.save(prefix .. "events", terrain, "events-warps-connections")
         local report = { name = name, zone_id = descriptor.id, key = descriptor.key,
             width = zone.width, height = zone.height, source_width = descriptor.source_width, padding = descriptor.padding,
             source_sha256 = descriptor.source_sha256, actors = actorRows, events = events, connections = connections,
             directional_rules = definition.directional_rules, issues = zone:getBindingIssues(),
             campaign_ready = zone:isCampaignReady(), slice_ready = zone:isSliceReady() }
-        -- The map bitmap and the padded definition are finished. Drop them
-        -- before the next route allocates its own pair.
         terrain = nil
         definition = nil
         zone = nil
         collectgarbage("collect")
         return report
     end)
-    if view then view:dispose() end
     if not ok then error(result, 0) end
     return result
 end
@@ -314,9 +367,13 @@ function CeruleanCatalogExporter.writer(sink)
         local tile = SourceMaps.tile(key)
         local name = "tile_imported_" .. VisualCatalog.stableName(key)
         sink.asset(name, TileRegistry.renderImportedGrid(tile.grid, TileFactory.renderGrid), "imported-tile", false)
-        report.tiles[#report.tiles + 1] = { stable_key = key, path = name .. ".png",
-            terrain = tile.terrain, collision = tile.collision }
+        -- Terrain and collision are detached copies of the grid record. Keeping
+        -- every one pins that memory through the map pass, and the compact
+        -- catalogue then cannot be decoded again.
+        report.tiles[#report.tiles + 1] = { stable_key = key, path = name .. ".png" }
+        tile = nil
     end
+    collectgarbage("collect")
     for _, name in ipairs(maps()) do
         report.maps[#report.maps + 1] = mapImages(name, sink)
         collectgarbage("collect")

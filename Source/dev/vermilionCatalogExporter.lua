@@ -67,8 +67,8 @@ function VermilionCatalogExporter.poses()
     return result
 end
 
-function VermilionCatalogExporter.hiddenEvents(name)
-    return shared.hiddenEvents(name, root .. "scripts.json")
+function VermilionCatalogExporter.hiddenEvents(name, descriptor)
+    return shared.hiddenEvents(name, root .. "scripts.json", descriptor)
 end
 
 -- Counts derive from the pinned package's definitions. Shared families are

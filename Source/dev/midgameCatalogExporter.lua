@@ -220,7 +220,7 @@ function MidgameCatalogExporter.writer(sink)
         local tile <const> = SourceMaps.tile(key)
         local stem <const> = "tile_imported_" .. VisualCatalog.stableName(key)
         sink.asset(stem, TileRegistry.renderImportedGrid(tile.grid, TileFactory.renderGrid), "imported-tile", false)
-        report.tiles[#report.tiles + 1] = {stable_key=key, path=stem .. ".png", terrain=tile.terrain}
+        report.tiles[#report.tiles + 1] = {stable_key=key, path=stem .. ".png"}
     end
     for _, name in ipairs(MidgameCatalogExporter.maps()) do
         local package <const> = packageFor(name)
