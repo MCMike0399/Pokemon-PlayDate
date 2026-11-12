@@ -278,6 +278,9 @@ class CharmanderRun(BrockJourney):
             "observe", "require_shop_stock", "advance_event",
         ):
             setattr(self, name, getattr(cerulean.CeruleanJourney, name).__get__(self, type(self)))
+        # Route 24/25 have a second edge cell that is passable but cut off
+        # from the road. The stock walker bounces through that pocket.
+        self.travel = self._travel_past_dead_edges
         self._kanto_route = True
 
     def after_boulder(self):
@@ -435,20 +438,121 @@ class CharmanderRun(BrockJourney):
         if count:
             self.buy_item(clerk, "potion", count, price)
 
+    def _arrival_reaches(self, zone_id, dest, target_id, goal):
+        """False when an edge cell is a pocket that cannot continue the trip."""
+        model = self.models[zone_id]
+        dest = tuple(dest)
+        if not model.inside(dest) or model.collision[dest[1]][dest[0]]:
+            return False
+        goals = set(goal) if zone_id == target_id and goal else set()
+        if not goals:
+            for point, _kind, _detail in self.portals(model):
+                if point != dest:
+                    goals.add(point)
+        if not goals:
+            return False
+        try:
+            model.path(dest, goals, set(), allow_warps=goals)
+            return True
+        except ProtocolError:
+            return False
+        except TypeError:
+            try:
+                model.path(dest, goals, set())
+                return True
+            except ProtocolError:
+                return False
+
+    def _cross_open_portal(self, target_id, goal, banned):
+        options = []
+        for point, kind, detail in self.portals(self.model()):
+            if kind != "connection":
+                continue
+            direction, destination = detail
+            zone, dest = destination[0], tuple(destination[1])
+            if (zone, dest) in banned:
+                continue
+            if not self._arrival_reaches(zone, dest, target_id, goal):
+                continue
+            options.append((point, direction, zone, dest))
+        if not options:
+            return False
+        point, direction, zone, dest = options[0]
+        origin = self.state["zone_id"]
+        self.navigate(point)
+        self.cross(direction, zone, dest)
+        self.summary["transitions"].append({
+            "from": origin, "kind": "connection", "source": direction, "to": [zone, list(dest)],
+        })
+        return True
+
+    def _travel_past_dead_edges(self, target_id, goal=None):
+        """Same real door walks, skipping an edge cell that cannot reach the road."""
+        from tools.harness.brock_journey import NaturalBlackout
+        if isinstance(goal, tuple):
+            goal = {goal}
+        banned = set()
+        for _ in range(self.config.get("max_transitions", 64)):
+            try:
+                portal = self.route_portal(target_id, goal)
+                if portal is None:
+                    if goal is not None:
+                        self.navigate(goal)
+                    return
+                point, kind, detail, destination = portal
+                if kind == "connection":
+                    zone, dest = destination[0], tuple(destination[1])
+                    if (zone, dest) in banned or not self._arrival_reaches(zone, dest, target_id, goal):
+                        banned.add((zone, dest))
+                        if self.state.get("zone_id") == target_id and goal is not None:
+                            self.navigate(goal)
+                            return
+                        if self._cross_open_portal(target_id, goal, banned):
+                            continue
+                        raise ProtocolError("no open route past a dead map edge to " + str(target_id))
+                origin = self.state["zone_id"]
+                if kind == "warp":
+                    self.warp(destination[0], event_id=detail["id"])
+                else:
+                    self.navigate(point)
+                    self.cross(detail[0], *destination)
+                self.summary["transitions"].append({
+                    "from": origin, "kind": kind,
+                    "source": detail["id"] if kind == "warp" else detail[0],
+                    "to": destination,
+                })
+            except NaturalBlackout:
+                if self.config.get("name") not in {"cerulean-natural", "vermilion-natural"}:
+                    raise
+                self.recover_path_blackout("travel to " + str(target_id))
+        raise ProtocolError("Cerulean physical transition budget exhausted")
+
     def _fight_route_trainers(self, constant, indices):
-        """Nugget Bridge, the rest of Route 24, and Route 25. Save before each fight."""
+        """Nugget Bridge, the rest of Route 24, and Route 25. Save after each win."""
         import tools.harness.cerulean_journey as cerulean
-        fought = False
+        pending = []
         for index in indices:
             trainer = cerulean.sid(constant, index)
             if trainer not in self.source_trainers or self.defeated(trainer):
                 continue
+            zone = self.source_trainers[trainer]["map_id"]
+            event = next(row for row in self.models[zone].events["objects"] if row["id"] == trainer)
+            pending.append((event["x"], event["y"], trainer))
+        # Meet the southern Route 24 trainers first, and the western Route 25 trainers first.
+        if constant == "ROUTE_25":
+            pending.sort(key=lambda row: (row[0], row[1]))
+        else:
+            pending.sort(key=lambda row: (-row[1], row[0]))
+        fought = False
+        for _x, _y, trainer in pending:
             self._arrange_lead("starter")
             if self._needs_heal():
                 self.heal_here("CeruleanPokecenter")
             self.save()
             self.fight(trainer)
             fought = True
+            if self.state.get("root") == "overworld":
+                self.save()
         if fought:
             self.heal_here("CeruleanPokecenter")
             self._stock_potions()
@@ -832,6 +936,8 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("def _prepare_for_misty", source)
         self.assertIn("ROUTE_25", source)
         self.assertIn("return getattr(self, \"_misty_level_target\", 26)", source)
+        self.assertIn("self.travel = self._travel_past_dead_edges", source)
+        self.assertIn("no open route past a dead map edge", source)
         self.assertLess(source.index("if not self._misty_ready()"), source.index("self.fight(cerulean.MISTY)"))
         self.assertIn("wait 30", (REPO / "tools/harness/journeys.py").read_text(encoding="utf-8"))
 
