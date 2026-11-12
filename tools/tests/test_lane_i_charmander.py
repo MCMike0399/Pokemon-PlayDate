@@ -408,6 +408,15 @@ class CharmanderRun(BrockJourney):
     def _after_cascade(self):
         """Nugget Bridge and Bill. Save before each row of trainers."""
         import tools.harness.cerulean_journey as cerulean
+        zone_id = self.state.get("zone_id") or ""
+        if self.flag("EVENT_GOT_SS_TICKET") and any(
+                token in zone_id for token in ("VERMILION", "SS_ANNE", "ROUTE_5", "ROUTE_6", "UNDERGROUND")):
+            self._pin_route_trainers()
+            if "VERMILION_POKECENTER" in zone_id or "SS_ANNE" in zone_id:
+                self._toward_surge()
+            else:
+                self._toward_vermilion()
+            return
         if not self.defeated(cerulean.BRIDGE_RIVAL):
             self.save()
             self.fight(cerulean.BRIDGE_RIVAL)
@@ -473,11 +482,17 @@ class CharmanderRun(BrockJourney):
         """
         path = REPO / "Source" / "dev" / "vermilionJourney.json"
         trainers = json.loads(path.read_text())["trainers"]
+        starter = getattr(self, "starter", None) or "charmander"
         for trainer_id, record in trainers.items():
-            if trainer_id in self.source_trainers:
+            if trainer_id in self.source_trainers or not isinstance(record, dict):
                 continue
-            if isinstance(record, dict) and type(record.get("payout")) is int:
-                self.source_trainers[trainer_id] = record
+            chosen = record
+            parties = record.get("rival_parties")
+            selected = parties.get(starter) if isinstance(parties, dict) else None
+            if isinstance(selected, dict) and type(selected.get("payout")) is int and isinstance(selected.get("party"), list):
+                chosen = dict(record, party=selected["party"], payout=selected["payout"])
+            if type(chosen.get("payout")) is int:
+                self.source_trainers[trainer_id] = chosen
 
     def step(self, step):
         """Wait when a pacing NPC steps onto the cell the path just chose."""
@@ -508,6 +523,82 @@ class CharmanderRun(BrockJourney):
             self.travel(self.zone("VermilionCity"))
         self.heal_here("VermilionPokecenter")
         self.save()
+        self._toward_surge()
+
+    def _vermilion_tools(self):
+        """Bind the ship and gym button methods. Do not run the 5.4 campaign."""
+        import tools.harness.vermilion_journey as vermilion
+        if getattr(self, "_vermilion_bound", False):
+            return vermilion
+        self.vermilion = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
+        self.field_definitions = json.loads((REPO / "Source" / "data" / "fieldMoves.json").read_text())
+        self.cut_cells = []
+        self.cut_witnesses = 0
+        self.vermilion_active = True
+        for name in (
+            "teach_cut", "field_cut", "puzzle", "inspect_can",
+            "apply_world_observation", "leave_gym",
+        ):
+            setattr(self, name, getattr(vermilion.VermilionJourney, name).__get__(self, type(self)))
+        self._vermilion_bound = True
+        return vermilion
+
+    def _toward_surge(self):
+        """Board the S.S. Anne, teach Cut, and fight Lt. Surge."""
+        import tools.harness.cerulean_journey as cerulean
+        vermilion = self._vermilion_tools()
+        if not self.flag("EVENT_GOT_HM01"):
+            if "SS_ANNE" not in (self.state.get("zone_id") or ""):
+                self.travel(self.zone("VermilionDock"))
+                self.travel(self.zone("SSAnne1F"))
+            if not self.defeated(vermilion.RIVAL):
+                self.navigate((3, 7))
+                self.navigate((3, 6))
+                self.warp(self.zone("SSAnne2F"), event_id="pokered:SS_ANNE_1F:warps:9")
+                trigger = self.vermilion["scenes"]["rival"]["variants"][0]["trigger"]
+                pad = self.models[self.zone("SSAnne2F")].padding
+                self.travel(self.zone("SSAnne2F"), (trigger["x"] + pad, trigger["y"]))
+            if not self.defeated(vermilion.RIVAL):
+                raise ProtocolError("S.S. Anne rival was not defeated")
+            self.travel(self.zone("SSAnneCaptainsRoom"))
+            self.reward(vermilion.CAPTAIN, "hm01", "EVENT_GOT_HM01")
+            if self.quantity("hm01") != 1:
+                raise ProtocolError("HM01 was not received once")
+            self.save()
+        self.teach_cut()
+        if not self.flag("EVENT_SS_ANNE_LEFT"):
+            self.travel(self.zone("SSAnne1F"))
+            self.navigate((25, 7))
+            self.navigate((26, 1))
+            self.step(self.model().terrain_step(self.position(), "up"))
+            self.send("wait 2")
+            self.drain()
+            if self.state["zone_id"] == self.zone("VermilionDock"):
+                self.navigate((14, 1))
+                self.step(self.model().terrain_step(self.position(), "up"))
+                self.send("wait 2")
+                self.drain()
+            if self.state["zone_id"] != self.zone("VermilionCity") or not self.flag("EVENT_SS_ANNE_LEFT"):
+                raise ProtocolError("the S.S. Anne did not leave")
+            self.save()
+        if not self.flag("BADGE_THUNDER"):
+            for trainer_index in (4, 3, 2):
+                trainer_id = cerulean.sid("VERMILION_GYM", trainer_index)
+                if self.defeated(trainer_id):
+                    continue
+                self.heal_here("VermilionPokecenter")
+                self.save()
+                self.fight(trainer_id)
+            self.heal_here("VermilionPokecenter")
+            self.save()
+            self.travel(self.zone("VermilionGym"))
+            self.puzzle()
+            self.fight(vermilion.SURGE)
+            if not all(self.flag(flag) for flag in ("BADGE_THUNDER", "EVENT_BEAT_LT_SURGE", "EVENT_GOT_TM24")) or self.quantity("tm24") != 1:
+                raise ProtocolError("Lt. Surge win, badge, or TM24 is missing")
+            self.heal_here("VermilionPokecenter")
+            self.save()
+        self.summary.update(acceptance="Thunder Badge earned", natural=True, forbidden_shortcuts=False)
 
     def _have_counter(self, minimum):
         return any(
