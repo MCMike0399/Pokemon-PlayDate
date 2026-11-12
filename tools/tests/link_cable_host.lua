@@ -143,12 +143,17 @@ press(playdate.kButtonA) -- USE
 eq(game.machine:current().name, "party", "party asks which Pokemon")
 press(playdate.kButtonA) -- Kadabra, the lead
 eq(game.machine:current().name, "evolution", "the stone opens the evolution")
+-- Dialog:handleInput finishes a line on A, then keeps the complete page up
+-- for 10 frames before a later A can turn it. home/text.asm PrintLetterDelay
+-- and home/joypad2.asm WaitForTextScrollButtonPress.
 press(playdate.kButtonA) -- finish the "is evolving" line
-press(playdate.kButtonA) -- leave that box
+frames(12)
+press(playdate.kButtonA) -- leave that box; the 120-frame animation starts
 frames(120)
 eq(mon.species, "alakazam", "Kadabra evolved")
 eq(session:inventory():quantity("linkCable"), 0, "the cable was consumed")
-press(playdate.kButtonA)
-press(playdate.kButtonA)
+press(playdate.kButtonA) -- finish the result line
+frames(12)
+press(playdate.kButtonA) -- leave that box
 eq(game.machine:current().name, "bag", "the bag returns after the evolution")
 print("link-cable-host ok")
