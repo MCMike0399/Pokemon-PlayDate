@@ -128,12 +128,23 @@ class CharmanderRun(BrockJourney):
 
     def send(self, *commands):
         if needs_action_pause(self.actions, self.state, getattr(self, "_stopping", False)):
-            self._stopping = True
-            self.save()
+            self._save_for_next_session()
             raise ActionPause("charmander saved so the next session can continue")
         commands = pause_press(ball_press(commands, self.state), self.state)
         real_input(commands)
         return super().send(*commands)
+
+    def _save_for_next_session(self):
+        """Finish a queued grass battle, then pause Save from the overworld."""
+        self._stopping = True
+        super().send("wait 12")
+        if self.state.get("root") != "overworld":
+            self._stopping = False
+            self.drain()
+            self._stopping = True
+        if self.state.get("root") != "overworld":
+            raise ProtocolError("action pause could not return to the overworld")
+        self.save()
 
     def training_battle(self):
         super().training_battle()
