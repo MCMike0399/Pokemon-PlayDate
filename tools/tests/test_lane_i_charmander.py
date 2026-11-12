@@ -136,6 +136,8 @@ def key_fight(name, trainer_id):
         return "badge-cascade"
     if trainer == "pokered:VERMILION_GYM:objects:1" or label.startswith("surge"):
         return "badge-thunder"
+    if trainer == "pokered:CELADON_GYM:objects:1" or label.startswith("erika"):
+        return "badge-rainbow"
     return None
 
 
@@ -409,6 +411,10 @@ class CharmanderRun(BrockJourney):
     def _after_cascade(self):
         """Nugget Bridge and Bill. Save before each row of trainers."""
         import tools.harness.cerulean_journey as cerulean
+        if self.flag("BADGE_THUNDER"):
+            self._pin_route_trainers()
+            self._toward_erika()
+            return
         zone_id = self.state.get("zone_id") or ""
         if self.flag("EVENT_GOT_SS_TICKET") and any(
                 token in zone_id for token in ("VERMILION", "SS_ANNE", "ROUTE_5", "ROUTE_6", "UNDERGROUND")):
@@ -580,8 +586,18 @@ class CharmanderRun(BrockJourney):
             "apply_world_observation", "leave_gym",
         ):
             setattr(self, name, getattr(vermilion.VermilionJourney, name).__get__(self, type(self)))
+        self.require_shop_stock = type(self)._shop_stock.__get__(self, type(self))
         self._vermilion_bound = True
         return vermilion
+
+    def _shop_stock(self, clerk, item):
+        """Vermilion Mart is not in the Cerulean shop export."""
+        shop = (getattr(self, "vermilion", {}) or {}).get("shops", {}).get(clerk)
+        price = shop.get("prices", {}).get(item) if isinstance(shop, dict) else None
+        if shop and item in shop.get("stock", ()) and type(price) is int and price > 0:
+            return
+        import tools.harness.cerulean_journey as cerulean
+        return cerulean.CeruleanJourney.require_shop_stock(self, clerk, item)
 
     def _toward_surge(self):
         """Board the S.S. Anne, teach Cut, and fight Lt. Surge."""
@@ -653,6 +669,237 @@ class CharmanderRun(BrockJourney):
             self.heal_here("VermilionPokecenter")
             self.save()
         self.summary.update(acceptance="Thunder Badge earned", natural=True, forbidden_shortcuts=False)
+        self._toward_erika()
+
+    def _pin_cached_trainers(self):
+        """Route 9, the tunnel, and Celadon are not in the Vermilion table.
+
+        The content cache already stores each trainer's payout. A win still
+        has to match that record. This does not invent a number, and it does
+        not replace a rival party the Vermilion table already selected.
+        """
+        if getattr(self, "_cached_trainers_pinned", False):
+            return
+        root = REPO / "Source" / "data" / "contentCache" / "chunks-v2"
+        for path in root.rglob("*.json"):
+            try:
+                record = json.loads(path.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not isinstance(record, dict):
+                continue
+            trainer_id = record.get("id")
+            if (not isinstance(trainer_id, str) or not trainer_id.startswith("pokered:")
+                    or type(record.get("payout")) is not int or not isinstance(record.get("map_id"), str)
+                    or trainer_id in self.source_trainers):
+                continue
+            self.source_trainers[trainer_id] = record
+        self._cached_trainers_pinned = True
+
+    def _zone_has(self, *tokens):
+        zone = self.state.get("zone_id") or ""
+        return any(token in zone for token in tokens)
+
+    def _past_cerulean(self):
+        return self._zone_has(
+            "ROUTE_9", "ROUTE_10", "ROCK_TUNNEL", "LAVENDER", "ROUTE_8", "ROUTE_7", "CELADON",
+            "UNDERGROUND_PATH_ROUTE_8", "UNDERGROUND_PATH_WEST_EAST", "UNDERGROUND_PATH_ROUTE_7")
+
+    def _south_of_tunnel(self):
+        return self.state.get("zone_id") == self.zone("Route10") and self.position()[1] > 40
+
+    def _past_tunnel(self):
+        if self._south_of_tunnel():
+            return True
+        return self._zone_has(
+            "LAVENDER", "ROUTE_8", "ROUTE_7", "CELADON",
+            "UNDERGROUND_PATH_ROUTE_8", "UNDERGROUND_PATH_WEST_EAST", "UNDERGROUND_PATH_ROUTE_7")
+
+    def _owned_species(self):
+        owned = lookup(self.state, "session.pokedex.owned")
+        if not isinstance(owned, dict):
+            return None
+        return sum(1 for value in owned.values() if value)
+
+    def _cut_tree(self, zone_name, cell):
+        """Seal the Cut target, then use the party menu. A reload grows it back."""
+        model = self.models[self.zone(zone_name)]
+        x, y = cell[0] + model.padding, cell[1]
+        model.collision[y][x] = 1
+        index = next(i for i, mon in enumerate(self.party(), 1) if "cut" in mon["moves"])
+        self.field_cut(index, zone_name, cell)
+
+    def _buy_trip_medicine(self):
+        clerk = self.zone("VermilionMart") + ":objects:1"
+        shop = self.vermilion["shops"][clerk]
+        self.travel(self.zone("VermilionMart"))
+        price = shop["prices"]["superPotion"]
+        count = min(5, max(0, 5 - self.quantity("superPotion")),
+                    max(0, self.inventory()["money"] - 2000) // price)
+        if count:
+            self.buy_item(clerk, "superPotion", count, price)
+
+    def _train_bench(self, enabled):
+        self.summary.setdefault("training", [])
+        self.summary.setdefault("battles", [])
+        if enabled:
+            self.training_mode = "train"
+            self._arrange_lead("bench")
+        else:
+            self.training_mode = None
+
+    def _probe_rock_tunnel(self):
+        """Step cave grass. No wild battle here is the indoor encounter gap."""
+        before = len(self.summary.get("training") or [])
+        model = self.model()
+        origin = self.position()
+        candidates = []
+        for y in range(model.height):
+            for x in range(model.width):
+                for other in ((x + 1, y), (x, y + 1)):
+                    if not model.inside(other):
+                        continue
+                    ox, oy = other
+                    if not model.grass[y][x] or not model.grass[oy][ox]:
+                        continue
+                    if model.collision[y][x] or model.collision[oy][ox]:
+                        continue
+                    dist = abs(x - origin[0]) + abs(y - origin[1])
+                    candidates.append((dist, ((x, y), other)))
+        candidates.sort(key=lambda row: row[0])
+        self.training_mode = "train"
+        self._arrange_lead("bench")
+        pair = None
+        for _, candidate in candidates[:8]:
+            try:
+                self.navigate(candidate[0])
+            except ProtocolError:
+                continue
+            pair = candidate
+            break
+        steps = 0
+        if pair is not None:
+            left, right = pair
+            for _ in range(20):
+                target = right if self.position() != right else left
+                try:
+                    self.navigate(target)
+                except ProtocolError:
+                    break
+                steps += 1
+                if len(self.summary.get("training") or []) > before:
+                    break
+        gained = len(self.summary.get("training") or []) - before
+        self.summary["rock_tunnel_grass_steps"] = steps
+        if gained > 0:
+            self.summary["rock_tunnel_encounters"] = gained
+        elif steps >= 12:
+            self.summary["rock_tunnel_encounters"] = (
+                "none after stepping Rock Tunnel grass; same cave and indoor "
+                "wild-encounter gap lane B is fixing against pokered TryDoWildEncounter")
+        else:
+            self.summary["rock_tunnel_encounters"] = "unchecked; the grass walk was shorter than 12 steps"
+
+    def _cross_rock_tunnel(self):
+        zone = self.state.get("zone_id")
+        if zone == self.zone("RockTunnelB1F"):
+            self.warp(self.zone("RockTunnel1F"), self.zone("RockTunnelB1F") + ":warps:2")
+            zone = self.state.get("zone_id")
+        if zone == self.zone("RockTunnel1F"):
+            self.warp(self.zone("Route10"), self.zone("RockTunnel1F") + ":warps:1")
+        if self._south_of_tunnel():
+            return
+        if self.state.get("zone_id") == self.zone("RockTunnelPokecenter"):
+            self.travel(self.zone("Route10"))
+        self.warp(self.zone("RockTunnel1F"), self.zone("Route10") + ":warps:2")
+        self._probe_rock_tunnel()
+        ladders = (
+            ("RockTunnel1F", 5, "RockTunnelB1F"),
+            ("RockTunnelB1F", 2, "RockTunnel1F"),
+            ("RockTunnel1F", 7, "RockTunnelB1F"),
+            ("RockTunnelB1F", 4, "RockTunnel1F"),
+            ("RockTunnel1F", 3, "Route10"),
+        )
+        for name, warp, target in ladders:
+            self.require(zone_id=self.zone(name))
+            self.warp(self.zone(target), self.zone(name) + ":warps:" + str(warp))
+
+    def _toward_erika(self):
+        """Underground to Cerulean, then Route 9, Rock Tunnel, and Erika.
+
+        The Route 2 aide wants 10 owned species before HM05. This party is
+        still short of that, and the tunnel ladders do not need Flash.
+        Diglett's Cave is the long way to the aide, so it stays unused.
+        """
+        if self.flag("BADGE_RAINBOW"):
+            self.summary.update(acceptance="Rainbow Badge earned", natural=True, forbidden_shortcuts=False)
+            return
+        self.summary["acceptance"] = "walking toward the Rainbow Badge"
+        self._vermilion_tools()
+        self._pin_route_trainers()
+        self._pin_cached_trainers()
+        self.config["max_training_battles"] = 800
+        self.summary["flash"] = {
+            "taught": bool(self.flag("EVENT_GOT_HM05")),
+            "owned": self._owned_species(),
+            "aide_threshold": 10,
+        }
+        if not self._past_cerulean() and not self._zone_has("CERULEAN"):
+            if self._zone_has("VERMILION"):
+                self._buy_trip_medicine()
+            self.training_mode = None
+            for name in ("Route6", "UndergroundPathRoute6", "UndergroundPathNorthSouth",
+                         "UndergroundPathRoute5", "Route5"):
+                self.travel(self.zone(name))
+            self.heal_here("CeruleanPokecenter")
+            self.save()
+        if not self._past_tunnel() and not self._zone_has("ROUTE_10", "ROCK_TUNNEL"):
+            if self.state.get("zone_id") != self.zone("Route9"):
+                self._cut_tree("CeruleanCity", (19, 28))
+            self._train_bench(True)
+            if self.state.get("zone_id") != self.zone("Route9") or self.position()[0] <= 15:
+                self._cut_tree("Route9", (5, 8))
+            self.travel(self.zone("Route10"))
+            self.heal_here("RockTunnelPokecenter")
+            self.save()
+        if not self._past_tunnel():
+            self._cross_rock_tunnel()
+            self._train_bench(False)
+            self.heal_here("LavenderPokecenter")
+            self.save()
+        if not self._zone_has("CELADON"):
+            self._train_bench(True)
+            for name in ("Route8", "UndergroundPathRoute8", "UndergroundPathWestEast",
+                         "UndergroundPathRoute7", "Route7"):
+                self.travel(self.zone(name))
+            self._train_bench(False)
+            self.heal_here("CeladonPokecenter")
+            self.save()
+        self._train_bench(False)
+        self._arrange_lead("starter")
+        import tools.harness.cerulean_journey as cerulean
+        erika = cerulean.sid("CELADON_GYM", 1)
+        previous = self.config.get("max_blackouts", 1)
+        self.config["max_blackouts"] = 0
+        try:
+            for attempt in range(3):
+                self._arrange_lead("starter")
+                self._cut_tree("CeladonGym", (5, 7))
+                try:
+                    self.fight(erika)
+                    break
+                except ProtocolError as error:
+                    if "blackout" not in str(error).lower() or attempt == 2:
+                        raise
+                    self.heal_here("CeladonPokecenter")
+                    self.save()
+        finally:
+            self.config["max_blackouts"] = previous
+        if not self.flag("BADGE_RAINBOW"):
+            raise ProtocolError("Erika win did not award the Rainbow Badge")
+        self.heal_here("CeladonPokecenter")
+        self.save()
+        self.summary.update(acceptance="Rainbow Badge earned", natural=True, forbidden_shortcuts=False)
 
     def _have_counter(self, minimum):
         return any(
@@ -1305,6 +1552,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:2"), "pewter-jr")
         self.assertEqual(key_fight("source", "pokered:CERULEAN_GYM:objects:1"), "badge-cascade")
         self.assertEqual(key_fight("source", "pokered:VERMILION_GYM:objects:1"), "badge-thunder")
+        self.assertEqual(key_fight("source", "pokered:CELADON_GYM:objects:1"), "badge-rainbow")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
