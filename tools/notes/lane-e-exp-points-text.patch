@@ -1,0 +1,38 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1699,7 +1699,9 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
+         for _,entry in ipairs(awarded)do
+             local mon,row=entry.mon,entry.row
+             if row.xp>0 then
+-                self:say(mon.name .. " gained " .. row.xp .. " EXP!")
++                -- pokered data/text/text_2.asm _GainedText then _ExpPointsText.
++                -- row.xp stays the Gen V award.
++                self:say(mon.name .. " gained\n" .. row.xp .. " EXP. Points!")
+                 self:present("experience", {pokemon = mon, fromXP = beforeXP[mon], fromLevel = row.fromLevel})
+                 local shown,why=BattleRewards.acknowledge(self,receipt.id,row.index);assert(shown,why)
+                 if row.leveled then
+diff --git a/Source/dev/growthContracts.lua b/Source/dev/growthContracts.lua
+--- a/Source/dev/growthContracts.lua
++++ b/Source/dev/growthContracts.lua
+@@ -127,7 +127,7 @@ function GrowthContracts.run()
+         b:runScript(function() return b:handleFaint() end)
+         local text = settle(b)
+         equal(p.xp,230); equal(p.level,6)
+-        assert(text:find("gained 95 EXP!",1,true),"trainer award narration: " .. text)
++        assert(text:find("CHARMANDER gained\n95 EXP. Points!",1,true),"trainer award narration: " .. text)
+         equal(b:handleFaint(),"victory"); equal(p.xp,230,"repeated outcome cannot award twice")
+     end)
+     test("Level100 battle victory suppresses zero-award narration", function()
+diff --git a/tools/harness/reward_hud.py b/tools/harness/reward_hud.py
+--- a/tools/harness/reward_hud.py
++++ b/tools/harness/reward_hud.py
+@@ -36,7 +36,7 @@ class RewardHUDJourney(Journey):
+                     self.require(**{'battle.player.level':7,'battle.player.hp':20,'battle.player.maxHP':22,'battle.player.xp':303,
+                                     'battle.player.individuals.evs.spe':1,'battle.rewards.holds.1.level':6,
+                                     'battle.rewards.holds.1.hp':18,'battle.rewards.holds.1.maxHP':20,'battle.presentation.player.level':6,'battle.presentation.player.hp':18,'battle.presentation.player.maxHP':20})
+-                    if message!='CHARMANDER gained 68 EXP!':raise ProtocolError('unexpected literal first-foe EXP: '+message)
++                    if message!='CHARMANDER gained\n68 EXP. Points!':raise ProtocolError('unexpected literal first-foe EXP: '+message)
+                     self.checkpoint('reward-gained-before-ack');self.send('record reward-gained-held 12');gained=True
+                 elif ' grew to ' in message and gained and not grew:
+                     self.require(**{'battle.player.level':7,'battle.player.hp':20,'battle.player.maxHP':22,'battle.rewards.holds':[],'battle.presentation.player.level':7,'battle.presentation.player.hp':20,'battle.presentation.player.maxHP':22})
