@@ -28,7 +28,10 @@ def suite_names():
 
 
 def run_shard(kind, name, output, deadline):
-    output.mkdir(parents=True, exist_ok=False)
+    # run.py creates --output itself and refuses an existing directory.
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.exists():
+        raise SystemExit(f"shard output already exists: {output}")
     if kind == "contracts":
         command = ["contracts", name]
         timeout, ready, frames = "120", "90", "1800"
