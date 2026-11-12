@@ -392,6 +392,7 @@ class CharmanderRun(BrockJourney):
         price = self.export["shops"][clerk]["prices"]["pokeBall"]
         count = min(4 - self.quantity("pokeBall"), self.inventory()["money"] // price)
         if count:
+            self.travel(self.zone("CeruleanMart"))
             self.buy_item(clerk, "pokeBall", count, price)
 
     def _lead_counter(self, minimum):
@@ -436,6 +437,7 @@ class CharmanderRun(BrockJourney):
         reserve = 0 if self._have_counter(1) or self.quantity("pokeBall") >= 4 else 400
         count = min(target - have, max(0, (self.inventory()["money"] - reserve) // price))
         if count:
+            self.travel(self.zone("CeruleanMart"))
             self.buy_item(clerk, "potion", count, price)
 
     def _object_tiles(self, model):
