@@ -8,7 +8,7 @@ Lane B's `origin/cursor/lane-b-south-loop` is `0f809437`. It adds no code after 
 
 Lane H's `69264273` is merged. `data/maps/objects/PowerPlant.asm` objects 1, 2, 3, 5, 6, and 8 are Voltorb at level 40. Objects 4 and 7 are Electrode at level 43. Object 9 is Zapdos at `(4, 9)`, level 50, `STAY`, `UP`. `scripts/PowerPlant.asm` gives every one of them sight 0, and the trainer flags are `EVENT_BEAT_POWER_PLANT_VOLTORB_0` through `_7` and `EVENT_BEAT_ZAPDOS`. Mewtwo stays the single Cerulean Cave B1F row. A talk from a neighboring tile starts each of those battles. A disguised Voltorb or Electrode does not play a cry. Zapdos does. `ram/wram.asm` `wFossilItem` is the item byte, and `constants/item_constants.asm` gives Old Amber `$1F`, the Dome Fossil `$29`, and the Helix Fossil `$2A`. A save without that field still loads. Choosing the Dome Fossil and continuing writes byte 41. The names codec is not in this commit, so the session version stays 4.
 
-The coverage snapshot is `104ad1d15117ae7364e78cea03ce9e1f089c046276348e8ba6fd90afe3bc8bc1`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `sessionCodec.lua`.
+This entry is `de97bd2a`. The coverage snapshot is `104ad1d15117ae7364e78cea03ce9e1f089c046276348e8ba6fd90afe3bc8bc1`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `sessionCodec.lua`.
 
 ## 2026-11-12 Talking to Mewtwo starts the battle
 
