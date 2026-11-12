@@ -41,7 +41,10 @@ local function ensureScore(name)
         return KantoScores[name]
     end
     KantoScores = KantoScores or {}
-    import("audio/score/" .. name)
+    -- pdc 3.1.2 treats a literal "audio/score/" prefix as a file path.
+    -- The path is built at play time, and each score .lua is its own pdz.
+    local scorePath = "audio/score/" .. name
+    import(scorePath)
     return assert(KantoScores[name], "unknown Kanto score")
 end
 

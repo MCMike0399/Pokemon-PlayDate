@@ -173,7 +173,8 @@ class AudioBootTests(unittest.TestCase):
         self.assertNotIn('import "audio/scores"', audio)
         self.assertNotIn('import "audio/cries"', engine.split('function KantoSynth.cry', 1)[0])
         self.assertIn('import "audio/cries"', engine.split('function KantoSynth.cry', 1)[1])
-        self.assertIn('import("audio/score/"', engine)
+        self.assertIn('"audio/score/" .. name', engine)
+        self.assertIn('import(scorePath)', engine)
         self.assertNotIn('notes=', stub)
         self.assertNotIn('KantoMusicMaps', stub)
         for banned in ('fieldTravelData', 'RulesRNG', ':members(', 'getSnapshot', 'fieldTravelMode'):
