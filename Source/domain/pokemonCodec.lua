@@ -52,7 +52,15 @@ local function checked(record)
     end
     if record.version==3 then assert(record.pendingEvolution==nil,"legacy-evolution-field") end
     assert(type(record.species)=="string" and pokemonData[record.species],"unknown-species")
-    assert(type(record.name)=="string" and #record.name>=1 and #record.name<=10 and not record.name:find("[^ -~]"),"invalid-name")
+    -- constants/text_constants.asm NAME_LENGTH is 11, including the terminator.
+    -- constants/charmap.asm: printable ASCII, plus × ($f1), ♂ ($ef), and ♀ ($f5).
+    assert(type(record.name)=="string" and utf8.len(record.name)~=nil,"invalid-name")
+    local nameCount=0
+    for _,code in utf8.codes(record.name) do
+        assert((code>=32 and code<=126) or code==0x00D7 or code==0x2642 or code==0x2640,"invalid-name")
+        nameCount=nameCount+1
+    end
+    assert(nameCount>=1 and nameCount<=10,"invalid-name")
     assert(integer(record.level,1,100),"invalid-level")
     assert(integer(record.xp,xpForLevel(record.level, record.species),xpForLevel(100, record.species)),"invalid-xp")
     assert(record.level==100 or record.xp<xpForLevel(record.level+1, record.species),"xp-level-mismatch")

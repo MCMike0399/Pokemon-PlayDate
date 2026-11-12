@@ -392,7 +392,7 @@ function SourceEncounterContracts.run()
         local wire = assert(SessionCodec.encode(game.session,{root="overworld",overworld="explore",settled=true}))
         local restored = assert(SessionCodec.decode(wire,game:getSessionDependencies()))
         assert(restored:questFlag(FieldCycling.FLAG) and restored:fieldTravelData().mode == "bicycle")
-        assert(SessionCodec.VERSION == 4)
+        assert(SessionCodec.VERSION == 5)
     end)
     return report
 end

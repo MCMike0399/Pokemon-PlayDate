@@ -3271,7 +3271,7 @@
     }
   },
   "schema": 1,
-  "session_codec": 4,
+  "session_codec": 5,
   "shops": {
     "pokered:CERULEAN_MART:objects:1": {
       "prices": {
@@ -3320,7 +3320,7 @@
   },
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
-    "battle/battle.lua": "d0290238b32cf4b8e0d004864f772c51b224818db7f1755d1b5c94584f18c293",
+    "battle/battle.lua": "856022f94e0c12cf80f79a04b49ed84c696d657a3a6b44b045c9706f4b96771e",
     "data/captureData.lua": "b7e4cb7ae9f833129cfa9a18ad6b51929723c685ebd61b68c6e3900e2ac2cdb1",
     "data/ceruleanContent.lua": "a8cfaab6477c65a80c134cc801150ff54b14864a3f74cbe334529e95d7700d88",
     "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
@@ -3378,7 +3378,7 @@
     "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
     "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
-    "dev/ceruleanJourney.json": "cb174a8d4977dd2861ac1e3ecd1f30831d5e544a263d1c7fe37d9b4a790ee6b0",
+    "dev/ceruleanJourney.json": "67552d0d991a20933824cfb22c2c83935cf2573e6cd50a5c33ddb5e9f6dec3b9",
     "dev/daycareContracts.lua": "c3507079193c523b1bd21a6ddefb70164f37e3a31ec0529ed0886174756ee1ec",
     "dev/diagnostics.lua": "9191b2de500699b8dd12f573f1e1d681cb94ad757d5632f6380566c6cf5928c8",
     "dev/fixtures.lua": "d21e4044712c04ec91eb1a5c3618d18543e0e92ea8d87cdff03b677c828f94c6",
@@ -3386,8 +3386,8 @@
     "domain/fieldEncounters.lua": "29f5dd362047e9c3be5e186dc6cea210d7141e779159a879be336e363f4be437",
     "domain/fieldMoves.lua": "ef60646c5fba6f3276cee361b948114034d139925ffcd11caa05166b9a176dfd",
     "domain/fieldWorld.lua": "c76e773b1a7d8cb0fdf55d698998d4b05881040ba132c48fc5ae223260429204",
-    "domain/gameSession.lua": "3addc780e04387142b86a651ea9309d760abc099a1c9af26d148ccea4311e568",
-    "domain/sessionCodec.lua": "b3bf371c03996eadd976bc6433c4b0a13933ab045d3cfdec804b8e4f02ddebdf",
+    "domain/gameSession.lua": "144ddc28580f0833911a477b4eb1460ab76f23bc462293e412f96fe4cd2fba33",
+    "domain/sessionCodec.lua": "8a46834f6725c62017002b78ddd340b2a0506905fa9b40f70744154515344473",
     "domain/specimen.lua": "2058b5c9c6581f7fd377bf143dca9bacc6e63f8648587ca2a4f3cf4b6f05de05",
     "domain/storage.lua": "970a31c0fc7b4bf3257ec630f372f16b2d69b950f5f87064175322e3a7c0ed81",
     "domain/teaching.lua": "365ac63a657629131b0b0797acf00793aaa10d2918d1afd6cdaafb4d6246245c",

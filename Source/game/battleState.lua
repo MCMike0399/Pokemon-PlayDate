@@ -189,6 +189,7 @@ function BattleState:update()
     local battle = self.battle
     battle:update()
     if self.battle ~= battle then return end
+    self:openPendingNickname()
     if self.scene then self.scene:update() end
     self:openPendingLearning()
     self:openSelection()
@@ -203,6 +204,20 @@ end
 
 function BattleState:draw()
     if self.scene then self.scene:draw() end
+end
+
+-- engine/events/battle.asm AskName. NamingState is registered by TitleState.
+function BattleState:openPendingNickname()
+    local battle = self.battle
+    local pending = battle and battle.pendingNickname
+    if not pending or not battle.nicknameReady or self.nicknameOpen then return end
+    if not (Story and Story.promptNickname) then return end
+    self.nicknameOpen = true
+    Story.promptNickname(self.game, pending.mon, pending.speciesName, function()
+        battle.pendingNickname = nil
+        battle.nicknameReady = nil
+        self.nicknameOpen = nil
+    end)
 end
 
 -- Present the real learning overlay without returning/replacing this battle.

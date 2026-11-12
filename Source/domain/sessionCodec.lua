@@ -2,7 +2,7 @@ import "game/saveBuildPolicy"
 import "domain/hallOfFame"
 import "domain/playTime"
 -- Complete session snapshot, validated before candidate objects are published.
-SessionCodec={VERSION=4,POKEMON_ENCODING="decimal-counters-v1"}
+SessionCodec={VERSION=5,POKEMON_ENCODING="decimal-counters-v1"}
 local exportingSession, exportingRecords
 local function copy(value) return GameSession._copy(value) end
 local function checkpoint()
@@ -78,13 +78,28 @@ local function normalize(record,deps)
     checkpoint()
     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
         location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true,safari=true,coins=true,hallOfFame=true,playTime=true,wFossilItem=true})
-    assert((data.version==1 or data.version==2 or data.version==3 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
+    assert((data.version==1 or data.version==2 or data.version==3 or data.version==4 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
     if data.wFossilItem~=nil then
         assert(type(data.wFossilItem)=="number" and data.wFossilItem==math.floor(data.wFossilItem),"invalid wFossilItem")
         assert(data.wFossilItem==fossilItemByte(data.questFlags),"wFossilItem does not match the saved fossil")
     end
     object(data.title,{playerName=true,rivalName=true})
-    assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
+    -- A version 1-4 save may omit the chosen names. Those load as RED and BLUE.
+    -- constants/charmap.asm: printable ASCII, × ($f1), ♂ ($ef), ♀ ($f5).
+    -- PLAYER_NAME_LENGTH is 8, so the visible name is 1 to 7 glyphs.
+    local function personName(value,fallback)
+        if value==nil then value=fallback end
+        assert(type(value)=="string" and utf8.len(value)~=nil,"invalid player/rival title")
+        local count=0
+        for _,code in utf8.codes(value) do
+            assert((code>=32 and code<=126) or code==0x00D7 or code==0x2642 or code==0x2640,"invalid player/rival title")
+            count=count+1
+        end
+        assert(count>=1 and count<=7,"invalid player/rival title")
+        return value
+    end
+    local playerName=personName(data.title.playerName,"RED")
+    local rivalName=personName(data.title.rivalName,"BLUE")
     local intro=introFromWire(data.intro)
     assert(safeStages[intro.stage],"transient intro stage cannot be saved")
     local quests=GameSession._flags(data.questFlags,4096)
@@ -191,7 +206,8 @@ local function normalize(record,deps)
     local itemStorage=ItemStorage.normalize(deps.itemDefinitions,stored)
     ItemStorage.checkUnique(deps.itemDefinitions,data.inventory,itemStorage)
     return {daycare=daycare,itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
-        location=location,checkpoint=savedCheckpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel,safari=safari,coins=coins,hallOfFame=hall,playTime=playTime}
+        location=location,checkpoint=savedCheckpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel,safari=safari,coins=coins,hallOfFame=hall,playTime=playTime,
+        playerName=playerName,rivalName=rivalName}
 end
 function SessionCodec.encode(session,gate)
     SessionCodec.relieveHeap()
@@ -206,7 +222,7 @@ function SessionCodec.encode(session,gate)
             return pokemonToWire(mon)
         end
         local data={version=SessionCodec.VERSION,pokemonEncoding=SessionCodec.POKEMON_ENCODING,
-            coins=session:coins(),safari=session:safariData(),hallOfFame=session:hallOfFame(),playTime=session:playTime(),fieldTravel=session:fieldTravelData(),fieldWorld=session:fieldWorldData(),title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
+            coins=session:coins(),safari=session:safariData(),hallOfFame=session:hallOfFame(),playTime=session:playTime(),fieldTravel=session:fieldTravelData(),fieldWorld=session:fieldWorldData(),title={playerName=session:title().playerName,rivalName=session:title().rivalName},intro=introToWire(current.intro),
             questFlags=copy(current.questFlags),trainerFlags=copy(current.trainerFlags),pokedex=copy(current.dex),
             location=copy(current.location),checkpoint=copy(current.checkpoint),world=copy(current.world),rng=session:rngData(),
             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
@@ -338,7 +354,8 @@ function SessionCodec.decode(record,deps)
         local inventory=assert(Inventory.fromData(prepared.deps.itemDefinitions,prepared.data.inventory))
         local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,itemStorage=assert(ItemStorage.fromData(prepared.deps.itemDefinitions,prepared.itemStorage)),intro=prepared.intro,
             questFlags=prepared.questFlags,trainerFlags=prepared.trainerFlags,dex=prepared.dex,world=prepared.world,
-            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld,fieldTravel=prepared.fieldTravel,safari=prepared.safari,coins=prepared.coins,hallOfFame=prepared.hallOfFame,playTime=prepared.playTime})
+            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld,fieldTravel=prepared.fieldTravel,safari=prepared.safari,coins=prepared.coins,hallOfFame=prepared.hallOfFame,playTime=prepared.playTime,
+            playerName=prepared.playerName,rivalName=prepared.rivalName})
         GameSession._state(session).daycare = Daycare.restore(session, prepared.daycare, function(value)
             return pokemonFromWire(value, true)
         end)
