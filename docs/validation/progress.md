@@ -10,7 +10,7 @@ The exporters now keep tile membership as booleans on the shared catalogue. Verm
 
 SDK 3.1.2 session `1f3d0a3b47b449e3940d6d5068dc886d` reached `title.visible` at 1069 ms and `initialize.ready` at 23083 ms. Sampled peak 13484.934 KiB. The budget check passed. Clip `20261112T070934Z-boot-to-title.mp4` is 28.2 seconds of the 400x240 LCD, from the loading screen (`AuthoredMaps.initialize`) through the Blue title menu (`NEW GAME` / `OPTIONS`). The crop has no Simulator chrome and no developer eList dialog. sha256 `be1f80038669765b556ee8438af23927075e95d187cdeeed7fef7ed40585bfca`. `main` was not fast-forwarded.
 
-Lane B can rebase on `8b9da209`. The bundle `20261112T061946Z-lane-b-rebase.bundle` requires `origin/main` `7a31867a` and its sha256 is `d0d5c2ff3b037ed198063a0d4ca57bf099383e55051ccab068150a38d99d65e6`. The earlier full-suite log failed its source setup because `POKERED_REFERENCE_DIR` was unset.
+Lane B can rebase on `58287e35`. The bundle `20261112T070934Z-lane-b-rebase.bundle` requires `origin/main` `7a31867a` and its sha256 is `c3bf18879df2ef87192e515172daa7d4e07e9e380b9ebbe7132863ba16ec1c4a`. The earlier bundle `20261112T061946Z-lane-b-rebase.bundle` stops at `8b9da209`. The earlier full-suite log failed its source setup because `POKERED_REFERENCE_DIR` was unset.
 
 ## 2026-11-12 The transform pins match the thin SDK export
 
