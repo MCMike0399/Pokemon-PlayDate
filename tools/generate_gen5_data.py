@@ -155,6 +155,7 @@ def resolve_b2w2(move_row, changelog_rows):
 def build_effects(key, meta, stat_changes, target_id, is_status):
     # Pinned Gen V mechanic overrides; modern move_meta includes later changes.
     concrete={
+        # pokered af519899: both are SWITCH_AND_TELEPORT_EFFECT ($1C), SwitchAndTeleportEffect.
         "whirlwind": ["ForceSwitchEffect(DEFENDER)"],
         "roar": ["ForceSwitchEffect(DEFENDER)"],
         "sandstorm": ["SandstormEffect()"],

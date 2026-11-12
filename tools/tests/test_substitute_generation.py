@@ -47,9 +47,9 @@ class SubstituteProducerTests(unittest.TestCase):
         before, after = c.read_rows(self.before_text), c.read_rows(self.after_text)
         self.assertEqual(len(after), 425)
         # d9c39c11 on main is the substitute port and changes only that row.
-        # 8195076c and efd093cb then add rampage, recharge, defrost, Low Kick,
-        # Sunny Day, and Hail. Those fields are introduced at epoch 19 so the
-        # epoch-18 snapshot still inverts, and the generator reproduces them.
+        # 63c41f12 declares the rampage, recharge, defrost, and Low Kick fields
+        # at epoch 6, and Sunny Day and Hail at epoch 7. The generator still
+        # reproduces those rows on top of the epoch-18 snapshot.
         ported = c.read_rows(subprocess.check_output(
             ['git', 'show', 'd9c39c11:Source/battle/moves.lua'], cwd=ROOT, text=True))
         self.assertEqual({key for key in before if before[key] != ported[key]}, {'substitute'})
@@ -77,17 +77,26 @@ class SubstituteProducerTests(unittest.TestCase):
     def test_all_existing_migration_edges_original_hashes_and_epoch18_inverse_are_retained(self):
         old = json.loads(historical('tools/references/move-producer-migrations.json'))
         new = c.load_contract()
-        # sunnyDay and hail are the epoch-19 weather edges for efd093cb.
+        # sunnyDay and hail are the epoch-7 weather edges. Substitute stays epoch 19.
         self.assertEqual(set(new['transitions']) - set(old['transitions']), {'substitute', 'sunnyDay', 'hail'})
+        self.assertEqual(new['transitions']['sunnyDay'][0]['version'], 7)
+        self.assertEqual(new['transitions']['hail'][0]['version'], 7)
         for key, value in old['transitions'].items():
             self.assertEqual(new['transitions'][key], value, key)
         for key in old:
             if key not in ('transitions', 'policy'):
                 self.assertEqual(new[key], old[key], key)
-        before = c.legacy_rows(c.read_rows(self.before_text), 18)
-        after = c.legacy_rows(c.read_rows(self.after_text), 19)
-        self.assertEqual(after, before)
-        self.assertEqual(c.legacy_rows(c.read_rows(self.after_text)), after)
+        before_rows = c.read_rows(self.before_text)
+        after_rows = c.read_rows(self.after_text)
+        after = c.legacy_rows(after_rows, 19)
+        # 83337bc predates the epoch-6 fields, so the raw snapshot cannot invert.
+        # Completing that snapshot with the declared fields (current rows, with
+        # only the epoch-19 Substitute payload rolled back) still does.
+        completed = dict(after_rows, substitute=before_rows['substitute'])
+        self.assertEqual(c.legacy_rows(completed, 18), after)
+        with self.assertRaisesRegex(ValueError, 'producer metadata thrash'):
+            c.legacy_rows(before_rows, 18)
+        self.assertEqual(c.legacy_rows(after_rows), after)
         with self.assertRaisesRegex(ValueError, 'future move effect'):
             c.legacy_rows(c.read_rows(self.after_text), 18)
         self.assertEqual(len(after), 424)

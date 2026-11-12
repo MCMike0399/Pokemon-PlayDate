@@ -171,6 +171,34 @@ class Geometry:
         return model
 
 
+def parcel_bundle_source():
+    """Stage committed Source when PARCEL_BUNDLE_SOURCE is unset.
+
+    Brock's fixtures read pewter and viridian maps through source-manifest.json.
+    The default is one content-addressed copy of the repository Source, so the
+    same bytes come back without an external path and without skipping the tests.
+    """
+    import os
+    import shutil
+    override = os.environ.get("PARCEL_BUNDLE_SOURCE")
+    if override:
+        return Path(override)
+    from tools.harness.run import fingerprint
+    project = Path(__file__).resolve().parents[2]
+    dest = Path(os.environ.get("TMPDIR", "/tmp")) / "pokemon-playdate-parcel-bundle" / fingerprint(project)
+    source = dest / "Source"
+    manifest_path = dest / "source-manifest.json"
+    if not manifest_path.is_file() or not source.is_dir():
+        if dest.exists():
+            shutil.rmtree(dest)
+        shutil.copytree(project / "Source", source)
+        manifest = {str(path.relative_to(source)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in sorted(source.rglob("*")) if path.is_file()}
+        atomic_json(manifest_path, manifest)
+    os.environ["PARCEL_BUNDLE_SOURCE"] = str(dest)
+    return dest
+
+
 def load_geometry(evidence):
     """Consume the exact immutable Source copied for this identified bundle."""
     evidence = Path(evidence)

@@ -154,9 +154,9 @@ class CaptureAndRecoveryTests(unittest.TestCase):
         journey.recover_blackout();self.assertEqual(journey.summary['blackouts'][0]['kind'],'actual-defeat-not-victory')
         with self.assertRaisesRegex(ProtocolError,'exhausted'):journey.recover_blackout()
     def test_identified_source_training_lanes_are_real_blue_grass_not_door_shortcuts(self):
-        import os
         from tools.harness.brock_journey import load_models,MAPS
-        root=Path(os.environ['PARCEL_BUNDLE_SOURCE']);models,doors,trainers=load_models(root)
+        from tools.harness.parcel_journey import parcel_bundle_source
+        root=parcel_bundle_source();models,doors,trainers=load_models(root)
         self.assertEqual(len(models),14);self.assertEqual(len(trainers),5)
         for name in ['Route2','ViridianForest']:
             model=models[MAPS[name]]

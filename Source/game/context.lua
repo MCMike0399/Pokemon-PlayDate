@@ -1,4 +1,5 @@
 -- Runtime/controller owner. Persistent data lives only in self.session.
+import "game/coastStory"
 Class("GameContext")
 local TRANSITION_LOG_MAX <const> = 12
 local function startLocation() return {zone_id="reds_house_2f",x=5,y=3,facing="up"} end
@@ -211,13 +212,11 @@ end
 
 function GameContext:fieldTravelRestrictions(position)
     local forced = self.session:questFlag("pokered:status6:BIT_ALWAYS_ON_BIKE")
-    local currentTooFast = false
-    if position.zone_id == "pokered:SEAFOAM_ISLANDS_B4F" then
-        -- Seafoam is outside 5.5. Its source controller must provide the exact
-        -- stairs/current predicate when those maps become campaign content.
-        error("Seafoam field current controller is not installed", 0)
-    end
-    return {forcedBicycle = forced, currentTooFast = currentTooFast}
+    -- field_move_messages.asm IsSurfingAllowed. CoastStory.currentTooFast
+    -- denies Surf only on B4F (7, 11) before both SEAFOAM4 boulders are down.
+    local currentTooFast = CoastStory.currentTooFast(
+        position.zone_id, position.x, position.y, self.session:flags().quest)
+    return {forcedBicycle = forced, currentTooFast = currentTooFast == true}
 end
 
 function GameContext:commitFieldTravel(expected, plan)
