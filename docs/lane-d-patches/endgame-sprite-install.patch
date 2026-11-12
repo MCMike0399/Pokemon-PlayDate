@@ -1,0 +1,27 @@
+Lane A owns boot. Do not apply this from lane D.
+
+SPRITE_LORELEI, SPRITE_BRUNO, SPRITE_AGATHA, SPRITE_LANCE and SPRITE_OAK are
+not in a content package. Their four-shade grids are already in
+Source/data/zEndgame/sprites.json, produced from pokered gfx/sprites.
+Giovanni and Blue are already mapped. The five trainer pics
+(GIOVANNI, LORELEI, BRUNO, AGATHA, LANCE) already match the approved
+battle-art threshold at scale 2. No new art.
+
+SourceActors.registerContent copies the resolver functions.
+EndgameStory.prepareArt wraps CeruleanContent.key, poseImage, sprite,
+_spritePoseMetadata and stepImage, and that wrap has to run before
+CeruleanContent.install. endgameStory.lua is already imported above
+installContent.
+
+tools/tests/test_lane_d_endgame.py marks
+test_endgame_sprites_install_before_the_catalog as an expected failure.
+
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -254,5 +254,6 @@
+             BootTrace.mark("CeruleanContent.registerPackage.end")
+             GameBootstrap.yieldIfDue()
+             BootTrace.mark("CeruleanContent.install.begin")
++            EndgameStory.prepareArt()
+             CeruleanContent.install(campaignActorMetadata)
+             BootTrace.mark("CeruleanContent.install.end")

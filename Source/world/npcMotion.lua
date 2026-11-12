@@ -240,8 +240,9 @@ function NPCMotion:startScriptStep(token, direction)
     local cell = y * s.descriptor.width + x + 1
     local player = s.game.player
     local occupant = s.manager:getNPCAt(x,y)
-    if occupant and occupant ~= npc or x == player.gridX and y == player.gridY
-        or player.isMoving and x == player.startPixelX/TILE_SIZE and y == player.startPixelY/TILE_SIZE
+    local overlap = spec.script_overlap and spec.script_overlap[cell]
+    if occupant and occupant ~= npc or x == player.gridX and y == player.gridY and not overlap
+        or player.isMoving and x == player.startPixelX/TILE_SIZE and y == player.startPixelY/TILE_SIZE and not overlap
         or s.descriptor.protected[cell] and not (spec.script_transit and spec.script_transit[cell])
         or not s.descriptor.canStep(spec,v.x,v.y,x,y,s.zone) then return false, "blocked-scripted-npc-move" end
     -- Verify walking art before reserving or exposing an intermediate pose.

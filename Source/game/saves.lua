@@ -22,10 +22,10 @@ function GameSaves:inspect()
     return SessionCodec.load(self.store, self.game:getSessionDependencies())
 end
 
-local function saveGame(self)
+local function saveGame(self, capturePayload)
     BootTrace.mark("Save.begin")
     local payload, problem = capture(self, function()
-        return self.game:captureSession()
+        return capturePayload()
     end)
     if not payload then
         return false, {reason = "unsafe-save-state", error = problem}
@@ -42,7 +42,16 @@ end
 
 function GameSaves:save()
     return GameBootstrap.withLoading("Save", function()
-        return saveGame(self)
+        return saveGame(self, function()
+            return self.game:captureSession()
+        end)
+    end)
+end
+function GameSaves:saveFromHall(event)
+    return GameBootstrap.withLoading("Save", function()
+        return saveGame(self, function()
+            return self.game:captureSessionFromHall(event)
+        end)
     end)
 end
 

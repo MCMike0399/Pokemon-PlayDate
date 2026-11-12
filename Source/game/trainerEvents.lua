@@ -101,6 +101,9 @@ function TrainerEvents:approach(npc,mode)
     if game.npcManager:getNPCAt(npc.gridX,npc.gridY)~=npc then return nil,"absent-trainer" end
     local dx,dy=player.gridX-npc.gridX,player.gridY-npc.gridY
     local distance=math.abs(dx)+math.abs(dy)
+    -- A map script that calls DisplayTextID does not require a cardinally
+    -- adjacent trainer. Sight still does. Talk still does.
+    if mode=="script" then return {} end
     if mode=="talk" then
         if distance~=1 then return nil,"trainer-not-adjacent" end
         return {}
@@ -187,7 +190,7 @@ function TrainerEvents:launch(token)
     if value.phase~="ready" then return nil,"trainer-approach-incomplete" end
     local game=owners[self].game
     if game.player~=value.player or currentZone~=value.zone or game.session:trainerDefeated(value.definition.id) then return nil,"stale-trainer-launch" end
-    if math.abs(value.npc.gridX-game.player.gridX)+math.abs(value.npc.gridY-game.player.gridY)~=1 then return nil,"trainer-not-adjacent" end
+    if value.mode~="script" and math.abs(value.npc.gridX-game.player.gridX)+math.abs(value.npc.gridY-game.player.gridY)~=1 then return nil,"trainer-not-adjacent" end
     if game.session:party():allFainted() or game.session:party():count()==0 then return nil,"no-usable-party" end
     if not Specimen.isActiveSession(game.session) then return nil,"inactive-trainer-session" end
     local party=Party()

@@ -1,0 +1,21 @@
+Lane A owns the save schema. Do not apply this from lane D.
+
+The Hall of Fame plan keeps an in-memory party record (species, level, species
+name) and then rolls the credits and returns to the title without saving.
+pokered's HallOfFamePC also writes that record, saves, resets the Indigo
+Plateau event range through EVENT_LANCES_ROOM_LOCK_DOOR, and sets the last
+blackout map to PALLET_TOWN. SessionCodec.object() rejects an unknown
+hallOfFame field, so the record cannot persist yet.
+
+tools/tests/test_lane_d_endgame.py marks
+test_save_schema_keeps_a_hall_of_fame_record as an expected failure until the
+allowlist below is accepted and a decoder for the record is added.
+
+--- a/Source/domain/sessionCodec.lua
++++ b/Source/domain/sessionCodec.lua
+@@ -61,7 +61,7 @@ local function normalize(record,deps)
+     checkpoint()
+     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
+-        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true,safari=true,coins=true})
++        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true,safari=true,coins=true,hallOfFame=true})
+     assert((data.version==1 or data.version==2 or data.version==3 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")

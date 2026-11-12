@@ -1,6 +1,7 @@
 -- Persistent session owner. No sprites, Story singleton or filesystem access.
 import "domain/sourceEncounters"
 import "domain/fieldCycling"
+import "domain/hallOfFame"
 Class("GameSession")
 local state=setmetatable({}, {__mode="k"})
 local activeRNGSession=nil
@@ -176,6 +177,7 @@ function GameSession:init(deps,options)
         fieldTravel = FieldTravel.empty(),
         safari = SafariGame.empty(),
         coins = CoinWallet.empty(),
+        hallOfFame = HallOfFame.empty(),
         fieldEpoch = nextFieldEpoch(),
         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
@@ -508,6 +510,7 @@ function GameSession._restore(deps,values)
     values.fieldTravel = FieldTravel.normalize(values.fieldTravel)
     values.safari = SafariGame.normalize(values.safari)
     values.coins = CoinWallet.normalize(values.coins)
+    values.hallOfFame = HallOfFame.normalize(values.hallOfFame)
     values.fieldEpoch = nextFieldEpoch()
     values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
     state[session]=values
@@ -1157,6 +1160,23 @@ end
 -- root-owned economy transactions, never an inventory stack or boolean flags.
 function GameSession:coins()
     return state[self].coins
+end
+function GameSession:hallOfFame()
+    return copy(state[self].hallOfFame)
+end
+function GameSession:recordHallOfFame(members)
+    local current = state[self]
+    local ok, record = pcall(HallOfFame.append, current.hallOfFame, members)
+    if not ok then return false, tostring(record) end
+    current.hallOfFame = record
+    return true
+end
+function GameSession:setCheckpoint(value)
+    local current = state[self]
+    local ok, resolved = pcall(location, current.deps, value, current.world)
+    if not ok then return false, tostring(resolved) end
+    current.checkpoint = resolved
+    return true
 end
 -- Root composes these methods inside GameSession, where `state` is private.
 -- No shared owner is modified by the worker.

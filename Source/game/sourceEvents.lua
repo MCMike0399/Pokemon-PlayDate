@@ -311,8 +311,11 @@ function SourceEvents.validateStep(step)
         assert(pokemonData[step.species], "known source display species required")
         SourceEvents.validateStep(assert(step.audio, "source display cry required"))
         assert(step.audio.species == step.species, "source display cry identity required")
-    elseif op == "face-player" then
-        assert(directions[step.direction], "bounded player facing required")
+    elseif op == "face-player" or op == "face-npc" then
+        assert(directions[step.direction], "bounded facing required")
+        if op == "face-npc" then
+            assert(type(step.id) == "string", "stable source actor ID required")
+        end
     elseif op == "move" or op == "move-npc" then
         assert(directions[step.direction] and boundedInteger(step.count, 1, 8), "bounded movement required")
         if op == "move-npc" then
@@ -323,7 +326,7 @@ function SourceEvents.validateStep(step)
     elseif op == "set-flag" then
         assert(type(step.id) == "string" and type(step.value) == "boolean", "explicit flag operation required")
     elseif op == "trainer" or op == "battle" then
-        assert(type(step.id) == "string" and (step.mode == "talk" or step.mode == "sight"), "source trainer operation required")
+        assert(type(step.id) == "string" and (step.mode == "talk" or step.mode == "sight" or step.mode == "script"), "source trainer operation required")
         SourceEvents.validateStep({ op = "dialog", labels = step.before })
     elseif op == "shop" then
         assert(type(step.id) == "string", "source shop ID required")
@@ -500,6 +503,10 @@ function SourceEvents.actorPositions(id)
     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_positions or {})
 end
 -- Player movement and autonomous wandering retain original collision.
+function SourceEvents.actorOverlapPositions(id)
+    local descriptor = definition(id)
+    return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_overlap_positions or {})
+end
 function SourceEvents.actorCollisionPositions(id)
     local descriptor = definition(id)
     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_collision_positions or {})

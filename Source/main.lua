@@ -49,6 +49,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "domain/pcItems"
     import "domain/pickup"
     import "domain/coinWallet"
+    import "domain/hallOfFame"
     import "domain/safariGame"
     import "domain/fieldTravel"
     import "domain/fieldCycling"
@@ -218,6 +219,10 @@ local bootAccepted, bootProblem = pcall(function()
         for _, condition in ipairs(story.visibility) do
             metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
         end
+        local league = EndgameStory.actorMetadata(event.id)
+        for _, condition in ipairs(league.visibility or {}) do
+            metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
+        end
         return metadata
     end
 
@@ -252,6 +257,7 @@ local bootAccepted, bootProblem = pcall(function()
             BootTrace.mark("CeruleanContent.registerPackage.end")
             GameBootstrap.yieldIfDue()
             BootTrace.mark("CeruleanContent.install.begin")
+            EndgameStory.prepareArt()
             CeruleanContent.install(campaignActorMetadata)
             BootTrace.mark("CeruleanContent.install.end")
             GameBootstrap.yieldIfDue()

@@ -1,0 +1,42 @@
+Lane A owns the shared synth. Do not apply this from lane D.
+
+Viridian Gym spinners play SFX_ARROW_TILES when the spin starts
+(engine/overworld/spinners.asm). Route 22 Gate plays SFX_DENIED between the
+two refusal lines. Route 23 plays it after the refusal line and before the
+step down. The notes are audio1:SFX_Arrow_Tiles_1 and audio1:SFX_Denied_1
+from pret/pokered af519899. KantoSynth.sfx asserts on an unknown name, and
+these two scores are not in the generated table. The endgame plans already
+ask for arrow_tiles and denied. Playback is wrapped in pcall until this lands.
+
+tools/tests/test_lane_d_endgame.py marks
+test_arrow_and_denied_scores_are_in_the_synth as an expected failure.
+
+--- a/Source/audio/engine.lua
++++ b/Source/audio/engine.lua
+@@ -15,6 +15,8 @@ local serial = 0
+ local priorities <const> = {
+     menu = 3,
+     hit = 2,
++    arrow_tiles = 2,
++    denied = 2,
+     faint = 1,
+ }
+ 
+--- a/Source/audio/scores.lua
++++ b/Source/audio/scores.lua
+@@ -3935,6 +3935,15 @@ KantoScores = {
+     {108,1,27,985.5038,0.5333,0.5,129},
+   }},
++  arrow_tiles = {ticks=17, loop=nil, notes={
++    {0,1,16,512.0,0.8667,0.125,210},
++  }},
++  denied = {ticks=29, loop=nil, notes={
++    {0,1,5,170.6667,1.0,0.75,240},
++    {0,2,5,128.1251,1.0,0.75,240},
++    {10,1,16,170.6667,1.0,0.75,240},
++    {10,2,16,128.1251,1.0,0.75,240},
++  }},
+   menu = {ticks=8, loop=nil, notes={
+     {0,1,3,2048.0,0.6,0.5,145},
+     {3,1,5,2730.6667,0.6667,0.5,161},
+   }},

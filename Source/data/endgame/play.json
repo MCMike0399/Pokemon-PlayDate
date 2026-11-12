@@ -1,0 +1,781 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_BoulderText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 45,
+          "text": "This requires"
+        },
+        {
+          "op": "line",
+          "source_line": 46,
+          "text": "STRENGTH to move!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 47
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_CableClubNPCPleaseApplyHereHaveToSaveText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 203,
+          "text": "Please apply here."
+        },
+        {
+          "op": "para",
+          "source_line": 205,
+          "text": "Before opening"
+        },
+        {
+          "op": "line",
+          "source_line": 206,
+          "text": "the link, we have"
+        },
+        {
+          "op": "cont",
+          "source_line": 207,
+          "text": "to save the game."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 208
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_CableClubNPCWelcomeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 198,
+          "text": "Welcome to the"
+        },
+        {
+          "op": "line",
+          "source_line": 199,
+          "text": "Cable Club!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 200
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_ChampionsRoomOakComeWithMeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 133,
+          "text": "OAK: <PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 135,
+          "text": "You understand"
+        },
+        {
+          "op": "line",
+          "source_line": 136,
+          "text": "that your victory"
+        },
+        {
+          "op": "cont",
+          "source_line": 137,
+          "text": "was not just your"
+        },
+        {
+          "op": "cont",
+          "source_line": 138,
+          "text": "own doing!"
+        },
+        {
+          "op": "para",
+          "source_line": 140,
+          "text": "The bond you share"
+        },
+        {
+          "op": "line",
+          "source_line": 141,
+          "text": "with your #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 142,
+          "text": "is marvelous!"
+        },
+        {
+          "op": "para",
+          "source_line": 144,
+          "text": "<PLAYER>!"
+        },
+        {
+          "op": "line",
+          "source_line": 145,
+          "text": "Come with me!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 146
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_ChampionsRoomOakCongratulatesPlayerText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 89,
+          "text": "OAK: So, you won!"
+        },
+        {
+          "op": "line",
+          "source_line": 90,
+          "text": "Congratulations!"
+        },
+        {
+          "op": "cont",
+          "source_line": 91,
+          "text": "You're the new"
+        },
+        {
+          "op": "cont",
+          "source_line": 92,
+          "text": "#MON LEAGUE"
+        },
+        {
+          "op": "cont",
+          "source_line": 93,
+          "text": "champion!"
+        },
+        {
+          "op": "para",
+          "source_line": 95,
+          "text": "You've grown up so"
+        },
+        {
+          "op": "line",
+          "source_line": 96,
+          "text": "much since you"
+        },
+        {
+          "op": "cont",
+          "source_line": 97,
+          "text": "first left with"
+        },
+        {
+          "op": "cont",
+          "source_line": 98,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 99,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 100,
+          "text": "!"
+        },
+        {
+          "op": "para",
+          "source_line": 102,
+          "text": "<PLAYER>, you have"
+        },
+        {
+          "op": "line",
+          "source_line": 103,
+          "text": "come of age!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 104
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_ChampionsRoomOakDisappointedWithRivalText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 107,
+          "text": "OAK: <RIVAL>! I'm"
+        },
+        {
+          "op": "line",
+          "source_line": 108,
+          "text": "disappointed!"
+        },
+        {
+          "op": "para",
+          "source_line": 110,
+          "text": "I came when I"
+        },
+        {
+          "op": "line",
+          "source_line": 111,
+          "text": "heard you beat"
+        },
+        {
+          "op": "cont",
+          "source_line": 112,
+          "text": "the ELITE FOUR!"
+        },
+        {
+          "op": "para",
+          "source_line": 114,
+          "text": "But, when I got"
+        },
+        {
+          "op": "line",
+          "source_line": 115,
+          "text": "here, you had"
+        },
+        {
+          "op": "cont",
+          "source_line": 116,
+          "text": "already lost!"
+        },
+        {
+          "op": "para",
+          "source_line": 118,
+          "text": "<RIVAL>! Do you"
+        },
+        {
+          "op": "line",
+          "source_line": 119,
+          "text": "understand why"
+        },
+        {
+          "op": "cont",
+          "source_line": 120,
+          "text": "you lost?"
+        },
+        {
+          "op": "para",
+          "source_line": 122,
+          "text": "You have forgotten"
+        },
+        {
+          "op": "line",
+          "source_line": 123,
+          "text": "to treat your"
+        },
+        {
+          "op": "cont",
+          "source_line": 124,
+          "text": "#MON with"
+        },
+        {
+          "op": "cont",
+          "source_line": 125,
+          "text": "trust and love!"
+        },
+        {
+          "op": "para",
+          "source_line": 127,
+          "text": "Without them, you"
+        },
+        {
+          "op": "line",
+          "source_line": 128,
+          "text": "will never become"
+        },
+        {
+          "op": "cont",
+          "source_line": 129,
+          "text": "a champ again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 130
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_ChampionsRoomOakText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 85,
+          "text": "OAK: <PLAYER>!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 86
+        }
+      ],
+      "source": "text/ChampionsRoom.asm"
+    },
+    "_FoundItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 61,
+          "text": "<PLAYER> found"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 63,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 64,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 65
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_IndigoPlateauLobbyCooltrainerFText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 17,
+          "text": "From here on, you"
+        },
+        {
+          "op": "line",
+          "source_line": 18,
+          "text": "face the ELITE"
+        },
+        {
+          "op": "cont",
+          "source_line": 19,
+          "text": "FOUR one by one!"
+        },
+        {
+          "op": "para",
+          "source_line": 21,
+          "text": "If you win, a"
+        },
+        {
+          "op": "line",
+          "source_line": 22,
+          "text": "door opens to the"
+        },
+        {
+          "op": "cont",
+          "source_line": 23,
+          "text": "next trainer!"
+        },
+        {
+          "op": "cont",
+          "source_line": 24,
+          "text": "Good luck!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 25
+        }
+      ],
+      "source": "text/IndigoPlateauLobby.asm"
+    },
+    "_IndigoPlateauLobbyGymGuideText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Yo! Champ in"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "making!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "At #MON LEAGUE,"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "you have to face"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "the ELITE FOUR in"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "succession."
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "If you lose, you"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "have to start all"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "over again! This"
+        },
+        {
+          "op": "cont",
+          "source_line": 13,
+          "text": "is it! Go for it!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 14
+        }
+      ],
+      "source": "text/IndigoPlateauLobby.asm"
+    },
+    "_MoneyForWinningText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 869,
+          "text": "<PLAYER> got \u00a5@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd wAmountMoneyWon, 3 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 870
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 871
+        },
+        {
+          "op": "line",
+          "source_line": 872,
+          "text": "for winning!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 873
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_NeedYourPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 175,
+          "text": "OK. We'll need"
+        },
+        {
+          "op": "line",
+          "source_line": 176,
+          "text": "your #MON."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 177
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_NoMoreRoomForItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 68,
+          "text": "No more room for"
+        },
+        {
+          "op": "line",
+          "source_line": 69,
+          "text": "items!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 70
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_PokemonCenterFarewellText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 186,
+          "text": "We hope to see"
+        },
+        {
+          "op": "line",
+          "source_line": 187,
+          "text": "you again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 188
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonCenterWelcomeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 161,
+          "text": "Welcome to our"
+        },
+        {
+          "op": "line",
+          "source_line": 162,
+          "text": "#MON CENTER!"
+        },
+        {
+          "op": "para",
+          "source_line": 164,
+          "text": "We heal your"
+        },
+        {
+          "op": "line",
+          "source_line": 165,
+          "text": "#MON back to"
+        },
+        {
+          "op": "cont",
+          "source_line": 166,
+          "text": "perfect health!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 167
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonFightingFitText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 180,
+          "text": "Thank you!"
+        },
+        {
+          "op": "line",
+          "source_line": 181,
+          "text": "Your #MON are"
+        },
+        {
+          "op": "cont",
+          "source_line": 182,
+          "text": "fighting fit!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 183
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_Route22PokemonLeagueSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 102,
+          "text": "#MON LEAGUE"
+        },
+        {
+          "op": "line",
+          "source_line": 103,
+          "text": "Front Gate"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 104
+        }
+      ],
+      "source": "text/Route22.asm"
+    },
+    "_Route23VictoryRoadGateSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "VICTORY ROAD GATE"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "- #MON LEAGUE"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 41
+        }
+      ],
+      "source": "text/Route23.asm"
+    },
+    "_ShallWeHealYourPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 170,
+          "text": "Shall we heal your"
+        },
+        {
+          "op": "line",
+          "source_line": 171,
+          "text": "#MON?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 172
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_VictoryRoad2FMoltresBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Gyaoo!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 3
+        }
+      ],
+      "source": "text/VictoryRoad2F.asm"
+    },
+    "_ViridianGymGuidePostBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 237,
+          "text": "Blow me away!"
+        },
+        {
+          "op": "line",
+          "source_line": 238,
+          "text": "GIOVANNI was the"
+        },
+        {
+          "op": "cont",
+          "source_line": 239,
+          "text": "GYM LEADER here?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 240
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    },
+    "_ViridianGymGuidePreBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 219,
+          "text": "Yo! Champ in"
+        },
+        {
+          "op": "line",
+          "source_line": 220,
+          "text": "making!"
+        },
+        {
+          "op": "para",
+          "source_line": 222,
+          "text": "Even I don't know"
+        },
+        {
+          "op": "line",
+          "source_line": 223,
+          "text": "VIRIDIAN LEADER's"
+        },
+        {
+          "op": "cont",
+          "source_line": 224,
+          "text": "identity!"
+        },
+        {
+          "op": "para",
+          "source_line": 226,
+          "text": "This will be the"
+        },
+        {
+          "op": "line",
+          "source_line": 227,
+          "text": "toughest of all"
+        },
+        {
+          "op": "cont",
+          "source_line": 228,
+          "text": "the GYM LEADERs!"
+        },
+        {
+          "op": "para",
+          "source_line": 230,
+          "text": "I heard that the"
+        },
+        {
+          "op": "line",
+          "source_line": 231,
+          "text": "trainers here"
+        },
+        {
+          "op": "cont",
+          "source_line": 232,
+          "text": "like ground-type"
+        },
+        {
+          "op": "cont",
+          "source_line": 233,
+          "text": "#MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 234
+        }
+      ],
+      "source": "text/ViridianGym.asm"
+    }
+  }
+}

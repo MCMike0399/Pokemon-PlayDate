@@ -1,0 +1,19 @@
+Lane A owns the tile cache. Do not apply this from lane D.
+
+Agatha's closed door is cemetery block $3b. Its top quadrants are tile
+07-08-17-18. That cell is not in Source/data/sourceMapCache/tile-grids.json,
+so Zone:setTile rejects it. The other switch and door cells are already in
+the cache and are painted with setTile. This missing cell is drawn from the
+same grid in Source/data/endgame/visual.json until the cache has the key.
+
+The grid is compose_grid of gfx/tilesets/cemetery.png through the map
+pipeline's .12# shade codes. Foot tile $17 is not in Cemetery_Coll, so the
+cell is solid. EndgameStory.applyRoom still writes the script collision
+after the paint.
+
+tools/tests/test_lane_d_endgame.py marks
+test_agatha_closed_door_is_in_the_tile_cache as an expected failure.
+
+Add this record under tiles:
+
+"pokered:CEMETERY:cell:07-08-17-18": {"collision": 1, "grid": ["1111111111111111", "################", "#11111111111111#", "#11111111111111#", "################", "#12221212222222#", "#2############2#", "#2#1212122222#2#", "#2#2121212222#2#", "#2#2212222222#2#", "#2############2#", "#2#2212112122#2#", "#2#2121222222#2#", "#2############2#", "#22222222222222#", "################"], "key": "pokered:CEMETERY:cell:07-08-17-18", "terrain": {"counter": false, "foot_tile": 23, "grass": false, "land_passable": false, "warp_tile": false, "water_candidate": false}}

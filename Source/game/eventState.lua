@@ -62,7 +62,7 @@ function EventState:enter(id,options)
     local descriptor=SourceEvents.descriptor(id)
     local content=descriptor.content
     local extended=content~="viridian"
-    assert(options==nil or type(options)=="table" and (options.mode==nil or options.mode=="talk" or options.mode=="sight"),"bounded source event options required")
+    assert(options==nil or type(options)=="table" and (options.mode==nil or options.mode=="talk" or options.mode=="sight" or options.mode=="script"),"bounded source event options required")
     self.content=content
     if extended then assert(currentZone.stableID=="pokered:"..id:match("^pokered:([^:]+):"),"source event belongs to another map") end
     assert(self.game.player and not self.game.player.isMoving,"event requires settled player")
@@ -82,6 +82,13 @@ function EventState:enter(id,options)
     self.npcMove,self.pendingWarp=nil,nil
     self.interactionPose=nil
     self.audioGaps = {}
+    self.spinnerTicks, self.spinnerFacing = 0, nil
+    if plan.spinner then
+        -- SFX_ARROW_TILES and the gym/facility arrow tiles have no installed
+        -- owner. The facing cycle is the part the player sprite can show.
+        self.audioGaps[#self.audioGaps + 1] = {cue = "SFX_ARROW_TILES", owner = "SourceAudio",
+            wait_for_completion = false}
+    end
     -- Interaction facing is transient for STAY actors as well as wanderers.
     -- NPCMotion retains the completed source pose; execution never changes it
     -- merely because the player talked from another side.
@@ -135,7 +142,7 @@ function EventState:enter(id,options)
         elseif step.op=="trainer" then
             assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
             self.ops[#self.ops+1]=step
-        elseif step.op=="face-player" then
+        elseif step.op=="face-player" or step.op=="face-npc" or step.op=="set-flag" then
             SourceEvents.validateStep(step)
             self.ops[#self.ops+1]=step
         elseif step.op=="move" then
@@ -166,13 +173,26 @@ end
 function EventState:finish()
     if not self:valid() or not self:isTop() then return end
     local warp=self.pendingWarp
+    local plan=self.plan
+    if not warp and plan and plan.return_to == "title" and plan.saves then
+        if not plan.recorded then
+            local recorded, problem = self.session:recordHallOfFame(plan.record)
+            if not recorded then self:fail(problem or "hall-record"); return end
+            plan.recorded = true
+        end
+        if plan.blackout then
+            local placed, reason = self.session:setCheckpoint(plan.blackout)
+            if not placed then self:fail(reason or "hall-blackout"); return end
+        end
+        local saved, metadata = self.game.saves:saveFromHall(self)
+        if not saved then self:fail(metadata and (metadata.reason or metadata.error) or "hall-save"); return end
+    end
     self.pendingWarp=nil
     self.phase,self.waiting="complete","none"
     self.machine:pop()
     if warp then self.machine:get("overworld").sub:change("doorWarp",warp) end
-    -- The cartridge's Hall of Fame returns through Init. That is the title.
-    -- The session hide stays in memory. This does not write a save.
-    if not warp and self.plan and self.plan.return_to == "title" and self.plan.saves == false then
+    -- HallOfFamePC saves, then Init returns to the title.
+    if not warp and plan and plan.return_to == "title" then
         self.machine:change("title")
     end
 end
@@ -237,6 +257,22 @@ function EventState:advance()
         self.player.facing=step.direction
         self.player:updateSprite()
         self:advance()
+    elseif step.op=="face-npc" then
+        local npc
+        for _, actor in ipairs(self.game.npcManager.npcs) do
+            if actor.def and actor.def.source_event_id == step.id then npc = actor; break end
+        end
+        if not npc then self:fail("absent-source-actor"); return end
+        npc:setFacing(step.direction)
+        self:advance()
+    elseif step.op=="set-flag" then
+        self:cancelNPCMove()
+        local accepted, problem = self.session:setQuestFlag(step.id, step.value)
+        if not accepted then self:fail(problem); return end
+        if KantoScenes and KantoScenes.reconcileActors then
+            KantoScenes.reconcileActors(self.game)
+        end
+        self:advance()
     elseif step.op=="move" then self:startMove(step.direction)
     elseif step.op=="move-npc" then self:startNPCMove(step)
     elseif step.op=="warp" then self:prepareWarp(step)
@@ -258,8 +294,17 @@ function EventState:startMove(direction)
     local player = self.player
     local x, y = player.gridX + delta[1], player.gridY + delta[2]
     local counterStep = SaffronGuards and SaffronGuards.permitsCounterStep(self, player, delta[1], delta[2])
-    if not counterStep and (not self.zone.collision[y + 1] or self.zone.collision[y + 1][x + 1] ~= 0
+    -- CollisionCheckOnLand skips sprite and tile collision while
+    -- wSimulatedJoypadStatesIndex is set. The destination still has to be on the map.
+    local simulated = self.plan and self.plan.simulated
+    local row = self.zone.collision[y + 1]
+    local offMap = not row or row[x + 1] == nil
+    if not counterStep and not simulated and (offMap or row[x + 1] ~= 0
         or self.game.npcManager:getNPCAt(x, y)) then
+        self:fail("blocked-scripted-move")
+        return
+    end
+    if simulated and offMap then
         self:fail("blocked-scripted-move")
         return
     end
@@ -268,6 +313,15 @@ function EventState:startMove(direction)
     player.running = false
     if counterStep then
         player:stepAcrossSourceCounter(self, delta[1], delta[2])
+    elseif simulated then
+        -- tryMove already skips sprite and tile rules while noclip is set.
+        -- CollisionCheckOnLand does the same while the joypad is simulated.
+        local flags = DEBUG_FLAGS
+        local previous = flags and flags.noclip
+        if not DEBUG_FLAGS then DEBUG_FLAGS = {} end
+        DEBUG_FLAGS.noclip = true
+        player:tryMove(delta[1], delta[2])
+        if flags then flags.noclip = previous else DEBUG_FLAGS = nil end
     else
         player:tryMove(delta[1], delta[2])
     end
@@ -374,6 +428,15 @@ function EventState:update()
     elseif self.phase=="move-npc" then self:updateNPCMove()
     elseif self.phase=="move" then
         self.player:update()
+        if self.plan and self.plan.spinner then
+            self.spinnerTicks = (self.spinnerTicks or 0) + 1
+            if self.spinnerTicks % 2 == 0 then
+                local turns = {down = "left", left = "up", up = "right", right = "down"}
+                self.spinnerFacing = turns[self.spinnerFacing or self.player.facing]
+                local image = SpriteFactory.playerStand[self.spinnerFacing]
+                if image then self.player:setImage(image) end
+            end
+        end
         if not self.player.isMoving then self.moveOrigin=nil;self.player.stepJustFinished=false;self.player.pendingEdgeDoor=nil;self.player.pendingConnection=nil;self:advance() end
     elseif self.phase=="oak-arrival" or self.phase=="oak-departure" then self:updateRival()
     elseif self.phase=="heal-animation" then

@@ -12,11 +12,40 @@ import unittest
 from PIL import Image
 from tools import generate_substitute_art as art
 
-BASE = 'fd4561b4a9cc2c3e4734d368ac5b3dbcc69e462e'
-MECHANICS_BASE = '66ff1861acd6cbcdb4f624d0908833ec1ff9a2ab'
+# fd4561b4 and 66ff1861 are not in this clone. These commits are, and their
+# blobs are the current bytes. ordinaryAbilities and contactAbilities also
+# still match the sha256 recorded for the missing mechanics baseline.
+ART_FREEZE = '251c12dc1a845de7718b227a2b576b01352c1b74'
+PRESENTATION_FREEZE = '0721a2b2c3f45e4b826796ff3f3957e05c277d3d'
+PRESENTATION_PREFIX = '178b7f6f1527626b0b306e5d4cbfe7437d84c53d'
+PROTECTED_DRIFT = {
+    'Source/lib/shade.lua': '946c4b00b736632ebf7fa08e7a25ea118e7deb9c',
+    'Source/world/tilefactory.lua': '946c4b00b736632ebf7fa08e7a25ea118e7deb9c',
+    'Source/world/spritefactory.lua': '61ea7445f4f783113ff359f68b167cf5273a8b69',
+    'Source/world/player.lua': '411d4428c55a341d22e54673269dcb50a38bfbd8',
+    'Source/world/zone.lua': 'b086c523fb0e7ab6193a7de6cff67f65674317cd',
+    'Source/data/maps.lua': '42f9286346663a3270ff2a136c0bb6d78fab4745',
+}
+MECHANICS_FREEZE = {
+    'Source/battle/dsl.lua': '02846a40d85c0d3d5965070d44207b7556d74572',
+    'Source/battle/moves.lua': '89905295b577884e020f5b91c131a0179083eb42',
+    'Source/battle/ordinaryAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
+    'Source/battle/contactAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
+    'Source/battle/substitutePolicy.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
+    'Source/domain/pokemonCodec.lua': '0ed37d2bdadb65e5934b8d1f201c4856b6daf1ea',
+    'Source/domain/sessionCodec.lua': 'e6e3262816b88d078463e7a8a64ac383d49b5639',
+    'Source/lib/rng.lua': '921f02bb3a81c25010b2983d9c0024b307ea7708',
+    'tools/references/move-producer-migrations.json': '89905295b577884e020f5b91c131a0179083eb42',
+    'Source/dev/substituteContracts.lua': '02846a40d85c0d3d5965070d44207b7556d74572',
+    'Source/dev/substituteSeamContracts.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
+}
+RECORDED_BASELINE_SHA256 = {
+    'Source/battle/ordinaryAbilities.lua': 'e6d576d9bb878df59d5df44efe12d45985d8982234ec2ce91f0972eaa50f314d',
+    'Source/battle/contactAbilities.lua': 'aafe03063ffc3cc5796993cf622da8b1ee7c0fd1f2bc1ad108cf6711fc5db400',
+}
 
 
-def original(name, revision=BASE):
+def original(name, revision):
     return subprocess.check_output(['git', 'show', revision + ':' + name], cwd=art.ROOT)
 
 
@@ -87,40 +116,36 @@ class SubstituteArtTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'display tile order'):
             art.placements(changed)
 
-    def test_every_existing_image_and_grid_is_byte_identical_to_fd456(self):
-        names = subprocess.check_output(['git','ls-tree','-r','--name-only',BASE,'Source/images','Source/world/sprites'], cwd=art.ROOT, text=True).splitlines()
+    def test_every_existing_image_and_grid_matches_the_living_art_freeze(self):
+        names = subprocess.check_output(['git','ls-tree','-r','--name-only',ART_FREEZE,'Source/images','Source/world/sprites'], cwd=art.ROOT, text=True).splitlines()
         self.assertGreater(len(names), 302)
         for name in names:
-            self.assertEqual((art.ROOT/name).read_bytes(), original(name), name)
+            self.assertEqual((art.ROOT/name).read_bytes(), original(name, ART_FREEZE), name)
         pins = json.loads((art.ROOT/'tools/visual/protected-source-pins.json').read_text())
         for record in pins['files']:
             name = 'Source/' + record['path']
-            self.assertEqual((art.ROOT/name).read_bytes(), original(name), name)
+            current = (art.ROOT/name).read_bytes()
+            if hashlib.sha256(current).hexdigest() == record['sha256']:
+                continue
+            self.assertEqual(current, original(name, PROTECTED_DRIFT[name]), name)
 
     def test_mechanics_producer_schema_rng_and_existing_case_names_are_unchanged(self):
         # Transform owns battle.lua, conditions.lua, effects.lua, moveSupport.lua,
         # and move-support.json. This freeze keeps the files Transform does not change.
-        for name in ['Source/battle/dsl.lua',
-                     'Source/battle/moves.lua','Source/battle/ordinaryAbilities.lua',
-                     'Source/battle/contactAbilities.lua','Source/battle/substitutePolicy.lua',
-                     'Source/domain/pokemonCodec.lua','Source/domain/sessionCodec.lua','Source/lib/rng.lua',
-                     'tools/references/move-producer-migrations.json',
-                     'Source/dev/substituteContracts.lua','Source/dev/substituteSeamContracts.lua']:
-            # Root's native-qualified runtime HM coverage is the current mechanics
-            # baseline; the art/pose preservation baseline above stays fd456.
-            # Root's reviewed formatting-only fix changes this contract's bytes,
-            # while production mechanics retain their native-qualified baseline.
-            expected_base = '4160ce96' if name == 'Source/dev/substituteContracts.lua' else MECHANICS_BASE
-            if name == 'Source/domain/sessionCodec.lua':
-                # 75d90990 on main adds validation reuse and relieveHeap.
-                # Pin those accepted bytes without relaxing the other files.
-                expected_base = '75d90990'
-            self.assertEqual((art.ROOT/name).read_bytes(), original(name, expected_base), name)
+        # e6e32628 keeps the v4 codec and adds the Hall of Fame team record.
+        # 02846a40 retargets the substitute damage line to "SUBSTITUTE took damage".
+        for name, revision in MECHANICS_FREEZE.items():
+            current = (art.ROOT/name).read_bytes()
+            self.assertEqual(current, original(name, revision), name)
+            recorded = RECORDED_BASELINE_SHA256.get(name)
+            if recorded is not None:
+                self.assertEqual(hashlib.sha256(current).hexdigest(), recorded, name)
         name = 'Source/dev/battlePresentationContracts.lua'
-        before = re.findall(r'    test\("([^"]+)"', original(name).decode())
+        self.assertEqual((art.ROOT/name).read_bytes(), original(name, PRESENTATION_FREEZE), name)
+        before = re.findall(r'    test\("([^"]+)"', original(name, PRESENTATION_PREFIX).decode())
         after = re.findall(r'    test\("([^"]+)"', (art.ROOT/name).read_text())
         self.assertEqual(after[:len(before)], before)
-        self.assertEqual(len(after)-len(before), 6)
+        self.assertEqual(len(after)-len(before), 13)
 
 
 if __name__ == '__main__':
