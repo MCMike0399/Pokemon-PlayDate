@@ -649,3 +649,21 @@ Sequence 94 is that pose, sha256
 70.64 seconds. `sha256sum -c` is clean. Sequence 94 is the continue
 point. The west exit, Cinnabar, the Mansion, the Secret Key, and
 Blaine are still ahead. The boulder patch stays.
+
+## Surf on B4F raises the current-controller error
+
+Articuno's floor is 19 land tiles and has no stair. The only step off
+it is south from `(7,3)` onto water. Continue from sequence 94, walk
+the floor, stand on `(7,3)` facing down, and choose Surf on Poliwag.
+The confirm raises exactly:
+
+`Seafoam field current controller is not installed`
+
+That is `Source/game/context.lua` line 218. `context.lua` was not
+patched. The simulator stopped on that error, so no new save was
+written. One step left from `(8,2)` failed once, both feet `$05`,
+which is not a row in `pair_collision_tile_ids.asm`. The next walk
+crossed that tile, so it was a stall after a flee. The clip is
+`20261112T083315Z-seafoam-b4f-surf-attempt.mp4`, 400×240 h264, 73.40
+seconds. Sequence 94 remains the continue point. The west exit needs
+a way off this floor that does not board Surf here.
