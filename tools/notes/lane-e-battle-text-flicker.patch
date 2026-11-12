@@ -1,0 +1,18 @@
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -635,6 +635,14 @@
+     -- Hidden HUDs must still leave narration in its usual system font.
+     gfx.setFont(gfx.getSystemFont())
+ 
++    -- The iris stencil is still active here. BattleScene:draw clears it
++    -- only after drawBattleField returns, so the opening frames clip these
++    -- fills and the glyphs to the circle. The lower row and the bottom rule
++    -- are the part the circle cuts first. Drop the stencil before the box.
++    -- Sprites and platforms above were already drawn inside it.
++    gfx.clearClipRect()
++    gfx.clearStencil()
++
+     -- Draw message box or menus. Move selection replaces this box: pokered
+     -- TextBoxBorder clears the battle-menu text before TYPE/ and the names.
+     local boxY = 180
