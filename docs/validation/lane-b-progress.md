@@ -926,6 +926,14 @@ Sequence 125 loads on the current code. The same patch will reject
 the three STAY delays. `normalize` was not relaxed, and the save
 was not rewritten.
 
+## Main's rejection
+
+`origin/main` at `bf92c4fc` is merged. Its ledger row rejects the
+`normalize` rewrite, which keeps a saved cell and clears the timer.
+That file is no longer the patch on this branch. The patch now
+changes only the random bit in `SourceActors`. The lane B tests
+pass, with the STAY-random case still an expected failure.
+
 ## Toward Viridian Gym
 
 `EndgameStory.badgeValue` is 95. The set bits are Boulder, Cascade,
