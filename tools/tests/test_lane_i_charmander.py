@@ -977,6 +977,8 @@ class CharmanderRun(BrockJourney):
         try:
             for attempt in range(3):
                 self._arrange_lead("starter")
+                # The city tree is the only modeled link from the center to the gym.
+                self._cut_tree("CeladonCity", (35, 32))
                 self._cut_tree("CeladonGym", (5, 7))
                 try:
                     self.fight(erika)
@@ -990,6 +992,8 @@ class CharmanderRun(BrockJourney):
             self.config["max_blackouts"] = previous
         if not self.flag("BADGE_RAINBOW"):
             raise ProtocolError("Erika win did not award the Rainbow Badge")
+        # Leaving the gym starts a new city visit and the tree is back.
+        self._cut_tree("CeladonCity", (35, 32))
         self.heal_here("CeladonPokecenter")
         self.save()
         self.summary.update(acceptance="Rainbow Badge earned", natural=True, forbidden_shortcuts=False)
