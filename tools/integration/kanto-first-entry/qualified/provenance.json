@@ -2999,10 +2999,10 @@
     "package-5-trainers-trainers.json": "b4a09f4144c5bdf00fbb3f7077f5897a675649a0e19a6c32fecdf5b1f9469bb2",
     "package-5.json": "c5a3a410a8687a92965dc62ee585ca59789dcce58c40af254d7ff00cadc18426"
   },
-  "producer": "/tmp/transform-pin-sdk-20261112-06",
-  "build_id": "4b26ae4ae4b306814c874de6b84ae46d2dcf5ffb:fb45f103208634497f41df4fe357f1f7da567a8ad21cbf931d07b9754a8ae46b",
-  "producer_build_sha256": "f22ea50f8f9d5b4b38fe34a6934074ce343b8b47a5776c6446372024815e378a",
-  "producer_result_sha256": "04ba42825078bca77065430c2e0b0af111f4ef27e9c52e62a6592c107741781c",
+  "producer": "/tmp/transform-pin-sdk-playtime",
+  "build_id": "4c67370701e9a838dd5a9ef48683e967f63238ab:67ef5fcb4003ae4beff402cc0552c4144efc90d5a90e4347d9ec377623b33bb9",
+  "producer_build_sha256": "50424a4d3f9fc8d4c115ac0e7f0baa22a9b66e5ab3385343a7454c79e5ebfe3c",
+  "producer_result_sha256": "d79bd5cc8807313a4901d06c6818ec163a9554ea9045628ad963273c6c66b662",
   "dependencies": {
     "game/kantoScenes.lua": "3aa15bce2ad6e4a2aa7e1ab63d9c6baf3888b3812a841cceb5da86474ce7d8cd",
     "game/ceruleanStory.lua": "108d63f6be18060cb5f58eb52205e4d7ee5e388d0f5d5d6452112cde84aac111",
@@ -3012,7 +3012,7 @@
     "game/sourceEventHandlers.lua": "7a89e76c1c80d9ce7af9f23bbe853f042215c404a21089f292436354e41b2518",
     "data/ceruleanContent.lua": "a8cfaab6477c65a80c134cc801150ff54b14864a3f74cbe334529e95d7700d88",
     "world/sourceMaps.lua": "05629c3f9bd752ab774d5623fd9c10aa094b3748b03ecdcb69036d74ee5c8666",
-    "domain/gameSession.lua": "a3e3e2da4aee84a6a0c9034bc980fe1b012958c33be46da0aba0dd3405b64446",
+    "domain/gameSession.lua": "5c1465fa54ccb302e3b0d8a8f642a6676bf3f768d07ea855094b9d8f1c7c3d26",
     "domain/party.lua": "936d14bf14cdcffec9a244940fcc14b508237e74464302249fd6aced3bee5545",
     "data/sourceMaps.json": "3f0d8683db4159837af759523baa166168f269db89865cce0067ff1b205e0389",
     "data/ceruleanStory/events.json": "9c7910d423cd592cf3ed1291d87903c6c75e3fed80605ca50584f6ec5b619c83",
@@ -3021,7 +3021,7 @@
     "data/ceruleanStory/scenes.json": "927d44b480ac4c790134390fe2a2fc46d2a0e5c2888966a1c0467a54187439cc",
     "data/ceruleanRoutes/scenes.json": "2d3d96278725c52eaad9011599868abdfc892ebde5fbadc3a8dff9aac6dc65ce"
   },
-  "export_sha256": "627fd986783279d18f6d9d2546c06c8391733d1c25d29b78159f6a5b4fd38089",
+  "export_sha256": "58940230a10cf41a905390aecacfda75280540f9bb5be51995fa8b2b800e8611",
   "content_pins_sha256": "184e249a207ad8fbdd9eae62bfd3965a5d630a1957d5c19821263280df108480",
   "owner_imports": [
     "game/ceruleanStory",
