@@ -36,7 +36,8 @@ MECHANICS_FREEZE = {
     'Source/domain/pokemonCodec.lua': '0ed37d2bdadb65e5934b8d1f201c4856b6daf1ea',
     'Source/domain/sessionCodec.lua': 'f81016bf6d647dddec9cb25f10432476cf071fda',
     'Source/lib/rng.lua': '921f02bb3a81c25010b2983d9c0024b307ea7708',
-    'tools/references/move-producer-migrations.json': '89905295b577884e020f5b91c131a0179083eb42',
+    # 264d302a puts Thrash and the sibling fields back at epoch 6 and Sunny Day/Hail at epoch 7.
+    'tools/references/move-producer-migrations.json': '264d302a0640f6387c5084198b3ecc71c15713b1',
     'Source/dev/substituteContracts.lua': '02846a40d85c0d3d5965070d44207b7556d74572',
     'Source/dev/substituteSeamContracts.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
 }
