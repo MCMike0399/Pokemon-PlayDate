@@ -1265,6 +1265,46 @@ Sequence 176 is outside the Viridian Center, `(23, 26)` facing down,
 after the heal, sha256
 `f31d3aa7542ba231f86a5064f93471dfdc692eb2004a5f94b826a94631466953`
 (`seq176-adventure.a.json`). Venusaur is 160/160. Money is 5763.
-`fullHeal` is 1, `hyperPotion` is 0, and `revive` is 0. The continue
-is sequence 176. Route 22 is the next door. Supplies for that rival
-still have to be bought; Viridian Mart does not sell them.
+`fullHeal` is 1, `hyperPotion` is 0, and `revive` is 0. Sequence 176
+was the continue. Route 22 is the next door. Supplies for that rival
+still had to be bought; Viridian Mart does not sell them.
+
+The prize-text edit stayed on this branch. `story.json` and
+`tools/tests/test_endgame_story.py` are the generated story and its
+pin. `play.json` is the extra endgame text. None of those is lane E's
+dialog decoder, so there is no `tools/notes/lane-e-json-latin1.patch`.
+A scan of the dialogue and data JSON found no other `\u00XX` escapes.
+Six older files under `docs/validation/` still contain `\u00e9` in
+saved evidence. They are not loaded by the game.
+
+## Supplies and the Route 22 tile
+
+Sequence 178 was Pallet Town `(5, 16)`. The walk north was real input:
+Route 1, Viridian, the forest, Pewter Center (sequence 179), Route 3,
+Mt. Moon, Cerulean Center (sequence 180), the Cerulean house, Route 5,
+and the Saffron Mart. Eight Poké Balls were sold. Three Hyper Potions
+and one Revive were bought. Sequence 181 is outside the Saffron Center
+at `(9, 30)` facing down, sha256
+`9dca729c73bb3ef3cfea1106b02e2566d4de5ec00c9c98aa0d4c899ee6522c22`
+(`seq181-adventure.b.json`). Venusaur is 160/160. Money is 1033.
+`hyperPotion` is 3, `revive` is 1, and `fullHeal` is 1.
+
+The return through Mt. Moon left Venusaur at 54/161. Sequence 182 is
+the Pause-Save on Route 22 `(30, 5)` facing up, one step east of the
+rival tiles, sha256
+`713476df9ee306329a8b780402bf92e94fcf64f3aba2fd2b009d0cdf26ab9143`
+(`seq182-adventure.a.json`). The same bag is intact. Stepping west
+onto `(29, 5)` did not start the second rival.
+
+`CeruleanRoutes.check` belongs to the route scripts lane D extended
+for this fight. With the first rival skipped, `EVENT_1ST` is clear and
+`pokered:ROUTE_22:objects:1` is not defeated, while Giovanni has set
+`EVENT_2ND_ROUTE22_RIVAL_BATTLE` and `EVENT_ROUTE22_RIVAL_WANTS_BATTLE`.
+The first branch claims the tile and `CeruleanRoutes.plan` returns
+`unavailable-rival`. pret/pokered `Route22DefaultScript` checks
+`EVENT_1ST` first and otherwise starts the second fight from
+`EVENT_2ND`, with no defeated-trainer requirement. The engine file is
+unchanged. The fix and its test are
+`tools/notes/lane-d-route22-second-rival.patch` and
+`tools/tests/test_lane_d_route22_second_rival.py`. The continue is
+sequence 182.

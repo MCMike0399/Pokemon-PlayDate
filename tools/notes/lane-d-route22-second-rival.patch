@@ -1,0 +1,28 @@
+--- a/Source/game/ceruleanRoutes.lua
++++ b/Source/game/ceruleanRoutes.lua
+@@ -219,15 +219,17 @@
+         and zone.stableID ~= "pokered:ROUTE_24") then return false end
+     local x, y = player.gridX - padding(zone.stableID), player.gridY
+     local id
+-    if zone.stableID == "pokered:ROUTE_22" and not game.session:trainerDefeated(ROUTE)
+-        and game.session:questFlag("EVENT_ROUTE22_RIVAL_WANTS_BATTLE") and at(data().triggers.route22,x,y) then id=ROUTE
+-    elseif zone.stableID == "pokered:ROUTE_22" and EndgameStory
+-        and game.session:trainerDefeated(ROUTE)
+-        and game.session:questFlag("EVENT_2ND_ROUTE22_RIVAL_BATTLE")
+-        and game.session:questFlag("EVENT_ROUTE22_RIVAL_WANTS_BATTLE")
+-        and not game.session:questFlag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE") then
++    if zone.stableID == "pokered:ROUTE_22"
++        and game.session:questFlag("EVENT_ROUTE22_RIVAL_WANTS_BATTLE") then
++        -- Route22DefaultScript checks EVENT_1ST before EVENT_2ND. Giovanni
++        -- sets the shared wants-battle flag for the second fight, including
++        -- when the first rival was skipped and objects:1 was never defeated.
+         local index = at(data().triggers.route22,x,y)
+-        if index then
++        if index and game.session:questFlag("EVENT_1ST_ROUTE22_RIVAL_BATTLE")
++            and not game.session:trainerDefeated(ROUTE) then id=ROUTE
++        elseif index and EndgameStory
++            and game.session:questFlag("EVENT_2ND_ROUTE22_RIVAL_BATTLE")
++            and not game.session:questFlag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE") then
+             EndgameStory.noteRoute22Tile(index)
+             id="pokered:ROUTE_22:objects:2"
+         end
