@@ -112,6 +112,18 @@ class CharmanderRun(BrockJourney):
             if started:
                 started()
 
+    def save(self):
+        super().save()
+        self._archive_earned_save()
+
+    def _archive_earned_save(self):
+        """Copy the live slots after a real pause SAVE. Bytes are not rewritten."""
+        index = getattr(self, "_earned_saves", 0) + 1
+        self._earned_saves = index
+        label = earned_save_label(self.state, index)
+        note = publish_save(self.client.data, self.evidence / "saves" / label, self.state)
+        self.summary.setdefault("earned_saves", []).append({"label": label, **note})
+
 
 def bedroom_snapshot():
     return {
@@ -196,6 +208,12 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:2"), "pewter-jr")
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
 
+    def test_earned_save_label(self):
+        boulder = {"zone": "pewter_gym", "session": {"flags": {"quest": {
+            "BADGE_BOULDER": True, "EVENT_GOT_TM34": True}}}}
+        self.assertEqual(earned_save_label(boulder, 2), "002-1-BOULDER-pewter_gym")
+        self.assertEqual(earned_save_label({"zone": "viridian_city"}, 1), "001-pre-badge-viridian_city")
+
     def test_forbidden_ops(self):
         with self.assertRaises(ProtocolError):
             real_input([{"op": "fixture", "options": {"seed": 1}}])
@@ -210,6 +228,14 @@ def _badges(state):
     if not isinstance(quest, dict):
         return []
     return sorted(name for name, value in quest.items() if name.startswith("BADGE_") and value)
+
+
+def earned_save_label(state, index):
+    """Folder name for one pause-SAVE copy. The badge list is alphabetical."""
+    badges = [name.removeprefix("BADGE_") for name in _badges(state)]
+    badge = "pre-badge" if not badges else f"{len(badges)}-" + "-".join(badges)
+    zone = str(state.get("zone") or "unknown").replace("/", "-")
+    return f"{index:03d}-{badge}-{zone}"
 
 
 def publish_save(data_dir, destination, state):
