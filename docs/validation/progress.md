@@ -1,10 +1,16 @@
 # Full-game execution ledger
 
-## 2026-11-12 The current boot still stops during content registration
+## 2026-11-12 Full boot reaches the title inside the 16 MiB pool
 
-Clip `20261112T061946Z-boot-memory-stop.mp4` is 45 seconds of the 400x240 LCD from build `8b9da209`. The title becomes visible, then content registration stops the game with `error.not enough memory`. The crop has no Simulator menu, Heads up dialog, or device chrome. Seafoam and the league scenes never start, so the clip cannot show the boulder push or a Hall of Fame card. `MallocPoolSize=16645684` stayed on. The simulator and device locks were free; the finished worry-seed and transform sessions were not touched.
+Clip `20261112T061946Z-boot-memory-stop.mp4` opens on the error screen. The whole 45 seconds is `Game stopped safely`, then `error.not enough memory`, then `not enough memory` again. The title is not in that file. The earlier note said content registration passes the title. That described a boot trace, not the clip: the recorder started after the stop, so the frames before the crash were missed. Recordings now start before the simulator opens. The trace for build `8b9da209` does mark `title.visible` at 2163 ms and `error.not enough memory` at 3446 ms, with a sampled Lua peak of 13792 KiB. `MallocPoolSize` stayed `16645684`.
 
-Lane B can rebase on `8b9da209`. The bundle `20261112T061946Z-lane-b-rebase.bundle` requires `origin/main` `7a31867a` and its sha256 is `d0d5c2ff3b037ed198063a0d4ca57bf099383e55051ccab068150a38d99d65e6`. `main` was not fast-forwarded. The earlier full-suite log failed its source setup because `POKERED_REFERENCE_DIR` was unset, and this boot still exhausts the 16 MiB pool.
+The full harness profile is what exhausts the pool. Region-story imports, including the lane B and lane D modules, move the Lua heap from 12850 KiB to 12928 KiB. They are not the stop. After `CeruleanContent.installSigns`, `VermilionCatalogExporter.register` and `MidgameCatalogExporter.register` called `SourceMaps.compact()`, which deep-copies the map catalogue. That copy does not fit beside the running boot. The thin journey profile never registers those exporters and boots at about 8 MiB. The error screen drew the trace phase `error.not enough memory` and the same message again without the prefix.
+
+The exporters now keep tile membership as booleans on the shared catalogue. Vermilion's presentation bitmaps are warmed when a catalog is written, not during registration. Startup collects once the Lua heap is already at 12 MiB. The pool was not raised. The error screen prints the stop once. `tools/measure_boot_budget.py` fails a trace that misses `title.visible` or `initialize.ready`, records an error, or samples a Lua peak above 14000 KiB.
+
+SDK 3.1.2 session `1f3d0a3b47b449e3940d6d5068dc886d` reached `title.visible` at 1069 ms and `initialize.ready` at 23083 ms. Sampled peak 13484.934 KiB. The budget check passed. Clip `20261112T070934Z-boot-to-title.mp4` is 28.2 seconds of the 400x240 LCD, from the loading screen (`AuthoredMaps.initialize`) through the Blue title menu (`NEW GAME` / `OPTIONS`). The crop has no Simulator chrome and no developer eList dialog. sha256 `be1f80038669765b556ee8438af23927075e95d187cdeeed7fef7ed40585bfca`. `main` was not fast-forwarded.
+
+Lane B can rebase on `58287e35`. The bundle `20261112T070934Z-lane-b-rebase.bundle` requires `origin/main` `7a31867a` and its sha256 is `c3bf18879df2ef87192e515172daa7d4e07e9e380b9ebbe7132863ba16ec1c4a`. The earlier bundle `20261112T061946Z-lane-b-rebase.bundle` stops at `8b9da209`. The earlier full-suite log failed its source setup because `POKERED_REFERENCE_DIR` was unset.
 
 ## 2026-11-12 The transform pins match the thin SDK export
 

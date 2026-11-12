@@ -8,6 +8,7 @@ local kinds <const> = {"terrain", "viewport", "collision", "actors", "events"}
 local shipFrames <const> = {0, 4, 124, 130, 137, 138, 258, 770, 1153, 1154, 1156, 1276, 1280, 1283}
 local grassSourceFrames <const> = {0, 7, 8, 15, 16, 23, 24, 31}
 local prepared
+local registered
 
 local function keys(source)
     local result = {}
@@ -37,12 +38,15 @@ end
 
 function VermilionCatalogExporter.tiles()
     local previous = PewterCatalogExporter.legacyTiles()
-    for key, tile in pairs(shared.tiles()) do previous[key] = tile end
-    local metadata <const> = SourceMaps.compact()
+    for key in pairs(shared.tiles()) do previous[key] = true end
+    local metadata <const> = SourceMaps._sharedCompact()
     local result = {}
     for _, name in ipairs(VermilionCatalogExporter.maps()) do
         for _, key in ipairs(metadata.maps[name].palette) do
-            if not previous[key] then result[key] = assert(metadata.tiles[key]) end
+            if not previous[key] then
+                assert(metadata.tiles[key])
+                result[key] = true
+            end
         end
     end
     return result
@@ -161,7 +165,10 @@ function VermilionCatalogExporter.inventory()
 end
 
 function VermilionCatalogExporter.writer(sink)
-    assert(prepared, "Vermilion art must be warmed at bootstrap registration")
+    if not prepared then
+        VermilionCatalogExporter.warm()
+    end
+    assert(prepared, "Vermilion art must be warmed before catalog writing")
     local report = {schema = 1, source_revision = "af519899719f0754965776faac0e836a3b906e6d",
         maps = {}, tiles = {}, strips = {}, characters = VermilionCatalogExporter.poses(),
         shared_images = VermilionCatalogExporter.inventory().shared_images, ship = {}, cut = {},
@@ -239,10 +246,12 @@ function VermilionCatalogExporter.writer(sink)
     return report
 end
 
-function VermilionCatalogExporter.register()
-    assert(not prepared, "Vermilion catalog already prepared")
-    -- Warm immutable production art only during bootstrap. This private draw
-    -- record has no game/session/token and cannot execute field progression.
+function VermilionCatalogExporter.warm()
+    if prepared then
+        return prepared
+    end
+    -- Rendered frames stay out of bootstrap. Registration only records
+    -- ownership; the writer warms this private draw record on demand.
     local field <const> = FieldMoves.data()
     local cut = {active = true, phase = "effect", frame = 0, effect = FieldMoves.effectData(),
         preview = {key = "cut", target = {x = 0.5, y = 0},
@@ -277,16 +286,25 @@ function VermilionCatalogExporter.register()
     prepared = {ship = VermilionShipArt.images(), cut = cut, cutFrames = frames,
         grass = grass, grassSourceFrames = sourceFrames, grassNativeFrames = nativeFrames}
     VermilionShipTimeline.data()
+    return prepared
+end
+
+function VermilionCatalogExporter.register()
+    assert(not registered, "Vermilion catalog already prepared")
+    if BootTrace then BootTrace.mark("VermilionCatalogExporter.register.begin") end
     local tiles <const> = VermilionCatalogExporter.tiles()
     local maps, npcs = {}, {}
     for _, name in ipairs(VermilionCatalogExporter.maps()) do maps[SourceMaps.entry(name).id] = true end
     for source, entry in pairs(VermilionCatalogExporter.actors()) do
         if entry.owner == "vermilion" then npcs[CeruleanContent.key(source)] = true end
     end
-    return VisualCatalog.registerExporter("vermilion", {
+    registered = true
+    local exporter = VisualCatalog.registerExporter("vermilion", {
         inventory = VermilionCatalogExporter.inventory, writer = VermilionCatalogExporter.writer,
         ownsZone = function(zone) return maps[zone.stableID] == true end,
         ownsTile = function(key) return tiles[key] ~= nil end,
         ownsNPC = function(key) return npcs[key] == true end,
     })
+    if BootTrace then BootTrace.mark("VermilionCatalogExporter.register.end") end
+    return exporter
 end

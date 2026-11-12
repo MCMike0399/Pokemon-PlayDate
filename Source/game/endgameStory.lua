@@ -254,10 +254,141 @@ function EndgameStory.hallPhotos(record)
     local photos = {}
     for _, mon in ipairs(record or {}) do
         photos[#photos + 1] = {kind = "pokemon", species = mon.species, level = mon.level,
-            name = mon.name, types = EndgameStory.monTypes(mon.species), cry = mon.species}
+            name = mon.name, types = EndgameStory.monTypes(mon.species), cry = mon.species,
+            pic = "front"}
     end
-    photos[#photos + 1] = {kind = "player", name = "RED"}
+    photos[#photos + 1] = {kind = "player", name = "RED", pic = "player"}
     return photos
+end
+
+-- PrintMonType is called at hlcoord 3, 9. The labels are HoFMonInfoText at
+-- hlcoord 2, 6, and <NEXT> is double-spaced, so each type name lands on the
+-- row under its TYPEn/ label. Equal types take EraseType2Text.
+function EndgameStory.hallRows(photo)
+    if not photo or photo.kind == "player" then
+        return {{text = photo and photo.name or "RED", col = 7, row = 2}}
+    end
+    local types <const> = photo.types or {}
+    local rows = {
+        {text = photo.name or "", col = 1, row = 4},
+        {text = "LEVEL/", col = 2, row = 6},
+        {text = tostring(photo.level or ""), col = 8, row = 7},
+        {text = "TYPE1/", col = 2, row = 8},
+        {text = types[1] or "", col = 3, row = 9},
+    }
+    if types[2] and types[2] ~= types[1] then
+        rows[#rows + 1] = {text = "TYPE2/", col = 2, row = 10}
+        rows[#rows + 1] = {text = types[2], col = 3, row = 11}
+    end
+    return rows
+end
+
+function EndgameStory.hallCaptionRow()
+    return {text = "HALL OF FAME", col = 4, row = 15}
+end
+
+function EndgameStory.hallCaptionDue(clock)
+    return clock > visual().hall.mon_delay
+end
+
+-- DMG ScrollPic, not the SGB sla. DelayFrame shows the current hSCX, then
+-- the step is added. The loop returns once the add lands on the target, so
+-- that target is the hold and is not itself a scroll frame.
+-- Back: hSCX $c0 step +4 until $a0, hSCY stays $d0. Front: hSCY cleared,
+-- hSCX $a0 step -4 until 0. The pic tiles stay at hlcoord 12, 5.
+function EndgameStory.hallScrollSpec(which)
+    if which == "back" then
+        return {pic = "back", scx = 0xc0, scy = 0xd0, step = 4, target = 0xa0}
+    end
+    return {pic = "front", scx = 0xa0, scy = 0x00, step = -4, target = 0x00}
+end
+
+function EndgameStory.hallScrollFrames(which)
+    local spec <const> = EndgameStory.hallScrollSpec(which)
+    local scx = spec.scx
+    local frames = 0
+    repeat
+        frames = frames + 1
+        scx = (scx + spec.step) % 256
+    until scx == spec.target
+    return frames
+end
+
+function EndgameStory.hallPicOrigin(scx, scy)
+    -- Tile (12, 5) is map pixel (96, 40). Coords past the right edge stay
+    -- positive; coords that wrapped past the left edge become negative.
+    local x = (96 - scx) % 256
+    local y = (40 - scy) % 256
+    if x > 160 then
+        x = x - 256
+    end
+    if y > 144 then
+        y = y - 256
+    end
+    return x, y
+end
+
+function EndgameStory.hallScrollFrame(which, index)
+    local spec <const> = EndgameStory.hallScrollSpec(which)
+    local scx = spec.scx
+    for _ = 2, index do
+        scx = (scx + spec.step) % 256
+    end
+    local x, y = EndgameStory.hallPicOrigin(scx, spec.scy)
+    return {pic = spec.pic, scx = scx, scy = spec.scy, x = x, y = y}
+end
+
+function EndgameStory.hallRest()
+    return {pic = "front", scx = 0, scy = 0, x = 96, y = 40}
+end
+
+-- Red's card uses these paths once both open. Until then it uses the overworld grid.
+local RED_PIC_FRONT <const> = "images/player/red-pic-front"
+local RED_PIC_BACK <const> = "images/player/red-pic-back"
+local redHallPics = nil
+
+local function redPicOpens(path)
+    local imageNew = playdate and playdate.graphics and playdate.graphics.image and playdate.graphics.image.new
+    if not imageNew then
+        return false
+    end
+    local ok, image = pcall(imageNew, path)
+    return ok and image ~= nil
+end
+
+function EndgameStory.playerHallPics(opens)
+    local ready = false
+    if opens then
+        ready = opens(RED_PIC_FRONT) and opens(RED_PIC_BACK)
+    elseif redHallPics then
+        return redHallPics
+    else
+        ready = redPicOpens(RED_PIC_FRONT) and redPicOpens(RED_PIC_BACK)
+        redHallPics = ready and {source = "RedPicFront", front = RED_PIC_FRONT, back = RED_PIC_BACK}
+            or {source = "overworld"}
+        return redHallPics
+    end
+    if ready then
+        return {source = "RedPicFront", front = RED_PIC_FRONT, back = RED_PIC_BACK}
+    end
+    return {source = "overworld"}
+end
+
+function EndgameStory.hallView()
+    -- 2x Game Boy screen, shifted up so the row-15 caption fits in 240px.
+    return {scale = 2, x = 40, y = -48, width = 160, height = 144}
+end
+
+function EndgameStory.hallPixel(gbX, gbY)
+    local view <const> = EndgameStory.hallView()
+    return view.x + gbX * view.scale, view.y + gbY * view.scale
+end
+
+function EndgameStory.hallBoxes()
+    return {
+        info = {col = 0, row = 2, width = 12, height = 11},
+        caption = {col = 2, row = 13, width = 16, height = 5},
+    }
 end
 
 function EndgameStory.blockKeys(tileset, blockId)
@@ -1058,23 +1189,24 @@ function EndgameStory.updatePhotos(state)
     local timing <const> = visual().hall
     local photo <const> = state.photo
     photo.clock = photo.clock + 1
-    if photo.stage == "preamble" then
-        if photo.clock >= timing.preamble then
-            photo.stage = "show"
-            photo.clock = 0
-            local entry <const> = state.plan.photos[photo.index]
-            if entry and entry.cry then
-                EndgameStory.playCry(entry.cry)
-            end
+    if photo.stage == "preamble" and photo.clock > timing.preamble then
+        photo.stage = "scroll-back"
+        photo.clock = 1
+    elseif photo.stage == "scroll-back" and photo.clock > EndgameStory.hallScrollFrames("back") then
+        photo.stage = "scroll-front"
+        photo.clock = 1
+    elseif photo.stage == "scroll-front" and photo.clock > EndgameStory.hallScrollFrames("front") then
+        -- Name, level, types, and the cry start only once both scrolls return.
+        photo.stage = "show"
+        photo.clock = 1
+        local entry <const> = state.plan.photos[photo.index]
+        if entry and entry.cry then
+            EndgameStory.playCry(entry.cry)
         end
-        return
-    end
-    if photo.stage == "show" and photo.clock >= timing.mon_delay + timing.caption then
+    elseif photo.stage == "show" and photo.clock > timing.mon_delay + timing.caption then
         photo.stage = "fade"
-        photo.clock = 0
-        return
-    end
-    if photo.stage == "fade" and photo.clock >= timing.fade_white then
+        photo.clock = 1
+    elseif photo.stage == "fade" and photo.clock > timing.fade_white then
         photo.index = photo.index + 1
         if photo.index > #state.plan.photos then
             state.photosDone = true
@@ -1087,12 +1219,8 @@ function EndgameStory.updatePhotos(state)
             end
             return
         end
-        photo.stage = "show"
-        photo.clock = 0
-        local entry <const> = state.plan.photos[photo.index]
-        if entry and entry.cry then
-            EndgameStory.playCry(entry.cry)
-        end
+        photo.stage = "scroll-back"
+        photo.clock = 1
     end
 end
 
@@ -1154,8 +1282,52 @@ function EndgameStory.drawFade(gfx, state)
     gfx.popContext()
 end
 
+local function photoImage(gfx, state, photo, which)
+    if photo.kind == "player" then
+        local pics <const> = EndgameStory.playerHallPics()
+        if pics.source == "RedPicFront" and gfx.image then
+            local path <const> = which == "back" and pics.back or pics.front
+            local ok, image = pcall(gfx.image.new, path)
+            if ok then
+                return image
+            end
+        end
+        if state.player and state.player.getImage then
+            return state.player:getImage()
+        end
+        return nil
+    end
+    if PokemonArt and gfx.image then
+        local ok, image = pcall(gfx.image.new, PokemonArt.path(photo.species, which))
+        if ok then
+            return image
+        end
+    end
+    return nil
+end
+
+local function blitHallPic(gfx, image, gbX, gbY)
+    if not image then
+        return
+    end
+    local px, py = EndgameStory.hallPixel(gbX, gbY)
+    local scale <const> = EndgameStory.hallView().scale
+    if image.drawScaled then
+        image:drawScaled(px, py, scale)
+    else
+        image:draw(px, py)
+    end
+end
+
+local function drawHallBox(gfx, box)
+    local px, py = EndgameStory.hallPixel(box.col * 8, box.row * 8)
+    local scale <const> = EndgameStory.hallView().scale
+    gfx.drawRect(px, py, box.width * 8 * scale, box.height * 8 * scale)
+end
+
 function EndgameStory.drawPhoto(gfx, state)
     local photo = state.photo and state.plan.photos[state.photo.index]
+    local view <const> = EndgameStory.hallView()
     gfx.pushContext()
     gfx.setDrawOffset(0, 0)
     gfx.clearClipRect()
@@ -1168,25 +1340,32 @@ function EndgameStory.drawPhoto(gfx, state)
         gfx.popContext()
         return
     end
-    if photo.kind == "pokemon" and PokemonArt and gfx.image then
-        local front <const> = PokemonArt.path(photo.species, "front")
-        local back <const> = PokemonArt.path(photo.species, "back")
-        pcall(function()
-            gfx.image.new(front):draw(220, 40)
-        end)
-        pcall(function()
-            gfx.image.new(back):draw(40, 70)
-        end)
-    elseif photo.kind == "player" and state.player and state.player.getImage then
-        local image <const> = state.player:getImage()
-        if image then
-            image:draw(80, 80)
-        end
+    gfx.setClipRect(view.x, 0, view.width * view.scale, 240)
+    local stage <const> = state.photo.stage
+    if stage == "scroll-back" or stage == "scroll-front" then
+        local which <const> = stage == "scroll-back" and "back" or "front"
+        local frame <const> = EndgameStory.hallScrollFrame(which, state.photo.clock)
+        blitHallPic(gfx, photoImage(gfx, state, photo, frame.pic), frame.x, frame.y)
+        gfx.popContext()
+        return
     end
-    local types <const> = photo.types or {}
-    gfx.drawText((photo.name or "") .. "\nLEVEL " .. tostring(photo.level or "")
-        .. "\nTYPE1/ " .. (types[1] or "") .. "\nTYPE2/ " .. (types[2] or "") .. "\nHALL OF FAME", 16, 150)
-    if state.photo.stage == "fade" and Shade then
+    local rest <const> = EndgameStory.hallRest()
+    blitHallPic(gfx, photoImage(gfx, state, photo, rest.pic), rest.x, rest.y)
+    if photo.kind == "pokemon" then
+        drawHallBox(gfx, EndgameStory.hallBoxes().info)
+    end
+    for _, row in ipairs(EndgameStory.hallRows(photo)) do
+        local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
+        gfx.drawText(row.text, px, py)
+    end
+    if stage == "fade" or EndgameStory.hallCaptionDue(state.photo.clock) then
+        local caption <const> = EndgameStory.hallCaptionRow()
+        drawHallBox(gfx, EndgameStory.hallBoxes().caption)
+        local px, py = EndgameStory.hallPixel(caption.col * 8, caption.row * 8)
+        gfx.drawText(caption.text, px, py)
+    end
+    if stage == "fade" and Shade then
+        gfx.clearClipRect()
         gfx.setPattern(Shade.LIGHT)
         gfx.fillRect(0, 0, 400, 240)
     end

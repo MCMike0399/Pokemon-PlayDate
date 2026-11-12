@@ -11,12 +11,15 @@ end
 -- Project the accepted twelve palettes from shared metadata. The compact
 -- cache now contains later regions too; they belong to their named exporter.
 function PewterCatalogExporter.legacyTiles()
-    local metadata = SourceMaps.compact()
+    -- Membership only. SourceMaps.compact() deep-copies the whole catalogue
+    -- and that copy no longer fits beside a full boot in the 16 MiB pool.
+    local metadata = SourceMaps._sharedCompact()
     local tiles = {}
     for _, profile in ipairs({ "viridian", "pewter" }) do
         for _, name in ipairs(SourceMaps.names(profile)) do
             for _, key in ipairs(metadata.maps[name].palette) do
-                tiles[key] = assert(metadata.tiles[key], "legacy palette tile missing")
+                assert(metadata.tiles[key], "legacy palette tile missing")
+                tiles[key] = true
             end
         end
     end

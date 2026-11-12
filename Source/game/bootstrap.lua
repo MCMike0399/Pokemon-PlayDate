@@ -80,10 +80,10 @@ function GameBootstrap.drawError()
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawText("Game stopped safely", 12, 20)
-    gfx.drawText(tostring(BootTrace.phase or "unknown phase"):sub(1, 48), 12, 52)
+    -- The trace phase is "error." plus this same message. The screen shows it once.
     local text = tostring(failure or "unknown error")
     for line = 0, 5 do
-        gfx.drawText(text:sub(line * 46 + 1, (line + 1) * 46), 12, 84 + line * 20)
+        gfx.drawText(text:sub(line * 46 + 1, (line + 1) * 46), 12, 52 + line * 20)
     end
 end
 
@@ -111,6 +111,11 @@ function GameBootstrap.checkpoint()
     local generation = loadingGeneration
     BootTrace.checkGuard()
     collectgarbage("step", 32)
+    -- The 16 MiB pool dies if startup garbage is left until the heap doubles.
+    -- A full collection here only runs once the live set is already high.
+    if loading and collectgarbage("count") >= 12 * 1024 then
+        collectgarbage("collect")
+    end
     local presentedStatic = GameBootstrap.showLoading()
     if generation ~= loadingGeneration then
         error(failure or "loading cancelled", 0)
