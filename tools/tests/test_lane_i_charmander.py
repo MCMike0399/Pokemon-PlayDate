@@ -138,6 +138,8 @@ def key_fight(name, trainer_id):
         return "badge-thunder"
     if trainer == "pokered:CELADON_GYM:objects:1" or label.startswith("erika"):
         return "badge-rainbow"
+    if trainer == "pokered:FUCHSIA_GYM:objects:1" or label.startswith("koga"):
+        return "badge-soul"
     return None
 
 
@@ -924,7 +926,7 @@ class CharmanderRun(BrockJourney):
         Diglett's Cave is the long way to the aide, so it stays unused.
         """
         if self.flag("BADGE_RAINBOW"):
-            self.summary.update(acceptance="Rainbow Badge earned", natural=True, forbidden_shortcuts=False)
+            self._toward_koga()
             return
         self.summary["acceptance"] = "walking toward the Rainbow Badge"
         self._vermilion_tools()
@@ -997,6 +999,194 @@ class CharmanderRun(BrockJourney):
         self.heal_here("CeladonPokecenter")
         self.save()
         self.summary.update(acceptance="Rainbow Badge earned", natural=True, forbidden_shortcuts=False)
+        self._toward_koga()
+
+    def _bind_post_rainbow(self):
+        """Reuse the hideout, tower, and east-road button scripts."""
+        if getattr(self, "_post_rainbow", False):
+            return
+        import tools.harness.midgame_journey as midgame
+        import tools.harness.vermilion_journey as vermilion
+        self.completed_steps = set()
+        self.floor_choice = None
+        self.scripted_wild = None
+        self.event_choices = {}
+        for name in (
+            "scene_data", "source_waypoint", "background", "fixed_hideout",
+            "fixed_warp", "pickup", "exit_hideout_lift", "use_item",
+            "wake_snorlax", "enter_route14_from_east",
+            "finish_eastern_road_to_fuchsia", "refill_after_route13",
+        ):
+            setattr(self, name, getattr(midgame.MidgameJourney, name).__get__(self, type(self)))
+        self.refresh_world = vermilion.VermilionJourney.refresh_world.__get__(self, type(self))
+        self.require_event = lambda stable: None
+        base_project = self.project_warp
+        def project_warp(model, event):
+            scenes = self.scene_data("data/rocketHideoutStory/scenes.json")
+            for floor in scenes["elevator"]:
+                if model.name != floor["map_id"]:
+                    continue
+                for index, exit in enumerate(floor["exits"], start=1):
+                    if event["source_index"] == exit["warp"]:
+                        cabin = self.models[self.zone("RocketHideoutElevator")]
+                        return cabin.name, (index + 1 + cabin.padding, 1)
+            return base_project(model, event)
+        self.project_warp = project_warp
+        base_advance = self.advance_event
+        def advance_event(stop_phase=None):
+            phase = lookup(self.state, "event.phase")
+            if (self.state.get("root") == "event"
+                    and lookup(self.state, "event.menu.active") is True
+                    and phase in {"hideout-floor", "silph-floor"}):
+                options = sequence(lookup(self.state, "event.menu.options"), "elevator options")
+                choice = getattr(self, "floor_choice", None)
+                if choice is None or options.count(choice) != 1:
+                    raise ProtocolError("unplanned actual elevator menu: " + str(options))
+                self.select("event.menu.selected", options.index(choice) + 1)
+                self.send("press a")
+                return True
+            return base_advance(stop_phase)
+        self.advance_event = advance_event
+        self._post_rainbow = True
+
+    def _fight_story(self, trainer_id):
+        if self.defeated(trainer_id):
+            return
+        # The tower rival is a story scene, not a payout pin.
+        if trainer_id not in getattr(self, "source_trainers", {}):
+            self.travel(trainer_id.rsplit(":", 2)[0])
+            self.interact(source_id=trainer_id)
+            if not self.defeated(trainer_id):
+                raise ProtocolError("story trainer was not defeated: " + trainer_id)
+            return
+        self.fight(trainer_id)
+
+    def _visit_story(self, event_id):
+        self.travel(event_id.rsplit(":", 2)[0])
+        self.interact(source_id=event_id)
+
+    def _rocket_hideout(self):
+        """Game Corner poster, then the lift, Giovanni, and the Silph Scope."""
+        import tools.harness.cerulean_journey as cerulean
+        self.training_mode = None
+        self._arrange_lead("starter")
+        guard = cerulean.sid("GAME_CORNER", 11)
+        self.travel(self.zone("GameCorner"))
+        self.source_waypoint(9, 6)
+        self._fight_story(guard)
+        if not self.flag("ROCKET_HIDEOUT_SCENE_V1_GUARD_LEFT"):
+            self._visit_story(guard)
+        self.background("pokered:GAME_CORNER:background_events:1")
+        self.warp(self.zone("RocketHideoutB1F"), "pokered:GAME_CORNER:warps:3")
+        self.warp(self.zone("RocketHideoutB2F"), "pokered:ROCKET_HIDEOUT_B1F:warps:1")
+        self.fixed_hideout(0, "RocketHideoutB3F")
+        self.fixed_hideout(1, "RocketHideoutB4F")
+        key_rocket = cerulean.sid("ROCKET_HIDEOUT_B4F", 4)
+        self._fight_story(key_rocket)
+        self._visit_story(key_rocket)
+        if not self.flag("EVENT_ROCKET_DROPPED_LIFT_KEY"):
+            raise ProtocolError("actual defeated Rocket did not drop Lift Key")
+        self.visit_event = self._visit_story
+        self.pickup(cerulean.sid("ROCKET_HIDEOUT_B4F", 9), "liftKey")
+        self.warp(self.zone("RocketHideoutB3F"), "pokered:ROCKET_HIDEOUT_B4F:warps:1")
+        self.fixed_hideout(2, "RocketHideoutB2F")
+        self.fixed_hideout(3, "RocketHideoutElevator")
+        self.floor_choice = "B4F"
+        self.background("pokered:ROCKET_HIDEOUT_ELEVATOR:background_events:1")
+        self.floor_choice = None
+        self.exit_hideout_lift("RocketHideoutB4F")
+        self._fight_story(cerulean.sid("ROCKET_HIDEOUT_B4F", 2))
+        self._fight_story(cerulean.sid("ROCKET_HIDEOUT_B4F", 3))
+        self.warp(self.zone("RocketHideoutElevator"))
+        self.exit_hideout_lift("RocketHideoutB4F")
+        self._fight_story(cerulean.sid("ROCKET_HIDEOUT_B4F", 1))
+        self.pickup(cerulean.sid("ROCKET_HIDEOUT_B4F", 8), "silphScope")
+        if self.quantity("silphScope") != 1:
+            raise ProtocolError("Rocket Hideout did not give the Silph Scope")
+        self.save()
+        self.floor_choice = "B2F"
+        self.warp(self.zone("RocketHideoutElevator"))
+        self.background("pokered:ROCKET_HIDEOUT_ELEVATOR:background_events:1")
+        self.floor_choice = None
+        self.exit_hideout_lift("RocketHideoutB2F")
+        self.fixed_hideout(4, "RocketHideoutB2F")
+        self.fixed_warp(1, (26, 8))
+        self.source_waypoint(22, 3)
+        self.fixed_warp(2, (22, 2))
+        self.heal_here("CeladonPokecenter")
+        self.save()
+
+    def _pokemon_tower(self):
+        """Climb to the ghost, then Fuji's house for the Poké Flute."""
+        import tools.harness.cerulean_journey as cerulean
+        self.training_mode = None
+        self._arrange_lead("starter")
+        self.heal_here("LavenderPokecenter")
+        self.save()
+        self.travel(self.zone("PokemonTower1F"))
+        for floor in range(2, 7):
+            self.warp(self.zone("PokemonTower" + str(floor) + "F"))
+            if floor == 2:
+                rival = cerulean.sid("POKEMON_TOWER_2F", 1)
+                self._fight_story(rival)
+        self.visit_event = self._visit_story
+        self.pickup(cerulean.sid("POKEMON_TOWER_6F", 4), "rareCandy")
+        scenes = self.scene_data("data/towerStory/scenes.json")
+        self.scripted_wild = {"species": scenes["ghost"]["species"], "level": scenes["ghost"]["level"]}
+        self.source_waypoint(10, 15)
+        self.send("press down", "wait 10")
+        self.drain()
+        self.scripted_wild = None
+        if not self.flag("EVENT_BEAT_GHOST_MAROWAK"):
+            raise ProtocolError("unavailable/unconfirmed actual Scope ghost victory")
+        self.warp(self.zone("PokemonTower7F"))
+        for index in (1, 2, 3):
+            self._fight_story(cerulean.sid("POKEMON_TOWER_7F", index))
+        self._visit_story(cerulean.sid("POKEMON_TOWER_7F", 4))
+        self.pickup(cerulean.sid("MR_FUJIS_HOUSE", 5), "pokeFlute", "EVENT_GOT_POKE_FLUTE")
+        if not self.flag("EVENT_GOT_POKE_FLUTE") or not self.flag("EVENT_RESCUED_MR_FUJI"):
+            raise ProtocolError("actual Fuji rescue or Poké Flute is missing")
+        self.heal_here("LavenderPokecenter")
+        self.save()
+
+    def _koga(self):
+        import tools.harness.cerulean_journey as cerulean
+        self.training_mode = None
+        self._arrange_lead("starter")
+        self.heal_here("FuchsiaPokecenter")
+        self.save()
+        self._fight_story(cerulean.sid("FUCHSIA_GYM", 1))
+        if not self.flag("BADGE_SOUL") or self.quantity("tm06") < 1:
+            raise ProtocolError("Koga win did not award the Soul Badge and TM06")
+        self.heal_here("FuchsiaPokecenter")
+        self.save()
+        self.summary.update(acceptance="Soul Badge earned", natural=True, forbidden_shortcuts=False)
+
+    def _toward_koga(self):
+        """Hideout Scope, Tower flute, then the east road to Koga."""
+        if self.flag("BADGE_SOUL") and self.quantity("tm06") >= 1:
+            self.summary.update(acceptance="Soul Badge earned", natural=True, forbidden_shortcuts=False)
+            return
+        self.summary["acceptance"] = "walking toward the Soul Badge"
+        self._vermilion_tools()
+        self._pin_route_trainers()
+        self._pin_cached_trainers()
+        self._bind_post_rainbow()
+        self.training_mode = None
+        self._arrange_lead("starter")
+        self.config["max_blackouts"] = 6
+        if self.quantity("silphScope") != 1:
+            self._rocket_hideout()
+        if not self.flag("EVENT_GOT_POKE_FLUTE"):
+            self._pokemon_tower()
+        if not self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
+            self.training_mode = None
+            self.wake_snorlax("ROUTE_12", 1, (10, 61))
+            self.heal_here("LavenderPokecenter")
+            self.save()
+        self.enter_route14_from_east()
+        self.finish_eastern_road_to_fuchsia()
+        self._koga()
 
     def _have_counter(self, minimum):
         return any(
@@ -1514,6 +1704,16 @@ class CharmanderRun(BrockJourney):
             return None
         return super().battle_medicine(item, options, target)
 
+    def flee(self):
+        """A Scope ghost or a flute Snorlax is a real battle. Other wilds run."""
+        expected = getattr(self, "scripted_wild", None)
+        enemy = lookup(self.state, "battle.enemy")
+        if (expected and isinstance(enemy, dict)
+                and enemy.get("species") == expected["species"]
+                and enemy.get("level") == expected["level"]):
+            return self.battle("source-" + expected["species"], expected="win")
+        return super().flee()
+
     def battle(self, name, strategy="attack", expected=None):
         from tools.harness.brock_journey import NaturalBlackout
         from tools.harness.cerulean_journey import CeruleanJourney
@@ -1653,6 +1853,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:CERULEAN_GYM:objects:1"), "badge-cascade")
         self.assertEqual(key_fight("source", "pokered:VERMILION_GYM:objects:1"), "badge-thunder")
         self.assertEqual(key_fight("source", "pokered:CELADON_GYM:objects:1"), "badge-rainbow")
+        self.assertEqual(key_fight("source", "pokered:FUCHSIA_GYM:objects:1"), "badge-soul")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
