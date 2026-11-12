@@ -4358,7 +4358,7 @@
         "id": "pokered:VICTORY_ROAD_1F:objects:1",
         "map": "VictoryRoad1F",
         "map_id": "pokered:VICTORY_ROAD_1F",
-        "name": "COOLTRAINER\u2640",
+        "name": "COOLTRAINER♀",
         "party": [
           {
             "level": 44,
@@ -4391,7 +4391,7 @@
         "id": "pokered:VICTORY_ROAD_1F:objects:2",
         "map": "VictoryRoad1F",
         "map_id": "pokered:VICTORY_ROAD_1F",
-        "name": "COOLTRAINER\u2642",
+        "name": "COOLTRAINER♂",
         "party": [
           {
             "level": 42,
@@ -4543,7 +4543,7 @@
         "id": "pokered:VICTORY_ROAD_2F:objects:4",
         "map": "VictoryRoad2F",
         "map_id": "pokered:VICTORY_ROAD_2F",
-        "name": "POK\u00e9MANIAC",
+        "name": "POKéMANIAC",
         "party": [
           {
             "level": 40,
@@ -4609,7 +4609,7 @@
         "id": "pokered:VICTORY_ROAD_3F:objects:1",
         "map": "VictoryRoad3F",
         "map_id": "pokered:VICTORY_ROAD_3F",
-        "name": "COOLTRAINER\u2642",
+        "name": "COOLTRAINER♂",
         "party": [
           {
             "level": 43,
@@ -4646,7 +4646,7 @@
         "id": "pokered:VICTORY_ROAD_3F:objects:2",
         "map": "VictoryRoad3F",
         "map_id": "pokered:VICTORY_ROAD_3F",
-        "name": "COOLTRAINER\u2640",
+        "name": "COOLTRAINER♀",
         "party": [
           {
             "level": 43,
@@ -4683,7 +4683,7 @@
         "id": "pokered:VICTORY_ROAD_3F:objects:3",
         "map": "VictoryRoad3F",
         "map_id": "pokered:VICTORY_ROAD_3F",
-        "name": "COOLTRAINER\u2642",
+        "name": "COOLTRAINER♂",
         "party": [
           {
             "level": 43,
@@ -4720,7 +4720,7 @@
         "id": "pokered:VICTORY_ROAD_3F:objects:4",
         "map": "VictoryRoad3F",
         "map_id": "pokered:VICTORY_ROAD_3F",
-        "name": "COOLTRAINER\u2640",
+        "name": "COOLTRAINER♀",
         "party": [
           {
             "level": 43,
@@ -4952,7 +4952,7 @@
         "id": "pokered:VIRIDIAN_GYM:objects:2",
         "map": "ViridianGym",
         "map_id": "pokered:VIRIDIAN_GYM",
-        "name": "COOLTRAINER\u2642",
+        "name": "COOLTRAINER♂",
         "party": [
           {
             "level": 39,
@@ -5076,7 +5076,7 @@
         "id": "pokered:VIRIDIAN_GYM:objects:6",
         "map": "ViridianGym",
         "map_id": "pokered:VIRIDIAN_GYM",
-        "name": "COOLTRAINER\u2642",
+        "name": "COOLTRAINER♂",
         "party": [
           {
             "level": 43,
@@ -5175,7 +5175,7 @@
         "id": "pokered:VIRIDIAN_GYM:objects:9",
         "map": "ViridianGym",
         "map_id": "pokered:VIRIDIAN_GYM",
-        "name": "COOLTRAINER\u2642",
+        "name": "COOLTRAINER♂",
         "party": [
           {
             "level": 39,

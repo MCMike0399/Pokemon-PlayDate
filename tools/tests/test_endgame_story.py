@@ -61,6 +61,16 @@ class EndgameStoryTests(unittest.TestCase):
         cls.generated = build(POKERED)
         cls.story = json.loads(cls.generated['story.json'])
 
+    def test_playdate_json_keeps_latin1_letters_as_utf8(self):
+        # Playdate json.decode writes \\u00XX as one Latin-1 byte. SourceText
+        # and Dialog then reject that byte, so the yen and the accent stay UTF-8.
+        story_raw = self.generated['story.json']
+        self.assertNotIn(b'\\u00', story_raw)
+        self.assertIn('POK\u00e9MANIAC'.encode(), story_raw)
+        play = (ROOT / 'Source/data/endgame/play.json').read_bytes()
+        self.assertNotIn(b'\\u00', play)
+        self.assertIn('got ¥@'.encode(), play)
+
     def test_generated_story_matches_the_pinned_sources(self):
         for name, raw in self.generated.items():
             self.assertEqual((OUTPUT / name).read_bytes(), raw, name)
