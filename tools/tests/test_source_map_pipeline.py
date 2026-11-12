@@ -32,12 +32,14 @@ class SourceMapManifestTests(unittest.TestCase):
         self.assertEqual(len({entry["key"] for entry in self.maps.values()}), len(expected))
 
     def test_original_map_inputs_authored_pallet_and_renderers_are_unchanged(self):
-        # These source-pinned doll assets are additions, never replacements for
-        # the baseline's protected art; dedicated pixel/native tests cover them.
+        # Substitute dolls and Red's Hall of Fame pics are additions, never
+        # replacements for the baseline's protected art. Dedicated pixel tests cover them.
         self.assertEqual(subprocess.check_output([
             "git", "ls-tree", "--name-only", BASE, "--",
             "Source/images/battle-effects/substitute-front.png",
-            "Source/images/battle-effects/substitute-back.png"],
+            "Source/images/battle-effects/substitute-back.png",
+            "Source/images/player/red-pic-front.png",
+            "Source/images/player/red-pic-back.png"],
             cwd=ROOT, text=True).strip(), "")
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
                         "Source/data/viridianSlice", "Source/data/pewterSlice",
@@ -45,8 +47,10 @@ class SourceMapManifestTests(unittest.TestCase):
                         ":(exclude)Source/data/viridianSlice/sprites.json",
                         ":(exclude)Source/data/pewterSlice/sprites.json",
                         ":(exclude)Source/images/title",
-                    ":(exclude)Source/images/battle-effects/substitute-front.png",
-                    ":(exclude)Source/images/battle-effects/substitute-back.png"],
+                        ":(exclude)Source/images/battle-effects/substitute-front.png",
+                        ":(exclude)Source/images/battle-effects/substitute-back.png",
+                        ":(exclude)Source/images/player/red-pic-front.png",
+                        ":(exclude)Source/images/player/red-pic-back.png"],
                        cwd=ROOT, check=True, capture_output=True)
         from tools.generate_overworld_sprites import same_except_opaque_white
         for path in ("Source/data/viridianSlice/sprites.json", "Source/data/pewterSlice/sprites.json"):

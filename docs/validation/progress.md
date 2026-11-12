@@ -1,5 +1,27 @@
 # Full-game execution ledger
 
+## 2026-11-12 The suite is green and boot still reaches the title
+
+`python3 -m unittest discover -s tools/tests` ran 1291 tests: OK, 11 skipped. The skips are the same ones as the previous run. The Brock fixtures ran. They stage committed Source when `PARCEL_BUNDLE_SOURCE` is unset.
+
+The coverage snapshot source pin is `f15de7828cb5c4e758e96ec477965246a7dbb1cc34ce7bb3c6a2c3d5f9da0e34`. Row verifications and evidence were not relabeled. `tools/check_coverage_matrix.py` passed. Cerulean and Vermilion journey projections were regenerated with their generators. `--check` passed twice. They change when the hashed inputs change (`sessionCodec.lua`, `main.lua`, `gameSession.lua`, and the other listed sources). The generators are deterministic for a fixed Source.
+
+Vermilion `provenance.json` came back because `387bf5e0` changed `tools/generate_source_map_cache.py`, which the preparation pins under `shared_generators`. The historical `63267b0` proposal bytes did not change. The file now records that generator as `162e918413ce0578ac7f05f997096a27282a9ae57a2d8bd2303645760cf293b5`.
+
+Thrash was declared at epoch 6 in `63c41f12`. `89905295` was not a merge. It moved Thrash, Outrage, Low Kick, Hyper Beam, Giga Impact, Flame Wheel, and Flare Blitz to epoch 19 so the epoch-18 snapshot would invert. That made an epoch-14 projection call Thrash future, and it inferred Whirlwind's epoch-13 edge onto a pre-v13 row. Those fields are back at epoch 6. Sunny Day and Hail stay at epoch 7. The raw epoch-18 snapshot predates the fields, so it does not invert; a projection that includes the declared fields does, and the original 424-row hash is unchanged. Whirlwind and Roar are pokered `SWITCH_AND_TELEPORT_EFFECT` (`$1C`, `SwitchAndTeleportEffect`). The Gen V producer is the existing epoch-13 `ForceSwitchEffect(DEFENDER)`.
+
+`IsSurfingAllowed` in `engine/overworld/field_move_messages.asm` lines 21-50 denies Surf only on `SEAFOAM_ISLANDS_B4F` at x=7, y=11, and only while `EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE` and `EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE` are not both set. `dbmapcoord 7, 11` stores y then x. `CheckBothEventsSet` sets Z when both flags are set, and that path returns with Surf still allowed. `GameContext:fieldTravelRestrictions` now calls `CoastStory.currentTooFast`. The wiring commit is `264d302a0640f6387c5084198b3ecc71c15713b1`.
+
+SDK 3.1.2 session `9e09f1e38ac840259de8dbbf5f9098f4` on `2e7a7fbe` reached `title.visible` at 987 ms and `initialize.ready` at 22759 ms. Sampled peak 13482.593 KiB. `tools/measure_boot_budget.py` passed. `MallocPoolSize` stayed `16645684`. This note does not change Source.
+
+## 2026-11-12 Play time is on the session, and the suite is still not green
+
+Lane D round 5 (`046bf608` on `d87c387c`) is on this branch. Red's card follows `HoFDisplayPlayerStats`: the name box at `hlcoord 5, 0`, the stats box at `0, 4`, play time, money with the yen sign, and three 120-frame pages. `text_decimal` left-aligns the counts, so `Seen:20` matches the source. The Hall of Fame box stays inside the party loop. Oak's plan order matches `ChampionsRoom.asm`. `ShowObject` runs when the five-step walk starts, in the same script as `MoveSprite`. `CheckAndResetEventA` clears `EVENT_HALL_OF_FAME_DEX_RATING` after the paragraph is chosen.
+
+Play time is `wPlayTimeHours`, `wPlayTimeMinutes`, `wPlayTimeSeconds`, and `wPlayTimeFrames` on the v4 save. A save that predates the field loads as a zero clock. `TrackPlayTime` rolls 60 frames into a second and stops when the hour becomes 255. Counting starts when the overworld is entered and stops on the title. Red's card reads that clock. SDK 3.1.2 session `0ab4ac7130bc433aafe865da9cb11e5c` refreshed the transform pins after `gameSession.lua` changed. The parsed East, South, Saffron, and Kanto packets match the previous export aside from the build id and Lua key order.
+
+`python3 -m unittest discover -s tools/tests` ran 1288 tests: 4 failures, 14 errors, 11 skipped. The failures are the coverage-matrix source pin, the Cerulean observation projection, and the Vermilion acquisition and journey projections. The errors are the unset `PARCEL_BUNDLE_SOURCE` Brock fixtures, Cerulean `provenance.json` drift, and the move-producer checks for `thrash` and `whirlwind`. `main` stays at `7a31867a`.
+
 ## 2026-11-12 Full boot reaches the title inside the 16 MiB pool
 
 Clip `20261112T061946Z-boot-memory-stop.mp4` opens on the error screen. The whole 45 seconds is `Game stopped safely`, then `error.not enough memory`, then `not enough memory` again. The title is not in that file. The earlier note said content registration passes the title. That described a boot trace, not the clip: the recorder started after the stop, so the frames before the crash were missed. Recordings now start before the simulator opens. The trace for build `8b9da209` does mark `title.visible` at 2163 ms and `error.not enough memory` at 3446 ms, with a sampled Lua peak of 13792 KiB. `MallocPoolSize` stayed `16645684`.
@@ -8,7 +30,11 @@ The full harness profile is what exhausts the pool. Region-story imports, includ
 
 The exporters now keep tile membership as booleans on the shared catalogue. Vermilion's presentation bitmaps are warmed when a catalog is written, not during registration. Startup collects once the Lua heap is already at 12 MiB. The pool was not raised. The error screen prints the stop once. `tools/measure_boot_budget.py` fails a trace that misses `title.visible` or `initialize.ready`, records an error, or samples a Lua peak above 14000 KiB.
 
-SDK 3.1.2 session `1f3d0a3b47b449e3940d6d5068dc886d` reached `title.visible` at 1069 ms and `initialize.ready` at 23083 ms. Sampled peak 13484.934 KiB. The budget check passed. Clip `20261112T070934Z-boot-to-title.mp4` is 28.2 seconds of the 400x240 LCD, from the loading screen (`AuthoredMaps.initialize`) through the Blue title menu (`NEW GAME` / `OPTIONS`). The crop has no Simulator chrome and no developer eList dialog. sha256 `be1f80038669765b556ee8438af23927075e95d187cdeeed7fef7ed40585bfca`. `main` was not fast-forwarded.
+SDK 3.1.2 session `1f3d0a3b47b449e3940d6d5068dc886d` reached `title.visible` at 1069 ms and `initialize.ready` at 23083 ms. Sampled peak 13484.934 KiB. The budget check passed. Clip `20261112T070934Z-boot-to-title.mp4` is 28.2 seconds of the 400x240 LCD, from the loading screen (`AuthoredMaps.initialize`) through the Blue title menu (`NEW GAME` / `OPTIONS`). The crop has no Simulator chrome and no developer eList dialog. sha256 `be1f80038669765b556ee8438af23927075e95d187cdeeed7fef7ed40585bfca`.
+
+The same boot was measured again on `25979aff` with `MallocPoolSize` still `16645684`. Session `9e37aef4e5fd4822b284fb5ac3859651` reached `title.visible` and `initialize.ready`, sampled peak 13439.801 KiB, and `tools/measure_boot_budget.py` passed. The error screen still prints the stop once. Clip `20261112T074301Z-boot-to-title.mp4` is 25.5 seconds of the 400x240 LCD: `AuthoredMaps.initialize`, then `Preparing adventure...`, then the Blue menu (`NEW GAME` / `OPTIONS`). sha256 `287aac1f7f554e43f8c59dcb6606191ae5282fda3240d5c00eb50646a071945b`.
+
+`python3 -m unittest discover -s tools/tests` on this tree ran 1286 tests: 6 failures, 14 errors, 11 skipped. The weather-id freeze and the Hall of Fame import expectation are updated with that boot. The remaining failures are the coverage-matrix source pin, the Cerulean and Vermilion journey projections, and Cerulean `provenance.json` drift. The errors are the unset `PARCEL_BUNDLE_SOURCE` Brock fixtures and the move-producer epoch checks for `thrash` and `whirlwind`. `main` stays at `7a31867a`.
 
 Lane B can rebase on `58287e35`. The bundle `20261112T070934Z-lane-b-rebase.bundle` requires `origin/main` `7a31867a` and its sha256 is `c3bf18879df2ef87192e515172daa7d4e07e9e380b9ebbe7132863ba16ec1c4a`. The earlier bundle `20261112T061946Z-lane-b-rebase.bundle` stops at `8b9da209`. The earlier full-suite log failed its source setup because `POKERED_REFERENCE_DIR` was unset.
 

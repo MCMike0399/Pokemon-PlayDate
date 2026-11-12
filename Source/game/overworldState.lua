@@ -481,6 +481,7 @@ end
 function OverworldState:enter(opts)
     self.presentationVisit = nil
     local game = self.game
+    game.session:enablePlayTime()
     if game.lastEncounterSession~=game.session then
         game.lastEncounterSession,game.lastEncounterAttempt=nil,nil
     end

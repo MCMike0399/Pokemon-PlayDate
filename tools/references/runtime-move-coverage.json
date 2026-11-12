@@ -2,12 +2,12 @@
   "schema": 1,
   "scope": "reviewed-source-and-executed-SDK-subsets",
   "accepted_summary": {
-    "path": "docs/validation/coverage-evidence/substitute-runtime54-summary-20261102.json",
-    "sha256": "a74963b16620206c2c3e532081586dd25bf8155dbd7a7094fe0712fa0394831a",
-    "source_sha256": "1a45badbc41034a7f951e41a65a2cd341e5b83b13b4f920fd93863122d57e843",
+    "path": "docs/validation/coverage-evidence/move-proofs-rerun-summary.json",
+    "sha256": "55041c79d64da1ea71dcdfd03ecbf21be96955aabe6e92290ca4972a2838e019",
+    "source_sha256": "0db748bf72b8fa1039bc834ba7fa26c81d8c994af5c39db2771df67e5e39d449",
     "sdk_passed": 54
   },
-  "sdk_result_sha256": "9468ba59633f34649662a229d392211d671fcc116f4b768a7489e65b8496941a",
+  "sdk_result_sha256": "90b1711b018ef055f4566845e2e34eb5c129b6bd08fb74c3bee944ceff181de3",
   "qualification": "Current sourcebody hashes +exact executed assertions, never generated metadata alone; metadata hash is drift guard only. Fullruntime semantics remains false.",
   "moves": {
     "assurance": {
@@ -22,7 +22,7 @@
           "start": "function BattleEffects:movePower(",
           "function_body": true,
           "one_line": false,
-          "sha256": "96a3d16d22133019e38438f2e8e5b4c66f43f7087227e5ca120ecf44342de9dd"
+          "sha256": "7ddf4ff841160252632cd9768629d08d16de4c173210d7f1b72b49799ccf9336"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -495,7 +495,7 @@
           "start": "function BattleEffects:movePower(",
           "function_body": true,
           "one_line": false,
-          "sha256": "96a3d16d22133019e38438f2e8e5b4c66f43f7087227e5ca120ecf44342de9dd"
+          "sha256": "7ddf4ff841160252632cd9768629d08d16de4c173210d7f1b72b49799ccf9336"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -1454,7 +1454,7 @@
           "start": "function BattleEffects:setWeather(",
           "function_body": true,
           "one_line": false,
-          "sha256": "8013d25e8375999c982771175ef68b46bef11c08c81e432aa1c33e5548d86bfe"
+          "sha256": "581b996141c78f715aa340c7362bba4e4ab955a4f4885417b5363339eb50bb0a"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2257,7 +2257,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- GenV TryHit protection follows",
           "end": "    -- Move-specific failure",
-          "sha256": "55cb1b33c4e76b209f146fb74e5ba3b29865d9d65b25024dc04e4eceb5cee066"
+          "sha256": "92bb9760f3ed97d7791a64b385f1760e005717c218d8c064080f61b61554816e"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2386,7 +2386,7 @@
           "start": "function BattleEffects:setWeather(",
           "function_body": true,
           "one_line": false,
-          "sha256": "8013d25e8375999c982771175ef68b46bef11c08c81e432aa1c33e5548d86bfe"
+          "sha256": "581b996141c78f715aa340c7362bba4e4ab955a4f4885417b5363339eb50bb0a"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3492,7 +3492,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Charging is a TryMove",
           "end": "    -- BeforeMove gates",
-          "sha256": "a73621f1c8be3ecad2557b18ba257d40230f8e3cc413da741044a4af5c2cc98b"
+          "sha256": "0a8f63858b4d88f51d5bb4228991903e71b866ce4a1dbe50d32fb75a35dae960"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4130,7 +4130,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Charging is a TryMove",
           "end": "    -- BeforeMove gates",
-          "sha256": "a73621f1c8be3ecad2557b18ba257d40230f8e3cc413da741044a4af5c2cc98b"
+          "sha256": "0a8f63858b4d88f51d5bb4228991903e71b866ce4a1dbe50d32fb75a35dae960"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4775,7 +4775,7 @@
           "start": "function BattleEffects:setWeather(",
           "function_body": true,
           "one_line": false,
-          "sha256": "8013d25e8375999c982771175ef68b46bef11c08c81e432aa1c33e5548d86bfe"
+          "sha256": "581b996141c78f715aa340c7362bba4e4ab955a4f4885417b5363339eb50bb0a"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9351,7 +9351,7 @@
           "start": "function DirectDamage:apply(",
           "function_body": true,
           "one_line": false,
-          "sha256": "be025481cf64610b04d59e6c7f2ea347a5c7096f55112016912df5717f931133"
+          "sha256": "2c2e5f72a88b130a5bd6677244fdf11eb8b34287742499b0be15e73987018e88"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -9458,13 +9458,13 @@
           "path": "Source/battle/battle.lua",
           "start": "function Battle:resolveTurn(",
           "function_body": true,
-          "sha256": "25e9e95e2b4c27c06ad32103828637bf4ea1614990c7f15061ff3936684198fb"
+          "sha256": "0f936876b7fbef817cc40f6efeef0685d7ee6024d039e724372e5a83fd89f6e5"
         },
         {
           "path": "Source/battle/battle.lua",
           "start": "function Battle:performMove(",
           "function_body": true,
-          "sha256": "14ffd76f4759af980683daf9194d4277a4dd237bdc09d820db2645558b281139"
+          "sha256": "95744388cf66c1d48c9ad6bbd08cc1c83d52c726f5615b9cad779e1e6555284f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -9487,7 +9487,7 @@
         {
           "path": "Source/battle/moveSupport.lua",
           "whole_file": true,
-          "sha256": "ca8c2cb430933eb49b945368550d7af08b614e401bc8c4d7fa18da09bef2a925"
+          "sha256": "5d6c812acd97c32a670d4b03050efe36313a76a13e3af4da66d504d7252a2260"
         },
         {
           "path": "Source/dev/whirlwindContracts.lua",
@@ -9847,13 +9847,13 @@
           "path": "Source/battle/battle.lua",
           "start": "function Battle:resolveTurn(",
           "function_body": true,
-          "sha256": "25e9e95e2b4c27c06ad32103828637bf4ea1614990c7f15061ff3936684198fb"
+          "sha256": "0f936876b7fbef817cc40f6efeef0685d7ee6024d039e724372e5a83fd89f6e5"
         },
         {
           "path": "Source/battle/battle.lua",
           "start": "function Battle:performMove(",
           "function_body": true,
-          "sha256": "14ffd76f4759af980683daf9194d4277a4dd237bdc09d820db2645558b281139"
+          "sha256": "95744388cf66c1d48c9ad6bbd08cc1c83d52c726f5615b9cad779e1e6555284f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -9876,7 +9876,7 @@
         {
           "path": "Source/battle/moveSupport.lua",
           "whole_file": true,
-          "sha256": "ca8c2cb430933eb49b945368550d7af08b614e401bc8c4d7fa18da09bef2a925"
+          "sha256": "5d6c812acd97c32a670d4b03050efe36313a76a13e3af4da66d504d7252a2260"
         },
         {
           "path": "Source/dev/moveFailureContracts.lua",
@@ -9926,10 +9926,10 @@
     }
   },
   "sdk_result": {
-    "path": "docs/validation/coverage-evidence/substitute-runtime54-native-20261102.json",
-    "sha256": "9468ba59633f34649662a229d392211d671fcc116f4b768a7489e65b8496941a",
-    "source_sha256": "1a45badbc41034a7f951e41a65a2cd341e5b83b13b4f920fd93863122d57e843",
-    "build_id": "25e1933c88e24251855473e8af80b76a:1a45badbc41034a7f951e41a65a2cd341e5b83b13b4f920fd93863122d57e843",
+    "path": "docs/validation/coverage-evidence/move-proofs-rerun.json",
+    "sha256": "90b1711b018ef055f4566845e2e34eb5c129b6bd08fb74c3bee944ceff181de3",
+    "source_sha256": "0db748bf72b8fa1039bc834ba7fa26c81d8c994af5c39db2771df67e5e39d449",
+    "build_id": "387bf5e0a024e4bd988dd35b92f75d2714450d88:0db748bf72b8fa1039bc834ba7fa26c81d8c994af5c39db2771df67e5e39d449",
     "passed": 54,
     "failed": 0,
     "suite_count": 11,

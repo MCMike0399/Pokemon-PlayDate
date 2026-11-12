@@ -187,6 +187,19 @@ for _, step in ipairs(oak.steps) do
     if step.op == "move-npc" and step.count == 5 then oakMoves = oakMoves + 1 end
 end
 check(oakMoves, 1, "oak's first walk is five ups")
+local order = {}
+for _, step in ipairs(oak.steps) do
+    if step.labels then order[#order + 1] = step.labels[1] end
+    if step.op == "move-npc" then order[#order + 1] = "walk-" .. tostring(step.count) end
+    if step.op == "move" then order[#order + 1] = "follow-" .. tostring(step.count) end
+    if step.op == "warp" then order[#order + 1] = "warp" end
+end
+check(table.concat(order, ","), table.concat({
+    "_RivalDefeatedText", "_MoneyForWinningText", "_ChampionsRoomRivalAfterBattleText",
+    "_ChampionsRoomOakText", "walk-5",
+    "_ChampionsRoomOakCongratulatesPlayerText", "_ChampionsRoomOakDisappointedWithRivalText",
+    "_ChampionsRoomOakComeWithMeText", "walk-2", "follow-3", "warp",
+}, ","), "oak calls, then walks in, then the three lines, then leads")
 local warpCells = false
 for _, cell in ipairs(EndgameStory.oakCells()) do
     if cell.y == 7 or cell.y == 0 then warpCells = true end
@@ -289,6 +302,56 @@ check(seen[197], "show:1", "the name and types follow the scroll")
 check(cries[1], "charmander", "the cry starts with the mon info")
 check(EndgameStory.hallCaptionDue(80), false, "the caption waits out the 80-frame hold")
 check(EndgameStory.hallCaptionDue(81), true, "the caption follows that hold")
+check(EndgameStory.hallShowsCaption({kind = "pokemon"}, "show", 81), true, "a party card gets the hall box")
+check(EndgameStory.hallShowsCaption({kind = "player"}, "show", 81), false, "red's card has no hall box")
+check(EndgameStory.hallShowsCaption({kind = "player"}, "fade", 1), false, "the fade does not add red's hall box")
+local redRows = EndgameStory.playerHallRows({name = "RED", hours = 1, minutes = 5, money = 3000})
+check(redRows[1].text, "RED", "red's name is in the name box")
+check(redRows[1].col, 7, "name is hlcoord 7, 2")
+check(redRows[1].row, 2, "name row")
+check(redRows[2].text, "PLAY TIME", "play time label")
+check(redRows[2].row, 6, "play time is hlcoord 1, 6")
+check(redRows[3].text, "  1:05", "hours are three right-aligned digits, minutes have a leading zero")
+check(redRows[3].col, 5, "the time starts at hlcoord 5, 7")
+check(redRows[4].text, "MONEY", "money label")
+check(redRows[4].row, 9, "money is hlcoord 1, 9")
+check(redRows[5].text, "  ¥3000", "yen prints on the first non-zero digit")
+check(redRows[5].col, 4, "the amount starts at hlcoord 4, 10")
+check(EndgameStory.formatMoney(0), "     ¥0", "a zero balance still prints yen and zero")
+local pages = EndgameStory.playerHallPages({seen = 20, owned = 12})
+check(pages[1].delay, 120, "seen/owned holds 120 frames")
+check(pages[1].text, "POKéDEX   Seen:20\n         Owned:12", "seen line then owned line")
+check(pages[2].text, "POKéDEX Rating:", "rating header is the second page")
+check(pages[2].delay, 120, "rating header holds 120 frames")
+check(string.find(pages[3].text, "right track", 1, true) ~= nil, true, "owned 12 uses the 10-to-19 paragraph")
+check(pages[3].delay, 120, "the rating paragraph holds 120 frames")
+check(string.find(EndgameStory.dexRating(0), "lots to do", 1, true) ~= nil, true, "owned 0 is the first band")
+check(string.find(EndgameStory.dexRating(151), "entirely complete", 1, true) ~= nil, true, "a full dex is the last band")
+local redPhoto = {photo = {index = 1, clock = 40, stage = "scroll-front", },
+    plan = {photos = {{kind = "player", stats = {seen = 20, owned = 12}}}}}
+EndgameStory.updatePhotos(redPhoto)
+check(redPhoto.photo.stage, "show", "red's stats follow his scroll")
+check(redPhoto.photo.page, 1, "the seen/owned page is first")
+check(redPhoto.photo.dexRating, "EVENT_HALL_OF_FAME_DEX_RATING", "the hall dex event is set before the rating")
+local dexFlag = {}
+local filled = {photo = {index = 1, clock = 40, stage = "scroll-front"},
+    plan = {photos = {{kind = "player"}}},
+    session = {
+        title = function() return {playerName = "RED"} end,
+        inventory = function() return {money = function() return 350 end} end,
+        pokedex = function() return {seen = {charmander = true, pikachu = true}, owned = {charmander = true}} end,
+        playTime = function() return {hours = 2, minutes = 8} end,
+        setQuestFlag = function(_, id, value) dexFlag[#dexFlag + 1] = {id, value} end,
+    }}
+EndgameStory.updatePhotos(filled)
+check(dexFlag[1][1], "EVENT_HALL_OF_FAME_DEX_RATING", "the hall dex event is named")
+check(dexFlag[1][2], true, "the hall dex event is set before the rating")
+check(dexFlag[2][2], false, "CheckAndResetEventA clears the hall dex event")
+check(filled.plan.photos[1].stats.money, 350, "red's card reads the session money")
+check(filled.plan.photos[1].stats.seen, 2, "red's card counts seen")
+check(filled.plan.photos[1].stats.owned, 1, "red's card counts owned")
+check(filled.plan.photos[1].stats.hours, 2, "red's card reads play time when a clock exists")
+check(EndgameStory.formatMoney(350), "   ¥350", "350 prints three spaces then yen")
 local timing = EndgameStory.hallPhotoTiming()
 check(timing.preamble, 100, "hall preamble")
 check(timing.mon_delay, 80, "hall mon delay")

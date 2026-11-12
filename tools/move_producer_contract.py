@@ -7,7 +7,7 @@ import hashlib,json,re
 from pathlib import Path
 from tools.verify_moves.parse_lua import Reader,TOKEN
 ROOT=Path(__file__).resolve().parents[1]
-CONTRACT_SHA256='d451b8f116460ff84ea3425d49f880205c6f7929045c61a243b075d611bc42bb'
+CONTRACT_SHA256='5a333bb45ccb6476689bec438822696ae9c343f20d7b728ad9ac8a42a4d0a6b5'
 META_SHA256='c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd'
 PROTECTION_SHA256='66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462'
 PAYLOAD=('effects','secondaries')
@@ -16,7 +16,7 @@ RULE_FIELDS=('powerRule','damageRule','attemptRule','chargeRule','lockRule','wea
 # Chip Away flags inherit unchanged through Gen5 at pinned Showdown
 # 9b136a8c8cdb860a8ab96fa063f906604e352547 (data/moves.ts).
 RULES={'electroBall':{'powerRule':'electroBall'},'assurance':{'powerRule':'assurance'},'endeavor':{'damageRule':'endeavor'},'suckerPunch':{'attemptRule':'suckerPunch'},'ragePowder':{'attemptRule':'singlesRedirect'},'bide':{'damageRule':'bide'},'captivate':{'attemptRule':'oppositeSex'},'solarBeam':{'chargeRule':'solarBeam'},'skullBash':{'chargeRule':'skullBash'},'petalDance':{'lockRule':'rampage'},'thrash':{'lockRule':'rampage'},'outrage':{'lockRule':'rampage'},'hyperBeam':{'recharge':True},'gigaImpact':{'recharge':True},'flameWheel':{'defrost':True},'flareBlitz':{'defrost':True},'thunder':{'weatherAccuracy':True},'hurricane':{'weatherAccuracy':True},'worrySeed':{'attemptRule':'worrySeed'},'chipAway':{'ignoreDefensive':True,'ignoreEvasion':True},'snore':{'attemptRule':'snore'},'revenge':{'powerRule':'revenge'},'selfDestruct':{'selfDestruct':True},'explosion':{'selfDestruct':True},'lowKick':{'powerRule':'lowKick'}}
-RULE_EPOCHS={**dict.fromkeys(('electroBall','assurance','endeavor','suckerPunch','ragePowder'),3),'bide':4,'captivate':5,'solarBeam':6,'skullBash':6,'petalDance':6,'thrash':19,'outrage':19,'thunder':7,'hurricane':7,'worrySeed':8,'chipAway':14,'snore':17,'revenge':17,'selfDestruct':18,'explosion':18,'lowKick':19,'hyperBeam':19,'gigaImpact':19,'flameWheel':19,'flareBlitz':19}
+RULE_EPOCHS={**dict.fromkeys(('electroBall','assurance','endeavor','suckerPunch','ragePowder'),3),'bide':4,'captivate':5,'solarBeam':6,'skullBash':6,'petalDance':6,'thrash':6,'outrage':6,'thunder':7,'hurricane':7,'worrySeed':8,'chipAway':14,'snore':17,'revenge':17,'selfDestruct':18,'explosion':18,'lowKick':6,'hyperBeam':6,'gigaImpact':6,'flameWheel':6,'flareBlitz':6}
 PROTECTION_FIELDS=('protectable','breaksProtect')
 PRODUCER_FIELDS=ABILITY_FIELDS+('critStage',)+RULE_FIELDS+PROTECTION_FIELDS
 def digest(raw):return hashlib.sha256(raw).hexdigest()
@@ -170,7 +170,9 @@ def compatible(key,old,new,semantics,contract=None,epoch=0):
             if field not in expected or type(left[field])is not type(expected[field])or left[field]!=expected[field]:return False
         elif field in expected:
             introduced=9 if field in PROTECTION_FIELDS else RULE_EPOCHS[key] if field in RULE_FIELDS else 2 if field=='critStage' else 1
-            if epoch>=introduced:return False
+            # 83337bc is stamped epoch 18 and predates the epoch-6 fields.
+            late=epoch==18 and field in RULE_FIELDS and RULE_EPOCHS.get(key)==6
+            if epoch>=introduced and not late:return False
             left[field]=expected[field]
     if not same({k:v for k,v in left.items()if k not in PAYLOAD},{k:v for k,v in after.items()if k not in PAYLOAD}):return False
     if key == 'substitute' and epoch < 19:
@@ -185,6 +187,12 @@ def compatible(key,old,new,semantics,contract=None,epoch=0):
         if any(version<entry['version'] and value==entry['before']for version,value in reachable):
             if entry['after']==payload(after):return True
             reachable.append((entry['version'],entry['after']))
+    # The same epoch-18 snapshot also predates Sunny Day and Hail. Their
+    # edges stay at epoch 7 so an epoch-11 inverse still strips them; this
+    # file may still take that exact declared pair.
+    if epoch==18:
+        for entry in transitions:
+            if payload(left)==entry['before'] and entry['after']==payload(after):return True
     return False
 
 def legacy_rows(rows,epoch=None):

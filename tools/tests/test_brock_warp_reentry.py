@@ -1,11 +1,12 @@
 """Host-driver decisions only; actual native return remains separately required."""
-import copy,json,os,unittest
+import copy,json,unittest
 from pathlib import Path
 from tools.harness.brock_journey import BrockJourney,load_models,MAPS
+from tools.harness.parcel_journey import parcel_bundle_source
 
 class WarpReentryTests(unittest.TestCase):
  def fixture(self,single=False,blocked=False):
-  j=BrockJourney(None,'/private/tmp',{'starter':'bulbasaur'});j.models,j.doors,_=load_models(Path(os.environ['PARCEL_BUNDLE_SOURCE']))
+  j=BrockJourney(None,'/private/tmp',{'starter':'bulbasaur'});j.models,j.doors,_=load_models(parcel_bundle_source())
   j.state=copy.deepcopy(json.loads((Path(__file__).parent/'fixtures/brock-warp-arrival.json').read_text())['state'])
   self.assertEqual((j.state['zone_id'],j.position()),(MAPS['ViridianForest'],(1,0)))
   if single:

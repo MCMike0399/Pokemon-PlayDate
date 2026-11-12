@@ -461,6 +461,8 @@ local bootAccepted, bootProblem = pcall(function()
 
             machine:update()
             machine:handleInput()
+            -- vblank TrackPlayTime. Counting starts on map entry and stops on the title.
+            game.session:trackPlayTime()
             machine:get("overworld"):flushPendingPresentation()
             machine:draw()
 

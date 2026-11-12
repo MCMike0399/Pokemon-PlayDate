@@ -2,6 +2,7 @@
 import "domain/sourceEncounters"
 import "domain/fieldCycling"
 import "domain/hallOfFame"
+import "domain/playTime"
 Class("GameSession")
 local state=setmetatable({}, {__mode="k"})
 local activeRNGSession=nil
@@ -178,6 +179,8 @@ function GameSession:init(deps,options)
         safari = SafariGame.empty(),
         coins = CoinWallet.empty(),
         hallOfFame = HallOfFame.empty(),
+        playTime = PlayTime.empty(),
+        playTimeCounting = false,
         fieldEpoch = nextFieldEpoch(),
         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
@@ -511,6 +514,8 @@ function GameSession._restore(deps,values)
     values.safari = SafariGame.normalize(values.safari)
     values.coins = CoinWallet.normalize(values.coins)
     values.hallOfFame = HallOfFame.normalize(values.hallOfFame)
+    values.playTime = PlayTime.normalize(values.playTime)
+    values.playTimeCounting = false
     values.fieldEpoch = nextFieldEpoch()
     values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
     state[session]=values
@@ -1163,6 +1168,23 @@ function GameSession:coins()
 end
 function GameSession:hallOfFame()
     return copy(state[self].hallOfFame)
+end
+function GameSession:playTime()
+    return copy(state[self].playTime)
+end
+-- BIT_GAME_TIMER_COUNTING is set when the map is entered and cleared on the title.
+function GameSession:enablePlayTime()
+    state[self].playTimeCounting = true
+end
+function GameSession:disablePlayTime()
+    state[self].playTimeCounting = false
+end
+function GameSession:trackPlayTime()
+    local current <const> = state[self]
+    if not current.playTimeCounting then
+        return
+    end
+    PlayTime.advance(current.playTime)
 end
 function GameSession:recordHallOfFame(members)
     local current = state[self]

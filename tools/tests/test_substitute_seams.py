@@ -72,8 +72,8 @@ class SubstituteSeamTests(unittest.TestCase):
         names = ['Source/data/pokemon.lua', 'Source/domain/sessionCodec.lua',
                  'Source/domain/pokemonCodec.lua', 'Source/data/sourceMaps.json']
         pins = {
-            # e6e32628 keeps the v4 codec and adds the Hall of Fame team record.
-            'Source/domain/sessionCodec.lua': 'e6e32628',
+            # f81016bf keeps the v4 codec and adds the play-time clock.
+            'Source/domain/sessionCodec.lua': 'f81016bf',
             # 68ff3b1f installs the remaining source maps. Its blob matches this tree.
             'Source/data/sourceMaps.json': '68ff3b1f',
         }

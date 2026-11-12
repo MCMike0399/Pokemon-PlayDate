@@ -49,10 +49,57 @@ def collect(output):
                       content_pins_sha256=hashlib.sha256((ROOT / 'tools/references/content-cache.json').read_bytes()).hexdigest(),
                       owner_imports=[name for name in re.findall(r'import "([^"]+)"',
                           (output / 'original-main.lua').read_text()) if name in KANTO_OWNERS])
+    provenance['producer_proof_file'] = 'outcome.json'
+    provenance['producer_kind'] = 'actual SDK 3.1.2 deep installer export'
     destination = Path(__file__).with_name('qualified')
-    destination.mkdir(exist_ok=False)
+    destination.mkdir(exist_ok=True)
     (destination / 'export.json').write_bytes(raw)
     (destination / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
+    refresh_content_transforms(output)
+
+
+CONTENT_TRANSFORM_NAMES = ('midgameEast', 'midgameSouth', 'midgameSaffron')
+
+
+def refresh_content_transforms(output):
+    """Rewrite the East/South/Saffron pins from this session's SDK packets."""
+    output = Path(output)
+    reference = ROOT / 'tools/references/content-transforms-149'
+    current = json.loads((reference / 'provenance.json').read_bytes())
+    names = list(current['dependencies'])
+    dependencies = {}
+    manifest = json.loads((output / 'source-manifest.json').read_bytes())
+    for name in names:
+        digest = hashlib.sha256((output / 'Source' / name).read_bytes()).hexdigest()
+        if digest != manifest[name]:
+            raise ValueError('copied transform dependency changed: ' + name)
+        dependencies[name] = digest
+    exports = {}
+    for name in CONTENT_TRANSFORM_NAMES:
+        raw = (output / 'runtime-data' / ('content-transform-' + name + '.json')).read_bytes()
+        packet = json.loads(raw)
+        if packet.get('schema') != 1 or packet.get('name') != name:
+            raise ValueError('content transform identity differs: ' + name)
+        exports[name] = hashlib.sha256(raw).hexdigest()
+        (reference / (name + '.json')).write_bytes(raw)
+    metadata = json.loads((output / 'build.json').read_bytes())
+    if metadata['sdk_version'] != '3.1.2':
+        raise ValueError('content transform export requires SDK 3.1.2')
+    provenance = dict(current)
+    provenance.update(dict(
+        producer=str(output),
+        producer_build_sha256=hashlib.sha256((output / 'build.json').read_bytes()).hexdigest(),
+        producer_proof_sha256=hashlib.sha256((output / 'outcome.json').read_bytes()).hexdigest(),
+        dependencies=dependencies,
+        content_pins_sha256=hashlib.sha256((ROOT / 'tools/references/content-cache.json').read_bytes()).hexdigest(),
+        exports=exports,
+        owner_imports=[name for name in re.findall(r'import "([^"]+)"',
+            (output / 'original-main.lua').read_text()) if name in {
+                'game/towerStory', 'game/snorlaxStory', 'game/rocketHideoutStory',
+                'game/silphStory', 'game/midgameGymStory'}],
+        producer_proof_file='outcome.json',
+        producer_kind='actual SDK 3.1.2 deep installer export'))
+    (reference / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
 
 
 def main():
