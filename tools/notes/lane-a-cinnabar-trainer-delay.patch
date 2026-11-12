@@ -1,21 +1,16 @@
---- a/Source/domain/worldMotion.lua
-+++ b/Source/domain/worldMotion.lua
-@@ -111,10 +111,17 @@
-         assert(x~=location.x or y~=location.y,"actor overlaps candidate player")
-         reserved[cell]=id
-     end
--    for _,value in ipairs(payload.actors)do
-+    for _,sourceValue in ipairs(payload.actors)do
-+        local value=copy(sourceValue)
-         local spec=assert(specs[value.id],"unknown stable source actor ID")
-         assert(not seen[value.id],"duplicate source actor")
-         seen[value.id]=true
-+        -- Sequence 119 saved Cinnabar Gym while these STAY objects still
-+        -- wandered. Once they are trainers, a stationary delay becomes static.
-+        if value.phase=="delay" and not spec.random then
-+            assert(value.delay_left>=1 and value.delay_left<=WorldMotionData.delay(value.delay_raw),"invalid source actor delay")
-+            value.phase,value.delay_raw,value.delay_left="static",0,0
-+        end
-         intrinsic(value,spec,descriptor)
-         if WorldMotionData.visible(spec,flags)then
-             placed(value,spec,descriptor,reserve)
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -182,7 +182,12 @@ function SourceActors.describeSource(zoneID, world, game)
+         assert(facing and faces[facing],"source actor initial facing missing exact pose")
+         local spec={id=event.id,order=event.source_index,x=event.x,y=event.y,role=boulder and "boulder" or trainer and "trainer"or item and "item"or "npc",
+             movement=event.movement,selector=event.range_or_facing,sprite_source=event.sprite,content_profile=profile,faces=faces,facing=facing,
+-            random=not boulder and not trainer and not item,visibility={},script_positions={}}
++            -- STAY is $FF. CanWalkOntoTile rejects it before any step
++            -- (engine/overworld/movement.asm), so a STAY object never leaves
++            -- its object_event tile and must not be stored in a wander delay.
++            -- WALK ($FE) is the only random mover. Trainers, items and
++            -- boulders stay stationary even when their movement byte is WALK.
++            random=event.movement=="WALK" and not boulder and not trainer and not item,visibility={},script_positions={}}
+         if trainer then
+             local delta=({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
+             for i=0,math.max(0,trainer.sight_range_cells-1)do spec.script_positions[(event.y+delta[2]*i)*surface.width+event.x+delta[1]*i+1]=true end

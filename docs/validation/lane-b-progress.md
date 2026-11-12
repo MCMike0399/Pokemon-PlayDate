@@ -840,3 +840,30 @@ A on Blaine sets `lastTraversalBlock` to
 object as `CinnabarGymBlaineText`, "scripted trainer/reward; story
 worker". No battle started, and `BADGE_VOLCANO` is unset. The badge
 was not written by hand. Sequence 119 is the continue point.
+
+## Sequence 119's delay is a STAY actor marked random
+
+Sequence 119 does not load once the gym objects are registered.
+`WorldMotionData.normalize` rejects phase `delay` unless `spec.random`
+is set, and a trainer is not random. All nine saved actors are still
+on the `object_event` tiles from `data/maps/objects/CinnabarGym.asm`,
+facing down. Blaine is `(3, 3)`. None of them left the tile.
+
+`SourceActors.describeSource` sets `random` for every object that is
+not a boulder, trainer, or item. The gym was saved before those
+trainers were registered, so the STAY objects were random.
+`NPCMotion:tick` writes a wander delay for a random actor that is not
+taking a WALK step. STAY is that branch. pokered `CanWalkOntoTile`
+rejects STAY (`$FF`) before a step, so the sprite never updates
+`MAPX`/`MAPY`. `EVENT_2A7` is set in `home/overworld.asm` after a
+Cinnabar Gym battle and cleared at the start of
+`CinnabarGymSetMapAndTiles`. Nothing in af519899 reads it, and this
+save was taken before any gym battle.
+
+Lane A rejected the first
+`tools/notes/lane-a-cinnabar-trainer-delay.patch`, which rewrote a
+saved delay to static inside `normalize` and kept the saved cell.
+That would leave a STAY object off its tile if it had wandered.
+The replacement patch changes only the random bit: WALK is the only
+random mover. `normalize` still rejects a stationary delay. The
+loadable continue is sequence 118.
