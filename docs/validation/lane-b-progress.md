@@ -181,3 +181,29 @@ a boulder moves. The B2F stair assert is a different, older block, and
 those saves are not on this pod. A new recording would be the entrance
 walk again or a crash under 60 seconds. `4faac7cf` is already an
 ancestor. Nothing was rebased.
+
+## Strength crash, reproduced
+
+Continue from sequence 65 lands at `(24,8)`. `FieldTravel.enter`
+clears Strength on a real map entry, including Continue, so the menu
+has to turn it on again. Sandshrew did. Two steps right reached
+`(26,8)`. The first press up armed the boulder (`occupied-next-cell`).
+The second press stopped the simulator:
+
+`game/fieldTravelState.lua:185: attempt to perform arithmetic on a nil value (field 'gridX')`
+
+pret/pokered `TryPushingBoulder` moves the sprite in front of the
+player, and `SeafoamIslands1F_Script` then runs `CheckBoulderCoords`
+on that sprite. `NPCMotion:claimScript` returns an empty token.
+`_pose` writes the landing cell onto the npc, and
+`updateBoulderPush` releases the token before it returns true.
+`FieldTravelState:update` stores the token in `self.boulder` and
+subtracts `entry.padding` from `token.gridX`.
+
+The shared file is unchanged. `tools/tests/test_lane_a_boulder_push_grid.py`
+fails on that assignment. `tools/notes/lane-a-boulder-push.patch`
+remembers `options.npc` and still evaluates `npc.gridX - entry.padding`.
+It does not skip the call when the grid is missing. `git apply --check`
+accepts it. No new save and no clip: the boulder does not move until
+that patch is in the shared file. Sequence 65 is still the newest
+earned save.

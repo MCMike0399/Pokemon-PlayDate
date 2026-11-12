@@ -12,9 +12,9 @@
              self.message, self.phase = "That boulder can't move yet.", "result"
              return
          end
-+        -- beginBoulderPush returns a script token, an empty table. The npc
-+        -- that actually moved is options.npc, and its grid is updated before
-+        -- the token is released.
++        -- beginBoulderPush returns the script token. The sprite in front of
++        -- the player is options.npc, and _pose writes its landing grid
++        -- before that token is released. CheckBoulderCoords reads that sprite.
 +        self.pushNpc = options.npc
          self.boulder, self.failure = motion:beginBoulderPush(options.npc, options.direction, self)
          self.phase = self.boulder and "push" or "result"
@@ -28,17 +28,16 @@
      self.epoch = (self.epoch or 0) + 1
      self.menu:hide()
      self.menu.onSelect, self.menu.onCancel = nil, nil
-@@ -177,15 +181,15 @@
+@@ -177,7 +181,7 @@
      if self.phase == "push" then
          local complete, reason = self.game.npcManager.motion:updateBoulderPush(self.boulder)
          if complete then
 -            local npc = self.boulder
--            if EndgameStory and npc and currentZone then
 +            local npc = self.pushNpc
-+            if EndgameStory and npc and npc.gridX and currentZone then
+             if EndgameStory and npc and currentZone then
                  local mapName = SourceMaps.nameForID(currentZone.stableID)
                  local entry = mapName and SourceMaps.entry(mapName)
-                 if entry then
+@@ -185,7 +189,7 @@
                      EndgameStory.boulderLanded(self.game, mapName, npc.gridX - entry.padding, npc.gridY)
                  end
              end
