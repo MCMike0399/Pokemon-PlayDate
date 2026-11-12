@@ -25,6 +25,16 @@ function SourceActors.championsOakMayCrossWarp(id, x, y)
         and (y == 7 or y == 0)
         and (x == 3 or x == 5)
 end
+-- STAY is $FF and WALK is $FE. Both enter .randomMovement. CanWalkOntoTile
+-- rejects $FF before MAPX/MAPY change, and a fixed facing ignores the random
+-- byte, so STAY+DOWN/UP/LEFT/RIGHT never leaves its tile or turns. NONE and
+-- ANY_DIR write a new facing before that rejection, so they still turn.
+-- Trainers, items and boulders stay put even when the movement byte is WALK.
+function SourceActors.wanders(movement, facing, boulder, trainer, item)
+    local fixedFacing = facing=="DOWN" or facing=="UP" or facing=="LEFT" or facing=="RIGHT"
+    local turnsInPlace = movement=="STAY" and not fixedFacing
+    return (movement=="WALK" or turnsInPlace) and not boulder and not trainer and not item
+end
 -- Independent proof used by the session retention boundary. It re-resolves the
 -- candidate descriptor and flags and rejects both unknown and still-visible
 -- actors, so a custom validator cannot claim an arbitrary removal.
@@ -182,7 +192,7 @@ function SourceActors.describeSource(zoneID, world, game)
         assert(facing and faces[facing],"source actor initial facing missing exact pose")
         local spec={id=event.id,order=event.source_index,x=event.x,y=event.y,role=boulder and "boulder" or trainer and "trainer"or item and "item"or "npc",
             movement=event.movement,selector=event.range_or_facing,sprite_source=event.sprite,content_profile=profile,faces=faces,facing=facing,
-            random=not boulder and not trainer and not item,visibility={},script_positions={}}
+            random=SourceActors.wanders(event.movement, event.range_or_facing, boulder, trainer, item),visibility={},script_positions={}}
         if trainer then
             local delta=({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
             for i=0,math.max(0,trainer.sight_range_cells-1)do spec.script_positions[(event.y+delta[2]*i)*surface.width+event.x+delta[1]*i+1]=true end

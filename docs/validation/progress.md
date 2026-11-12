@@ -1,5 +1,19 @@
 # Full-game execution ledger
 
+## 2026-11-12 Lane A stops
+
+Lane E now owns the shared engine, `main`, and the pending handoffs, including lane B's STAY-actor patch. This commit is only on `cursor/linux-runtime-seams-fcc0`. `main` was not moved.
+
+Unfinished: the revised patch at `75118c76` was not applied as written. It would mark every non-`WALK` object stationary, including the 135 `STAY, NONE` NPCs that still turn. `SourceActors.wanders` in this commit is the narrower rule, and `WorldMotionData.normalize` still rejects a stationary `delay`. The full suite was still running and is not recorded as green. Boot was not measured again. No LCD clip. `main` stays at `bf92c4fc607115b135297b89e7c92aeb80b2ed12`.
+
+## 2026-11-12 Fixed-facing STAY objects are not wanderers
+
+Lane B pushed `75118c76` with a revised `tools/notes/lane-a-cinnabar-trainer-delay.patch`. It no longer rewrites saves. It sets `random` only when `event.movement=="WALK"`, and still excludes trainers, items and boulders. `WorldMotionData.normalize` is untouched.
+
+That diagnosis is right for Cinnabar Gym. `data/maps/objects/CinnabarGym.asm` gives Blaine, the seven Super Nerds and the guide `STAY, DOWN`. `STAY` is `$FF`. `CanWalkOntoTile` rejects it before `MAPX`/`MAPY` change, and a fixed facing ignores the random byte, so those nine never leave the tile or turn. The verbatim line is broader than that. `STAY, NONE` is used by 135 ordinary NPCs, and `TryWalking` writes their new facing before the step is rejected. Marking every non-`WALK` object stationary would freeze those turns.
+
+`SourceActors.wanders` keeps `WALK`, and `STAY` with `NONE` or `ANY_DIR`, random. Fixed `DOWN`/`UP`/`LEFT`/`RIGHT` is not. A saved `delay` on a stationary actor is still rejected. The coverage snapshot is `6ea501a7fc159b8b42b18ec88f1cc692364fe1a84cfa0b88c687e5885eb55931`. The previous snapshot is nested. No row was relabeled.
+
 ## 2026-11-12 The Cinnabar delay patch stays unapplied
 
 Lane B's `tools/notes/lane-a-cinnabar-trainer-delay.patch` is on their agent, not on `origin/cursor/lane-b-south-loop` (`d33d853a`). It teaches `WorldMotionData.normalize` to copy a saved actor and, when `phase` is `delay` and `spec.random` is false, store `static` with both delay fields cleared. The paired test expects that settle and currently marks it an expected failure until the shared file changes.
