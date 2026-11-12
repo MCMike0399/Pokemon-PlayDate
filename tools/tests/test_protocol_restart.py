@@ -2,6 +2,7 @@ import importlib
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -174,6 +175,10 @@ class RestartTests(unittest.TestCase):
         with self.assertRaisesRegex(ProtocolError,'invalid transient'):restarting.clear_handshake(self.data,self.owner)
         self.assertEqual(original.read_text(),'retained')
 
+    # LinuxResidentGuard reads /proc/<pid> for every non-Darwin launch. These
+    # MailboxProcess pids are fake, so the guard cannot run here. Darwin does
+    # not install that guard.
+    @unittest.skipUnless(sys.platform == 'darwin', 'Linux resident guard requires a real /proc pid')
     def test_two_generations_keep_save_lock_ids_frames_and_trace(self):
         result=self.run_job([{'requests':[['write-save','shot repeated']]},
                              {'restart':True,'requests':[['snapshot','shot repeated']]}])
@@ -197,6 +202,7 @@ class RestartTests(unittest.TestCase):
         self.assertTrue(all(p.events==['terminate','exit-confirmed'] for p in MailboxProcess.instances))
         self.assertFalse(self.owner.stream.closed)
 
+    @unittest.skipUnless(sys.platform == 'darwin', 'Linux resident guard requires a real /proc pid')
     def test_failed_second_launch_retains_first_evidence_and_save(self):
         MailboxProcess.fail_generation=2
         self.assertEqual(self.run_job([{'requests':[['write-save','shot repeated']]},
@@ -206,6 +212,7 @@ class RestartTests(unittest.TestCase):
         self.assertTrue((self.output/'processes/0001/frames/repeated.png').exists())
         self.assertTrue((self.output/'processes/0002/runtime-data/adventure.a.json').exists())
 
+    @unittest.skipUnless(sys.platform == 'darwin', 'Linux resident guard requires a real /proc pid')
     def test_no_fresh_ready_does_not_reuse_prior_handshake(self):
         MailboxProcess.ready_enabled=False
         self.assertEqual(self.run_job([{'requests':[['write-save']]},{'restart':True,'requests':[['snapshot']]}]),1)
@@ -213,12 +220,14 @@ class RestartTests(unittest.TestCase):
         self.assertFalse((self.output/'processes/0002/ready.json').exists())
         self.assertTrue((self.data/'adventure.a.json').exists())
 
+    @unittest.skipUnless(sys.platform == 'darwin', 'Linux resident guard requires a real /proc pid')
     def test_unexpected_boot_save_mutation_fails_and_retains_old_evidence(self):
         MailboxProcess.tamper_generation=2
         self.assertEqual(self.run_job([{'requests':[['write-save']]},{'restart':True,'requests':[['snapshot']]}]),1)
         self.assertIn('boot changed durable files',json.loads((self.output/'outcome.json').read_text())['error'])
         self.assertEqual((self.output/'processes/0001/runtime-data/adventure.a.json').read_bytes(),b'exact durable save\x00\xff')
 
+    @unittest.skipUnless(sys.platform == 'darwin', 'Linux resident guard requires a real /proc pid')
     def test_unconfirmed_cancellation_stops_owned_runtime_without_recovery_or_restart(self):
         MailboxProcess.pending_generation=1
         self.assertEqual(self.run_job([{'requests':[['snapshot']]},{'restart':True,'requests':[['snapshot']]}]),1)

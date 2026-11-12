@@ -203,6 +203,7 @@ class ResultTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'completed census row'):
             census.check_host_limits(1, 60.001)
 
+    @unittest.skipUnless(sys.platform == 'darwin', 'macOS libproc proc_pid_rusage footprint')
     def test_real_host_footprint_is_available_for_owned_process(self):
         self.assertGreater(census.process_footprint(os.getpid()), 0)
 
