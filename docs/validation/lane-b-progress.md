@@ -334,3 +334,61 @@ by the north door onto Route 12 `(10,15)`, and stepped into Lavender
 `a8bb26dc44c5a3726f9b520a611628569eaff4f55b12340659a79e2b9a8d36de`
 (`seq73-adventure.a.json`). Sequence 73 is the continue point. The
 boulder line is still `self.boulder`. Nobody knows Fly.
+
+## Lavender to the Route 8 gate, then the drink detour
+
+Continue from sequence 73 walked west on the only open row, y=8, onto
+Route 8 `(59,8)`, through Route 8 to the east gate, and into Route 8
+Gate at `(8,4)`. The guard at live `(5,3)` and `(5,4)` says he is
+thirsty and pushes the player back. Pause SAVE wrote sequence 74 at
+Route 8 Gate `(6,3)` facing up, sha256
+`29c49596b7dafe460ece6e46142dbd27f400307bbc7f0ba0133bace32060a134`
+(`seq74-adventure.b.json`). The clip is
+`/opt/cursor/artifacts/lane-b/20261112T060500Z-lavender-route8.mp4`,
+400×240 h264, 89.56 seconds. No Fly user, and HM02 is still absent.
+
+The same run then left the gate east, crossed the underground path,
+and bought Fresh Water on the Celadon Mart roof. Those saves are real
+and stay in the artifacts. Sequence 75 is the west-east path `(47,2)`,
+sha256 `c00fcc37878a4903d407f4e3d67131b31bc53f82eaf0674fc65abc35ec4a0b55`.
+Sequence 76 is Route 7 `(5,14)`, sha256
+`c26f0fd210a4461e621126daeb8891a840f8cc23928dbb62189d9f30d9e444ca`.
+Sequence 77 is Celadon `(49,10)`, sha256
+`66dcb3239396af45336dbe85eff5091121d61570c47ce1f56db0bbd6a0520dbb`.
+Sequence 78 is the roof `(10,2)` facing up with one Fresh Water, sha256
+`d614b643ea9d21bfa34cec0b950da510dae8de9ed2c3396fa179993b823bc460`.
+The detour stops there. It is not the continue point.
+
+## Lane A's boulder sprite, then Seafoam again
+
+`origin/cursor/linux-runtime-seams-fcc0` at `4b26ae4a` (newer than
+`8b9da209`, and it contains `2fdd0a72`) is merged. `2fdd0a72` stores
+`options.npc` in `self.pushNpc` and `CheckBoulderCoords` reads that
+sprite. `fieldTravelState.lua` was not edited on this side of the
+merge. The journey harness continued sequence 65 without raising
+`MallocPoolSize`. Lane A's note on `4b26ae4a` still says a full boot
+stops in content registration with `error: not enough memory`.
+
+The first Strength push from `(26,8)` into the boulder at `(26,7)`
+moved that sprite to `(26,6)` and did not crash. Pause SAVE wrote
+sequence 66 at Seafoam 1F `(24,5)`, sha256
+`40247c426f268f1692b7497f3f180b04523b9ddf9c41879daaca9a677f335b11`
+(`seq66-seafoam1f-adventure.b.json`). Publishing it under the old
+`seq66-adventure.b.json` name replaced the Route 20 sequence 66 file.
+That Route 20 file is not on disk anymore. Its sha256 was
+`d316cf43c42a2b7c2b15ef56eacc643892ad569b73be8842add9b68042ff44c9`.
+The checksum list no longer points that hash at a missing path. The
+later Seafoam save uses a `seafoam` filename so sequence 67's Route 19
+file stays `95b0e1a2…`.
+
+The next continue pushed the same boulder left onto the hole `(24,6)`.
+`EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE` is set. The sprite is still saved
+on that cell; `CoastStoryWorld.fall` only sets the flag, and the B1F
+landing `(23,7)` does not gain a boulder. Pause SAVE wrote sequence 67
+at `(26,6)` facing left, sha256
+`c548107cc01ecf4dd1cada4483ea700599afa2f3eae2cbd2041d8817cefe5f03`
+(`seq67-seafoam-adventure.a.json`). Sequence 67 is the Seafoam continue
+point. The other 1F boulder is still at `(18,10)`. The boulder patch
+and its test stay until the holes, Articuno, the west exit, the
+Mansion, the Secret Key, and Blaine have all passed. Both Seafoam clips
+this pass were under 60 seconds and were discarded.
