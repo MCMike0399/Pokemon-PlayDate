@@ -485,3 +485,36 @@ No other shared file was edited. `MallocPoolSize` stays `16645684`.
 `test_lane_b_searoutes` pass. The sea-routes test read pokered from
 `POKERED_REFERENCE_DIR=/tmp/pokered-tip` because the default checkout
 is absent. This merge is local only.
+
+## The east B2F boulder drops, and the south row does not
+
+Continue from sequence 84. Strength, then the east boulder at `(23,6)`
+pushed left into the hole at `(22,6)`. `EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE`
+is set and that sprite is gone. The north stairs reach B3F `(25,3)`.
+B3F shows `objects:6` at `(19,6)` and still hides `objects:5`. The east
+stair from there is B4F `(26,4)`. Walking B4F did not call a field
+move, so the "Seafoam field current controller is not installed" error
+did not fire. The west stair returns to B2F `(4,13)`. The row above
+that landing refuses the step with `source-pair-collision`, so the
+west boulder at `(18,6)` stays put. Pause SAVE is sequence 85 at B2F
+`(3,8)` facing up, sha256
+`bbb2d5f17f4f1a0bb40dd2fe329f904e34d6abed8ff872196240b8de08697edc`
+(`seq85-adventure.a.json`). The clip is
+`20261112T073038Z-seafoam-b2f-b4f.mp4`, 400×240 h264, 89.96 seconds,
+2698 frames. It shows the B2F push, B3F, and the B4F crossing.
+
+## The west B2F boulder follows the B1F stairs
+
+Sequence 85 can reach the B1F stair at `(13,7)`. That landing is B1F
+`(13,6)`. The west stair `(4,2)` returns to B2F `(5,2)`, on the north
+side of the pair row. Strength, then the boulder at `(18,6)` pushed
+right into `(19,6)`. `EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE` is set. No
+B2F boulder sprite remains. Sequence 86 is B2F `(17,6)` facing right,
+sha256
+`a86290a9c315019013baec71d67dd1993091f7a5bb5bcf139691cf41067d25a0`
+(`seq86-adventure.b.json`). The clip is
+`20261112T073643Z-seafoam-b2f-b1f.mp4`, 83.44 seconds, 2502 frames.
+Both `EVENT_SEAFOAM3` flags are now set. The next step is the hole at
+`(19,6)`, which lands on B3F. Articuno, the west exit, Cinnabar, the
+Mansion, the Secret Key, and Blaine are still ahead. The boulder patch
+stays until those pass. Sequence 86 is the continue point.
