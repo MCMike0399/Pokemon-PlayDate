@@ -51,6 +51,17 @@ def real_input(commands):
     return ops
 
 
+def ball_press(commands, state):
+    """A on a lab ball is an overworld gesture. It completes on the release frame."""
+    if commands != ("press a",):
+        return commands
+    if state.get("root") != "overworld" or state.get("zone") != "oaks_lab":
+        return commands
+    if lookup(state, "story.stage") != "choose" or lookup(state, "pokemon.present") is not False:
+        return commands
+    return ("press a", "wait 2")
+
+
 def key_fight(name, trainer_id):
     """Rival, the Pewter gym, and Brock are the early clips."""
     label = str(name or "")
@@ -98,6 +109,7 @@ class CharmanderRun(BrockJourney):
         self.send({"op": "await", "path": "zone", "equals": "reds_house_2f", "frames": 180})
 
     def send(self, *commands):
+        commands = ball_press(commands, self.state)
         real_input(commands)
         return super().send(*commands)
 
@@ -207,6 +219,16 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:1"), "brock")
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:2"), "pewter-jr")
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
+
+    def test_starter_ball_press_waits_for_release(self):
+        choosing = {"root": "overworld", "zone": "oaks_lab",
+                    "story": {"stage": "choose"}, "pokemon": {"present": False}}
+        self.assertEqual(ball_press(("press a",), choosing), ("press a", "wait 2"))
+        self.assertEqual(ball_press(("press a",), {"root": "dialog", "zone": "oaks_lab",
+                                                    "story": {"stage": "choose"},
+                                                    "pokemon": {"present": False}}),
+                         ("press a",))
+        self.assertEqual(ball_press(("press a", "wait 2"), choosing), ("press a", "wait 2"))
 
     def test_earned_save_label(self):
         boulder = {"zone": "pewter_gym", "session": {"flags": {"quest": {
