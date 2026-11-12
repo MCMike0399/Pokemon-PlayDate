@@ -599,12 +599,15 @@ class CharmanderRun(BrockJourney):
                 trainer_id = cerulean.sid("VERMILION_GYM", trainer_index)
                 if self.defeated(trainer_id):
                     continue
+                # Leaving the gym must not plan a step onto the tree. A center
+                # reload grows it back, so Cut again on the way in.
+                self._seal_cut_tree()
                 self.heal_here("VermilionPokecenter")
                 self.save()
-                # A center reload puts the tree back. Cut again, then enter.
                 self._seal_cut_tree()
                 self.field_cut(cutter)
                 self.fight(trainer_id)
+            self._seal_cut_tree()
             self.heal_here("VermilionPokecenter")
             self.save()
             self._seal_cut_tree()
