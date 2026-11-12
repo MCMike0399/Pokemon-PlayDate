@@ -35,6 +35,13 @@ local definitions <const> = {
     ["pokered:SEAFOAM_ISLANDS_B4F:objects:3"] = {zone_id = "pokered:SEAFOAM_ISLANDS_B4F", species = "articuno", level = 50,
         flag = "EVENT_BEAT_ARTICUNO", legendary = true,
         positions = {{6, 2}, {5, 1}, {7, 1}, {6, 0}}},
+    -- CeruleanCaveB1F.asm object 1 is (27, 13), MEWTWO, 70, STAY, DOWN.
+    -- scripts/CeruleanCaveB1F.asm gives that trainer sight 0, so the player
+    -- talks from a neighboring tile. EndTrainerBattle sets the flag unless
+    -- the battle was lost.
+    ["pokered:CERULEAN_CAVE_B1F:objects:1"] = {zone_id = "pokered:CERULEAN_CAVE_B1F", species = "mewtwo", level = 70,
+        flag = "EVENT_BEAT_MEWTWO", legendary = true,
+        positions = {{27, 12}, {27, 14}, {26, 13}, {28, 13}}},
 }
 function SourceEncounters.positions(id)
     local definition <const> = definitions[id]

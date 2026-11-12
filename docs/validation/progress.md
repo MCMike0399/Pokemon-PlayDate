@@ -1,5 +1,17 @@
 # Full-game execution ledger
 
+## 2026-11-12 Talking to Mewtwo starts the battle
+
+Lane H's `31ddf0d1` is on this branch. `tools/generate_postgame_story.py` reads the pinned pokered cave objects, scripts, and Blue wild tables. Mewtwo is not a wild slot. `data/maps/objects/CeruleanCaveB1F.asm` object 1 is Mewtwo at `(27, 13)`, level 70, `STAY`, `DOWN`. `scripts/CeruleanCaveB1F.asm` gives that trainer sight 0, so the player talks from a neighboring tile. `home/trainers.asm` `EndTrainerBattle` sets `EVENT_BEAT_MEWTWO` unless the battle was lost. A run counts as an end, and a party wipe does not. `scripts/HallOfFame.asm` hides the Cerulean Cave guard and `HallOfFameResetEventsAndSaveScript` clears the indigo range through `EVENT_BEAT_CHAMPION_RIVAL`. That flag is outside the older reset list, which stopped at `EVENT_LANCES_ROOM_LOCK_DOOR`. Continue from the Hall of Fame uses `data/maps/special_warps.asm` `.PalletTown`, `(5, 6)`, facing down.
+
+`SourceEncounters` has no registration API. The row in `tools/notes/lane-e-mewtwo-encounter.patch` is now in the table, after Articuno. Without it, the cry plays and the battle is rejected. A talk from `(27, 14)` facing up, or from `(26, 13)` facing right, plays the cry and `FieldBattle.startSourceEncounter` starts Mewtwo at level 70. One tile farther south does not talk. Standing on `(27, 13)` is not a trigger. `main.lua` calls `PostgameStory.ensureRuntime` after the coast install, because the cave module boots with the Kanto scenes, before `HideoutTowerController` exists.
+
+The Seafoam circle in clip `20261112T144033Z-seafoam-return-to-fuchsia` is the wild-battle iris. `home/overworld.asm` `WarpFound2` writes palette offset 6 only when an outside map warps to `ROCK_TUNNEL_1F`. Seafoam, Cerulean Cave, Mt. Moon, Diglett's Cave, and Victory Road use tileset `CAVERN` and stay lit. `fieldMoves.json` names only Rock Tunnel 1F and B1F. `coastStory.lua` and `coastStoryWorld.lua` do not set a darkness flag.
+
+The coverage snapshot is `0ff156369fe9f0bb8a70e78a81d4a0abdf089f0738381434fd540ed5220a327a`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `main.lua`.
+
+The Mewtwo, dark-map, Cerulean Cave, late Kanto, STAY, and surf tests passed. The full suite, SDK contracts, production compile, and boot budget were not run. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`. No pull request was opened.
+
 ## 2026-11-12 Fixed-facing STAY actors load, and the coast stairs can be taken
 
 Lane A's last head is `427918f0` on `cursor/linux-runtime-seams-fcc0`. It is not on main, and its suite was not finished. `SourceActors.wanders` from that commit is the rule kept here. pret/pokered `af519899` `constants/map_object_constants.asm` defines `STAY` as `$FF` and `WALK` as `$FE`. `engine/overworld/movement.asm` sends both through `.randomMovement`. Fixed `DOWN`, `UP`, `LEFT`, and `RIGHT` ignore the random byte. `TryWalking` writes the facing, then `CanWalkOntoTile` rejects `$FF` before `MAPX` and `MAPY` change. `NONE` and `ANY_DIR` still turn. Cinnabar Gym's nine objects are `STAY, DOWN`. The center nurse and the link receptionist are `STAY, DOWN`. The gentleman is `STAY, NONE`, so he still turns and his delay still loads.

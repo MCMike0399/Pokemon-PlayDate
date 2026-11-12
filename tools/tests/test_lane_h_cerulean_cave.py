@@ -265,17 +265,19 @@ print("lane-h cave ok")
 
 
 class LaneEMewtwoHandoffTests(unittest.TestCase):
-    def test_mewtwo_patch_matches_the_source_object_and_applies(self):
+    def test_mewtwo_patch_matches_the_source_object_and_is_installed(self):
         patch = (ROOT / 'tools/notes/lane-e-mewtwo-encounter.patch').read_text()
         self.assertIn('pokered:CERULEAN_CAVE_B1F:objects:1', patch)
         self.assertIn('species = "mewtwo", level = 70', patch)
         self.assertIn('positions = {{27, 12}, {27, 14}, {26, 13}, {28, 13}}', patch)
         self.assertIn('legendary = true', patch)
+        installed = (ROOT / 'Source/domain/sourceEncounters.lua').read_text()
+        self.assertIn('["pokered:CERULEAN_CAVE_B1F:objects:1"]', installed)
+        self.assertIn('positions = {{27, 12}, {27, 14}, {26, 13}, {28, 13}}', installed)
         completed = subprocess.run(['patch', '--dry-run', '-p1'], input=patch, text=True,
                                    cwd=ROOT, capture_output=True, check=False)
-        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
+        self.assertNotEqual(completed.returncode, 0, completed.stdout)
 
-    @unittest.expectedFailure
     def test_source_encounters_defines_mewtwo(self):
         text = (ROOT / 'Source/domain/sourceEncounters.lua').read_text()
         self.assertIn('["pokered:CERULEAN_CAVE_B1F:objects:1"]', text)
