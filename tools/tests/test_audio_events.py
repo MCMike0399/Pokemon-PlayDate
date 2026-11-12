@@ -114,6 +114,17 @@ class AudioEventTests(unittest.TestCase):
             self.assertIn('PlayCry', cited)
             self.assertIn(row['const'], cited)
 
+    def test_field_receipts_follow_the_sound_commands(self):
+        receipts = self.data['field_receipts']
+        self.assertEqual(receipts['_VermilionOldRodHouseFishingGuruTakeThisText']['cue'], 'item')
+        self.assertEqual(receipts['_ViridianCityFisherReceivedTM42Text']['cue'], 'item2')
+        self.assertEqual(receipts['_OaksLabOak1DeliverParcelText']['cue'], 'key_item')
+        self.assertEqual(receipts['_PewterGymBrockReceivedBoulderBadgeText']['cue'], 'badge')
+        self.assertEqual(receipts['_ViridianGymGiovanniReceivedEarthBadgeText']['cue'], 'badge')
+        self.assertEqual(self.data['cues']['intro_crash']['score'], 'intro_crash')
+        self.assertEqual(self.data['cues']['intro_whoosh']['source'], 'engine/movie/title.asm:193')
+        self.assertIn('intro.asm', self.data['cues']['intro_crash']['source'])
+
     def test_cue_citations_are_in_the_pinned_files(self):
         for name, cue in self.data['cues'].items():
             path, line = cue['source'].rsplit(':', 1)

@@ -328,6 +328,8 @@ KantoEvents = {
     ["heal"] = {score="heal", kind="jingle", source="engine/overworld/healing_machine.asm:47", token="MUSIC_PKMN_HEALED"},
     ["healing_machine"] = {score="healing_machine", kind="sfx", source="engine/overworld/healing_machine.asm:31", token="SFX_HEALING_MACHINE"},
     ["hit"] = {score="hit", kind="sfx", source="engine/battle/animations.asm:2649", token="SFX_DAMAGE"},
+    ["intro_crash"] = {score="intro_crash", kind="sfx", source="engine/movie/intro.asm:88", token="SFX_INTRO_CRASH"},
+    ["intro_whoosh"] = {score="intro_whoosh", kind="sfx", source="engine/movie/title.asm:193", token="SFX_INTRO_WHOOSH"},
     ["item"] = {score="item", kind="jingle", source="home/text.asm:546", token="SFX_GET_ITEM_1"},
     ["item2"] = {score="item2", kind="jingle", source="home/text.asm:550", token="SFX_GET_ITEM_2"},
     ["key_item"] = {score="key_item", kind="jingle", source="home/text.asm:551", token="SFX_GET_KEY_ITEM"},
@@ -348,6 +350,67 @@ KantoEvents = {
     ["text"] = {score="text", kind="sfx", source="home/window.asm:102", token="SFX_PRESS_AB"},
     ["tink"] = {score="tink", kind="sfx", source="engine/movie/evolution.asm:17", token="SFX_TINK"},
     ["title"] = {score="title", kind="music", source="engine/movie/title.asm:220", token="MUSIC_TITLE_SCREEN"},
+  },
+  fieldReceipts = {
+    ["_BikeShopExchangedVoucherText"] = "key_item", -- scripts/BikeShop.asm:107
+    ["_CeladonCityGramps3ReceivedTM41Text"] = "item", -- scripts/CeladonCity.asm:73
+    ["_CeladonDinerGymGuideReceivedCoinCaseText"] = "key_item", -- scripts/CeladonDiner.asm:58
+    ["_CeladonGymReceivedTM21Text"] = "item", -- scripts/CeladonGym.asm:158
+    ["_CeladonMart3FClerkReceivedTM18Text"] = "item", -- scripts/CeladonMart3F.asm:51
+    ["_CeladonMartRoofLittleGirlReceivedTM13Text"] = "item", -- scripts/CeladonMartRoof.asm:148
+    ["_CeladonMartRoofLittleGirlReceivedTM48Text"] = "item", -- scripts/CeladonMartRoof.asm:160
+    ["_CeladonMartRoofLittleGirlReceivedTM49Text"] = "item", -- scripts/CeladonMartRoof.asm:172
+    ["_CeruleanCityRocketReceivedTM28Text"] = "item", -- scripts/CeruleanCity.asm:329
+    ["_CeruleanGymMistyReceivedCascadeBadgeText"] = "key_item", -- scripts/CeruleanGym.asm:150
+    ["_CeruleanGymMistyReceivedTM11Text"] = "item", -- scripts/CeruleanGym.asm:141
+    ["_CinnabarGymBlaineReceivedTM38Text"] = "item", -- scripts/CinnabarGym.asm:255
+    ["_CinnabarGymBlaineReceivedVolcanoBadgeText"] = "key_item", -- scripts/CinnabarGym.asm:241
+    ["_CinnabarLabMetronomeRoomScientist1ReceivedTM35Text"] = "item", -- scripts/CinnabarLabMetronomeRoom.asm:41
+    ["_CopycatsHouse2FCopycatReceivedTM31Text"] = "item", -- scripts/CopycatsHouse2F.asm:57
+    ["_FuchsiaGoodRodHouseFishingGuruReceivedGoodRodText"] = "item", -- scripts/FuchsiaGoodRodHouse.asm:44
+    ["_FuchsiaGymKogaReceivedTM06Text"] = "key_item", -- scripts/FuchsiaGym.asm:159
+    ["_GameCornerClerk2Received20CoinsText"] = "item", -- scripts/GameCorner.asm:358
+    ["_GameCornerFishingGuruReceived10CoinsText"] = "item", -- scripts/GameCorner.asm:280
+    ["_GameCornerGentlemanReceived20CoinsText"] = "item", -- scripts/GameCorner.asm:410
+    ["_GotMapText"] = "key_item", -- scripts/BluesHouse.asm:72
+    ["_MrFujisHouseMrFujiReceivedPokeFluteText"] = "key_item", -- scripts/MrFujisHouse.asm:99
+    ["_MrPsychicsHouseMrPsychicReceivedTM29Text"] = "item", -- scripts/MrPsychicsHouse.asm:37
+    ["_MtMoonB2FReceivedFossilText"] = "key_item", -- scripts/MtMoonB2F.asm:301
+    ["_MtMoonB2FSuperNerdThenThisIsMineText"] = "key_item", -- scripts/MtMoonB2F.asm:333
+    ["_Museum1FScientist2ReceivedOldAmberText"] = "item", -- scripts/Museum1F.asm:220
+    ["_OaksLabOak1DeliverParcelText"] = "key_item", -- scripts/OaksLab.asm:1050
+    ["_OaksLabOak1ReceivedPokeballsText"] = "key_item", -- scripts/OaksLab.asm:1060
+    ["_OaksLabOakGotPokedexText"] = "key_item", -- scripts/OaksLab.asm:1213
+    ["_OaksLabReceivedMonText"] = "key_item", -- scripts/OaksLab.asm:947
+    ["_OaksLabRivalReceivedMonText"] = "key_item", -- scripts/OaksLab.asm:1164
+    ["_PewterGymBrockReceivedBoulderBadgeText"] = "badge", -- scripts/PewterGym.asm:158
+    ["_PewterGymReceivedTM34Text"] = "item", -- scripts/PewterGym.asm:148
+    ["_PokemonFanClubReceivedBikeVoucherText"] = "key_item", -- scripts/PokemonFanClub.asm:143
+    ["_Route12Gate2FBrunetteGirlReceivedTM39Text"] = "item", -- scripts/Route12Gate2F.asm:39
+    ["_Route12SuperRodHouseFishingGuruReceivedSuperRodText"] = "item", -- scripts/Route12SuperRodHouse.asm:44
+    ["_Route16FlyHouseBrunetteGirlReceivedHM02Text"] = "key_item", -- scripts/Route16FlyHouse.asm:34
+    ["_Route1Youngster1GotPotionText"] = "item", -- scripts/Route1.asm:36
+    ["_Route22GateGuardGoRightAheadText"] = "item", -- scripts/Route22Gate.asm:94
+    ["_Route23OhThatIsTheBadgeText"] = "item", -- scripts/Route23.asm:239
+    ["_Route24CooltrainerM1ReceivedNuggetText"] = "item", -- scripts/Route24.asm:156
+    ["_Route24CooltrainerM1YouBeatOurContestText"] = "item", -- scripts/Route24.asm:150
+    ["_SSAnneCaptainsRoomCaptainReceivedHM01Text"] = "key_item", -- scripts/SSAnneCaptainsRoom.asm:77
+    ["_SSTicketReceivedText"] = "key_item", -- scripts/BillsHouse.asm:196
+    ["_SafariZoneGateSafariZoneWorker1ThatllBe500PleaseText"] = "item", -- scripts/SafariZoneGate.asm:215
+    ["_SafariZoneSecretHouseFishingGuruReceivedHM03Text"] = "item", -- scripts/SafariZoneSecretHouse.asm:37
+    ["_SaffronGateGuardImParchedText"] = "key_item", -- scripts/Route5Gate.asm:104
+    ["_SaffronGymSabrinaReceivedMarshBadgeText"] = "key_item", -- scripts/SaffronGym.asm:146
+    ["_SaffronGymSabrinaReceivedTM46Text"] = "item", -- scripts/SaffronGym.asm:160
+    ["_SilphCo11FSilphPresidentReceivedMasterBallText"] = "key_item", -- scripts/SilphCo11F.asm:322
+    ["_SilphCo2FSilphWorkerFReceivedTM36Text"] = "item", -- scripts/SilphCo2F.asm:140
+    ["_VermilionGymLTSurgeReceivedTM24Text"] = "key_item", -- scripts/VermilionGym.asm:164
+    ["_VermilionOldRodHouseFishingGuruTakeThisText"] = "item", -- scripts/VermilionOldRodHouse.asm:44
+    ["_ViridianCityFisherReceivedTM42Text"] = "item2", -- scripts/ViridianCity.asm:263
+    ["_ViridianGymGiovanniReceivedEarthBadgeText"] = "badge", -- scripts/ViridianGym.asm:255
+    ["_ViridianGymGiovanniReceivedTM27Text"] = "item", -- scripts/ViridianGym.asm:269
+    ["_ViridianMartClerkParcelQuestText"] = "key_item", -- scripts/ViridianMart.asm:90
+    ["_WardensHouseWardenGaveTheGoldTeethText"] = "item", -- scripts/WardensHouse.asm:73
+    ["_WardensHouseWardenReceivedHM04Text"] = "item", -- scripts/WardensHouse.asm:85
   },
   meetRivalScripts = {
     "scripts/CeruleanCity.asm:77",

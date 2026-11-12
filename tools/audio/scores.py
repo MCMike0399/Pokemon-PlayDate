@@ -63,6 +63,7 @@ ASSETS = {
     'healing_machine': 'audio1:SFX_Healing_Machine_1',
     'arrow_tiles': 'audio1:SFX_Arrow_Tiles_1', 'denied': 'audio1:SFX_Denied_1',
     'flute': 'audio1:SFX_Pokeflute', 'tink': 'audio1:SFX_Tink_1',
+    'intro_crash': 'audio3:SFX_Intro_Crash', 'intro_whoosh': 'audio3:SFX_Intro_Whoosh',
     **CHECKPOINT_THEMES,
 }
 # Press-AB chirps whose source gates are shorter than one 30FPS frame.

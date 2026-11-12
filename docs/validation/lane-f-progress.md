@@ -8,7 +8,7 @@ Branch `cursor/lane-f-audio` from `bf92c4fc`. Source of truth is pret/pokered `a
 
 Once lane E imports `game/kantoAudio` and calls `KantoAudio.updateGame(game)` after `machine:handleInput()`, the observer plays:
 
-- Title bed `Music_TitleScreen` (`engine/movie/title.asm`) instead of stopping.
+- Title clock, counted in observer updates because the port does not bounce the logo. `SFX_INTRO_CRASH` on update 20 (`engine/movie/title.asm:159`, after 16+4 bounce frames; `engine/movie/intro.asm:88` is the same score for the unported Gengar slash). `SFX_INTRO_WHOOSH` on update 68 (`engine/movie/title.asm:193`; that sound is not in intro.asm). `Music_TitleScreen` on update 102, which is 68 plus the traced 34-tick whoosh, covering the version scroll, `Delay3`, and `WaitForSoundToFinish`. Leaving attract (`confirm-new`, `confirm-recovery`, `message`, `closed`, or the title root going away) cries `title.idle.species`, the stand-in for `wTitleMonSpecies`.
 - The songs.asm theme for all 248 map rows, which covers all 222 installed maps. Authored aliases include `oaks_lab`.
 - Battle music from `audio/play_battle_music.asm` `PlayBattleMusic`: gym flag, then wild (opponent below `OPP_ID_OFFSET` 200), then `OPP_RIVAL3` final, then `OPP_LANCE` gym, otherwise trainer. A nil `gymLeaderNo` infers Brock, Misty, Lt. Surge, Erika, Koga, Blaine, and Sabrina. Giovanni infers gym music only in `pokered:VIRIDIAN_GYM`. An explicit 0 stays trainer music.
 - Low HP from `GetHPBarLength` plus `GetHealthBarColor`: the player's living mon, red when the 48-pixel bar is under 10. Not a 20% test.
@@ -16,21 +16,23 @@ Once lane E imports `game/kantoAudio` and calls `KantoAudio.updateGame(game)` af
 - Victory music while `battle.outcome` is `"victory"` (`Music_DefeatedWildMon`, `Music_DefeatedTrainer`, or `Music_DefeatedGymLeader`, the last also for the Champion). Caught uses `SFX_CAUGHT_MON`. A level change on `battle.player` uses `SFX_LEVEL_UP`.
 - Cries when the battle scene's `introPhase` becomes `"ready"` (wild, including Articuno, Zapdos, Moltres, and Mewtwo) and when `playerShown` or a trainer `enemyShown` changes.
 - Pause open `SFX_START_MENU`; other menu opens and cursor moves `SFX_PRESS_AB`. Text advance on A is the same press-AB cue. The title menu does not play the start-menu sound.
-- Evolution: `SFX_TINK`, the previous species' cry, `Music_SafariZone`, then the new species' cry (`engine/movie/evolution.asm`). There is no evolution fanfare.
+- Evolution: `SFX_TINK`, the previous species' cry, `Music_SafariZone`, then `.done`. Success and cancel both stop that bed first. Success cries the new species. Cancel cries `info.from`, which is `wEvoOldSpecies` when `.evolutionCancelled` jumps to `.done`. There is no evolution fanfare.
 - Credits and Hall of Fame ceremony beds. The Hall of Fame map song in songs.asm stays Pallet Town; the ceremony is a different cue.
 - PC on, enter, withdraw/deposit, and off from `PCState` phase changes.
 - Door, ledge (`player.isJumping`), Cut, and Strength boulder from visible state fields.
 - Surf and bicycle from `game.lastFieldTravel.mode` and a completed bicycle field-gear result. Both are music (`home/audio.asm` `PlayDefaultMusicCommon`), not sound effects.
+- Item, item2, key-item, and badge fanfares when an event is in phase `receipt` and `waiting` is a text label whose script plays `sound_get_item_1`, `sound_get_item_2`, `sound_get_key_item`, or a badge `sound_level_up`. The label map is `KantoEvents.fieldReceipts`.
+- `Music_MeetProfOak` when the top dialog's first line is Oak's "Hey! Wait!" stop in Pallet Town (`Story.OAK_STOP`). That is the visible `scripts/PalletTown.asm` event.
 
 `KantoAudio.playCue`, `playJingle`, `playSFX`, `playCry`, `setTraversal`, and `trainerJingle` are the calls the patches use. `playSFX("heal")`, `"menu"`, `"hit"`, `"faint"`, `"arrow_tiles"`, and `"denied"` still resolve, so endgame cues are not no-ops once the global exists.
 
 ## Handoff
 
-Apply `tools/notes/lane-e-audio-hooks.patch` only. It adds the main import and `updateGame`, the trainer meet jingle (rivals get `meet_rival` because `PlayTrainerMusic` returns without one), surf and bicycle `setTraversal`, and the Poké Flute cue. `tools/audio/root-hooks.patch` is the main-file subset; do not apply it as well.
+Apply `tools/notes/lane-e-audio-hooks.patch` and `tools/notes/lane-e-audio-gaps.patch`. The hooks patch adds the main import and `updateGame`, the trainer meet jingle (rivals get `meet_rival` because `PlayTrainerMusic` returns without one), and surf and bicycle `setTraversal`. The gaps patch is the separate call sites: Hall of Fame ceremony bed and per-photo cries, `denied` and `arrow_tiles` (the endgame step and the field spinner), and the Poké Flute cue, which used to sit in the hooks patch. `tools/audio/root-hooks.patch` is the main-file subset; do not apply it as well.
 
 Do not apply `tools/audio/cry-hooks.patch` while `noteCries` remains in the observer. That patch cries at the same iris and send-out moments.
 
-`tools/notes/lane-g-audio-hooks.patch` calls title music and the pause start-menu sound. Title music is idempotent with the observer. The pause call doubles `SFX_START_MENU` if the observer is active. `tools/tests/test_lane_e_audio_hooks.py` and `tools/tests/test_lane_g_audio_hooks.py` are `expectedFailure` until those production lines exist. `git apply --check` passes for all four patches.
+`tools/notes/lane-g-audio-hooks.patch` calls title music and the pause start-menu sound. Title music is idempotent with the observer. The pause call doubles `SFX_START_MENU` if the observer is active. `tools/tests/test_lane_e_audio_hooks.py` and `tools/tests/test_lane_g_audio_hooks.py` are `expectedFailure` until those production lines exist. `git apply --check` passes for all five patches.
 
 ## Fidelity ledger for lane E
 
@@ -44,11 +46,11 @@ Do not apply `tools/audio/cry-hooks.patch` while `noteCries` remains in the obse
 - Articuno, Zapdos, Moltres, and Mewtwo use `Music_WildBattle` because their species ids are below `OPP_ID_OFFSET`. The static `PlayCry` sites are `scripts/SeafoamIslandsB4F.asm`, `scripts/PowerPlant.asm`, `scripts/VictoryRoad2F.asm`, and `scripts/CeruleanCaveB1F.asm`.
 - The door cue treats `door.connection` as inside. That is not `PlayMapChangeSound`'s `$0b` tile test.
 - `Music_CinnabarMansion` does not share one loop. Channel 1 loops at its `sound_loop 0` label, tick 0, period 9315. Channel 2 loops at tick 864, period 1728. Channel 3 loops at tick 0, period 3888. Channel 4 loops at tick 216, period 216. The joint LCM is 1788480 ticks and is not shipped. At tick 9315 only channel 1 returns to its label.
-- Bench level-ups and item, key-item, and badge fanfares are not visible on the stack. `playCue("item")`, `playCue("item2")`, `playCue("key_item")`, and `playCue("badge")` are the calls. Oak's `MUSIC_MEET_PROF_OAK` is `playCue("meet_oak")` and is not started by the trainer-jingle hook.
+- Bench level-ups still have no stack field. Item, key-item, badge, and Oak's meet jingle play from the receipt label and the Pallet dialog, as above.
 
 ## Tests
 
-Host checks with `POKERED_REFERENCE_DIR=/tmp/pokered`: `tools.tests.test_audio_events`, `tools.audio.test_scores`, `tools.audio.test_cries`, `tools.tests.test_audio_hooks`, `tools.tests.test_boot_budget`, and the two expected-failure lane hook modules. `scores.py --check`, `cries.py --check`, and `events.py --check` reproduce the generated files. Every looped track is checked against its pokered `sound_loop 0` label. Songs whose channels share that label loop there. Songs whose periods meet at an LCM of at most 20000 ticks use one joint window at the latest label. Cinnabar Mansion is the one per-channel score. A first pass that is not note-identical keeps the register repeat, moved back one tick when that holds the downbeat.
+Host checks with `POKERED_REFERENCE_DIR=/tmp/pokered`: `tools.tests.test_audio_events`, `tools.tests.test_audio_host`, `tools.audio.test_scores`, `tools.audio.test_cries`, `tools.tests.test_audio_hooks`, `tools.tests.test_boot_budget`, and the two expected-failure lane hook modules. `scores.py --check`, `cries.py --check`, and `events.py --check` reproduce the generated files. Every looped track is checked against its pokered `sound_loop 0` label. Songs whose channels share that label loop there. Songs whose periods meet at an LCM of at most 20000 ticks use one joint window at the latest label. Cinnabar Mansion is the one per-channel score. A first pass that is not note-identical keeps the register repeat, moved back one tick when that holds the downbeat.
 
 ## Simulator clip
 
@@ -66,13 +68,28 @@ The files are video only. sha256:
 - `artifacts/lane-f/r2/champion.mp4` `91ad50905f2f3001c3eb19b655dce463b31a656fb4d14349e2eca1eab7b04e83`
 - `artifacts/lane-f/r2/kanto-cues.mp4` `df3eb59c911c796aa127284dfb498da7e435f6be98abfa1182f8f0182ce0a493` is the full take, which holds on Champion after the sequence.
 
+## Host render
+
+These WAVs are a host render, not a Simulator capture. `tools/audio/host_engine.lua` loads `Source/audio/engine.lua` with a stubbed `playdate.sound` and steps the same score data and channel logic the game uses: parts, jingle-over-bed, SFX priority, and the `70224/4194304` tick. `tools/audio/host_render.py` turns that schedule into PCM. Square, noise, and wavetable oscillators in that script are host stand-ins for the Playdate synth, with the engine's 0.22 master gain and a one-millisecond edge ramp. The Simulator is still silent. `setOutputsActive` was not added.
+
+The trainer file plays `Music_MeetMaleTrainer` and then restarts `Music_TrainerBattle`, because a looping jingle replaces the bed. The Center file is `SFX_HEALING_MACHINE` then `Music_PkmnHealed`. The mansion file starts at tick 9000; tick 9315 is about 5.3 seconds in, where channel 1 returns to its label and channels 2–4 do not.
+
+sha256:
+
+- `artifacts/lane-f/r3/title.wav` `e08a4129cdf0e05d89a0189cc216d54712f09778a5a53166162d085156d6eccb`
+- `artifacts/lane-f/r3/route1.wav` `85c6828237d126d8b389ae59a0f2c315b0ed588c20a4083733e02827984973cd`
+- `artifacts/lane-f/r3/trainer.wav` `527357228daeacef31ebf842f74c226284caceab4a1d99c7988ec36fd876b51e`
+- `artifacts/lane-f/r3/heal.wav` `aeb510c2cbfe43d92223ecbe761ecb7e57d6c5791b1ad8adf08e79348bba77a3`
+- `artifacts/lane-f/r3/champion.wav` `3fd31da124daf3928b5b15a4b5b574c40cecf1ab6d77a45f2b49b3bdf26fdafe`
+- `artifacts/lane-f/r3/mansion.wav` `8933de6562a80e6166d4ce76fd94b0e06e283167d367ce1a5db340ac7d902fb6`
+
 ## Sound gaps
 
-These pokered sounds still have no playback from the running game. Scores that exist are named so a later hook can call them.
+The observer now plays the title crash, whoosh, and attract cry, the cancelled-evolution cry, and the item, item2, key-item, badge, and Oak meet cues when those events are on the stack.
 
-- Title attract (`engine/movie/title.asm`): `SFX_INTRO_CRASH` at line 160 and `SFX_INTRO_WHOOSH` at line 194 are not in the generated catalog. Leaving the attract mode plays `PlayCry` of `wTitleMonSpecies` at line 241. The observer starts `Music_TitleScreen` only.
-- Evolution (`engine/movie/evolution.asm`): the observer plays `SFX_TINK`, the previous species' cry, `Music_SafariZone`, and on `result.kind == "complete"` the new species' cry. Cancel stores the old species and falls through `.done`, which stops the bed and cries that species. The observer does not cry on cancel.
-- Hall of Fame: `EndgameStory.hallPhotos` sets `cry = mon.species` on each party photo and leaves the player photo without one. `updatePhotos` calls `EndgameStory.playCry` when the photo reaches `show`. That returns false until `KantoAudio` is imported. The ceremony bed is the observer cue on stack phase `hall-photo`, which waits on the same import.
-- No field caller: `item`, `item2`, `key_item`, and `badge` (`home/text.asm` get-item fanfares), and `meet_oak` (`scripts/PalletTown.asm`, `MUSIC_MEET_PROF_OAK`). `playCue` is the API. The Poké Flute score exists; `SnorlaxStory` does not play it. That hook is the unapplied `tools/notes/lane-e-audio-hooks.patch`.
-- `arrow_tiles` and `denied` are named in `Source/data/endgame/visual.json`. The story step plays them through `EndgameStory.playCue`, which returns false until `KantoAudio` is imported. The field observer does not watch gym spinners.
+These still need a lane E call site. They are one unapplied patch, `tools/notes/lane-e-audio-gaps.patch`, and `test_hall_flute_arrow_and_denied_call_sites` is `expectedFailure` until it is applied:
+
+- Hall of Fame ceremony bed at `EndgameStory.beginPhotos`, and `KantoAudio.playCry` for each party photo. The player photo has no cry. The observer also starts the ceremony bed when it sees phase `hall-photo`, which still waits on the main import.
+- Poké Flute in `SnorlaxStory.useFlute`.
+- `arrow_tiles` for the field spinner in `EventState`, and `denied` or `arrow_tiles` on an endgame story step.
 - The fidelity ledger above still stands: voice 4 is the SDK noise oscillator, envelopes are ADSR, a looping jingle replaces the audible bed, pitch slides snap, the door cue uses `door.connection`, and Surf and the bicycle are music.

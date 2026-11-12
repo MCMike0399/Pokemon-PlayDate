@@ -11,6 +11,22 @@ local inBattle = false
 local traversal = nil
 local observer = {}
 local tickSeconds <const> = 70224 / 4194304
+-- Observer updates stand in for GB frames. The port does not bounce the logo
+-- or play the fight intro, so this clock is the title.asm sequence, which is
+-- where both sounds and the attract cry actually are.
+-- Crash: title.asm plays SFX_INTRO_CRASH when the scroll amount becomes -3,
+-- after DelayFrame counts 16+4. intro.asm:88 uses the same score for the
+-- Gengar slash; that movie is not a visible state here.
+-- Whoosh: the remaining bounce is 4+2+2+2+2 frames, then DelayFrames 36,
+-- so SFX_INTRO_WHOOSH (title.asm:193) is 68 frames from the start. It is not
+-- in intro.asm. The traced whoosh lasts 34 ticks. The 28-frame version scroll
+-- and Delay3 finish while it is still playing, and WaitForSoundToFinish holds
+-- Music_TitleScreen until those 34 ticks end.
+local TITLE_CRASH_FRAME <const> = 20
+local TITLE_WHOOSH_FRAME <const> = 68
+local TITLE_MUSIC_FRAME <const> = 102
+-- Story.OAK_STOP's first line. Visible on the dialog; no intro getter.
+local MEET_OAK_LINE <const> = "OAK: Hey! Wait! Don't go out!"
 
 local function battleInfo(battle, zone)
     return {
@@ -240,9 +256,45 @@ function KantoAudio.updateGame(game)
             KantoAudio.stop()
             observer.game = game
             observer.session = game.session
-            KantoSynth.music("title")
+            observer.titleFrames = 0
+            observer.titleMusic = false
+            observer.titleCry = false
+        end
+        local phase = root.phase
+        local topIsTitle = top and top.name == "title"
+        if topIsTitle and (phase == "preparing" or phase == "menu") then
+            observer.titleFrames = (observer.titleFrames or 0) + 1
+            local frame = observer.titleFrames
+            if frame == TITLE_CRASH_FRAME then
+                KantoAudio.playSFX("intro_crash")
+            elseif frame == TITLE_WHOOSH_FRAME then
+                KantoAudio.playSFX("intro_whoosh")
+            elseif frame == TITLE_MUSIC_FRAME and not observer.titleMusic then
+                observer.titleMusic = true
+                KantoSynth.music("title")
+            end
+        end
+        if root.idle and root.idle.species then
+            observer.titleSpecies = root.idle.species
+        end
+        -- title.asm .finishedWaiting cries wTitleMonSpecies on the way out of
+        -- the attract loop. Confirm, message, and closed are that exit.
+        -- Opening another state on top of a still-idle title is not.
+        if phase ~= "preparing" and phase ~= "menu" and not observer.titleCry then
+            observer.titleCry = true
+            if not observer.titleMusic then
+                observer.titleMusic = true
+                KantoSynth.music("title")
+            end
+            if observer.titleSpecies then
+                KantoAudio.playCry(observer.titleSpecies)
+            end
         end
     else
+        if observer.root == "title" and not observer.titleCry and observer.titleSpecies then
+            observer.titleCry = true
+            KantoAudio.playCry(observer.titleSpecies)
+        end
         local zone = currentZone and currentZone.stableID
         if observer.root == "title" or observer.zone ~= zone then
             KantoAudio.enterMap(zone)
@@ -379,10 +431,55 @@ function KantoAudio.updateGame(game)
                         KantoAudio.playCry(evo.info.from)
                     end
                     KantoAudio.playCue("evolution")
-                elseif phase == "result" and evo.result and evo.result.kind == "complete" and evo.info then
-                    KantoAudio.playCry(evo.info.species or evo.info.to)
+                elseif phase == "result" and evo.result and evo.info then
+                    -- evolution.asm .done stops the bed, then cries the species
+                    -- on screen: the new one after a success, wEvoOldSpecies
+                    -- after .evolutionCancelled jumps to .done.
+                    if evo.result.kind == "complete" then
+                        KantoSynth.music(nil)
+                        KantoAudio.playCry(evo.info.species or evo.info.to)
+                    elseif evo.result.kind == "cancelled" and evo.info.from then
+                        KantoSynth.music(nil)
+                        KantoAudio.playCry(evo.info.from)
+                    end
                 end
                 observer.evoPhase = phase
+            end
+        elseif observer.evoPhase then
+            observer.evoPhase = nil
+            if not inBattle then
+                restoreField()
+            end
+        end
+
+        local event = game.machine:get("event")
+        local receiptDialog
+        if event and event.phase == "receipt" and event.waiting then
+            for _, state in ipairs(stack) do
+                if state.name == "dialog" then
+                    receiptDialog = state
+                end
+            end
+            if receiptDialog and receiptDialog ~= observer.receiptDialog then
+                observer.receiptDialog = receiptDialog
+                local fanfare = KantoEvents.fieldReceipts[event.waiting]
+                if fanfare then
+                    KantoAudio.playCue(fanfare)
+                end
+            end
+        end
+
+        if top and top.name == "dialog" and top.lines and not observer.meetOak then
+            local line = top.lines[1]
+            if type(line) == "table" then
+                line = line.text
+            end
+            local zoneId = currentZone and currentZone.stableID
+            local pallet = zoneId == "pokered:PALLET_TOWN"
+                or KantoEvents.aliases[zoneId] == "pokered:PALLET_TOWN"
+            if pallet and line == MEET_OAK_LINE then
+                observer.meetOak = true
+                KantoAudio.playJingle("meet_oak")
             end
         end
 

@@ -57,6 +57,10 @@ CUES = (
     ('healing_machine', 'healing_machine', 'sfx', 'engine/overworld/healing_machine.asm', 'SFX_HEALING_MACHINE'),
     ('evolution', 'safari', 'music', 'engine/movie/evolution.asm', 'MUSIC_SAFARI_ZONE'),
     ('tink', 'tink', 'sfx', 'engine/movie/evolution.asm', 'SFX_TINK'),
+    # The fight-intro slash and the title logo bounce use one crash score.
+    # Whoosh exists only on the title screen (engine/movie/title.asm:193).
+    ('intro_crash', 'intro_crash', 'sfx', 'engine/movie/intro.asm', 'SFX_INTRO_CRASH'),
+    ('intro_whoosh', 'intro_whoosh', 'sfx', 'engine/movie/title.asm', 'SFX_INTRO_WHOOSH'),
     ('title', 'title', 'music', 'engine/movie/title.asm', 'MUSIC_TITLE_SCREEN'),
     ('credits', 'credits', 'music', 'engine/movie/credits.asm', 'MUSIC_CREDITS'),
     ('hall_of_fame', 'hall_of_fame', 'music', 'engine/movie/hall_of_fame.asm', 'MUSIC_HALL_OF_FAME'),
@@ -102,6 +106,55 @@ def cite(source, path, token):
         if token in code or token in comment:
             return f'{path}:{number}'
     raise AudioError(f'{token} not in {path}')
+
+
+_RECEIPT_SOUNDS = {
+    'sound_get_item_1': 'item',
+    'sound_get_item_2': 'item2',
+    'sound_get_key_item': 'key_item',
+}
+
+
+def field_receipts(source):
+    """Text labels whose script plays a get-item fanfare before text_end.
+
+    sound_level_up is the badge alias of sound_get_item_1. Only a label that
+    names a Badge keeps the badge cue; every other sound_level_up is refused.
+    """
+    receipts = {}
+    root = Path(source.root)
+    for path in sorted((root / 'scripts').glob('*.asm')):
+        relative = f'scripts/{path.name}'
+        pending = None
+        for number, code, _comment in raw_lines(source, relative):
+            far = re.match(r'text_far\s+([A-Za-z0-9_]+)', code)
+            if far:
+                pending = far.group(1)
+                continue
+            sound = re.match(
+                r'(sound_get_item_1|sound_get_item_2|sound_get_key_item|sound_level_up)\b',
+                code,
+            )
+            if sound and pending:
+                kind = sound.group(1)
+                if kind == 'sound_level_up':
+                    if 'Badge' not in pending:
+                        raise AudioError(f'{relative}:{number}: sound_level_up is not a badge')
+                    cue = 'badge'
+                else:
+                    cue = _RECEIPT_SOUNDS[kind]
+                previous = receipts.get(pending)
+                if previous and previous['cue'] != cue:
+                    raise AudioError(f'{pending}: {previous["cue"]} and {cue}')
+                if not previous:
+                    receipts[pending] = {'cue': cue, 'source': f'{relative}:{number}'}
+                pending = None
+                continue
+            if code.startswith('text_end') or code.startswith('text_asm'):
+                pending = None
+    if not receipts:
+        raise AudioError('no field receipt fanfares')
+    return receipts
 
 
 def _list_until_end(source, path, label):
@@ -241,6 +294,7 @@ def build(source_path):
         'giovanni_zone': GIOVANNI_GYM,
         'legendary': legendary,
         'cues': cues,
+        'field_receipts': field_receipts(source),
         'battle_source': cite(source, 'audio/play_battle_music.asm', 'PlayBattleMusic'),
         'jingle_source': cite(source, 'home/trainers.asm', 'PlayTrainerMusic'),
         'victory_source': cite(source, 'engine/battle/core.asm', 'PlayBattleVictoryMusic'),
@@ -308,6 +362,13 @@ def emit(data):
             f'    [{_lua_string(name)}] = {{score={_lua_string(row["score"])},'
             f' kind={_lua_string(row["kind"])}, source={_lua_string(row["source"])},'
             f' token={_lua_string(row["token"])}}},'
+        )
+    lines.append('  },')
+    lines.append('  fieldReceipts = {')
+    for label, row in sorted(data['field_receipts'].items()):
+        lines.append(
+            f'    [{_lua_string(label)}] = {_lua_string(row["cue"])},'
+            f' -- {row["source"]}'
         )
     lines.append('  },')
     lines.append('  meetRivalScripts = {')
