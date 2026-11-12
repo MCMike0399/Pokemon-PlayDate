@@ -1139,3 +1139,12 @@ applied. A mashed A has to leave the finished line up for 10 frames
 before the next press turns the page. `advance()` still presents a
 page for the learning contract, which acknowledges that page on the
 following A.
+
+The same two fights were played again from sequence 143. The new
+game-screen clips are `20261112T171755Z-silph-co-scientist.mp4`
+(400×240, 39.72s) and `20261112T171900Z-silph-co-rocket.mp4` (400×240,
+35.52s). Each clip is the fight itself. The message patch is still
+unapplied, so those clips still show the short page. The 7F rival
+blacked out to Saffron `(9, 30)` while the white-out dialog was up.
+That run ended before an overworld save, so sequence 143 is still the
+continue.
