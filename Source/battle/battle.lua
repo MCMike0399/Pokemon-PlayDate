@@ -908,6 +908,9 @@ function Battle:throwBall(ballId)
     local context={pokemon=self.enemy,wild=true}
     local dex=self.session:pokedex()
     local caughtCount=0;for _,owned in pairs(dex.owned) do if owned then caughtCount=caughtCount+1 end end
+    -- ItemUseBall tests wPokedexOwned before it sets the flag. Recruit below
+    -- marks the species owned, so the "new dex data" choice is recorded now.
+    local newDex=dex.owned[self.enemy.species]~=true
     local parameters,problem=Capture.parameters(context,ballId,caughtCount)
     if not parameters then return false,problem end
     local storage=self.session:storage()
@@ -936,6 +939,7 @@ function Battle:throwBall(ballId)
             result.destination=destination
         end
         self.caughtPokemon=self.enemy
+        self.caughtNewDex=newDex
     end
     self.effects:beginRound()
     self.captureResult=result

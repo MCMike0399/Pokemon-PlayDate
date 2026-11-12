@@ -271,40 +271,44 @@ end
 NameRater = {}
 
 -- text/NameRatersHouse.asm. Each page is the two rows a text/line pair
--- shows, and cont/para start the next page. The words are unchanged.
+-- shows. cont, para and prompt place ▼. done does not. The words are unchanged.
+local function rated(text, ending)
+    return {text = text, ending = ending}
+end
+
 NameRater.WANT = {
-    "Hello, hello!\nI am the official",
-    "I am the official\nNAME RATER!",
-    "Want me to rate\nthe nicknames of",
-    "the nicknames of\nyour POKEMON?",
+    rated("Hello, hello!\nI am the official", "cont"),
+    rated("I am the official\nNAME RATER!", "para"),
+    rated("Want me to rate\nthe nicknames of", "cont"),
+    rated("the nicknames of\nyour POKEMON?", "done"),
 }
-NameRater.WHICH = {"Which POKEMON\nshould I look at?"}
-NameRater.WHAT = {"Fine! What should\nwe name it?"}
-NameRater.COME = {"Fine! Come any\ntime you like!"}
+NameRater.WHICH = {rated("Which POKEMON\nshould I look at?", "prompt")}
+NameRater.WHAT = {rated("Fine! What should\nwe name it?", "prompt")}
+NameRater.COME = {rated("Fine! Come any\ntime you like!", "done")}
 
 function NameRater.decent(name)
     return {
-        name .. ", is it?\nThat is a decent",
-        "That is a decent\nnickname!",
-        "But, would you\nlike me to give",
-        "like me to give\nit a nicer name?",
-        "How about it?",
+        rated(name .. ", is it?\nThat is a decent", "cont"),
+        rated("That is a decent\nnickname!", "para"),
+        rated("But, would you\nlike me to give", "cont"),
+        rated("like me to give\nit a nicer name?", "para"),
+        rated("How about it?", "done"),
     }
 end
 
 function NameRater.renamed(name)
     return {
-        "OK! This POKEMON\nhas been renamed",
-        "has been renamed\n" .. name .. "!",
-        "That's a better\nname than before!",
+        rated("OK! This POKEMON\nhas been renamed", "cont"),
+        rated("has been renamed\n" .. name .. "!", "para"),
+        rated("That's a better\nname than before!", "done"),
     }
 end
 
 function NameRater.impeccable(name)
     return {
-        name .. ", is it?\nThat is a truly",
-        "That is a truly\nimpeccable name!",
-        "Take good care of\n" .. name .. "!",
+        rated(name .. ", is it?\nThat is a truly", "cont"),
+        rated("That is a truly\nimpeccable name!", "para"),
+        rated("Take good care of\n" .. name .. "!", "done"),
     }
 end
 
@@ -395,7 +399,7 @@ function NameRater.present(game)
     if not NameRater.hooked() then return false end
     if not game or not game.machine or type(game.machine.push) ~= "function" then return false end
     local function say(lines, nextFn)
-        game.machine:push("dialog", lines, nextFn)
+        game.machine:push("dialog", Story.dialogLines(lines), nextFn)
     end
     local function ask(prompt, yes, no)
         game.machine:push("naming", {
@@ -487,7 +491,9 @@ if Class then
         if screen.page and Dialog then
             if not self.pageDialog then
                 self.pageDialog = Dialog()
-                self.pageDialog:show({screen.page})
+                local page = screen.page
+                local entry = (Dialog.showsArrow and page) or (type(page) == "table" and page.text or page)
+                self.pageDialog:show({entry})
                 local line = self.pageDialog.lines and self.pageDialog.lines[1]
                 if line then self.pageDialog.charIndex = #line end
             end

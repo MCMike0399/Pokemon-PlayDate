@@ -391,15 +391,34 @@ function Story.chooseStarter(game, species)
     end)
 end
 
--- data/text/text_2.asm _DoYouWantToNicknameText. text/line is the first
--- page. cont scrolls that second line up and writes the species on the
--- bottom row. The naming screen opens only after YES.
+-- data/text/text_2.asm _DoYouWantToNicknameText. The first page closes on
+-- cont, which places ▼. The second page closes on done, which does not,
+-- and the YES/NO menu opens over that page.
 function Story.nicknamePages(speciesName)
     local name = speciesName or "POKEMON"
     return {
-        "Do you want to\ngive a nickname",
-        "give a nickname\nto " .. name .. "?",
+        {text = "Do you want to\ngive a nickname", ending = "cont"},
+        {text = "give a nickname\nto " .. name .. "?", ending = "done"},
     }
+end
+
+-- engine/items/item_effects.asm ItemUseBallText06, before ShowPokedexData.
+function Story.caughtDexPages(speciesName)
+    local name = speciesName or "POKEMON"
+    return {
+        {text = "New POKéDEX data\nwill be added for", ending = "cont"},
+        {text = "will be added for\n" .. name .. "!", ending = "done"},
+    }
+end
+
+-- Unpatched Dialog only accepts strings. The tile-font patch reads ending.
+function Story.dialogLines(pages)
+    if Dialog and Dialog.showsArrow then return pages end
+    local lines = {}
+    for index, page in ipairs(pages) do
+        lines[index] = type(page) == "table" and page.text or page
+    end
+    return lines
 end
 
 function Story.promptNickname(game, mon, speciesName, done)
@@ -411,11 +430,12 @@ function Story.promptNickname(game, mon, speciesName, done)
         return false
     end
     local pages = Story.nicknamePages(speciesName)
-    game.machine:push("dialog", pages, function()
+    local last = pages[#pages]
+    game.machine:push("dialog", Story.dialogLines(pages), function()
         game.machine:push("naming", {
             kind = "yesno",
             overlay = true,
-            page = pages[#pages],
+            page = (Dialog and Dialog.showsArrow) and last or last.text,
             onDone = function(accepted)
                 if not accepted then finish() return end
                 game.machine:push("naming", {

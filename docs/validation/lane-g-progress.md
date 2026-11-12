@@ -93,6 +93,16 @@ The nickname ask matches `AskName`. `_DoYouWantToNicknameText` prints in the dia
 
 The r8 dialog frames were rendered with the patch applied on a scratch tree. That bundle's `source_sha256` is `b4d2fd7e2cf2298494c8b3005c968f7432e4878e1ae720719d6ea93b00b736b8` and includes the patch, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r8/`: `nickname-gift.png` (the lab, the last question page, and YES/NO), `nickname-catch.png` (the battle after Gotcha, the same question, and YES/NO), `name-rater-rate.png` (`SQUIRTLE, is it?` / `That is a decent` with `▼`), and `overworld-dialog.png` (the house greeting).
 
+## Round 7
+
+BlueBot approved the overworld dialog, the gift scene, and the YES/NO box at column 14, row 7. `_DoYouWantToNicknameText` ends on `done`, and `DoneText` does not place `▼`. `PromptText`, `Paragraph`, and `_ContText` do. The arrow is drawn for `prompt`, `para`, and `cont`. `cont` stays because the approved house greeting (`Hello, hello!` / `I am the official`) closes on `cont`. `done` and a page with no recorded ending draw none. The nickname question's second page is `done`, so the YES/NO menu has no arrow under it. The first page still blinks `▼`.
+
+The rule lives in the dialog patch. `tools/tests/test_lane_e_dialog_font.py` applies that patch on a throwaway worktree and checks the nickname recipe (`cont` then `done`), one `prompt` page (`Which POKEMON` / `should I look at?`), and one `para` page (`That is a decent` / `nickname!`). The unpatched `dialog.lua` still fails the tile-font assertion, and that assertion now also requires `Dialog.showsArrow`.
+
+A newly caught species follows `item_effects.asm`: the owned flag is read before recruit, `ItemUseBallText06` prints, `ShowPokedexData` opens that species, and A returns to the battle before `AskName`. The empty enemy side after Gotcha stays. The player's back sprite and the HUD above the message box match a pre-throw frame from the same fight, pixel for pixel. A dialog over the battle was leaving the overworld camera offset applied, which slid the field off the top; the field is drawn from the origin again.
+
+The r9 frames were rendered with the patch applied on a scratch tree. That bundle's `source_sha256` is `743b277c49d93f0a191b4979f203eb63471f3dc7c3d75be9752f78c60aab0180` and includes the patch plus the matching transform hashes, so it will not match this commit. A production build of this commit still fails the transform-dependency check until lane E regenerates those hashes. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r9/`: `nickname-gift.png`, `nickname-catch.png`, `pre-throw.png`, `post-pokedex.png`, and `pokedex-rattata.png` (the new entry that returns to the battle).
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

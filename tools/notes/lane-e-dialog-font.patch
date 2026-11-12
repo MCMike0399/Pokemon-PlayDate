@@ -1,5 +1,5 @@
 diff --git a/Source/dev/sourceTextContracts.lua b/Source/dev/sourceTextContracts.lua
-index 5fc82560..9c47a081 100644
+index 5fc82560..43c155fd 100644
 --- a/Source/dev/sourceTextContracts.lua
 +++ b/Source/dev/sourceTextContracts.lua
 @@ -24,15 +24,15 @@ local function render(fn)
@@ -24,16 +24,17 @@ index 5fc82560..9c47a081 100644
      end
  end
  
-@@ -76,7 +76,7 @@ function SourceTextContracts.run()
+@@ -76,7 +76,8 @@ function SourceTextContracts.run()
          }}
          local function resolve() return data end
          local pages = EventText.pagesFrom({"money"}, resolve, {wAmountMoneyWon = 1386, wStringBuffer = "POKé BALL"})
 -        equal(#pages, 2); equal(pages[1].text, "RED got ¥1386 for winning!")
 +        equal(#pages, 2); equal(pages[1].text, "RED got ¥1386\nfor winning!")
++        equal(pages[1].ending, "para"); equal(pages[2].ending, "done")
          equal(pages[1].receipt, true); equal(pages[1].source, "test.asm")
          equal(pages[2].text, "Found POKé BALL."); equal(pages[2].receipt, false)
          equal(SourceText.number("text_decimal hCount, 1, 3", {hCount = 7}), "  7")
-@@ -105,9 +105,9 @@ function SourceTextContracts.run()
+@@ -105,9 +106,9 @@ function SourceTextContracts.run()
                  local function make() return EventText.pagesFrom({label}, function() return record end, values) end
                  if supported then
                      for _, page in ipairs(make()) do
@@ -46,7 +47,7 @@ index 5fc82560..9c47a081 100644
                      end
                      count = count + 1
                  else rejects(make) end -- source branches/ASM remain explicit failures
-@@ -185,7 +185,7 @@ function SourceTextContracts.run()
+@@ -185,7 +186,7 @@ function SourceTextContracts.run()
          local longWord = string.rep("é", 65)
          local text = paragraph .. "\fFinal paragraph.\n" .. longWord
          local d = Dialog(); d:show({text})
@@ -55,7 +56,7 @@ index 5fc82560..9c47a081 100644
          local finalPage
          for i, page in ipairs(d.lines) do
              if page:find("Final", 1, true) then
-@@ -202,16 +202,14 @@ function SourceTextContracts.run()
+@@ -202,16 +203,14 @@ function SourceTextContracts.run()
              for row in (d.lines[i] .. "\n"):gmatch("(.-)\n") do rows[#rows + 1] = row end
          end
          equal(rows[1], "Final paragraph.") -- explicit newline survives
@@ -75,7 +76,7 @@ index 5fc82560..9c47a081 100644
          end
          equal(table.concat(rows, "", 2), longWord)
          assert(#d.lines >= 4)
-@@ -231,37 +229,37 @@ function SourceTextContracts.run()
+@@ -231,37 +230,52 @@ function SourceTextContracts.run()
          equal(d.isActive, false); equal(completed, 1)
      end)
  
@@ -96,10 +97,9 @@ index 5fc82560..9c47a081 100644
 -                end)
 -                for y = 0, 239 do for x = 0, 399 do equal(actual:sample(x, y), expected:sample(x, y)) end end
 -            end
--        end
 +    test("The message box is the two-line tile box with the prompt arrow", function()
 +        local text = "Hello, hello!\nI am the official"
-+        local d = Dialog(); d:show({text})
++        local d = Dialog(); d:show({{text = text, ending = "cont"}})
 +        equal(#d.lines, 1); equal(d.lines[1], text)
 +        d.charIndex = #text; d.blinkTimer = 0
 +        local actual = drawDialog(d)
@@ -117,6 +117,21 @@ index 5fc82560..9c47a081 100644
 +            GbFont.drawString(text:sub(1, 5), 1, 14)
 +        end)
 +        for y = 0, 239 do for x = 0, 399 do equal(partial:sample(x, y), partialExpected:sample(x, y)) end end
++        local function arrowInk(dialog)
++            dialog:advance()
++            local image = drawDialog(dialog)
++            local blacks = 0
++            for y = 16 * 13, 17 * 13 - 1 do for x = 18 * 20, 19 * 20 - 1 do
++                if image:sample(x, y) == gfx.kColorBlack then blacks = blacks + 1 end
++            end end
++            return blacks
+         end
++        local prompt = Dialog(); prompt:show({{text = "Which POKEMON\nshould I look at?", ending = "prompt"}})
++        assert(arrowInk(prompt) > 20, "prompt places the arrow")
++        local paragraph = Dialog(); paragraph:show({{text = "That is a decent\nnickname!", ending = "para"}})
++        assert(arrowInk(paragraph) > 20, "para places the arrow")
++        local finished = Dialog(); finished:show({{text = "give a nickname\nto SQUIRTLE?", ending = "done"}})
++        equal(arrowInk(finished), 0)
      end)
  
 -    test("Extended pages reserve a readable advance gutter and drawing does not advance state", function()
@@ -137,8 +152,24 @@ index 5fc82560..9c47a081 100644
          native(image, "source-text-symbols-complete")
      end)
      return report
+diff --git a/Source/game/eventState.lua b/Source/game/eventState.lua
+index dadd6bb8..98e4b4fb 100644
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -42,7 +42,10 @@ function EventState:guard(callback)
+ end
+ function EventState:dialog(pages,callback,receipt)
+     assert(#pages>0 and #pages<=64,"bounded source pages required")
+-    local lines={};for _,page in ipairs(pages) do lines[#lines+1]=page.text end
++    local lines={}
++    for _, page in ipairs(pages) do
++        lines[#lines + 1] = {text = page.text, ending = page.ending}
++    end
+     self.phase,self.waiting=receipt and "receipt" or "dialog",pages[1].label
+     self.machine:push("dialog",lines,self:guard(callback))
+ end
 diff --git a/Source/game/eventText.lua b/Source/game/eventText.lua
-index c45ef7e9..ecb51168 100644
+index c45ef7e9..e845ac3e 100644
 --- a/Source/game/eventText.lua
 +++ b/Source/game/eventText.lua
 @@ -1,4 +1,6 @@
@@ -149,7 +180,7 @@ index c45ef7e9..ecb51168 100644
  EventText = {}
  local cached
  local function source()
-@@ -16,31 +18,47 @@ function EventText.pagesFrom(labels, resolver, ram)
+@@ -16,31 +18,50 @@ function EventText.pagesFrom(labels, resolver, ram)
      local pages = {}
      for _, label in ipairs(labels) do
          local record = assert(resolver(label), "missing source dialogue: " .. tostring(label))
@@ -163,21 +194,24 @@ index c45ef7e9..ecb51168 100644
 -                pages[#pages + 1] = {label = label, text = raw, receipt = receipt ~= nil, source = record.source}
 -            end
 -            raw, space = "", false
-+        local line1, line2, slot = "", "", 1
++        local line1, line2, slot, ending = "", "", 1, nil
 +        local function pageText()
 +            if line1 == "" and line2 == "" then return nil end
 +            if line2 == "" then return line1 end
 +            return line1 .. "\n" .. line2
 +        end
-+        local function close()
++        local function close(reason)
 +            local text = pageText()
++            local use = reason or ending or "done"
++            ending = nil
 +            if not text then return end
 +            local player = ram and ram.player or "RED"
 +            local flat = text:gsub("\n", " ")
 +            local receipt = flat:find(player .. " got", 1, true)
 +                or flat:find(player .. " received", 1, true)
 +                or flat:find(player .. " delivered", 1, true)
-+            pages[#pages + 1] = {label = label, text = text, receipt = receipt ~= nil, source = record.source}
++            pages[#pages + 1] = {label = label, text = text, ending = use,
++                receipt = receipt ~= nil, source = record.source}
 +        end
 +        local function append(text)
 +            if text == "" then return end
@@ -198,14 +232,14 @@ index c45ef7e9..ecb51168 100644
 -                else
 -                    raw = raw .. (#raw > 0 and " " or "") .. SourceText.expand(row.text, ram)
 -                end
-+                close()
++                -- Paragraph places ▼, waits, then clears the box.
++                close("para")
 +                line1, line2, slot = "", "", 1
 +                if row.text ~= "@" then append(SourceText.expand(row.text, ram)) end
 +            elseif row.op == "cont" then
-+                -- _ContText scrolls the second row into the first and continues
-+                -- at hlcoord 1, 16. The page that was showing stays readable.
++                -- _ContText places ▼, waits, then scrolls the second row up.
 +                local kept = line2
-+                close()
++                close("cont")
 +                line1, line2, slot = kept, "", 2
 +                if row.text ~= "@" then append(SourceText.expand(row.text, ram)) end
 +            elseif row.op == "line" or row.op == "next" then
@@ -218,7 +252,7 @@ index c45ef7e9..ecb51168 100644
              elseif row.op == "text_ram" then
                  local supplied = ram and ram[row.symbol]
                  if supplied == nil then
-@@ -51,12 +69,10 @@ function EventText.pagesFrom(labels, resolver, ram)
+@@ -51,22 +72,23 @@ function EventText.pagesFrom(labels, resolver, ram)
                  assert(type(supplied) == "string" and utf8.len(supplied) and #supplied <= 128,
                      "bounded source text RAM value required")
                  -- Resolved RAM is literal display text, never another program.
@@ -230,10 +264,17 @@ index c45ef7e9..ecb51168 100644
 -                    raw = raw .. (space and " " or "") .. SourceText.number(row.source, ram)
 -                    space = false
 +                    append(SourceText.number(row.source, ram))
++                elseif row.source == "prompt" then
++                    ending = "prompt"
++                elseif row.source == "done" or row.source == "text_end" then
++                    ending = "done"
                  else
-                     assert(row.source == "done" or row.source == "prompt"
-                         or row.source == "text_end" or row.source == "text_start",
-@@ -66,7 +82,7 @@ function EventText.pagesFrom(labels, resolver, ram)
+-                    assert(row.source == "done" or row.source == "prompt"
+-                        or row.source == "text_end" or row.source == "text_start",
++                    assert(row.source == "text_start",
+                         "unsupported event text control: " .. tostring(row.source))
+                 end
+             else
                  error("unsupported source text operation: " .. tostring(row.op))
              end
          end
@@ -242,8 +283,36 @@ index c45ef7e9..ecb51168 100644
      end
      assert(#pages <= 64, "event dialogue page limit")
      return pages
+diff --git a/Source/game/fieldGearState.lua b/Source/game/fieldGearState.lua
+index 97d12962..90110d75 100644
+--- a/Source/game/fieldGearState.lua
++++ b/Source/game/fieldGearState.lua
+@@ -50,6 +50,10 @@ function FieldGearState:showResult(labels, ram)
+     end
+     if self.plan.kind == "bicycle" then
+         lines = {table.concat(lines, " ")}
++    else
++        for index, page in ipairs(pages) do
++            lines[index] = {text = page.text, ending = page.ending}
++        end
+     end
+     self.phase = "result"
+     self.dialog:show(lines, function()
+diff --git a/Source/game/snorlaxStory.lua b/Source/game/snorlaxStory.lua
+index 1586b2fc..ae2d420b 100644
+--- a/Source/game/snorlaxStory.lua
++++ b/Source/game/snorlaxStory.lua
+@@ -93,7 +93,7 @@ function SnorlaxStory.useFlute(bag)
+     local lines = {}
+     if not id then
+         for _, page in ipairs(EventText.pagesFrom({"_PlayedFluteNoEffectText"}, SnorlaxStory.fluteText)) do
+-            lines[#lines + 1] = page.text
++            lines[#lines + 1] = {text = page.text, ending = page.ending}
+         end
+     end
+     machine:pop()
 diff --git a/Source/ui/dialog.lua b/Source/ui/dialog.lua
-index 5ec584c3..81c6e7e3 100644
+index 5ec584c3..503d2487 100644
 --- a/Source/ui/dialog.lua
 +++ b/Source/ui/dialog.lua
 @@ -1,4 +1,8 @@
@@ -255,7 +324,7 @@ index 5ec584c3..81c6e7e3 100644
  
  local gfx <const> = playdate.graphics
  
-@@ -15,31 +19,84 @@ function Dialog:init()
+@@ -15,31 +19,98 @@ function Dialog:init()
      self.holdFrames = 0
  end
  
@@ -305,6 +374,12 @@ index 5ec584c3..81c6e7e3 100644
 +    end
 +end
 +
++-- PromptText, Paragraph and _ContText place ▼ at hlcoord 18, 16 and wait.
++-- DoneText does not. A page with no recorded ending does not either.
++function Dialog.showsArrow(ending)
++    return ending == "prompt" or ending == "para" or ending == "cont"
++end
++
 +function Dialog.paginate(text)
 +    local pages = {}
 +    local function emit(rows)
@@ -331,9 +406,9 @@ index 5ec584c3..81c6e7e3 100644
  function Dialog:show(lines, onComplete)
      assert(type(lines) == "table" and #lines > 0, "nonempty dialogue required")
      self.font = gfx.getFont()
-     self.lines, self.legacy = {}, {}
-     for _, text in ipairs(lines) do
-         assert(type(text) == "string" and utf8.len(text), "valid UTF-8 dialogue required")
+-    self.lines, self.legacy = {}, {}
+-    for _, text in ipairs(lines) do
+-        assert(type(text) == "string" and utf8.len(text), "valid UTF-8 dialogue required")
 -        -- Retain exact existing drawing for short ordinary strings. Longer
 -        -- strings use precomputed full pages; draw never decides pagination.
 -        local width, height = gfx.getTextSizeForMaxWidth(text, 372)
@@ -343,7 +418,12 @@ index 5ec584c3..81c6e7e3 100644
 -            local measured = SourceTextFont.paginate(text, self.font, 372)
 -            local lastRow = measured[#measured]:match("[^\n]*$")
 -            legacySafe = #measured == 1 and SourceTextFont.width(lastRow, self.font) <= 360
--        end
++    self.lines, self.legacy, self.arrows = {}, {}, {}
++    for _, entry in ipairs(lines) do
++        local text, ending = entry, nil
++        if type(entry) == "table" then
++            text, ending = entry.text, entry.ending
+         end
 -        if legacySafe then
 -            self.lines[#self.lines + 1] = text
 -            self.legacy[#self.lines] = true
@@ -353,13 +433,18 @@ index 5ec584c3..81c6e7e3 100644
 -                self.lines[#self.lines + 1] = page
 -                self.legacy[#self.lines] = false
 -            end
-+        for _, page in ipairs(Dialog.paginate(text)) do
++        assert(type(text) == "string" and utf8.len(text), "valid UTF-8 dialogue required")
++        local pages = Dialog.paginate(text)
++        for index, page in ipairs(pages) do
 +            self.lines[#self.lines + 1] = page
 +            self.legacy[#self.lines] = false
++            -- A wrapped overflow is not its own prompt. The command's ending
++            -- belongs to the last row pair.
++            self.arrows[#self.arrows + 1] = index == #pages and Dialog.showsArrow(ending) or false
          end
      end
      self.currentLine = 1
-@@ -106,70 +163,39 @@ function Dialog:advance()
+@@ -106,70 +177,40 @@ function Dialog:advance()
      end
  end
  
@@ -411,31 +496,8 @@ index 5ec584c3..81c6e7e3 100644
 -
 -    self:_pageImage():draw(14, boxY + 12)
 -
-+    gfx.fillRect(0, 234, 400, 6)
-+    -- data/text_boxes.asm MESSAGE_BOX is hlcoord 0, 12 through 19, 17.
-+    -- Text is placed at bccoord 1, 14. The second row is hlcoord 1, 16.
-+    -- constants/charmap.asm puts ▼ at $ee, and PromptText writes it at 18, 16.
-+    GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
-+    local shown = string.sub(self.lines[self.currentLine], 1, self.charIndex)
-+    local row1, row2 = shown, nil
-+    local newline = shown:find("\n", 1, true)
-+    if newline then
-+        row1 = shown:sub(1, newline - 1)
-+        row2 = shown:sub(newline + 1)
-+    end
-+    local function clip(text)
-+        local out, count = {}, 0
-+        for _, code in utf8.codes(text) do
-+            if count >= 18 then break end
-+            out[#out + 1] = utf8.char(code)
-+            count = count + 1
-+        end
-+        return table.concat(out)
-+    end
-+    if row1 ~= "" then GbFont.drawString(clip(row1), 1, 14) end
-+    if row2 and row2 ~= "" then GbFont.drawString(clip(row2), 1, 16) end
-     local line = self.lines[self.currentLine]
-     if self.charIndex >= #line and math.floor(self.blinkTimer / 15) % 2 == 0 then
+-    local line = self.lines[self.currentLine]
+-    if self.charIndex >= #line and math.floor(self.blinkTimer / 15) % 2 == 0 then
 -        if self.legacy[self.currentLine] then
 -            if not self.arrowImage then
 -                local width, height = gfx.getTextSize("v")
@@ -454,7 +516,32 @@ index 5ec584c3..81c6e7e3 100644
 -            gfx.fillRect(381, 227, 5, 1)
 -            gfx.fillRect(382, 228, 3, 1)
 -            gfx.fillRect(383, 229, 1, 1)
--        end
++    gfx.fillRect(0, 234, 400, 6)
++    -- data/text_boxes.asm MESSAGE_BOX is hlcoord 0, 12 through 19, 17.
++    -- Text is placed at bccoord 1, 14. The second row is hlcoord 1, 16.
++    -- constants/charmap.asm puts ▼ at $ee, and PromptText writes it at 18, 16.
++    GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
++    local shown = string.sub(self.lines[self.currentLine], 1, self.charIndex)
++    local row1, row2 = shown, nil
++    local newline = shown:find("\n", 1, true)
++    if newline then
++        row1 = shown:sub(1, newline - 1)
++        row2 = shown:sub(newline + 1)
++    end
++    local function clip(text)
++        local out, count = {}, 0
++        for _, code in utf8.codes(text) do
++            if count >= 18 then break end
++            out[#out + 1] = utf8.char(code)
++            count = count + 1
+         end
++        return table.concat(out)
++    end
++    if row1 ~= "" then GbFont.drawString(clip(row1), 1, 14) end
++    if row2 and row2 ~= "" then GbFont.drawString(clip(row2), 1, 16) end
++    local line = self.lines[self.currentLine]
++    if self.arrows[self.currentLine] and self.charIndex >= #line
++        and math.floor(self.blinkTimer / 15) % 2 == 0 then
 +        GbFont.drawChar("▼", 18, 16)
      end
 +    gfx.setDrawOffset(ox, oy)
