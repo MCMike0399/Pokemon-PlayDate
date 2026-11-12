@@ -29,7 +29,9 @@ from tools.harness.protocol import ProtocolError
 
 # Leave several thousand button presses so the pause Save finishes
 # before ParcelJourney's hard cap of 20000.
-ACTION_PAUSE = 14000
+# The Simulator's RSS reaches the VM limit in about forty minutes.
+# Pause sooner so a new session continues the earned save before that stall.
+ACTION_PAUSE = 8000
 
 FORBIDDEN_OPS = {"fixture", "warp", "debug", "intro", "seed", "battle", "encounters", "face"}
 # Oddish, Bellsprout, and Pikachu resist Misty's water attacks.
@@ -81,7 +83,11 @@ class ActionPause(ProtocolError):
 
 
 def needs_action_pause(actions, state, stopping):
-    return (not stopping) and actions >= ACTION_PAUSE and (state or {}).get("root") == "overworld"
+    state = state or {}
+    # A wild iris is still the overworld root. Saving there abandons the battle.
+    phase = state.get("overworld")
+    exploring = phase in (None, "explore")
+    return (not stopping) and actions >= ACTION_PAUSE and state.get("root") == "overworld" and exploring
 
 
 def key_fight(name, trainer_id):
@@ -159,7 +165,34 @@ class CharmanderRun(BrockJourney):
         super().training_battle()
         count = len(self.summary.get("training") or [])
         if count % 10 == 0 and self.state.get("root") == "overworld" and not getattr(self, "_stopping", False):
-            self.save()
+            self._finish_wild_iris()
+            if self.state.get("root") == "overworld" and self.state.get("overworld") in (None, "explore"):
+                self.save()
+
+    def step(self, step):
+        self._finish_wild_iris()
+        return super().step(step)
+
+    def interact(self, name=None, source_id=None, stop_phase=None):
+        self._finish_wild_iris()
+        return super().interact(name, source_id, stop_phase)
+
+    def _finish_wild_iris(self):
+        """A grass step opens the battle iris before the next step may require explore."""
+        if getattr(self, "_finishing_iris", False):
+            return
+        self._finishing_iris = True
+        try:
+            for _ in range(8):
+                if self.state.get("root") != "overworld" or self.state.get("overworld") != "irisOut":
+                    return
+                self.send("wait 15")
+                if self.state.get("root") == "battle" or self.state.get("overworld") == "irisOut":
+                    super().drain()
+            if self.state.get("overworld") == "irisOut":
+                raise ProtocolError("wild iris never opened the battle")
+        finally:
+            self._finishing_iris = False
 
     def continue_earned(self):
         """Title CONTINUE, then the Brock steps the save has not finished."""
@@ -376,7 +409,8 @@ class CharmanderRun(BrockJourney):
         )
 
     def _misty_target_level(self):
-        return getattr(self, "_misty_level_target", 26)
+        # Level 26 lost to Starmie. A restarted session keeps that higher line.
+        return getattr(self, "_misty_level_target", 28)
 
     def _starter_level(self):
         return self.party()[self.starter_index() - 1]["level"]
@@ -950,6 +984,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertFalse(needs_action_pause(ACTION_PAUSE, {"root": "battle"}, False))
         self.assertFalse(needs_action_pause(ACTION_PAUSE - 1, {"root": "overworld"}, False))
         self.assertFalse(needs_action_pause(ACTION_PAUSE, {"root": "overworld"}, True))
+        self.assertFalse(needs_action_pause(ACTION_PAUSE, {"root": "overworld", "overworld": "irisOut"}, False))
 
     def test_overworld_pause_lets_the_previous_gesture_finish(self):
         overworld = {"root": "overworld", "zone": "kanto_route2"}
@@ -981,7 +1016,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertLess(body.index("_misty_badge"), body.index('self.heal_here("PewterPokecenter")'))
         self.assertIn("def _prepare_for_misty", source)
         self.assertIn("ROUTE_25", source)
-        self.assertIn("return getattr(self, \"_misty_level_target\", 26)", source)
+        self.assertIn("return getattr(self, \"_misty_level_target\", 28)", source)
         self.assertIn("self.travel = self._travel_past_dead_edges", source)
         self.assertIn("no open route past a dead map edge", source)
         self.assertLess(source.index("if not self._misty_ready()"), source.index("self.fight(cerulean.MISTY)"))
