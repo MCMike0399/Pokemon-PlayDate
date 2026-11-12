@@ -479,31 +479,33 @@ class CharmanderRun(BrockJourney):
             if isinstance(record, dict) and type(record.get("payout")) is int:
                 self.source_trainers[trainer_id] = record
 
-    def _travel_south(self, name):
-        """Walk to a south map without detouring through the robbed house.
-
-        The house warp is a shorter graph hop, and the Rocket still stands on
-        the only indoor step. The road south does not go through that room.
-        """
-        target = self.zone(name)
-        held = []
-        for room in ("CeruleanTrashedHouse", "BikeShop"):
-            zone = self.zone(room)
-            if zone in (target, self.state.get("zone_id")) or zone not in self.models:
-                continue
-            held.append((zone, self.models.pop(zone)))
+    def step(self, step):
+        """Wait when a pacing NPC steps onto the cell the path just chose."""
+        zone, origin = self.state.get("zone_id"), self.position()
         try:
-            self.travel(target)
-        finally:
-            for zone, model in held:
-                self.models[zone] = model
+            return super().step(step)
+        except ProtocolError as error:
+            block = lookup(self.state, "player.lastTraversalBlock")
+            if (getattr(step, "kind", None) != "walk"
+                    or not str(error).startswith("source-valid walk failed:")
+                    or self.state.get("zone_id") != zone or self.position() != origin
+                    or block != {"kind": "npc", "id": "occupied-next-cell"}):
+                raise
+            key = (zone, origin, getattr(step, "destination", None))
+            previous, count = getattr(self, "_npc_step_retry", (None, 0))
+            count = count + 1 if previous == key else 1
+            if count > 8:
+                raise
+            self._npc_step_retry = (key, count)
+            self.send("wait 8")
+            return None
 
     def _toward_vermilion(self):
         """Walk south to Vermilion. Wild fights are fled. Surge is the next gym."""
         self.training_mode = None
         self._pin_route_trainers()
         if "VERMILION" not in (self.state.get("zone_id") or ""):
-            self._travel_south("VermilionCity")
+            self.travel(self.zone("VermilionCity"))
         self.heal_here("VermilionPokecenter")
         self.save()
 
