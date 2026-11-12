@@ -372,11 +372,15 @@ class CharmanderRun(BrockJourney):
             for mon in self.party()
         )
 
+    def _misty_target_level(self):
+        return getattr(self, "_misty_level_target", 26)
+
+    def _starter_level(self):
+        return self.party()[self.starter_index() - 1]["level"]
+
     def _misty_ready(self):
-        """A water counter at 18, or Charmeleon at 27, can take Starmie's first hit."""
-        if self._have_counter(18):
-            return True
-        return self.party()[self.starter_index() - 1]["level"] >= 27
+        """Charmeleon stays out of the gym until about level 26."""
+        return self._starter_level() >= self._misty_target_level()
 
     def _buy_balls(self):
         if self.quantity("pokeBall") >= 4:
@@ -396,94 +400,177 @@ class CharmanderRun(BrockJourney):
         if best and best[0] != 1:
             self.field_swap(best[0], 1)
 
-    def _lead_for_misty(self):
-        self._lead_counter(16)
+    def _lead_starter(self):
+        index = self.starter_index()
+        if index != 1:
+            self.field_swap(index, 1)
 
-    def _fight_route24_trainers(self):
+    def _arrange_lead(self, prefer):
+        """Charmeleon keeps the XP until level 26. A new counter leads only after that."""
+        if prefer == "counter" and self._have_counter(1):
+            self._lead_counter(1)
+        else:
+            self._lead_starter()
+
+    def _lead_for_misty(self):
+        if self._have_counter(18):
+            self._lead_counter(18)
+        else:
+            self._lead_starter()
+
+    def _needs_heal(self):
+        lead = self.party()[0]
+        return lead["hp"] * 2 < lead["maxHP"] or lead["status"] not in {None, "none"}
+
+    def _stock_potions(self):
+        """Buy Potions toward 20 after the mart's usual restock."""
+        target = 20
+        have = self.quantity("potion")
+        if have >= target:
+            return
+        clerk = self.zone("CeruleanMart") + ":objects:1"
+        price = self.export["shops"][clerk]["prices"]["potion"]
+        reserve = 0 if self._have_counter(1) or self.quantity("pokeBall") >= 4 else 400
+        count = min(target - have, max(0, (self.inventory()["money"] - reserve) // price))
+        if count:
+            self.buy_item(clerk, "potion", count, price)
+
+    def _fight_route_trainers(self, constant, indices):
+        """Nugget Bridge, the rest of Route 24, and Route 25. Save before each fight."""
         import tools.harness.cerulean_journey as cerulean
-        for index in (6, 5, 4, 3, 2, 1):
-            trainer = cerulean.sid("ROUTE_24", index)
+        fought = False
+        for index in indices:
+            trainer = cerulean.sid(constant, index)
             if trainer not in self.source_trainers or self.defeated(trainer):
                 continue
-            lead = self.party()[0]
-            if lead["hp"] * 2 < lead["maxHP"] or lead["status"] not in {None, "none"}:
+            self._arrange_lead("starter")
+            if self._needs_heal():
                 self.heal_here("CeruleanPokecenter")
+            self.save()
             self.fight(trainer)
+            fought = True
+        if fought:
+            self.heal_here("CeruleanPokecenter")
+            self._stock_potions()
+            self.save()
 
-    def _grind_route24(self):
-        """Walk Route 24 grass and fight what appears. Catch a water counter."""
+    def _grind(self, route_name, limit, prefer):
+        """Walk one route's grass and fight what appears. Catch a water counter."""
         from tools.harness.brock_journey import NaturalBlackout, training_lane
-        route = self.zone("Route24")
-        self.travel(route)
+        route = self.zone(route_name)
+        if self._needs_heal():
+            self.heal_here("CeruleanPokecenter")
+            self.save()
         self.training_mode = "train"
         self.capture_pending = False
         start = len(self.summary["training"])
         lane = None
-        for _ in range(80):
-            if self._misty_ready() or len(self.summary["training"]) - start >= 24:
-                break
-            active = lookup(self.state, "pokemon")
-            if active["hp"] * 2 < active["maxHP"] or active["status"] not in {None, "none"}:
-                self.training_mode = None
-                self.heal_here("CeruleanPokecenter")
-                self.travel(route)
-                self.training_mode = "train"
-                lane = None
-            if self.state.get("zone_id") != route:
-                self.travel(route)
-                lane = None
-            if self._have_counter(1):
-                self._lead_counter(1)
+        try:
             try:
-                if lane is None:
-                    lane = training_lane(self.model(), self.position(), self.occupied())
-                goal = lane[1] if self.position() == lane[0] else lane[0]
-                self.navigate(goal)
-            except NaturalBlackout:
-                self.recover_path_blackout("route 24 training")
                 self.travel(route)
-                lane = None
+            except NaturalBlackout:
+                self.recover_path_blackout(route_name + " training")
+                return len(self.summary["training"]) - start
             except ProtocolError:
-                break
-        self.training_mode = None
-        self.capture_pending = False
+                return len(self.summary["training"]) - start
+            for _ in range(limit * 4):
+                if prefer == "starter" and self._misty_ready():
+                    break
+                if prefer == "counter" and self._have_counter(18):
+                    break
+                if len(self.summary["training"]) - start >= limit:
+                    break
+                if len(self.summary["training"]) >= self.config.get("max_training_battles", 256):
+                    break
+                active = lookup(self.state, "pokemon")
+                if active.get("hp", 0) * 2 < active.get("maxHP", 1) or active.get("status") not in {None, "none"}:
+                    self.training_mode = None
+                    self.heal_here("CeruleanPokecenter")
+                    self.save()
+                    self.training_mode = "train"
+                    self.travel(route)
+                    lane = None
+                if self.state.get("zone_id") != route:
+                    self.travel(route)
+                    lane = None
+                self._arrange_lead(prefer)
+                try:
+                    if lane is None:
+                        lane = training_lane(self.model(), self.position(), self.occupied())
+                    goal = lane[1] if self.position() == lane[0] else lane[0]
+                    self.navigate(goal)
+                except NaturalBlackout:
+                    self.recover_path_blackout(route_name + " training")
+                    self.training_mode = "train"
+                    self.travel(route)
+                    lane = None
+                except ProtocolError:
+                    break
+                fought = len(self.summary["training"]) - start
+                if fought and fought % 5 == 0 and self.state.get("root") == "overworld":
+                    self.save()
+        finally:
+            self.training_mode = None
+            self.capture_pending = False
+        return len(self.summary["training"]) - start
 
     def _prepare_for_misty(self):
+        """Train on Routes 24 and 25 until Charmeleon can win. Do not enter the gym here."""
         self.heal_here("CeruleanPokecenter")
         self.stock_up("CeruleanMart")
         self._buy_balls()
+        self._stock_potions()
         self.save()
-        if self._misty_ready():
-            return
-        self._fight_route24_trainers()
-        self.heal_here("CeruleanPokecenter")
-        self.save()
-        if self._misty_ready():
-            return
-        self._grind_route24()
-        self.heal_here("CeruleanPokecenter")
-        self.save()
+        stalled = 0
+        while not self._misty_ready():
+            level = self._starter_level()
+            battles = len(self.summary["training"])
+            self._fight_route_trainers("ROUTE_24", range(7, 0, -1))
+            if not self._misty_ready():
+                self._fight_route_trainers("ROUTE_25", range(9, 0, -1))
+            gained = 0
+            if not self._misty_ready():
+                gained += self._grind("Route24", 10, "starter")
+                gained += self._grind("Route25", 10, "starter")
+                self.heal_here("CeruleanPokecenter")
+                self._stock_potions()
+                self.save()
+            if self._misty_ready():
+                break
+            if self._starter_level() == level and gained == 0 and len(self.summary["training"]) == battles:
+                stalled += 1
+            else:
+                stalled = 0
+            if stalled >= 2 or len(self.summary["training"]) >= self.config.get("max_training_battles", 256):
+                raise ProtocolError("training stalled before Charmeleon reached level %s" % self._misty_target_level())
+        if self._have_counter(1) and not self._have_counter(18):
+            self._grind("Route24", 8, "counter")
+            self._grind("Route25", 8, "counter")
+            self.heal_here("CeruleanPokecenter")
+            self._stock_potions()
+            self.save()
 
     def _misty_badge(self, cerulean):
-        """Train, pause-save, then fight Misty. A loss trains again."""
-        self._prepare_for_misty()
-        self._lead_for_misty()
-        self.save()
+        """Pause-save in the overworld, then fight Misty. A loss trains two more levels."""
         previous = self.config.get("max_blackouts", 2)
         self.config["max_blackouts"] = 0
         try:
-            for attempt in range(3):
+            for attempt in range(4):
+                self._prepare_for_misty()
+                if not self._misty_ready():
+                    raise ProtocolError("Misty refused: Charmeleon is still below the training line")
+                self._lead_for_misty()
+                self.heal_here("CeruleanPokecenter")
+                self.save()
                 self.blackouts = 0
                 try:
                     if not self.defeated(cerulean.MISTY):
                         self.fight(cerulean.MISTY)
                     break
                 except ProtocolError as error:
-                    if "blackout" not in str(error) or attempt == 2:
+                    if "blackout" not in str(error) or attempt == 3:
                         raise
-                    self._prepare_for_misty()
-                    self._lead_for_misty()
-                    self.save()
+                    self._misty_level_target = self._starter_level() + 2
             else:
                 raise ProtocolError("Misty training retries exhausted")
         finally:
@@ -743,6 +830,9 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertLess(body.index("EVENT_GOT_DOME_FOSSIL"), body.index('self.heal_here("PewterPokecenter")'))
         self.assertLess(body.index("_misty_badge"), body.index('self.heal_here("PewterPokecenter")'))
         self.assertIn("def _prepare_for_misty", source)
+        self.assertIn("ROUTE_25", source)
+        self.assertIn("return getattr(self, \"_misty_level_target\", 26)", source)
+        self.assertLess(source.index("if not self._misty_ready()"), source.index("self.fight(cerulean.MISTY)"))
         self.assertIn("wait 30", (REPO / "tools/harness/journeys.py").read_text(encoding="utf-8"))
 
     def test_forbidden_ops(self):
