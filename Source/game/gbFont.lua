@@ -10,7 +10,7 @@ GbFont.TILE = 16
 local gfx = playdate and playdate.graphics
 local sheets
 local cache = {}
-local HUD_COLUMNS <const> = 13
+local HUD_COLUMNS <const> = 19
 
 local function loadSheet(path)
     local image = gfx.image.new(path)
@@ -129,10 +129,15 @@ end
 
 -- home/pokemon.asm DrawHPBar. wHPBarType 1 (battle) uses the right cap that
 -- LoadHudTilePatterns wrote over vChars2 $6d. The bar length d is 6.
+-- Bracket tiles are the ones LoadHudTilePatterns copies onto vChars2.
+-- battle_hud_2.1bpp starts at $73 and battle_hud_3.1bpp follows it.
+-- $6F is the third tile of battle_hud_1.1bpp, which starts at $6d.
 local HUD_INDEX <const> = {
     lv = 0, hp = 1, barLeft = 2, barEmpty = 3,
     bar1 = 4, bar2 = 5, bar3 = 6, bar4 = 7, bar5 = 8, bar6 = 9, bar7 = 10,
     barFull = 11, barRight = 12,
+    hudVertical = 13, hudCornerLeft = 14, hudRule = 15,
+    hudCornerRight = 16, hudEndRight = 17, hudEndLeft = 18,
 }
 
 function GbFont.hudTile(name, x, y)
@@ -179,5 +184,15 @@ function GbFont.drawBattleHud(side, info)
     GbFont.hudTile("barRight", layout.barX + (2 + layout.segments) * tile, layout.barY)
     if layout.numbers then
         GbFont.line(layout.numbers, layout.numbersX, layout.numbersY)
+    end
+    local bracket = layout.bracket
+    if bracket then
+        -- PlaceHUDTiles draws past the message box and the enemy platform
+        -- on this screen. The clip keeps the rule off both.
+        gfx.setClipRect(0, 0, 400, bracket.clipBottom)
+        for _, piece in ipairs(bracket.tiles) do
+            GbFont.hudTile(piece.name, piece.x, piece.y)
+        end
+        gfx.clearClipRect()
     end
 end

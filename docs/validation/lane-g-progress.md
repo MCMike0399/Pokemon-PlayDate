@@ -143,6 +143,16 @@ The enemy platform is drawn, then the sprite, so Zapdos covers the line at `y=84
 
 The r12 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `8385bab4` with the four lane E patches applied. That bundle's `source_sha256` is `f4245c6d8955ab7cf0a299072c0e1c91ad0fc2ea8e66de65558c1057ca27638b` and includes the patches, so it will not match this commit. The trainer frame needed a scratch-only harness argument (a trainer is a table with a name; the committed `battle` command is still species and level). Its `source_sha256` is `dd9ff52d4c8180079ee7e46c5dae6f46efffbc511231705e5b7bf735fcf0eeb2`. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r12/`: `appeared.png`, `menu.png`, `go-settled.png`, `hud.png`, and `trainer-sendout.png`.
 
+## Round 11
+
+Exterior white on a battle picture is transparent. `tools/notes/lane-e-sprite-mask.patch` flood-fills white from the edges of the front and back pics (`SpriteMask.exterior`) and punches only those pixels out of the scaled picture's mask. White inside the silhouette stays opaque. The mask is built once when the scaled picture is cached. The pics live under `Source/images/pokemon`, which this lane does not own, and the Playdate compile has no separate mask step, so the mask is not a rewritten PNG. `tools/tests/test_lane_e_sprite_mask.py` checks a ring: the corner pixel is transparent and the center pixel stays opaque. The unpatched scene is an expected failure.
+
+The enemy HUD keeps the three pokered rows and drops 4px from the top edge. Name `(16, 4)`, level `(64, 20)`, HP bar `(32, 36)`. `PlaceEnemyHUDTiles` (`engine/battle/draw_hud_pokeball_gfx.asm`) writes `$73` on the left of the bar row, `$74` under it, eight `$76` tiles, and `$78`. `LoadHudTilePatterns` (`engine/battle/core.asm`) copies `battle_hud_2.1bpp` onto vChars2 `$73` and `battle_hud_3.1bpp` after it. That bracket is `y=36` for the vertical and `y=52` for the rule, so the panel is `x=16, y=4, w=160, h=64` and ends at `y=68`, above the platform at `y=84`. The clip is `y=84`.
+
+`PlacePlayerHUDTiles` writes the `$73` vertical on the right, the `$77` corner, the `$76` rule, and `$6F` (the third tile of `battle_hud_1.1bpp`, loaded at `$6d`) on the left. The accepted two-row player panel is still `x=160, y=112, w=224, h=32`. The rule's ink is the middle of the tile, so the tile sits at `y=136` and the clip at the message box (`y=144`) keeps the line on `y=142–143`. The right vertical is `x=384`, and its ink is inside the tile, short of the screen edge. The six tiles are appended to `Source/images/title/font/hud.png`.
+
+The r13 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `e546d6e6` with the sprite-mask patch and the earlier lane E patches. That bundle's `source_sha256` is `c7dd3311bb270efd49107ad042396254ee3c8504a68b3a730058022d42fa1c69` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r13/`: `appeared.png`, `menu.png`, `go-settled.png`, and `zapdos.png`.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
