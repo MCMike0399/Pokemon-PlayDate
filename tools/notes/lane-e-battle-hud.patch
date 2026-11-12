@@ -1,0 +1,121 @@
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index 768637dd..9c622bdb 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -2,8 +2,6 @@ import "battle/captureAnimation"
+ 
+ local gfx <const> = playdate.graphics
+ 
+-local battleFont <const> = gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold")
+-
+ Class("BattleScene")
+ 
+ -- Lazy-load Pokemon battle sprites (supports all species)
+@@ -545,91 +543,28 @@ function BattleScene:drawBattleField()
+ 
+     -- HUDs follow the same presented Pokemon as sprites, not the rules' active
+     -- battlers, which already exist during trainer/send-out narration.
++    -- home/pokemon.asm DrawHPBar writes $71 "HP", $62 left cap, d middle
++    -- tiles, and $6d on the battle bar. PrintLevel writes <LV> ($6E).
++    -- LoadHudTilePatterns copies battle_hud_1 over vChars2 $6d, which is
++    -- the right cap and the Lv tile actually shown. d is 6. A status
++    -- replaces the level. The panel stops at the message box.
+     if self.enemyShown == self.battle.enemy then
+-        -- Enemy info box (top-left): name/level row, then HP bar row.
+-        -- Heights are sized for the fonts (battleFont ~17px, system ~16px)
+-        -- so nothing pokes through the frame.
+         local enemy = self.battle.enemy
+-        local enemyLevel,enemyHP,enemyMaxHP=self:shownVitals(enemy)
+-        local name = self.battle:opponentDisplayName()
+-        local hud = self.enemyHud
+-        if not hud or hud.name ~= name or hud.level ~= enemyLevel or hud.status ~= enemy.status then
+-            local label = self:_text("enemy-name", name .. "  Lv" .. enemyLevel, battleFont)
+-            local hpLabel = self:_text("enemy-hp", "HP", gfx.getSystemFont())
+-            local statusText = enemy.status and (statusLabels[enemy.status] or "???") or nil
+-            hud = {
+-                name = name, level = enemyLevel, status = enemy.status,
+-                label = label, hpLabel = hpLabel,
+-                statusImage = statusText and self:_text("enemy-status", statusText, gfx.getSystemFont()) or nil,
+-                boxW = math.max(140, label.width + 20),
+-            }
+-            self.enemyHud = hud
+-        end
+-        local eBoxW = hud.boxW
+-        gfx.setColor(gfx.kColorWhite)
+-        gfx.fillRect(4, 4, eBoxW, 40)
+-        gfx.setColor(gfx.kColorBlack)
+-        gfx.drawRect(4, 4, eBoxW, 40)
+-        hud.label.image:draw(12, 7)
+-        hud.hpLabel.image:draw(12, 23)
+-        local eBarX, eBarW = 32, eBoxW - 44
+-        if hud.statusImage then
+-            eBarW = eBarW - 36
+-            hud.statusImage.image:draw(eBarX + eBarW + 6, 23)
+-        end
+-        self:drawHPBar(eBarX, 26, eBarW, 8, enemyHP, enemyMaxHP)
++        local enemyLevel, enemyHP, enemyMaxHP = self:shownVitals(enemy)
++        GbFont.drawBattleHud("enemy", {
++            name = self.battle:opponentDisplayName(),
++            level = enemyLevel, hp = enemyHP, maxHp = enemyMaxHP,
++            status = enemy.status and (statusLabels[enemy.status] or "???") or nil,
++        })
+     end
+ 
+     if self.playerShown == self.battle.player then
+-        -- Player info box (bottom-right): name/level, HP bar, HP numbers,
+-        -- and a thin XP gauge along the bottom edge
+         local player = self.battle.player
+-        local playerLevel,playerHP,playerMaxHP=self:shownVitals(player)
+-        local hud = self.playerHud
+-        if not hud or hud.name ~= player.name or hud.level ~= playerLevel or hud.status ~= player.status then
+-            local label = self:_text("player-name", player.name .. "  Lv" .. playerLevel, battleFont)
+-            local hpLabel = self:_text("player-hp", "HP", gfx.getSystemFont())
+-            local statusText = player.status and (statusLabels[player.status] or "???") or nil
+-            hud = {
+-                name = player.name, level = playerLevel, status = player.status,
+-                label = label, hpLabel = hpLabel,
+-                statusImage = statusText and self:_text("player-status", statusText, gfx.getSystemFont()) or nil,
+-                boxW = math.max(150, label.width + 20),
+-            }
+-            self.playerHud = hud
+-        end
+-        local numbers = self.playerHpText
+-        if not numbers or numbers.hp ~= playerHP or numbers.max ~= playerMaxHP then
+-            numbers = self:_text("player-hp-num", playerHP .. "/" .. playerMaxHP, gfx.getSystemFont())
+-            numbers.hp, numbers.max = playerHP, playerMaxHP
+-            self.playerHpText = numbers
+-        end
+-        local pBoxW = hud.boxW
+-        local pBoxX = 396 - pBoxW
+-        local pBoxY = 102
+-        gfx.setColor(gfx.kColorWhite)
+-        gfx.fillRect(pBoxX, pBoxY, pBoxW, 62)
+-        gfx.setColor(gfx.kColorBlack)
+-        gfx.drawRect(pBoxX, pBoxY, pBoxW, 62)
+-        hud.label.image:draw(pBoxX + 8, pBoxY + 5)
+-        hud.hpLabel.image:draw(pBoxX + 8, pBoxY + 22)
+-        local pBarX, pBarW = pBoxX + 28, pBoxW - 40
+-        if hud.statusImage then
+-            pBarW = pBarW - 36
+-            hud.statusImage.image:draw(pBarX + pBarW + 6, pBoxY + 22)
+-        end
+-        self:drawHPBar(pBarX, pBoxY + 25, pBarW, 8, playerHP, playerMaxHP)
+-        numbers.image:draw(pBoxX + pBoxW - numbers.width - 8, pBoxY + 36)
+-        -- XP gauge
+-        local view = self:vitals(player)
+-        local xpCurrent = view.xp - player:xpForLevel(view.xpLevel)
+-        local xpNeeded = player:xpForLevel(math.min(100, view.xpLevel + 1)) - player:xpForLevel(view.xpLevel)
+-        local xpRatio = xpNeeded > 0 and (xpCurrent / xpNeeded) or 1
+-        gfx.drawRect(pBoxX + 6, pBoxY + 52, pBoxW - 12, 6)
+-        local xpFill = math.floor(math.max(0, math.min(1, xpRatio)) * (pBoxW - 14))
+-        if xpFill > 0 then
+-            gfx.fillRect(pBoxX + 7, pBoxY + 53, xpFill, 4)
+-        end
++        local playerLevel, playerHP, playerMaxHP = self:shownVitals(player)
++        GbFont.drawBattleHud("player", {
++            name = player.name, level = playerLevel, hp = playerHP, maxHp = playerMaxHP,
++            status = player.status and (statusLabels[player.status] or "???") or nil,
++        })
+     end
+ 
+     -- Hidden HUDs must still leave narration in its usual system font.

@@ -477,12 +477,8 @@ function TitleState:draw()
         local cells = TitleIdle.continueCells(
             self.info[1].value, tonumber(self.info[2].value), tonumber(self.info[3].value), self.info[4].value)
         for _, cell in ipairs(cells) do
-            local spec = nil
-            for _, row in ipairs(TitleIdle.CONTINUE_TEXT) do
-                if row.label == cell.label then spec = row end
-            end
-            GbFont.drawString(cell.label, spec.labelCol, spec.row)
-            GbFont.drawString(cell.value, spec.valueCol, spec.row)
+            GbFont.line(cell.label, cell.labelRect.x, cell.labelRect.y)
+            GbFont.line(cell.value, cell.valueRect.x, cell.valueRect.y)
         end
     end
 end

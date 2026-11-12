@@ -20,13 +20,15 @@ GameOptions.rows = {
     {key = "crankScrolling", label = "CRANK SCROLL", choices = {"OFF", "ON"}},
 }
 GameOptions.cancelLabel = "CANCEL"
--- The three source boxes occupy rows 0-4, 5-9 and 10-14. CANCEL is its
--- own row, under the crank row, with a blank row between them.
-GameOptions.CRANK_ROW = 15
-GameOptions.CANCEL_ROW = 17
+-- The three source boxes are label + choices. At 16px a blank row inside
+-- each box plus the crank and cancel would leave the screen, so that
+-- inner blank shrinks to nothing. The blank between crank and cancel
+-- stays one 16px tile. The boxes occupy rows 0-3, 4-7 and 8-11.
+GameOptions.CRANK_ROW = 12
+GameOptions.CANCEL_ROW = 14
 
 function GameOptions.lastBox()
-    return TitleIdle.textBox(0, 10, 18, 3)
+    return TitleIdle.textBox(0, 8, 18, 2)
 end
 
 function GameOptions.crankPlace(choiceIndex)
@@ -35,7 +37,7 @@ function GameOptions.crankPlace(choiceIndex)
 end
 
 function GameOptions.crankRect()
-    return TitleIdle.cellRect(1, GameOptions.CRANK_ROW, 18, 1)
+    return TitleIdle.fontRect(1, GameOptions.CRANK_ROW, 18, 1)
 end
 
 function GameOptions.cancelPlace(selected)
@@ -43,7 +45,7 @@ function GameOptions.cancelPlace(selected)
 end
 
 function GameOptions.cancelRect()
-    return TitleIdle.cellRect(1, GameOptions.CANCEL_ROW, 8, 1)
+    return TitleIdle.fontRect(1, GameOptions.CANCEL_ROW, 8, 1)
 end
 
 local function registeredKey(id)

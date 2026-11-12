@@ -98,8 +98,15 @@ class LaneEDialogFontTests(unittest.TestCase):
             self.assertIn("self:drawDialog(self.settledDialog)", battle)
             self.assertNotIn('_wrapped("battle-message"', battle)
             self.assertIn("function BattleScene:drawCommandFrame", battle)
+            self.assertIn("self:drawDialog(self.commandDialog, boxes.left)", battle)
+            self.assertIn("TitleIdle.commandBoxes()", battle)
             self.assertIn("GbFont.drawBox", battle)
             self.assertNotIn('self:_text("what-will"', battle)
+            self.assertNotIn("advance = 13", battle)
+            self.assertNotIn("drawTight", battle)
+            self.assertNotIn("drawPacked", battle)
+            dialog = (scratch / "Source/ui/dialog.lua").read_text()
+            self.assertIn("TitleIdle.messageBox(self.compact)", dialog)
             # lane-e-battle-text-flicker.patch inserts between these anchors.
             self.assertIn(
                 "gfx.setFont(gfx.getSystemFont())\n\n"
@@ -122,7 +129,7 @@ class LaneEDialogFontTests(unittest.TestCase):
         source = (ROOT / "Source/ui/dialog.lua").read_text()
         self.assertIn("GbFont.drawBox", source)
         self.assertIn("▼", source)
-        self.assertIn("textBox(0, 12, 18, 4)", source)
+        self.assertIn("TitleIdle.messageBox(self.compact)", source)
         self.assertIn("function Dialog.showsArrow", source)
         event = (ROOT / "Source/game/eventText.lua").read_text()
         self.assertIn('return line1 .. "\\n" .. line2', event)

@@ -67,9 +67,9 @@ function OptionsState:draw()
     gfx.setDrawOffset(0, 0)
     gfx.clear(gfx.kColorWhite)
     local boxes = {
-        {origin = 0, labelRow = 1, choiceRow = 3, cols = {1, 7, 14}},
-        {origin = 5, labelRow = 6, choiceRow = 8, cols = {1, 10}},
-        {origin = 10, labelRow = 11, choiceRow = 13, cols = {1, 10}},
+        {origin = 0, labelRow = 1, choiceRow = 2, cols = {1, 7, 14}},
+        {origin = 4, labelRow = 5, choiceRow = 6, cols = {1, 10}},
+        {origin = 8, labelRow = 9, choiceRow = 10, cols = {1, 10}},
     }
     for index, row in ipairs(GameOptions.rows) do
         local current = GameOptions.get(row.key)
@@ -80,7 +80,7 @@ function OptionsState:draw()
         local marker = index == self.selected and TitleIdle.CURSOR or TitleIdle.MARK
         if boxes[index] then
             local spec = boxes[index]
-            GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 3))
+            GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 2))
             GbFont.drawString(row.label, 1, spec.labelRow)
             for cursor, value in ipairs(row.choices) do
                 local col = spec.cols[cursor] or (1 + (cursor - 1) * 8)
