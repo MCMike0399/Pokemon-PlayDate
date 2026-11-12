@@ -479,12 +479,31 @@ class CharmanderRun(BrockJourney):
             if isinstance(record, dict) and type(record.get("payout")) is int:
                 self.source_trainers[trainer_id] = record
 
+    def _travel_south(self, name):
+        """Walk to a south map without detouring through the robbed house.
+
+        The house warp is a shorter graph hop, and the Rocket still stands on
+        the only indoor step. The road south does not go through that room.
+        """
+        target = self.zone(name)
+        held = []
+        for room in ("CeruleanTrashedHouse", "BikeShop"):
+            zone = self.zone(room)
+            if zone in (target, self.state.get("zone_id")) or zone not in self.models:
+                continue
+            held.append((zone, self.models.pop(zone)))
+        try:
+            self.travel(target)
+        finally:
+            for zone, model in held:
+                self.models[zone] = model
+
     def _toward_vermilion(self):
         """Walk south to Vermilion. Wild fights are fled. Surge is the next gym."""
         self.training_mode = None
         self._pin_route_trainers()
         if "VERMILION" not in (self.state.get("zone_id") or ""):
-            self.travel(self.zone("VermilionCity"))
+            self._travel_south("VermilionCity")
         self.heal_here("VermilionPokecenter")
         self.save()
 
