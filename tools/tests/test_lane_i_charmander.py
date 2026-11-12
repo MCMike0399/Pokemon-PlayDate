@@ -141,6 +141,10 @@ def key_fight(name, trainer_id):
     return None
 
 
+class _TunnelReturned(Exception):
+    """A cave wipe restored the party at the center. The crossing starts over."""
+
+
 class CharmanderRun(BrockJourney):
     """Title NEW GAME, then the inherited real-button Brock route."""
 
@@ -798,15 +802,13 @@ class CharmanderRun(BrockJourney):
             self.save()
 
     def _tunnel_warp(self, target, event_id):
+        """Take one cave door. A wipe returns to the center, so the crossing restarts."""
         from tools.harness.brock_journey import NaturalBlackout
-        tries = self.config.get("max_blackouts", 1) + 1
-        for _ in range(tries):
-            try:
-                self.warp(target, event_id)
-                return
-            except NaturalBlackout:
-                self._recover_tunnel_blackout()
-        raise ProtocolError("Rock Tunnel warp blacked out past the recovery tries")
+        try:
+            self.warp(target, event_id)
+        except NaturalBlackout:
+            self._recover_tunnel_blackout()
+            raise _TunnelReturned()
 
     def _probe_rock_tunnel(self):
         """Step cave grass. FieldEncounters spawns on Rock Tunnel grass."""
@@ -868,9 +870,12 @@ class CharmanderRun(BrockJourney):
             self.summary["rock_tunnel_encounters"] = "unchecked; the grass walk was shorter than 12 steps"
 
     def _cross_rock_tunnel(self):
-        """North door, grass, then the ladder chain. A heal retries from the center."""
+        """North door, grass, then the ladder chain. A wipe restarts from the center."""
         for _ in range(3):
-            self._cross_rock_tunnel_once()
+            try:
+                self._cross_rock_tunnel_once()
+            except _TunnelReturned:
+                continue
             if self._past_tunnel():
                 return
         raise ProtocolError("Rock Tunnel crossing stopped north of the south exit")

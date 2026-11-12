@@ -1,23 +1,101 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
 --- a/Source/battle/battle.lua
 +++ b/Source/battle/battle.lua
-@@ -1725,7 +1725,19 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
+@@ -1725,7 +1725,25 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
      local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
      local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
      if won then
 -        self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
 +        if self.trainerName then
 +            -- pokered engine/battle/core.asm TrainerBattleVictory prints
-+            -- TrainerDefeatedText and waits (PrintText) before PrintEndBattleText,
-+            -- the prize, and the fade. Assigning the message and returning lets
-+            -- BattleEndedPhase dismiss it once A has been held for 12 frames, so
-+            -- the battle root drops while the EXP page is still the waited line.
++            -- TrainerDefeatedText, then PrintEndBattleText, then
++            -- MoneyForWinningText, and only then returns to the map.
++            -- endBattleLines and prizeLine are the source pages for that
++            -- trainer, resolved when the battle is attached.
 +            local title = self.session and self.session:title()
-+            local playerName = title and title.playerName or "RED"
++            local playerName = self.playerName or (title and title.playerName) or "RED"
 +            self:say(playerName .. " defeated " .. self.trainerName .. "!")
-+            self.message = playerName .. " defeated " .. self.trainerName .. "!"
++            for _, line in ipairs(self.endBattleLines or {}) do
++                self:say(line)
++            end
++            if self.prizeLine then
++                self:say(self.prizeLine)
++            end
++            self.message = self.prizeLine or (playerName .. " defeated " .. self.trainerName .. "!")
 +        else
 +            self.message = "You won the battle!"
 +        end
          return "victory"
      end
      if not playerTeamAlive then
+diff --git a/Source/game/trainerEvents.lua b/Source/game/trainerEvents.lua
+--- a/Source/game/trainerEvents.lua
++++ b/Source/game/trainerEvents.lua
+@@ -206,6 +206,20 @@ end
+ function TrainerEvents:attachBattle(token,battle)
+     local value,reason=info(self,token);if not value then return false,reason end
+     if value.phase~="battle" or not battle:is("Battle") or battle.enemyParty~=value.party or battle.party~=value.session:party() or battle.trainerName~=value.definition.name then return false,"wrong-trainer-battle" end
++    local descriptor = SourceEvents.has(value.definition.id) and SourceEvents.descriptor(value.definition.id) or nil
++    if descriptor and descriptor.kind == "trainer" and descriptor.won then
++        local title = value.session:title()
++        local playerName = title and title.playerName or "RED"
++        local ram = {player = playerName, wAmountMoneyWon = value.definition.payout}
++        local lines = {}
++        for _, page in ipairs(SourceEvents.pages(value.definition.id, descriptor.won, ram)) do
++            lines[#lines + 1] = page.text
++        end
++        local money = SourceEvents.pages(value.definition.id, {"_MoneyForWinningText"}, ram)
++        battle.playerName = playerName
++        battle.endBattleLines = lines
++        battle.prizeLine = money[1].text
++    end
+     value.battle=battle;return true
+ end
+ function TrainerEvents:currentBattleToken(npc)
+diff --git a/Source/game/sourceEvents.lua b/Source/game/sourceEvents.lua
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -256,11 +256,9 @@ local function pickup(d, state, id)
+ end
+ local function trainer(d, state, id)
+     local plan = { status = "ready", steps = {} }
+-    if state.receipt then
+-        plan.steps[#plan.steps + 1] = dialog(d.won, "confirmed-dialog")
+-        plan.ram = { wAmountMoneyWon = state.receipt.payout }
+-        plan.steps[#plan.steps + 1] = dialog({ "_MoneyForWinningText" }, "confirmed-dialog")
+-    end
++    -- The defeat line, won (end-battle) pages, and _MoneyForWinningText are
++    -- said on the battle screen before the fade. Reward and after stay here:
++    -- those are the map script (badge info, TM) and the talk-again text.
+     if not state.trainers[id] then
+         plan.status = "trainer-battle"
+         plan.steps[#plan.steps + 1] = { op = "trainer", id = id, before = copy(d.before), mode = state.mode or "talk" }
+diff --git a/Source/dev/sourceEventBaseline.lua b/Source/dev/sourceEventBaseline.lua
+--- a/Source/dev/sourceEventBaseline.lua
++++ b/Source/dev/sourceEventBaseline.lua
+@@ -165,11 +165,6 @@ function SourceEventBaselinePewter.plan(id,state)
+             plan.failure_labels={"_NoMoreRoomForItemText"};plan.pickup=id
+         end
+     elseif trainerBefore[id] then
+-        if state.receipt then
+-            local d=assert(PewterSlice.trainer(id))
+-            local won=d.id==TrainerEvents.BROCK and {"_PewterGymBrockReceivedBoulderBadgeText","_PewterGymBrockBoulderBadgeInfoText"} or {"_"..d.dialogue_script_labels.won}
+-            dialog(won,true);plan.ram={wAmountMoneyWon=state.receipt.payout};dialog({"_MoneyForWinningText"},true)
+-        end
+         if not state.trainers[id] then
+             plan.status="trainer-battle";plan.steps[#plan.steps+1]={op="trainer",id=id,before={trainerBefore[id]},mode=state.mode or "talk"}
+         elseif id==TrainerEvents.BROCK and not state.flags.EVENT_GOT_TM34 then
+diff --git a/Source/dev/eventReceiptContracts.lua b/Source/dev/eventReceiptContracts.lua
+--- a/Source/dev/eventReceiptContracts.lua
++++ b/Source/dev/eventReceiptContracts.lua
+@@ -42,8 +42,8 @@ function EventReceiptContracts.run()
+         game.machine:register("overworld",{})
+         game.machine:register("dialog",DialogState(game));local event=game.machine:register("event",EventState(game))
+         game.machine:change("overworld");game.machine:push("event",id)
+-        eq(game.machine:getCurrent(),"dialog");eq(owner:peekReceipt(id),nil)
+-        eq(event.plan.steps[1].op,"confirmed-dialog");eq(event.plan.steps[2].op,"confirmed-dialog")
++        eq(game.machine:getCurrent(),"overworld");eq(owner:peekReceipt(id),nil)
++        eq(#event.plan.steps,0)
+         eq(owner:takeReceipt(id),nil);eq(bag:money(),money)
+         EventState.observe(game,id);EventState.observe(game,id);eq(owner:peekReceipt(id),nil)
+         -- Cancel native overlays without invoking presentation callbacks, then
