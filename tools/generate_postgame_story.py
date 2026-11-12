@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Cerulean Cave, the Power Plant, the Hall of Fame rematch, and Continue.
 
-Reads the pinned pokered revision. Does not invent a wild slot, an item, a
-second champion roster, or a Mew.
+Reads the pinned pokered revision. Does not invent a wild slot, an item, or a
+second champion roster. The Mew gift and LINK CABLE are Miguel-approved
+deviations recorded in the plan. They are not read from the asm.
 """
 import hashlib
 import json
@@ -263,6 +264,47 @@ def champion_roster(sources):
                 opponent='OPP_RIVAL3')
 
 
+def deviation_text(lines):
+    recipe = []
+    for index, (op, text) in enumerate(lines, 1):
+        recipe.append(dict(op=op, source_line=index, text=text))
+    recipe.append(dict(op='control', source='done', source_line=len(lines) + 1))
+    return dict(recipe=recipe, source='miguel-approved-deviation')
+
+
+def deviations():
+    """Miguel, Nov 12, 2026, 9:43 AM CST. Not pokered af519899 data."""
+    cable = 'LINK CABLE'
+    if len(cable) > 10:
+        raise ValueError('LINK CABLE display name is longer than 10 characters')
+    return dict(
+        approved_by='Miguel',
+        approved_at='2026-11-12T09:43:00-06:00',
+        mew=dict(
+            kind='gift', species='mew', level=5, flag='EVENT_GOT_MEW', price=0, once=True,
+            requires_flag='TOGGLE_CERULEAN_CAVE_GUY', requires_hall_team=True,
+            npc=dict(
+                id='postgame:CERULEAN_CAVE_1F:mew-gift', map='CeruleanCave1F',
+                zone_id='pokered:CERULEAN_CAVE_1F', x=23, y=16, sprite='SPRITE_SCIENTIST',
+                facing='right', talk=dict(x=24, y=16, facing='left')),
+            deviation='Miguel-approved. Not a pokered wild slot or object. Level 5 matches the original event distribution. One per save.',
+        ),
+        link_cable=dict(
+            id='linkCable', symbol='LINK_CABLE', name=cable, text='Use like a stone.',
+            numeric_id=251, once=False, source='npc-gift',
+            why=('Celadon Mart 4F is the generated stone counter and is open before the Hall of Fame. '
+                 'The cave NPC stands in a room the ceremony opens, and a repeatable gift covers all four consumed uses without editing that mart.'),
+            evolves=[
+                {'from': 'kadabra', 'to': 'alakazam', 'target_dex': 65},
+                {'from': 'machoke', 'to': 'machamp', 'target_dex': 68},
+                {'from': 'graveler', 'to': 'golem', 'target_dex': 76},
+                {'from': 'haunter', 'to': 'gengar', 'target_dex': 94},
+            ],
+            deviation='Miguel-approved. Not a pokered item. The Gen5 trade rules stay.',
+        ),
+    )
+
+
 def build(reference):
     sources, pins = pinned(reference)
     symbols = item_ids()
@@ -401,6 +443,7 @@ def build(reference):
             roster=champion_roster(sources),
             continue_spawn=continue_spawn(sources),
         ),
+        deviations=deviations(),
     )
     play = dict(
         schema=1, source_revision=REVISION,
@@ -439,6 +482,24 @@ def build(reference):
             '_CinnabarLabFossilRoomScientist1ComeAgainText': text_record(
                 sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1ComeAgainText',
                 'text/CinnabarLabFossilRoom.asm'),
+            '_PostgameGiftIntroText': deviation_text([
+                ('text', 'I kept something'), ('line', 'from the ceremony.'),
+            ]),
+            '_PostgameGiftNotChampionText': deviation_text([
+                ('text', 'Come back after'), ('line', 'the HALL OF FAME.'),
+            ]),
+            '_PostgameMewGiftText': deviation_text([
+                ('text', 'This is MEW.'), ('line', 'Level 5. One only.'),
+            ]),
+            '_PostgameMewAlreadyText': deviation_text([
+                ('text', 'MEW already went'), ('line', 'with you.'),
+            ]),
+            '_PostgameLinkCableText': deviation_text([
+                ('text', 'LINK CABLE!'), ('line', 'Use it like a stone.'),
+            ]),
+            '_PostgameLinkCableFullText': deviation_text([
+                ('text', 'Your bag is full.'),
+            ]),
         },
     )
     return {

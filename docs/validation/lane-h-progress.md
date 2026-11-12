@@ -3,7 +3,7 @@
 Reference: pret/pokered `af519899719f0754965776faac0e836a3b906e6d`, checked out at `/tmp/pokered`.
 Base: `bf92c4fc` on `main`. Branch: `cursor/lane-h-postgame`.
 
-The owner moved the definition of done to any starter reaching the credits and then the postgame with real input. Cerulean Cave, the rematch, Continue, the Power Plant, and fossil revival are on this branch. The link, exclusive, trade-evolution, and Mew choices are a proposal only.
+The owner moved the definition of done to any starter reaching the credits and then the postgame with real input. Cerulean Cave, the rematch, Continue, the Power Plant, and fossil revival are on this branch. Miguel decided the four policy questions on Nov 12, 2026 at 9:43 AM CST. Cable Club and the Red tables stay out. Mew and LINK CABLE are the two approved deviations.
 
 ## Cerulean Cave
 
@@ -55,7 +55,7 @@ A later visit to the Hall of Fame, when the cave flag is already set, dispatches
 
 ## Coverage
 
-The matrix in `docs/validation/coverage-current.json` has no lane owner. Its owners are `rules`, `root`, and `harness`. This lane does not edit that file. The rows below are the ones no story lane owns. Everything implemented here is data already in pokered `af519899`.
+The matrix in `docs/validation/coverage-current.json` has no lane owner. Its owners are `rules`, `root`, and `harness`. This lane does not edit that file. The rows below are the ones no story lane owns. The Power Plant, the cave, and the fossils are data already in pokered `af519899`. Mew and LINK CABLE are the Miguel-approved deviations in the policy section, not rows of that revision.
 
 Implemented from that data, with host tests:
 
@@ -70,17 +70,22 @@ Excluded, with the reason:
 - `UNDERGROUND_PATH_ROUTE_6_COPY`. The same file points it at `UndergroundPathRoute6_h`. Alias.
 - `CINNABAR_MART_COPY`. The same file points it at `CinnabarMart_h`. Alias.
 - `UNDERGROUND_PATH_ROUTE_7_COPY`. It has its own header, and every object and text label in `scripts/UndergroundPathRoute7Copy.asm` and `text/UndergroundPathRoute7Copy.asm` is named Unused. No other map warps to it. Leftover, not a campaign room.
-- `TRADE_CENTER` and `COLOSSEUM`. Link rooms. See the policy page. Not implemented.
-- Mew. No wild slot and no object event in this revision. See the policy page. Not added.
-- Trade evolutions of Kadabra, Machoke, Graveler, and Haunter. No link means they do not evolve. See the policy page. Not implemented.
-- A Red/Blue version switch. This port's installed wild tables are English Blue. See the policy page. Not implemented.
+- `TRADE_CENTER` and `COLOSSEUM`. Link rooms. Miguel, Nov 12, 2026, 9:43 AM CST: leave both out. The Pokémon Center receptionist text stays.
+- A Red/Blue version switch. Miguel, the same decision: Blue only. This port's installed wild tables stay English Blue.
 - `sunStone`, `heartScale`, `kingsRock`, `ironBall`, `prismScale`, and `leftovers`. They are not in `constants/item_constants.asm`. Not Red/Blue items.
 
 The other indexed and partial map rows are campaign maps other lanes already installed or still own: Saffron, Silph, Seafoam, the Pokémon Tower, Safari Zone, Victory Road, the gyms, and the Elite Four rooms. This lane does not take those rows and does not mark them excluded.
 
 ## Policy
 
-`docs/validation/lane-h-policy-proposal.md` is the one-page choice for the Cable Club, version exclusives, trade evolutions, and Mew. It recommends leaving all four out. None of it is implemented.
+Miguel decided on Nov 12, 2026 at 9:43 AM CST. `docs/validation/lane-h-policy-proposal.md` records the four picks.
+
+- Cable Club stays out. Both rooms stay excluded, and the receptionist text stays.
+- Version exclusives stay Blue only. There is no Red/Blue switch.
+- Mew is a Miguel-approved deviation. After the Hall of Fame, the scientist in `Source/data/postgame/story.json` at Cerulean Cave 1F `(23, 16)` gives Mew at level 5. `EVENT_GOT_MEW` makes it one per save. The giver is owned data, not a pokered object.
+- LINK CABLE is a Miguel-approved deviation. The name is 10 characters. It is used like a stone on Kadabra, Machoke, Graveler, and Haunter, and on nothing else. The same scientist gives one each time you ask, because Celadon Mart 4F is another lane's generated stone counter and is open before the ceremony. The bag row and the evolution edges are `tools/notes/lane-e-link-cable.patch`. That patch is not applied here.
+
+The pinned cave map is not edited. Its checksum is the runtime cache pin, and the manifest hash of those pins is shared by the cell cache. Inserting the sprite without regenerating that cache would make the cave fail to load. The headless gift stands on `(24, 16)` and faces the scientist.
 
 ## Headless journey
 
@@ -94,7 +99,7 @@ The Pallet actor snapshot is a fixture. `SourceActors.describeSource` needs `pla
 
 ## Rows still not played
 
-These rows live in `Source/data/lateKanto/` or `Source/data/postgame/` and this walk does not play them. The coordinate and dialogue checks that already exist are named with the row. Nothing below is implemented in this round, and the policy page stays a proposal.
+These rows live in `Source/data/lateKanto/` or `Source/data/postgame/` and the Mewtwo and Zapdos walk does not play them. The coordinate and dialogue checks that already exist are named with the row. The Mew gift and LINK CABLE are a separate headless run from Pallet to the cave entrance.
 
 - Articuno, `pokered:SEAFOAM_ISLANDS_B4F:objects:3`, level 50 at `(6, 1)`. `test_late_kanto_story` checks the coordinate. The journey does not enter Seafoam, and the static-encounters patch does not register him.
 - Moltres, `pokered:VICTORY_ROAD_2F:objects:6`, level 50 at `(11, 5)`. Coordinate check only. Lane D owns the battle. This walk does not enter Victory Road.
@@ -109,8 +114,8 @@ These rows live in `Source/data/lateKanto/` or `Source/data/postgame/` and this 
 
 ## Tests
 
-`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_lane_h_fossils tools.tests.test_fossil_revival tools.tests.test_late_kanto_story tools.tests.test_lane_h_postgame_journey`
+`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_lane_h_fossils tools.tests.test_fossil_revival tools.tests.test_late_kanto_story tools.tests.test_lane_h_postgame_journey tools.tests.test_lane_h_policy`
 
-33 tests, 3 expected failures. Two are the static encounter rows missing from `sourceEncounters.lua`: the direct row check, and the journey's `prepare` of Mewtwo and Zapdos. The third is the Continue record missing `wFossilItem`. Both patches apply with `patch --dry-run --fuzz=0 -p1`.
+37 tests, 4 expected failures. Two are the static encounter rows missing from `sourceEncounters.lua`: the direct row check, and the journey's `prepare` of Mewtwo and Zapdos. The third is the Continue record missing `wFossilItem`. The fourth is LINK CABLE: the bag does not know the item, so the stone does not evolve Kadabra yet. The static patch, the fossil patch, and `tools/notes/lane-e-link-cable.patch` apply with `patch --dry-run --fuzz=0 -p1`.
 
 This environment has no Playdate SDK, so the static outcomes, the fossil Continue, and the Pallet-to-cave-to-plant walk are host contracts rather than a simulator clip. Zapdos was not recorded on device.

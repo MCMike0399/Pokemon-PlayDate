@@ -352,6 +352,68 @@
     },
     "opens_when": "HallOfFame HideObject"
   },
+  "deviations": {
+    "approved_at": "2026-11-12T09:43:00-06:00",
+    "approved_by": "Miguel",
+    "link_cable": {
+      "deviation": "Miguel-approved. Not a pokered item. The Gen5 trade rules stay.",
+      "evolves": [
+        {
+          "from": "kadabra",
+          "target_dex": 65,
+          "to": "alakazam"
+        },
+        {
+          "from": "machoke",
+          "target_dex": 68,
+          "to": "machamp"
+        },
+        {
+          "from": "graveler",
+          "target_dex": 76,
+          "to": "golem"
+        },
+        {
+          "from": "haunter",
+          "target_dex": 94,
+          "to": "gengar"
+        }
+      ],
+      "id": "linkCable",
+      "name": "LINK CABLE",
+      "numeric_id": 251,
+      "once": false,
+      "source": "npc-gift",
+      "symbol": "LINK_CABLE",
+      "text": "Use like a stone.",
+      "why": "Celadon Mart 4F is the generated stone counter and is open before the Hall of Fame. The cave NPC stands in a room the ceremony opens, and a repeatable gift covers all four consumed uses without editing that mart."
+    },
+    "mew": {
+      "deviation": "Miguel-approved. Not a pokered wild slot or object. Level 5 matches the original event distribution. One per save.",
+      "flag": "EVENT_GOT_MEW",
+      "kind": "gift",
+      "level": 5,
+      "npc": {
+        "facing": "right",
+        "id": "postgame:CERULEAN_CAVE_1F:mew-gift",
+        "map": "CeruleanCave1F",
+        "sprite": "SPRITE_SCIENTIST",
+        "talk": {
+          "facing": "left",
+          "x": 24,
+          "y": 16
+        },
+        "x": 23,
+        "y": 16,
+        "zone_id": "pokered:CERULEAN_CAVE_1F"
+      },
+      "once": true,
+      "price": 0,
+      "requires_flag": "TOGGLE_CERULEAN_CAVE_GUY",
+      "requires_hall_team": true,
+      "species": "mew"
+    }
+  },
   "fossil": {
     "clear_flag": "EVENT_LAB_STILL_REVIVING_FOSSIL",
     "island_map": "CINNABAR_ISLAND",
