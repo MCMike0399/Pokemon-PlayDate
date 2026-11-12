@@ -1,49 +1,14 @@
---- a/Source/game/kantoWorld.lua
-+++ b/Source/game/kantoWorld.lua
-@@ -38,9 +38,46 @@
-     installed[game] = provider
-     return refs(provider)
- end
-+
-+local surfSteps={up={0,-1},down={0,1},left={-1,0},right={1,0}}
-+local function surfMapName(key)
-+    if not SourceMaps or not SourceMaps.names then return nil end
-+    for _, name in ipairs(SourceMaps.names()) do
-+        if SourceMaps.entry(name).key == key then return name end
-+    end
-+end
-+-- Surfing off a foot-$14 bank is not a blocked origin. Both cells have to be
-+-- that water tile, and both tilesets have to accept the surf surface.
-+-- Walking and every other collision-1 cell still return blocked-origin.
-+local function surfingWaterDoor(game, zone, x, y, direction)
-+    local step=surfSteps[direction]
-+    if not step or not game or not game.session or not zone or not SourceMaps or not FieldTravel then return nil end
-+    local travel=game.session.fieldTravelData and game.session:fieldTravelData()
-+    if not travel or travel.mode~="surfing" then return nil end
-+    local nextX,nextY=x+step[1],y+step[2]
-+    if nextX>=0 and nextY>=0 and nextX<zone.width and nextY<zone.height then return nil end
-+    local name=SourceMaps.nameForID(zone.stableID)
-+    if not name then return nil end
-+    local link=SourceMaps.connection(name, x, y, direction)
-+    if not link then return nil end
-+    local target=surfMapName(link.to)
-+    if not target then return nil end
-+    local origin=SourceMaps.cell(name, x, y).terrain
-+    local arrival=SourceMaps.cell(target, link.x, link.y).terrain
-+    local originSet=SourceMaps.descriptor(name).tileset.constant
-+    local arrivalSet=SourceMaps.descriptor(target).tileset.constant
-+    local function water(cell)
-+        return cell and cell.water_candidate==true and cell.foot_tile==0x14
-+    end
-+    if not (water(origin) and water(arrival)) then return nil end
-+    if not FieldTravel.surfSurface(origin, originSet) or not FieldTravel.surfSurface(arrival, arrivalSet) then return nil end
-+    return {to=link.to,toX=link.x,toY=link.y,facing=link.facing,connection=true,source=link.source}
-+end
- function KantoWorld.connection(game,zone,x,y,direction)
-     local d=directions[direction]
-     if not d or not inside(zone,x,y) then return nil,"invalid-origin" end
-+    local surfDoor=surfingWaterDoor(game,zone,x,y,direction)
-+    if surfDoor then return surfDoor end
-     if zone.collision[y+1][x+1]~=0 then return nil,"blocked-origin" end
-     if PewterWorld then
-         local door,handled,reason=PewterWorld.connection(game,zone,x,y,direction)
+--- a/Source/game/pewterWorld.lua
++++ b/Source/game/pewterWorld.lua
+@@ -87,7 +87,10 @@ function PewterWorld.connection(game, zone, x, y, direction)
+     local descriptor = SourceMaps.descriptor(name)
+     -- Authored Pallet retains its reviewed coordinate adapter in KantoSlice.
+     for _, c in ipairs(descriptor.connections) do
+-        if c.target_map == "PALLET_TOWN" and direction == "down" then return nil, false end
++        -- Only the south connection into Pallet uses that adapter. Route 21
++        -- also links north to Pallet, and a downward step there is the
++        -- Cinnabar surf (foot $14 on both banks), not the Pallet adapter.
++        if c.direction == "south" and c.target_map == "PALLET_TOWN" and direction == "down" then return nil, false end
+     end
+     if not game or not game.session or game.session:getIntro().stage ~= "done" then
+         return nil, true, "intro-gate"

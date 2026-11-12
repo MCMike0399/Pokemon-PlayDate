@@ -273,3 +273,32 @@ Pause SAVE wrote sequence 71 at Route 13 `(0,10)` facing right, sha256
 `7e75bc65dd9f078dea2c605212d3b4228f0f3f15630bab6339ee8181fc3bc852`
 (`seq71-adventure.a.json`). No second clip: the Route 15 recording
 already covers this run. Sequence 71 is the continue point.
+
+## Lane A's surf connection
+
+`origin/cursor/linux-runtime-seams-fcc0` at `89905295` (newer than
+`cfb61ea3`, and it contains `28ede555`) is merged. Shared files are
+theirs. `fieldTravelState.lua` still reads `self.boulder`, so the
+Seafoam return stays on sequence 65 until that fix lands.
+
+`28ede555` skips `blocked-origin` while surfing off a surf surface, and
+`PewterWorld.connection` returns the door when the arrival is surf
+water. Pallet Town `(5,17)` down arrives on Route 21 `(5,0)`. Both
+cells are foot `$14`, collision 1, OVERWORLD, and Pallet's connections
+do not target Pallet, so that step reaches the surf arrival. The
+previous patch asked for a function named `surfingWaterDoor`. This
+branch does not use that name, and the patch no longer applies on top
+of `28ede555`.
+
+Route 21 `(3,89)` down is the same pair onto Cinnabar `(3,0)`. It still
+fails. Any downward step on a map that has a Pallet connection returns
+`nil, false` before the surf arrival. Route 21's north link is Pallet
+and its south link is Cinnabar, so `(3,89)` down is dropped, and
+`KantoWorld` has no Route 21 adapter after that. The test fails on that
+line. `tools/notes/lane-a-surf-edge.patch` only requires
+`c.direction == "south"`, so Route 1 south into Pallet still uses the
+KantoSlice adapter. `git apply --check` accepts it. `pewterWorld.lua`
+was not edited.
+
+Sequence 71 has the Thunder Badge and no HM02. No party member knows
+Fly, so the walk to Pallet stays on foot.

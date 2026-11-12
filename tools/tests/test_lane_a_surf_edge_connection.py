@@ -1,40 +1,68 @@
 #!/usr/bin/env python3
-"""Lane A: a surfing water edge is not a blocked origin.
+"""Lane A: Route 21 south is still handed back before the surf arrival.
 
-KantoWorld.connection returns blocked-origin for every collision ~= 0 cell
-before it asks for a source connection. These surfing steps are foot $14
-on both banks: Route 19 (0, 40) left to Route 20 (99, 4), Pallet Town
-(5, 17) down to Route 21 (5, 0), and Route 21 (3, 89) down to Cinnabar
-(3, 0). A walking step on those cells stays blocked.
+28ede555 lets a surfing step leave a surf-surface origin and enter a
+connection whose arrival is surf water. Pallet Town (5, 17) down is that
+case: both banks are foot $14, and Pallet's own connections do not target
+Pallet, so PewterWorld.connection reaches the surf arrival and returns the
+Route 21 door. The old surfingWaterDoor patch is the same rule under a
+name this branch does not use.
 
-The fix is tools/notes/lane-a-surf-edge.patch. It does not belong in this
-branch: kantoWorld.lua is shared. CoastStoryWorld still answers the door
-for the earned save until this patch lands in the shared function. This
-test fails until that call sits above the blocked-origin return.
+Route 21 (3, 89) down is the same water pair onto Cinnabar (3, 0). Route 21
+also connects north to Pallet. The early return treats every downward step
+on a map that merely has a Pallet connection as the KantoSlice Pallet
+adapter, and it returns before the surf arrival. KantoWorld then has no
+Route 21 adapter, so the step is dropped.
+
+Defer only when the south connection itself targets Pallet. Apply
+tools/notes/lane-a-surf-edge.patch. pewterWorld.lua stays Lane A's.
 """
 
+import json
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT / 'Source/game/kantoWorld.lua'
+PEWTER = ROOT / 'Source/game/pewterWorld.lua'
+KANTO = ROOT / 'Source/game/kantoWorld.lua'
+COMPACT = ROOT / 'Source/data/sourceMapCache/compact.json'
+
+BAIL = 'if c.target_map == "PALLET_TOWN" and direction == "down" then return nil, false end'
 
 
-def connection_body(source):
-    start = source.index('function KantoWorld.connection')
-    rest = source[start:]
-    return rest[:rest.index('\nfunction ')]
+def foot(maps, tiles, name, x, y):
+    entry = maps[name]
+    tid = int(entry['tile_rows'][y][x * 2:x * 2 + 2], 16)
+    cell = tiles[entry['palette'][tid - 1]]
+    terrain = cell['terrain']
+    return terrain['foot_tile'], terrain.get('water_candidate') is True, cell['collision']
 
 
 class SurfEdgeConnectionTest(unittest.TestCase):
-    def test_surfing_water_edge_is_checked_before_blocked_origin(self):
-        body = connection_body(SOURCE.read_text())
+    def test_route21_south_reaches_the_surf_arrival(self):
+        compact = json.loads(COMPACT.read_text())
+        maps, tiles = compact['maps'], compact['tiles']
+        self.assertEqual(foot(maps, tiles, 'PalletTown', 5, 17), (0x14, True, 1))
+        self.assertEqual(foot(maps, tiles, 'Route21', 5, 0), (0x14, True, 1))
+        self.assertEqual(foot(maps, tiles, 'Route21', 3, 89), (0x14, True, 1))
+        self.assertEqual(foot(maps, tiles, 'CinnabarIsland', 3, 0), (0x14, True, 1))
+        route21 = [(c['direction'], c['target_map']) for c in maps['Route21']['connections']]
+        self.assertIn(('north', 'PALLET_TOWN'), route21)
+        self.assertIn(('south', 'CINNABAR_ISLAND'), route21)
+
+        kanto = KANTO.read_text()
+        start = kanto.index('function KantoWorld.connection')
+        body = kanto[start:kanto.index('\nfunction ', start)]
         blocked = body.index('return nil,"blocked-origin"')
-        head = body[:blocked]
+        self.assertIn('surfingOffWater', body[:blocked])
+        self.assertIn('FieldTravel.surfSurface(arrival.terrain', PEWTER.read_text())
+
         self.assertTrue(
-            'surfingWaterDoor' in head,
-            'A surfing foot-$14 edge is rejected as blocked-origin. '
-            'Apply tools/notes/lane-a-surf-edge.patch ahead of that return.',
+            BAIL not in PEWTER.read_text(),
+            'Route 21 connects north to Pallet, so (3, 89) down onto Cinnabar '
+            '(3, 0) returns before the surf-water arrival. Defer to KantoSlice '
+            'only when the south connection itself targets Pallet. Apply '
+            'tools/notes/lane-a-surf-edge.patch.',
         )
 
 
