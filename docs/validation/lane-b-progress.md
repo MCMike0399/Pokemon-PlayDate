@@ -1033,4 +1033,24 @@ stairs to the roof. The left vending machine lists Fresh Water first,
 at 200. Sequence 134 is the roof at `(10, 2)` facing up, sha256
 `55a61f85378da191d7b551b800500a4626ba79ce966c5d577826fdb8bcb27a7b`
 (`seq134-adventure.b.json`). Money is 4555. `freshWater` quantity is
-1. The Saffron guard flag is still unset. The continue is sequence 134.
+1. The Saffron guard flag was still unset. The continue was sequence 134.
+
+## Into Saffron
+
+The roof stairs, the elevator back to 1F, and a down step off the
+ground-floor mat returned to Celadon `(8, 14)`. Sequence 135 is the
+mat before that step, sha256
+`436a207025b0b57c297f06d2668df2e779dc28d431f71cb790205df27c21adcc`.
+The east road is Route 7. The gate's west door tile `(11, 9)` is the
+solid door graphic; the step-on warp is `(11, 10)`. Sequence 136 is
+Route 7 `(10, 9)` facing right, sha256
+`6765524ac2c3ec543308f079b3332739dce1683a2b10dfaef4b989fd04eff6d9`.
+
+Stepping through the gate stood on the guard's trigger. He took the
+Fresh Water. `pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK` is
+set and the drink quantity is 0. The east door, then one step off
+Route 7, is Saffron `(0, 18)` facing right. Sequence 137, sha256
+`9516c33d6d2914138064493c471a2ac66fab6399b9eea71125fb8201d259bfe6`
+(`seq137-adventure.b.json`). Money is 4555. `BADGE_MARSH` is unset.
+The continue is sequence 137. The gym door is `(34, 3)`, the mart is
+`(25, 11)`, and the Pokémon Center is `(9, 29)`.
