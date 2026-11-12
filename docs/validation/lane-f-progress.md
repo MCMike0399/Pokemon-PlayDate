@@ -4,7 +4,7 @@ Branch `cursor/lane-f-audio` from `bf92c4fc`. Source of truth is pret/pokered `a
 
 ## What the observer does
 
-`Source/game/kantoAudio.lua` imports events, select, and the engine. It does not import `audio/scores`. The engine loads `audio/score/<name>.lua` on first play and `audio/cries` on the first cry. `tools/measure_boot_budget.py` still uses `POOL_BYTES` 16645684 and `LUA_PEAK_BUDGET_KIB` 14000. A Simulator boot with the hook applied was not measured: this VM has no Playdate SDK.
+`Source/game/kantoAudio.lua` imports events, select, and the engine. It does not import `audio/scores`. The engine loads `audio/score/<name>.lua` on first play and `audio/cries` on the first cry. `tools/measure_boot_budget.py` still uses `POOL_BYTES` 16645684 and `LUA_PEAK_BUDGET_KIB` 14000. SDK 3.1.2 is installed in this VM. A boot-budget run with the lane E hook applied was not measured.
 
 Once lane E imports `game/kantoAudio` and calls `KantoAudio.updateGame(game)` after `machine:handleInput()`, the observer plays:
 
@@ -52,4 +52,27 @@ Host checks with `POKERED_REFERENCE_DIR=/tmp/pokered`: `tools.tests.test_audio_e
 
 ## Simulator clip
 
-No clip was recorded. `pdc` is not installed and `PLAYDATE_SDK_PATH` is empty, and no earned-save path was available. Nothing was teleported or edited to invent one.
+Playdate SDK 3.1.2 ran under Xvfb `:99`. Audio was recorded with `ffmpeg -f pulse -i pd.monitor` from a PulseAudio null sink named `pd`. A `paplay` tone on that sink peaked at 21128, so the monitor is live. Every Simulator capture peaked at 0, including a square wave at amplitude 1 whose `playNote` returned true while `playdate.sound.getCurrentTime` advanced. The bezel control under the crank is labeled Volume and draws a speaker with a slash. Clicks, the wheel, and a drag left that slash in place. `setOutputsActive` was not called, and no production file was edited to chase the recording.
+
+The pictures are a throwaway pdx that plays the real engine: title, Route 1, the male trainer jingle then the trainer bed, the Center heal (`SFX_HEALING_MACHINE` then `Music_PkmnHealed`), and Champion (`Music_FinalBattle`). The Simulator rejects `import()` after the pdx has loaded (`import() called outside of pdz loading` from `KantoSynth.music`), so the throwaway preloaded those scores. The production engine still imports on first play. There is no earned save and nothing was teleported.
+
+The files are video only. sha256:
+
+- `artifacts/lane-f/r2/sequence.mp4` `188cb88294d7ffe114c40eaab4cd696752352d48fef9b94d78b67882ff48eb65` covers the whole sequence.
+- `artifacts/lane-f/r2/title.mp4` `c8d388e5753e812df0a31a487f3ecd7f4b533f3d43f23b49d7263e16a63f3e37`
+- `artifacts/lane-f/r2/route1.mp4` `5e3407c8d2f5535dfee68f0bc5f4900c29943fbd6f8d6ba91589fd2ef3fde71d`
+- `artifacts/lane-f/r2/trainer.mp4` `6d6fb038e3ed6906fa0c02111b9ce2dbd039074911a304b4abfc19a5f157ffa5` is the jingle, then the trainer bed.
+- `artifacts/lane-f/r2/center-heal.mp4` `b2e6765a880241cf534d2916faddb32c84f7bf97a97c2cee7651b064bb543775`
+- `artifacts/lane-f/r2/champion.mp4` `91ad50905f2f3001c3eb19b655dce463b31a656fb4d14349e2eca1eab7b04e83`
+- `artifacts/lane-f/r2/kanto-cues.mp4` `df3eb59c911c796aa127284dfb498da7e435f6be98abfa1182f8f0182ce0a493` is the full take, which holds on Champion after the sequence.
+
+## Sound gaps
+
+These pokered sounds still have no playback from the running game. Scores that exist are named so a later hook can call them.
+
+- Title attract (`engine/movie/title.asm`): `SFX_INTRO_CRASH` at line 160 and `SFX_INTRO_WHOOSH` at line 194 are not in the generated catalog. Leaving the attract mode plays `PlayCry` of `wTitleMonSpecies` at line 241. The observer starts `Music_TitleScreen` only.
+- Evolution (`engine/movie/evolution.asm`): the observer plays `SFX_TINK`, the previous species' cry, `Music_SafariZone`, and on `result.kind == "complete"` the new species' cry. Cancel stores the old species and falls through `.done`, which stops the bed and cries that species. The observer does not cry on cancel.
+- Hall of Fame: `EndgameStory.hallPhotos` sets `cry = mon.species` on each party photo and leaves the player photo without one. `updatePhotos` calls `EndgameStory.playCry` when the photo reaches `show`. That returns false until `KantoAudio` is imported. The ceremony bed is the observer cue on stack phase `hall-photo`, which waits on the same import.
+- No field caller: `item`, `item2`, `key_item`, and `badge` (`home/text.asm` get-item fanfares), and `meet_oak` (`scripts/PalletTown.asm`, `MUSIC_MEET_PROF_OAK`). `playCue` is the API. The Poké Flute score exists; `SnorlaxStory` does not play it. That hook is the unapplied `tools/notes/lane-e-audio-hooks.patch`.
+- `arrow_tiles` and `denied` are named in `Source/data/endgame/visual.json`. The story step plays them through `EndgameStory.playCue`, which returns false until `KantoAudio` is imported. The field observer does not watch gym spinners.
+- The fidelity ledger above still stands: voice 4 is the SDK noise oscillator, envelopes are ADSR, a looping jingle replaces the audible bed, pitch slides snap, the door cue uses `door.connection`, and Surf and the bicycle are music.
