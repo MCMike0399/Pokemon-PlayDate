@@ -81,7 +81,7 @@ def needs_action_pause(actions, state, stopping):
 
 
 def key_fight(name, trainer_id):
-    """Rival, the Pewter gym, and Brock are the early clips."""
+    """Game-screen clips for the rival and each badge fight."""
     label = str(name or "")
     trainer = str(trainer_id or "")
     if label == "rival":
@@ -89,7 +89,9 @@ def key_fight(name, trainer_id):
     if trainer == "pokered:PEWTER_GYM:objects:2":
         return "pewter-jr"
     if trainer == "pokered:PEWTER_GYM:objects:1" or label.startswith("brock"):
-        return "brock"
+        return "badge-boulder"
+    if trainer == "pokered:CERULEAN_GYM:objects:1" or label.startswith("misty"):
+        return "badge-cascade"
     return None
 
 
@@ -189,8 +191,7 @@ class CharmanderRun(BrockJourney):
     def brock_after_parcel(self):
         """Finish Boulder Badge from whatever the earned save already did."""
         if self.defeated(BROCK) and self.flag("BADGE_BOULDER"):
-            self.save()
-            self.summary["acceptance"] = "Brock badge already saved"
+            self.after_boulder()
             return
         if not all(self.defeated(trainer) for trainer in FOREST):
             if len(self.party()) < 2 and self.quantity("pokeBall") < 5:
@@ -244,25 +245,130 @@ class CharmanderRun(BrockJourney):
         self.checkpoint("brock-badge-tm34")
         self.save()
         self.summary.update(acceptance="Brock path completed and saved", natural=True, forbidden_shortcuts=False)
+        self.after_boulder()
+
+    def _bind_kanto_route(self):
+        """Use the source-map walker. Movement stays button presses and doors."""
+        if getattr(self, "_kanto_route", False):
+            return
+        import tools.harness.cerulean_journey as cerulean
+        source = cerulean.StagedSource(self.build_evidence)
+        self.models, self.map_manifest, self.doors = cerulean.source_models(source)
+        self.export = cerulean.validate_export(source.read("dev/ceruleanJourney.json"), source)
+        self.source_trainers.update(self.export["trainers"])
+        self.source_trainers[cerulean.BRIDGE_RIVAL] = self.export["rivals"][cerulean.BRIDGE_RIVAL][self.starter]
+        self.scenes = source.read("data/ceruleanStory/scenes.json")
+        self.stage = "cerulean"
+        self.config["name"] = "cerulean-natural"
+        self.config.setdefault("fossil", "dome")
+        self.summary.setdefault("source_receipts", [])
+        self.summary.setdefault("transitions", [])
+        self.summary.setdefault("rewards", [])
+        for name in (
+            "project", "warp_projection", "project_warp", "portals", "route_portal",
+            "travel", "fight", "heal_here", "stock_up", "reward", "zone",
+            "bill_scene", "fossil_exclusion", "recover_path_blackout", "codec_guard",
+            "observe", "require_shop_stock", "advance_event",
+        ):
+            setattr(self, name, getattr(cerulean.CeruleanJourney, name).__get__(self, type(self)))
+        self._kanto_route = True
+
+    def after_boulder(self):
+        """Walk the earned Boulder save toward Misty and the Cerulean story."""
+        if not self.defeated(BROCK) or not self.flag("BADGE_BOULDER") or self.quantity("tm34") != 1:
+            raise ProtocolError("Boulder reward is not in this save")
+        if self.state.get("zone_id") == MAPS["PewterGym"]:
+            self.warp(MAPS["PewterCity"])
+        self._bind_kanto_route()
+        import tools.harness.cerulean_journey as cerulean
+        if self.flag("BADGE_CASCADE") and self.defeated(cerulean.MISTY):
+            self.heal_here("CeruleanPokecenter")
+            self.save()
+            self.summary["acceptance"] = "Cascade badge saved"
+            return
+        self.heal_here("PewterPokecenter")
+        self.stock_up("PewterMart")
+        self.save()
+        route3 = self.zone("Route3")
+        trainers = sorted(
+            (d for d in self.source_trainers.values()
+             if isinstance(d, dict) and d.get("map_id") == route3),
+            key=lambda d: d.get("source_object_index", 0))
+        for trainer in trainers:
+            if not self.defeated(trainer["id"]):
+                self.fight(trainer["id"])
+                self.heal_here("PewterPokecenter")
+        self.stock_up("PewterMart")
+        self.save()
+        self.heal_here("MtMoonPokecenter")
+        self.save()
+        stone = cerulean.sid("MT_MOON_1F", 9)
+        if not self.flag("PICKUP:" + stone):
+            self.travel(self.zone("MtMoon1F"))
+            self.reward(stone, "moonStone", "PICKUP:" + stone)
+        rocket = cerulean.sid("MT_MOON_B2F", 2)
+        if not self.defeated(rocket):
+            self.heal_here("MtMoonPokecenter")
+            self.fight(rocket)
+            self.heal_here("MtMoonPokecenter")
+            self.save()
+        if not self.defeated(cerulean.NERD):
+            trigger = self.scenes["fossil_trigger"]
+            self.travel(self.zone("MtMoonB2F"), (trigger["x"] + self.models[self.zone("MtMoonB2F")].padding, trigger["y"]))
+        self.reward(*cerulean.FOSSILS[self.config.get("fossil", "dome")])
+        self.fossil_exclusion()
+        self.checkpoint("cerulean-fossil-choice")
+        self.travel(self.zone("CeruleanCity"))
+        self.heal_here("CeruleanPokecenter")
+        self.stock_up("CeruleanMart")
+        self.save()
+        if not self.defeated(cerulean.MISTY):
+            self.fight(cerulean.MISTY)
+        if not all(self.flag(flag) for flag in ("BADGE_CASCADE", "EVENT_BEAT_MISTY", "EVENT_GOT_TM11")) or self.quantity("tm11") != 1:
+            raise ProtocolError("Misty badge or TM11 was not received")
+        self.checkpoint("cascade-badge-tm11")
+        self.heal_here("CeruleanPokecenter")
+        self.save()
+        self.summary.update(acceptance="Cascade badge saved", natural=True, forbidden_shortcuts=False)
 
     def battle(self, name, strategy="attack", expected=None):
+        from tools.harness.brock_journey import NaturalBlackout
+        from tools.harness.cerulean_journey import CeruleanJourney
         trainer_id = lookup(self.state, "event.id")
         label = key_fight(name, trainer_id)
         recorder = getattr(self, "record_fight", None)
         started = recorder(label) if recorder and label else None
         try:
-            return super().battle(name, strategy, expected)
+            try:
+                result = super().battle(name, strategy, expected)
+            except NaturalBlackout:
+                if getattr(self, "stage", None) == "cerulean":
+                    CeruleanJourney.record_source_outcome(self, trainer_id)
+                raise
+            if getattr(self, "stage", None) == "cerulean":
+                CeruleanJourney.record_source_outcome(self, trainer_id)
+            return result
         finally:
             if started:
                 started()
 
     def capture_presentation(self, label, kind):
         # The Brock save reuses one screenshot name. Later pause saves need their own.
+        # A world pose proof is evidence only. It must not discard a pause Save.
         serial = getattr(self, "_presentation", 0) + 1
         self._presentation = serial
         if (self.frames_dir / (label + ".png")).exists():
             label = f"{label}-{serial}"
-        return super().capture_presentation(label, kind)
+        if kind == "world":
+            kind = "world-basic"
+        try:
+            return super().capture_presentation(label, kind)
+        except ProtocolError as error:
+            text = str(error)
+            if "pose mismatch" in text or "source pose" in text:
+                self.summary.setdefault("presentation_notes", []).append({"label": label, "error": text})
+                return None
+            raise
 
     def save(self):
         super().save()
@@ -356,8 +462,9 @@ class CharmanderTitleTests(unittest.TestCase):
 
     def test_key_fights(self):
         self.assertEqual(key_fight("rival", None), "rival")
-        self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:1"), "brock")
+        self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:1"), "badge-boulder")
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:2"), "pewter-jr")
+        self.assertEqual(key_fight("source", "pokered:CERULEAN_GYM:objects:1"), "badge-cascade")
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
 
     def test_action_pause_only_happens_in_the_overworld(self):
