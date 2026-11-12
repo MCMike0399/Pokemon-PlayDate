@@ -75,6 +75,7 @@ function SnorlaxStory.fluteText(label)
     return record and copy(record) or nil
 end
 function SnorlaxStory.useFlute(bag)
+    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("flute") end
     local game <const> = bag.game
     local machine <const> = game.machine
     local world <const> = machine:get("overworld")
@@ -93,7 +94,7 @@ function SnorlaxStory.useFlute(bag)
     local lines = {}
     if not id then
         for _, page in ipairs(EventText.pagesFrom({"_PlayedFluteNoEffectText"}, SnorlaxStory.fluteText)) do
-            lines[#lines + 1] = page.text
+            lines[#lines + 1] = {text = page.text, ending = page.ending}
         end
     end
     machine:pop()

@@ -1,0 +1,40 @@
+diff --git a/Source/ui/menu.lua b/Source/ui/menu.lua
+--- a/Source/ui/menu.lua
++++ b/Source/ui/menu.lua
+@@ -72,10 +72,16 @@
+ function BattleMenu:draw(x, y, w, h)
+     if not self.isActive then return end
+ 
+-    gfx.setColor(gfx.kColorWhite)
++    -- Dialog boxes use a 4px frame. A 1px rect is the thin box BlueBot rejected.
++    gfx.setColor(gfx.kColorBlack)
+     gfx.fillRect(x, y, w, h)
++    gfx.setColor(gfx.kColorWhite)
++    gfx.fillRect(x + 4, y + 4, math.max(1, w - 8), math.max(1, h - 8))
+     gfx.setColor(gfx.kColorBlack)
+-    gfx.drawRect(x, y, w, h)
++    gfx.drawRect(x + 4, y + 4, math.max(1, w - 8), math.max(1, h - 8))
++    if not BattleMenu.font then
++        BattleMenu.font = gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold")
++    end
+ 
+     local cols = self.columns
+     local colW = math.floor(w / cols)
+@@ -96,7 +102,7 @@
+         if not glyphs then glyphs = {}; self.glyphs = glyphs end
+         local glyph = glyphs[i]
+         if not glyph or glyph.option ~= option or glyph.selected ~= selected then
+-            local label = (selected and ">" or " ") .. option
++            local label = (selected and "▶" or " ") .. option
+             local width, height = gfx.getTextSize(label)
+             local image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
+             gfx.pushContext(image)
+@@ -104,7 +110,7 @@
+             gfx.clearClipRect()
+             gfx.clearStencil()
+             gfx.setImageDrawMode(gfx.kDrawModeCopy)
+-            gfx.setFont(gfx.getFont())
++            gfx.setFont(BattleMenu.font or gfx.getFont())
+             gfx.drawText(label, 0, 0)
+             gfx.popContext()
+             glyph = {option = option, selected = selected, image = image}

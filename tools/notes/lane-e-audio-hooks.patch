@@ -1,0 +1,84 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -88,6 +88,7 @@
+     import "game/overworldState"
+     import "game/dialogState"
+     import "game/battleState"
++import "game/kantoAudio"
+     import "game/debugState"
+     import "game/learningState"
+     import "game/saves"
+@@ -461,6 +462,7 @@
+
+             machine:update()
+             machine:handleInput()
++    KantoAudio.updateGame(game)
+             -- vblank TrackPlayTime. Counting starts on map entry and stops on the title.
+             game.session:trackPlayTime()
+             machine:get("overworld"):flushPendingPresentation()
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -187,6 +187,19 @@
+         local battleData = npc:getBattleData()
+         if battleData and not npc:hasInteracted() and game.session:party():firstUsable() then
+             local session=game.session
++            if KantoAudio and KantoAudio.trainerJingle then
++                local id = npc.trainerID
++                local definition = game.trainers and game.trainers:definition(id)
++                local class = BattleState.trainerClassFor(id, definition)
++                -- PlayTrainerMusic is silent for rivals. Those scripts play
++                -- MUSIC_MEET_RIVAL (scripts/OaksLab.asm and the other sites
++                -- listed in Source/audio/events.lua).
++                local score = KantoAudio.trainerJingle(class, nil)
++                if not score and (class == "OPP_RIVAL1" or class == "OPP_RIVAL2" or class == "OPP_RIVAL3") then
++                    score = "meet_rival"
++                end
++                if score then KantoAudio.playJingle(score) end
++            end
+             rootMachine:push("dialog", lines, function()
+                 if game.session ~= session or rootMachine:current() ~= self.owner
+                     or not Specimen.isActiveSession(session) or not session:party():firstUsable() then
+@@ -567,6 +580,9 @@
+     if not retainedVisit and not (opts and opts.fieldRestore) then
+         local travel, cyclingForced = FieldWorld.entryTravel(game,
+             {zone_id=currentZone.stableID, x=pos.x, y=pos.y}, WorldDeltas.export(), "continue")
++        if KantoAudio and KantoAudio.setTraversal then
++            KantoAudio.setTraversal(travel and travel.mode)
++        end
+         assert(travel, cyclingForced)
+         assert(game.session:captureTraversal({world = WorldDeltas.export(), cyclingForced=cyclingForced,
+             location = {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
+--- a/Source/game/fieldTravelState.lua
++++ b/Source/game/fieldTravelState.lua
+@@ -204,6 +204,9 @@
+             self.fieldEpoch = self.session:fieldWorldEpoch()
+             if result and result.ok then
+                 self.game.lastFieldTravel = {key = "surf", kind = "complete", mode = self.session:fieldTravelData().mode}
++                if KantoAudio and KantoAudio.setTraversal then
++                    KantoAudio.setTraversal(self.game.lastFieldTravel.mode)
++                end
+                 self.game.session:daycareStep()
+                 if SafariRuntime then
+                     SafariRuntime.completedStep(self.game, self)
+--- a/Source/game/fieldGearState.lua
++++ b/Source/game/fieldGearState.lua
+@@ -79,6 +79,9 @@
+     self.game.lastFieldGear = {kind=result.kind, item=self.id,
+         receipt=result.receipt and GameSession._copy(result.receipt) or nil}
+     if result.kind == "bicycle" then
++        if KantoAudio and KantoAudio.setTraversal then
++            KantoAudio.setTraversal(result.mode)
++        end
+         local label = result.mode == "bicycle" and "GotOn" or "GotOff"
+         self:showResult({"_" .. label .. "BicycleText1", "_" .. label .. "BicycleText2"},
+             {wStringBuffer=ItemData.definitions.bicycle.name})
+--- a/Source/game/snorlaxStory.lua
++++ b/Source/game/snorlaxStory.lua
+@@ -75,6 +75,7 @@
+     return record and copy(record) or nil
+ end
+ function SnorlaxStory.useFlute(bag)
++    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("flute") end
+     local game <const> = bag.game
+     local machine <const> = game.machine
+     local world <const> = machine:get("overworld")

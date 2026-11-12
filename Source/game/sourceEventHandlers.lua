@@ -1,5 +1,9 @@
 -- Bespoke scenes only. Ordinary source interactions live in data/sourceEvents.json.
 SourceEventHandlers = {}
+-- scripts/NameRatersHouse.asm NameRaterScript.
+-- The reserved gap is pokered:NAME_RATERS_HOUSE:objects:1.
+-- NameRater in Source/game/namingState.lua owns the YES/NO, the OT
+-- mismatch (impeccable, no rename), and the rename keyboard.
 local function flag(state, id) return state.flags[id] == true end
 local function item(state, id) return state.items[id] or 0 end
 local function dialogue(...) return { op = "dialog", labels = { ... } } end

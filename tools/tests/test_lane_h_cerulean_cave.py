@@ -334,16 +334,17 @@ class LaneEStaticEncounterHandoffTests(unittest.TestCase):
         self.assertIn('species = "zapdos", level = 50', self.patch)
         self.assertIn('species = "electrode", level = 43', self.patch)
         self.assertEqual(sum(1 for line in self.patch.splitlines() if line.startswith('+') and 'legendary = true' in line), 10)
+        # Articuno is already in the table, and these ten rows are installed.
+        # The patch context cannot apply a second time.
         completed = subprocess.run(['patch', '--dry-run', '--fuzz=0', '-p1'], input=self.patch, text=True,
                                    cwd=ROOT, capture_output=True, check=False)
-        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
-        self.assertNotIn('FAILED', completed.stdout)
+        self.assertNotEqual(completed.returncode, 0, completed.stdout)
 
-    @unittest.expectedFailure
     def test_source_encounters_defines_the_static_rows(self):
         text = (ROOT / 'Source/domain/sourceEncounters.lua').read_text()
         for row in (self.story['cave']['mewtwo'], *self.story['power_plant']['statics']):
-            self.assertIn('["' + row['id'] + '"]', text)
+            needle = '["' + row['id'] + '"]'
+            self.assertEqual(text.count(needle), 1, row['id'])
             self.assertIn('flag = "' + row['flag'] + '", legendary = true', text)
 
 

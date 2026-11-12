@@ -1,14 +1,14 @@
 --- a/Source/main.lua
 +++ b/Source/main.lua
-@@ -61,4 +61,5 @@
- import "game/dialogState"
- import "game/battleState"
+@@ -89,4 +89,5 @@
+     import "game/dialogState"
+     import "game/battleState"
 +import "game/kantoAudio"
- import "game/debugState"
- import "game/learningState"
-@@ -213,4 +214,5 @@
-     machine:update()
-     machine:handleInput()
+     import "game/debugState"
+     import "game/learningState"
+@@ -462,4 +463,5 @@
+             machine:update()
+             machine:handleInput()
 +    KantoAudio.updateGame(game)
-     machine:get("overworld"):flushPendingPresentation()
-     machine:draw()
+             -- vblank TrackPlayTime. Counting starts on map entry and stops on the title.
+             game.session:trackPlayTime()

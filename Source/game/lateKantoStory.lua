@@ -2,8 +2,10 @@
 -- Power Plant, Cerulean Cave and the other remainder maps are installed.
 -- This module reads the pinned plan. It does not write badges, write a
 -- save, or place Mew.
-if type(import) == "function" then
-    import "game/postgameStory"
+-- pdc 3.1.2 treats the import name as a file request, even inside type().
+local importer = import
+if type(importer) == "function" then
+    importer "game/postgameStory"
 end
 LateKantoStory = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
@@ -75,6 +77,6 @@ function LateKantoStory.actorMetadata(id)
     return {}
 end
 
-if type(import) == "function" then
-    import "game/fossilRevival"
+if type(importer) == "function" then
+    importer "game/fossilRevival"
 end

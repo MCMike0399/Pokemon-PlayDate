@@ -1,9 +1,8 @@
-"""The Mew scientist has to be on the loaded Cerulean Cave map.
+"""The Mew scientist is on the loaded Cerulean Cave map.
 
-The gift is registered, and nothing stands at (23, 16). An invisible giver
-is a silent oddity. tools/notes/lane-e-mew-scientist.patch adds the object.
-The runtime cache and the cell-cache manifest still pin the old map bytes,
-so this load fails until lane E follows the steps in that patch.
+The gift giver is the object in tools/notes/lane-e-mew-scientist.patch.
+The patch is already applied, so a dry run does not apply it again.
+The runtime cache and the cell cache pin the cave bytes that contain him.
 """
 import hashlib
 import json
@@ -53,21 +52,20 @@ def load_cerulean_cave_1f():
 
 
 class MewScientistMapTests(unittest.TestCase):
-    def test_patch_dry_run_adds_only_the_cave_object(self):
+    def test_patch_is_already_applied_and_only_names_the_cave(self):
         patch = PATCH.read_text()
         self.assertIn("postgame:CERULEAN_CAVE_1F:mew-gift", patch)
         self.assertIn("SPRITE_SCIENTIST", patch)
         self.assertIn("4bc3a9b4778f66051ce151cdeba61e48c8b4af85fc5797ca79e6c0cf1a048019", patch)
         self.assertIn("python3 tools/generate_source_map_cache.py", patch)
         self.assertIn("--cells-output", patch)
+        diffs = [line for line in patch.splitlines() if line.startswith("diff --git ")]
+        self.assertEqual(diffs, ["diff --git a/Source/data/zRemainder/CeruleanCave1F.json b/Source/data/zRemainder/CeruleanCave1F.json"])
         completed = subprocess.run(
             ["patch", "--dry-run", "--fuzz=0", "-p1"],
             input=patch, text=True, capture_output=True, cwd=ROOT)
-        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
-        self.assertIn("CeruleanCave1F.json", completed.stdout)
-        self.assertNotIn("sourceMaps.json", completed.stdout)
+        self.assertNotEqual(completed.returncode, 0, completed.stdout)
 
-    @unittest.expectedFailure
     def test_loaded_cave_has_the_scientist_and_still_loads(self):
         definition = load_cerulean_cave_1f()
         scientists = [

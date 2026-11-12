@@ -13,18 +13,17 @@ CAVE.loader.exec_module(CAVE_MODULE)
 
 
 class FossilLabTests(unittest.TestCase):
-    def test_codec_patch_adds_the_fossil_byte_and_is_not_applied(self):
+    def test_codec_patch_adds_the_fossil_byte_and_is_installed(self):
         live = (ROOT / 'Source/domain/sessionCodec.lua').read_text()
-        self.assertNotIn('wFossilItem', live)
-        patch_path = ROOT / 'tools/notes/lane-e-fossil-item.patch'
-        patch = patch_path.read_text()
+        self.assertIn('wFossilItem=true', live)
+        self.assertIn('data.wFossilItem = fossilItemByte(data.questFlags)', live)
+        self.assertIn('OLD_AMBER=31,DOME_FOSSIL=41,HELIX_FOSSIL=42', live)
+        self.assertIn('if data.wFossilItem~=nil then', live)
+        patch = (ROOT / 'tools/notes/lane-e-fossil-item.patch').read_text()
         self.assertIn('wFossilItem=true', patch)
-        self.assertIn('data.wFossilItem = fossilItemByte(data.questFlags)', patch)
-        self.assertIn('OLD_AMBER=31,DOME_FOSSIL=41,HELIX_FOSSIL=42', patch)
         completed = subprocess.run(['patch', '--dry-run', '--fuzz=0', '-p1'], input=patch, text=True,
                                    cwd=ROOT, capture_output=True, check=False)
-        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
-        self.assertNotIn('wFossilItem', (ROOT / 'Source/domain/sessionCodec.lua').read_text())
+        self.assertNotEqual(completed.returncode, 0, completed.stdout)
 
     def test_lab_dialogue_writes_the_fossil_before_yes_and_clears_on_the_island(self):
         story = json.loads((ROOT / 'Source/data/postgame/story.json').read_text())

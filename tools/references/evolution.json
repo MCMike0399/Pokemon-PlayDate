@@ -423,11 +423,12 @@
     "stones": [
       "fireStone",
       "leafStone",
+      "linkCable",
       "moonStone",
       "thunderStone",
       "waterStone"
     ],
     "unchanged_sha256": "90ed7d935436c305c89832fc11583f3ada1931f142dcdd7400b623a473a1e6cd",
-    "stone_scalar_sha256": "9324cec7fa3e801d8fbacb4e6d5a7fbb32abaff03f902bd6b575103e1bec5829"
+    "stone_scalar_sha256": "ff318c855575cbe6082e96167206b38f501218cfdb5fcdf7b299f6f4eac0bdc6"
   }
 }

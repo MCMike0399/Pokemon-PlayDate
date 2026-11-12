@@ -75,6 +75,18 @@ local commonHooks = {
     [97]="finalDamage", [43]="canAttempt",
     [101]="basePower", [18]="absorbsMove", [29]="canDropStat",
     [6]="selfDestructBlocker", [64]="drainHit", [11]="absorbsMove", [33]="speed", [26]="grounded",
+    -- Roster abilities that previously had no callback. Limber, Chlorophyll,
+    -- Thick Fat, Iron Fist, Reckless, Pressure, Hydration, and Lightning Rod.
+    [7]="statusImmunity", [31]="absorbsMove", [34]="speed", [46]="pressure",
+    [47]="basePower", [89]="basePower", [93]="residual", [120]="basePower",
+}
+-- Gen V Iron Fist (ps onBasePower 0x1333). Punch is the move, not the species.
+local ironFistMoves = {
+    ["COMET PUNCH"]=true, ["MACH PUNCH"]=true, ["MEGA PUNCH"]=true,
+    ["FIRE PUNCH"]=true, ["ICE PUNCH"]=true, ["THUNDER PUNCH"]=true,
+    ["DIZZY PUNCH"]=true, ["DYNAMIC PUNCH"]=true, ["FOCUS PUNCH"]=true,
+    ["METEOR MASH"]=true, ["SHADOW PUNCH"]=true, ["SKY UPPERCUT"]=true,
+    ["HAMMER ARM"]=true, ["BULLET PUNCH"]=true,
 }
 function BattleEffects:supported(id) return handlers[id]~=nil or commonHooks[id]~=nil end
 function BattleEffects:livingAbility(mon,id)
@@ -344,6 +356,15 @@ function BattleEffects:basePower(move,power,attacker,defender)
     -- Solar Beam0. Chain Q12 ratios first, then round the raw power once.
     if power>0 and move.type=="fire" and self:active(defender) and alive(defender)
         and self:effectiveAbility(defender)==87 then ratio=chain(ratio,5120) end
+    -- Thick Fat halves Fire and Ice. Iron Fist and Reckless are 4915/4096 (1.2).
+    -- Reckless reads the negative drain (recoil) field. Struggle is struggleRecoil.
+    if power>0 and (move.type=="fire" or move.type=="ice")
+        and self:livingAbility(defender,47) then ratio=chain(ratio,2048) end
+    if power>0 and ironFistMoves[move.name] and self:livingAbility(attacker,89) then
+        ratio=chain(ratio,4915)
+    end
+    if power>0 and move.drain and move.drain<0 and move.name~="STRUGGLE"
+        and self:livingAbility(attacker,120) then ratio=chain(ratio,4915) end
     if power>0 and move.type=="electric" then
         for _=1,self.battle.conditions:mudSportCount() do ratio=chain(ratio,1352) end
     end
@@ -365,6 +386,7 @@ function BattleEffects:statusImmunity(mon,status)
     if self:effectiveAbility(mon)==15 and (status=="sleep" or status=="yawn") then return "Insomnia" end
     if self:effectiveAbility(mon)==17 and (status=="poison" or status=="badPoison") then return "Immunity" end
     if self:effectiveAbility(mon)==20 and status=="confuse" then return "Own Tempo" end
+    if self:livingAbility(mon,7) and status=="paralyze" then return "Limber" end
 end
 -- Forewarn uses declared base power, never effective power, PP or damage.
 -- Gen5's fixed/variable-power attacks (including the reachable Low Kick) rank80.
@@ -705,6 +727,9 @@ function BattleEffects:events()
                 events[#events+1]={kind="drySkin",order=1,side=side,pokemon=mon,owner="effects"}
             end
             if self:effectiveAbility(mon)==61 and mon.status then events[#events+1]={kind="shedSkin",order=5,side=side,pokemon=mon,owner="effects"} end
+            if self:effectiveAbility(mon)==93 and mon.status and self:weatherId()=="raindance" then
+                events[#events+1]={kind="hydration",order=5,side=side,pokemon=mon,owner="effects"}
+            end
         end
     end
     return events
@@ -745,6 +770,11 @@ function BattleEffects:residual(event)
             b.conditions:of(mon).toxic=nil
             b:say(mon.name .. " shed its status with Shed Skin!")
         end
+    elseif event.kind=="hydration" and self:weatherId()=="raindance" and self:active(mon) and alive(mon)
+        and mon.status and self:effectiveAbility(mon)==93 then
+        mon.status,mon.statusTurns,mon.sleepDuration=nil,0,0
+        b.conditions:of(mon).toxic=nil
+        b:say(mon.name .. "'s Hydration cured its status!")
     end
 end
 function BattleEffects:clear(mon)

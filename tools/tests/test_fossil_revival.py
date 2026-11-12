@@ -189,10 +189,12 @@ class FossilRevivalServiceTests(unittest.TestCase):
         host_text = HOST.read_text()
         self.assertIn('SessionCodec.encode', host_text)
         self.assertIn('SessionCodec.decode', host_text)
+        codec = (ROOT / 'Source/domain/sessionCodec.lua').read_text()
+        self.assertIn('wFossilItem', codec)
+        self.assertIn('if data.wFossilItem~=nil then', codec)
         for relative in (
             'Source/main.lua',
             'Source/data/sourceMaps.json',
-            'Source/domain/sessionCodec.lua',
             'Source/domain/gameSession.lua',
             'Source/domain/saveStore.lua',
         ):
@@ -318,7 +320,7 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertEqual(self.flags(chosen), (False, False, False))
         continued = steps[2]
         self.assertEqual(continued['result']['status'], 'continued')
-        self.assertEqual(continued['result']['codec'], 4)
+        self.assertEqual(continued['result']['codec'], 5)
         self.assertNotEqual(continued['state']['process'], chosen['state']['process'])
         self.assertEqual(continued['state']['pending'], chosen['state']['pending'])
         self.assertEqual(continued['state']['choice'], self.choice_ids(self.dome['item'], self.dome['species']))
@@ -335,7 +337,7 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertEqual(given['state']['items'][self.dome['item']], 0)
         continued = steps[2]
         self.assertEqual(continued['result']['status'], 'continued')
-        self.assertEqual(continued['result']['codec'], 4)
+        self.assertEqual(continued['result']['codec'], 5)
         self.assertNotEqual(continued['state']['process'], given['state']['process'])
         self.assertEqual(continued['state']['pending'], {'item': self.dome['item'], 'species': self.dome['species']})
         self.assertEqual(continued['state']['choice'], self.choice_ids(self.dome['item'], self.dome['species']))
@@ -377,7 +379,7 @@ class FossilRevivalServiceTests(unittest.TestCase):
         continued = steps[6]
         ids = self.choice_ids(self.amber['item'], self.amber['species'])
         self.assertEqual(continued['result']['status'], 'continued')
-        self.assertEqual(continued['result']['codec'], 4)
+        self.assertEqual(continued['result']['codec'], 5)
         self.assertNotEqual(continued['state']['process'], failed['state']['process'])
         self.assertEqual(continued['state']['party'], 6)
         self.assertEqual(continued['state']['box'], 20)
@@ -460,7 +462,6 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertRegex(constants, r'const DOME_FOSSIL\s+; \$29')
         self.assertRegex(constants, r'const HELIX_FOSSIL\s+; \$2A')
 
-    @unittest.expectedFailure
     def test_continue_round_trips_the_fossil_item_byte(self):
         record = json.loads(self.scenario('continue-choice')[2]['result']['bytes'])
         self.assertEqual(record['wFossilItem'], 41)
