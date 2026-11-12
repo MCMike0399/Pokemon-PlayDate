@@ -969,4 +969,36 @@ at `(4, 9)`, and walking the shore column reaches Fuchsia
 `3596d9104a49252c66b51f3753496aaa99e871046db27f7a9e8e01fc14cc7b8e`
 (`seq128-adventure.b.json`). The bag still has no Fresh Water,
 Soda Pop, or Lemonade. `BADGE_MARSH` is still unset. The continue
-is sequence 128.
+was sequence 128.
+
+## The circle at the end of the Seafoam clip
+
+`20261112T144033Z-seafoam-return-to-fuchsia.mp4` is fully lit through
+the ladders. The black circle is the last few seconds, on B3F at
+the wild battle the log records at `(23, 8)`. That drawing is
+`IrisOutSubstate` in `overworldState.lua`, the same circle the
+battle transition has always used. `fieldMoves.json` `dark_maps`
+lists only Rock Tunnel 1F and B1F. `zCoast` and `coastStory*` set
+no Seafoam darkness flag, so there is nothing for this lane to
+clear. Seafoam stays fully lit once the iris finishes and the
+battle starts.
+
+Clips from here start when the pictured event starts. The name is
+the event, not the walk that preceded it. Sabrina, Giovanni, each
+Elite Four member, the Champion, and the Hall of Fame have to be
+inside the recorded minute. The Cinnabar Gym collision grid keeps
+its interior `#` walls. The open cells are the quiz corridors.
+Nothing in that grid is a hole through a wall, and the review
+frames did not show one, so no collision test was added.
+
+## The Route 18 gate
+
+Sequence 129 is the east door of Route 18 Gate, runtime `(9, 4)`
+facing left, sha256
+`ff09532cc7ade206b53255da25c6cc5c21fd2c000c23f5ea856a95174a3318d8`
+(`seq129-adventure.b.json`). The gate JSON is unpadded. Runtime x
+is source x plus 2, so `(9, 4)` is source `(7, 4)`. Stepping left
+through the open row leaves on Route 18 `(32, 8)`, the cycling-road
+side of the building. Sequence 130 is that tile, sha256
+`c2962321266d0abc320677f66a2367641ac04acd7f8abc7a0437133cf28df8ff`
+(`seq130-adventure.b.json`). The continue is sequence 130.
