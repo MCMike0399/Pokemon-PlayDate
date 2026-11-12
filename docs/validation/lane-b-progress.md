@@ -627,3 +627,25 @@ pushes waited. Sequence 92 is B3F `(6,14)` facing left, sha256
 `20261112T082220Z-seafoam-b4f-seafoam-b3f.mp4`, 400×240 h264, 86.36
 seconds. It shows the B4F stair and the B3F push. Sequence 92 is the
 continue point.
+
+## Articuno is one tile south, facing up
+
+Sequence 93 finished the left hole. From `(3,14)` the boulder at
+`(3,15)` pushed down into `(3,16)`. That sets
+`EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE` only, so the B4F hole current does
+not run. Sequence 93, sha256
+`146006eb98526a39af4f338a44b5ecd03a725fe2dabfc9fedcce87da00c6086c`
+(`seq93-adventure.a.json`), is B3F `(3,14)` facing down. Its recording
+was 746 frames and was discarded.
+
+The next step down lands on the hole and falls to B4F `(4,14)`,
+surfing, in the pool that reaches `(7,4)`. The step from `(7,4)` `$14`
+onto `(7,3)` `$15` is not line 23. From `(7,3)` the walk is up, then
+left, to `(6,2)`. One press up turns to face Articuno at `(6,1)`.
+Sequence 94 is that pose, sha256
+`c97b4c0e58ae581b3f402e960a1086ce719f48a7555a4208476e2b290831d6e9`
+(`seq94-adventure.b.json`). The clip is
+`20261112T082801Z-seafoam-b3f-seafoam-b4f-articuno.mp4`, 400×240 h264,
+70.64 seconds. `sha256sum -c` is clean. Sequence 94 is the continue
+point. The west exit, Cinnabar, the Mansion, the Secret Key, and
+Blaine are still ahead. The boulder patch stays.
