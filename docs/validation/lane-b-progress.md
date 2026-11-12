@@ -1328,17 +1328,45 @@ Money is 516. `hyperPotion` is 1 and `revive` is 0. A later attempt
 that reached Alakazam again spent the last Hyper Potion and leveled
 Venusaur to 53. The level-up Solar Beam prompt was refused.
 
-Sequence 192 is the continue: the player is on Route 22 `(30, 5)`
-facing up, and the blackout checkpoint is Viridian `(23, 26)`. sha256
+Sequence 192 left the player on Route 22 `(30, 5)` facing up, with the
+blackout checkpoint at Viridian `(23, 26)`. sha256
 `5d503bdaef87398e9bd90d1cae555715c2b9e3d3f706201d798bc09f34c8f5e3`
-(`seq192-adventure.a.json`). Venusaur is level 53, 162/167. Money is
-64. `fullHeal` is 1. `hyperPotion` is 0 and `revive` is 0. Every
-registered trainer flag is already set, so there is no remaining
-trainer payout. A Hyper Potion costs 1500. Cerulean Cave's Full
-Restores and Nugget stay behind the Hall of Fame guard. Another rival
-fight without a Hyper Potion faints to Pidgeot and halves what money
-is left. The second rival, Route 23, Victory Road, and the league are
-not reached.
+(`seq192-adventure.a.json`). Venusaur was level 53, 162/167. Money was
+64. `fullHeal` was 1. `hyperPotion` was 0 and `revive` was 0. That
+wallet is not a blocker: wild battles and Pokémon Centers are free.
+
+The two Rare Candies are not key items and their effect is unsupported,
+so they were sold at the Saffron Mart for 2400 each. Three Hyper
+Potions were bought. A fisherman on Route 12 paid out on the walk
+south. Sequence 195 is outside the Fuchsia Center at `(19, 28)` facing
+down, sha256
+`a7703f103591326fc0de2a10e2fda4d4bca8b7b1411dd085b8b6cb2e5598d3f3`
+(`seq195-adventure.b.json`). Venusaur is 167/167. Money is 1309.
+`hyperPotion` is 3. `fullHeal` is 1. `revive` is 0.
+
+Pokémon Mansion, the Power Plant, and Seafoam Islands have encounter
+tables and no tall-grass tiles, so `Zone:checkEncounter` never rolls
+there. Route 21's grass is the strongest table and the walk cannot
+reach it. Route 15 is the highest grass that both connects and
+encounters (levels 22–30). Venusaur is grinding there toward the high
+50s, and Pidgeotto is the backup in the same battles. Full Restores
+and Revives are an Indigo lobby purchase before the Elite Four, not a
+reason to retry a faint.
+
+Clip `20261112T214238Z-route22-rival.mp4` around 0:17 shows "VENUSAUR
+is" / "trying to learn" with YES/NO already open. The harness did not
+skip the later pages. `decline_learn` presses Down and A only after
+the snapshot phase is already `ask`, and `LearningState:showAsk`
+opens that menu while `battleText` draws only the first two-line page
+of the whole `_TryingToLearnText`. pokered `PrintText` pages that
+script (`<LINE>`, `<CONT>`, `<PARA>`) and `TryingToLearn` opens YES/NO
+only after `PrintText` returns on the last page. The ask path does
+not use `Dialog`, so `tools/notes/lane-e-battle-message.patch` does
+not cover it. The handoff is
+`tools/notes/lane-e-learn-pages.patch` with
+`tools/tests/test_lane_e_learn_pages.py`. It is not applied on this
+branch. Solar Beam at level 53 is the B2W2 learnset. The é in the
+party name is left for the queued font work.
 
 Clips, lane I's gray encode (`lutrgb` threshold, `format=gray`,
 libx264 crf 0, `-pix_fmt gray`, full range), 400×240, decoded pixels
