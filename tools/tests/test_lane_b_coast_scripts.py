@@ -95,6 +95,12 @@ local flags = CoastStory.scriptFlags("pokered:SEAFOAM_ISLANDS_1F")
 assert(flags.set.EVENT_IN_SEAFOAM_ISLANDS)
 local island = CoastStory.scriptFlags("pokered:CINNABAR_ISLAND")
 assert(island.clear.EVENT_MANSION_SWITCH_ON and island.clear.EVENT_LAB_STILL_REVIVING_FOSSIL)
+local water = { water_candidate = true, foot_tile = 0x14 }
+local shore = { water_candidate = false, foot_tile = 0x30 }
+assert(CoastStory.surfEdge(true, water, water, true))
+assert(CoastStory.surfEdge(false, water, water, true) == false)
+assert(CoastStory.surfEdge(true, shore, water, true) == false)
+assert(CoastStory.surfEdge(true, water, water, false) == false)
 print("coast-story-ok")
 '''
 

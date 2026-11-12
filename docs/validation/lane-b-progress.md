@@ -55,3 +55,31 @@ hook, which this file does not invent.
 
 `tools/tests/test_lane_b_coast_scripts.py` checks the button order,
 landings, quiz answers, and door blocks.
+
+## Replay from the Fuchsia save
+
+`docs/validation/coverage-current.md` says actual earned saves stay
+outside Git. The new slots are only under `/opt/cursor/artifacts/lane-b/`,
+with `SHA256SUMS`.
+
+Real button input from sequence 59 left the center, crossed Fuchsia,
+and reached Route 19 `(12,9)`. Pause SAVE wrote sequence 60, sha256
+`a5d19db08f2ba3133b72719d70fdff9e770d470cf30c3acb95b03f8f693f452d`
+(`route19-seq60-adventure.b.json`). Continue from that file used Surf
+on Poliwag and reached the west water at `(0,40)` facing left, still
+surfing. Pause SAVE wrote sequence 61, sha256
+`681ac2c3d3053f2bc012ea3a39b46a28c994c180f3c9e0bb773394fb6f2cc678`
+(`seq61-adventure.a.json`). The frames of that crossing were 1350,
+under 60 seconds, so the clip was not kept.
+
+One more left did not enter Route 20. The block was
+`connection/blocked-origin`: the bank is foot tile `$14` with collision
+1, and both connection checks reject that origin. `CoastStory.surfEdge`
+allows a surfing step only when both banks are that water tile.
+`CoastStoryWorld` consults it before the original connection function.
+Walking onto the same cell is unchanged. No badge or flag was written
+by the driver. Safari, Koga, and the Warden were already in the
+sequence 59 save and were not replayed.
+
+The branch was pushed to `origin/cursor/lane-b-south-loop`. `main` was
+not pushed. No pull request was opened.

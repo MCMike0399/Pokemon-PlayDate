@@ -132,7 +132,79 @@ local function gymDoor(game, player, map)
     return true
 end
 
+local connectionWrapped = false
+local DIRECTION_STEP <const> = { up = { 0, -1 }, down = { 0, 1 }, left = { -1, 0 }, right = { 1, 0 } }
+
+local function nameForKey(key)
+    for _, name in ipairs(SourceMaps.names()) do
+        if SourceMaps.entry(name).key == key then
+            return name
+        end
+    end
+end
+
+-- KantoWorld and PewterWorld refuse a collision-1 origin, and location
+-- resolution refuses a collision-1 arrival. Route 19's west bank is water
+-- on both sides (foot $14). Allow that one case while surfing. Land edges
+-- and every walking step still use the original connection.
+local function surfConnection(game, zone, x, y, direction)
+    local step = DIRECTION_STEP[direction]
+    if not step or not game or not game.session or not zone then
+        return nil
+    end
+    local travel = game.session:fieldTravelData()
+    if not travel or travel.mode ~= "surfing" then
+        return nil
+    end
+    local nextX, nextY = x + step[1], y + step[2]
+    if nextX >= 0 and nextY >= 0 and nextX < zone.width and nextY < zone.height then
+        return nil
+    end
+    local name = SourceMaps.nameForID(zone.stableID)
+    if not name then
+        return nil
+    end
+    local link = SourceMaps.connection(name, x, y, direction)
+    if not link then
+        return nil
+    end
+    local target = nameForKey(link.to)
+    if not target then
+        return nil
+    end
+    local origin = SourceMaps.cell(name, x, y).terrain
+    local arrival = SourceMaps.cell(target, link.x, link.y).terrain
+    local originSet = SourceMaps.descriptor(name).tileset.constant
+    local arrivalSet = SourceMaps.descriptor(target).tileset.constant
+    if not CoastStory.surfEdge(true, origin, arrival, true) then
+        return nil
+    end
+    if not FieldTravel.surfSurface(origin, originSet) or not FieldTravel.surfSurface(arrival, arrivalSet) then
+        return nil
+    end
+    return {
+        to = link.to, toX = link.x, toY = link.y, facing = link.facing,
+        connection = true, source = link.source,
+    }
+end
+
+local function allowSurfConnections()
+    if connectionWrapped or not KantoWorld or not KantoWorld.connection then
+        return
+    end
+    local original = KantoWorld.connection
+    function KantoWorld.connection(game, zone, x, y, direction)
+        local door = surfConnection(game, zone, x, y, direction)
+        if door then
+            return door
+        end
+        return original(game, zone, x, y, direction)
+    end
+    connectionWrapped = true
+end
+
 function CoastStoryWorld.install()
+    allowSurfConnections()
     SourceEvents.registerWorldHooks("pokered:ROUTE_19:script:coast", {
         onLeave = function()
             enteredMap = nil

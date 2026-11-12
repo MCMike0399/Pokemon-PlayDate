@@ -375,6 +375,18 @@ function CoastStory.mansionDoors(map, on)
     return blocks
 end
 
+-- A surfing step off a foot-tile $14 edge is a real connection. Walking
+-- still stops on that solid cell. Both banks have to be the same water.
+function CoastStory.surfEdge(surfing, origin, arrival, outside)
+    if surfing ~= true or outside ~= true or type(origin) ~= "table" or type(arrival) ~= "table" then
+        return false
+    end
+    local function water(cell)
+        return cell.water_candidate == true and cell.foot_tile == 0x14
+    end
+    return water(origin) and water(arrival)
+end
+
 function CoastStory.scriptFlags(map)
     if map == "pokered:SEAFOAM_ISLANDS_1F" then
         return { set = { EVENT_IN_SEAFOAM_ISLANDS = true } }
