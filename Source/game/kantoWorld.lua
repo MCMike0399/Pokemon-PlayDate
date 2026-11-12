@@ -38,10 +38,28 @@ function KantoWorld.install(game)
     installed[game] = provider
     return refs(provider)
 end
+-- pokered CollisionCheckOnWater keeps a surfing step whose next tile is
+-- water ($14, or the $32/$48 shoreline cases). CheckMapConnections then
+-- loads the neighbor when the coordinate leaves the map. Land collision 1
+-- on that water tile is not a block while surfing. Walking still stops.
+local function surfingOffWater(game, zone, x, y, direction)
+    local d = directions[direction]
+    if not d or not game or not game.session or type(game.session.fieldTravelData) ~= "function" or not zone then return false end
+    local travel = game.session:fieldTravelData()
+    if not travel or travel.mode ~= "surfing" then return false end
+    if x + d[1] >= 0 and y + d[2] >= 0 and x + d[1] < zone.width and y + d[2] < zone.height then
+        return false
+    end
+    local name = SourceMaps.nameForID(zone.stableID)
+    if not name then return false end
+    local origin = SourceMaps.cell(name, x, y)
+    local tileset = SourceMaps.descriptor(name).tileset.constant
+    return FieldTravel.surfSurface(origin.terrain, tileset)
+end
 function KantoWorld.connection(game,zone,x,y,direction)
     local d=directions[direction]
     if not d or not inside(zone,x,y) then return nil,"invalid-origin" end
-    if zone.collision[y+1][x+1]~=0 then return nil,"blocked-origin" end
+    if zone.collision[y+1][x+1]~=0 and not surfingOffWater(game, zone, x, y, direction) then return nil,"blocked-origin" end
     if PewterWorld then
         local door,handled,reason=PewterWorld.connection(game,zone,x,y,direction)
         if handled then return door,reason end

@@ -67,7 +67,19 @@ function PewterWorld.connection(game, zone, x, y, direction)
         or x < 0 or y < 0 or x >= zone.width or y >= zone.height then
         return nil, true, "invalid-origin"
     end
-    if zone.collision[y + 1][x + 1] ~= 0 then return nil, true, "blocked-origin" end
+    local leaving = x + d[1] < 0 or y + d[2] < 0 or x + d[1] >= zone.width or y + d[2] >= zone.height
+    local function surfing()
+        if not game or not game.session or type(game.session.fieldTravelData) ~= "function" then return false end
+        local travel = game.session:fieldTravelData()
+        return travel and travel.mode == "surfing"
+    end
+    if zone.collision[y + 1][x + 1] ~= 0 and not (leaving and surfing()) then return nil, true, "blocked-origin" end
+    if leaving and surfing() and zone.collision[y + 1][x + 1] ~= 0 then
+        local origin = SourceMaps.cell(name, x, y)
+        if not FieldTravel.surfSurface(origin.terrain, SourceMaps.descriptor(name).tileset.constant) then
+            return nil, true, "blocked-origin"
+        end
+    end
     if x + d[1] >= 0 and y + d[2] >= 0 and x + d[1] < zone.width and y + d[2] < zone.height then
         return nil, false
     end
@@ -99,6 +111,32 @@ function PewterWorld.connection(game, zone, x, y, direction)
             end
         end
         return nil, true, "unimplemented-source-exit:" .. zone.stableID .. ":" .. direction
+    end
+    -- CollisionCheckOnWater allows the step when the tile being entered is
+    -- surf water. The arrival's land collision is 1, so the ordinary resolver
+    -- would reject a real sea connection such as Route 19 west onto Route 20.
+    if surfing() then
+        local arrivalName
+        for _, candidate in ipairs(SourceMaps.names()) do
+            if SourceMaps.entry(candidate).key == value.to then arrivalName = candidate break end
+        end
+        if arrivalName then
+            local arrival = SourceMaps.cell(arrivalName, value.x, value.y)
+            local arrivalMap = SourceMaps.descriptor(arrivalName)
+            local blocked = arrivalMap.blocked[tostring(value.y * arrivalMap.width + value.x + 1)]
+            if not blocked and FieldTravel.surfSurface(arrival.terrain, arrivalMap.tileset.constant) then
+                local landed = zoneRegistry[value.to]
+                if landed then
+                    for _, npc in ipairs(landed.npcDefs) do
+                        if npc.gridX == value.x and npc.gridY == value.y and (not npc.appearsIf or npc.appearsIf()) then
+                            return nil, true, legacyErrors and "occupied-connection-arrival" or "occupied-source-arrival"
+                        end
+                    end
+                end
+                return { to = value.to, toX = value.x, toY = value.y, facing = direction,
+                    connection = true, source = value.source }, true
+            end
+        end
     end
     -- Resolve against the complete authoritative world, including unloaded
     -- destination deltas, before applying the existing arrival occupancy guard.
