@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-12 The Silph message hold and the remaining cues were already on this branch
+
+Lane B `975d8c87` `tools/notes/lane-e-battle-message.patch` matches the copy in this tree. `Dialog:handleInput` finishes a line on A, then keeps the complete page up for 10 frames, which is `MESSAGE_MIN_FRAMES` in `Source/battle/battle.lua`. That is `home/print_text.asm` `PrintLetterDelay` plus `home/joypad2.asm` `WaitForTextScrollButtonPress`. `test_mashed_a_holds_the_finished_battle_line` passes with the decorator removed. The hold changes when the page turns. It does not change the drawn pixels, and the catalog export still stops in `VisualCatalog.write` with `not enough memory`, so no protected baseline was rewritten.
+
+Lane F `d34adec3` `tools/notes/lane-e-audio-gaps.patch` is stored and already applied. `engine/movie/hall_of_fame.asm:37` is `MUSIC_HALL_OF_FAME`, and `HoFDisplayMonInfo` ends at `jp PlayCry` (line 178). `scripts/ViridianGym.asm:46`, `RocketHideoutB2F.asm:29`, and `RocketHideoutB3F.asm:29` are `SFX_ARROW_TILES`. `scripts/Route22Gate.asm:82` is `SFX_DENIED`. `engine/items/item_effects.asm:1804` is `SFX_POKEFLUTE`. The flute line is also in the earlier hooks patch. `SnorlaxStory.useFlute` plays it once. `test_hall_flute_arrow_and_denied_call_sites` passes. The clean boot that includes these cues peaked at 13603.870 KiB with `MallocPoolSize` 16645684. `main` stays `bf92c4fc`.
+
 ## 2026-11-12 The gates after lane G r9
 
 `d2aa6299` ran `python3 -m unittest discover -s tools/tests`: 1363 tests, 161.123 seconds, OK, skipped=11. `tools/build.py` wrote `/tmp/PokemonPoC.pdx` and exited 0. A clean Simulator boot, evidence `boot-clean-20261112`, reached `title.visible` at sequence 45, 971 ms, and `initialize.ready` at sequence 244, 5453 ms. The sampled Lua peak was 13603.870 KiB. `tools/measure_boot_budget.py` printed BUDGET PASS. `MallocPoolSize` stayed 16645684.

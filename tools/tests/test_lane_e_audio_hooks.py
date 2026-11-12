@@ -20,14 +20,18 @@ class LaneEAudioHookTests(unittest.TestCase):
         self.assertIn('KantoAudio.setTraversal', overworld)
         self.assertIn('KantoAudio.setTraversal', travel)
         self.assertIn('KantoAudio.setTraversal', gear)
-        self.assertIn('KantoAudio.playCue("flute")', flute)
+        self.assertEqual(flute.count('KantoAudio.playCue("flute")'), 1)
+
+    def test_hall_flute_arrow_and_denied_call_sites(self):
         endgame = (ROOT / 'Source/game/endgameStory.lua').read_text()
         event = (ROOT / 'Source/game/eventState.lua').read_text()
+        flute = (ROOT / 'Source/game/snorlaxStory.lua').read_text()
         self.assertIn('KantoAudio.playCue("hall_of_fame")', endgame)
         self.assertIn('KantoAudio.playCry(entry.cry)', endgame)
         self.assertIn('KantoAudio.playCue(step.audio.name)', endgame)
         self.assertIn('KantoAudio.playCue(state.plan.audio.name)', endgame)
         self.assertIn('KantoAudio.playSFX("arrow_tiles")', event)
+        self.assertEqual(flute.count('KantoAudio.playCue("flute")'), 1)
 
 
 if __name__ == '__main__':
