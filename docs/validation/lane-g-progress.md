@@ -153,6 +153,12 @@ The enemy HUD keeps the three pokered rows and drops 4px from the top edge. Name
 
 The r13 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `e546d6e6` with the sprite-mask patch and the earlier lane E patches. That bundle's `source_sha256` is `c7dd3311bb270efd49107ad042396254ee3c8504a68b3a730058022d42fa1c69` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r13/`: `appeared.png`, `menu.png`, `go-settled.png`, and `zapdos.png`.
 
+## Round 12
+
+The r13 player rule sat on the bar row, so `HP`, the bar, and `19/19` lost their lower half. Two 16px rows plus a full `$77`/`$76`/`$6F` tile are 48px. The block now starts at `y=96`, under the enemy platform (`y=84–93`), and ends on the message box. Name `(160, 96)`, level on that row, bar and `19/19` at `y=112`, rule at `y=128` through `y=143`. The right vertical stays at `x=384`. The panel is `x=160, y=96, w=224, h=48`. Nothing in that block is clipped or drawn over another row. The enemy HUD and the sprite mask are unchanged.
+
+The r14 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `bc3add2b` with the lane E patches applied. That bundle's `source_sha256` is `5814f075d534db0eb2ca7db47061bd3ee2b9a939de346c613c0a6a7fd5c65958` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r14/`: `menu.png`, `go-settled.png`, and `player-hud.png`.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

@@ -421,12 +421,11 @@ end
 -- name off the screen edge, and the level and bar move down with it.
 -- PlaceEnemyHUDTiles (draw_hud_pokeball_gfx.asm) puts $73 at column 1 of
 -- the bar row, $74 under it, eight $76 tiles, then $78.
--- Player: name hlcoord 10,7, level 14,8, bar 10,9. Row 7 is y=112, which
--- clears the platform, but three 16px rows from there end inside the
--- message box. The screen forces two rows: the level shares the name row,
--- and the current/max numbers share the bar row. PlacePlayerHUDTiles puts
--- the $73 vertical on the right and the $77 corner into a $76 rule that
--- ends at $6F. That rule is clipped to the message box.
+-- Player: name hlcoord 10,7, level 14,8, bar 10,9. The level shares the
+-- name row and 19/19 shares the bar row. PlacePlayerHUDTiles puts the $73
+-- vertical on the right and the $77 corner into a full $76 rule that ends
+-- at $6F. Two 16px rows plus that rule are 48px, so the block starts at
+-- y=96, under the enemy platform (y=84-93), and ends on the message box.
 function TitleIdle.battleHud(side, info)
     info = info or {}
     local tile = TitleIdle.FONT
@@ -465,16 +464,13 @@ function TitleIdle.battleHud(side, info)
             bracket = {clipBottom = 84, tiles = tiles},
         }
     end
-    local nameX, nameY = 10 * tile, 7 * tile
+    local nameX, nameY = 10 * tile, 6 * tile
     local levelX, levelY = nameX + (utf8.len(name) + 1) * tile, nameY
     local barX, barY = nameX, nameY + tile
     local numbers = tostring(info.hp or 0) .. "/" .. tostring(info.maxHp or 0)
     local numbersX = barX + barTiles * tile
     local right = math.max(levelX + levelTiles * tile, numbersX + utf8.len(numbers) * tile)
-    -- The rule's ink is the middle of the tile. Sitting it 8px into the bar
-    -- row puts that ink under the bar and the digits, and the clip at the
-    -- message box drops the rest of the tile.
-    local ruleY = barY + 8
+    local ruleY = barY + tile
     local ruleCount = math.floor((right - barX) / tile)
     local tiles = {
         {name = "hudVertical", x = right, y = nameY},
@@ -486,7 +482,7 @@ function TitleIdle.battleHud(side, info)
         tiles[#tiles + 1] = {name = "hudRule", x = barX + index * tile, y = ruleY}
     end
     return {
-        x = nameX, y = nameY, w = right - nameX, h = 2 * tile, tile = tile,
+        x = nameX, y = nameY, w = right - nameX, h = 3 * tile, tile = tile,
         name = name, nameX = nameX, nameY = nameY,
         levelText = levelText, status = status,
         levelX = levelX, levelY = levelY,
