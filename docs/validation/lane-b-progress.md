@@ -1001,4 +1001,27 @@ is source x plus 2, so `(9, 4)` is source `(7, 4)`. Stepping left
 through the open row leaves on Route 18 `(32, 8)`, the cycling-road
 side of the building. Sequence 130 is that tile, sha256
 `c2962321266d0abc320677f66a2367641ac04acd7f8abc7a0437133cf28df8ff`
-(`seq130-adventure.b.json`). The continue is sequence 130.
+(`seq130-adventure.b.json`).
+
+Sequence 131 walked the west side of the building to the north edge,
+Route 18 `(10, 0)` facing down, sha256
+`69eec4962c1899f78aea90551cfbde7710ce36abb4691ce07666bf57e38db3d3`
+(`seq131-adventure.b.json`). The north connection does enter Route 17.
+The bicycle is forced (`pokered:status6:BIT_ALWAYS_ON_BIKE`), and
+Route 17 coasts south whenever no direction and neither A nor B is
+held. A single press releases during its wait, so the arrival slid
+back onto Route 18 before the command returned. Sequence 132 is that
+same edge again, sha256
+`f78b733c4268b86027a11d728679d6a1ca8782aaa1b3107599cee9104e81adda`
+(`seq132-adventure.b.json`).
+
+Holding B is the brake. The connection pause resets the field gesture
+to consumed, and a held B keeps it consumed, so the next Up was ignored
+until B was released while Up stayed held. That climb reached Route 16,
+the gate, and Celadon. `EVENT_BEAT_ROUTE16_SNORLAX` is set and the
+sprite was not standing, so the east road was open. The gate cleared
+the forced-bicycle bit. Sequence 133 is Celadon `(0, 18)` facing
+right, walking, sha256
+`cec36007801d19a604b5516f6ebc663e4a27173a8f1fdbd060b4ad0a43f7efda`
+(`seq133-adventure.b.json`). Money is still 4755. The bag still has
+no Fresh Water. The continue is sequence 133.
