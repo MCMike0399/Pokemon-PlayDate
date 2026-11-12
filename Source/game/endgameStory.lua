@@ -266,7 +266,7 @@ end
 -- row under its TYPEn/ label. Equal types take EraseType2Text.
 function EndgameStory.hallRows(photo)
     if not photo or photo.kind == "player" then
-        return {{text = photo and photo.name or "RED", col = 7, row = 2}}
+        return EndgameStory.playerHallRows(photo and photo.stats)
     end
     local types <const> = photo.types or {}
     local rows = {
@@ -388,7 +388,153 @@ function EndgameStory.hallBoxes()
     return {
         info = {col = 0, row = 2, width = 12, height = 11},
         caption = {col = 2, row = 13, width = 16, height = 5},
+        -- HoFDisplayPlayerStats. The name box is hlcoord 5, 0 b=2 c=9.
+        -- The stats box is hlcoord 0, 4 b=6 c=10. No HALL OF FAME box.
+        playerName = {col = 5, row = 0, width = 11, height = 4},
+        playerStats = {col = 0, row = 4, width = 12, height = 8},
     }
+end
+
+-- PrintNumber hours: 1 byte, 3 digits, right aligned, no leading zeroes.
+-- Minutes: LEADING_ZEROES, 2 digits. Tile $6d between them is ":".
+function EndgameStory.formatPlayTime(hours, minutes)
+    hours = math.floor(hours or 0)
+    minutes = math.floor(minutes or 0)
+    if hours < 0 then hours = 0 elseif hours > 255 then hours = 255 end
+    if minutes < 0 then minutes = 0 elseif minutes > 59 then minutes = 59 end
+    return string.format("%3d:%02d", hours, minutes)
+end
+
+-- PrintBCDNumber, 3 bytes, LEADING_ZEROES suppresses zeroes, MONEY_SIGN prints
+-- ¥ on the first non-zero digit. Suppressed digits stay spaces.
+function EndgameStory.formatMoney(amount)
+    amount = math.floor(amount or 0)
+    if amount < 0 then amount = 0 elseif amount > 999999 then amount = 999999 end
+    local digits <const> = string.format("%06d", amount)
+    local parts = {}
+    local started = false
+    for index = 1, 6 do
+        local digit <const> = digits:sub(index, index)
+        if digit == "0" and not started then
+            parts[#parts + 1] = " "
+        else
+            if not started then
+                parts[#parts + 1] = "¥"
+                started = true
+            end
+            parts[#parts + 1] = digit
+        end
+    end
+    if not started then
+        return "     ¥0"
+    end
+    return table.concat(parts)
+end
+
+-- DisplayDexRating's table: owned < threshold selects that paragraph.
+-- Hall of Fame sets EVENT_HALL_OF_FAME_DEX_RATING first, so the text is
+-- copied to wDexRatingText instead of the Oak's Lab completion screen.
+local DEX_RATINGS <const> = {
+    {10, "You still have\nlots to do.\nLook for POKéMON\nin grassy areas!"},
+    {20, "You're on the\nright track! \nGet a FLASH HM\nfrom my AIDE!"},
+    {30, "You still need\nmore POKéMON!\nTry to catch\nother species!"},
+    {40, "Good, you're\ntrying hard!\nGet an ITEMFINDER\nfrom my AIDE!"},
+    {50, "Looking good!\nGo find my AIDE\nwhen you get 50!"},
+    {60, "You finally got at\nleast 50 species!\nBe sure to get\nEXP.ALL from my\nAIDE!"},
+    {70, "Ho! This is geting\neven better!"},
+    {80, "Very good!\nGo fish for some\nmarine POKéMON!"},
+    {90, "Wonderful!\nDo you like to\ncollect things?"},
+    {100, "I'm impressed!\nIt must have been\ndifficult to do!"},
+    {110, "You finally got at\nleast 100 species!\nI can't believe\nhow good you are!"},
+    {120, "You even have the\nevolved forms of\nPOKéMON! Super!"},
+    {130, "Excellent! Trade\nwith friends to\nget some more!"},
+    {140, "Outstanding!\nYou've become a\nreal pro at this!"},
+    {150, "I have nothing\nleft to say!\nYou're the\nauthority now!"},
+    {152, "Your POKéDEX is\nentirely complete!\nCongratulations!"},
+}
+
+function EndgameStory.dexRating(owned)
+    owned = math.floor(owned or 0)
+    for _, row in ipairs(DEX_RATINGS) do
+        if owned < row[1] then
+            return row[2]
+        end
+    end
+    return DEX_RATINGS[#DEX_RATINGS][2]
+end
+
+function EndgameStory.playerHallRows(stats)
+    stats = stats or {}
+    return {
+        {text = stats.name or "RED", col = 7, row = 2},
+        {text = "PLAY TIME", col = 1, row = 6},
+        {text = EndgameStory.formatPlayTime(stats.hours, stats.minutes), col = 5, row = 7},
+        {text = "MONEY", col = 1, row = 9},
+        {text = EndgameStory.formatMoney(stats.money), col = 4, row = 10},
+    }
+end
+
+-- HoFPrintTextAndDelay is 120 frames. Order is DexSeenOwnedText, then
+-- DexRatingText, then the wDexRatingText paragraph copied by DisplayDexRating.
+function EndgameStory.countFlags(flags)
+    local count = 0
+    for _, set in pairs(flags or {}) do
+        if set then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+-- wPlayTimeHours/Minutes have no session field yet, so those stay 0 until
+-- a clock exists. Money and the dex counts come from the live session.
+function EndgameStory.playerHallStats(session)
+    local stats = {name = "RED", hours = 0, minutes = 0, money = 0, seen = 0, owned = 0}
+    if not session then
+        return stats
+    end
+    if session.title then
+        local title <const> = session:title()
+        if title and title.playerName then
+            stats.name = title.playerName
+        end
+    end
+    if session.inventory then
+        local inventory <const> = session:inventory()
+        if inventory and inventory.money then
+            stats.money = inventory:money()
+        end
+    end
+    if session.pokedex then
+        local dex <const> = session:pokedex()
+        if dex then
+            stats.seen = EndgameStory.countFlags(dex.seen)
+            stats.owned = EndgameStory.countFlags(dex.owned)
+        end
+    end
+    if session.playTime then
+        local time <const> = session:playTime()
+        stats.hours = time.hours or 0
+        stats.minutes = time.minutes or 0
+    end
+    return stats
+end
+
+function EndgameStory.playerHallPages(stats)
+    stats = stats or {}
+    local seen <const> = math.floor(stats.seen or 0)
+    local owned <const> = math.floor(stats.owned or 0)
+    return {
+        {delay = 120, text = "POKéDEX   Seen:" .. tostring(seen) .. "\n         Owned:" .. tostring(owned)},
+        {delay = 120, text = "POKéDEX Rating:"},
+        {delay = 120, text = EndgameStory.dexRating(owned)},
+    }
+end
+
+-- The HALL OF FAME box is drawn inside the party loop only, after the
+-- 80-frame hold. HoFDisplayPlayerStats never draws it.
+function EndgameStory.hallShowsCaption(photo, stage, clock)
+    return photo and photo.kind == "pokemon" and (stage == "fade" or EndgameStory.hallCaptionDue(clock))
 end
 
 function EndgameStory.blockKeys(tileset, blockId)
@@ -1200,8 +1346,31 @@ function EndgameStory.updatePhotos(state)
         photo.stage = "show"
         photo.clock = 1
         local entry <const> = state.plan.photos[photo.index]
+        if entry and entry.kind == "player" then
+            if not entry.stats then
+                entry.stats = EndgameStory.playerHallStats(state.session)
+            end
+            photo.page = 1
+            photo.dexRating = "EVENT_HALL_OF_FAME_DEX_RATING"
+            if state.session and state.session.setQuestFlag then
+                -- SetEvent, then CheckAndResetEventA inside DisplayDexRating.
+                -- The paragraph is chosen and the flag does not stay set.
+                state.session:setQuestFlag(photo.dexRating, true)
+                state.session:setQuestFlag(photo.dexRating, false)
+            end
+        end
         if entry and entry.cry then
             EndgameStory.playCry(entry.cry)
+        end
+    elseif photo.stage == "show" and state.plan.photos[photo.index]
+        and state.plan.photos[photo.index].kind == "player" and photo.clock > 120 then
+        local page <const> = photo.page or 1
+        if page >= 3 then
+            photo.stage = "fade"
+            photo.clock = 1
+        else
+            photo.page = page + 1
+            photo.clock = 1
         end
     elseif photo.stage == "show" and photo.clock > timing.mon_delay + timing.caption then
         photo.stage = "fade"
@@ -1351,16 +1520,27 @@ function EndgameStory.drawPhoto(gfx, state)
     end
     local rest <const> = EndgameStory.hallRest()
     blitHallPic(gfx, photoImage(gfx, state, photo, rest.pic), rest.x, rest.y)
+    local boxes <const> = EndgameStory.hallBoxes()
     if photo.kind == "pokemon" then
-        drawHallBox(gfx, EndgameStory.hallBoxes().info)
+        drawHallBox(gfx, boxes.info)
+    elseif photo.kind == "player" then
+        drawHallBox(gfx, boxes.playerName)
+        drawHallBox(gfx, boxes.playerStats)
     end
     for _, row in ipairs(EndgameStory.hallRows(photo)) do
         local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
         gfx.drawText(row.text, px, py)
     end
-    if stage == "fade" or EndgameStory.hallCaptionDue(state.photo.clock) then
+    if photo.kind == "player" then
+        local pages <const> = EndgameStory.playerHallPages(photo.stats)
+        local page <const> = pages[state.photo.page or 1]
+        if page then
+            local px, py = EndgameStory.hallPixel(8, 13 * 8)
+            gfx.drawText(page.text, px, py)
+        end
+    elseif EndgameStory.hallShowsCaption(photo, stage, state.photo.clock) then
         local caption <const> = EndgameStory.hallCaptionRow()
-        drawHallBox(gfx, EndgameStory.hallBoxes().caption)
+        drawHallBox(gfx, boxes.caption)
         local px, py = EndgameStory.hallPixel(caption.col * 8, caption.row * 8)
         gfx.drawText(caption.text, px, py)
     end

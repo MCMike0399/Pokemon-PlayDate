@@ -54,6 +54,9 @@ function TitleState:init(game)
 end
 
 function TitleState:enter(options)
+    if self.game.session then
+        self.game.session:disablePlayTime()
+    end
     gfx.sprite.removeAll()
     self.game.camera:reset()
     self.epoch = (self.epoch or 0) + 1
