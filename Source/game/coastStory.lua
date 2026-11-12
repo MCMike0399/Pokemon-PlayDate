@@ -193,6 +193,80 @@ function CoastStory.boulderFall(map, x, y)
     return { index = index, flag = fall.flag }
 end
 
+-- pret/pokered af519899 toggleable_objects.asm and the Seafoam scripts.
+-- A down-hole flag hides the boulder that fell and shows the matching
+-- boulder on the floor below. B3F's toggle ids are not its object order:
+-- toggle 1 is object 2, toggle 2 is object 3, toggle 3 is object 5,
+-- toggle 4 is object 6. Objects with no row stay put.
+local BOULDER_VISIBILITY <const> = {
+    ["pokered:SEAFOAM_ISLANDS_1F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_1F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B1F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER1_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B1F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B2F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER1_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B2F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:3"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:5"] = {
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE", equals = true },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:6"] = {
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE", equals = true },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B4F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", equals = true },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B4F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE", equals = true },
+    },
+}
+
+function CoastStory.boulderVisibility(id)
+    local rules = BOULDER_VISIBILITY[id]
+    if not rules then
+        return nil
+    end
+    local copy = {}
+    for index, rule in ipairs(rules) do
+        copy[index] = { group = rule.group, id = rule.id, equals = rule.equals }
+    end
+    return copy
+end
+
+function CoastStory.boulderVisible(id, flags)
+    local rules = BOULDER_VISIBILITY[id]
+    if not rules then
+        return true
+    end
+    flags = flags or {}
+    for _, rule in ipairs(rules) do
+        if (flags[rule.id] == true) ~= rule.equals then
+            return false
+        end
+    end
+    return true
+end
+
 function CoastStory.playerHole(map, x, y, onWarp)
     if onWarp then
         return nil

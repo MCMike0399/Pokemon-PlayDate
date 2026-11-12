@@ -54,6 +54,27 @@ assert(join(mouth.buttons) == "up,up")
 
 local fall = CoastStory.boulderFall("pokered:SEAFOAM_ISLANDS_B2F", 22, 6)
 assert(fall.index == 2 and fall.flag == "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE")
+local upper = CoastStory.boulderVisibility("pokered:SEAFOAM_ISLANDS_1F:objects:2")
+assert(upper[1].group == "quest" and upper[1].id == "EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE" and upper[1].equals == false)
+assert(CoastStory.boulderVisible("pokered:SEAFOAM_ISLANDS_1F:objects:2", {}) == true)
+assert(CoastStory.boulderVisible("pokered:SEAFOAM_ISLANDS_1F:objects:2", {
+  EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE = true,
+}) == false)
+local lower = CoastStory.boulderVisibility("pokered:SEAFOAM_ISLANDS_B1F:objects:2")
+assert(lower[1].equals == true and lower[2].id == "EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE" and lower[2].equals == false)
+assert(CoastStory.boulderVisible("pokered:SEAFOAM_ISLANDS_B1F:objects:2", {}) == false)
+assert(CoastStory.boulderVisible("pokered:SEAFOAM_ISLANDS_B1F:objects:2", {
+  EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE = true,
+}) == true)
+assert(CoastStory.boulderVisible("pokered:SEAFOAM_ISLANDS_B1F:objects:2", {
+  EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE = true,
+  EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE = true,
+}) == false)
+assert(CoastStory.boulderVisible("pokered:SEAFOAM_ISLANDS_B3F:objects:5", {}) == false)
+assert(CoastStory.boulderVisible("pokered:SEAFOAM_ISLANDS_B3F:objects:5", {
+  EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE = true,
+}) == true)
+assert(CoastStory.boulderVisible("pokered:ROUTE_20:objects:1", {}) == true)
 local drop = CoastStory.playerHole("pokered:SEAFOAM_ISLANDS_B3F", 6, 16, false)
 assert(drop.entry == "SeafoamIslandsB4F" and drop.x == 5 and drop.y == 14)
 assert(CoastStory.playerHole("pokered:SEAFOAM_ISLANDS_B3F", 6, 16, true) == nil)

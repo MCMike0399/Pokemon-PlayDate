@@ -387,8 +387,50 @@ on that cell; `CoastStoryWorld.fall` only sets the flag, and the B1F
 landing `(23,7)` does not gain a boulder. Pause SAVE wrote sequence 67
 at `(26,6)` facing left, sha256
 `c548107cc01ecf4dd1cada4483ea700599afa2f3eae2cbd2041d8817cefe5f03`
-(`seq67-seafoam-adventure.a.json`). Sequence 67 is the Seafoam continue
-point. The other 1F boulder is still at `(18,10)`. The boulder patch
-and its test stay until the holes, Articuno, the west exit, the
-Mansion, the Secret Key, and Blaine have all passed. Both Seafoam clips
-this pass were under 60 seconds and were discarded.
+(`seq67-seafoam-adventure.a.json`). The Route 19 sequence 67 file was
+not touched. Its sha256 is still
+`95b0e1a20af2a8f0f6a298873f6e321d00adbbf8817ceec5bc255707fd97859d`.
+
+## Save numbers and the lost Route 20 file
+
+`tools/lane_b_publish.py` refuses to write a save onto a file that
+already exists. `tools/tests/test_lane_b_save_publish.py` covers that
+refusal. Sequence numbers now continue upward from the Celadon roof
+save, sequence 78. The Seafoam hole envelope was rewritten to sequence
+79 without changing its payload. The new file is
+`seq79-adventure.a.json`, sha256
+`4023f4e80cb8e753666484d40f73517cc1d398d5bd031682e6a2d0c498a579a0`.
+The old envelope hash was
+`c548107cc01ecf4dd1cada4483ea700599afa2f3eae2cbd2041d8817cefe5f03`.
+
+The lost Route 20 sequence 66 file is still gone. Its sha256 was
+`d316cf43c42a2b7c2b15ef56eacc643892ad569b73be8842add9b68042ff44c9`.
+Replaying from sequence 65, west to the south edge at `(5,17)` and
+then down, lands on Route 20 `(48,6)` facing down. The saved bytes
+were `e4d91547889ba2781322bc3f90ae8be285abc055f0420424e8baf9ed747b9a9c`,
+not the lost hash, so they were not restored and were not labeled
+sequence 66. That replay is sequence 81, sha256
+`3c07155ed988be4ef1d1169ad9be31e5412c25a32f5977dc69751e98a7e2bb65`
+(`seq81-adventure.b.json`). An earlier stop on the door tile itself
+is sequence 80, sha256
+`71590ede33ceda1f6fa05c39ea99764483443ae2858f3622be94fbf8f93033eb`.
+The two cave fights on the way to the door are the likely reason the
+bytes differ. Neither clip reached 60 seconds, so both were discarded.
+
+## The 1F hole now hides one boulder and shows the other
+
+`CoastStory.boulderVisibility` follows af519899. The down-hole flag
+hides that 1F boulder and shows the matching B1F boulder. The same
+pairs continue from B1F through B4F, including the B3F toggle ids that
+are not the object order. Continue from sequence 79 shows only the
+1F boulder at `(18,10)`. The boulder that had been on `(24,6)` is gone.
+Falling through to B1F shows `objects:2` at `(22,6)` and does not show
+`objects:1`. Pause SAVE is sequence 82 at B1F `(17,7)` facing left,
+sha256 `43b90d6d0ddd173ba473ef0973f5456445f436516b9085b8dc8da0459abf47c1`
+(`seq82-adventure.b.json`). The clip is
+`/opt/cursor/artifacts/lane-b/20261112T070033Z-route19-replay.mp4`,
+400×240 h264, 68.36 seconds, 2050 frames. Sequence 82 is the continue
+point. The other 1F boulder was pushed once, to `(18,9)`, and that
+pose was not the saved map. Articuno, the west exit, Cinnabar, the
+Mansion, the Secret Key, and Blaine are still ahead. The boulder patch
+stays until those pass.

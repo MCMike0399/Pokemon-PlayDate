@@ -59,12 +59,41 @@ local function applyBlocks(game, map)
     end
 end
 
+local function boulderShown(session, id)
+    local rules = CoastStory.boulderVisibility(id)
+    if not rules then
+        return true
+    end
+    for _, rule in ipairs(rules) do
+        if (session:questFlag(rule.id) == true) ~= rule.equals then
+            return false
+        end
+    end
+    return true
+end
+
+-- HideObject for a boulder that just fell. The floor below appears on its
+-- own map enter, from the same flag, the way ShowObject does.
+local function concealFallen(game)
+    local pending = {}
+    for _, npc in ipairs(game.npcManager.npcs) do
+        local id = npc.def and npc.def.source_event_id
+        if id and not boulderShown(game.session, id) then
+            pending[#pending + 1] = npc
+        end
+    end
+    for _, npc in ipairs(pending) do
+        game.npcManager:removeNPC(npc)
+    end
+end
+
 local function fall(game, map, x, y)
     local hole = CoastStory.boulderFall(map, x, y)
     if not hole or game.session:questFlag(hole.flag) then
-        return
+        return false
     end
     game.session:setQuestFlag(hole.flag, true)
+    return true
 end
 
 local function holes(game, player, map)
@@ -298,9 +327,56 @@ local function quizInteract(game)
     return true
 end
 
+local described = false
+
+local function decorateActors(descriptor)
+    if not descriptor or not descriptor.actors then
+        return descriptor
+    end
+    for _, spec in ipairs(descriptor.actors) do
+        local rules = CoastStory.boulderVisibility(spec.id)
+        if rules then
+            for _, rule in ipairs(rules) do
+                spec.visibility[#spec.visibility + 1] = {
+                    group = rule.group, id = rule.id, equals = rule.equals,
+                }
+            end
+        end
+    end
+    return descriptor
+end
+
 function CoastStoryWorld.install()
     allowSurfConnections()
+    if not described then
+        local describe = SourceActors.describe
+        function SourceActors.describe(...)
+            return decorateActors(describe(...))
+        end
+        described = true
+    end
     SourceEvents.registerWorldHooks("pokered:ROUTE_19:script:coast", {
+        beforeSpawn = function(game)
+            local zone = currentZone
+            if not zone or not zone.npcDefs then
+                return false
+            end
+            for _, def in ipairs(zone.npcDefs) do
+                local id = def.source_event_id
+                local rules = id and CoastStory.boulderVisibility(id)
+                if rules and not def.coastBoulder then
+                    local prior = def.appearsIf
+                    def.appearsIf = function()
+                        if prior and not prior() then
+                            return false
+                        end
+                        return boulderShown(game.session, id)
+                    end
+                    def.coastBoulder = true
+                end
+            end
+            return false
+        end,
         onLeave = function()
             enteredMap = nil
             buttons = nil
@@ -337,10 +413,14 @@ function CoastStoryWorld.install()
             end
             local travel = game.lastFieldTravel
             if travel and travel.key == "strength" and travel.kind == "pushed" then
+                local fell = false
                 for _, npc in ipairs(game.npcManager.npcs) do
-                    if npc.def and npc.def.source_boulder then
-                        fall(game, map, npc.gridX, npc.gridY)
+                    if npc.def and npc.def.source_boulder and fall(game, map, npc.gridX, npc.gridY) then
+                        fell = true
                     end
+                end
+                if fell then
+                    concealFallen(game)
                 end
                 game.lastFieldTravel = nil
             end
