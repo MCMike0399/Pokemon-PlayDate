@@ -363,12 +363,14 @@ end
 -- data/text_boxes.asm MESSAGE_BOX is columns 0,12 through 19,17.
 -- Text is bccoord 1,14 and hlcoord 1,16. Row 13 is the pad under the
 -- top border. Row 15 is the blank tile between the two text rows.
--- At 16px the box is 320 by 96 and sits on the bottom of the screen,
--- so that blank row stays a full tile. compact drops the pad and the
--- blank row (AskName, where the YES/NO box occupies rows 7-11).
+-- The Playdate screen is 400px, so the horizontal border run is 25
+-- tiles and the right corner moves to x=384. Text stays one column in
+-- from the left border, and the arrow stays at column 18. compact
+-- drops the pad and the blank row (AskName, where the YES/NO box
+-- occupies rows 7-11) and uses the same width.
 function TitleIdle.messageBox(compact)
     local tile = TitleIdle.FONT
-    local width = 20 * tile
+    local width = 25 * tile
     if compact then
         local height = 4 * tile
         local y = 240 - height
@@ -390,54 +392,79 @@ end
 -- data/text_boxes.asm line 31:
 --   text_box_text BATTLE_MENU_TEMPLATE, 8, 12, 19, 17, BattleMenuText, 10, 14
 -- DisplayBattleMenu restores the screen, then that template covers columns
--- 8-19 of the message box. The cursor is hlcoord 9, 14. The port's labels
--- are FIGHT / BAG / POKEMON / RUN, and "POKEMON RUN" is wider than
--- "FIGHT <PK><MN>", so the split moves right until the menu holds the
--- cursor, one border, and those 11 tiles. The left box holds 12 tiles,
--- which is "SQUIRTLE do?".
+-- 8-19. The cursor is hlcoord 9, 14 and the text is column 10. The port's
+-- labels are FIGHT / BAG / POKEMON / RUN. "POKEMON RUN" plus the cursor
+-- and both borders is 14 tiles, so the menu is wider than columns 8-19
+-- and is right-aligned to the 400px edge. The left box keeps its border
+-- and stays empty: pokered has no "What will" prompt.
 function TitleIdle.commandBoxes()
     local message = TitleIdle.messageBox(false)
     local tile = TitleIdle.FONT
+    local menuW = 14 * tile
+    local menuX = 400 - menuW
     local left = {
-        x = 0, y = message.y, w = 14 * tile, h = message.h, tile = tile,
-        columns = 12, textX = tile, textY1 = message.textY1, textY2 = message.textY2,
+        x = 0, y = message.y, w = menuX, h = message.h, tile = tile,
+        columns = math.floor(menuX / tile) - 2,
     }
     local menu = {
-        x = 13 * tile, y = message.y, w = 12 * tile, h = message.h, tile = tile,
-        textX = 14 * tile, textY1 = message.textY1, textY2 = message.textY2,
+        x = menuX, y = message.y, w = menuW, h = message.h, tile = tile,
+        cursorX = menuX + tile,
+        textX = menuX + 2 * tile,
+        textX2 = menuX + 10 * tile,
+        textY1 = message.textY1, textY2 = message.textY2,
     }
     return {message = message, left = left, menu = menu}
 end
 
--- PlaceEnemyHUDTiles / PlacePlayerHUDTiles. The enemy bar is d=6
--- (engine/battle/core.asm). The player adds the current/max row.
--- Both panels stop at the message box.
+-- DrawEnemyHUDAndHPBar / DrawPlayerHUDAndHPBar (engine/battle/core.asm).
+-- Enemy: name hlcoord 1,0, level 4,1, bar 2,2, d=6. That block ends at
+-- y=48, above the enemy platform (y=84). Player: name hlcoord 10,7,
+-- level 14,8, bar 10,9. Row 7 is y=112, which clears the platform, but
+-- three 16px rows from there end at y=160, inside the message box.
+-- The screen forces two rows: the level shares the name row, and the
+-- current/max numbers share the bar row. The block ends on the box.
 function TitleIdle.battleHud(side, info)
     info = info or {}
     local tile = TitleIdle.FONT
     local name = info.name or ""
     local levelText = tostring(info.level or 0)
     local status = info.status
-    local levelTiles = status and utf8.len(status) or (1 + #levelText)
-    local nameTiles = utf8.len(name) + 1 + levelTiles
     local segments = 6
     local barTiles = 2 + segments + 1
-    local numbers = nil
-    if side == "player" then
-        numbers = tostring(info.hp or 0) .. "/" .. tostring(info.maxHp or 0)
+    local levelTiles = status and utf8.len(status) or (1 + #levelText)
+    if side == "enemy" then
+        local nameX, nameY = tile, 0
+        local levelX, levelY = 4 * tile, tile
+        local barX, barY = 2 * tile, 2 * tile
+        local right = math.max(
+            nameX + utf8.len(name) * tile,
+            levelX + levelTiles * tile,
+            barX + barTiles * tile)
+        return {
+            x = nameX, y = nameY, w = right - nameX, h = 3 * tile, tile = tile,
+            name = name, nameX = nameX, nameY = nameY,
+            levelText = levelText, status = status,
+            levelX = levelX, levelY = levelY,
+            barX = barX, barY = barY,
+            hp = info.hp or 0, maxHp = info.maxHp or 0,
+            segments = segments,
+        }
     end
-    local numberTiles = numbers and utf8.len(numbers) or 0
-    local width = math.max(nameTiles, barTiles, numberTiles) * tile
-    local rows = side == "player" and 3 or 2
-    local height = rows * tile
-    local x = side == "player" and (400 - 8 - width) or 8
-    local y = side == "player" and (TitleIdle.messageBox(false).y - height) or 8
+    local nameX, nameY = 10 * tile, 7 * tile
+    local levelX, levelY = nameX + (utf8.len(name) + 1) * tile, nameY
+    local barX, barY = nameX, nameY + tile
+    local numbers = tostring(info.hp or 0) .. "/" .. tostring(info.maxHp or 0)
+    local numbersX = barX + barTiles * tile
+    local right = math.max(levelX + levelTiles * tile, numbersX + utf8.len(numbers) * tile)
     return {
-        x = x, y = y, w = width, h = height, tile = tile,
-        name = name, levelText = levelText, status = status,
-        levelX = x + (utf8.len(name) + 1) * tile,
+        x = nameX, y = nameY, w = right - nameX, h = 2 * tile, tile = tile,
+        name = name, nameX = nameX, nameY = nameY,
+        levelText = levelText, status = status,
+        levelX = levelX, levelY = levelY,
+        barX = barX, barY = barY,
+        numbers = numbers, numbersX = numbersX, numbersY = barY,
         hp = info.hp or 0, maxHp = info.maxHp or 0,
-        segments = segments, numbers = numbers,
+        segments = segments,
     }
 end
 

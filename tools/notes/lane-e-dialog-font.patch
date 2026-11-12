@@ -1,5 +1,5 @@
 diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
-index 768637dd..072785e6 100644
+index 768637dd..1ca5a16c 100644
 --- a/Source/battle/battleScene.lua
 +++ b/Source/battle/battleScene.lua
 @@ -1,4 +1,5 @@
@@ -67,7 +67,7 @@ index 768637dd..072785e6 100644
          gfx.setColor(gfx.kColorBlack)
          gfx.drawLine(0, 170, 400, 170)
      end
-@@ -687,6 +672,59 @@ function BattleScene:drawBattleField()
+@@ -687,6 +672,49 @@ function BattleScene:drawBattleField()
      self:drawLevelStats()
  end
  
@@ -90,23 +90,13 @@ index 768637dd..072785e6 100644
 +
 +-- data/text_boxes.asm:
 +--   text_box_text BATTLE_MENU_TEMPLATE, 8, 12, 19, 17, BattleMenuText, 10, 14
-+-- That template covers columns 8-19, so the command box is the wide side
-+-- and the message narrows beside it. The port labels are longer than
-+-- FIGHT <PK><MN> / ITEM RUN, so the split sits where "POKEMON RUN", the
-+-- cursor, and the shared border fit at 16px. The left box is 12 tiles,
-+-- which is "What will" / "SQUIRTLE do?" with no second scale.
++-- The cursor is one tile inside the left border and the labels start one
++-- tile further. The port labels are longer than FIGHT <PK><MN> / ITEM RUN,
++-- so the menu is 14 tiles and sits on the right edge. The left box stays
++-- bordered and empty.
 +function BattleScene:drawCommandFrame()
-+    local name = self.battle.player.name or ""
 +    local boxes = TitleIdle.commandBoxes()
-+    local text = "What will\n" .. name .. " do?"
-+    if not self.commandDialog then self.commandDialog = Dialog() end
-+    if self.commandText ~= text or not self.commandDialog.isActive then
-+        self.commandDialog:show({text})
-+        local line = self.commandDialog.lines and self.commandDialog.lines[1] or ""
-+        self.commandDialog.charIndex = #line
-+        self.commandText = text
-+    end
-+    self:drawDialog(self.commandDialog, boxes.left)
++    GbFont.drawBox(boxes.left)
 +    GbFont.drawBox(boxes.menu)
 +    local options = self:mainOptions()
 +    local columns = #options == 4 and 2 or 1
@@ -115,10 +105,10 @@ index 768637dd..072785e6 100644
 +        local col = (index - 1) % columns
 +        local row = math.floor((index - 1) / columns)
 +        local x = boxes.menu.textX
-+        if columns == 2 and col == 1 then x = x + 8 * GbFont.TILE end
++        if columns == 2 and col == 1 then x = boxes.menu.textX2 end
 +        local y = row == 0 and boxes.menu.textY1 or boxes.menu.textY2
 +        if index == selected then
-+            GbFont.line(TitleIdle.CURSOR, boxes.menu.x, y)
++            GbFont.line(TitleIdle.CURSOR, boxes.menu.cursorX, y)
 +        end
 +        GbFont.line(label, x, y)
 +    end

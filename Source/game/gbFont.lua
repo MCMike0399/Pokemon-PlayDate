@@ -24,7 +24,7 @@ function GbFont.load()
         font = loadSheet("images/title/font/font"),
         extra = loadSheet("images/title/font/extra"),
         ed = loadSheet("images/title/font/ed"),
-        hud = loadSheet("images/battle/hud"),
+        hud = loadSheet("images/title/font/hud"),
     }
     return sheets
 end
@@ -151,28 +151,33 @@ function GbFont.drawBattleHud(side, info)
     local layout = TitleIdle.battleHud(side, info)
     local tile = GbFont.TILE
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(layout.x, layout.y, layout.w, layout.h)
-    GbFont.line(layout.name, layout.x, layout.y)
-    if layout.status then
-        GbFont.line(layout.status, layout.levelX, layout.y)
-    else
-        GbFont.hudTile("lv", layout.levelX, layout.y)
-        GbFont.line(layout.levelText, layout.levelX + tile, layout.y)
+    gfx.fillRect(layout.nameX, layout.nameY, utf8.len(layout.name) * tile, tile)
+    local levelW = (layout.status and utf8.len(layout.status) or (1 + #layout.levelText)) * tile
+    gfx.fillRect(layout.levelX, layout.levelY, levelW, tile)
+    local barW = (2 + layout.segments + 1) * tile
+    gfx.fillRect(layout.barX, layout.barY, barW, tile)
+    if layout.numbers then
+        gfx.fillRect(layout.numbersX, layout.numbersY, utf8.len(layout.numbers) * tile, tile)
     end
-    local barY = layout.y + tile
-    GbFont.hudTile("hp", layout.x, barY)
-    GbFont.hudTile("barLeft", layout.x + tile, barY)
+    GbFont.line(layout.name, layout.nameX, layout.nameY)
+    if layout.status then
+        GbFont.line(layout.status, layout.levelX, layout.levelY)
+    else
+        GbFont.hudTile("lv", layout.levelX, layout.levelY)
+        GbFont.line(layout.levelText, layout.levelX + tile, layout.levelY)
+    end
+    GbFont.hudTile("hp", layout.barX, layout.barY)
+    GbFont.hudTile("barLeft", layout.barX + tile, layout.barY)
     local filled = 0
     if layout.maxHp > 0 then
         filled = math.floor((layout.hp / layout.maxHp) * (layout.segments * 8) + 0.5)
     end
     for index = 0, layout.segments - 1 do
         local pixels = math.max(0, math.min(8, filled - index * 8))
-        GbFont.hudTile(barTile(pixels), layout.x + (2 + index) * tile, barY)
+        GbFont.hudTile(barTile(pixels), layout.barX + (2 + index) * tile, layout.barY)
     end
-    GbFont.hudTile("barRight", layout.x + (2 + layout.segments) * tile, barY)
+    GbFont.hudTile("barRight", layout.barX + (2 + layout.segments) * tile, layout.barY)
     if layout.numbers then
-        local numberX = layout.x + layout.w - utf8.len(layout.numbers) * tile
-        GbFont.line(layout.numbers, numberX, layout.y + 2 * tile)
+        GbFont.line(layout.numbers, layout.numbersX, layout.numbersY)
     end
 end

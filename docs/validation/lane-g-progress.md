@@ -129,6 +129,20 @@ The circle in r10 `after-go-settled.png` at about `(47, 77)` is the send-out bal
 
 The r11 frames were rendered on a scratch tree of `dbfdc00e` with both patches applied. That bundle's `source_sha256` is `2730d2bd50fc0c2b5c6e780ba36668550e741fb5dc9f8797a017f005a0efce7e` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. The fixture is Squirtle L5 against Zapdos L50. Frames are in `artifacts/lane-g/r11/`: `appeared.png`, `typing.png`, `go-full.png`, `go-settled.png`, `menu.png`, `hud.png`, and `overworld-dialog.png`.
 
+## Round 10
+
+The narration box is the full 400px, the same width overworld and battle now share, so the box does not jump between them. Tiles stay 16px. Only the horizontal border run grows: the right corner is the tile at `x=384`. `MESSAGE_BOX` (`data/text_boxes.asm`) is columns 0–19. Text stays one column in from the left border (`textX=16`, rows `y=176` and `y=208`). The arrow stays at column 18 (`x=288`). The clip stays 18 characters. The compact AskName box uses the same width. YES/NO stays at column 14, row 7.
+
+`BATTLE_MENU_TEMPLATE` (`data/text_boxes.asm:31`) is columns 8–19, cursor `hlcoord 9,14`, text at column 10. Pokered has no "What will" line, so the left box is bordered and empty (`x=0, y=144, w=176, h=96`). The port labels are `FIGHT` / `BAG` / `POKEMON` / `RUN`. Cursor, `POKEMON RUN`, and both borders are 14 tiles, wider than columns 8–19, and the menu is right-aligned: `x=176, y=144, w=224, h=96`. The cursor is `x=192`, the first column is `x=208`, and `BAG` / `RUN` are `x=336`. Their tiles end at `x=384`, which is the right border. `tools/notes/lane-e-dialog-font.patch` draws that empty box and no longer builds a command prompt.
+
+Wild encounters say `Wild ZAPDOS` / `appeared!` (`_WildMonAppearedText`, `data/text/text_2.asm:1237`). Trainer send-outs say `ZAPDOS` / `appeared!` (`_EnemyAppearedText`, `text_2.asm:1252`). `tools/notes/lane-e-battle-intro-text.patch` changes only those two `Battle:opponentEntered` lines. `tools/tests/test_lane_e_battle_intro_text.py` expects the unpatched file to fail.
+
+The enemy platform is drawn, then the sprite, so Zapdos covers the line at `y=84`. The player picture is drawn after the player platform the same way. `tools/notes/lane-e-battle-sprite-order.patch` is that block only. It stays clear of the HUD hunk and of `gfx.setFont(gfx.getSystemFont())`, so it applies before or after the dialog patch, the HUD patch, and `lane-e-battle-text-flicker.patch`. `tools/tests/test_lane_e_battle_sprite_order.py` expects the unpatched scene to fail.
+
+`DrawEnemyHUDAndHPBar` (`engine/battle/core.asm`) is name `hlcoord 1,0`, level `4,1`, bar `2,2`, `d=6`. At 2× that is name `(16, 0)`, level `(64, 16)`, bar `(32, 32)`, panel `x=16, y=0, w=160, h=48`, which ends above the platform (`y=84`). `DrawPlayerHUDAndHPBar` is name `hlcoord 10,7`, level `14,8`, bar `10,9`. Row 7 is `y=112`, clear of the platform (`y=84–93`). Three 16px rows from there would end at `y=160`, inside the message box, so the screen forces two rows: the level shares the name row, and `19/19` shares the bar row. The player panel is `x=160, y=112, w=224, h=32` and ends at `y=144`. The sheet moved from `Source/images/battle/hud.png` to `Source/images/title/font/hud.png`. Tile order is unchanged.
+
+The r12 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `8385bab4` with the four lane E patches applied. That bundle's `source_sha256` is `f4245c6d8955ab7cf0a299072c0e1c91ad0fc2ea8e66de65558c1057ca27638b` and includes the patches, so it will not match this commit. The trainer frame needed a scratch-only harness argument (a trainer is a table with a name; the committed `battle` command is still species and level). Its `source_sha256` is `dd9ff52d4c8180079ee7e46c5dae6f46efffbc511231705e5b7bf735fcf0eeb2`. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r12/`: `appeared.png`, `menu.png`, `go-settled.png`, `hud.png`, and `trainer-sendout.png`.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
