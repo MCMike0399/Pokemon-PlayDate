@@ -131,7 +131,8 @@ class ProductionBuildTests(unittest.TestCase):
             'game/hideoutTowerController': [
                 'domain/safariBattle', 'game/midgameServices', 'game/midgameServicesState',
                 'game/safariScene', 'game/safariBattleState', 'game/safariPassage',
-                'game/safariPassageState', 'game/safariRuntime'],
+                'game/safariPassageState', 'game/safariRuntime',
+                'game/coastStory', 'game/coastStoryWorld'],
             'game/celadonServicesController': ['game/copycatService'],
         }
         expected_imports = ['dev/harness_build', 'game/bootTrace', 'game/bootstrap', 'game/shippedDataPolicy']
