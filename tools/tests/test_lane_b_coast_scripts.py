@@ -306,13 +306,22 @@ class CoastScriptTest(unittest.TestCase):
         world = (ROOT / 'Source/game/coastStoryWorld.lua').read_text()
         self.assertIn('CoastStory.gymEvents()', world)
         self.assertIn('registerTrainerSource("coastGym", CoastStory.gymTrainers)', world)
+        session = (ROOT / 'Source/domain/gameSession.lua').read_text()
+        self.assertIn('volcano = "BADGE_VOLCANO"', session)
         story = (ROOT / 'Source/game/coastStory.lua').read_text()
+        self.assertNotIn('badgeFlags', story)
+        self.assertIn('BADGE_VOLCANO = true', story)
         center = json.loads((ROOT / 'Source/data/zCoast/events.json').read_text())
         nurse = center['events']['pokered:CINNABAR_POKECENTER:objects:1']['steps'][0]
         self.assertEqual(nurse['op'], 'heal')
         self.assertEqual(nurse['checkpoint'], {
             'facing': 'down', 'x': 11, 'y': 12, 'zone_id': 'pokered:CINNABAR_ISLAND',
         })
+        events = center['events']
+        self.assertEqual(events['pokered:POKEMON_MANSION_3F:objects:3']['item'], 'maxPotion')
+        self.assertEqual(events['pokered:POKEMON_MANSION_B1F:objects:4']['item'], 'fullRestore')
+        self.assertIn('item = "maxPotion"', story)
+        self.assertIn('item = "fullRestore"', story)
         for token in (
             'pokered:CINNABAR_POKECENTER:objects:1', nurse['welcome'], nurse['prompt'],
             nurse['before'], nurse['after'], nurse['farewell'], 'CinnabarPokecenter',
