@@ -82,10 +82,35 @@ The other indexed and partial map rows are campaign maps other lanes already ins
 
 `docs/validation/lane-h-policy-proposal.md` is the one-page choice for the Cable Club, version exclusives, trade evolutions, and Mew. It recommends leaving all four out. None of it is implemented.
 
+## Headless journey
+
+`tools/tests/test_lane_h_postgame_journey.py` starts from an encoded Hall of Fame save. The session has a team, `recordHallOfFame` has a team, and the four flags the walk needs are set before encode: `TOGGLE_CERULEAN_CAVE_GUY`, `TOGGLE_CERULEAN_ROCKET`, `EVENT_GOT_SS_TICKET`, `EVENT_GOT_DOME_FOSSIL`. The Cerulean rival `pokered:CERULEAN_CITY:objects:1` is recorded defeated. Continue relocates to Pallet Town `(5, 6)` facing down, and the Hall of Fame team and those flags are still there.
+
+The walk is 2275 steps on the compact collision graph. It is the shortest path that stays out of Seafoam: Pallet, Route 1, Viridian, the forest, Pewter, Routes 3 and 4, Mt. Moon (the taken fossil opens B2F), Cerulean, Route 24, then surf south into the northwest Cerulean water and land on the plaza. The cave door, the three floors, and the cave water lead to `(26, 13)` on B1F, one tile west of Mewtwo, on foot. From there the robbed house joins the east side of Cerulean, then Route 5, Saffron, Route 8, Lavender, Route 10, Rock Tunnel, and the plant. The last cell is `(5, 9)`, one tile east of Zapdos, on foot. Kinds are walk, connection, warp, ledge, surf, and surf-land. Seafoam is shorter on paper and is not used: the currents and the strength boulders are not in the collision grid. Route 9 is open once the house is open, and the shorter plant path still goes through Rock Tunnel.
+
+`setLocation` in the host uses an identity resolver, so the Lua side does not prove collision. `postgame_route.py` checks that every recorded step is a successor of the previous cell. The host then applies those coordinates to the continued session and hashes the session location after each move. At the two goal cells it builds `PostgameStory.staticRequest` for Mewtwo (level 70) and Zapdos (level 50), including a run, a win, and a catch setting the beat flag and a wipe setting nothing. `SourceEncounters.prepare` is called there. Both calls fail with `unsupported source encounter` until lane E applies `tools/notes/lane-e-static-encounters.patch`. That battle step is an expected failure. The steps up to the request are not.
+
+The Pallet actor snapshot is a fixture. `SourceActors.describeSource` needs `playdate.file`, so the host stubs `describe` and `WorldMotionData.reconcile` returns `WorldMotionData.empty()`. This environment has no Playdate SDK, so the journey is the session and the map graph, not a simulator clip.
+
+## Rows still not played
+
+These rows live in `Source/data/lateKanto/` or `Source/data/postgame/` and this walk does not play them. The coordinate and dialogue checks that already exist are named with the row. Nothing below is implemented in this round, and the policy page stays a proposal.
+
+- Articuno, `pokered:SEAFOAM_ISLANDS_B4F:objects:3`, level 50 at `(6, 1)`. `test_late_kanto_story` checks the coordinate. The journey does not enter Seafoam, and the static-encounters patch does not register him.
+- Moltres, `pokered:VICTORY_ROAD_2F:objects:6`, level 50 at `(11, 5)`. Coordinate check only. Lane D owns the battle. This walk does not enter Victory Road.
+- Secret Key, `pokered:POKEMON_MANSION_B1F:objects:8` at `(5, 13)`. Coordinate check only. The mansion is another lane's map, and the key is not picked up.
+- The seven Route 23 badge checks in `scenes.json`. The order is checked against the source warps. The walk never reaches Route 23.
+- The Elite Four room order, and the champion ceremony past Continue. The rematch flag reset is a host test. This journey leaves the Hall of Fame and does not fight Lorelei, Bruno, Agatha, Lance, or the rival again.
+- Blaine `pokered:CINNABAR_GYM:objects:1` and Giovanni `pokered:VIRIDIAN_GYM:objects:1`. Coordinate checks only. The walk crosses Viridian City and does not enter either gym.
+- The Cinnabar Lab fossil scientist, the island clear of `EVENT_LAB_STILL_REVIVING_FOSSIL`, and `FossilRevival.moonChoice`. Host-tested. The walk crosses Mt. Moon B2F with the Dome Fossil already taken, and it never enters the lab.
+- The eight Cerulean Cave items and the five Power Plant items. Registered and host-tested. The walk does not step on those tiles.
+- The eight disguised Voltorb and Electrode requests in the plant. Host-tested as requests. The walk stops beside Zapdos and does not talk to them.
+- Cerulean Cave and Power Plant grass. The Blue tables are host-tested. The walk does not roll an encounter.
+
 ## Tests
 
-`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_lane_h_fossils tools.tests.test_fossil_revival tools.tests.test_late_kanto_story`
+`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_lane_h_fossils tools.tests.test_fossil_revival tools.tests.test_late_kanto_story tools.tests.test_lane_h_postgame_journey`
 
-30 tests, 2 expected failures. One is the static encounter rows missing from `sourceEncounters.lua`. The other is the Continue record missing `wFossilItem`. Both patches apply with `patch --dry-run --fuzz=0 -p1`.
+33 tests, 3 expected failures. Two are the static encounter rows missing from `sourceEncounters.lua`: the direct row check, and the journey's `prepare` of Mewtwo and Zapdos. The third is the Continue record missing `wFossilItem`. Both patches apply with `patch --dry-run --fuzz=0 -p1`.
 
-This environment has no Playdate SDK, so the static outcomes and the fossil Continue are host contracts rather than a simulator clip. Zapdos was not recorded on device.
+This environment has no Playdate SDK, so the static outcomes, the fossil Continue, and the Pallet-to-cave-to-plant walk are host contracts rather than a simulator clip. Zapdos was not recorded on device.
