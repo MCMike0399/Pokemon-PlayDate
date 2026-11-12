@@ -62,6 +62,13 @@ def ball_press(commands, state):
     return ("press a", "wait 2")
 
 
+def pause_press(commands, state):
+    """Let a previous A gesture finish before B asks for the pause menu."""
+    if commands != ("press b",) or state.get("root") != "overworld":
+        return commands
+    return ("wait 4", "press b", "wait 2")
+
+
 def key_fight(name, trainer_id):
     """Rival, the Pewter gym, and Brock are the early clips."""
     label = str(name or "")
@@ -109,7 +116,7 @@ class CharmanderRun(BrockJourney):
         self.send({"op": "await", "path": "zone", "equals": "reds_house_2f", "frames": 180})
 
     def send(self, *commands):
-        commands = ball_press(commands, self.state)
+        commands = pause_press(ball_press(commands, self.state), self.state)
         real_input(commands)
         return super().send(*commands)
 
@@ -219,6 +226,12 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:1"), "brock")
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:2"), "pewter-jr")
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
+
+    def test_overworld_pause_lets_the_previous_gesture_finish(self):
+        overworld = {"root": "overworld", "zone": "kanto_route2"}
+        self.assertEqual(pause_press(("press b",), overworld), ("wait 4", "press b", "wait 2"))
+        self.assertEqual(pause_press(("press b",), {"root": "battle"}), ("press b",))
+        self.assertEqual(pause_press(("press a",), overworld), ("press a",))
 
     def test_starter_ball_press_waits_for_release(self):
         choosing = {"root": "overworld", "zone": "oaks_lab",
