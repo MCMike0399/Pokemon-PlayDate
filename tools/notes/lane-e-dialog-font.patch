@@ -546,3 +546,177 @@ index 5ec584c3..503d2487 100644
      end
 +    gfx.setDrawOffset(ox, oy)
  end
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index 768637dd..e30f45c2 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -1,4 +1,5 @@
+ import "battle/captureAnimation"
++import "game/gbFont"
+ 
+ local gfx <const> = playdate.graphics
+ 
+@@ -640,45 +641,29 @@ function BattleScene:drawBattleField()
+     local boxY = 180
+     if self.inMoveSelect and self.battle:isAwaitingCommand() and not self.battle.shiftChoice then
+         self:drawMoveSelect()
+-    else
+-    gfx.setColor(gfx.kColorBlack)
+-    gfx.fillRect(0, boxY, 400, 60)
+-    gfx.setColor(gfx.kColorWhite)
+-    gfx.fillRect(4, boxY + 4, 392, 52)
+-    gfx.setColor(gfx.kColorBlack)
+-    gfx.drawRect(4, boxY + 4, 392, 52)
+-
+-    if self.battle.shiftChoice then
++    elseif self.battle.shiftChoice then
++        gfx.setColor(gfx.kColorBlack)
++        gfx.fillRect(0, boxY, 400, 60)
++        gfx.setColor(gfx.kColorWhite)
++        gfx.fillRect(4, boxY + 4, 392, 52)
++        gfx.setColor(gfx.kColorBlack)
++        gfx.drawRect(4, boxY + 4, 392, 52)
+         -- pokered _TrainerAboutToUseText plus the YES/NO box (TWO_OPTION_MENU).
+         self:_wrapped("shift-prompt", self.battle.message or "", 276, 44).image:draw(14, boxY + 8)
+         self.shiftMenu:draw(300, boxY + 4, 92, 52)
+     elseif self.battle:isAwaitingCommand() then
+-        -- Draw text area on left
+-        self:_text("what-will", "What will", gfx.getSystemFont()).image:draw(14, boxY + 10)
+-        local name = self.battle.player.name
+-        local prompt = self.commandPrompt
+-        if not prompt or prompt.name ~= name then
+-            prompt = self:_text("command-prompt", name .. " do?", gfx.getSystemFont())
+-            prompt.name = name
+-            self.commandPrompt = prompt
+-        end
+-        prompt.image:draw(14, boxY + 28)
+-
+-        -- Draw menu on right
+-        if #self:mainOptions()==4 then self.mainMenu:draw(204, boxY + 4, 192, 52)
+-        else self.mainMenu:draw(300, boxY + 4, 96, 52) end
++        self:drawCommandFrame()
+     else
+-        -- Word-wrapped inside the frame so long messages never escape
++        -- Typing and the settled line share Dialog:draw. A finished page used
++        -- to fall through to the system font inside the thin rectangle.
+         if self.messageDialog.isActive then
+-            self.messageDialog:draw()
++            self:drawDialog(self.messageDialog)
+         else
+-            local message = self.battle.message or ""
+-            self:_wrapped("battle-message", message, 374, 44).image:draw(14, boxY + 10)
++            self:drawSettledMessage(self.battle.message or "")
+         end
+     end
+-    end
+ 
+-    if not self.inMoveSelect then
++    if self.battle.shiftChoice and not self.inMoveSelect then
+         gfx.setColor(gfx.kColorBlack)
+         gfx.drawLine(0, 170, 400, 170)
+     end
+@@ -687,6 +672,104 @@ function BattleScene:drawBattleField()
+     self:drawLevelStats()
+ end
+ 
++-- Typing and the settled page both enter here. Dialog:draw is the one renderer.
++function BattleScene:drawDialog(dialog)
++    dialog:draw()
++end
++
++function BattleScene:drawSettledMessage(text)
++    if text == "" then return end
++    if not self.settledDialog then self.settledDialog = Dialog() end
++    if self.settledText ~= text or not self.settledDialog.isActive then
++        self.settledDialog:show({text})
++        local line = self.settledDialog.lines and self.settledDialog.lines[1] or ""
++        self.settledDialog.charIndex = #line
++        self.settledText = text
++    end
++    self:drawDialog(self.settledDialog)
++end
++
++-- data/text_boxes.asm BATTLE_MENU_TEMPLATE sits on the right of MESSAGE_BOX.
++-- The prompt is the same two-row dialog as a battle line. The options are
++-- GbFont tiles inside that menu box. The name is redrawn at 2x in the gutter
++-- so "SQUIRTLE do?" and POKEMON both stay inside the 400px screen.
++function BattleScene:drawCommandFrame()
++    local name = self.battle.player.name or ""
++    self:drawSettledMessage("What will\n" .. name .. " do?")
++    local menu = TitleIdle.textBox(11, 12, 7, 4)
++    GbFont.drawBox(menu)
++    gfx.setColor(gfx.kColorWhite)
++    gfx.fillRect(TitleIdle.COL, 13 * TitleIdle.ROW, 10 * TitleIdle.COL, 4 * TitleIdle.ROW)
++    local function fit(text, maxChars)
++        local out, count = {}, 0
++        for _, code in utf8.codes(text) do
++            if count >= maxChars then break end
++            out[#out + 1] = utf8.char(code)
++            count = count + 1
++        end
++        return table.concat(out)
++    end
++    GbFont.drawTight(fit("What will", 12), TitleIdle.COL, 14 * TitleIdle.ROW)
++    GbFont.drawTight(fit(name .. " do?", 12), TitleIdle.COL, 16 * TitleIdle.ROW)
++    local options = self:mainOptions()
++    local columns = #options == 4 and 2 or 1
++    local selected = self.mainMenu.selectedIndex or 1
++    -- 16px cells of POKEMON plus RUN run past the menu interior. 13px keeps
++    -- both words inside the border with a gap.
++    local advance = 13
++    local originX = menu.x + TitleIdle.COL
++    local secondX = originX + 7 * advance + 8
++    if not self.menuSheets then
++        self.menuSheets = {
++            font = gfx.image.new("images/title/font/font"),
++            extra = gfx.image.new("images/title/font/extra"),
++            ed = gfx.image.new("images/title/font/ed"),
++        }
++        self.menuGlyphs = {}
++    end
++    local function drawPacked(text, x, y)
++        local cursor = x
++        for _, code in utf8.codes(text) do
++            local char = utf8.char(code)
++            local image = self.menuGlyphs[char]
++            if not image then
++                local sheetName, index = TitleIdle.glyph(char)
++                local sheet = self.menuSheets[sheetName]
++                local columnsInSheet = sheetName == "ed" and 1 or 16
++                local sx = (index % columnsInSheet) * 8
++                local sy = math.floor(index / columnsInSheet) * 8
++                image = gfx.image.new(advance, 16, gfx.kColorWhite)
++                gfx.pushContext(image)
++                gfx.setDrawOffset(0, 0)
++                gfx.setColor(gfx.kColorBlack)
++                for py = 0, 15 do
++                    local sourceY = sy + math.floor(py * 8 / 16)
++                    for px = 0, advance - 1 do
++                        local sourceX = sx + math.floor(px * 8 / advance)
++                        if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
++                            gfx.drawPixel(px, py)
++                        end
++                    end
++                end
++                gfx.popContext()
++                self.menuGlyphs[char] = image
++            end
++            image:draw(cursor, y)
++            cursor = cursor + advance
++        end
++    end
++    for index, label in ipairs(options) do
++        local col = (index - 1) % columns
++        local row = math.floor((index - 1) / columns)
++        local x = (columns == 2 and col == 1) and secondX or originX
++        local y = (14 + row * 2) * TitleIdle.ROW
++        if index == selected then
++            GbFont.drawTight(TitleIdle.CURSOR, menu.x + 2, y)
++        end
++        drawPacked(label, x, y)
++    end
++end
++
+ function BattleScene:drawMoveSelect()
+     local layout = BattleScene.moveSelectLayout()
+     gfx.setColor(gfx.kColorWhite)

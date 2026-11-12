@@ -103,6 +103,16 @@ A newly caught species follows `item_effects.asm`: the owned flag is read before
 
 The r9 frames were rendered with the patch applied on a scratch tree. That bundle's `source_sha256` is `743b277c49d93f0a191b4979f203eb63471f3dc7c3d75be9752f78c60aab0180` and includes the patch plus the matching transform hashes, so it will not match this commit. A production build of this commit still fails the transform-dependency check until lane E regenerates those hashes. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r9/`: `nickname-gift.png`, `nickname-catch.png`, `pre-throw.png`, `post-pokedex.png`, and `pokedex-rattata.png` (the new entry that returns to the battle).
 
+## Round 8
+
+BlueBot's Zapdos clip switched box styles. `A wild ZAPDOS appeared!` and the typing `Go! SQUIRTLE!` use the tile border and the pixel font. Once the page settles, `Go! SQUIRTLE!` and `What will SQUIRTLE do?` fall through to the thin rectangle and the system font. The dialog patch, applied on `origin/cursor/lane-e-integration` at `2ded4b6a`, did not cover that. Typing called `messageDialog:draw` only while the page was still active. The finished line used `_wrapped` with the system font, and the menu used `gfx.getSystemFont()`.
+
+The patch now sends the typing page and the settled page through `BattleScene:drawDialog`, which calls `Dialog:draw`. The command frame uses that same dialog for `What will` / `NAME do?` and a `GbFont` tile box for `FIGHT` / `BAG` / `POKEMON` / `RUN`. The name is redrawn at 2× in the gutter so `SQUIRTLE do?` stays whole, and the menu labels are the same tiles at 13px so `POKEMON` and `RUN` both fit inside the border. The hunk starts after `local boxY = 180` and leaves the `gfx.setFont(gfx.getSystemFont())` lines, so lane H's `lane-e-battle-text-flicker.patch` still applies before or after it. `tools/tests/test_lane_e_dialog_font.py` checks that the patched typing call and the settled call both go through `drawDialog`. The unpatched `battleScene.lua` still fails that assertion.
+
+`gfx/font/font.png` char `$E7` and `Source/images/title/font/font.png` tile `0x67` are the same 8×8 pixels, 20 ink pixels. The charmap already points `!` at `$E7`. The thick mark is the 20×13 nearest-neighbor scale of that tile. The glyph and the charmap are unchanged.
+
+The r10 frames were rendered on a scratch tree of `e93bc416`. The before set applies the dialog font and leaves `battleScene.lua` unpatched, so the style swap is visible. The after set includes the battle hunk. That bundle's `source_sha256` is `3641207b8a9879759e15d4728941b589ae6f48b12b053cff34540d6482a38f44` and includes the patch, so it will not match this commit. A production build of this commit still fails the transform-dependency check until lane E regenerates those hashes. Playdate Simulator 3.1.2. The fixture is Squirtle L5 against Zapdos L50. Frames are in `artifacts/lane-g/r10/`: `before-appeared.png`, `before-typing.png`, `before-go-full.png`, `before-go-settled.png`, `before-menu.png`, `after-appeared.png`, `after-typing.png`, `after-go-full.png`, `after-go-settled.png`, and `after-menu.png`.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

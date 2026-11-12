@@ -5,6 +5,9 @@ After applying tools/notes/lane-e-dialog-font.patch, run
 and update baselines only for dialog-box pixels. Do not regenerate other catalog art.
 The overworld, battle messages, and Oak's speech share the same glyphs.
 ▼ is drawn for prompt, para and cont. done draws none.
+Typing and settled battle text share Dialog:draw. The battle menu uses that
+box and GbFont. The hunk stays clear of the lines lane H's
+lane-e-battle-text-flicker.patch anchors.
 """
 import shutil
 import subprocess
@@ -89,9 +92,30 @@ class LaneEDialogFontTests(unittest.TestCase):
                 cwd=scratch, check=False, capture_output=True, text=True)
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
             self.assertIn("arrow-endings-ok", completed.stdout)
+            battle = (scratch / "Source/battle/battleScene.lua").read_text()
+            self.assertIn("function BattleScene:drawDialog", battle)
+            self.assertIn("self:drawDialog(self.messageDialog)", battle)
+            self.assertIn("self:drawDialog(self.settledDialog)", battle)
+            self.assertNotIn('_wrapped("battle-message"', battle)
+            self.assertIn("function BattleScene:drawCommandFrame", battle)
+            self.assertIn("GbFont.drawBox", battle)
+            self.assertNotIn('self:_text("what-will"', battle)
+            # lane-e-battle-text-flicker.patch inserts between these anchors.
+            self.assertIn(
+                "gfx.setFont(gfx.getSystemFont())\n\n"
+                "    -- Draw message box or menus.",
+                battle)
         finally:
             subprocess.run(["git", "worktree", "remove", "--force", str(scratch)], cwd=ROOT, check=False)
             shutil.rmtree(scratch, ignore_errors=True)
+
+    @unittest.expectedFailure
+    def test_battle_text_uses_one_renderer(self):
+        battle = (ROOT / "Source/battle/battleScene.lua").read_text()
+        self.assertIn("self:drawDialog(self.messageDialog)", battle)
+        self.assertIn("self:drawDialog(self.settledDialog)", battle)
+        self.assertNotIn('_wrapped("battle-message"', battle)
+        self.assertNotIn('self:_text("what-will"', battle)
 
     @unittest.expectedFailure
     def test_dialog_box_uses_the_tile_font(self):
