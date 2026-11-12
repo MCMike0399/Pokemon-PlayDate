@@ -417,7 +417,7 @@ function EndgameStory.plan(id, observation)
         local x <const> = observation.arrow_x or pending.x
         local y <const> = observation.arrow_y or pending.y
         local steps <const> = assert(EndgameStory.arrow(x, y), "viridian arrow tile missing")
-        return {status = "ready", steps = moves(steps)}
+        return {status = "ready", spinner = true, steps = moves(steps)}
     end
     if id == "pokered:CHAMPIONS_ROOM:script:entrance" then
         return {status = "ready", steps = moves(data.champion.walk)}

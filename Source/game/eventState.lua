@@ -82,6 +82,13 @@ function EventState:enter(id,options)
     self.npcMove,self.pendingWarp=nil,nil
     self.interactionPose=nil
     self.audioGaps = {}
+    self.spinnerTicks, self.spinnerFacing = 0, nil
+    if plan.spinner then
+        -- SFX_ARROW_TILES and the gym/facility arrow tiles have no installed
+        -- owner. The facing cycle is the part the player sprite can show.
+        self.audioGaps[#self.audioGaps + 1] = {cue = "SFX_ARROW_TILES", owner = "SourceAudio",
+            wait_for_completion = false}
+    end
     -- Interaction facing is transient for STAY actors as well as wanderers.
     -- NPCMotion retains the completed source pose; execution never changes it
     -- merely because the player talked from another side.
@@ -390,6 +397,15 @@ function EventState:update()
     elseif self.phase=="move-npc" then self:updateNPCMove()
     elseif self.phase=="move" then
         self.player:update()
+        if self.plan and self.plan.spinner then
+            self.spinnerTicks = (self.spinnerTicks or 0) + 1
+            if self.spinnerTicks % 2 == 0 then
+                local turns = {down = "left", left = "up", up = "right", right = "down"}
+                self.spinnerFacing = turns[self.spinnerFacing or self.player.facing]
+                local image = SpriteFactory.playerStand[self.spinnerFacing]
+                if image then self.player:setImage(image) end
+            end
+        end
         if not self.player.isMoving then self.moveOrigin=nil;self.player.stepJustFinished=false;self.player.pendingEdgeDoor=nil;self.player.pendingConnection=nil;self:advance() end
     elseif self.phase=="oak-arrival" or self.phase=="oak-departure" then self:updateRival()
     elseif self.phase=="heal-animation" then

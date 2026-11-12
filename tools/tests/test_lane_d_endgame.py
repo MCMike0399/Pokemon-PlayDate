@@ -93,6 +93,11 @@ for _, step in ipairs(walk) do
 end
 check(rights, 0, "door walk stays on the entry column")
 check(ups, 6, "door walk is the six source steps")
+local arrow = data.viridian_gym.arrows[1]
+local spin = EndgameStory.plan("pokered:VIRIDIAN_GYM:script:arrow",
+    {arrow_x = arrow.x, arrow_y = arrow.y, flags = {}})
+check(spin.spinner, true, "arrow tiles spin the player")
+check(#spin.steps > 0, true, "arrow tiles still move the player")
 local lance = data.elite_four[4]
 local hallway = EndgameStory.approachWalk(lance, 24)
 local counts = {}
