@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "0c6ecb0a96e9f50841d52fce115c4b8dc717c047",
-    "source_sha256": "f15de7828cb5c4e758e96ec477965246a7dbb1cc34ce7bb3c6a2c3d5f9da0e34",
+    "commit": "376c60d9",
+    "source_sha256": "5f547391b27dabf2f6cb08931d2baada0b9d3b909aa4bc0ab9ee2b199e0508a4",
     "policy_date": "2026-11-12",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after play time, the Hall of Fame card, the Seafoam surf predicate, and the regenerated journey and Vermilion provenance pins. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 ba799da376fabccb2ccfc940dc93e48f4cce31cc5785cdcf005833546f60756d.",
+    "scope": "Source identity after merging the Seafoam current controller into the full coast module. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f15de7828cb5c4e758e96ec477965246a7dbb1cc34ce7bb3c6a2c3d5f9da0e34.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
