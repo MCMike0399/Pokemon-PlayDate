@@ -233,31 +233,14 @@ local function moves(steps)
     return plan
 end
 
-local function approachWalk(room, x)
-    local steps <const> = moves(room.walk_in or room.walk)
-    if not room.entrance then
-        return steps
-    end
-    -- The battle starter only accepts a cardinally adjacent trainer. The
-    -- original six-step walk stops short of Lorelei, Bruno and Agatha.
-    if x == room.x - 1 then
-        steps[#steps + 1] = {op = "move", direction = "right", count = 1}
-    end
-    local climbed = 0
-    for _, step in ipairs(room.walk_in or {}) do
-        if step.direction == "up" then
-            climbed = climbed + step.count
-        end
-    end
-    local extra <const> = (11 - climbed) - (room.y + 1)
-    if extra > 0 then
-        steps[#steps + 1] = {op = "move", direction = "up", count = extra}
-    end
-    return steps
+local function approachWalk(room)
+    -- Lorelei, Bruno and Agatha walk exactly six tiles up from the door.
+    -- Sight is 0, so the walk does not start the battle.
+    return moves(room.walk_in or room.walk)
 end
 
-function EndgameStory.approachWalk(room, x)
-    return approachWalk(room, x)
+function EndgameStory.approachWalk(room, _)
+    return approachWalk(room)
 end
 
 local function starterName(observation)
@@ -351,13 +334,12 @@ function EndgameStory.championPlan(id, observation)
 end
 
 function EndgameStory.route22Approach(index)
-    -- ArePlayerCoordsInArray is 1-based. Index 1 is (29, 4). The fourth
-    -- right in pokered lands on the player's tile, so this stops beside them.
+    -- triggers.route22 is (29, 4) then (29, 5). pokered coord index 0 is the
+    -- upper tile and skips the first right. The lower tile walks all four.
     if index == 1 then
-        return {{op = "move-npc", direction = "right", count = 3}, {op = "move-npc", direction = "up", count = 1},
-            player = "left"}
+        return {{op = "move-npc", direction = "right", count = 3}, player = "left", rival = "right"}
     end
-    return {{op = "move-npc", direction = "right", count = 3}, player = "left"}
+    return {{op = "move-npc", direction = "right", count = 4}, player = "down", rival = "up"}
 end
 
 function EndgameStory.route22RivalPlan(id, observation)
@@ -380,8 +362,9 @@ function EndgameStory.route22RivalPlan(id, observation)
     for _, step in ipairs(approach) do
         steps[#steps + 1] = {op = "move-npc", id = id, direction = step.direction, count = step.count}
     end
+    steps[#steps + 1] = {op = "face-npc", id = id, direction = approach.rival}
     steps[#steps + 1] = {op = "face-player", direction = approach.player}
-    steps[#steps + 1] = {op = "trainer", id = id, before = copy(rival.before), mode = "talk"}
+    steps[#steps + 1] = {op = "trainer", id = id, before = copy(rival.before), mode = "script"}
     return {status = "ready", steps = steps}
 end
 
@@ -392,7 +375,7 @@ function EndgameStory.moltresRequest(flags)
         guards = {flags = {[flag] = false}, items = {}},
         rules = {capture = true, unidentified = false},
         outcomes = {victory = {flags = {[flag] = true}}, caught = {flags = {[flag] = true}},
-            run = {flags = {}}, defeat = {flags = {}}}}
+            run = {flags = {[flag] = true}}, defeat = {flags = {}}}}
 end
 
 function EndgameStory.moltresPlan(id, observation)
@@ -438,7 +421,7 @@ function EndgameStory.plan(id, observation)
                     {op = "dialog", labels = {room.dont_run_text}},
                     {op = "move", direction = "up", count = 1}}}
             end
-            return {status = "ready", steps = approachWalk(room, pending.x)}
+            return {status = "ready", steps = approachWalk(room)}
         end
     end
     local gate <const> = data.route22_gate
@@ -674,7 +657,7 @@ function EndgameStory.check(game)
         if armed.justWalked == data.champion.id then
             armed.justWalked = nil
             armed.champion = "fought"
-            return SourceEvents.dispatch(game, data.champion.id, {mode = "talk"})
+            return SourceEvents.dispatch(game, data.champion.id, {mode = "script"})
         end
         if not armed.champion then
             armed.justWalked = data.champion.id
@@ -694,17 +677,14 @@ function EndgameStory.check(game)
             end
             if room.entrance then
                 local action <const> = EndgameStory.entranceAction(room, x, y, flags)
-                if armed.justWalked == room.id then
-                    armed.justWalked = nil
-                    armed[room.id] = "fought"
-                    return SourceEvents.dispatch(game, room.id, {mode = "talk"})
-                end
+                -- The six-step walk stops at y=5. Sight is 0, so the player
+                -- talks once they are next to the trainer.
                 if action == "autowalk" and not armed[room.id] then
                     if room.autowalk_event then
                         game.session:setQuestFlag(room.autowalk_event, true)
                     end
                     pending.x, pending.y, pending.dont_run = x, y, nil
-                    armed.justWalked = room.id
+                    armed[room.id] = "walked"
                     return SourceEvents.dispatch(game, scriptId(room))
                 end
                 if action == "dont-run" then

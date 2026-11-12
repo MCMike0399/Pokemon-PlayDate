@@ -62,7 +62,7 @@ function EventState:enter(id,options)
     local descriptor=SourceEvents.descriptor(id)
     local content=descriptor.content
     local extended=content~="viridian"
-    assert(options==nil or type(options)=="table" and (options.mode==nil or options.mode=="talk" or options.mode=="sight"),"bounded source event options required")
+    assert(options==nil or type(options)=="table" and (options.mode==nil or options.mode=="talk" or options.mode=="sight" or options.mode=="script"),"bounded source event options required")
     self.content=content
     if extended then assert(currentZone.stableID=="pokered:"..id:match("^pokered:([^:]+):"),"source event belongs to another map") end
     assert(self.game.player and not self.game.player.isMoving,"event requires settled player")
@@ -135,7 +135,7 @@ function EventState:enter(id,options)
         elseif step.op=="trainer" then
             assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
             self.ops[#self.ops+1]=step
-        elseif step.op=="face-player" then
+        elseif step.op=="face-player" or step.op=="face-npc" then
             SourceEvents.validateStep(step)
             self.ops[#self.ops+1]=step
         elseif step.op=="move" then
@@ -236,6 +236,14 @@ function EventState:advance()
     elseif step.op=="face-player" then
         self.player.facing=step.direction
         self.player:updateSprite()
+        self:advance()
+    elseif step.op=="face-npc" then
+        local npc
+        for _, actor in ipairs(self.game.npcManager.npcs) do
+            if actor.def and actor.def.source_event_id == step.id then npc = actor; break end
+        end
+        if not npc then self:fail("absent-source-actor"); return end
+        npc:setFacing(step.direction)
         self:advance()
     elseif step.op=="move" then self:startMove(step.direction)
     elseif step.op=="move-npc" then self:startNPCMove(step)

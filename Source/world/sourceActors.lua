@@ -208,6 +208,12 @@ function SourceActors.describeSource(zoneID, world, game)
             end
             spec.script_positions[cell] = true
         end
+        spec.script_overlap = {}
+        for _, position in ipairs(SourceEvents.actorOverlapPositions(event.id)) do
+            local cell = position.y * surface.width + position.x + 1
+            assert(spec.script_positions[cell], "script overlap outside source script positions")
+            spec.script_overlap[cell] = true
+        end
         local metadata = resolver.metadata and resolver.metadata(d, event, game) or {}
         spec.script_collision_positions = {}
         for _, position in ipairs(SourceEvents.actorCollisionPositions(event.id)) do

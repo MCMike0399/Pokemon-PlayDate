@@ -26,7 +26,7 @@ local definitions <const> = {
     ["pokered:ROUTE_16:objects:7"] = {zone_id = "pokered:ROUTE_16", species = "snorlax", level = 30,
         flag = "EVENT_BEAT_ROUTE16_SNORLAX", fight = "EVENT_FIGHT_ROUTE16_SNORLAX",
         positions = {{27,10}, {25,10}}},
-    -- Wild static. A win or a catch hides it. A run or a loss leaves it.
+    -- Static trainer. EndTrainerBattle sets the flag unless the battle was lost.
     ["pokered:VICTORY_ROAD_2F:objects:6"] = {zone_id = "pokered:VICTORY_ROAD_2F", species = "moltres", level = 50,
         flag = "EVENT_BEAT_MOLTRES", legendary = true,
         positions = {{11, 4}, {11, 6}, {10, 5}, {12, 5}}},
@@ -38,7 +38,7 @@ end
 function SourceEncounters.completed(definition, kind, unidentified)
     assert(kind == "victory" or kind == "caught" or kind == "run" or kind == "defeat", "unsupported-source-result")
     if definition.legendary then
-        return kind == "victory" or kind == "caught"
+        return kind ~= "defeat"
     end
     if definition.fight then
         return kind ~= "defeat"
@@ -73,7 +73,7 @@ function SourceEncounters.prepare(session, request, location)
     local policy <const> = SourceEncounters.policy(session, d.zone_id, d)
     if d.legendary then
         outcomes = {victory = {flags = {[d.flag] = true}}, caught = {flags = {[d.flag] = true}},
-            run = {flags = {}}, defeat = {flags = {}}}
+            run = {flags = {[d.flag] = true}}, defeat = {flags = {}}}
         assert(equal(request.rules, {capture = true, unidentified = false}), "forged source battle rules")
     elseif d.fight then
         assert(session:questFlag(d.fight), "unarmed-source-snorlax")

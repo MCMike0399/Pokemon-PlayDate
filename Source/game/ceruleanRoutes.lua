@@ -98,7 +98,8 @@ function CeruleanRoutes.descriptors()
         end
         second = {kind="bespoke", content=CONTENT, scene_script="later-rival",
             before=copy(rival.before), won=copy(rival.won), after=copy(rival.after), lost=copy(rival.lost),
-            script_positions={{x=26,y=5},{x=27,y=5},{x=28,y=5},{x=28,y=4}},
+            script_positions={{x=26,y=5},{x=27,y=5},{x=28,y=5},{x=29,y=5}},
+            script_overlap_positions={{x=29,y=5}},
             victory={flags=flags, guard_flags=guards}}
     end
     events["pokered:ROUTE_22:objects:2"] = second
