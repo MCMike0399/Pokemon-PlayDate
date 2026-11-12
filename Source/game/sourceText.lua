@@ -23,8 +23,8 @@ function SourceText.expand(text, values)
             local finish = assert(text:find(">", index, true), "unterminated source token")
             local token = text:sub(index, finish)
             local value = expansions[token]
-            if token == "<PLAYER>" then value = values.player or "RED"
-            elseif token == "<RIVAL>" then value = values.rival or "BLUE"
+            if token == "<PLAYER>" then value = values.player or (Story and Story.playerName and Story.playerName()) or "RED"
+            elseif token == "<RIVAL>" then value = values.rival or (Story and Story.rivalName and Story.rivalName()) or "BLUE"
             elseif token == "<TARGET>" then value = assert(values.target, "source TARGET text required")
             elseif token == "<USER>" then value = assert(values.user, "source USER text required")
             elseif token:match("^<BOLD_[A-ILMPSV]>$") then value = token:sub(7, 7)

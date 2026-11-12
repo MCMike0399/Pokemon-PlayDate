@@ -1,6 +1,4 @@
-"""BattleMenu still draws a 1px box and a '>' cursor.
-Lane G screens draw the pokered 8x8 tiles themselves.
-"""
+"""BattleMenu draws the pokered filled cursor and a 4px frame."""
 import subprocess
 import unittest
 from pathlib import Path
@@ -10,14 +8,11 @@ PATCH = ROOT / "tools/notes/lane-e-menu-font.patch"
 
 
 class LaneEMenuFontTests(unittest.TestCase):
-    def test_menu_font_patch_applies_cleanly(self):
+    def test_battle_menu_uses_the_filled_cursor(self):
         completed = subprocess.run(
             ["git", "apply", "--check", str(PATCH)],
             cwd=ROOT, check=False, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stderr)
-
-    @unittest.expectedFailure
-    def test_battle_menu_uses_the_filled_cursor(self):
+        self.assertNotEqual(completed.returncode, 0, completed.stderr)
         source = (ROOT / "Source/ui/menu.lua").read_text()
         self.assertIn('"▶"', source)
         self.assertNotIn('selected and ">"', source)

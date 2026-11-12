@@ -222,7 +222,7 @@ function FossilRevival.confirm(session, itemSymbol, accepted, revival)
     return pack(true, "reviving")
 end
 
-local function handover(session, revival)
+local function handover(session, revival, game)
     local gave, still, handing, level = identity(revival)
     assert(session:questFlag(gave) and not session:questFlag(still), "fossil is not ready")
     local record = durableChoice(session)
@@ -253,11 +253,14 @@ local function handover(session, revival)
     end
     clearChoice(session)
     RulesRNG.restore(stream:snapshot())
+    if game and Story and Story.promptNickname then
+        Story.promptNickname(game, mon, record.species)
+    end
     return pack(true, "revived", {destination = result.destination, box = result.box,
-        species = record.species, level = level, index = result.index})
+        species = record.species, level = level, index = result.index, mon = mon})
 end
 
-function FossilRevival.talk(session, revival)
+function FossilRevival.talk(session, revival, game)
     revival = bind(revival)
     local gave, still = identity(revival)
     if not session:questFlag(gave) then
@@ -270,7 +273,7 @@ function FossilRevival.talk(session, revival)
     if session:questFlag(still) then
         return pack(true, "still-reviving")
     end
-    return handover(session, revival)
+    return handover(session, revival, game)
 end
 
 -- Cinnabar Island's map script clears only the still-reviving flag.

@@ -946,6 +946,9 @@ function Battle:throwBall(ballId)
         if result.caught then
             self:say("Gotcha! " .. self.enemy.name .. " was caught!")
             self.message=self.enemy.name .. " was caught!"
+            -- engine/events/battle.asm AskName, after the caught line.
+            self.pendingNickname={mon=self.enemy, speciesName=self.enemy.name}
+            self.nicknameReady=true
             return "caught" -- Catching grants no XP in Gen V.
         end
         if result.source_blocked then
