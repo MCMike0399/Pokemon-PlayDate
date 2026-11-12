@@ -294,10 +294,10 @@ class CharmanderRun(BrockJourney):
         if self.flag("BADGE_CASCADE") and self.defeated(cerulean.MISTY):
             self._after_cascade()
             return
-        # A Cerulean Mart or Center save already walked Route 3 and Mt. Moon.
-        # Heal and fight Misty from here. Do not walk back to Pewter.
+        # A save in Cerulean, on Nugget Bridge, or on Route 25 already
+        # walked Route 3 and Mt. Moon. Do not walk back to Pewter.
         zone_id = self.state.get("zone_id") or ""
-        if "CERULEAN" in zone_id and (
+        if any(token in zone_id for token in ("CERULEAN", "ROUTE_24", "ROUTE_25", "BILLS_HOUSE")) and (
             self.flag("EVENT_GOT_DOME_FOSSIL") or self.flag("EVENT_GOT_HELIX_FOSSIL")
         ):
             self._misty_badge(cerulean)
@@ -438,32 +438,49 @@ class CharmanderRun(BrockJourney):
         if count:
             self.buy_item(clerk, "potion", count, price)
 
-    def _arrival_reaches(self, zone_id, dest, target_id, goal):
-        """False when an edge cell is a pocket that cannot continue the trip."""
+    def _object_tiles(self, model):
+        return {(event["x"], event["y"]) for event in model.events.get("objects", [])}
+
+    def _arrival_reaches(self, zone_id, dest, target_id, goal, origin_id):
+        """False for a pocket whose only exit is back to the map we just left."""
         model = self.models[zone_id]
         dest = tuple(dest)
         if not model.inside(dest) or model.collision[dest[1]][dest[0]]:
             return False
-        goals = set(goal) if zone_id == target_id and goal else set()
-        if not goals:
-            for point, _kind, _detail in self.portals(model):
-                if point != dest:
-                    goals.add(point)
-        if not goals:
-            return False
-        try:
-            model.path(dest, goals, set(), allow_warps=goals)
-            return True
-        except ProtocolError:
-            return False
-        except TypeError:
+        blocked = self._object_tiles(model)
+        if zone_id == target_id and goal:
             try:
-                model.path(dest, goals, set())
+                model.path(dest, set(goal), blocked)
                 return True
             except ProtocolError:
                 return False
+        for point, kind, detail in self.portals(model):
+            if kind == "connection":
+                next_zone = detail[1][0]
+            elif kind == "warp":
+                try:
+                    next_zone = self.project_warp(model, detail)[0]
+                except ProtocolError:
+                    continue
+            else:
+                continue
+            if next_zone == origin_id:
+                continue
+            try:
+                model.path(dest, {point}, blocked, allow_warps={point})
+                return True
+            except ProtocolError:
+                continue
+            except TypeError:
+                try:
+                    model.path(dest, {point}, blocked)
+                    return True
+                except ProtocolError:
+                    continue
+        return False
 
     def _cross_open_portal(self, target_id, goal, banned):
+        origin_id = self.state["zone_id"]
         options = []
         for point, kind, detail in self.portals(self.model()):
             if kind != "connection":
@@ -472,7 +489,7 @@ class CharmanderRun(BrockJourney):
             zone, dest = destination[0], tuple(destination[1])
             if (zone, dest) in banned:
                 continue
-            if not self._arrival_reaches(zone, dest, target_id, goal):
+            if not self._arrival_reaches(zone, dest, target_id, goal, origin_id):
                 continue
             options.append((point, direction, zone, dest))
         if not options:
@@ -502,7 +519,8 @@ class CharmanderRun(BrockJourney):
                 point, kind, detail, destination = portal
                 if kind == "connection":
                     zone, dest = destination[0], tuple(destination[1])
-                    if (zone, dest) in banned or not self._arrival_reaches(zone, dest, target_id, goal):
+                    origin_id = self.state["zone_id"]
+                    if (zone, dest) in banned or not self._arrival_reaches(zone, dest, target_id, goal, origin_id):
                         banned.add((zone, dest))
                         if self.state.get("zone_id") == target_id and goal is not None:
                             self.navigate(goal)
