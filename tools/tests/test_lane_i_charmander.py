@@ -408,16 +408,20 @@ class CharmanderRun(BrockJourney):
             for mon in self.party()
         )
 
-    def _misty_target_level(self):
-        # Level 26 lost to Starmie. A restarted session keeps that higher line.
-        return getattr(self, "_misty_level_target", 28)
+    def _grass_target_level(self):
+        """High teens. A Misty loss raises this so the same lead is not sent back in."""
+        return getattr(self, "_grass_level_target", 18)
 
     def _starter_level(self):
         return self.party()[self.starter_index() - 1]["level"]
 
+    def _species_level(self, species):
+        levels = [mon["level"] for mon in self.party() if mon["species"] == species and mon["hp"] > 0]
+        return max(levels) if levels else 0
+
     def _misty_ready(self):
-        """Charmeleon stays out of the gym until about level 26."""
-        return self._starter_level() >= self._misty_target_level()
+        """Bellsprout or Oddish leads. Charmeleon's level does not open the gym."""
+        return self._have_counter(self._grass_target_level()) and self._species_level("pidgey") >= 14
 
     def _buy_balls(self):
         if self.quantity("pokeBall") >= 4:
@@ -443,18 +447,28 @@ class CharmanderRun(BrockJourney):
         if index != 1:
             self.field_swap(index, 1)
 
+    def _lead_species(self, species):
+        best = None
+        for index, mon in enumerate(self.party(), 1):
+            if mon["species"] == species and mon["hp"] > 0:
+                if best is None or mon["level"] > best[1]:
+                    best = (index, mon["level"])
+        if best and best[0] != 1:
+            self.field_swap(best[0], 1)
+
     def _arrange_lead(self, prefer):
-        """Charmeleon keeps the XP until level 26. A new counter leads only after that."""
+        """The Grass counter keeps the experience until Misty. Pidgey is raised after that."""
         if prefer == "counter" and self._have_counter(1):
             self._lead_counter(1)
+        elif prefer == "bench":
+            self._lead_species("pidgey")
         else:
             self._lead_starter()
 
     def _lead_for_misty(self):
-        if self._have_counter(18):
-            self._lead_counter(18)
-        else:
-            self._lead_starter()
+        if not self._have_counter(self._grass_target_level()):
+            raise ProtocolError("Misty refused: no Grass lead in the high teens")
+        self._lead_counter(self._grass_target_level())
 
     def _needs_heal(self):
         lead = self.party()[0]
@@ -660,14 +674,18 @@ class CharmanderRun(BrockJourney):
             for _ in range(limit * 4):
                 if prefer == "starter" and self._misty_ready():
                     break
-                if prefer == "counter" and self._have_counter(18):
+                if prefer == "counter" and self._have_counter(self._grass_target_level()):
+                    break
+                if prefer == "bench" and self._species_level("pidgey") >= 14:
                     break
                 if len(self.summary["training"]) - start >= limit:
                     break
                 if len(self.summary["training"]) >= self.config.get("max_training_battles", 256):
                     break
                 active = lookup(self.state, "pokemon")
-                if active.get("hp", 0) * 2 < active.get("maxHP", 1) or active.get("status") not in {None, "none"}:
+                # Pidgey is frail. Heal before a wild hit can black out the session.
+                bench_hurt = prefer == "bench" and active.get("hp", 0) < active.get("maxHP", 1)
+                if bench_hurt or active.get("hp", 0) * 2 < active.get("maxHP", 1) or active.get("status") not in {None, "none"}:
                     self.training_mode = None
                     self.heal_here("CeruleanPokecenter")
                     self.save()
@@ -698,55 +716,108 @@ class CharmanderRun(BrockJourney):
             self.capture_pending = False
         return len(self.summary["training"]) - start
 
+    def _sell_nugget(self, clerk):
+        """Sell the Bridge Nugget at the open counter. The shop's own total is the price."""
+        if self.quantity("nugget") < 1:
+            return 0
+        quantity, money = self.quantity("nugget"), self.inventory()["money"]
+        self.interact(source_id=clerk)
+        self.require(root="shop", **{"shop.phase": "mode"})
+        self.select("shop.menu.selected", 2)
+        self.send("press a")
+        index = next(i for i, slot in enumerate(self.inventory()["slots"], 1) if slot["id"] == "nugget")
+        self.select("shop.selected", index)
+        self.require(**{"shop.item": "nugget"})
+        self.send("press a")
+        self.require(**{"shop.phase": "quantity", "shop.quantity": 1})
+        self.send("press a")
+        self.require(**{"shop.phase": "confirm"})
+        self.select("shop.menu.selected", 1)
+        self.send("press a")
+        self.require(**{"shop.phase": "result", "shop.result.ok": True})
+        total = lookup(self.state, "shop.result.total")
+        if type(total) is not int or total <= 0 or self.quantity("nugget") != quantity - 1 or self.inventory()["money"] != money + total:
+            raise ProtocolError("actual Nugget sale did not commit exact item/money changes")
+        self.send("press a", "press b", "press b")
+        self.drain()
+        return total
+
+    def _buy_misty_items(self):
+        """Buy what this mart sells. Cerulean has Parlyz Heals and no Super Potions."""
+        clerk = self.zone("CeruleanMart") + ":objects:1"
+        shop = self.export["shops"][clerk]
+        wants_parlyz = "parlyzHeal" in shop["stock"] and self.quantity("parlyzHeal") < 5
+        wants_super = "superPotion" in shop["stock"] and self.quantity("superPotion") < 5
+        wants_potions = self.quantity("potion") < 20
+        if self.quantity("nugget") and self.inventory()["money"] < 1000 and (wants_parlyz or wants_potions or wants_super):
+            self.travel(self.zone("CeruleanMart"))
+            self._sell_nugget(clerk)
+        if wants_super:
+            price = shop["prices"]["superPotion"]
+            count = min(5 - self.quantity("superPotion"), self.inventory()["money"] // price)
+            if count:
+                self.travel(self.zone("CeruleanMart"))
+                self.buy_item(clerk, "superPotion", count, price)
+        if wants_parlyz:
+            price = shop["prices"]["parlyzHeal"]
+            count = min(5 - self.quantity("parlyzHeal"), self.inventory()["money"] // price)
+            if count:
+                self.travel(self.zone("CeruleanMart"))
+                self.buy_item(clerk, "parlyzHeal", count, price)
+        self._stock_potions()
+
     def _prepare_for_misty(self):
-        """Train on Routes 24 and 25 until Charmeleon can win. Do not enter the gym here."""
+        """Level the Grass counter to the high teens and raise Pidgey. Do not enter the gym here."""
         self.heal_here("CeruleanPokecenter")
         self.stock_up("CeruleanMart")
         self._buy_balls()
-        self._stock_potions()
+        self._buy_misty_items()
         self.save()
         stalled = 0
-        while not self._misty_ready():
-            level = self._starter_level()
-            battles = len(self.summary["training"])
-            self._fight_route_trainers("ROUTE_24", range(7, 0, -1))
-            if not self._misty_ready():
-                self._fight_route_trainers("ROUTE_25", range(9, 0, -1))
-            gained = 0
-            if not self._misty_ready():
-                gained += self._grind("Route24", 10, "starter")
-                gained += self._grind("Route25", 10, "starter")
-                self.heal_here("CeruleanPokecenter")
-                self._stock_potions()
-                self.save()
-            if self._misty_ready():
-                break
-            if self._starter_level() == level and gained == 0 and len(self.summary["training"]) == battles:
+        while not self._have_counter(self._grass_target_level()):
+            level = self._species_level("bellsprout") or self._species_level("oddish")
+            gained = self._grind("Route24", 10, "counter")
+            gained += self._grind("Route25", 10, "counter")
+            self.heal_here("CeruleanPokecenter")
+            self._buy_misty_items()
+            self.save()
+            if (self._species_level("bellsprout") or self._species_level("oddish")) == level and gained == 0:
                 stalled += 1
             else:
                 stalled = 0
             if stalled >= 2 or len(self.summary["training"]) >= self.config.get("max_training_battles", 256):
-                raise ProtocolError("training stalled before Charmeleon reached level %s" % self._misty_target_level())
-        if self._have_counter(1) and not self._have_counter(18):
-            self._grind("Route24", 8, "counter")
-            self._grind("Route25", 8, "counter")
+                raise ProtocolError("training stalled before the Grass counter reached the high teens")
+        stalled = 0
+        while self._species_level("pidgey") < 14:
+            level = self._species_level("pidgey")
+            gained = self._grind("Route24", 8, "bench")
+            gained += self._grind("Route25", 8, "bench")
             self.heal_here("CeruleanPokecenter")
-            self._stock_potions()
             self.save()
+            if self._species_level("pidgey") == level and gained == 0:
+                stalled += 1
+            else:
+                stalled = 0
+            if stalled >= 2 or len(self.summary["training"]) >= self.config.get("max_training_battles", 256):
+                raise ProtocolError("training stalled before Pidgey was raised")
+        self._buy_misty_items()
+        self.heal_here("CeruleanPokecenter")
+        self.save()
 
     def _misty_badge(self, cerulean):
-        """Pause-save in the overworld, then fight Misty. A loss trains two more levels."""
+        """Pause-save in the overworld, then fight Misty. A loss trains the Grass lead further."""
         previous = self.config.get("max_blackouts", 2)
-        self.config["max_blackouts"] = 0
         try:
             for attempt in range(4):
+                self.config["max_blackouts"] = previous
                 self._prepare_for_misty()
                 if not self._misty_ready():
-                    raise ProtocolError("Misty refused: Charmeleon is still below the training line")
+                    raise ProtocolError("Misty refused: the Grass lead is not ready")
                 self._lead_for_misty()
                 self.heal_here("CeruleanPokecenter")
                 self.save()
                 self.blackouts = 0
+                self.config["max_blackouts"] = 0
                 try:
                     if not self.defeated(cerulean.MISTY):
                         self.fight(cerulean.MISTY)
@@ -754,7 +825,8 @@ class CharmanderRun(BrockJourney):
                 except ProtocolError as error:
                     if "blackout" not in str(error) or attempt == 3:
                         raise
-                    self._misty_level_target = self._starter_level() + 2
+                    levels = [mon["level"] for mon in self.party() if mon["species"] in WATER_COUNTERS]
+                    self._grass_level_target = (max(levels) if levels else self._grass_target_level()) + 2
             else:
                 raise ProtocolError("Misty training retries exhausted")
         finally:
@@ -814,6 +886,10 @@ class CharmanderRun(BrockJourney):
             and self.quantity("pokeBall") > 0
             and len(self.party()) < 6
         )
+        player = battle.get("player") or {}
+        if player.get("status") in {"paralysis", "paralyze"} and self.quantity("parlyzHeal") > 0:
+            self.battle_medicine("parlyzHeal", options)
+            return True
         if not want:
             return super().battle_preparation_action(battle, options)
         # Throw before Dragon Rage can knock the counter out.
@@ -827,6 +903,20 @@ class CharmanderRun(BrockJourney):
             # The next wild fight records its goal before this method runs.
             if self.training_mode == "capture":
                 self.training_mode = "train"
+
+    def battle_medicine(self, item, options, target=None):
+        """A Grass lead Vine Whips unless it is at or below one third HP."""
+        mon = (self.state.get("battle") or {}).get("player") or {}
+        healing = item in {"potion", "superPotion", "hyperPotion", "maxPotion", "fullRestore"}
+        if healing and mon.get("species") in WATER_COUNTERS and mon.get("hp", 0) * 3 > mon.get("maxHP", 1):
+            fight = [i for i, value in enumerate(options, 1)
+                     if value == "FIGHT" or isinstance(value, dict) and value.get("action") == "fight"]
+            if len(fight) != 1:
+                raise ProtocolError("battle requires exactly one real FIGHT action")
+            self.select("battle.menu.selected", fight[0])
+            self.send("press a")
+            return None
+        return super().battle_medicine(item, options, target)
 
     def battle(self, name, strategy="attack", expected=None):
         from tools.harness.brock_journey import NaturalBlackout
@@ -1016,7 +1106,8 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertLess(body.index("_misty_badge"), body.index('self.heal_here("PewterPokecenter")'))
         self.assertIn("def _prepare_for_misty", source)
         self.assertIn("ROUTE_25", source)
-        self.assertIn("return getattr(self, \"_misty_level_target\", 28)", source)
+        self.assertIn("return getattr(self, \"_grass_level_target\", 18)", source)
+        self.assertIn("no Grass lead in the high teens", source)
         self.assertIn("self.travel = self._travel_past_dead_edges", source)
         self.assertIn("no open route past a dead map edge", source)
         self.assertLess(source.index("if not self._misty_ready()"), source.index("self.fight(cerulean.MISTY)"))
