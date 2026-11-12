@@ -480,9 +480,11 @@ class CharmanderRun(BrockJourney):
         return False
 
     def _cross_open_portal(self, target_id, goal, banned):
+        """Walk to a different door. A zero-step door is the one we just reversed."""
         origin_id = self.state["zone_id"]
+        model = self.model()
         options = []
-        for point, kind, detail in self.portals(self.model()):
+        for point, kind, detail in self.portals(model):
             if kind != "connection":
                 continue
             direction, destination = detail
@@ -491,12 +493,23 @@ class CharmanderRun(BrockJourney):
                 continue
             if not self._arrival_reaches(zone, dest, target_id, goal, origin_id):
                 continue
-            options.append((point, direction, zone, dest))
+            try:
+                route = model.path(self.position(), {point}, self.occupied(), allow_warps={point})
+            except ProtocolError:
+                continue
+            except TypeError:
+                try:
+                    route = model.path(self.position(), {point}, self.occupied())
+                except ProtocolError:
+                    continue
+            options.append((len(route), point, direction, zone, dest))
         if not options:
             return False
-        point, direction, zone, dest = options[0]
+        options.sort()
+        _length, point, direction, zone, dest = options[0]
         origin = self.state["zone_id"]
-        self.navigate(point)
+        if self.position() != point:
+            self.navigate(point)
         self.cross(direction, zone, dest)
         self.summary["transitions"].append({
             "from": origin, "kind": "connection", "source": direction, "to": [zone, list(dest)],
@@ -509,6 +522,7 @@ class CharmanderRun(BrockJourney):
         if isinstance(goal, tuple):
             goal = {goal}
         banned = set()
+        last_cross = None
         for _ in range(self.config.get("max_transitions", 64)):
             try:
                 portal = self.route_portal(target_id, goal)
@@ -520,14 +534,26 @@ class CharmanderRun(BrockJourney):
                 if kind == "connection":
                     zone, dest = destination[0], tuple(destination[1])
                     origin_id = self.state["zone_id"]
-                    if (zone, dest) in banned or not self._arrival_reaches(zone, dest, target_id, goal, origin_id):
+                    origin_cell = self.position()
+                    reverse = (
+                        last_cross is not None
+                        and last_cross[2] == origin_id
+                        and last_cross[3] == origin_cell
+                        and last_cross[0] == zone
+                        and tuple(last_cross[1]) == dest
+                    )
+                    if reverse or (zone, dest) in banned or not self._arrival_reaches(zone, dest, target_id, goal, origin_id):
                         banned.add((zone, dest))
+                        if last_cross is not None:
+                            banned.add((last_cross[2], last_cross[3]))
                         if self.state.get("zone_id") == target_id and goal is not None:
                             self.navigate(goal)
                             return
                         if self._cross_open_portal(target_id, goal, banned):
+                            last_cross = None
                             continue
                         raise ProtocolError("no open route past a dead map edge to " + str(target_id))
+                    last_cross = (origin_id, tuple(point), zone, dest)
                 origin = self.state["zone_id"]
                 if kind == "warp":
                     self.warp(destination[0], event_id=detail["id"])
