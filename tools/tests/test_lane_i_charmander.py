@@ -416,7 +416,8 @@ class CharmanderRun(BrockJourney):
             trainer = cerulean.sid("ROUTE_24", index)
             if not self.defeated(trainer):
                 self.fight(trainer)
-        if not self.flag("EVENT_GOT_NUGGET") or self.quantity("nugget") != 1:
+        # The Nugget can already have been sold at the mart. The flag is the receipt.
+        if not self.flag("EVENT_GOT_NUGGET"):
             raise ProtocolError("Nugget Bridge gift was not received")
         self.checkpoint("cerulean-nugget-bridge")
         self.heal_here("CeruleanPokecenter")
@@ -431,7 +432,16 @@ class CharmanderRun(BrockJourney):
             self.checkpoint("cerulean-ticket")
         self.heal_here("CeruleanPokecenter")
         self.save()
-        self.summary.update(acceptance="Cerulean story saved", natural=True, forbidden_shortcuts=False)
+        self._toward_vermilion()
+        self.summary.update(acceptance="Reached Vermilion", natural=True, forbidden_shortcuts=False)
+
+    def _toward_vermilion(self):
+        """Walk south to Vermilion. Wild fights are fled. Surge is the next gym."""
+        self.training_mode = None
+        if "VERMILION" not in (self.state.get("zone_id") or ""):
+            self.travel(self.zone("VermilionCity"))
+        self.heal_here("VermilionPokecenter")
+        self.save()
 
     def _have_counter(self, minimum):
         return any(
