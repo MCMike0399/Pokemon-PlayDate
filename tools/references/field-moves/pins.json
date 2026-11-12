@@ -30,7 +30,9 @@
     "Route16",
     "Route17",
     "Route18",
-    "SaffronCity"
+    "SaffronCity",
+    "PalletTown",
+    "Route21"
   ],
   "pokered": {
     "constants/map_constants.asm": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271",
@@ -39,6 +41,7 @@
     "data/maps/headers/CeruleanCity.asm": "a2651d61e36759998f83531f79a5e6a910e2b9090dc31b4fdd0d08a523587fe1",
     "data/maps/headers/FuchsiaCity.asm": "d24c3d25b29785d5e71054be56e12de5ba2530808b6c2c3a219ace79ba6a96f2",
     "data/maps/headers/LavenderTown.asm": "924a5eeb50c0d1d8f4570be3632f202890c60db62b69a890e978a345a5773b24",
+    "data/maps/headers/PalletTown.asm": "be2b496effb593c55e6a4056e005e3c0518c4e56f670f57121249b561461d144",
     "data/maps/headers/PewterCity.asm": "c9314dde30c9d399cf6990e659b940c533ec72bee66142de9966fc7ad789bf37",
     "data/maps/headers/Route1.asm": "b64b3376c6516f3edc6a884d9220791805745d6cb7564574a11b9ee457da535d",
     "data/maps/headers/Route10.asm": "3809acfdc85abd996cdd56f835108fa73db8a50d9e31f7ce9a2c44b556fee064",
@@ -51,6 +54,7 @@
     "data/maps/headers/Route17.asm": "b75e602e043f1e16f385e09b6cdb482cce50c7833d112ec5d460e85e7ecdbfb9",
     "data/maps/headers/Route18.asm": "728bf13502aaaa2f8e6769fabf8b5f11d7c1d5c02f936c625e0d50d2fb58c4bc",
     "data/maps/headers/Route2.asm": "68f23142cf8b7e770062dbb680a5e1058a357e26794930183f569981f7365bfe",
+    "data/maps/headers/Route21.asm": "cb8638c60b2875827519242f1e02f7dcdccc0973a77d7b0ce005701ef75bbd88",
     "data/maps/headers/Route22.asm": "3f86459c6a57f5fd64b8f8013a2e1713d46c4708d72b95a0a6816538661c5f56",
     "data/maps/headers/Route24.asm": "6230ac60ea1db2a670a2dcad9d781a4e3fc1083c89696d3c82210643d3541c0b",
     "data/maps/headers/Route25.asm": "17aedac58f9a3c1bd62d72b7ecd107642ae96adcdd6be8aeb3addcd4b077405f",
@@ -90,6 +94,7 @@
     "maps/CeruleanCity.blk": "5d8a723600dca19fe3746690748cc6f0831c30010a5568cc5630453e5412f615",
     "maps/FuchsiaCity.blk": "90815094e9eb6455e8d15e6250a7e02dd79309499c5ccf63a1a20eb4d9981848",
     "maps/LavenderTown.blk": "dcee65f0f3da941d086f4039dcfa7f69dc915fd7204cd1ed9cdacff1b1741cbd",
+    "maps/PalletTown.blk": "a4fb597273830f3c54d50ff12ba2c0dbacc90a346e16b9359fcf87f95d1e08ad",
     "maps/PewterCity.blk": "2b0acb694cdbf0915b5e77885d17a75b11b302d1990ed46b95b17b9a7d356da0",
     "maps/Route1.blk": "328b8ad2dee6852d9f332f18af80a6210bb0f9204597ad082ac6e569e226d482",
     "maps/Route10.blk": "b100290fa5973a42964d36f3231c2f3551aaad242c958662bb8c153c3831a87d",
@@ -102,6 +107,7 @@
     "maps/Route17.blk": "6504314de76e6bfae9566f163e1192f982b74e8cd92766744dff6e99f68b25a4",
     "maps/Route18.blk": "25e1e2ffa700693a872324d4487bbbf24a504815e76b798b286fae80a0720a88",
     "maps/Route2.blk": "09c6caeadb7ed37a0ddc11982c12d627fac300a21b705d2d22780935b2cf1bc1",
+    "maps/Route21.blk": "fa7abd7efe3f9d2332da34f5f31774d6984555fc9dbc808ea164b43dc5f5a1fa",
     "maps/Route22.blk": "93efad02d03b93a1fcc6e60379086e5712d1785383ad055cf4b097fea9b7fff8",
     "maps/Route24.blk": "7d3d9351ec0cc6898c86f5281ad7eb660d4095239483a4a1a7a59ae62a2bd0db",
     "maps/Route25.blk": "53b7409d25bee7e28c76099861fe39397cc7b0a5c8fcb1b5820de4e0bc0a937b",

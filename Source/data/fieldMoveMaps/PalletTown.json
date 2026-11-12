@@ -1,0 +1,66 @@
+{
+  "id": "pokered:PALLET_TOWN",
+  "record": {
+    "grass_sites": [
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 10,
+            "y": 0
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 11,
+            "y": 0
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 10,
+            "y": 1
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 11,
+            "y": 1
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 10,
+            "y": 0
+          },
+          {
+            "x": 11,
+            "y": 0
+          },
+          {
+            "x": 10,
+            "y": 1
+          },
+          {
+            "x": 11,
+            "y": 1
+          }
+        ],
+        "x": 10,
+        "y": 0
+      }
+    ],
+    "height": 18,
+    "layout_sha256": "a4fb597273830f3c54d50ff12ba2c0dbacc90a346e16b9359fcf87f95d1e08ad",
+    "name": "PalletTown",
+    "sites": [],
+    "tileset": "OVERWORLD",
+    "width": 20
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

@@ -9,7 +9,7 @@ import unittest
 
 from tools.tests.host_fixtures import accepted_source_json
 from tools import generate_field_moves as gen
-from tools.generate_kanto_maps import decode_png, tile_grids
+from tools.generate_kanto_maps import decode_png, quadrant_ids, tile_grids
 
 
 class GrassCutDataTests(unittest.TestCase):
@@ -56,12 +56,44 @@ class GrassCutDataTests(unittest.TestCase):
         self.assertEqual(sum(len(self.data['maps'][key]['grass_sites']) for key in old_maps), 255)
         self.assertEqual(len(self.data['maps']['pokered:ROUTE_6']['grass_sites']), 45)
 
-    def test_all_installed_overworld_maps_are_pinned_without_pallet_recipe(self):
+    def test_installed_overworld_maps_are_pinned_when_source_has_cut_tiles(self):
+        # UsedCut accepts overworld tile $3d (cut tree) or $52 (grass). A swap-table
+        # block with neither tile is not a cut site. Pallet Town's one $0b block is
+        # sixteen $52 tiles, and Route 21 has nine. Route 19 and Cinnabar Island
+        # have none. Route 20 contains swap block $3f, whose quadrants are tile
+        # $11, so it is not cuttable either.
         compact = json.loads((gen.ROOT / 'Source/data/sourceMapCache/compact.json').read_bytes())
-        ids = {d['id'] for d in compact['maps'].values() if d['tileset']['constant'] == 'OVERWORLD'}
-        self.assertEqual(ids, {key for key, spec in self.data['maps'].items() if spec['tileset'] == 'OVERWORLD'})
+        reference = Path(os.environ['POKERED_REFERENCE_DIR'])
+        blockset = (gen.INPUT / 'pokered/gfx/blocksets/overworld.bst').read_bytes()
+        cuttable, plain = set(), set()
+        for name, descriptor in compact['maps'].items():
+            if descriptor['tileset']['constant'] != 'OVERWORLD':
+                continue
+            layout = (reference / 'maps' / (name + '.blk')).read_bytes()
+            tiles = {tile for block in set(layout) for quadrant in range(4)
+                     for tile in quadrant_ids(blockset, block, quadrant)}
+            (cuttable if {0x3d, 0x52} & tiles else plain).add(descriptor['id'])
+        generated = {key for key, spec in self.data['maps'].items() if spec['tileset'] == 'OVERWORLD'}
+        # Lavender and Saffron were already pinned and have empty recipes. Do not
+        # invent recipes for the newly installed layouts that also have no cut tile.
+        self.assertTrue(cuttable <= generated)
+        self.assertEqual(plain - generated, {'pokered:CINNABAR_ISLAND', 'pokered:ROUTE_19', 'pokered:ROUTE_20'})
+        route20 = (reference / 'maps/Route20.blk').read_bytes()
+        self.assertIn(0x3f, route20)
         self.assertNotIn('pallet_town', self.data['maps'])
-        self.assertNotIn('pokered:PALLET_TOWN', self.data['maps'])
+        pallet = self.data['maps']['pokered:PALLET_TOWN']
+        width = pallet['width'] // 2
+        layout = (gen.INPUT / 'pokered/maps/PalletTown.blk').read_bytes()
+        grass = [(index % width * 2, index // width * 2) for index, block in enumerate(layout) if block == 0x0b]
+        self.assertEqual([(site['x'], site['y']) for site in pallet['grass_sites']], grass)
+        self.assertEqual(grass, [(10, 0)])
+        route21 = self.data['maps']['pokered:ROUTE_21']
+        route21_layout = (gen.INPUT / 'pokered/maps/Route21.blk').read_bytes()
+        route21_width = route21['width'] // 2
+        route21_grass = [(index % route21_width * 2, index // route21_width * 2)
+                         for index, block in enumerate(route21_layout) if block == 0x0b]
+        self.assertEqual([(site['x'], site['y']) for site in route21['grass_sites']], route21_grass)
+        self.assertEqual(len(route21_grass), 9)
 
     def test_leaf_pixels_and_animation_snapshots_are_source_derived(self):
         leaf = tile_grids(decode_png((gen.INPUT / 'pokered/gfx/battle/move_anim_1.png').read_bytes()))[6]

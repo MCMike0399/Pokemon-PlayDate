@@ -61,7 +61,12 @@ class FieldMoveDataTests(unittest.TestCase):
 
     def test_cut_sites_bind_exact_source_positions_and_no_authored_pallet(self):
         self.assertNotIn('pallet_town', self.data['maps'])
-        self.assertNotIn('pokered:PALLET_TOWN', self.data['maps'])
+        pallet = self.data['maps']['pokered:PALLET_TOWN']
+        width = pallet['width'] // 2
+        layout = (gen.INPUT / 'pokered/maps/PalletTown.blk').read_bytes()
+        grass = [(index % width * 2, index // width * 2) for index, block in enumerate(layout) if block == 0x0b]
+        self.assertEqual([(site['x'], site['y']) for site in pallet['grass_sites']], grass)
+        self.assertEqual(pallet['sites'], [])
         route = self.data['maps']['pokered:ROUTE_2']
         self.assertEqual([(s['x'],s['y']) for s in route['sites']], [(4,10),(14,22),(4,38),(12,52),(12,60),(12,68)])
         vermilion = self.data['maps']['pokered:VERMILION_CITY']['sites']
