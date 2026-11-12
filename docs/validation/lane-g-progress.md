@@ -59,6 +59,20 @@ Playdate Simulator 3.1.2, production bundle `source_sha256` `a8b0b1566576a1c8606
 
 `Story.promptNickname` is the catch and gift ask. It already runs for the starter. Lane E's patch calls it after the caught line and the gifts. `NameRater.present` runs the house script, including the party list, the OT check, and the rename keyboard. `Story.tryNameRater` calls it only after the patch installs `SourceEventHandlers["pokered:NAME_RATERS_HOUSE:objects:1"]`.
 
+## Round 4
+
+BlueBot approved the intro fight, the title with Red, the player name presets, and the main menu. Four screens that were still wrong are corrected. The logo, the Blue Version line, Red, and the presets were not moved.
+
+The naming grid is `data/text/alphabets.asm`: row 4 is `× ( ) : ; [ ] PK MN` and row 5 is `- ? ! ♂ ♀ / . , ED`. Row 3 keeps its trailing space. `× ; [ ] ♂ ♀` come from `gfx/font/font.png`. `PK`, `MN`, and `ED` are one tile each (`ED` is `gfx/font/ED.png`). The `B delete / A on ED done` line is gone.
+
+`CRANK SCROLL` stays. It sits on the row under the third `options.asm` box. `CANCEL` has the following row to itself, with a blank row between them.
+
+The title copyright is the fourteen tiles `$41`–`$4E` (`gfx/splash/copyright.png` first five tiles, then `gfx/title/gamefreak_inc.png`). `LoadTitleMonSprite` is `hlcoord 5, 10`, seven tiles, so the picture ends on row 16. The copyright is `hlcoord 2, 17`. Every TitleMon is sampled into that slot and clipped to it. `tools/tests/test_lane_g_front_end.py` checks the grid against the alphabet and checks every TitleMon against the copyright row.
+
+Oak's speech is a white screen. It shows Oak, then Nidorino (slide), then the player, then the rival, then the player again. The text is the pixel font and reads `POKéMON`. The dialog owner is unchanged.
+
+Playdate Simulator 3.1.2, production bundle `source_sha256` `8ca9b2687c421e0d96f3172e36a4fd20f62ba89b7f2d63d29a04f663c5bacc38`. Captures are in `artifacts/lane-g/r4/`: the title, the keyboard, options, each Oak stage, the Continue menu and info box, and the Continue landing in Pallet Town. The Continue file is the bedroom save with `location` set to `pallet_town` `(5, 6)`, `EVENT_BEAT_CHAMPION_RIVAL`, and one Hall of Fame team. The codec still prints `RED`.
+
 ## Blockers
 
 - Chosen names do not survive Continue. The codec still asserts `RED` / `BLUE`.
@@ -66,4 +80,4 @@ Playdate Simulator 3.1.2, production bundle `source_sha256` `a8b0b1566576a1c8606
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
 - The intro tilemap scroll (`hSCX` in `IntroMoveMon`) is still the static first frame. The three Gengar poses are in place.
 - `TitleState:update` calls `KantoAudio.playCue("title")` while the title state is open. The start-menu sound stays on lane F's observer. Intro music is still unwired.
-- No earned save was available for the Continue box.
+- Continue now has a Pallet Town capture. The player name on that box is still `RED` until the names patch lands.

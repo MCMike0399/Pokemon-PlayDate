@@ -20,6 +20,9 @@ function TitleState:init(game)
     if game.machine and not game.machine:get("naming") and NamingState then
         game.machine:register("naming", NamingState(game))
     end
+    if game.machine and not game.machine:get("oak") and OakSpeechState then
+        game.machine:register("oak", OakSpeechState(game))
+    end
 end
 
 function TitleState:cutBallTile()
@@ -307,18 +310,48 @@ function TitleState:handleInput()
     end
 end
 
+function TitleState:fitted(cache, key, source, width, height)
+    local image = cache[key]
+    if image then return image end
+    image = gfx.image.new(width, height, gfx.kColorWhite)
+    local sourceWidth, sourceHeight = source:getSize()
+    gfx.pushContext(image)
+    gfx.setColor(gfx.kColorBlack)
+    for y = 0, height - 1 do
+        local sourceY = math.floor(y * sourceHeight / height)
+        for x = 0, width - 1 do
+            local sourceX = math.floor(x * sourceWidth / width)
+            if source:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(x, y)
+            end
+        end
+    end
+    gfx.popContext()
+    cache[key] = image
+    return image
+end
+
+function TitleState:copyrightImage()
+    if self.copyrightArt then return self.copyrightArt end
+    local strip = assert(gfx.image.new("images/title/font/title_copyright"), "missing title copyright tiles")
+    local rect = TitleIdle.copyrightRect()
+    self.copyrightArt = self:fitted({}, "copyright", strip, rect.w, rect.h)
+    return self.copyrightArt
+end
+
 function TitleState:drawTitleArt()
     local layout = TitleIdle.LAYOUT
     self.logo:drawScaled(layout.logo.x, layout.logo.y, layout.logo.scale)
     self.versionArt:drawScaled(layout.version.x, layout.version.y, layout.version.scale)
-    local mon = self:monImage()
-    local clip = layout.monClip
-    gfx.setClipRect(clip.x, clip.y, clip.w, clip.h)
-    mon:drawScaled(layout.mon.x + self.idle.offset * 4, layout.mon.y, layout.mon.scale)
+    local slot = TitleIdle.titleMonSlot()
+    local mon = self:fitted(self.idleArt, self.idle.species .. ":slot", self:monImage(), slot.w, slot.h)
+    local dx = math.floor(self.idle.offset * TitleIdle.COL / TitleIdle.TILE)
+    gfx.setClipRect(0, slot.y, 400, slot.h)
+    mon:draw(slot.x + dx, slot.y)
     gfx.clearClipRect()
+    local copyright = TitleIdle.copyrightRect()
+    self:copyrightImage():draw(copyright.x, copyright.y)
     self:drawPlayer()
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawText(TitleIdle.COPYRIGHT, layout.copyright.x, layout.copyright.y)
 end
 
 function TitleState:drawPlayer()

@@ -111,40 +111,62 @@ function Story.storeNickname(mon, name)
     return true
 end
 
+-- oak_speech.asm OakSpeech. The screen is cleared before each picture.
+-- #MON is the é tile, not the letters POKEMON.
 function Story.oakSteps()
     return {
-        {kind = "text", source = "OakSpeechText1", lines = {
+        {kind = "text", source = "OakSpeechText1", pic = "oak", effect = "fade", lines = {
             "Hello there!",
-            "Welcome to the world of POKEMON!",
-            "My name is OAK! People call me the POKEMON PROF!",
+            "Welcome to the",
+            "world of POKéMON!",
+            "My name is OAK!",
+            "People call me",
+            "the POKéMON PROF!",
         }},
-        {kind = "text", source = "OakSpeechText2", cry = "nidorina", lines = {
-            "This world is inhabited by creatures called POKEMON!",
-            "For some people, POKEMON are pets. Others use them for fights.",
+        {kind = "text", source = "OakSpeechText2", pic = "nidorino", effect = "slide", cry = "nidorina", lines = {
+            "This world is",
+            "inhabited by",
+            "creatures called",
+            "POKéMON!",
+            "For some people,",
+            "POKéMON are",
+            "pets. Others use",
+            "them for fights.",
             "Myself...",
-            "I study POKEMON as a profession.",
+            "I study POKéMON",
+            "as a profession.",
         }},
-        {kind = "text", source = "IntroducePlayerText", lines = {
-            "First, what is your name?",
+        {kind = "text", source = "IntroducePlayerText", pic = "player", effect = "slide", lines = {
+            "First, what is",
+            "your name?",
         }},
         {kind = "name", who = "player"},
-        {kind = "text", source = "YourNameIsText", lines = function(game)
-            return {"Right! So your name is " .. Story.playerName(game) .. "!"}
+        {kind = "text", source = "YourNameIsText", pic = "player", effect = "fade", lines = function(game)
+            return {"Right! So your", "name is " .. Story.playerName(game) .. "!"}
         end},
-        {kind = "text", source = "IntroduceRivalText", lines = {
-            "This is my grandson. He's been your rival since you were a baby.",
-            "...Erm, what is his name again?",
+        {kind = "text", source = "IntroduceRivalText", pic = "rival", effect = "fade", lines = {
+            "This is my grand-",
+            "son. He's been",
+            "your rival since",
+            "you were a baby.",
+            "...Erm, what is",
+            "his name again?",
         }},
         {kind = "name", who = "rival"},
-        {kind = "text", source = "HisNameIsText", lines = function(game)
-            return {"That's right! I remember now! His name is " .. Story.rivalName(game) .. "!"}
+        {kind = "text", source = "HisNameIsText", pic = "rival", effect = "fade", lines = function(game)
+            return {"That's right! I", "remember now! His", "name is " .. Story.rivalName(game) .. "!"}
         end},
-        {kind = "text", source = "OakSpeechText3", lines = function(game)
+        {kind = "text", source = "OakSpeechText3", pic = "player", effect = "fade", lines = function(game)
             local player = Story.playerName(game)
             return {
                 player .. "!",
-                "Your very own POKEMON legend is about to unfold!",
-                "A world of dreams and adventures with POKEMON awaits! Let's go!",
+                "Your very own",
+                "POKéMON legend is",
+                "about to unfold!",
+                "A world of dreams",
+                "and adventures",
+                "with POKéMON",
+                "awaits! Let's go!",
             }
         end},
     }
@@ -403,9 +425,14 @@ function Story.advanceOak(game)
         if step.cry and type(KantoAudio) == "table" and type(KantoAudio.playCry) == "function" then
             pcall(KantoAudio.playCry, step.cry)
         end
-        game.machine:push("dialog", lines, function()
+        local function nextStep()
             Story.advanceOak(game)
-        end)
+        end
+        if game.machine:get("oak") then
+            game.machine:push("oak", {step = step, lines = lines, onDone = nextStep})
+        else
+            game.machine:push("dialog", lines, nextStep)
+        end
     elseif step.kind == "name" then
         game.machine:push("naming", {
             kind = step.who,

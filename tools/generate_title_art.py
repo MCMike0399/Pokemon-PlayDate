@@ -40,6 +40,15 @@ def generate(reference_root, output, check=False):
         if entry['scale'] != 1:
             image = image.resize((image.width * entry['scale'], image.height * entry['scale']), Image.Resampling.NEAREST)
         prepared.append((entry['output'], image))
+    by_output = dict(prepared)
+    nintendo = by_output.get('font/copyright_tiles.png')
+    freak = by_output.get('font/gamefreak_inc.png')
+    if nintendo is not None and freak is not None:
+        # title.asm copies the first five copyright tiles, then gamefreak_inc.
+        strip = Image.new('1', (40 + freak.width, 8), 1)
+        strip.paste(nintendo.crop((0, 0, 40, 8)), (0, 0))
+        strip.paste(freak, (40, 0))
+        prepared.append(('font/title_copyright.png', strip))
     for relative, image in prepared:
         target = output / relative
         if check:

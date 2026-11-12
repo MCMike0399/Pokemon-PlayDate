@@ -16,7 +16,7 @@ end
 
 function GbFont.load()
     if sheets then return sheets end
-    sheets = {font = loadSheet("font"), extra = loadSheet("extra")}
+    sheets = {font = loadSheet("font"), extra = loadSheet("extra"), ed = loadSheet("ed")}
     return sheets
 end
 
@@ -79,6 +79,30 @@ function GbFont.drawBox(box)
             if char then GbFont.drawChar(char, originCol + col, originRow + row) end
         end
     end
+end
+
+-- One naming-screen cell. PK, MN and ED are single tiles, not two letters.
+function GbFont.drawCell(token, x, y)
+    GbFont.load()
+    local sheetName, index = TitleIdle.glyph(token)
+    local sheet = sheets[sheetName]
+    local columns = sheetName == "ed" and 1 or 16
+    local sx = (index % columns) * 8
+    local sy = math.floor(index / columns) * 8
+    local image = gfx.image.new(16, 16, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setColor(gfx.kColorBlack)
+    for py = 0, 15 do
+        local sourceY = sy + math.floor(py / 2)
+        for px = 0, 15 do
+            local sourceX = sx + math.floor(px / 2)
+            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(px, py)
+            end
+        end
+    end
+    gfx.popContext()
+    image:draw(x, y)
 end
 
 -- Tight 2x of the 8x8 tile, for a line that is not one glyph per cell.

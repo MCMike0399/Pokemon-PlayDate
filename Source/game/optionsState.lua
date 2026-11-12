@@ -59,8 +59,9 @@ function OptionsState:handleInput()
 end
 
 -- DisplayOptionMenu places ▷ on each row's current choice and ▶ on the
--- active row (PlaceMenuCursor). CRANK SCROLL keeps a row under the three
--- source boxes. Cancel is hlcoord 2, 16.
+-- active row (PlaceMenuCursor). The three boxes match options.asm.
+-- CRANK SCROLL sits on the row under the last box. CANCEL has the next
+-- row to itself, with a blank row between them.
 function OptionsState:draw()
     local x, y = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
@@ -87,16 +88,15 @@ function OptionsState:draw()
                 GbFont.drawString(value, col + 1, spec.choiceRow)
             end
         else
-            local col = choiceIndex == 1 and 14 or 17
-            GbFont.drawString(row.label, 1, 15)
-            GbFont.drawChar(marker, col, 15)
-            GbFont.drawString(row.choices[choiceIndex], col + 1, 15)
+            local place = GameOptions.crankPlace(choiceIndex)
+            GbFont.drawString(row.label, place.labelCol, place.row)
+            GbFont.drawChar(marker, place.choiceCol, place.row)
+            GbFont.drawString(row.choices[choiceIndex], place.choiceCol + 1, place.row)
         end
     end
-    if self.selected == self:rowCount() then
-        GbFont.drawChar(TitleIdle.CURSOR, 1, 16)
-    end
-    GbFont.drawString(GameOptions.cancelLabel, 2, 16)
+    local cancel = GameOptions.cancelPlace(self.selected == self:rowCount())
+    if cancel.cursor then GbFont.drawChar(TitleIdle.CURSOR, cancel.cursor, cancel.row) end
+    GbFont.drawString(GameOptions.cancelLabel, cancel.col, cancel.row)
     if self.error then GbFont.drawTight(self.error, 8, 222) end
     gfx.setDrawOffset(x, y)
 end

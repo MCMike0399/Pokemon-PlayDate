@@ -40,6 +40,26 @@ function NamingScreen.askText(speciesName)
     return "Do you want to give a nickname to " .. (speciesName or "POKEMON") .. "?"
 end
 
+-- oak_speech.asm. The picture is hlcoord 6, 4 and the screen behind it is white.
+OakSpeech = {
+    PIC_COL = 6,
+    PIC_ROW = 4,
+    PIC_TILES = 7,
+    FADE_FRAMES = 6,
+    SLIDE_STEP = 8,
+    LINES_PER_PAGE = 2,
+}
+
+function OakSpeech.slot()
+    return TitleIdle.cellRect(OakSpeech.PIC_COL, OakSpeech.PIC_ROW, OakSpeech.PIC_TILES, OakSpeech.PIC_TILES)
+end
+
+function OakSpeech.pageCount(lines)
+    local count = #lines
+    if count == 0 then return 1 end
+    return math.ceil(count / OakSpeech.LINES_PER_PAGE)
+end
+
 function NamingScreen.new(kind, options)
     options = options or {}
     local limit = kind == "mon" and NamingScreen.MON_LIMIT or NamingScreen.PLAYER_LIMIT
@@ -424,19 +444,139 @@ if Class then
                 local cursor = 24
                 for col, letter in ipairs(letters) do
                     local marker = (row == screen.row and col == screen.col) and TitleIdle.CURSOR or " "
-                    GbFont.drawTight(marker .. letter, cursor, 64 + (row - 1) * 18)
+                    GbFont.drawCell(marker, cursor, 64 + (row - 1) * 18)
+                    GbFont.drawCell(letter, cursor + 16, 64 + (row - 1) * 18)
                     cursor = cursor + 36
                 end
             end
             local caseMark = screen.row == 6 and TitleIdle.CURSOR or " "
             local caseLabel = screen.upper and "lower case" or "UPPER CASE"
-            GbFont.drawTight(caseMark .. caseLabel, 24, 168)
-            GbFont.drawTight("B delete   A on ED done", 24, 196)
+            GbFont.drawCell(caseMark, 24, 168)
+            GbFont.drawTight(caseLabel, 40, 168)
         end
         gfx.setDrawOffset(x, y)
     end
 
     function NamingState:exit()
         gfx.sprite.addDirtyRect(0, 0, 400, 240)
+    end
+
+    -- FadeInIntroPic holds white before the picture. MovePicLeft starts
+    -- the picture on the right and steps it to the slot.
+    local OAK_PICS <const> = {
+        oak = "images/title/trainers/PROF_OAK",
+        nidorino = "images/pokemon/nidorino-front",
+        player = "images/player/red-pic-front",
+        rival = "images/title/trainers/RIVAL1",
+    }
+
+    Class("OakSpeechState"):extends(State)
+
+    function OakSpeechState:init(game)
+        OakSpeechState.super.init(self, "oak")
+        self.game = game
+        self.pics = {}
+    end
+
+    function OakSpeechState:enter(options)
+        options = options or {}
+        self.step = options.step or {}
+        self.lines = options.lines or {}
+        self.onDone = options.onDone
+        self.page = 1
+        self.frame = 0
+        self.done = false
+        self.pages = OakSpeech.pageCount(self.lines)
+    end
+
+    function OakSpeechState:picture()
+        local name = self.step and self.step.pic
+        if not name then return nil end
+        local cached = self.pics[name]
+        if cached ~= nil then return cached or nil end
+        local path = OAK_PICS[name]
+        local source = path and gfx.image.new(path)
+        if not source then
+            self.pics[name] = false
+            return nil
+        end
+        local slot = OakSpeech.slot()
+        local image = gfx.image.new(slot.w, slot.h, gfx.kColorWhite)
+        local sourceWidth, sourceHeight = source:getSize()
+        gfx.pushContext(image)
+        gfx.setColor(gfx.kColorBlack)
+        for y = 0, slot.h - 1 do
+            local sourceY = math.floor(y * sourceHeight / slot.h)
+            for x = 0, slot.w - 1 do
+                local sourceX = math.floor(x * sourceWidth / slot.w)
+                if source:sample(sourceX, sourceY) == gfx.kColorBlack then
+                    gfx.drawPixel(x, y)
+                end
+            end
+        end
+        gfx.popContext()
+        self.pics[name] = image
+        return image
+    end
+
+    function OakSpeechState:settled()
+        local effect = self.step and self.step.effect
+        if effect == "slide" then
+            return self.frame * OakSpeech.SLIDE_STEP >= 160
+        end
+        return self.frame >= OakSpeech.FADE_FRAMES
+    end
+
+    function OakSpeechState:finish()
+        if self.done then return end
+        self.done = true
+        local callback = self.onDone
+        self.onDone = nil
+        self.machine:pop()
+        if callback then callback() end
+    end
+
+    function OakSpeechState:update()
+        if self.done then return end
+        self.frame = self.frame + 1
+    end
+
+    function OakSpeechState:handleInput()
+        if self.done then return end
+        if not playdate.buttonJustPressed(playdate.kButtonA) then return end
+        if not self:settled() then
+            self.frame = 1000
+            return
+        end
+        if self.page < self.pages then
+            self.page = self.page + 1
+            return
+        end
+        self:finish()
+    end
+
+    function OakSpeechState:draw()
+        local x, y = gfx.getDrawOffset()
+        gfx.setDrawOffset(0, 0)
+        gfx.clear(gfx.kColorWhite)
+        local picture = self:picture()
+        if picture and self:settled() or (picture and self.step.effect == "slide" and self.frame > 0) then
+            local slot = OakSpeech.slot()
+            local dx = 0
+            if self.step.effect == "slide" and not self:settled() then
+                dx = math.max(0, 160 - self.frame * OakSpeech.SLIDE_STEP)
+            end
+            if self.step.effect ~= "fade" or self:settled() then
+                picture:draw(slot.x + dx, slot.y)
+            end
+        end
+        local box = TitleIdle.textBox(0, 12, 18, 4)
+        GbFont.drawBox(box)
+        local first = (self.page - 1) * OakSpeech.LINES_PER_PAGE + 1
+        for offset = 0, OakSpeech.LINES_PER_PAGE - 1 do
+            local line = self.lines[first + offset]
+            if line then GbFont.drawString(line, 1, 13 + offset) end
+        end
+        gfx.setDrawOffset(x, y)
     end
 end

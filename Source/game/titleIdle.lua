@@ -114,9 +114,19 @@ TitleIdle.TILE = 8
 TitleIdle.MENU_DELAY = 20
 TitleIdle.CONTINUE_DELAY = 30
 TitleIdle.CONTINUE_LABELS = {"PLAYER", "BADGES", "POKéDEX", "TIME"}
--- engine/movie/title.asm CopyrightTextString. The tile row is graphic;
--- this is the same notice in the system font.
-TitleIdle.COPYRIGHT = "(C) '95.'96.'98 GAME FREAK inc."
+-- title.asm .tileScreenCopyrightTiles, $41 through $4E. DisplayTitleScreen
+-- fills that run with five Nintendo copyright tiles and nine Game Freak tiles.
+TitleIdle.COPYRIGHT_TILES = {}
+for tile = 0x41, 0x4E do
+    TitleIdle.COPYRIGHT_TILES[#TitleIdle.COPYRIGHT_TILES + 1] = tile
+end
+-- LoadTitleMonSprite is hlcoord 5, 10. A front pic is 7 tiles, so it
+-- ends on row 16. The copyright row is 17 and is not part of the pic.
+TitleIdle.MON_COL = 5
+TitleIdle.MON_ROW = 10
+TitleIdle.MON_TILES = 7
+TitleIdle.COPYRIGHT_COL = 2
+TitleIdle.COPYRIGHT_ROW = 17
 TitleIdle.BADGE_FLAGS = {
     "BADGE_BOULDER", "BADGE_CASCADE", "BADGE_THUNDER", "BADGE_RAINBOW",
     "BADGE_SOUL", "BADGE_MARSH", "BADGE_VOLCANO", "BADGE_EARTH",
@@ -127,9 +137,8 @@ TitleIdle.LAYOUT = {
     logo = {x = 8, y = 4, scale = 2},
     version = {x = 24, y = 112, scale = 2},
     player = {x = 308, y = 118, scale = 2},
-    mon = {x = 28, y = 128, scale = 2},
-    monClip = {x = 8, y = 108, w = 276, h = 124},
-    copyright = {x = 16, y = 222},
+    mon = {col = 5, row = 10, tiles = 7},
+    copyright = {col = 2, row = 17, tiles = 14},
 }
 
 function TitleIdle.ballTile()
@@ -297,7 +306,31 @@ end
 
 -- gfx/font/font.png tiles are (code - $80). font_extra.png is (code - $60).
 -- constants/charmap.asm. The filled cursor is ▶ and the hollow one is ▷.
+function TitleIdle.titleMonSlot()
+    return TitleIdle.cellRect(TitleIdle.MON_COL, TitleIdle.MON_ROW, TitleIdle.MON_TILES, TitleIdle.MON_TILES)
+end
+
+function TitleIdle.copyrightRect()
+    return TitleIdle.cellRect(TitleIdle.COPYRIGHT_COL, TitleIdle.COPYRIGHT_ROW, #TitleIdle.COPYRIGHT_TILES, 1)
+end
+
+-- The pic is sampled into the 7 by 7 slot. A 2x blit of a 56px front
+-- is taller than seven 13px rows and would cross the copyright row.
+function TitleIdle.placedMonRect(pixelWidth, pixelHeight)
+    local slot = TitleIdle.titleMonSlot()
+    assert(type(pixelWidth) == "number" and pixelWidth > 0, "title mon width required")
+    assert(type(pixelHeight) == "number" and pixelHeight > 0, "title mon height required")
+    return {x = slot.x, y = slot.y, w = slot.w, h = slot.h, sourceWidth = pixelWidth, sourceHeight = pixelHeight}
+end
+
+function TitleIdle.rectsOverlap(a, b)
+    return a.x < b.x + b.w and b.x < a.x + a.w and a.y < b.y + b.h and b.y < a.y + a.h
+end
+
 function TitleIdle.glyph(char)
+    if char == "PK" then return "font", 0xe1 - 0x80 end
+    if char == "MN" then return "font", 0xe2 - 0x80 end
+    if char == "ED" then return "ed", 0 end
     local extra = {
         [" "] = 0x7f - 0x60,
         ["┌"] = 0x79 - 0x60, ["─"] = 0x7a - 0x60, ["┐"] = 0x7b - 0x60,
@@ -307,10 +340,12 @@ function TitleIdle.glyph(char)
     local font = {
         ["▶"] = 0xed - 0x80, ["▷"] = 0xec - 0x80,
         ["é"] = 0xba - 0x80, [":"] = 0x9c - 0x80,
+        [";"] = 0x9d - 0x80, ["["] = 0x9e - 0x80, ["]"] = 0x9f - 0x80,
         ["-"] = 0xe3 - 0x80, ["."] = 0xe8 - 0x80,
         ["'"] = 0xe0 - 0x80, ["?"] = 0xe6 - 0x80, ["!"] = 0xe7 - 0x80,
         ["("] = 0x9a - 0x80, [")"] = 0x9b - 0x80,
-        ["/"] = 0xf3 - 0x80, [","] = 0xf4 - 0x80,
+        ["♂"] = 0xef - 0x80, ["×"] = 0xf1 - 0x80,
+        ["/"] = 0xf3 - 0x80, [","] = 0xf4 - 0x80, ["♀"] = 0xf5 - 0x80,
     }
     if font[char] then return "font", font[char] end
     local byte = char:byte()

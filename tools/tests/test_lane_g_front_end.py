@@ -80,6 +80,89 @@ class LaneGFrontEndTests(unittest.TestCase):
             self.assertNotEqual(gengar.size[0], 56)
             self.assertEqual(gengar.getpixel((0, 0)), 255)
 
+    def test_naming_grid_matches_alphabets(self):
+        # data/text/alphabets.asm UpperCaseAlphabet / LowerCaseAlphabet.
+        # <PK> <MN> <ED> are one tile each. <DOT> is the decimal point, the same mark as ".".
+        rows = {
+            "UPPER": [
+                list("ABCDEFGHI"),
+                list("JKLMNOPQR"),
+                list("STUVWXYZ "),
+                ["×", "(", ")", ":", ";", "[", "]", "PK", "MN"],
+                ["-", "?", "!", "♂", "♀", "/", ".", ",", "ED"],
+            ],
+            "LOWER": [
+                list("abcdefghi"),
+                list("jklmnopqr"),
+                list("stuvwxyz "),
+                ["×", "(", ")", ":", ";", "[", "]", "PK", "MN"],
+                ["-", "?", "!", "♂", "♀", "/", ".", ",", "ED"],
+            ],
+        }
+        source = (ROOT / "Source/game/namingState.lua").read_text()
+        self.assertNotIn("B delete", source)
+        self.assertNotIn("A on ED done", source)
+        for name, expected in rows.items():
+            matched = _lua_grid(source, name)
+            self.assertEqual(matched, expected, name)
+            self.assertEqual(matched[2][8], " ", name + " row 3 space")
+
+    def test_title_mons_do_not_cover_the_copyright(self):
+        import json
+        from PIL import Image
+        idle = (ROOT / "Source/game/titleIdle.lua").read_text()
+        draw = (ROOT / "Source/game/titleState.lua").read_text()
+        self.assertIn("TitleIdle.titleMonSlot()", draw)
+        self.assertIn("setClipRect(0, slot.y, 400, slot.h)", draw)
+        self.assertNotIn("drawScaled(layout.mon", draw)
+        self.assertIn("images/title/font/title_copyright", draw)
+        species = []
+        collecting = False
+        for line in idle.splitlines():
+            if line.startswith("TitleIdle.MONS"):
+                collecting = True
+            if collecting:
+                species.extend(part.strip('",') for part in line.split() if part.startswith('"'))
+            if collecting and "}" in line:
+                break
+        self.assertEqual(len(species), 16)
+        aliases = json.loads((ROOT / "Source/data/pokemon-art.json").read_text())["aliases"]
+        col, row = 20, 13
+        slot = (5 * col, 10 * row, 7 * col, 7 * row)
+        copyright_rect = (2 * col, 17 * row, 14 * col, row)
+        self.assertLessEqual(slot[1] + slot[3], copyright_rect[1])
+        for name in species:
+            path = ROOT / "Source/images/pokemon" / f"{aliases.get(name, name)}-front.png"
+            with Image.open(path) as image:
+                self.assertGreater(image.size[0], 0, name)
+                self.assertGreater(image.size[1], 0, name)
+            self.assertFalse(_rects_overlap(slot, copyright_rect), name)
+        with Image.open(ROOT / "Source/images/title/font/title_copyright.png") as strip:
+            self.assertEqual(strip.size, (112, 8))
+            self.assertEqual(strip.mode, "1")
+        with Image.open(ROOT / "Source/images/title/font/ed.png") as ed:
+            self.assertEqual(ed.size, (8, 8))
+            self.assertEqual(ed.mode, "1")
+
+
+def _lua_grid(source, name):
+    import re
+    start = source.index(f"NamingScreen.{name} = {{")
+    end = source.index("\n}", start)
+    block = source[start:end]
+    rows = []
+    for line in block.splitlines():
+        cells = re.findall(r'"([^"]*)"', line)
+        if cells:
+            rows.append(cells)
+    return rows
+
+
+def _rects_overlap(a, b):
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    return ax < bx + bw and bx < ax + aw and ay < by + bh and by < ay + ah
+
 
 if __name__ == "__main__":
     unittest.main()
