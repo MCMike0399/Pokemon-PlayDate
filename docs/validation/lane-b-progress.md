@@ -1052,5 +1052,38 @@ set and the drink quantity is 0. The east door, then one step off
 Route 7, is Saffron `(0, 18)` facing right. Sequence 137, sha256
 `9516c33d6d2914138064493c471a2ac66fab6399b9eea71125fb8201d259bfe6`
 (`seq137-adventure.b.json`). Money is 4555. `BADGE_MARSH` is unset.
-The continue is sequence 137. The gym door is `(34, 3)`, the mart is
-`(25, 11)`, and the Pokémon Center is `(9, 29)`.
+The gym door is `(34, 3)`, the mart is `(25, 11)`, and the Pokémon
+Center is `(9, 29)`.
+
+## Silph Co. before the gym
+
+Sabrina herself has no badge gate. The gym warp is `(34, 3)`, and the
+only walkable neighbor is `(34, 4)`, where a Rocket stands until
+`EVENT_BEAT_SILPH_CO_GIOVANNI`. This chain has to beat Silph Giovanni
+before it can enter the gym. The Silph door is already open:
+`EVENT_RESCUED_MR_FUJI` is set.
+
+The Saffron mart purchase is a normal in-game save. Sequence 138 is
+Silph Co. 3F `(4, 3)` facing right, sha256
+`04ef0161e054108325e4347ddb57432a6e4555bc632244547db19eaf7fc61eff`
+(`seq138-adventure.b.json`). `hyperPotion` is 2, `revive` is 1, and
+money is 55. The walker stepped on the 5F warp `(11, 5)` before the
+Card Key.
+
+Sequence 139 stepped back through that warp, then fought the Rocket at
+`(28, 4)`. It is Silph Co. 5F `(28, 2)` facing down, sha256
+`b8289bfdadf58591eca4c505110ef5aa3519c77c925b98a2a8b29348f37d31b5`.
+Venusaur is 85/150. Money is 1045. The two potions and the revive are
+still in the bag. Sequence 140 is the same bag and HP, at 5F `(14, 3)`
+facing left, sha256
+`6810579230d81078ee0e767375079ab61c9433e96487516c61bf8e9ca151ecf2`.
+Both north entrances to the Card Key corridor are Rockets.
+
+Sequence 141 used the 9F warp `(9, 15)` to land on 5F `(9, 15)`, fought
+the Rocket who sees `(9, 16)`, and stood at `(20, 16)` facing the Card
+Key. sha256
+`f2005922c4da4a0717d2ddaf57251634f0df8427eb05477f7cbb00541c8cc4d5`
+(`seq141-adventure.b.json`). Venusaur is 121/150. Money is 2035.
+`hyperPotion` is 1 and `revive` is 1, so the mart purchase is still in
+the save. The bag already holds 20 stacks, and the Card Key quantity
+is 0. The continue is sequence 141.
