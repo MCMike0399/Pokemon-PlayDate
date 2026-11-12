@@ -159,6 +159,12 @@ The r13 player rule sat on the bar row, so `HP`, the bar, and `19/19` lost their
 
 The r14 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `bc3add2b` with the lane E patches applied. That bundle's `source_sha256` is `5814f075d534db0eb2ca7db47061bd3ee2b9a939de346c613c0a6a7fd5c65958` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r14/`: `menu.png`, `go-settled.png`, and `player-hud.png`.
 
+## Round 13
+
+The player HUD stays at `x=160, y=96, w=224, h=48`. `tools/notes/lane-e-enemy-platform-shift.patch` raises the enemy platform by 6px, so the bottom line is `drawLine(268, 87, 390, 87)`, and raises the enemy picture with it (`y = y - 6` in `drawPresentedPokemon`). That leaves `y=88` through `y=95`, eight white pixels, above the name row. The enemy bracket is unchanged: name `(16, 4)`, level `(64, 20)`, bar `(32, 36)`, rule ink ending at `y=61`. The platform top is `y=78`, so the clearance is 16px, and the bracket ends at `x=176` while the platform starts at `x=265`. No nudge. `tools/tests/test_lane_e_enemy_platform_shift.py` expects the unpatched scene to fail.
+
+The r15 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `fde6a429` with the lane E patches applied, including the shift. That bundle's `source_sha256` is `95f4784205079ab31b396e27c6debdf5b59003b82a7a3961c35169b7e20a3ae7` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r15/`: `menu.png` and `gap.png`.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
