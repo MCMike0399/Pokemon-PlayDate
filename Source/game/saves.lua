@@ -41,17 +41,28 @@ local function saveGame(self, capturePayload)
 end
 
 function GameSaves:save()
+    -- engine/menus/save.asm SaveMenu keeps the map and the text box, then
+    -- prints NowSavingString. scripts/HallOfFame.asm farcall SaveGameData
+    -- leaves the ceremony up. The default loading draw clears the LCD and
+    -- paints BootTrace ("Save.begin", "Phase N"). Returning true keeps the
+    -- frame already on screen.
     return GameBootstrap.withLoading("Save", function()
         return saveGame(self, function()
             return self.game:captureSession()
         end)
+    end, function()
+        return true
     end)
 end
 function GameSaves:saveFromHall(event)
+    -- Same frame keep as GameSaves:save. The Hall of Fame save has no
+    -- separate loading screen in scripts/HallOfFame.asm.
     return GameBootstrap.withLoading("Save", function()
         return saveGame(self, function()
             return self.game:captureSessionFromHall(event)
         end)
+    end, function()
+        return true
     end)
 end
 

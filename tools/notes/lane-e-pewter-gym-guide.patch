@@ -1,6 +1,6 @@
 --- a/Source/game/overworldState.lua
 +++ b/Source/game/overworldState.lua
-@@ -548,7 +548,17 @@
+@@ -548,7 +548,19 @@
  
      local px, py = game.player:getPixelCenter()
      local mw, mh = getMapPixelSize()

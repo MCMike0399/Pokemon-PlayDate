@@ -571,6 +571,21 @@ function OverworldState:enter(opts)
     local px, py = game.player:getPixelCenter()
     local mw, mh = getMapPixelSize()
     game.camera:snapTo(px, py, mw, mh)
+    -- Spawn calls setImage before this snap, while the draw offset is still
+    -- the previous map. A STAY actor never calls setImage again. The Pewter
+    -- Gym guide (pokered object x=7 y=10, sprite top at world y=312) is below
+    -- the 240px screen at offset 0, so that first dirty rect never lands on
+    -- the LCD. NPCMotion:tick refreshes random walkers only, and that
+    -- setImage is still before camera:apply, so every other STAY actor
+    -- below or right of the origin screen has the same miss. The loop is
+    -- the whole npc list. Apply the snapped offset, then mark them dirty.
+    game.camera:apply()
+    for _, npc in ipairs(game.npcManager.npcs) do
+        if npc.images and npc.facing and npc.images[npc.facing] then
+            npc:setImage(npc.images[npc.facing])
+        end
+        if npc.markDirty then npc:markDirty() end
+    end
     -- Pokered fills the overworld buffer with the map's border block before
     -- placing a short room. Undersized imported maps (the Silph elevator is
     -- 13x4) have no vertical void rows, so the uncovered screen must be that

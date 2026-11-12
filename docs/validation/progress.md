@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-12 Pause Save keeps the picture, and STAY actors redraw after the snap
+
+Lane I `77016410`. `GameSaves:save` and `GameSaves:saveFromHall` pass a draw callback that returns true, so `GameBootstrap.showLoading` leaves the frame that is already on the LCD. `engine/menus/save.asm` `SaveMenu` keeps the map and the text box, clears the box text, and prints `NowSavingString` before `GameSavedText`. `scripts/HallOfFame.asm:50` calls `SaveGameData` with the ceremony still up. The port does not print "Now saving..." yet. It no longer replaces that box with `Pokemon Blue` / `Loading...` / `Save.begin` / `Phase N`.
+
+`data/maps/objects/PewterGym.asm` places `SPRITE_GYM_GUIDE` at (7, 10), `STAY`, `DOWN`. `NPC:init` calls `setImage` before `Camera:snapTo`. `NPCMotion:tick` calls `setImage` again only for random walkers, and that call is still before `camera:apply`. A scan of the stored object tiles found 502 `STAY` actors outside the origin 400 by 240 screen, including the Cerulean and Viridian gym guides. `OverworldState:enter` now applies the snapped offset and calls `setImage` and `markDirty` on every npc. The Pewter catalog viewport is a terrain crop, and the actors sheet draws with `sprite:draw`, so those baselines are unchanged. The catalog export still stops with `not enough memory`. `main` stays `bf92c4fc`.
+
 ## 2026-11-12 The Silph message hold and the remaining cues were already on this branch
 
 Lane B `975d8c87` `tools/notes/lane-e-battle-message.patch` matches the copy in this tree. `Dialog:handleInput` finishes a line on A, then keeps the complete page up for 10 frames, which is `MESSAGE_MIN_FRAMES` in `Source/battle/battle.lua`. That is `home/print_text.asm` `PrintLetterDelay` plus `home/joypad2.asm` `WaitForTextScrollButtonPress`. `test_mashed_a_holds_the_finished_battle_line` passes with the decorator removed. The hold changes when the page turns. It does not change the drawn pixels, and the catalog export still stops in `VisualCatalog.write` with `not enough memory`, so no protected baseline was rewritten.

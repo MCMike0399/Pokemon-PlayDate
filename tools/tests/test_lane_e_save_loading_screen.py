@@ -22,12 +22,11 @@ PATCH = ROOT / "tools/notes/lane-e-save-loading-screen.patch"
 
 
 def save_function(source, name, nxt):
-    body = source.split(f"function {name}()", 1)[1]
+    body = source.split(f"function {name}", 1)[1]
     return body.split(f"function {nxt}", 1)[0]
 
 
 class SaveLoadingScreenTest(unittest.TestCase):
-    @unittest.expectedFailure
     def test_save_does_not_paint_the_boot_trace(self):
         source = SOURCE.read_text(encoding="utf-8")
         added = " ".join(

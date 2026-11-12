@@ -76,7 +76,6 @@ class PewterGymGuideTest(unittest.TestCase):
         self.assertIn(("ViridianGym.json", "SPRITE_GYM_GUIDE"), off)
         self.assertGreater(len(off), 1)
 
-    @unittest.expectedFailure
     def test_enter_redraws_stay_actors_after_the_camera_snap(self):
         source = ENTER.read_text(encoding="utf-8")
         patch = PATCH.read_text(encoding="utf-8")
@@ -92,6 +91,7 @@ class PewterGymGuideTest(unittest.TestCase):
             "Apply tools/notes/lane-e-pewter-gym-guide.patch",
         )
         self.assertLess(enter.index("game.camera:apply()"), enter.index("npc:markDirty()"))
+        self.assertIn("for _, npc in ipairs(game.npcManager.npcs)", enter[snap:dirty])
 
 
 if __name__ == "__main__":
