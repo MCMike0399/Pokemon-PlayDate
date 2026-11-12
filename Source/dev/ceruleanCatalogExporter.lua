@@ -208,9 +208,13 @@ function CeruleanCatalogExporter.hiddenEvents(name, scriptPath)
 end
 
 local function mapImages(name, sink, packagePrefix, hiddenEvents)
+    local mark = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+    if mark then mark:write("map-image " .. tostring(packagePrefix or "cerulean") .. " " .. name .. "\t" .. tostring(collectgarbage("count")) .. "\n"); mark:close() end
     local descriptor = SourceMaps.descriptor(name)
     local definition = SourceMaps.padded(name)
     local zone = SourceMaps.isolated(name)
+    local prepared = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+    if prepared then prepared:write("map-prepared " .. name .. "\t" .. tostring(collectgarbage("count")) .. "\n"); prepared:close() end
     assert(zone.registry ~= WorldTiles, "catalog requires a private palette")
     local view
     local ok, result = pcall(function()

@@ -11,6 +11,68 @@ local function keys(t)
     return out
 end
 
+-- One string-keyed table cannot grow past 8192 slots in this pool. Path sets
+-- for the full export are split so each part stays under that rehash.
+local PATH_BUCKETS <const> = 16
+local function pathSlot(path)
+    local n = #path
+    local hash = n * 131 + string.byte(path, 1) + string.byte(path, n)
+    if n > 8 then hash = hash + string.byte(path, n - 4) * 17 + string.byte(path, 4) * 257 end
+    return (hash % PATH_BUCKETS) + 1
+end
+local function pathBuckets()
+    local buckets = {}
+    for index = 1, PATH_BUCKETS do buckets[index] = {} end
+    return buckets
+end
+
+-- A dense Lua array cannot grow past 8192 slots in this pool: the 16384-slot
+-- vector is one contiguous allocation the simulator will not satisfy. Image
+-- lists are stored in 4096-entry chunks and sorted through the path buckets.
+local IMAGE_CHUNK <const> = 4096
+local function sortedImageChunks(groups)
+    for index = 1, #groups do
+        table.sort(groups[index], function(a, b) return a.path < b.path end)
+    end
+    local heads = {}
+    for index = 1, #groups do heads[index] = 1 end
+    local chunks, count = {}, 0
+    while true do
+        local best, bestPath, bestIndex
+        for index = 1, #groups do
+            local entry = groups[index][heads[index]]
+            if entry and (not bestPath or entry.path < bestPath) then
+                best, bestPath, bestIndex = entry, entry.path, index
+            end
+        end
+        if not best then break end
+        heads[bestIndex] = heads[bestIndex] + 1
+        count = count + 1
+        local chunkIndex = math.floor((count - 1) / IMAGE_CHUNK) + 1
+        local slot = (count - 1) % IMAGE_CHUNK + 1
+        local chunk = chunks[chunkIndex]
+        if not chunk then chunk = {}; chunks[chunkIndex] = chunk end
+        chunk[slot] = best
+    end
+    return chunks, count
+end
+
+function VisualCatalog.iterImages(inventory)
+    local chunks = inventory.image_chunks or {inventory.images}
+    local chunk, slot = 1, 0
+    return function()
+        slot = slot + 1
+        local part = chunks[chunk]
+        if not part or slot > #part then
+            chunk = chunk + 1
+            slot = 1
+            part = chunks[chunk]
+            if not part then return nil end
+        end
+        return part[slot]
+    end
+end
+
 local function render(w, h, background, draw)
     local image = gfx.image.new(w, h, background)
     gfx.pushContext(image)
@@ -114,10 +176,12 @@ function VisualCatalog.registerExporter(name,record)
     registering=true;local checked,problem=pcall(rows,entry);registering=false;assert(checked,problem);exporters[name]=entry
     return function() assert(not exporting and not collecting and not registering,"cannot unregister during export");if exporters[name]==entry then exporters[name]=nil end end
 end
-function VisualCatalog.runExporter(name,consume)
+function VisualCatalog.runExporter(name,consume,prepared)
     assert(type(consume)=="function","image consumer required")
     local record=assert(exporters[name],"unknown exporter")
-    local inventory=rows(record);local allowed,seen={},{}
+    -- The catalog command already built this inventory. Building it again
+    -- beside the retained declarations does not fit in the pool.
+    local inventory=prepared or rows(record);local allowed,seen={},{}
     for _,entry in ipairs(inventory.images) do allowed[entry.path]=entry end
     assert(not collecting,"exporter already collecting");collecting=true
     local values=table.pack(pcall(function() return CatalogRuntime.guard(function()
@@ -162,22 +226,22 @@ function VisualCatalog.expectedInventory()
     -- "not enough memory".
     if SourceMaps and SourceMaps._sharedCompact then SourceMaps._sharedCompact() end
     collectgarbage("collect")
-    local result={schema=1,images={},exporters={},protected_count=1635,review_status="additions unreviewed"}
-    -- One path table that grows past 8192 slots asks for a contiguous rehash
-    -- the pool cannot satisfy, even though the rows themselves fit. Four sets
-    -- stay under that rehash.
-    local seen={{},{},{},{}}
+    local result={schema=1,exporters={},protected_count=1635,review_status="additions unreviewed"}
+    -- The combined export is past 8192 rows. One array of that length cannot
+    -- be allocated, so each path bucket keeps its own short list.
+    local lists=pathBuckets()
+    local seen=pathBuckets()
     local count=0
     -- rows() already returns a detached copy. Share that detached row,
     -- including the decoded protected rows. The export only reads those fields.
     local function add(entry)
         local path=entry.path
         assert(pathOK(path),"duplicate/unsafe catalog path: "..tostring(path))
-        local index=(string.byte(path,1)+string.byte(path,#path)+#path)%4+1
+        local index=pathSlot(path)
         assert(not seen[index][path],"duplicate/unsafe catalog path: "..path)
         seen[index][path]=true
+        lists[index][#lists[index]+1]=entry
         count=count+1
-        result.images[count]=entry
     end
     -- Copying the 1635 protected rows first leaves too little of the 16 MiB
     -- pool for the exporter frame lists (cerulean starts near 13696 KiB and
@@ -198,10 +262,32 @@ function VisualCatalog.expectedInventory()
     local protectedImages=protection().images
     collectgarbage("collect")
     heapMark("protected-decoded "..tostring(#protectedImages).." flat "..tostring(count))
+    -- The flat image array is already on its 8192-slot part. Appending the
+    -- protected rows grows it to 16384, and that contiguous rehash does not
+    -- fit beside the shared catalogue. The rows themselves do not point at
+    -- the catalogue, so drop it for the append and the sort, then put it back.
+    local provider=WorldDeltas and WorldDeltas.definitionProvider and WorldDeltas.definitionProvider()
+    if provider and provider.releaseCatalogue and SourceMaps and SourceMaps._releaseSharedCompact then
+        provider:releaseCatalogue()
+        SourceMaps._releaseSharedCompact()
+        collectgarbage("collect")
+    end
+    heapMark("protected-catalogue-released "..tostring(collectgarbage("count")))
     for _, entry in ipairs(protectedImages) do add(entry) end
+    seen=nil
     collectgarbage("collect")
-    heapMark("protected-after "..tostring(count).." len "..tostring(#result.images))
-    table.sort(result.images,function(a,b) return a.path<b.path end);return result
+    heapMark("protected-after "..tostring(count))
+    local chunks,packed=sortedImageChunks(lists)
+    lists=nil
+    collectgarbage("collect")
+    assert(packed==count,"catalog image chunks dropped a row")
+    result.image_chunks,result.image_count=chunks,packed
+    heapMark("images-sorted "..tostring(packed))
+    if provider and provider.retargetCatalogue and SourceMaps and SourceMaps._sharedCompact then
+        provider:retargetCatalogue(SourceMaps._sharedCompact())
+    end
+    heapMark("inventory-retargeted "..tostring(collectgarbage("count")))
+    return result
 end
 
 local function importedTiles()
@@ -299,7 +385,20 @@ local function writeCatalog(outputDir)
     local expected=VisualCatalog.expectedInventory()
     local mark=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
     if mark then mark:write("inventory-done\t"..tostring(collectgarbage("count")).."\n"); mark:close() end
-    local declarations,seen={},{};for _,entry in ipairs(expected.images) do declarations[entry.path]=entry end
+    local declarations,seen=pathBuckets(),pathBuckets()
+    for entry in VisualCatalog.iterImages(expected) do declarations[pathSlot(entry.path)][entry.path]=entry end
+    -- Map bitmaps are native allocations from the same pool as this Lua heap.
+    -- The shared catalogue is not read while the legacy frames are drawn.
+    local provider=WorldDeltas and WorldDeltas.definitionProvider and WorldDeltas.definitionProvider()
+    if provider and provider.releaseCatalogue and SourceMaps and SourceMaps._releaseSharedCompact then
+        provider:releaseCatalogue()
+        SourceMaps._releaseSharedCompact()
+        collectgarbage("collect")
+    end
+    local released=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+    if released then released:write("draw-catalogue-released\t"..tostring(collectgarbage("count")).."\n"); released:close() end
+    local written=pathBuckets()
+    local writtenCount=0
     local manifest = { expected_inventory=expected, exporters={}, schema = 1, images = {}, missing = {}, maps = {}, tiles = {}, source_npcs = {}, event_art = {}, runtime_art = {},
         added_inventory = VisualCatalog.additionInventory(),
         phase = { waterShifts = {0,1,2,3,4,3,2,1}, flowerFrames = {1,2,3,1}, map = "initial factory phase; current zone definitions" },
@@ -308,14 +407,17 @@ local function writeCatalog(outputDir)
             "Battle PNGs reproduce pinned pokered art exactly; historical importer revision remains unknown." } }
     local function save(name, image, category, mask)
         local filename = name .. ".png"
-        assert(pathOK(filename) and not seen[filename],"unsafe/duplicate catalog filename: "..filename)
-        local declared=assert(declarations[filename],"undeclared catalog path: "..filename)
-        seen[filename]=true
+        local index=pathSlot(filename)
+        assert(pathOK(filename) and not seen[index][filename],"unsafe/duplicate catalog filename: "..filename)
+        local declared=assert(declarations[index][filename],"undeclared catalog path: "..filename)
+        seen[index][filename]=true
         local w, h = image:getSize()
         assert(w==declared.width and h==declared.height,"catalog dimensions disagree with declaration: "..filename)
         assert(category==declared.category and (mask or false)==declared.mask,"catalog metadata differs from declaration: "..filename)
         playdate.simulator.writeToFile(image, outputDir .. "/" .. filename)
-        manifest.images[#manifest.images + 1] = { path = filename, width = w, height = h, category = category, mask = mask or false }
+        local row={ path = filename, width = w, height = h, category = category, mask = mask or false }
+        written[index][#written[index] + 1] = row
+        writtenCount = writtenCount + 1
         -- Native image buffers are larger than their Lua userdata wrappers, so
         -- the Lua heap can sit near 13 MiB while unreferenced map frames still
         -- fill the 16 MiB pool. A full route is hundreds of KiB. Collect after
@@ -323,7 +425,7 @@ local function writeCatalog(outputDir)
         -- route is allocated. Small tiles stay on the 32-image cadence.
         -- The image argument is still referenced, so this collect frees only
         -- earlier frames.
-        if w * h > 400 * 240 or #manifest.images % 32 == 0 then
+        if w * h > 400 * 240 or writtenCount % 32 == 0 then
             collectgarbage("collect")
         end
     end
@@ -436,7 +538,9 @@ local function writeCatalog(outputDir)
                 local image = gfx.image.new(source)
                 if image then asset("battle_" .. species .. "_" .. view, image, "battle")
                 else manifest.missing[#manifest.missing + 1] = { category = "battle", species = species, view = view, lookup = source, reason = "runtime canonical lookup missing" } end
+                image = nil
             end
+            collectgarbage("collect")
         end
         local imported=importedTiles()
         local localImages={}
@@ -452,6 +556,8 @@ local function writeCatalog(outputDir)
         for _, key in ipairs(keys(zoneRegistry)) do
             local zone = zoneRegistry[key]
             if legacyZone(key,zone) then
+            local mapMark=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+            if mapMark then mapMark:write("map "..key.."\t"..tostring(zone.width).."x"..tostring(zone.height).."\t"..tostring(collectgarbage("count")).."\n"); mapMark:close() end
             local prefix=zone.imported and importedMapName(zone) or "map_"..key
             local events={}
             local registryKeys={}
@@ -522,14 +628,24 @@ local function writeCatalog(outputDir)
         end
         localImages = nil
         collectgarbage("collect")
+        if SourceMaps and SourceMaps._separateCatalogueCaches then SourceMaps._separateCatalogueCaches(true) end
         for _,name in ipairs(keys(exporters)) do
-            manifest.exporters[name]=VisualCatalog.runExporter(name,save)
+            local exporterMark=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+            if exporterMark then exporterMark:write("exporter "..name.."\t"..tostring(collectgarbage("count")).."\n"); exporterMark:close() end
+            manifest.exporters[name]=VisualCatalog.runExporter(name,save,expected.exporters[name])
+            if provider and provider.releaseCatalogue and SourceMaps and SourceMaps._releaseSharedCompact then
+                provider:releaseCatalogue()
+                SourceMaps._releaseSharedCompact()
+                collectgarbage("collect")
+            end
         end
-        for path in pairs(declarations) do assert(seen[path],"missing declared catalog output: "..path) end
+        for index=1,PATH_BUCKETS do for path in pairs(declarations[index]) do assert(seen[index][path],"missing declared catalog output: "..path) end end
     end)
     gfx.popContext()
     assert(ok, err)
-    table.sort(manifest.images,function(a,b) return a.path<b.path end)
+    local chunks,packed=sortedImageChunks(written)
+    assert(packed==writtenCount,"catalog manifest dropped an image row")
+    manifest.images=chunks
     return manifest
 end
 function VisualCatalog.write(outputDir)
