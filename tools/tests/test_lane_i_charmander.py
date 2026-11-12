@@ -789,8 +789,28 @@ class CharmanderRun(BrockJourney):
         else:
             self.training_mode = None
 
+    def _recover_tunnel_blackout(self):
+        """A cave wipe returns to the last center. Heal there and keep the walk."""
+        self.recover_path_blackout("Rock Tunnel")
+        self.training_mode = None
+        if self.state.get("root") == "overworld" and not self._south_of_tunnel():
+            self.heal_here("RockTunnelPokecenter")
+            self.save()
+
+    def _tunnel_warp(self, target, event_id):
+        from tools.harness.brock_journey import NaturalBlackout
+        tries = self.config.get("max_blackouts", 1) + 1
+        for _ in range(tries):
+            try:
+                self.warp(target, event_id)
+                return
+            except NaturalBlackout:
+                self._recover_tunnel_blackout()
+        raise ProtocolError("Rock Tunnel warp blacked out past the recovery tries")
+
     def _probe_rock_tunnel(self):
-        """Step cave grass. No wild battle here is the indoor encounter gap."""
+        """Step cave grass. FieldEncounters spawns on Rock Tunnel grass."""
+        from tools.harness.brock_journey import NaturalBlackout
         before = len(self.summary.get("training") or [])
         model = self.model()
         origin = self.position()
@@ -814,6 +834,11 @@ class CharmanderRun(BrockJourney):
         for _, candidate in candidates[:8]:
             try:
                 self.navigate(candidate[0])
+            except NaturalBlackout:
+                self._recover_tunnel_blackout()
+                self.summary["rock_tunnel_grass_steps"] = 0
+                self.summary["rock_tunnel_encounters"] = "blackout on the walk to the grass"
+                return
             except ProtocolError:
                 continue
             pair = candidate
@@ -825,6 +850,9 @@ class CharmanderRun(BrockJourney):
                 target = right if self.position() != right else left
                 try:
                     self.navigate(target)
+                except NaturalBlackout:
+                    self._recover_tunnel_blackout()
+                    break
                 except ProtocolError:
                     break
                 steps += 1
@@ -835,24 +863,33 @@ class CharmanderRun(BrockJourney):
         if gained > 0:
             self.summary["rock_tunnel_encounters"] = gained
         elif steps >= 12:
-            self.summary["rock_tunnel_encounters"] = (
-                "none after stepping Rock Tunnel grass; same cave and indoor "
-                "wild-encounter gap lane B is fixing against pokered TryDoWildEncounter")
+            self.summary["rock_tunnel_encounters"] = "none after 12 Rock Tunnel grass steps"
         else:
             self.summary["rock_tunnel_encounters"] = "unchecked; the grass walk was shorter than 12 steps"
 
     def _cross_rock_tunnel(self):
+        """North door, grass, then the ladder chain. A heal retries from the center."""
+        for _ in range(3):
+            self._cross_rock_tunnel_once()
+            if self._past_tunnel():
+                return
+        raise ProtocolError("Rock Tunnel crossing stopped north of the south exit")
+
+    def _cross_rock_tunnel_once(self):
         zone = self.state.get("zone_id")
         if zone == self.zone("RockTunnelB1F"):
-            self.warp(self.zone("RockTunnel1F"), self.zone("RockTunnelB1F") + ":warps:2")
+            self._tunnel_warp(self.zone("RockTunnel1F"), self.zone("RockTunnelB1F") + ":warps:2")
             zone = self.state.get("zone_id")
         if zone == self.zone("RockTunnel1F"):
-            self.warp(self.zone("Route10"), self.zone("RockTunnel1F") + ":warps:1")
+            self._tunnel_warp(self.zone("Route10"), self.zone("RockTunnel1F") + ":warps:1")
         if self._south_of_tunnel():
             return
-        if self.state.get("zone_id") == self.zone("RockTunnelPokecenter"):
+        if self._needs_heal() or self.state.get("zone_id") == self.zone("RockTunnelPokecenter"):
+            self.training_mode = None
+            self.heal_here("RockTunnelPokecenter")
+            self.save()
             self.travel(self.zone("Route10"))
-        self.warp(self.zone("RockTunnel1F"), self.zone("Route10") + ":warps:2")
+        self._tunnel_warp(self.zone("RockTunnel1F"), self.zone("Route10") + ":warps:2")
         self._probe_rock_tunnel()
         ladders = (
             ("RockTunnel1F", 5, "RockTunnelB1F"),
@@ -862,8 +899,14 @@ class CharmanderRun(BrockJourney):
             ("RockTunnel1F", 3, "Route10"),
         )
         for name, warp, target in ladders:
-            self.require(zone_id=self.zone(name))
-            self.warp(self.zone(target), self.zone(name) + ":warps:" + str(warp))
+            if self.state.get("zone_id") != self.zone(name):
+                break
+            if self._needs_heal():
+                self.training_mode = None
+                self.heal_here("RockTunnelPokecenter")
+                self.save()
+                break
+            self._tunnel_warp(self.zone(target), self.zone(name) + ":warps:" + str(warp))
 
     def _toward_erika(self):
         """Underground to Cerulean, then Route 9, Rock Tunnel, and Erika.

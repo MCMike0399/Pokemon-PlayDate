@@ -1,0 +1,23 @@
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1725,7 +1725,19 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
+     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
+     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
+     if won then
+-        self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
++        if self.trainerName then
++            -- pokered engine/battle/core.asm TrainerBattleVictory prints
++            -- TrainerDefeatedText and waits (PrintText) before PrintEndBattleText,
++            -- the prize, and the fade. Assigning the message and returning lets
++            -- BattleEndedPhase dismiss it once A has been held for 12 frames, so
++            -- the battle root drops while the EXP page is still the waited line.
++            local title = self.session and self.session:title()
++            local playerName = title and title.playerName or "RED"
++            self:say(playerName .. " defeated " .. self.trainerName .. "!")
++            self.message = playerName .. " defeated " .. self.trainerName .. "!"
++        else
++            self.message = "You won the battle!"
++        end
+         return "victory"
+     end
+     if not playerTeamAlive then
