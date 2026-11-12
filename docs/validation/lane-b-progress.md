@@ -667,3 +667,20 @@ crossed that tile, so it was a stall after a flee. The clip is
 `20261112T083315Z-seafoam-b4f-surf-attempt.mp4`, 400×240 h264, 73.40
 seconds. Sequence 94 remains the continue point. The west exit needs
 a way off this floor that does not board Surf here.
+
+## The B4F deny is one stair, and the port never asks
+
+`engine/overworld/field_move_messages.asm` `IsSurfingAllowed` (lines
+21–50) refuses Surf on B4F only at `(7, 11)`, and only while
+`EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE` and
+`EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE` are not both set.
+`CheckBothEventsSet` sets Z when both are set, and that path returns
+with Surf still allowed. B3F is not in that function. Its forced Surf
+is `CheckForceBikeOrSurf` at `(18, 7)` and `(19, 7)`, already handled
+by `CoastStory.current`. `CoastStory.currentTooFast` is that B4F
+predicate. `GameContext:fieldTravelRestrictions` still errors for
+every B4F coordinate, so it cannot call the predicate. That file is
+shared. The failing test is `tools/tests/test_lane_a_seafoam_current.py`
+and the wiring is `tools/notes/lane-a-seafoam-current.patch`. Articuno
+was not battled and the west exit was not attempted on top of this
+gap. Sequence 94 stays the continue point.

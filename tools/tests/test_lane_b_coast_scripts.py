@@ -109,6 +109,17 @@ assert(CoastStory.switchDecision(true, false).changed == false)
 
 local key = CoastStory.secretKey()
 assert(key.x == 5 and key.y == 13 and key.item == "secretKey")
+assert(CoastStory.currentTooFast("pokered:SEAFOAM_ISLANDS_B4F", 7, 11, {}) == true)
+assert(CoastStory.currentTooFast("pokered:SEAFOAM_ISLANDS_B4F", 7, 11, {
+  EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE = true,
+}) == true)
+assert(CoastStory.currentTooFast("pokered:SEAFOAM_ISLANDS_B4F", 7, 11, {
+  EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE = true,
+  EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE = true,
+}) == false)
+assert(CoastStory.currentTooFast("pokered:SEAFOAM_ISLANDS_B4F", 7, 3, {}) == false)
+assert(CoastStory.currentTooFast("pokered:SEAFOAM_ISLANDS_B3F", 18, 7, {}) == false)
+assert(CoastStory.currentTooFast("pokered:SEAFOAM_ISLANDS_B3F", 7, 11, {}) == false)
 local bird = CoastStory.articuno(false)
 assert(bird.level == 50 and bird.x == 6 and bird.y == 1 and bird.flag == "EVENT_BEAT_ARTICUNO")
 assert(CoastStory.articuno(true) == nil)

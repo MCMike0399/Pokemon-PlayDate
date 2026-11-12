@@ -340,6 +340,22 @@ function CoastStory.current(map, x, y, flags, arrival)
     end
 end
 
+-- engine/overworld/field_move_messages.asm IsSurfingAllowed, lines 21-50.
+-- B4F denies Surf only at (7, 11), and only before both SEAFOAM4
+-- boulders are down (CheckBothEventsSet sets Z when both are set, and
+-- that path returns with Surf still allowed). B3F is not in that check.
+-- CheckForceBikeOrSurf still forces Surf on B3F (18, 7)/(19, 7) and
+-- B4F (4, 14)/(5, 14); those arrivals are CoastStory.current.
+function CoastStory.currentTooFast(map, x, y, flags)
+    if map ~= "pokered:SEAFOAM_ISLANDS_B4F" then
+        return false
+    end
+    if both(flags or {}, "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE") then
+        return false
+    end
+    return x == 7 and y == 11
+end
+
 function CoastStory.articuno(beaten)
     if beaten then
         return nil, "already-fought"
