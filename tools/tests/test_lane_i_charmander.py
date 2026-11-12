@@ -338,7 +338,7 @@ class CharmanderRun(BrockJourney):
         for name in (
             "project", "warp_projection", "project_warp", "portals", "route_portal",
             "travel", "fight", "heal_here", "stock_up", "reward", "zone",
-            "bill_scene", "fossil_exclusion", "recover_path_blackout", "codec_guard",
+            "fossil_exclusion", "recover_path_blackout", "codec_guard",
             "observe", "require_shop_stock", "advance_event",
         ):
             setattr(self, name, getattr(cerulean.CeruleanJourney, name).__get__(self, type(self)))
