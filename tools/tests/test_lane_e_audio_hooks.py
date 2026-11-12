@@ -21,6 +21,13 @@ class LaneEAudioHookTests(unittest.TestCase):
         self.assertIn('KantoAudio.setTraversal', travel)
         self.assertIn('KantoAudio.setTraversal', gear)
         self.assertIn('KantoAudio.playCue("flute")', flute)
+        endgame = (ROOT / 'Source/game/endgameStory.lua').read_text()
+        event = (ROOT / 'Source/game/eventState.lua').read_text()
+        self.assertIn('KantoAudio.playCue("hall_of_fame")', endgame)
+        self.assertIn('KantoAudio.playCry(entry.cry)', endgame)
+        self.assertIn('KantoAudio.playCue(step.audio.name)', endgame)
+        self.assertIn('KantoAudio.playCue(state.plan.audio.name)', endgame)
+        self.assertIn('KantoAudio.playSFX("arrow_tiles")', event)
 
 
 if __name__ == '__main__':

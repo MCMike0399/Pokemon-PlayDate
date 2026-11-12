@@ -88,6 +88,9 @@ function EventState:enter(id,options)
         -- owner. The facing cycle is the part the player sprite can show.
         self.audioGaps[#self.audioGaps + 1] = {cue = "SFX_ARROW_TILES", owner = "SourceAudio",
             wait_for_completion = false}
+        -- pokered scripts/ViridianGym.asm, RocketHideoutB2F.asm, and
+        -- RocketHideoutB3F.asm play SFX_ARROW_TILES when the spin starts.
+        if KantoAudio and KantoAudio.playSFX then KantoAudio.playSFX("arrow_tiles") end
     end
     -- Interaction facing is transient for STAY actors as well as wanderers.
     -- NPCMotion retains the completed source pose; execution never changes it
