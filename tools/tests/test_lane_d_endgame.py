@@ -1,10 +1,15 @@
 """Lane D endgame scripts. Decisions only; no Playdate SDK and no save write."""
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
+
+from PIL import Image
+
+from tools.generate_battle_art import decoded_delta, threshold
 
 ROOT = Path(__file__).resolve().parents[2]
 STORY = json.loads((ROOT / "Source/data/endgame/story.json").read_text())
@@ -208,6 +213,82 @@ check(hall.photos[1].species, "pikachu", "photo species")
 check(hall.photos[1].cry, "pikachu", "photo cry")
 check(hall.photos[1].types[1], "ELECTRIC", "photo type")
 check(hall.photos[2].kind, "player", "last card is the player")
+check(hall.photos[1].pic, "front", "party card shows the mon front pic")
+check(hall.photos[2].pic, "player", "red is his own later card")
+local single = EndgameStory.hallRows({kind = "pokemon", name = "CHARMANDER", level = 5,
+    types = EndgameStory.monTypes("charmander"), pic = "front"})
+check(single[4].text, "TYPE1/", "type 1 label stays on its row")
+check(single[4].row, 8, "TYPE1/ is the double-spaced label row")
+check(single[5].text, "FIRE", "type 1 name is the row under the label")
+check(single[5].col, 3, "type 1 name starts at column 3")
+check(single[5].row, 9, "type 1 name is hlcoord row 9")
+check(#single, 5, "single type erases the TYPE2/ row")
+local dual = EndgameStory.hallRows({kind = "pokemon", name = "CHARIZARD", level = 36,
+    types = EndgameStory.monTypes("charizard"), pic = "front"})
+check(dual[4].text, "TYPE1/", "dual type keeps the type 1 label")
+check(dual[5].text, "FIRE", "dual type 1 name is under the label")
+check(dual[6].text, "TYPE2/", "dual type keeps the type 2 label")
+check(dual[6].row, 10, "TYPE2/ is two rows under TYPE1/")
+check(dual[7].text, "FLYING", "type 2 name is the row under TYPE2/")
+check(dual[7].col, 3, "type 2 name starts at column 3")
+check(dual[7].row, 11, "type 2 name is two rows under the type 1 name")
+local pikachu = EndgameStory.hallRows(hall.photos[1])
+check(pikachu[5].text, "ELECTRIC", "pikachu prints its one type under TYPE1/")
+check(#pikachu, 5, "pikachu erases TYPE2/")
+check(EndgameStory.hallCaptionRow().text, "HALL OF FAME", "caption is its own box")
+check(EndgameStory.hallCaptionRow().row, 15, "caption is below the mon box")
+check(EndgameStory.hallScrollFrames("back"), 56, "back pic scrolls for 56 frames")
+check(EndgameStory.hallScrollFrames("front"), 40, "front pic scrolls for 40 frames")
+local backStart = EndgameStory.hallScrollFrame("back", 1)
+check(backStart.scx, 0xc0, "back scroll starts at hSCX $c0")
+check(backStart.scy, 0xd0, "back scroll keeps hSCY $d0")
+check(backStart.pic, "back", "the first scroll is the back pic")
+check(backStart.x, 160, "back pic starts just off the right edge")
+local backEnd = EndgameStory.hallScrollFrame("back", 56)
+check(backEnd.scx, 0x9c, "last back frame is one step before $a0")
+local frontStart = EndgameStory.hallScrollFrame("front", 1)
+check(frontStart.scx, 0xa0, "front scroll starts at hSCX $a0")
+check(frontStart.scy, 0, "front scroll clears hSCY")
+check(frontStart.pic, "front", "the tiles swap to the front pic")
+local frontEnd = EndgameStory.hallScrollFrame("front", 40)
+check(frontEnd.scx, 4, "last front frame is one step before rest")
+local rest = EndgameStory.hallRest()
+check(rest.x, 96, "front pic rests at tile column 12")
+check(rest.y, 40, "front pic rests at tile row 5")
+check(rest.scx, 0, "the hold is hSCX 0")
+check(EndgameStory.playerHallPics().source, "overworld", "red stays on the overworld grid without playdate")
+local landed = EndgameStory.playerHallPics(function() return true end)
+check(landed.source, "RedPicFront", "red uses RedPicFront once both pics open")
+check(landed.front, "images/player/red-pic-front", "RedPicFront path")
+check(landed.back, "images/player/red-pic-back", "RedPicBack path")
+local cries = {}
+EndgameStory.playCry = function(species)
+    cries[#cries + 1] = species
+    return true
+end
+local photoState = {photo = {index = 1, clock = 0, stage = "preamble"},
+    plan = {photos = {{kind = "pokemon", cry = "charmander"}, {kind = "player"}}}}
+local seen = {}
+local function tick()
+    EndgameStory.updatePhotos(photoState)
+    seen[#seen + 1] = photoState.photo.stage .. ":" .. tostring(photoState.photo.clock)
+end
+for _ = 1, 100 do tick() end
+check(seen[100], "preamble:100", "the opening wait is 100 frames")
+tick()
+check(seen[101], "scroll-back:1", "the back scroll is the next frame")
+for _ = 1, 55 do tick() end
+check(seen[156], "scroll-back:56", "the back scroll lasts 56 frames")
+tick()
+check(seen[157], "scroll-front:1", "the front pic replaces the back pic")
+check(#cries, 0, "the cry waits until the scroll finishes")
+for _ = 1, 39 do tick() end
+check(seen[196], "scroll-front:40", "the front scroll lasts 40 frames")
+tick()
+check(seen[197], "show:1", "the name and types follow the scroll")
+check(cries[1], "charmander", "the cry starts with the mon info")
+check(EndgameStory.hallCaptionDue(80), false, "the caption waits out the 80-frame hold")
+check(EndgameStory.hallCaptionDue(81), true, "the caption follows that hold")
 local timing = EndgameStory.hallPhotoTiming()
 check(timing.preamble, 100, "hall preamble")
 check(timing.mon_delay, 80, "hall mon delay")
@@ -328,6 +409,30 @@ print("oak-warps ok")
     def test_agatha_closed_door_is_in_the_tile_cache(self):
         source = (ROOT / "Source/data/sourceMapCache/tile-grids.json").read_text()
         self.assertIn("pokered:CEMETERY:cell:07-08-17-18", source)
+
+    def test_red_hall_pics_use_the_battle_art_threshold(self):
+        reference = os.environ.get("POKERED_REFERENCE_DIR")
+        if not reference:
+            raise RuntimeError("explicit pinned POKERED_REFERENCE_DIR required; no skipped checks")
+        pairs = (
+            (Path(reference) / "gfx/player/red.png", ROOT / "Source/images/player/red-pic-front.png", (56, 56)),
+            (Path(reference) / "gfx/player/redb.png", ROOT / "Source/images/player/red-pic-back.png", (32, 32)),
+        )
+        for source_path, target_path, size in pairs:
+            original = Image.open(source_path)
+            self.assertEqual(original.mode, "L")
+            self.assertEqual(original.size, size)
+            self.assertEqual(set(original.get_flattened_data()), {0, 85, 170, 255})
+            actual = Image.open(target_path)
+            self.assertEqual(actual.mode, "1")
+            self.assertEqual(actual.size, size)
+            self.assertTrue(decoded_delta(threshold(original), actual)["equal"])
+        story = (ROOT / "Source/game/endgameStory.lua").read_text()
+        self.assertIn("images/player/red-pic-front", story)
+        self.assertIn("images/player/red-pic-back", story)
+        manifest = (ROOT / "tools/references/battle-art.json").read_text()
+        self.assertNotIn("red-pic-front", manifest)
+        self.assertNotIn("red-pic-back", manifest)
 
 
 if __name__ == "__main__":
