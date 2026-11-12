@@ -2208,6 +2208,42 @@
         "legacy_suffix": " },"
       }
     ],
+    "sunnyDay": [
+      {
+        "migration": "sunny-day-v7",
+        "kind": "weather-producer",
+        "version": 7,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "WeatherEffect ( \"sunnyday\" )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
+    "hail": [
+      {
+        "migration": "hail-v7",
+        "kind": "weather-producer",
+        "version": 7,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "WeatherEffect ( \"hail\" )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
     "worrySeed": [
       {
         "migration": "worry-seed-v8",

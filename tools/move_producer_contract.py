@@ -7,16 +7,16 @@ import hashlib,json,re
 from pathlib import Path
 from tools.verify_moves.parse_lua import Reader,TOKEN
 ROOT=Path(__file__).resolve().parents[1]
-CONTRACT_SHA256='4b99105b55d98bc717cd297afd419f64643c0ea9a943588c9d9f4c0ff1580bfd'
+CONTRACT_SHA256='6d149b93233537a8cfd90e84f1d6d8832fe26c84acc2638f85f060909e7f8868'
 META_SHA256='c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd'
 PROTECTION_SHA256='66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462'
 PAYLOAD=('effects','secondaries')
 ABILITY_FIELDS=('contact','hasSecondary','ohko','typeImmunity','sandWeakened')
-RULE_FIELDS=('powerRule','damageRule','attemptRule','chargeRule','lockRule','weatherAccuracy','ignoreDefensive','ignoreEvasion','selfDestruct')
+RULE_FIELDS=('powerRule','damageRule','attemptRule','chargeRule','lockRule','weatherAccuracy','ignoreDefensive','ignoreEvasion','selfDestruct','recharge','defrost')
 # Chip Away flags inherit unchanged through Gen5 at pinned Showdown
 # 9b136a8c8cdb860a8ab96fa063f906604e352547 (data/moves.ts).
-RULES={'electroBall':{'powerRule':'electroBall'},'assurance':{'powerRule':'assurance'},'endeavor':{'damageRule':'endeavor'},'suckerPunch':{'attemptRule':'suckerPunch'},'ragePowder':{'attemptRule':'singlesRedirect'},'bide':{'damageRule':'bide'},'captivate':{'attemptRule':'oppositeSex'},'solarBeam':{'chargeRule':'solarBeam'},'skullBash':{'chargeRule':'skullBash'},'petalDance':{'lockRule':'rampage'},'thunder':{'weatherAccuracy':True},'hurricane':{'weatherAccuracy':True},'worrySeed':{'attemptRule':'worrySeed'},'chipAway':{'ignoreDefensive':True,'ignoreEvasion':True},'snore':{'attemptRule':'snore'},'revenge':{'powerRule':'revenge'},'selfDestruct':{'selfDestruct':True},'explosion':{'selfDestruct':True}}
-RULE_EPOCHS={**dict.fromkeys(('electroBall','assurance','endeavor','suckerPunch','ragePowder'),3),'bide':4,'captivate':5,'solarBeam':6,'skullBash':6,'petalDance':6,'thunder':7,'hurricane':7,'worrySeed':8,'chipAway':14,'snore':17,'revenge':17,'selfDestruct':18,'explosion':18}
+RULES={'electroBall':{'powerRule':'electroBall'},'assurance':{'powerRule':'assurance'},'endeavor':{'damageRule':'endeavor'},'suckerPunch':{'attemptRule':'suckerPunch'},'ragePowder':{'attemptRule':'singlesRedirect'},'bide':{'damageRule':'bide'},'captivate':{'attemptRule':'oppositeSex'},'solarBeam':{'chargeRule':'solarBeam'},'skullBash':{'chargeRule':'skullBash'},'petalDance':{'lockRule':'rampage'},'thrash':{'lockRule':'rampage'},'outrage':{'lockRule':'rampage'},'hyperBeam':{'recharge':True},'gigaImpact':{'recharge':True},'flameWheel':{'defrost':True},'flareBlitz':{'defrost':True},'thunder':{'weatherAccuracy':True},'hurricane':{'weatherAccuracy':True},'worrySeed':{'attemptRule':'worrySeed'},'chipAway':{'ignoreDefensive':True,'ignoreEvasion':True},'snore':{'attemptRule':'snore'},'revenge':{'powerRule':'revenge'},'selfDestruct':{'selfDestruct':True},'explosion':{'selfDestruct':True},'lowKick':{'powerRule':'lowKick'}}
+RULE_EPOCHS={**dict.fromkeys(('electroBall','assurance','endeavor','suckerPunch','ragePowder'),3),'bide':4,'captivate':5,'solarBeam':6,'skullBash':6,'petalDance':6,'thrash':6,'outrage':6,'thunder':7,'hurricane':7,'worrySeed':8,'chipAway':14,'snore':17,'revenge':17,'selfDestruct':18,'explosion':18,'lowKick':6,'hyperBeam':6,'gigaImpact':6,'flameWheel':6,'flareBlitz':6}
 PROTECTION_FIELDS=('protectable','breaksProtect')
 PRODUCER_FIELDS=ABILITY_FIELDS+('critStage',)+RULE_FIELDS+PROTECTION_FIELDS
 def digest(raw):return hashlib.sha256(raw).hexdigest()
