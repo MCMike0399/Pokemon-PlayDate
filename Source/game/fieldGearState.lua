@@ -50,6 +50,10 @@ function FieldGearState:showResult(labels, ram)
     end
     if self.plan.kind == "bicycle" then
         lines = {table.concat(lines, " ")}
+    else
+        for index, page in ipairs(pages) do
+            lines[index] = {text = page.text, ending = page.ending}
+        end
     end
     self.phase = "result"
     self.dialog:show(lines, function()

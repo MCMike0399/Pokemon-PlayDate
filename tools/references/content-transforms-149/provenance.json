@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "producer": "/home/ubuntu/Developer/Pokemon-PlayDate-env/evidence/transform-refresh-20261112-04",
-  "producer_build_sha256": "688964a302615d3ca936dd0fd3df66c3241ae3fe08f98b7a0f62b551447e12f6",
-  "producer_proof_sha256": "27832eefdeaab6583cae801bbdb3a2bf9d2c61bf2ac2aa49d825f996e1b052f8",
+  "producer": "/home/ubuntu/Developer/Pokemon-PlayDate-env/evidence/transform-refresh-20261112-05",
+  "producer_build_sha256": "8bb9ddaf0cf34864355b71d9c4362e97b19bc7337a180bdee17c2c9696fe9bd8",
+  "producer_proof_sha256": "8aaf57cb6de9429a6e3c3343b8637dfaf5f6a55ca9afa09d3b2e9ed154965bb1",
   "dependencies": {
     "game/hideoutTowerContent.lua": "fb662674e6cc36147f61a86f41858438253ef15ca23e1328d048bf4a3368f5d7",
     "game/rocketHideoutStory.lua": "b679e61fd27863e671118143f8c013908c4cb93cbd4e9778d3d2cf2acb61e417",
     "game/towerStory.lua": "28098bd2aff9815d6f9b2cca99d5726b358e04884d863c8f8e7320cda6fce35d",
-    "game/snorlaxStory.lua": "a61af246b747ee7420aaf135159ba05f5fac3a57b322191e979c278f14f2109b",
+    "game/snorlaxStory.lua": "dac6a354ba3e556ef93deb349553c4176f692fe991b5aad0a74fd7da7d7ff643",
     "game/midgameGymStory.lua": "7cb913c593f1ddf8210b69f5535cbe9cb771ab5d9eeb3e11c197708b997a1def",
     "data/rocketHideoutStory/scenes.json": "e0efa336b6fcf55cb7125004f02d1e1e0f025be82ef04ec02b2a83707719cc25",
     "data/towerStory/scenes.json": "fb2faaaa5ecd56a4691585d308f1af87c0b81c527af8ea09ae75d90c7206f253",
@@ -22,9 +22,9 @@
   },
   "content_pins_sha256": "184e249a207ad8fbdd9eae62bfd3965a5d630a1957d5c19821263280df108480",
   "exports": {
-    "midgameEast": "66bfc47cba58dc98f60345b36ffba768a7dd691be734141dee80deb783b05fba",
-    "midgameSouth": "913354b977db3a6cf65750dcd138269f3bae3f2a01a356f75e5f6f59414f8afa",
-    "midgameSaffron": "aa1c8b05f64bff8b6124ac4230c6fdd9ffacd0dc0c14ef79491d9f0ef41c496d"
+    "midgameEast": "207ab52488f497c3460aaaf0a8729a7a51bcd4140c9e6d4f21fa63395966640b",
+    "midgameSouth": "a96abca0048202b2a84da469cb0e92ec2698ba01cc585f80015890dce3f82a1c",
+    "midgameSaffron": "0dc99ae27c966a2b95a1e70dcbdb8695e6e9501ad5d77c0dd01f930ff3171189"
   },
   "scope": "Actual SDK post-transform outputs; not a Python translation or new gameplay owner.",
   "owner_imports": [

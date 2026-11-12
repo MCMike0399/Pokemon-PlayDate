@@ -40,6 +40,60 @@ function NamingScreen.askText(speciesName)
     return "Do you want to give a nickname to " .. (speciesName or "POKEMON") .. "?"
 end
 
+-- engine/menus/naming_screen.asm AskName. DisplayTextBoxID TWO_OPTION_MENU
+-- draws the border at hlcoord 14, 7. yes_no_menu_strings.asm sizes that
+-- border 4 by 3. The cursor is lb bc, 8, 15: column 15, YES on row 8,
+-- NO on row 10. B chooses NO.
+function NamingScreen.yesNoBox()
+    return {
+        box = TitleIdle.textBox(14, 7, 4, 3),
+        cursorCol = 15,
+        textCol = 16,
+        yesRow = 8,
+        noRow = 10,
+    }
+end
+
+-- The naming box is 18 tiles. Tight glyphs are 16px, so a line holds 22.
+NamingScreen.LINE_GLYPHS = 22
+
+function NamingScreen.wrap(text, width)
+    width = width or NamingScreen.LINE_GLYPHS
+    local lines = {}
+    local current = ""
+    local function take(word)
+        local wordLen = utf8.len(word) or #word
+        if wordLen > width then
+            if current ~= "" then
+                lines[#lines + 1] = current
+                current = ""
+            end
+            local chunk = ""
+            for _, code in utf8.codes(word) do
+                chunk = chunk .. utf8.char(code)
+                if utf8.len(chunk) == width then
+                    lines[#lines + 1] = chunk
+                    chunk = ""
+                end
+            end
+            current = chunk
+            return
+        end
+        local nextLine = current == "" and word or (current .. " " .. word)
+        if current ~= "" and (utf8.len(nextLine) or #nextLine) > width then
+            lines[#lines + 1] = current
+            current = word
+        else
+            current = nextLine
+        end
+    end
+    for word in tostring(text or ""):gmatch("%S+") do
+        take(word)
+    end
+    if current ~= "" or #lines == 0 then lines[#lines + 1] = current end
+    return lines
+end
+
 -- oak_speech.asm. The picture is hlcoord 6, 4 and the screen behind it is white.
 OakSpeech = {
     PIC_COL = 6,
@@ -90,6 +144,8 @@ function NamingScreen.new(kind, options)
         limit = limit,
         speciesName = options.speciesName,
         rater = options.rater == true,
+        overlay = options.overlay == true,
+        page = options.page,
         finished = false,
         result = nil,
     }
@@ -214,33 +270,45 @@ end
 -- (carry from NameRatersHouseCheckMonOTScript) and does not rename.
 NameRater = {}
 
+-- text/NameRatersHouse.asm. Each page is the two rows a text/line pair
+-- shows. cont, para and prompt place ▼. done does not. The words are unchanged.
+local function rated(text, ending)
+    return {text = text, ending = ending}
+end
+
 NameRater.WANT = {
-    "Hello, hello! I am the official NAME RATER!",
-    "Want me to rate the nicknames of your POKEMON?",
+    rated("Hello, hello!\nI am the official", "cont"),
+    rated("I am the official\nNAME RATER!", "para"),
+    rated("Want me to rate\nthe nicknames of", "cont"),
+    rated("the nicknames of\nyour POKEMON?", "done"),
 }
-NameRater.WHICH = {"Which POKEMON should I look at?"}
-NameRater.WHAT = {"Fine! What should we name it?"}
-NameRater.COME = {"Fine! Come any time you like!"}
+NameRater.WHICH = {rated("Which POKEMON\nshould I look at?", "prompt")}
+NameRater.WHAT = {rated("Fine! What should\nwe name it?", "prompt")}
+NameRater.COME = {rated("Fine! Come any\ntime you like!", "done")}
 
 function NameRater.decent(name)
     return {
-        name .. ", is it? That is a decent nickname!",
-        "But, would you like me to give it a nicer name?",
-        "How about it?",
+        rated(name .. ", is it?\nThat is a decent", "cont"),
+        rated("That is a decent\nnickname!", "para"),
+        rated("But, would you\nlike me to give", "cont"),
+        rated("like me to give\nit a nicer name?", "para"),
+        rated("How about it?", "done"),
     }
 end
 
 function NameRater.renamed(name)
     return {
-        "OK! This POKEMON has been renamed " .. name .. "!",
-        "That's a better name than before!",
+        rated("OK! This POKEMON\nhas been renamed", "cont"),
+        rated("has been renamed\n" .. name .. "!", "para"),
+        rated("That's a better\nname than before!", "done"),
     }
 end
 
 function NameRater.impeccable(name)
     return {
-        name .. ", is it? That is a truly impeccable name!",
-        "Take good care of " .. name .. "!",
+        rated(name .. ", is it?\nThat is a truly", "cont"),
+        rated("That is a truly\nimpeccable name!", "para"),
+        rated("Take good care of\n" .. name .. "!", "done"),
     }
 end
 
@@ -286,13 +354,13 @@ function NameRater.rename(state, name)
     return state.phase
 end
 
--- The house turns on when lane E's patch installs this handler.
--- Until then Story.tryNameRater leaves the gap alone.
+-- Lane E reserves this object in sourceEventHandlers.lua and does not
+-- install a second handler. Loading that module turns the house on.
+-- Story.tryNameRater still requires the object on the faced tile.
 NameRater.OBJECT = "pokered:NAME_RATERS_HOUSE:objects:1"
 
 function NameRater.hooked()
     return type(SourceEventHandlers) == "table"
-        and type(SourceEventHandlers[NameRater.OBJECT]) == "function"
 end
 
 function NameRater.view(mon, playerName)
@@ -331,7 +399,7 @@ function NameRater.present(game)
     if not NameRater.hooked() then return false end
     if not game or not game.machine or type(game.machine.push) ~= "function" then return false end
     local function say(lines, nextFn)
-        game.machine:push("dialog", lines, nextFn)
+        game.machine:push("dialog", Story.dialogLines(lines), nextFn)
     end
     local function ask(prompt, yes, no)
         game.machine:push("naming", {
@@ -391,6 +459,7 @@ if Class then
         options = options or {}
         self.onDone = options.onDone
         self.done = false
+        self.pageDialog = nil
         self.screen = NamingScreen.new(options.kind or "player", options)
     end
 
@@ -418,14 +487,43 @@ if Class then
         if self.screen.finished then self:finish(result) end
     end
 
+    function NamingState:drawOverlay(screen)
+        if screen.page and Dialog then
+            if not self.pageDialog then
+                self.pageDialog = Dialog()
+                local page = screen.page
+                local entry = (Dialog.showsArrow and page) or (type(page) == "table" and page.text or page)
+                self.pageDialog:show({entry})
+                local line = self.pageDialog.lines and self.pageDialog.lines[1]
+                if line then self.pageDialog.charIndex = #line end
+            end
+            self.pageDialog:draw()
+        end
+        local menu = NamingScreen.yesNoBox()
+        GbFont.drawBox(menu.box)
+        GbFont.drawString("YES", menu.textCol, menu.yesRow)
+        GbFont.drawString("NO", menu.textCol, menu.noRow)
+        local cursorRow = screen.cursor == 1 and menu.yesRow or menu.noRow
+        GbFont.drawChar(TitleIdle.CURSOR, menu.cursorCol, cursorRow)
+    end
+
     function NamingState:draw()
         local screen = self.screen
         if not screen then return end
         local x, y = gfx.getDrawOffset()
         gfx.setDrawOffset(0, 0)
+        if screen.overlay then
+            self:drawOverlay(screen)
+            gfx.setDrawOffset(x, y)
+            return
+        end
         gfx.clear(gfx.kColorWhite)
         GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
-        GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName, screen.prompt), 24, 20)
+        -- A yes/no prompt is the question itself. The header would print it
+        -- a second time and drawTight would run it through the border.
+        if not (screen.phase == "ask" and screen.kind == "yesno") then
+            GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName, screen.prompt), 24, 20)
+        end
         if screen.phase == "presets" then
             for index, label in ipairs(screen.presets) do
                 local marker = index == screen.cursor and TitleIdle.CURSOR or " "
@@ -434,9 +532,14 @@ if Class then
         elseif screen.phase == "ask" then
             local ask = screen.kind == "yesno" and (screen.prompt or "How about it?")
                 or NamingScreen.askText(screen.speciesName)
-            GbFont.drawTight(ask, 24, 48)
-            GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, 96)
-            GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, 120)
+            local lines = NamingScreen.wrap(ask)
+            local top = screen.kind == "yesno" and 20 or 48
+            for index, line in ipairs(lines) do
+                GbFont.drawTight(line, 24, top + (index - 1) * 20)
+            end
+            local choice = math.max(96, top + #lines * 20 + 8)
+            GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, choice)
+            GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, choice + 24)
         else
             GbFont.drawTight(NamingScreen.text(screen), 24, 40)
             local grid = screen.upper and NamingScreen.UPPER or NamingScreen.LOWER

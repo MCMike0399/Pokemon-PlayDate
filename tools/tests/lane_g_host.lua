@@ -119,6 +119,40 @@ NamingScreen.press(custom, "a")
 eq(custom.phase, "keyboard", "NEW NAME opens the keyboard")
 eq(NamingScreen.header("player"), "YOUR NAME?", "player header")
 eq(NamingScreen.header("rival"), "RIVAL's NAME?", "rival header")
+local function fits(text)
+    local joined = {}
+    for _, line in ipairs(NamingScreen.wrap(text)) do
+        local count = utf8.len(line)
+        if not count or count > NamingScreen.LINE_GLYPHS then return false end
+        joined[#joined + 1] = line
+    end
+    return table.concat(joined, " ") == text
+end
+eq(fits(NamingScreen.askText("SQUIRTLE")), true, "nickname ask fits the box")
+eq(fits(NamingScreen.askText("CHARIZARD")), true, "long species ask fits the box")
+eq(fits("Want me to rate the nicknames of your POKEMON?"), true, "name rater question fits")
+eq(#NamingScreen.wrap("How about it?"), 1, "short yesno stays one line")
+local nickPages = Story.nicknamePages("SQUIRTLE")
+eq(nickPages[1].text, "Do you want to\ngive a nickname", "nickname first page")
+eq(nickPages[1].ending, "cont", "nickname cont places the arrow")
+eq(nickPages[2].text, "give a nickname\nto SQUIRTLE?", "nickname second page")
+eq(nickPages[2].ending, "done", "nickname done draws no arrow")
+eq(utf8.len("Do you want to") <= 18, true, "nickname line stays in 18 tiles")
+eq(Story.dialogLines(nickPages)[2], nickPages[2].text, "unpatched dialog receives the text")
+local yesNo = NamingScreen.yesNoBox()
+eq(yesNo.box.col, 14, "yes/no border column")
+eq(yesNo.box.row, 7, "yes/no border row")
+eq(yesNo.box.innerW, 4, "yes/no border width")
+eq(yesNo.box.innerH, 3, "yes/no border height")
+eq(yesNo.cursorCol, 15, "yes/no cursor column")
+eq(yesNo.yesRow, 8, "YES row")
+eq(yesNo.noRow, 10, "NO row")
+eq(NameRater.decent("SQUIRTLE")[1].text, "SQUIRTLE, is it?\nThat is a decent", "name rater line break")
+eq(NameRater.WHICH[1].ending, "prompt", "prompt page")
+eq(NameRater.decent("SQUIRTLE")[2].ending, "para", "para page")
+eq(NameRater.decent("SQUIRTLE")[5].ending, "done", "done page")
+eq(NameRater.WANT[1].ending, "cont", "greeting keeps the cont arrow")
+eq(Story.caughtDexPages("RATTATA")[2].ending, "done", "new dex line ends on done")
 for _ = 1, 7 do NamingScreen.press(custom, "a") end
 eq(#custom.chars, 7, "player name stops at 7")
 eq(custom.row, 5, "full name forces ED")
@@ -127,12 +161,14 @@ local rival = NamingScreen.new("rival")
 eq(rival.presets[2], "RED", "blue rival preset")
 eq(rival.presets[3], "ASH", "ash preset")
 eq(rival.presets[4], "JACK", "jack preset")
-local nick = NamingScreen.new("mon", {speciesName = "SQUIRTLE", ask = true})
-eq(NamingScreen.press(nick, "down"), nil, "nickname no is the second row")
-eq(NamingScreen.press(nick, "a"), false, "no keeps the species name")
-local typed = NamingScreen.new("mon", {speciesName = "SQUIRTLE", ask = true})
-NamingScreen.press(typed, "a")
-eq(typed.phase, "keyboard", "yes opens the nickname keyboard")
+local decline = NamingScreen.new("yesno", {overlay = true})
+eq(NamingScreen.press(decline, "down"), nil, "nickname no is the second row")
+eq(NamingScreen.press(decline, "a"), false, "no keeps the species name")
+local accept = NamingScreen.new("yesno", {overlay = true})
+eq(NamingScreen.press(accept, "a"), true, "yes opens the naming screen")
+eq(NamingScreen.press(NamingScreen.new("yesno"), "b"), false, "B chooses NO")
+local typed = NamingScreen.new("mon", {speciesName = "SQUIRTLE"})
+eq(typed.phase, "keyboard", "the nickname keyboard has no ask title")
 NamingScreen.press(typed, "a")
 eq(NamingScreen.text(typed), "A", "first letter")
 eq(typed.limit, 10, "nickname limit")
@@ -294,21 +330,65 @@ NamingScreen.press(decline, "down")
 eq(NamingScreen.press(decline, "a"), false, "yesno no")
 local listed = NamingScreen.new("list", {presets = {"SQUIRTLE", "PIDGEY"}})
 eq(NamingScreen.press(listed, "a"), "SQUIRTLE", "list selects the first row")
-eq(NameRater.hooked(), false, "name rater waits for the lane E hook")
+eq(NameRater.hooked(), false, "name rater waits until the reservation module is loaded")
 eq(NameRater.present({machine = {push = function() error("off") end}}), false, "house stays off")
 SourceEventHandlers = {}
-SourceEventHandlers[NameRater.OBJECT] = function()
-    return {status = "ready", scene = "name-rater", steps = {}}
-end
 local pushed = {}
 local house = {
     machine = {push = function(_, name) pushed[#pushed + 1] = name end},
     session = {title = function() return {playerName = "RED", rivalName = "BLUE"} end},
 }
-eq(NameRater.present(house), true, "hook turns the house on")
+eq(NameRater.hooked(), true, "reserved house is on")
+eq(NameRater.present(house), true, "house opens from the reservation")
 eq(pushed[1], "dialog", "house opens on the want text")
 SourceEventHandlers = nil
+local nick = {name = "SQUIRTLE"}
+eq(Story.storeNickname(nick, "BUBBLE"), true, "ascii nickname")
+eq(nick.name, "BUBBLE", "nickname stored")
+eq(Story.storeNickname(nick, "♂♀×"), true, "charmap nickname glyphs")
+eq(nick.name, "♂♀×", "glyph nickname stored")
+eq(Story.storeNickname(nick, string.rep("A", 11)), false, "nickname stops at 10 glyphs")
+eq(Story.storeNickname(nick, "é"), false, "nickname rejects an unlisted tile")
+eq(nick.name, "♂♀×", "rejected nickname leaves the stored name")
 eq(NameRater.view({name = "LOLA", otName = "ASH"}, "BLUE").otMatches, false, "foreign OT")
 eq(NameRater.view({name = "LOLA", otName = "BLUE"}, "BLUE").otMatches, true, "own OT")
+
+local asked = {}
+local namer = {
+    get = function(_, name) return name == "naming" and true or nil end,
+    push = function(_, name, payload, done)
+        asked[#asked + 1] = {name = name, payload = payload, done = done}
+    end,
+}
+local caught = {name = "SQUIRTLE"}
+local reported
+eq(Story.promptNickname({machine = namer}, caught, "SQUIRTLE", function(name)
+    reported = name
+end), true, "nickname ask opens")
+eq(asked[1].name, "dialog", "question uses the dialog box")
+eq(asked[1].payload[2], "give a nickname\nto SQUIRTLE?", "question names the mon")
+asked[1].done()
+eq(asked[2].name, "naming", "yes/no follows the question")
+eq(asked[2].payload.kind, "yesno", "two-option menu")
+eq(asked[2].payload.overlay, true, "menu stays over the scene")
+eq(asked[2].payload.page, asked[1].payload[2], "question stays up")
+asked[2].payload.onDone(false)
+eq(reported, "SQUIRTLE", "no keeps the species name")
+eq(#asked, 2, "no does not open the keyboard")
+asked, reported = {}, nil
+caught.name = "SQUIRTLE"
+eq(Story.promptNickname({machine = namer}, caught, "SQUIRTLE", function(name)
+    reported = name
+end), true, "nickname ask opens again")
+asked[1].done()
+asked[2].payload.onDone(true)
+eq(asked[3].payload.kind, "mon", "yes opens the nickname keyboard")
+eq(asked[3].payload.ask, nil, "the keyboard has no ask title")
+asked[3].payload.onDone("BUBBLE")
+eq(caught.name, "BUBBLE", "yes stores the nickname")
+eq(reported, "BUBBLE", "done reports the nickname")
+eq(Story.promptNickname({machine = {get = function() return nil end}}, caught, "SQUIRTLE", function()
+    reported = "skipped"
+end), false, "missing naming state skips the ask")
 
 print("lane-g-host ok")

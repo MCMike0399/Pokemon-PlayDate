@@ -94,7 +94,7 @@ function SnorlaxStory.useFlute(bag)
     local lines = {}
     if not id then
         for _, page in ipairs(EventText.pagesFrom({"_PlayedFluteNoEffectText"}, SnorlaxStory.fluteText)) do
-            lines[#lines + 1] = page.text
+            lines[#lines + 1] = {text = page.text, ending = page.ending}
         end
     end
     machine:pop()

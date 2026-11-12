@@ -42,7 +42,10 @@ function EventState:guard(callback)
 end
 function EventState:dialog(pages,callback,receipt)
     assert(#pages>0 and #pages<=64,"bounded source pages required")
-    local lines={};for _,page in ipairs(pages) do lines[#lines+1]=page.text end
+    local lines={}
+    for _, page in ipairs(pages) do
+        lines[#lines + 1] = {text = page.text, ending = page.ending}
+    end
     self.phase,self.waiting=receipt and "receipt" or "dialog",pages[1].label
     self.machine:push("dialog",lines,self:guard(callback))
 end

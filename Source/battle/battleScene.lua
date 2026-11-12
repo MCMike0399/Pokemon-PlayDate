@@ -415,6 +415,11 @@ end
 
 function BattleScene:draw()
     if self.captureClosed then return end
+    -- A dialog pushed over the battle applies the overworld camera when it
+    -- finishes drawing. This field is screen space, so draw it from the origin
+    -- or the player's sprite and HUD slide off the top.
+    local ox, oy = gfx.getDrawOffset()
+    gfx.setDrawOffset(0, 0)
     -- The twentieth iris frame still renders the fully-open stencil.
     if self.introTimer <= 20 and self.introDrawing then
         -- Draw black background, then reveal circle
@@ -435,6 +440,7 @@ function BattleScene:draw()
             self:drawBattleField()
             gfx.clearStencil()
         end
+        gfx.setDrawOffset(ox, oy)
         return
     end
 
@@ -442,6 +448,7 @@ function BattleScene:draw()
     playdate.display.setOffset(fixed and 0 or (self.shakeX or 0), fixed and 0 or (self.shakeY or 0))
 
     self:drawBattleField()
+    gfx.setDrawOffset(ox, oy)
 end
 
 function BattleScene:_text(slot, text, font)

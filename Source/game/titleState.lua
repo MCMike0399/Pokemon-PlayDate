@@ -161,8 +161,8 @@ function TitleState:continueInfo(session)
         end
     end
     local clock = session.playTime and session:playTime() or {hours = 0, minutes = 0}
-    -- The title session is still the new-game default. The earned name is on
-    -- the decoded candidate, which is the session argument.
+    -- The continue box is the saved candidate. The live session is still the
+    -- unsaved default until confirmContinue.
     local name = Story.playerName({session = session})
     return {
         {label = "PLAYER", value = name},
