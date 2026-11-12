@@ -4,6 +4,7 @@ Title, main menu, naming, start menu, options, and the intro skip rules
 are checked on the host. The Simulator is not required.
 """
 import hashlib
+import io
 import os
 from pathlib import Path
 import shutil
@@ -56,6 +57,28 @@ class LaneGFrontEndTests(unittest.TestCase):
         self.assertEqual(entry["scale"], 1)
         digest = hashlib.sha256(PLAYER.read_bytes()).hexdigest()
         self.assertEqual(digest, "f6368b9681aeb6e98660050bb80fd55efd9dcced7fd5281395387a55516d272e")
+
+    def test_intro_fight_uses_tilemaps_and_dmg_palette(self):
+        from PIL import Image
+        intro = ROOT / "Source/images/title/intro"
+        expected = {
+            "gengar_1.png": (140, 91, "3b6e677697bba92ac2628e636b418b89ba704115b5f975f463ffff063268bf8f"),
+            "gengar_2.png": (140, 91, "da5abee17b0ac1d5c2074c9b5c1d1058a388c0af089a8e5d91a3001be08ba506"),
+            "gengar_3.png": (140, 91, "efd3ec2fdda6544876da68cbc41d594a01c3639b43f3191926bbd8b56e20cd71"),
+            "fight_jiggly_1.png": (120, 78, "457aecc3c2fea6db8b24d15acf51ddec13be85af47eb7b9d1049cf50df4bb6e6"),
+            "fight_jiggly_2.png": (120, 78, "54db023f80bb93a09d5d09c2f81f573755c0120dfea6b22fe3ba47b186140635"),
+            "fight_jiggly_3.png": (120, 78, "323584127d69fd4bdf6301f89c85fcafc265821725d3e4f725adec0b11bd4548"),
+        }
+        for name, (width, height, digest) in expected.items():
+            raw = (intro / name).read_bytes()
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), digest, name)
+            image = Image.open(io.BytesIO(raw))
+            self.assertEqual(image.size, (width, height), name)
+            self.assertEqual(image.mode, "1", name)
+        # The old crop was the first 56px of the 168px sheet. These frames are the 7 by 7 tilemap.
+        with Image.open(intro / "gengar_1.png") as gengar:
+            self.assertNotEqual(gengar.size[0], 56)
+            self.assertEqual(gengar.getpixel((0, 0)), 255)
 
 
 if __name__ == "__main__":

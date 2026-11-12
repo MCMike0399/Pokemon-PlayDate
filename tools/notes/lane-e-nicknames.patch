@@ -156,13 +156,17 @@ diff --git a/Source/game/kantoServices.lua b/Source/game/kantoServices.lua
 diff --git a/Source/game/sourceEventHandlers.lua b/Source/game/sourceEventHandlers.lua
 --- a/Source/game/sourceEventHandlers.lua
 +++ b/Source/game/sourceEventHandlers.lua
-@@ -1,5 +1,9 @@
+@@ -1,5 +1,13 @@
  -- Bespoke scenes only. Ordinary source interactions live in data/sourceEvents.json.
  SourceEventHandlers = {}
 +-- scripts/NameRatersHouse.asm NameRaterScript.
 +-- The reserved gap is pokered:NAME_RATERS_HOUSE:objects:1.
 +-- NameRater in Source/game/namingState.lua owns the YES/NO, the OT
 +-- mismatch (impeccable, no rename), and the rename keyboard.
++-- Story.tryNameRater turns on when this handler exists.
++SourceEventHandlers["pokered:NAME_RATERS_HOUSE:objects:1"] = function()
++    return { status = "ready", scene = "name-rater", steps = {} }
++end
  local function flag(state, id) return state.flags[id] == true end
  local function item(state, id) return state.items[id] or 0 end
  local function dialogue(...) return { op = "dialog", labels = { ... } } end

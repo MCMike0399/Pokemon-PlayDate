@@ -105,13 +105,74 @@ function IntroMovie.sound(kind)
     return false
 end
 
+-- ldpal a, SHADE_BLACK, SHADE_DARK, SHADE_LIGHT, SHADE_WHITE
+-- macros/code.asm: ld \1, \2 << 6 | \3 << 4 | \4 << 2 | \5
+-- hardware.inc: WHITE 00, LIGHT 01, DARK 10, BLACK 11
+-- Result 0xE4 is written to rBGP, rOBP0 and rOBP1.
+-- RunPaletteCommand returns immediately when wOnSGB is 0, so
+-- SET_PAL_NIDORINO_INTRO does not change these DMG registers.
+IntroMovie.SHADE_WHITE = 0
+IntroMovie.SHADE_LIGHT = 1
+IntroMovie.SHADE_DARK = 2
+IntroMovie.SHADE_BLACK = 3
+IntroMovie.LIGHT = {0x55, 0xBB, 0x55, 0xFF, 0x55, 0xBB, 0x55, 0xFF}
+IntroMovie.DARK = {0x00, 0xAA, 0x44, 0xAA, 0x00, 0xAA, 0x44, 0xAA}
+
+function IntroMovie.dmgPalette()
+    return (IntroMovie.SHADE_BLACK << 6)
+        | (IntroMovie.SHADE_DARK << 4)
+        | (IntroMovie.SHADE_LIGHT << 2)
+        | IntroMovie.SHADE_WHITE
+end
+
+function IntroMovie.registers()
+    local value = IntroMovie.dmgPalette()
+    return {bgp = value, obp0 = value, obp1 = value, sgb = false}
+end
+
+function IntroMovie.shade(index)
+    if index == IntroMovie.SHADE_WHITE then return "white" end
+    if index == IntroMovie.SHADE_LIGHT then return IntroMovie.LIGHT end
+    if index == IntroMovie.SHADE_DARK then return IntroMovie.DARK end
+    if index == IntroMovie.SHADE_BLACK then return "black" end
+end
+
+-- IntroClearScreen writes tile 0. After the column-major dedupe, tile 0
+-- is the blank color-0 tile, so the field is white under 0xE4.
+-- IntroPlaceBlackTiles writes tile 1, the solid color-3 bar.
+IntroMovie.FIELD = 0
+IntroMovie.LETTERBOX = 3
+IntroMovie.BAR_ROWS = 4
+-- hlcoord 13, 7 and the 6-by-6 front after the 40-step enter.
+IntroMovie.GENGAR_AT = {col = 13, row = 7, tiles = 7}
+IntroMovie.JIGGLY_AT = {col = 9, row = 9, tiles = 6}
+
+function IntroMovie.backFrame(id)
+    if id == "gengar-raise" or id == "wait-30-b" then return "gengar_2" end
+    if id == "gengar-slash" or id == "hip-3" or id == "wait-30-c" then return "gengar_3" end
+    return "gengar_1"
+end
+
+function IntroMovie.frontFrame(id)
+    if id == "lunge" then return "fight_jiggly_3" end
+    -- FightIntroFrontMon2 until the hip that clears wIntroNidorinoBaseTile,
+    -- then again for Animation6. The lunge uses FightIntroFrontMon3.
+    if id == "hip-3" or id == "wait-30-c" or id == "gengar-return" or id == "wait-60"
+        or id == "hip-6" or id == "wait-30-d" then
+        return "fight_jiggly_2"
+    end
+    return "fight_jiggly_1"
+end
+
 function IntroMovie.draw(state, gfx)
     if not gfx or not state then return end
     local sceneRow = IntroMovie.SCENES[state.index]
+    local row = (TitleIdle and TitleIdle.ROW) or 13
+    local bar = IntroMovie.BAR_ROWS * row
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
-    gfx.fillRect(0, 0, 400, 48)
-    gfx.fillRect(0, 192, 400, 48)
+    gfx.fillRect(0, 0, 400, bar)
+    gfx.fillRect(0, 14 * row, 400, bar)
     if not sceneRow then
         gfx.drawText("...", 24, 100)
         return
@@ -120,7 +181,5 @@ function IntroMovie.draw(state, gfx)
         for index, line in ipairs(IntroMovie.COPYRIGHT_LINES) do
             gfx.drawText(line, 24, 64 + (index - 1) * 22)
         end
-        return
     end
-    gfx.drawText(sceneRow.id, 24, 56)
 end

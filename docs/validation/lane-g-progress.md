@@ -45,15 +45,25 @@ Names go through `Story.readName`. Oak's speech, the naming screen, and the cont
 
 The 8×8 font is `gfx/font/font.png` and `font_extra.png`, thresholded into `Source/images/title/font/`. Box corners are the font_extra tiles. `BattleMenu` in `ui/menu.lua` is still a 1px rect and a `>` cursor. That file is lane E's. `tools/notes/lane-e-menu-font.patch` switches it to the battle font, the dialog frame, and `▶`. The title, start menu, options, naming screen, and the loading line do not wait on that patch.
 
-Blue's intro front is `gfx/intro/blue_jigglypuff_*.png` (`FightIntroFrontMon` under `_BLUE`). Gengar is `gfx/intro/gengar.png`, three 56×56 frames. The Red Nidorino sheets are pinned in the same manifest and are not drawn. The battle fronts are no longer the intro stand-in. The tilemap wave is still the static first frame.
+Blue's intro front is `gfx/intro/blue_jigglypuff_*.png` (`FightIntroFrontMon` under `_BLUE`). Gengar is composed from `gfx/intro/gengar.png` and `gengar_1/2/3.tilemap`, not a 56px crop. The Red Nidorino sheets are pinned in the same manifest and are not drawn. The battle fronts are no longer the intro stand-in. The tilemap wave is still the static first frame.
 
 The continue-box capture is a Playdate Simulator 3.1.2 frame, `simulator-continue.png`.
+
+## Round 3
+
+`PlayIntroScene` writes `ldpal a, SHADE_BLACK, SHADE_DARK, SHADE_LIGHT, SHADE_WHITE` to `rBGP`, `rOBP0` and `rOBP1`. That is `0xE4`: color 0 white, color 1 the approved LIGHT Bayer, color 2 the approved DARK Bayer, color 3 black. `RunPaletteCommand` returns when `wOnSGB` is 0, so `SET_PAL_NIDORINO_INTRO` does not change those registers. `IntroClearScreen` writes tile 0, the blank color-0 tile, so the field is white. `IntroPlaceBlackTiles` writes tile 1, the solid color-3 bar, four rows at the top and at row 14.
+
+Gengar is `gfx/intro/gengar.png` in column order, then `tools/gfx --remove-duplicates --preserve=0x19,0x76`. `gengar_1/2/3.tilemap` are placed at `hlcoord 13, 7`, 7 by 7. The fight no longer crops the first 56px of the sheet. Jigglypuff stays the three picture sheets (`IF DEF(_BLUE)`), dithered with the same palette. `hSCX` is still the static first frame. Animating the scroll is pending.
+
+Playdate Simulator 3.1.2, production bundle `source_sha256` `a8b0b1566576a1c860688adbb56fc4aadb44ab559a1f0ce2bea68796f25b1032`. Captures are in `artifacts/lane-g/r3/`: `title.png`, `title-bounce.png` (sprite 10 off the hand), `main-menu.png`, `oak-speech.png`, `naming-player-presets.png`, `naming-player-keyboard.png`, `naming-rival-presets.png`, `naming-rival-keyboard.png`, `start-menu.png`, `options.png`, `intro-fight.png`. `intro-fight.png` is the raised Gengar on a white field with black letterbox bars. The boot reached the title and the bedroom with no memory-guard abort. The simulator log did not print a heap figure. This machine had no earned save, so the Continue box is not in the set. The main menu is NEW GAME and OPTION.
+
+`Story.promptNickname` is the catch and gift ask. It already runs for the starter. Lane E's patch calls it after the caught line and the gifts. `NameRater.present` runs the house script, including the party list, the OT check, and the rename keyboard. `Story.tryNameRater` calls it only after the patch installs `SourceEventHandlers["pokered:NAME_RATERS_HOUSE:objects:1"]`.
 
 ## Blockers
 
 - Chosen names do not survive Continue. The codec still asserts `RED` / `BLUE`.
 - Nickname glyphs outside printable ASCII are rejected by `Story.storeNickname`, because `pokemonCodec.lua` rejects them. The keyboard still shows `×` `♂` `♀` `PK` `MN`.
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
-- Intro and copyright graphics that exist only as 2bpp are not in the title PNG pipeline. The fight frame uses the existing fronts.
+- The intro tilemap scroll (`hSCX` in `IntroMoveMon`) is still the static first frame. The three Gengar poses are in place.
 - `KantoAudio.playTitle` and `playIntro` do not exist yet. The seams no-op.
-- There is no Playdate simulator in this environment. The frames are composed.
+- No earned save was available for the Continue box.

@@ -28,7 +28,9 @@ NamingScreen.LOWER = {
     {"-", "?", "!", "♂", "♀", "/", ".", ",", "ED"},
 }
 
-function NamingScreen.header(kind, speciesName)
+function NamingScreen.header(kind, speciesName, prompt)
+    if kind == "yesno" then return prompt or "How about it?" end
+    if kind == "list" then return prompt or "Which POKEMON?" end
     if kind == "rival" then return "RIVAL's NAME?" end
     if kind == "mon" then return (speciesName or "POKEMON") .. " NICKNAME?" end
     return "YOUR NAME?"
@@ -49,12 +51,16 @@ function NamingScreen.new(kind, options)
     elseif kind == "rival" then
         phase = "presets"
         presets = NamingScreen.RIVAL_PRESETS
-    elseif options.ask then
+    elseif kind == "list" then
+        phase = "presets"
+        presets = options.presets or {}
+    elseif kind == "yesno" or options.ask then
         phase = "ask"
     end
     return {
         kind = kind,
         phase = phase,
+        prompt = options.prompt,
         presets = presets,
         cursor = 1,
         row = 1,
@@ -111,12 +117,12 @@ function NamingScreen.press(state, button)
         elseif button == "down" then
             state.cursor = state.cursor % count + 1
         elseif button == "a" then
-            if state.cursor == 1 then
-                state.phase = "keyboard"
-                state.row, state.col = 1, 1
-            else
+            if state.kind == "list" or state.cursor ~= 1 then
                 state.finished = true
                 state.result = state.presets[state.cursor]
+            else
+                state.phase = "keyboard"
+                state.row, state.col = 1, 1
             end
         end
         if state.finished then return state.result end
@@ -127,8 +133,13 @@ function NamingScreen.press(state, button)
             state.cursor = state.cursor == 1 and 2 or 1
         elseif button == "a" then
             if state.cursor == 1 then
-                state.phase = "keyboard"
-                state.row, state.col = 1, 1
+                if state.kind == "yesno" then
+                    state.finished = true
+                    state.result = true
+                else
+                    state.phase = "keyboard"
+                    state.row, state.col = 1, 1
+                end
             else
                 state.finished = true
                 state.result = false
@@ -255,6 +266,97 @@ function NameRater.rename(state, name)
     return state.phase
 end
 
+-- The house turns on when lane E's patch installs this handler.
+-- Until then Story.tryNameRater leaves the gap alone.
+NameRater.OBJECT = "pokered:NAME_RATERS_HOUSE:objects:1"
+
+function NameRater.hooked()
+    return type(SourceEventHandlers) == "table"
+        and type(SourceEventHandlers[NameRater.OBJECT]) == "function"
+end
+
+function NameRater.view(mon, playerName)
+    local otMatches = true
+    if type(mon.otMatches) == "boolean" then
+        otMatches = mon.otMatches
+    elseif type(mon.otName) == "string" and mon.otName ~= "" then
+        otMatches = mon.otName == playerName
+    end
+    return {name = mon.name, otMatches = otMatches}
+end
+
+function NameRater.choose(game, done)
+    local party = game.session and type(game.session.party) == "function" and game.session:party()
+    local members = party and type(party.members) == "function" and party:members() or {}
+    if #members == 0 then done(nil) return end
+    if #members == 1 then done(members[1]) return end
+    local labels = {}
+    for index, mon in ipairs(members) do
+        labels[index] = mon.name or ("POKEMON " .. index)
+    end
+    game.machine:push("naming", {
+        kind = "list",
+        prompt = "Which POKEMON should I look at?",
+        presets = labels,
+        onDone = function(label)
+            for index, mon in ipairs(members) do
+                if labels[index] == label then done(mon) return end
+            end
+            done(nil)
+        end,
+    })
+end
+
+function NameRater.present(game)
+    if not NameRater.hooked() then return false end
+    if not game or not game.machine or type(game.machine.push) ~= "function" then return false end
+    local function say(lines, nextFn)
+        game.machine:push("dialog", lines, nextFn)
+    end
+    local function ask(prompt, yes, no)
+        game.machine:push("naming", {
+            kind = "yesno",
+            prompt = prompt,
+            onDone = function(accepted)
+                if accepted then yes() else no() end
+            end,
+        })
+    end
+    say(NameRater.WANT, function()
+        ask("Want me to rate the nicknames of your POKEMON?", function()
+            NameRater.choose(game, function(mon)
+                if not mon then say(NameRater.COME) return end
+                local state = NameRater.start()
+                NameRater.answer(state, true)
+                local phase = NameRater.inspect(state, NameRater.view(mon, Story.playerName(game)))
+                if phase == "impeccable" then
+                    say(NameRater.lines(state))
+                    return
+                end
+                say(NameRater.lines(state), function()
+                    ask("How about it?", function()
+                        say(NameRater.WHAT, function()
+                            game.machine:push("naming", {
+                                kind = "mon",
+                                speciesName = mon.name,
+                                onDone = function(name)
+                                    if type(name) == "string" and NameRater.rename(state, name) == "renamed" then
+                                        Story.storeNickname(mon, name)
+                                        say(NameRater.lines(state))
+                                    else
+                                        say(NameRater.COME)
+                                    end
+                                end,
+                            })
+                        end)
+                    end, function() say(NameRater.COME) end)
+                end)
+            end)
+        end, function() say(NameRater.COME) end)
+    end)
+    return true
+end
+
 if Class then
     import "game/gbFont"
     local gfx <const> = playdate.graphics
@@ -303,14 +405,16 @@ if Class then
         gfx.setDrawOffset(0, 0)
         gfx.clear(gfx.kColorWhite)
         GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
-        GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName), 24, 20)
+        GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName, screen.prompt), 24, 20)
         if screen.phase == "presets" then
             for index, label in ipairs(screen.presets) do
                 local marker = index == screen.cursor and TitleIdle.CURSOR or " "
                 GbFont.drawTight(marker .. label, 24, 36 + (index - 1) * 20)
             end
         elseif screen.phase == "ask" then
-            GbFont.drawTight(NamingScreen.askText(screen.speciesName), 24, 48)
+            local ask = screen.kind == "yesno" and (screen.prompt or "How about it?")
+                or NamingScreen.askText(screen.speciesName)
+            GbFont.drawTight(ask, 24, 48)
             GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, 96)
             GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, 120)
         else

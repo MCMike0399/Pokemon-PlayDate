@@ -181,4 +181,50 @@ NameRater.rename(rater, "BUBBLE")
 eq(rater.phase, "renamed", "name rater renamed")
 eq(rater.mon.name, "BUBBLE", "new nickname")
 
+eq(IntroMovie.dmgPalette(), 0xE4, "ldpal SHADE_BLACK, DARK, LIGHT, WHITE")
+local regs = IntroMovie.registers()
+eq(regs.bgp, 0xE4, "rBGP")
+eq(regs.obp0, 0xE4, "rOBP0")
+eq(regs.obp1, 0xE4, "rOBP1")
+eq(regs.sgb, false, "SET_PAL_NIDORINO_INTRO does not replace the DMG write")
+eq(IntroMovie.shade(0), "white", "color 0 is white")
+eq(IntroMovie.shade(3), "black", "color 3 is black")
+eq(IntroMovie.LIGHT[1], 0x55, "light bayer")
+eq(IntroMovie.DARK[1], 0x00, "dark bayer")
+eq(IntroMovie.FIELD, 0, "cleared tile is color 0")
+eq(IntroMovie.LETTERBOX, 3, "bar tile is color 3")
+eq(IntroMovie.BAR_ROWS, 4, "four tile rows of bars")
+eq(IntroMovie.GENGAR_AT.col, 13, "gengar column")
+eq(IntroMovie.GENGAR_AT.row, 7, "gengar row")
+eq(IntroMovie.GENGAR_AT.tiles, 7, "gengar is 7 tiles, not a 56px crop")
+eq(IntroMovie.backFrame("nidorino-enter"), "gengar_1", "first pose")
+eq(IntroMovie.backFrame("gengar-raise"), "gengar_2", "raise pose")
+eq(IntroMovie.backFrame("gengar-slash"), "gengar_3", "slash pose")
+eq(IntroMovie.frontFrame("lunge"), "fight_jiggly_3", "lunge frame")
+eq(IntroMovie.frontFrame("hip-4"), "fight_jiggly_1", "base tile clears on the later hip")
+
+local yesno = NamingScreen.new("yesno", {prompt = "How about it?"})
+eq(NamingScreen.press(yesno, "a"), true, "yesno yes")
+local decline = NamingScreen.new("yesno")
+NamingScreen.press(decline, "down")
+eq(NamingScreen.press(decline, "a"), false, "yesno no")
+local listed = NamingScreen.new("list", {presets = {"SQUIRTLE", "PIDGEY"}})
+eq(NamingScreen.press(listed, "a"), "SQUIRTLE", "list selects the first row")
+eq(NameRater.hooked(), false, "name rater waits for the lane E hook")
+eq(NameRater.present({machine = {push = function() error("off") end}}), false, "house stays off")
+SourceEventHandlers = {}
+SourceEventHandlers[NameRater.OBJECT] = function()
+    return {status = "ready", scene = "name-rater", steps = {}}
+end
+local pushed = {}
+local house = {
+    machine = {push = function(_, name) pushed[#pushed + 1] = name end},
+    session = {title = function() return {playerName = "RED", rivalName = "BLUE"} end},
+}
+eq(NameRater.present(house), true, "hook turns the house on")
+eq(pushed[1], "dialog", "house opens on the want text")
+SourceEventHandlers = nil
+eq(NameRater.view({name = "LOLA", otName = "ASH"}, "BLUE").otMatches, false, "foreign OT")
+eq(NameRater.view({name = "LOLA", otName = "BLUE"}, "BLUE").otMatches, true, "own OT")
+
 print("lane-g-host ok")

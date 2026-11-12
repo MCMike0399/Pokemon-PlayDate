@@ -333,9 +333,11 @@ function TitleState:drawPlayer()
     self.ballTile:drawScaled(cellX, cellY + dy, scale)
 end
 
-function TitleState:drawIntroMon(name, x, y, width)
-    local image = self:introSheet(name, width)
-    if image then image:drawScaled(x, y, 2) end
+function TitleState:drawIntroMon(name, col, row)
+    local image = self:introSheet(name)
+    if image then
+        image:draw(col * TitleIdle.COL, row * TitleIdle.ROW)
+    end
 end
 
 function TitleState:draw()
@@ -346,13 +348,16 @@ function TitleState:draw()
         IntroMovie.draw(self.intro, gfx)
         local scene = self.intro and IntroMovie.SCENES[self.intro.index]
         if scene and scene.cast then
-            -- Blue's FightIntroFrontMon is gfx/intro/blue_jigglypuff_*.png.
-            -- The scene id stays nidorino because the timing table is shared.
+            -- Blue's FightIntroFrontMon is the jigglypuff pictures.
+            -- Gengar is gengar_1/2/3.tilemap placed on the deduped sheet,
+            -- not a crop of the first 56px. hSCX stays 0 for this static frame.
+            local front = IntroMovie.JIGGLY_AT
+            local back = IntroMovie.GENGAR_AT
             if scene.cast == "nidorino" or scene.cast == "both" then
-                self:drawIntroMon("blue_jigglypuff_1", 36, 64)
+                self:drawIntroMon(IntroMovie.frontFrame(scene.id), front.col, front.row)
             end
             if scene.cast == "gengar" or scene.cast == "both" then
-                self:drawIntroMon("gengar", 200, 48, 56)
+                self:drawIntroMon(IntroMovie.backFrame(scene.id), back.col, back.row)
             end
         end
         return

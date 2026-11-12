@@ -307,7 +307,21 @@ end
 
 -- A-press on a facing tile — called from ExploreSubstate:handleInput
 -- before NPC interaction. Returns true if the press was consumed.
+function Story.tryNameRater(game, fx, fy)
+    if not NameRater.hooked() then return false end
+    if type(currentZone) ~= "table" or type(currentZone.sourceEventsAt) ~= "function" then
+        return false
+    end
+    for _, event in ipairs(currentZone:sourceEventsAt(fx, fy)) do
+        if event.id == NameRater.OBJECT then
+            return NameRater.present(game) == true
+        end
+    end
+    return false
+end
+
 function Story.tryInteract(game, fx, fy)
+    if Story.tryNameRater(game, fx, fy) then return true end
     if Story.get(game).stage ~= "choose" or currentZone ~= zoneRegistry.oaks_lab then
         return false
     end
