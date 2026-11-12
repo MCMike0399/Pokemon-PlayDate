@@ -102,11 +102,19 @@ function Story.remember(game, who, name)
     return true
 end
 
--- Pokemon codec accepts 1-10 printable ASCII. Longer or tile glyphs wait
--- for the lane E name field. The naming screen still produces them.
+-- pokemonCodec.lua: NAME_LENGTH is 11 including the terminator, so 1 to 10
+-- glyphs. constants/charmap.asm allows printable ASCII plus × ($f1), ♂ ($ef),
+-- and ♀ ($f5).
 function Story.storeNickname(mon, name)
-    if not mon or type(name) ~= "string" or name == "" then return false end
-    if #name > 10 or name:find("[^ -~]") then return false end
+    if not mon or type(name) ~= "string" or utf8.len(name) == nil then return false end
+    local count = 0
+    for _, code in utf8.codes(name) do
+        if not ((code >= 32 and code <= 126) or code == 0x00D7 or code == 0x2642 or code == 0x2640) then
+            return false
+        end
+        count = count + 1
+    end
+    if count < 1 or count > 10 then return false end
     mon.name = name
     return true
 end

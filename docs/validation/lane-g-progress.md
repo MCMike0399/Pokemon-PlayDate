@@ -12,7 +12,7 @@ Frames for the visual decision are composed 400×240 images under `/opt/cursor/a
 - `engine/movie/oak_speech/oak_speech.asm` `OakSpeech` and `oak_speech2.asm` `ChoosePlayerName` / `ChooseRivalName`. Text from `data/text/text_2.asm`. The Nidorina cry seam is `KantoAudio.playCry("nidorina")` when that function exists. The sprite is Nidorino, matching the source.
 - `home/start_menu.asm` `DisplayStartMenu` and `engine/menus/draw_start_menu.asm`: `POKéDEX`, `POKéMON`, `ITEM`, the player name, `SAVE`, `OPTION`, `EXIT`. Without the dex the first row is skipped. Dispatch is by index (`TitleIdle.startAction`), so a player named `SAVE` does not collide. `engine/menus/start_sub_menus.asm` `StartMenu_TrainerInfo` shows `NAME/` `MONEY/` `TIME/`. Badge tiles are a count, because `DrawBadges` is tile art this screen does not have.
 - `engine/menus/main_menu.asm` `DisplayOptionMenu`: `TEXT SPEED` `FAST` / `MEDIUM` / `SLOW`, `BATTLE ANIMATION` `ON` / `OFF`, `BATTLE STYLE` `SHIFT` / `SET`, `CANCEL`. Left and right do not wrap. A leaves only on `CANCEL`. The approved `CRANK SCROLL` row stays. Text speed still defaults to `FAST` (`docs/plans/approved-qol.md`); pokered `InitOptions` is `MEDIUM`.
-- `scripts/NameRatersHouse.asm` dialogue and OT check live in `NameRater`. The house object is not wired. See the nickname patch.
+- `scripts/NameRatersHouse.asm` dialogue and OT check live in `NameRater`. Lane E reserves `pokered:NAME_RATERS_HOUSE:objects:1` with a comment and does not install a second handler. Loading that module turns the house on.
 - `engine/movie/intro.asm` `PlayIntro` / `PlayIntroScene` and `engine/movie/splash.asm` `PlayShootingStar`. Copyright is 180 frames and ignores A. Black bars are 64 frames and ignore A. A during the star skips the star and the 40-frame hold. A during the fight leaves the intro. Fight art is the existing Nidorino and Gengar fronts. Intro gfx is 2bpp and is not in the PNG pipeline.
 - Title music is `TitleIdle.playMusic` → `KantoAudio.playTitle` when that function exists. Intro music is `IntroMovie.sound` → `KantoAudio.playIntro`. Both are no-ops until lane F adds them.
 
@@ -57,7 +57,7 @@ Gengar is `gfx/intro/gengar.png` in column order, then `tools/gfx --remove-dupli
 
 Playdate Simulator 3.1.2, production bundle `source_sha256` `a8b0b1566576a1c860688adbb56fc4aadb44ab559a1f0ce2bea68796f25b1032`. Captures are in `artifacts/lane-g/r3/`: `title.png`, `title-bounce.png` (sprite 10 off the hand), `main-menu.png`, `oak-speech.png`, `naming-player-presets.png`, `naming-player-keyboard.png`, `naming-rival-presets.png`, `naming-rival-keyboard.png`, `start-menu.png`, `options.png`, `intro-fight.png`. `intro-fight.png` is the raised Gengar on a white field with black letterbox bars. The boot reached the title and the bedroom with no memory-guard abort. The simulator log did not print a heap figure. This machine had no earned save, so the Continue box is not in the set. The main menu is NEW GAME and OPTION.
 
-`Story.promptNickname` is the catch and gift ask. It already runs for the starter. Lane E's patch calls it after the caught line and the gifts. `NameRater.present` runs the house script, including the party list, the OT check, and the rename keyboard. `Story.tryNameRater` calls it only after the patch installs `SourceEventHandlers["pokered:NAME_RATERS_HOUSE:objects:1"]`.
+`Story.promptNickname` is the catch and gift ask. It already runs for the starter. Lane E's adopted catch and gift paths call it after the caught line and the gifts. `NameRater.present` runs the house script, including the party list, the OT check, and the rename keyboard. Lane E reserves `pokered:NAME_RATERS_HOUSE:objects:1` with a comment and does not install a second handler. Loading that module turns the house on. `Story.tryNameRater` still requires that object on the faced tile.
 
 ## Round 4
 
@@ -77,11 +77,14 @@ The r4 title row listed `$41` through `$4E` once each, so `$42` (the `'9` tile) 
 
 `DrawPlayerCharacter` is `lb de, $60, $5a` on a 5-by-7 grid: GB y 80–135 and x 82–122. The copyright row is y 136, so the feet stop one pixel row above it and the body sits over GAME FREAK. r5 drew that sheet at scale 2 from `(308, 118)`, which crossed the row and covered `inc.` The same 20-by-13 cells now map the OAM box. Sprite 10 still follows `TitleBallYTable`. `artifacts/lane-g/r6/title.png` is that frame, bundle `3701fa64d49b77451857f9b1a493771a5af6d8233875a3399c058df28bb4402f`.
 
+## Round 5
+
+Lane E's `db83fbfd` is on this branch. Codec version 5 stores the chosen names. A version 1–4 save that omits them still loads as `RED` and `BLUE`. An explicit name on an older save is kept. Catch and gift handoffs call `Story.promptNickname`. The yes/no question wraps inside the naming box. The Name Rater house uses the reserved object, and `Story.tryNameRater` still requires that object on the faced tile. `Story.storeNickname` accepts the same 1–10 glyphs as the Pokemon codec, including `×` `♂` `♀`. The continue box reads the saved candidate, so a saved name is not replaced by the live default.
+
+Playdate Simulator 3.1.2, production bundle `source_sha256` `f695f58096595da10ffc3b0cb915c526d43b211e66e35ea04225022103775a50`. Captures are in `artifacts/lane-g/r7/`: `nickname-gift.png` (the starter ask), `nickname-catch.png` (the wild ask after Gotcha), `name-rater.png`, `name-rater-yes.png`, `name-rater-rate.png`, `name-rater-keyboard.png`, and `continue-box.png` (`PLAYER` `GARY`).
+
 ## Blockers
 
-- Chosen names do not survive Continue. The codec still asserts `RED` / `BLUE`.
-- Nickname glyphs outside printable ASCII are rejected by `Story.storeNickname`, because `pokemonCodec.lua` rejects them. The keyboard still shows `×` `♂` `♀` `PK` `MN`.
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
 - The intro tilemap scroll (`hSCX` in `IntroMoveMon`) is still the static first frame. The three Gengar poses are in place.
 - `TitleState:update` calls `KantoAudio.playCue("title")` while the title state is open. The start-menu sound stays on lane F's observer. Intro music is still unwired.
-- Continue now has a Pallet Town capture. The player name on that box is still `RED` until the names patch lands.

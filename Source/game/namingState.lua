@@ -40,6 +40,46 @@ function NamingScreen.askText(speciesName)
     return "Do you want to give a nickname to " .. (speciesName or "POKEMON") .. "?"
 end
 
+-- The naming box is 18 tiles. Tight glyphs are 16px, so a line holds 22.
+NamingScreen.LINE_GLYPHS = 22
+
+function NamingScreen.wrap(text, width)
+    width = width or NamingScreen.LINE_GLYPHS
+    local lines = {}
+    local current = ""
+    local function take(word)
+        local wordLen = utf8.len(word) or #word
+        if wordLen > width then
+            if current ~= "" then
+                lines[#lines + 1] = current
+                current = ""
+            end
+            local chunk = ""
+            for _, code in utf8.codes(word) do
+                chunk = chunk .. utf8.char(code)
+                if utf8.len(chunk) == width then
+                    lines[#lines + 1] = chunk
+                    chunk = ""
+                end
+            end
+            current = chunk
+            return
+        end
+        local nextLine = current == "" and word or (current .. " " .. word)
+        if current ~= "" and (utf8.len(nextLine) or #nextLine) > width then
+            lines[#lines + 1] = current
+            current = word
+        else
+            current = nextLine
+        end
+    end
+    for word in tostring(text or ""):gmatch("%S+") do
+        take(word)
+    end
+    if current ~= "" or #lines == 0 then lines[#lines + 1] = current end
+    return lines
+end
+
 -- oak_speech.asm. The picture is hlcoord 6, 4 and the screen behind it is white.
 OakSpeech = {
     PIC_COL = 6,
@@ -286,13 +326,13 @@ function NameRater.rename(state, name)
     return state.phase
 end
 
--- The house turns on when lane E's patch installs this handler.
--- Until then Story.tryNameRater leaves the gap alone.
+-- Lane E reserves this object in sourceEventHandlers.lua and does not
+-- install a second handler. Loading that module turns the house on.
+-- Story.tryNameRater still requires the object on the faced tile.
 NameRater.OBJECT = "pokered:NAME_RATERS_HOUSE:objects:1"
 
 function NameRater.hooked()
     return type(SourceEventHandlers) == "table"
-        and type(SourceEventHandlers[NameRater.OBJECT]) == "function"
 end
 
 function NameRater.view(mon, playerName)
@@ -425,7 +465,11 @@ if Class then
         gfx.setDrawOffset(0, 0)
         gfx.clear(gfx.kColorWhite)
         GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
-        GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName, screen.prompt), 24, 20)
+        -- A yes/no prompt is the question itself. The header would print it
+        -- a second time and drawTight would run it through the border.
+        if not (screen.phase == "ask" and screen.kind == "yesno") then
+            GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName, screen.prompt), 24, 20)
+        end
         if screen.phase == "presets" then
             for index, label in ipairs(screen.presets) do
                 local marker = index == screen.cursor and TitleIdle.CURSOR or " "
@@ -434,9 +478,14 @@ if Class then
         elseif screen.phase == "ask" then
             local ask = screen.kind == "yesno" and (screen.prompt or "How about it?")
                 or NamingScreen.askText(screen.speciesName)
-            GbFont.drawTight(ask, 24, 48)
-            GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, 96)
-            GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, 120)
+            local lines = NamingScreen.wrap(ask)
+            local top = screen.kind == "yesno" and 20 or 48
+            for index, line in ipairs(lines) do
+                GbFont.drawTight(line, 24, top + (index - 1) * 20)
+            end
+            local choice = math.max(96, top + #lines * 20 + 8)
+            GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, choice)
+            GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, choice + 24)
         else
             GbFont.drawTight(NamingScreen.text(screen), 24, 40)
             local grid = screen.upper and NamingScreen.UPPER or NamingScreen.LOWER

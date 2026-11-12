@@ -161,7 +161,9 @@ function TitleState:continueInfo(session)
         end
     end
     local clock = session.playTime and session:playTime() or {hours = 0, minutes = 0}
-    local name = Story.playerName(self.game)
+    -- The continue box is the saved candidate. The live session is still the
+    -- unsaved default until confirmContinue.
+    local name = Story.playerName({session = session})
     return {
         {label = "PLAYER", value = name},
         {label = "BADGES", value = string.format("%2d", TitleIdle.countFlags(flags))},

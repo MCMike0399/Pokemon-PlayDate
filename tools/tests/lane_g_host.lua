@@ -119,6 +119,19 @@ NamingScreen.press(custom, "a")
 eq(custom.phase, "keyboard", "NEW NAME opens the keyboard")
 eq(NamingScreen.header("player"), "YOUR NAME?", "player header")
 eq(NamingScreen.header("rival"), "RIVAL's NAME?", "rival header")
+local function fits(text)
+    local joined = {}
+    for _, line in ipairs(NamingScreen.wrap(text)) do
+        local count = utf8.len(line)
+        if not count or count > NamingScreen.LINE_GLYPHS then return false end
+        joined[#joined + 1] = line
+    end
+    return table.concat(joined, " ") == text
+end
+eq(fits(NamingScreen.askText("SQUIRTLE")), true, "nickname ask fits the box")
+eq(fits(NamingScreen.askText("CHARIZARD")), true, "long species ask fits the box")
+eq(fits("Want me to rate the nicknames of your POKEMON?"), true, "name rater question fits")
+eq(#NamingScreen.wrap("How about it?"), 1, "short yesno stays one line")
 for _ = 1, 7 do NamingScreen.press(custom, "a") end
 eq(#custom.chars, 7, "player name stops at 7")
 eq(custom.row, 5, "full name forces ED")
@@ -290,20 +303,26 @@ NamingScreen.press(decline, "down")
 eq(NamingScreen.press(decline, "a"), false, "yesno no")
 local listed = NamingScreen.new("list", {presets = {"SQUIRTLE", "PIDGEY"}})
 eq(NamingScreen.press(listed, "a"), "SQUIRTLE", "list selects the first row")
-eq(NameRater.hooked(), false, "name rater waits for the lane E hook")
+eq(NameRater.hooked(), false, "name rater waits until the reservation module is loaded")
 eq(NameRater.present({machine = {push = function() error("off") end}}), false, "house stays off")
 SourceEventHandlers = {}
-SourceEventHandlers[NameRater.OBJECT] = function()
-    return {status = "ready", scene = "name-rater", steps = {}}
-end
 local pushed = {}
 local house = {
     machine = {push = function(_, name) pushed[#pushed + 1] = name end},
     session = {title = function() return {playerName = "RED", rivalName = "BLUE"} end},
 }
-eq(NameRater.present(house), true, "hook turns the house on")
+eq(NameRater.hooked(), true, "reserved house is on")
+eq(NameRater.present(house), true, "house opens from the reservation")
 eq(pushed[1], "dialog", "house opens on the want text")
 SourceEventHandlers = nil
+local nick = {name = "SQUIRTLE"}
+eq(Story.storeNickname(nick, "BUBBLE"), true, "ascii nickname")
+eq(nick.name, "BUBBLE", "nickname stored")
+eq(Story.storeNickname(nick, "♂♀×"), true, "charmap nickname glyphs")
+eq(nick.name, "♂♀×", "glyph nickname stored")
+eq(Story.storeNickname(nick, string.rep("A", 11)), false, "nickname stops at 10 glyphs")
+eq(Story.storeNickname(nick, "é"), false, "nickname rejects an unlisted tile")
+eq(nick.name, "♂♀×", "rejected nickname leaves the stored name")
 eq(NameRater.view({name = "LOLA", otName = "ASH"}, "BLUE").otMatches, false, "foreign OT")
 eq(NameRater.view({name = "LOLA", otName = "BLUE"}, "BLUE").otMatches, true, "own OT")
 
