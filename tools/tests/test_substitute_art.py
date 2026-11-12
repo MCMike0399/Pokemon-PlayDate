@@ -34,7 +34,7 @@ MECHANICS_FREEZE = {
     'Source/battle/contactAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
     'Source/battle/substitutePolicy.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
     'Source/domain/pokemonCodec.lua': '0ed37d2bdadb65e5934b8d1f201c4856b6daf1ea',
-    'Source/domain/sessionCodec.lua': 'e6e3262816b88d078463e7a8a64ac383d49b5639',
+    'Source/domain/sessionCodec.lua': 'f81016bf6d647dddec9cb25f10432476cf071fda',
     'Source/lib/rng.lua': '921f02bb3a81c25010b2983d9c0024b307ea7708',
     'tools/references/move-producer-migrations.json': '89905295b577884e020f5b91c131a0179083eb42',
     'Source/dev/substituteContracts.lua': '02846a40d85c0d3d5965070d44207b7556d74572',
@@ -133,7 +133,7 @@ class SubstituteArtTests(unittest.TestCase):
     def test_mechanics_producer_schema_rng_and_existing_case_names_are_unchanged(self):
         # Transform owns battle.lua, conditions.lua, effects.lua, moveSupport.lua,
         # and move-support.json. This freeze keeps the files Transform does not change.
-        # e6e32628 keeps the v4 codec and adds the Hall of Fame team record.
+        # f81016bf keeps the v4 codec and adds the play-time clock.
         # 02846a40 retargets the substitute damage line to "SUBSTITUTE took damage".
         for name, revision in MECHANICS_FREEZE.items():
             current = (art.ROOT/name).read_bytes()
