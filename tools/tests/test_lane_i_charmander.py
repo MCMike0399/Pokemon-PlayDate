@@ -582,6 +582,8 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("the S.S. Anne did not leave")
             self.save()
         if not self.flag("BADGE_THUNDER"):
+            cutter = next(i for i, mon in enumerate(self.party(), 1) if "cut" in mon["moves"])
+            self.field_cut(cutter)
             for trainer_index in (4, 3, 2):
                 trainer_id = cerulean.sid("VERMILION_GYM", trainer_index)
                 if self.defeated(trainer_id):
