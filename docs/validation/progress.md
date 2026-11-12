@@ -1,5 +1,19 @@
 # Full-game execution ledger
 
+## 2026-11-12 The suite is green and boot still reaches the title
+
+`python3 -m unittest discover -s tools/tests` ran 1291 tests: OK, 11 skipped. The skips are the same ones as the previous run. The Brock fixtures ran. They stage committed Source when `PARCEL_BUNDLE_SOURCE` is unset.
+
+The coverage snapshot source pin is `f15de7828cb5c4e758e96ec477965246a7dbb1cc34ce7bb3c6a2c3d5f9da0e34`. Row verifications and evidence were not relabeled. `tools/check_coverage_matrix.py` passed. Cerulean and Vermilion journey projections were regenerated with their generators. `--check` passed twice. They change when the hashed inputs change (`sessionCodec.lua`, `main.lua`, `gameSession.lua`, and the other listed sources). The generators are deterministic for a fixed Source.
+
+Vermilion `provenance.json` came back because `387bf5e0` changed `tools/generate_source_map_cache.py`, which the preparation pins under `shared_generators`. The historical `63267b0` proposal bytes did not change. The file now records that generator as `162e918413ce0578ac7f05f997096a27282a9ae57a2d8bd2303645760cf293b5`.
+
+Thrash was declared at epoch 6 in `63c41f12`. `89905295` was not a merge. It moved Thrash, Outrage, Low Kick, Hyper Beam, Giga Impact, Flame Wheel, and Flare Blitz to epoch 19 so the epoch-18 snapshot would invert. That made an epoch-14 projection call Thrash future, and it inferred Whirlwind's epoch-13 edge onto a pre-v13 row. Those fields are back at epoch 6. Sunny Day and Hail stay at epoch 7. The raw epoch-18 snapshot predates the fields, so it does not invert; a projection that includes the declared fields does, and the original 424-row hash is unchanged. Whirlwind and Roar are pokered `SWITCH_AND_TELEPORT_EFFECT` (`$1C`, `SwitchAndTeleportEffect`). The Gen V producer is the existing epoch-13 `ForceSwitchEffect(DEFENDER)`.
+
+`IsSurfingAllowed` in `engine/overworld/field_move_messages.asm` lines 21-50 denies Surf only on `SEAFOAM_ISLANDS_B4F` at x=7, y=11, and only while `EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE` and `EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE` are not both set. `dbmapcoord 7, 11` stores y then x. `CheckBothEventsSet` sets Z when both flags are set, and that path returns with Surf still allowed. `GameContext:fieldTravelRestrictions` now calls `CoastStory.currentTooFast`. The wiring commit is `264d302a0640f6387c5084198b3ecc71c15713b1`.
+
+SDK 3.1.2 session `9e09f1e38ac840259de8dbbf5f9098f4` on `2e7a7fbe` reached `title.visible` at 987 ms and `initialize.ready` at 22759 ms. Sampled peak 13482.593 KiB. `tools/measure_boot_budget.py` passed. `MallocPoolSize` stayed `16645684`. This note does not change Source.
+
 ## 2026-11-12 Play time is on the session, and the suite is still not green
 
 Lane D round 5 (`046bf608` on `d87c387c`) is on this branch. Red's card follows `HoFDisplayPlayerStats`: the name box at `hlcoord 5, 0`, the stats box at `0, 4`, play time, money with the yen sign, and three 120-frame pages. `text_decimal` left-aligns the counts, so `Seen:20` matches the source. The Hall of Fame box stays inside the party loop. Oak's plan order matches `ChampionsRoom.asm`. `ShowObject` runs when the five-step walk starts, in the same script as `MoveSprite`. `CheckAndResetEventA` clears `EVENT_HALL_OF_FAME_DEX_RATING` after the paragraph is chosen.
