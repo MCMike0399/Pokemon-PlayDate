@@ -2,7 +2,7 @@
 -- audio3:Music_MeetMaleTrainer
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.meet_male = {ticks=505, loop=169, notes={
+KantoScores.meet_male = {ticks=504, loop=168, notes={
 {0,1,5,277.6949,0.7333,0.75,180},
 {0,2,5,658.6533,0.8,0.75,196},
 {5,1,5,293.8834,0.7333,0.75,180},
@@ -84,7 +84,4 @@ KantoScores.meet_male = {ticks=505, loop=169, notes={
 {472,3,5,550.7227,1,0.125,32,"audio3-wave0"},
 {483,3,5,368.1798,1,0.125,32,"audio3-wave0"},
 {493,3,5,310.5972,1,0.125,32,"audio3-wave0"},
-{504,1,21,494.6113,0.7333,0.75,180},
-{504,2,31,658.6533,0.8,0.75,196},
-{504,3,5,329.3266,1,0.125,32,"audio3-wave0"},
 }}

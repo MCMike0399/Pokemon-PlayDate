@@ -2,7 +2,7 @@
 -- audio3:Music_BikeRiding
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.bicycle = {ticks=2080, loop=28, notes={
+KantoScores.bicycle = {ticks=2079, loop=27, notes={
 {0,1,13,391.2597,0.7333,0.75,181},
 {0,2,13,522.1992,0.8,0.5,195},
 {13,1,27,522.1992,0.7333,0.75,181},
@@ -523,6 +523,4 @@ KantoScores.bicycle = {ticks=2080, loop=28, notes={
 {2065,1,27,522.1992,0.7333,0.75,181},
 {2065,2,27,658.6533,0.8,0.5,195},
 {2065,3,7,261.0996,1,0.125,32,"audio3-wave3"},
-{2079,3,6,329.3266,1,0.125,32,"audio3-wave3"},
-{2079,4,3,16384.0,0.6,0.125,145},
 }}

@@ -2,7 +2,7 @@
 -- audio1:Music_Pokecenter
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.pokecenter = {ticks=1729, loop=1, notes={
+KantoScores.pokecenter = {ticks=1728, loop=0, notes={
 {0,1,13,370.2599,0.6667,0.75,163},
 {0,2,13,585.1429,0.8,0.5,194},
 {0,3,13,292.5714,1,0.125,32,"audio1-wave0"},
@@ -315,7 +315,4 @@ KantoScores.pokecenter = {ticks=1729, loop=1, notes={
 {1701,3,13,368.1798,1,0.125,32,"audio1-wave0"},
 {1714,1,14,392.4311,0.7333,0.75,181},
 {1714,3,14,329.3266,1,0.125,32,"audio1-wave0"},
-{1728,1,13,370.2599,0.6667,0.75,163},
-{1728,2,13,585.1429,0.8,0.5,194},
-{1728,3,13,292.5714,1,0.125,32,"audio1-wave0"},
 }}

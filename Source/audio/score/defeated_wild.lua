@@ -2,7 +2,7 @@
 -- audio2:Music_DefeatedWildMon
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.defeated_wild = {ticks=757, loop=85, notes={
+KantoScores.defeated_wild = {ticks=756, loop=84, notes={
 {0,1,5,494.6113,0.7333,0.75,183},
 {0,2,5,658.6533,0.8,0.5,195},
 {0,3,5,655.36,0.5,0.125,64,"audio2-wave0"},
@@ -163,7 +163,4 @@ KantoScores.defeated_wild = {ticks=757, loop=85, notes={
 {714,2,42,522.1992,0.5333,0.5,130},
 {714,3,5,697.1915,0.5,0.125,64,"audio2-wave0"},
 {735,3,21,310.5972,0.5,0.125,64,"audio2-wave0"},
-{756,1,10,330.1562,0.4,0.75,98},
-{756,2,10,492.7519,0.5333,0.5,130},
-{756,3,5,329.3266,0.5,0.125,64,"audio2-wave0"},
 }}

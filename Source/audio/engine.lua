@@ -66,8 +66,7 @@ local function init()
     end
 end
 
-local function layer(name, now, score)
-    score = score or ensureScore(name)
+local function track(name, now, score)
     serial = serial + 1
     local firstLoop = 1
 
@@ -90,11 +89,46 @@ local function layer(name, now, score)
     }
 end
 
-local function advance(track, now)
-    if not track then
+local function layer(name, now, score)
+    score = score or ensureScore(name)
+    -- Channels whose pokered labels do not share a joint period.
+    if score.parts then
+        local parts = {}
+        for index, part in ipairs(score.parts) do
+            parts[index] = track(name, now, part)
+        end
+        return {name = name, parts = parts}
+    end
+    return track(name, now, score)
+end
+
+local function voiced(playing, i)
+    if not playing then
+        return nil
+    end
+    if playing.parts then
+        for _, part in ipairs(playing.parts) do
+            if part and part.active[i] then
+                return part.active[i]
+            end
+        end
+        return nil
+    end
+    return playing.active[i]
+end
+
+local function advance(playing, now)
+    if not playing then
         return
     end
+    if playing.parts then
+        for index, part in ipairs(playing.parts) do
+            playing.parts[index] = advance(part, now)
+        end
+        return playing
+    end
 
+    local track = playing
     local score = track.score
     local tick = (now - track.start) / tickSeconds
 
@@ -152,7 +186,7 @@ local function choose(i, now)
     end
 
     local bed = layers.jingle or layers.music
-    return bed and bed.active[i]
+    return voiced(bed, i)
 end
 
 function KantoSynth.update(now)

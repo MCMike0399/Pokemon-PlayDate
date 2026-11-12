@@ -2,7 +2,7 @@
 -- audio3:Music_Dungeon1
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.dungeon1 = {ticks=4105, loop=109, notes={
+KantoScores.dungeon1 = {ticks=4104, loop=108, notes={
 {54,1,54,740.5198,0.2667,0.75,77},
 {54,2,54,1170.2857,0.2667,0.75,77},
 {94,3,7,292.5714,1,0.125,32,"audio3-wave1"},
@@ -786,8 +786,4 @@ KantoScores.dungeon1 = {ticks=4105, loop=109, notes={
 {4090,2,7,261.6208,0.8667,0.75,210},
 {4097,1,7,466.4484,0.8,0.75,194},
 {4097,2,7,246.8399,0.8667,0.75,210},
-{4104,1,6,330.1562,0.7333,0.75,178},
-{4104,2,6,164.8704,0.8,0.75,194},
-{4104,3,27,655.36,1,0.125,32,"audio3-wave1"},
-{4104,4,1,16384.0,0.6667,0.125,162},
 }}

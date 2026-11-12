@@ -2,7 +2,7 @@
 -- audio1:Music_Routes1
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.route1 = {ticks=1397, loop=29, notes={
+KantoScores.route1 = {ticks=1396, loop=28, notes={
 {0,2,7,585.1429,0.8667,0.5,209},
 {7,2,7,658.6533,0.8667,0.5,209},
 {14,2,14,736.3596,0.8667,0.5,209},
@@ -326,7 +326,4 @@ KantoScores.route1 = {ticks=1397, loop=29, notes={
 {1375,2,7,658.6533,0.8667,0.5,209},
 {1382,2,14,736.3596,0.8667,0.5,209},
 {1382,3,28,292.5714,1,0.125,32,"audio1-wave3"},
-{1396,1,14,587.7668,0.6667,0.5,161},
-{1396,2,14,736.3596,0.8667,0.5,209},
-{1396,4,1,32768.0,0.6667,0.125,161},
 }}

@@ -2,7 +2,7 @@
 -- audio3:Music_OaksLab
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.oaks_lab = {ticks=1733, loop=53, notes={
+KantoScores.oaks_lab = {ticks=1732, loop=52, notes={
 {0,1,6,247.3057,0.7333,0.75,179},
 {0,2,6,414.7848,0.8,0.75,196},
 {6,1,7,277.6949,0.7333,0.75,179},
@@ -280,7 +280,4 @@ KantoScores.oaks_lab = {ticks=1733, loop=53, notes={
 {1706,2,6,658.6533,0.8,0.75,196},
 {1706,3,6,329.3266,1,0.125,32,"audio3-wave1"},
 {1719,2,6,736.3596,0.8,0.75,196},
-{1732,1,26,555.3898,0.7333,0.75,179},
-{1732,2,39,879.6779,0.8,0.75,196},
-{1732,3,7,276.5232,1,0.125,32,"audio3-wave1"},
 }}

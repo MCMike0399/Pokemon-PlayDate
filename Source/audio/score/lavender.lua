@@ -2,7 +2,7 @@
 -- audio1:Music_Lavender
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.lavender = {ticks=18697, loop=457, notes={
+KantoScores.lavender = {ticks=18696, loop=456, notes={
 {0,2,28,1040.254,0.6,0.75,145},
 {28,2,29,1560.381,0.6,0.75,145},
 {57,2,28,1956.2985,0.6,0.75,145},
@@ -1989,8 +1989,4 @@ KantoScores.lavender = {ticks=18697, loop=457, notes={
 {18641,4,1,4096.0,0.4,0.125,97},
 {18667,2,29,1472.7191,0.6,0.75,145},
 {18667,3,29,492.7519,0.5,0.125,64,"audio1-wave5"},
-{18696,1,57,392.4311,0.6667,0.25,167},
-{18696,2,28,1040.254,0.6,0.75,145},
-{18696,3,114,329.3266,0.5,0.25,64,"audio1-wave5"},
-{18696,4,2,2730.6667,0.2667,0.125,65},
 }}

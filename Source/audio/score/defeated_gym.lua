@@ -2,7 +2,7 @@
 -- audio2:Music_DefeatedGymLeader
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.defeated_gym = {ticks=2185, loop=169, notes={
+KantoScores.defeated_gym = {ticks=2184, loop=168, notes={
 {0,1,31,587.7668,0.6667,0.75,166},
 {0,2,31,879.6779,0.8,0.5,196},
 {0,3,31,368.1798,1,0.125,32,"audio2-wave0"},
@@ -416,7 +416,4 @@ KantoScores.defeated_gym = {ticks=2185, loop=169, notes={
 {2173,2,5,492.7519,0.8,0.5,194},
 {2173,3,11,329.3266,1,0.125,32,"audio2-wave0"},
 {2178,2,6,553.0464,0.8,0.5,194},
-{2184,1,10,441.3199,0.7333,0.75,178},
-{2184,2,10,585.1429,0.8,0.5,194},
-{2184,3,5,368.1798,1,0.125,32,"audio2-wave0"},
 }}

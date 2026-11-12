@@ -2,7 +2,7 @@
 -- audio1:Music_SafariZone
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.safari = {ticks=446, loop=50, notes={
+KantoScores.safari = {ticks=445, loop=49, notes={
 {0,1,6,879.6779,0.6,0.5,146},
 {0,2,6,780.1905,0.6667,0.5,162},
 {6,1,6,879.6779,0.6,0.5,146},
@@ -59,7 +59,4 @@ KantoScores.safari = {ticks=446, loop=50, notes={
 {420,1,25,370.2599,0.6667,0.75,164},
 {420,2,25,492.7519,0.7333,0.75,181},
 {420,3,25,492.7519,1,0.125,32,"audio1-wave0"},
-{445,1,25,262.144,0.6667,0.75,162},
-{445,2,25,391.2597,0.7333,0.75,178},
-{445,3,12,219.9195,1,0.125,32,"audio1-wave0"},
 }}

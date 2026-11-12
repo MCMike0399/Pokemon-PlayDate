@@ -2,7 +2,7 @@
 -- audio3:Music_GameCorner
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.game_corner = {ticks=2341, loop=181, notes={
+KantoScores.game_corner = {ticks=2340, loop=180, notes={
 {0,1,33,441.3199,0.7333,0.75,181},
 {0,2,33,553.0464,0.8,0.5,198},
 {0,3,5,550.7227,1,0.125,32,"audio3-wave3"},
@@ -432,7 +432,4 @@ KantoScores.game_corner = {ticks=2341, loop=181, notes={
 {2306,3,5,246.3759,1,0.125,32,"audio3-wave3"},
 {2317,3,6,276.5232,1,0.125,32,"audio3-wave3"},
 {2328,3,6,310.5972,1,0.125,32,"audio3-wave3"},
-{2340,1,22,277.6949,0.7333,0.75,181},
-{2340,2,22,329.3266,0.8,0.5,199},
-{2340,3,5,329.3266,1,0.125,32,"audio3-wave3"},
 }}

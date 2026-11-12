@@ -2,7 +2,7 @@
 -- audio3:Music_SilphCo
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.silph = {ticks=4078, loop=571, notes={
+KantoScores.silph = {ticks=4077, loop=570, notes={
 {0,1,3,165.0781,0.7333,0.75,179},
 {0,2,3,329.3266,0.8,0.75,195},
 {3,1,4,185.1299,0.7333,0.75,179},
@@ -623,7 +623,4 @@ KantoScores.silph = {ticks=4078, loop=571, notes={
 {4047,3,30,618.2642,1,0.125,32,"audio3-wave1"},
 {4062,1,7,247.3057,0.7333,0.75,179},
 {4062,2,7,207.7211,0.7333,0.75,180},
-{4077,1,7,196.2156,0.7333,0.75,179},
-{4077,2,30,658.6533,0.7333,0.5,183},
-{4077,3,7,655.36,1,0.125,32,"audio3-wave1"},
 }}

@@ -2,7 +2,7 @@
 -- audio1:Music_PalletTown
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.pallet = {ticks=3001, loop=1081, notes={
+KantoScores.pallet = {ticks=3000, loop=1080, notes={
 {0,1,30,492.7519,0.8,0.5,195},
 {0,2,15,1170.2857,0.8667,0.5,211},
 {0,3,45,390.0952,1,0.125,32,"audio1-wave2"},
@@ -357,7 +357,4 @@ KantoScores.pallet = {ticks=3001, loop=1081, notes={
 {2970,1,15,369.2169,0.7333,0.5,179},
 {2985,1,15,439.8389,0.7333,0.5,179},
 {2985,2,15,1040.254,0.8667,0.5,211},
-{3000,1,15,492.7519,0.7333,0.5,179},
-{3000,2,60,985.5038,0.8667,0.5,211},
-{3000,3,60,390.0952,1,0.125,32,"audio1-wave2"},
 }}

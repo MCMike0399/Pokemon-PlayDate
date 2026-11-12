@@ -2,7 +2,7 @@
 -- audio2:Music_GymLeaderBattle
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.gym_leader = {ticks=5012, loop=2360, notes={
+KantoScores.gym_leader = {ticks=5011, loop=2359, notes={
 {0,2,4,697.1915,0.8,0.75,195},
 {4,2,5,658.6533,0.8,0.75,195},
 {9,2,5,621.1943,0.8,0.75,195},
@@ -1272,7 +1272,4 @@ KantoScores.gym_leader = {ticks=5012, loop=2360, notes={
 {5001,1,5,110.0521,0.7333,0.75,181},
 {5001,2,5,109.9597,0.8,0.75,195},
 {5001,3,5,219.9195,1,0.125,32,"audio2-wave4"},
-{5011,1,59,277.6949,0.7333,0.75,181},
-{5011,2,59,439.8389,0.8,0.75,199},
-{5011,3,59,276.5232,1,0.125,32,"audio2-wave4"},
 }}

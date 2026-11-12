@@ -2,7 +2,7 @@
 -- audio2:Music_DefeatedTrainer
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.defeated_trainer = {ticks=757, loop=85, notes={
+KantoScores.defeated_trainer = {ticks=756, loop=84, notes={
 {0,1,7,587.7668,0.6667,0.5,162},
 {0,2,7,879.6779,0.8,0.5,195},
 {0,3,7,585.1429,1,0.125,32,"audio2-wave0"},
@@ -160,7 +160,4 @@ KantoScores.defeated_trainer = {ticks=757, loop=85, notes={
 {735,3,10,550.7227,0.5,0.125,64,"audio2-wave1"},
 {745,1,11,494.6113,0.4,0.25,99},
 {745,3,11,439.8389,0.5,0.125,64,"audio2-wave1"},
-{756,1,21,441.3199,0.4,0.25,99},
-{756,2,21,585.1429,0.5333,0.5,133},
-{756,3,10,368.1798,0.5,0.125,64,"audio2-wave1"},
 }}

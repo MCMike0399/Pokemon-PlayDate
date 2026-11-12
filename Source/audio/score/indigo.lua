@@ -2,7 +2,7 @@
 -- audio1:Music_IndigoPlateau
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.indigo = {ticks=1783, loop=199, notes={
+KantoScores.indigo = {ticks=1782, loop=198, notes={
 {0,1,49,220.2891,0.7333,0.75,178},
 {0,2,49,293.226,0.8,0.75,194},
 {0,3,12,292.5714,1,0.125,32,"audio1-wave0"},
@@ -391,8 +391,4 @@ KantoScores.indigo = {ticks=1783, loop=199, notes={
 {1772,4,1,4096.0,0.6,0.125,145},
 {1775,4,1,4096.0,0.6,0.125,145},
 {1778,4,1,4096.0,0.6,0.125,145},
-{1782,1,24,220.2891,0.7333,0.75,178},
-{1782,2,24,293.226,0.8,0.75,194},
-{1782,3,12,292.5714,1,0.125,32,"audio1-wave0"},
-{1782,4,1,4096.0,0.6,0.125,145},
 }}

@@ -2,7 +2,7 @@
 -- audio3:Music_TitleScreen
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.title = {ticks=2836, loop=244, notes={
+KantoScores.title = {ticks=2835, loop=243, notes={
 {0,1,6,164.8704,0.8,0.75,193},
 {0,2,6,195.9223,0.9333,0.25,225},
 {0,3,6,195.6299,1,0.125,32,"audio3-wave0"},
@@ -549,8 +549,4 @@ KantoScores.title = {ticks=2836, loop=244, notes={
 {2817,2,18,985.5038,0.9333,0.25,227},
 {2817,3,18,246.3759,1,0.125,32,"audio3-wave0"},
 {2817,4,1,1365.3333,0.7333,0.125,177},
-{2835,1,40,293.226,0.8,0.75,198},
-{2835,2,40,391.2597,0.9333,0.25,231},
-{2835,3,27,195.6299,1,0.125,32,"audio3-wave0"},
-{2835,4,1,1365.3333,0.7333,0.125,177},
 }}

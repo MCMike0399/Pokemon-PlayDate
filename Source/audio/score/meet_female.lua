@@ -2,7 +2,7 @@
 -- audio3:Music_MeetFemaleTrainer
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.meet_female = {ticks=454, loop=82, notes={
+KantoScores.meet_female = {ticks=453, loop=81, notes={
 {0,1,34,416.1016,0.7333,0.25,178},
 {0,2,11,492.7519,0.8,0.5,194},
 {11,2,70,985.5038,0.8,0.5,199},
@@ -71,7 +71,4 @@ KantoScores.meet_female = {ticks=454, loop=82, notes={
 {430,2,11,414.7848,0.8,0.5,194},
 {430,3,5,492.7519,1,0.125,32,"audio3-wave0"},
 {441,2,12,439.8389,0.8,0.5,194},
-{453,1,23,330.1562,0.5333,0.25,129},
-{453,2,23,492.7519,0.8,0.5,194},
-{453,3,6,414.7848,1,0.125,32,"audio3-wave0"},
 }}

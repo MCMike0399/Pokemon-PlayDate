@@ -2,9 +2,11 @@
 """Small native-synth scores and single-cycle wave assets from the pinned parser."""
 from __future__ import annotations
 import argparse
+from collections import defaultdict
 import hashlib
 import io
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -65,9 +67,9 @@ ASSETS = {
 }
 # Press-AB chirps whose source gates are shorter than one 30FPS frame.
 CHIRPS = {'menu', 'text', 'start_menu'}
-# Channel periods 9315, 1728, 3888, 648. The joint loop is tick 1788480,
-# which is too large to ship. Loop on channel 1's period and record the seam.
-MANSION_LOOP_TICKS = 9315
+# A joint label loop longer than this becomes one part per channel.
+# Cinnabar Mansion's channel periods meet again at tick 1788480.
+JOINT_LOOP_LIMIT = 20000
 ROOT = Path(__file__).resolve().parents[2]
 
 class ScoreTrace(Trace):
@@ -192,8 +194,187 @@ def maybe_adapt(name, score):
     return score
 
 
+def _sound_loop_targets(catalog):
+    """PC of each sound_loop 0 target, and PC of the sound_loop 0 command itself."""
+    labels = defaultdict(set)
+    commands = {}
+    for (section, offset), cmd in catalog.commands.items():
+        if cmd.op != 'sound_loop' or cmd.args[0] != '0':
+            continue
+        target = catalog.target(section[0], cmd.args[-1], cmd.scope)
+        labels[target].add(cmd.scope)
+        commands[(section, offset)] = cmd.scope
+    return labels, commands
+
+
+def _note_window(notes, voice, start, end):
+    return [[note[0] - start, *note[1:]] for note in notes
+            if note[1] == voice and start <= note[0] < end]
+
+
+def _lcm(values):
+    period = 1
+    for value in values:
+        period = period // math.gcd(period, value) * value
+    return period
+
+
+class LabelTrace(ScoreTrace):
+    """Record the tick where each channel first reaches its infinite-loop label."""
+
+    def __init__(self, catalog, family, scopes, label_pcs, loop_pcs):
+        self.scopes = scopes
+        self.label_pcs = label_pcs
+        self.loop_pcs = loop_pcs
+        self.expected = {scope for scope in loop_pcs.values() if scope in scopes}
+        self.label_tick = {}
+        self.label_scope = {}
+        self.jumps = defaultdict(list)
+        super().__init__(catalog, family)
+
+    def byte(self, ch):
+        scopes = self.label_pcs.get(ch.pc)
+        if scopes and self.current_channel not in self.label_tick and scopes & self.scopes:
+            self.label_tick[self.current_channel] = self.tick
+            self.label_scope[self.current_channel] = next(iter(scopes & self.scopes))
+        return super().byte(ch)
+
+    def decode(self, i):
+        ch = self.channels[i]
+        scope = self.loop_pcs.get(ch.pc)
+        if scope in self.scopes:
+            self.jumps[i + 1].append(self.tick)
+        return super().decode(i)
+
+    def solutions(self):
+        """Smallest note-identical period that starts on each channel's loop label."""
+        solved = {}
+        abandoned = set()
+        for voice, label in self.label_tick.items():
+            jumps = [jump for jump in self.jumps.get(voice, []) if jump > label][:8]
+            period = None
+            for end in jumps:
+                span = end - label
+                if self.tick < label + 2 * span:
+                    break
+                body = _note_window(self.notes, voice, label, label + span)
+                nxt = _note_window(self.notes, voice, label + span, label + 2 * span)
+                if body and body == nxt:
+                    period = span
+                    break
+            if period is not None:
+                solved[voice] = (label, period)
+            elif len(jumps) >= 8 and self.tick >= label + 2 * (jumps[-1] - label):
+                abandoned.add(voice)
+        return solved, abandoned
+
+    def finished(self, _tick, repeat):
+        # A short channel can close before a later channel reaches its label.
+        if self.expected - set(self.label_scope.values()):
+            return _tick >= 30000 and repeat is not None
+        solved, abandoned = self.solutions()
+        voices = set(self.label_tick)
+        if not voices:
+            return repeat is not None
+        pending = voices - set(solved) - abandoned
+        if pending:
+            return False
+        if abandoned or len(set(solved.values())) == 1:
+            return True
+        start = max(label for label, _ in solved.values())
+        period = _lcm(span for _, span in solved.values())
+        if period > JOINT_LOOP_LIMIT:
+            return True
+        return self.tick >= start + 2 * period
+
+
+def _boundary_notes(notes, tick):
+    return sorted((note[1:] for note in notes if note[0] == tick), key=lambda row: row[0])
+
+
+def _clip(notes, ticks):
+    return [note for note in notes if note[0] < ticks]
+
+
+def resolve_loop(trace, result):
+    """Loop where pokered's sound_loop 0 label repeats the same notes.
+
+    Channels that share a label use one window. Channels whose periods only
+    meet past JOINT_LOOP_LIMIT keep a part each, so a later channel is not
+    restarted on an earlier channel's boundary. A label whose first pass is
+    not note-identical falls back to the register repeat.
+    """
+    missing = trace.expected - set(trace.label_scope.values())
+    solved, _abandoned = ({}, set()) if missing else trace.solutions()
+    notes = trace.notes
+    if solved and len(solved) == len(trace.label_tick) and not missing:
+        if len(set(solved.values())) == 1:
+            label, period = next(iter(solved.values()))
+            ticks = label + period
+            return dict(ticks=ticks, loop=label, notes=_clip(notes, ticks),
+                        loop_basis='label', parts=None)
+        start = max(label for label, _period in solved.values())
+        period = _lcm(span for _label, span in solved.values())
+        if period <= JOINT_LOOP_LIMIT and trace.tick >= start + 2 * period:
+            same = all(
+                _note_window(notes, voice, start, start + period)
+                == _note_window(notes, voice, start + period, start + 2 * period)
+                for voice in solved
+            )
+            if same:
+                ticks = start + period
+                return dict(ticks=ticks, loop=start, notes=_clip(notes, ticks),
+                            loop_basis='joint', parts=None)
+        parts = []
+        for voice, (label, period) in sorted(solved.items()):
+            ticks = label + period
+            parts.append(dict(
+                voice=voice, ticks=ticks, loop=label,
+                notes=[note for note in notes if note[1] == voice and note[0] < ticks],
+            ))
+        return dict(ticks=max(part['ticks'] for part in parts), loop=None, notes=[],
+                    loop_basis='parts', parts=parts)
+    if not result.get('repeat'):
+        raise AudioError('music did not reach a loop label or a register repeat')
+    start = result['repeat']['start_tick']
+    end = result['repeat']['end_tick']
+    kept = _clip(notes, end)
+    if start >= 1 and _boundary_notes(kept, start - 1) == _boundary_notes(notes, end - 1):
+        # The register snapshot is one tick after the downbeat. Keep that
+        # downbeat inside the window so later laps retrigger it.
+        if _boundary_notes(kept, start - 1):
+            start -= 1
+            end -= 1
+            kept = _clip(kept, end)
+    return dict(ticks=end, loop=start, notes=kept, loop_basis='state', parts=None)
+
+
+def _note_count(score):
+    if score.get('parts'):
+        return sum(len(part['notes']) for part in score['parts'])
+    return len(score['notes'])
+
+
+def _score_summary(score):
+    summary = {
+        'asset': score['asset'],
+        'ticks': score['ticks'],
+        'loop': score['loop'],
+        'notes': _note_count(score),
+        'adapted': bool(score.get('adapted')),
+    }
+    if score.get('loop_basis'):
+        summary['loop_basis'] = score['loop_basis']
+    if score.get('parts'):
+        summary['parts'] = [
+            {'voice': part['voice'], 'loop': part['loop'], 'ticks': part['ticks'],
+             'notes': len(part['notes'])}
+            for part in score['parts']
+        ]
+    return summary
+
+
 def emit_score(name, score):
-    loop = 'nil' if score['loop'] is None else str(score['loop'])
     lines = [
         '-- Generated by tools/audio/scores.py; do not hand edit.',
         f'-- {score["asset"]}',
@@ -201,37 +382,61 @@ def emit_score(name, score):
     ]
     if score.get('adapted'):
         lines.append('-- adapted: gates lengthened so a 30FPS observer cannot drop the chirp')
-    if score.get('approximation'):
-        lines.append('-- adapted: ' + score['approximation'])
+    if score.get('loop_basis') == 'parts':
+        lines.append('-- each channel loops at its own pokered sound_loop 0 label')
     lines.append('KantoScores = KantoScores or {}')
-    lines.append(f'KantoScores.{name} = {{ticks={score["ticks"]}, loop={loop}, notes={{')
-    lines.extend('{' + ','.join(json.dumps(x) for x in note) + '},' for note in score['notes'])
-    lines.append('}}')
+    if score.get('parts'):
+        lines.append(f'KantoScores.{name} = {{ticks={score["ticks"]}, parts={{')
+        for part in score['parts']:
+            lines.append(f'{{ticks={part["ticks"]}, loop={part["loop"]}, notes={{')
+            lines.extend('{' + ','.join(json.dumps(x) for x in note) + '},' for note in part['notes'])
+            lines.append('}},')
+        lines.append('}}')
+    else:
+        loop = 'nil' if score['loop'] is None else str(score['loop'])
+        lines.append(f'KantoScores.{name} = {{ticks={score["ticks"]}, loop={loop}, notes={{')
+        lines.extend('{' + ','.join(json.dumps(x) for x in note) + '},' for note in score['notes'])
+        lines.append('}}')
     lines.append('')
     return '\n'.join(lines).encode()
 
 
+def _trace_score(catalog, asset, label_pcs, loop_pcs):
+    header = catalog.headers[asset]
+    scopes = {channel['entry'] for channel in header['channels']}
+    if header['kind'] == 'music':
+        trace = LabelTrace(catalog, header['family'], scopes, label_pcs, loop_pcs)
+        trace.load(asset)
+        result = trace.run(max_ticks=40000, on_tick=trace.finished)
+        if result['status'] == 'ended':
+            return trace, dict(asset=asset, ticks=result['ticks'], loop=None,
+                               notes=trace.notes, loop_basis=None, parts=None)
+        if result['status'] == 'bound' and not trace.label_tick:
+            raise AudioError(f'{asset}: adapted score did not close within default bound')
+        try:
+            resolved = resolve_loop(trace, result)
+        except AudioError as exc:
+            raise AudioError(f'{asset}: {exc}') from exc
+        if resolved['loop_basis'] == 'state' and result['status'] == 'bound':
+            raise AudioError(f'{asset}: register repeat was not reached')
+        return trace, dict(asset=asset, **resolved)
+    trace = ScoreTrace(catalog, header['family'])
+    trace.load(asset)
+    result = trace.run()
+    if result['status'] == 'bound':
+        raise AudioError(f'{asset}: adapted score did not close within default bound')
+    return trace, dict(asset=asset, ticks=result['ticks'],
+                       loop=result['repeat']['start_tick'] if result['repeat'] else None,
+                       notes=trace.notes, loop_basis=None, parts=None)
+
+
 def generate(source):
     catalog = Catalog(Source(source))
+    label_pcs, loop_pcs = _sound_loop_targets(catalog)
     scores = {}
     waves = {}
     for name, asset in ASSETS.items():
-        trace = ScoreTrace(catalog, catalog.headers[asset]['family'])
-        trace.load(asset)
-        if asset == 'audio3:Music_CinnabarMansion':
-            trace.run(MANSION_LOOP_TICKS + 1)
-            notes = [note for note in trace.notes if note[0] < MANSION_LOOP_TICKS]
-            score = dict(
-                asset=asset, ticks=MANSION_LOOP_TICKS, loop=0, notes=notes,
-                approximation='joint channel loop is tick 1788480; shipped loop is channel 1 period 9315',
-            )
-        else:
-            result = trace.run()  # unchanged default bound; rejects rather than truncates
-            if result['status'] == 'bound':
-                raise AudioError(f'{asset}: adapted score did not close within default bound')
-            score = dict(asset=asset, ticks=result['ticks'],
-                         loop=result['repeat']['start_tick'] if result['repeat'] else None,
-                         notes=trace.notes)
+        trace, score = _trace_score(catalog, asset, label_pcs, loop_pcs)
         scores[name] = maybe_adapt(name, score)
         waves.update(trace.waves)
     routes = map_routes(catalog)
@@ -290,14 +495,12 @@ def generate(source):
                     'unavailable': unavailable,
                 },
                 'score_sha256': digest.hexdigest(),
-                'total_notes': sum(len(score['notes']) for score in scores.values()),
+                'total_notes': sum(_note_count(score) for score in scores.values()),
                 'waveforms': {key: {'ram_hex': data.hex(), 'samples': 32,
                                    'path': f'Source/audio/waves/{key}.wav',
                                    'sha256': hashlib.sha256(wave_assets[f'Source/audio/waves/{key}.wav']).hexdigest()}
                               for key, data in sorted(waves.items())},
-                'scores': {k: {x: v[x] for x in ('asset', 'ticks', 'loop')} | {'notes': len(v['notes']),
-                           'adapted': bool(v.get('adapted'))}
-                           for k, v in scores.items()}}
+                'scores': {name: _score_summary(score) for name, score in scores.items()}}
     files['tools/audio/score-manifest.json'] = (json.dumps(manifest, indent=2, sort_keys=True)+'\n').encode()
     return files
 

@@ -2,7 +2,7 @@
 -- audio3:Music_MeetEvilTrainer
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.meet_evil = {ticks=442, loop=70, notes={
+KantoScores.meet_evil = {ticks=441, loop=69, notes={
 {0,2,11,492.7519,0.7333,0.25,182},
 {11,2,12,464.7943,0.7333,0.25,182},
 {23,1,11,293.8834,0.7333,0.5,177},
@@ -63,7 +63,4 @@ KantoScores.meet_evil = {ticks=442, loop=70, notes={
 {418,1,23,293.8834,0.4667,0.5,112},
 {418,2,23,464.7943,0.2,0.25,63},
 {418,3,23,464.7943,1,0.125,32,"audio3-wave0"},
-{441,1,24,293.8834,0.6667,0.5,161},
-{441,2,12,621.1943,0.8,0.25,194},
-{441,3,6,368.1798,1,0.125,32,"audio3-wave0"},
 }}

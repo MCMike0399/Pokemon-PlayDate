@@ -2,7 +2,7 @@
 -- audio1:Music_MeetRival
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.meet_rival = {ticks=1019, loop=179, notes={
+KantoScores.meet_rival = {ticks=1018, loop=178, notes={
 {0,1,5,587.7668,0.7333,0.75,179},
 {0,2,5,985.5038,0.8,0.75,199},
 {0,3,10,585.1429,1,0.125,32,"audio1-wave4"},
@@ -200,5 +200,4 @@ KantoScores.meet_rival = {ticks=1019, loop=179, notes={
 {1008,1,21,494.6113,0.7333,0.75,179},
 {1008,2,21,780.1905,0.8,0.75,199},
 {1008,3,10,780.1905,1,0.125,32,"audio1-wave4"},
-{1018,3,11,585.1429,1,0.125,32,"audio1-wave4"},
 }}

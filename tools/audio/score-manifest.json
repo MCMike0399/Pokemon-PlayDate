@@ -4,9 +4,7 @@
     "start_menu": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
     "text": "two source pitches, gates 3+5 ticks; native 30FPS chirp"
   },
-  "approximations": {
-    "mansion": "joint channel loop is tick 1788480; shipped loop is channel 1 period 9315"
-  },
+  "approximations": {},
   "checkpoint": {
     "manifest_sha256": "3f0d8683db4159837af759523baa166168f269db89865cce0067ff1b205e0389",
     "maps": 222,
@@ -671,7 +669,7 @@
   "menu_adaptation": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
   "revision": "af519899719f0754965776faac0e836a3b906e6d",
   "schema": 3,
-  "score_sha256": "1b3df3c0eac743023529676ee7f25039626545ecf2897d2fdd5823979b0cf3b7",
+  "score_sha256": "454670855397f9f39db5a259d37a9bd884e37423e5e7ed59a5f2c9e6c3cc7325",
   "scores": {
     "alarm": {
       "adapted": false,
@@ -683,9 +681,10 @@
     "anne": {
       "adapted": false,
       "asset": "audio1:Music_SSAnne",
-      "loop": 169,
-      "notes": 271,
-      "ticks": 2089
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 251,
+      "ticks": 1920
     },
     "arrow_tiles": {
       "adapted": false,
@@ -697,9 +696,10 @@
     "bicycle": {
       "adapted": false,
       "asset": "audio3:Music_BikeRiding",
-      "loop": 28,
-      "notes": 522,
-      "ticks": 2080
+      "loop": 27,
+      "loop_basis": "state",
+      "notes": 520,
+      "ticks": 2079
     },
     "boulder": {
       "adapted": false,
@@ -718,30 +718,34 @@
     "celadon": {
       "adapted": false,
       "asset": "audio1:Music_Celadon",
-      "loop": 109,
-      "notes": 304,
-      "ticks": 1837
+      "loop": 108,
+      "loop_basis": "label",
+      "notes": 301,
+      "ticks": 1836
     },
     "cinnabar": {
       "adapted": false,
       "asset": "audio1:Music_Cinnabar",
-      "loop": 28,
-      "notes": 208,
-      "ticks": 1324
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 204,
+      "ticks": 1296
     },
     "cities1": {
       "adapted": false,
       "asset": "audio1:Music_Cities1",
-      "loop": 1,
-      "notes": 610,
-      "ticks": 3457
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 607,
+      "ticks": 3456
     },
     "cities2": {
       "adapted": false,
       "asset": "audio1:Music_Cities2",
-      "loop": 223,
-      "notes": 306,
-      "ticks": 1999
+      "loop": 222,
+      "loop_basis": "label",
+      "notes": 303,
+      "ticks": 1998
     },
     "credits": {
       "adapted": false,
@@ -760,23 +764,26 @@
     "defeated_gym": {
       "adapted": false,
       "asset": "audio2:Music_DefeatedGymLeader",
-      "loop": 169,
-      "notes": 416,
-      "ticks": 2185
+      "loop": 168,
+      "loop_basis": "label",
+      "notes": 413,
+      "ticks": 2184
     },
     "defeated_trainer": {
       "adapted": false,
       "asset": "audio2:Music_DefeatedTrainer",
-      "loop": 85,
-      "notes": 160,
-      "ticks": 757
+      "loop": 84,
+      "loop_basis": "label",
+      "notes": 157,
+      "ticks": 756
     },
     "defeated_wild": {
       "adapted": false,
       "asset": "audio2:Music_DefeatedWildMon",
-      "loop": 85,
-      "notes": 163,
-      "ticks": 757
+      "loop": 84,
+      "loop_basis": "label",
+      "notes": 160,
+      "ticks": 756
     },
     "denied": {
       "adapted": false,
@@ -788,23 +795,26 @@
     "dungeon1": {
       "adapted": false,
       "asset": "audio3:Music_Dungeon1",
-      "loop": 109,
-      "notes": 787,
-      "ticks": 4105
+      "loop": 108,
+      "loop_basis": "state",
+      "notes": 783,
+      "ticks": 4104
     },
     "dungeon2": {
       "adapted": false,
       "asset": "audio3:Music_Dungeon2",
-      "loop": 1,
-      "notes": 744,
-      "ticks": 6049
+      "loop": 0,
+      "loop_basis": "state",
+      "notes": 740,
+      "ticks": 6048
     },
     "dungeon3": {
       "adapted": false,
       "asset": "audio3:Music_Dungeon3",
-      "loop": 4972,
-      "notes": 1090,
-      "ticks": 9955
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 545,
+      "ticks": 4983
     },
     "faint": {
       "adapted": false,
@@ -816,9 +826,10 @@
     "final": {
       "adapted": false,
       "asset": "audio2:Music_FinalBattle",
-      "loop": 841,
-      "notes": 937,
-      "ticks": 4453
+      "loop": 840,
+      "loop_basis": "label",
+      "notes": 934,
+      "ticks": 4452
     },
     "flute": {
       "adapted": false,
@@ -830,9 +841,10 @@
     "game_corner": {
       "adapted": false,
       "asset": "audio3:Music_GameCorner",
-      "loop": 181,
-      "notes": 432,
-      "ticks": 2341
+      "loop": 180,
+      "loop_basis": "state",
+      "notes": 429,
+      "ticks": 2340
     },
     "go_inside": {
       "adapted": false,
@@ -851,23 +863,26 @@
     "gym": {
       "adapted": false,
       "asset": "audio1:Music_Gym",
-      "loop": 208,
-      "notes": 343,
-      "ticks": 1864
+      "loop": 207,
+      "loop_basis": "label",
+      "notes": 340,
+      "ticks": 1863
     },
     "gym_leader": {
       "adapted": false,
       "asset": "audio2:Music_GymLeaderBattle",
-      "loop": 2360,
-      "notes": 1272,
-      "ticks": 5012
+      "loop": 2359,
+      "loop_basis": "state",
+      "notes": 1269,
+      "ticks": 5011
     },
     "hall_of_fame": {
       "adapted": false,
       "asset": "audio3:Music_HallOfFame",
-      "loop": 337,
-      "notes": 263,
-      "ticks": 1681
+      "loop": 336,
+      "loop_basis": "joint",
+      "notes": 260,
+      "ticks": 1680
     },
     "heal": {
       "adapted": false,
@@ -893,9 +908,10 @@
     "indigo": {
       "adapted": false,
       "asset": "audio1:Music_IndigoPlateau",
-      "loop": 199,
-      "notes": 392,
-      "ticks": 1783
+      "loop": 198,
+      "loop_basis": "label",
+      "notes": 388,
+      "ticks": 1782
     },
     "item": {
       "adapted": false,
@@ -921,9 +937,10 @@
     "lavender": {
       "adapted": false,
       "asset": "audio1:Music_Lavender",
-      "loop": 457,
-      "notes": 1990,
-      "ticks": 18697
+      "loop": 456,
+      "loop_basis": "joint",
+      "notes": 1986,
+      "ticks": 18696
     },
     "ledge": {
       "adapted": false,
@@ -942,44 +959,76 @@
     "mansion": {
       "adapted": false,
       "asset": "audio3:Music_CinnabarMansion",
-      "loop": 0,
-      "notes": 1933,
+      "loop": null,
+      "loop_basis": "parts",
+      "notes": 892,
+      "parts": [
+        {
+          "loop": 0,
+          "notes": 684,
+          "ticks": 9315,
+          "voice": 1
+        },
+        {
+          "loop": 864,
+          "notes": 60,
+          "ticks": 2592,
+          "voice": 2
+        },
+        {
+          "loop": 0,
+          "notes": 133,
+          "ticks": 3888,
+          "voice": 3
+        },
+        {
+          "loop": 216,
+          "notes": 15,
+          "ticks": 432,
+          "voice": 4
+        }
+      ],
       "ticks": 9315
     },
     "meet_evil": {
       "adapted": false,
       "asset": "audio3:Music_MeetEvilTrainer",
-      "loop": 70,
-      "notes": 63,
-      "ticks": 442
+      "loop": 69,
+      "loop_basis": "state",
+      "notes": 60,
+      "ticks": 441
     },
     "meet_female": {
       "adapted": false,
       "asset": "audio3:Music_MeetFemaleTrainer",
-      "loop": 82,
-      "notes": 71,
-      "ticks": 454
+      "loop": 81,
+      "loop_basis": "label",
+      "notes": 68,
+      "ticks": 453
     },
     "meet_male": {
       "adapted": false,
       "asset": "audio3:Music_MeetMaleTrainer",
-      "loop": 169,
-      "notes": 84,
-      "ticks": 505
+      "loop": 168,
+      "loop_basis": "label",
+      "notes": 81,
+      "ticks": 504
     },
     "meet_oak": {
       "adapted": false,
       "asset": "audio1:Music_MeetProfOak",
-      "loop": 1009,
-      "notes": 322,
-      "ticks": 1681
+      "loop": 1008,
+      "loop_basis": "state",
+      "notes": 319,
+      "ticks": 1680
     },
     "meet_rival": {
       "adapted": false,
       "asset": "audio1:Music_MeetRival",
-      "loop": 179,
-      "notes": 198,
-      "ticks": 1019
+      "loop": 178,
+      "loop_basis": "state",
+      "notes": 197,
+      "ticks": 1018
     },
     "menu": {
       "adapted": true,
@@ -991,16 +1040,18 @@
     "oaks_lab": {
       "adapted": false,
       "asset": "audio3:Music_OaksLab",
-      "loop": 53,
-      "notes": 280,
-      "ticks": 1733
+      "loop": 52,
+      "loop_basis": "joint",
+      "notes": 277,
+      "ticks": 1732
     },
     "pallet": {
       "adapted": false,
       "asset": "audio1:Music_PalletTown",
-      "loop": 1081,
-      "notes": 357,
-      "ticks": 3001
+      "loop": 1080,
+      "loop_basis": "state",
+      "notes": 354,
+      "ticks": 3000
     },
     "pc_enter": {
       "adapted": false,
@@ -1033,51 +1084,58 @@
     "pokecenter": {
       "adapted": false,
       "asset": "audio1:Music_Pokecenter",
-      "loop": 1,
-      "notes": 315,
-      "ticks": 1729
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 312,
+      "ticks": 1728
     },
     "route1": {
       "adapted": false,
       "asset": "audio1:Music_Routes1",
-      "loop": 29,
-      "notes": 326,
-      "ticks": 1397
+      "loop": 28,
+      "loop_basis": "state",
+      "notes": 323,
+      "ticks": 1396
     },
     "routes2": {
       "adapted": false,
       "asset": "audio1:Music_Routes2",
-      "loop": 1,
-      "notes": 265,
-      "ticks": 1141
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 261,
+      "ticks": 1140
     },
     "routes3": {
       "adapted": false,
       "asset": "audio1:Music_Routes3",
-      "loop": 292,
-      "notes": 373,
-      "ticks": 1624
+      "loop": 291,
+      "loop_basis": "label",
+      "notes": 369,
+      "ticks": 1623
     },
     "routes4": {
       "adapted": false,
       "asset": "audio1:Music_Routes4",
-      "loop": 223,
-      "notes": 483,
-      "ticks": 1999
+      "loop": 222,
+      "loop_basis": "label",
+      "notes": 479,
+      "ticks": 1998
     },
     "safari": {
       "adapted": false,
       "asset": "audio1:Music_SafariZone",
-      "loop": 50,
-      "notes": 59,
-      "ticks": 446
+      "loop": 49,
+      "loop_basis": "label",
+      "notes": 56,
+      "ticks": 445
     },
     "silph": {
       "adapted": false,
       "asset": "audio3:Music_SilphCo",
-      "loop": 571,
-      "notes": 623,
-      "ticks": 4078
+      "loop": 570,
+      "loop_basis": "state",
+      "notes": 620,
+      "ticks": 4077
     },
     "start_menu": {
       "adapted": true,
@@ -1089,9 +1147,10 @@
     "surfing": {
       "adapted": false,
       "asset": "audio3:Music_Surfing",
-      "loop": 196,
-      "notes": 253,
-      "ticks": 1636
+      "loop": 195,
+      "loop_basis": "joint",
+      "notes": 251,
+      "ticks": 1635
     },
     "text": {
       "adapted": true,
@@ -1110,47 +1169,52 @@
     "title": {
       "adapted": false,
       "asset": "audio3:Music_TitleScreen",
-      "loop": 244,
-      "notes": 550,
-      "ticks": 2836
+      "loop": 243,
+      "loop_basis": "label",
+      "notes": 546,
+      "ticks": 2835
     },
     "tower": {
       "adapted": false,
       "asset": "audio3:Music_PokemonTower",
-      "loop": 115,
-      "notes": 231,
-      "ticks": 3763
+      "loop": 114,
+      "loop_basis": "label",
+      "notes": 228,
+      "ticks": 3762
     },
     "trainer": {
       "adapted": false,
       "asset": "audio2:Music_TrainerBattle",
-      "loop": 841,
-      "notes": 1224,
-      "ticks": 5797
+      "loop": 840,
+      "loop_basis": "label",
+      "notes": 1221,
+      "ticks": 5796
     },
     "vermilion": {
       "adapted": false,
       "asset": "audio1:Music_Vermilion",
-      "loop": 1,
-      "notes": 380,
-      "ticks": 1405
+      "loop": 0,
+      "loop_basis": "state",
+      "notes": 376,
+      "ticks": 1404
     },
     "wild": {
       "adapted": false,
       "asset": "audio2:Music_WildBattle",
-      "loop": 937,
-      "notes": 684,
-      "ticks": 2809
+      "loop": 936,
+      "loop_basis": "state",
+      "notes": 681,
+      "ticks": 2808
     }
   },
   "target": "Playdate synth adaptation",
   "tools_sha256": {
     "tools/audio/catalog.py": "52f6d57d510d88130eb4e1d2791c14464769ef2af428b35362dfe9c5256991b2",
-    "tools/audio/scores.py": "759fa22b06de836d72dd5da086e8a52f3b2002bd787896369c4a889c298c4433",
+    "tools/audio/scores.py": "98c327d6b4b2233e6ec8f19b66bd0b5b5f601d10e4194334300a35d72e1d920f",
     "tools/audio/source.py": "73ce33da16d31bbd0bfede9ea54176092ffe60ee399cd7a33a7545aef83c60b5",
-    "tools/audio/trace.py": "68649d309ab655ba3717c6df8bd104fb6cf3dec88bded79d300da1a20f2723a1"
+    "tools/audio/trace.py": "eae8e251d5f3390cd3bff279e1f69884877439b8f96c5c495c9672839a7693bd"
   },
-  "total_notes": 21297,
+  "total_notes": 19574,
   "waveforms": {
     "audio1-wave0": {
       "path": "Source/audio/waves/audio1-wave0.wav",

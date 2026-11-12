@@ -2,7 +2,7 @@
 -- audio3:Music_PokemonTower
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.tower = {ticks=3763, loop=115, notes={
+KantoScores.tower = {ticks=3762, loop=114, notes={
 {0,2,85,1040.254,0.6667,0.75,160},
 {28,1,86,992.9697,0.5333,0.75,128},
 {57,3,57,780.1905,1,0.125,32,"audio3-wave3"},
@@ -231,7 +231,4 @@ KantoScores.tower = {ticks=3763, loop=115, notes={
 {3719,3,7,618.2642,1,0.125,32,"audio3-wave3"},
 {3733,3,7,736.3596,1,0.125,32,"audio3-wave3"},
 {3747,3,7,618.2642,1,0.125,32,"audio3-wave3"},
-{3762,1,7,784.8623,0.7333,0.75,180},
-{3762,2,57,1040.254,0.8,0.75,193},
-{3762,3,7,655.36,1,0.125,32,"audio3-wave3"},
 }}

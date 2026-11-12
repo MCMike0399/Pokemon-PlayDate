@@ -2,7 +2,7 @@
 -- audio3:Music_HallOfFame
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.hall_of_fame = {ticks=1681, loop=337, notes={
+KantoScores.hall_of_fame = {ticks=1680, loop=336, notes={
 {0,2,10,391.2597,0.8,0.75,196},
 {0,3,10,292.5714,1,0.125,32,"audio3-wave2"},
 {10,2,11,293.226,0.8,0.75,196},
@@ -263,7 +263,4 @@ KantoScores.hall_of_fame = {ticks=1681, loop=337, notes={
 {1659,3,10,292.5714,1,0.125,32,"audio3-wave2"},
 {1669,2,11,348.5957,0.8,0.75,196},
 {1669,3,11,390.0952,1,0.125,32,"audio3-wave2"},
-{1680,1,84,524.288,0.5333,0.75,128},
-{1680,2,10,391.2597,0.8,0.75,196},
-{1680,3,10,292.5714,1,0.125,32,"audio3-wave2"},
 }}

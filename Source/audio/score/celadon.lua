@@ -2,7 +2,7 @@
 -- audio1:Music_Celadon
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.celadon = {ticks=1837, loop=109, notes={
+KantoScores.celadon = {ticks=1836, loop=108, notes={
 {0,2,6,585.1429,0.8,0.75,194},
 {6,2,7,553.0464,0.8,0.75,194},
 {13,2,7,585.1429,0.8,0.75,194},
@@ -304,7 +304,4 @@ KantoScores.celadon = {ticks=1837, loop=109, notes={
 {1809,1,27,441.3199,0.6,0.5,148},
 {1809,3,13,368.1798,1,0.125,32,"audio1-wave3"},
 {1822,3,14,329.3266,1,0.125,32,"audio1-wave3"},
-{1836,1,27,392.4311,0.7333,0.5,178},
-{1836,2,27,985.5038,0.8,0.5,194},
-{1836,3,13,292.5714,1,0.125,32,"audio1-wave3"},
 }}

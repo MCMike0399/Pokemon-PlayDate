@@ -2,7 +2,7 @@
 -- audio2:Music_TrainerBattle
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.trainer = {ticks=5797, loop=841, notes={
+KantoScores.trainer = {ticks=5796, loop=840, notes={
 {0,2,5,879.6779,0.8,0.75,194},
 {0,3,5,246.3759,1,0.125,32,"audio2-wave4"},
 {5,2,5,829.5696,0.8,0.75,194},
@@ -1224,7 +1224,4 @@ KantoScores.trainer = {ticks=5797, loop=841, notes={
 {5785,1,5,441.3199,0.7333,0.75,181},
 {5785,3,11,130.8104,1,0.125,32,"audio2-wave4"},
 {5790,1,6,466.4484,0.7333,0.75,181},
-{5796,1,10,293.8834,0.7333,0.75,181},
-{5796,2,31,492.7519,0.8,0.75,199},
-{5796,3,5,116.405,1,0.125,32,"audio2-wave4"},
 }}

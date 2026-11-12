@@ -43,12 +43,12 @@ Do not apply `tools/audio/cry-hooks.patch` while `noteCries` remains in the obse
 - Evolution's bed is `Music_SafariZone`.
 - Articuno, Zapdos, Moltres, and Mewtwo use `Music_WildBattle` because their species ids are below `OPP_ID_OFFSET`. The static `PlayCry` sites are `scripts/SeafoamIslandsB4F.asm`, `scripts/PowerPlant.asm`, `scripts/VictoryRoad2F.asm`, and `scripts/CeruleanCaveB1F.asm`.
 - The door cue treats `door.connection` as inside. That is not `PlayMapChangeSound`'s `$0b` tile test.
-- `Music_CinnabarMansion` channel periods are 9315, 1728, 3888, and 648 ticks. Their joint loop is tick 1788480 and is not shipped. The score loops at tick 9315, so channels other than channel 1 seam.
+- `Music_CinnabarMansion` does not share one loop. Channel 1 loops at its `sound_loop 0` label, tick 0, period 9315. Channel 2 loops at tick 864, period 1728. Channel 3 loops at tick 0, period 3888. Channel 4 loops at tick 216, period 216. The joint LCM is 1788480 ticks and is not shipped. At tick 9315 only channel 1 returns to its label.
 - Bench level-ups and item, key-item, and badge fanfares are not visible on the stack. `playCue("item")`, `playCue("item2")`, `playCue("key_item")`, and `playCue("badge")` are the calls. Oak's `MUSIC_MEET_PROF_OAK` is `playCue("meet_oak")` and is not started by the trainer-jingle hook.
 
 ## Tests
 
-Host checks with `POKERED_REFERENCE_DIR=/tmp/pokered`: `tools.tests.test_audio_events`, `tools.audio.test_scores`, `tools.audio.test_cries`, `tools.tests.test_audio_hooks`, `tools.tests.test_boot_budget`, and the two expected-failure lane hook modules. `scores.py --check`, `cries.py --check`, and `events.py --check` reproduce the generated files. Loop points were compared with `ScoreTrace` except the three chirp adaptations, the hand-built low-HP alarm, and the mansion seam above.
+Host checks with `POKERED_REFERENCE_DIR=/tmp/pokered`: `tools.tests.test_audio_events`, `tools.audio.test_scores`, `tools.audio.test_cries`, `tools.tests.test_audio_hooks`, `tools.tests.test_boot_budget`, and the two expected-failure lane hook modules. `scores.py --check`, `cries.py --check`, and `events.py --check` reproduce the generated files. Every looped track is checked against its pokered `sound_loop 0` label. Songs whose channels share that label loop there. Songs whose periods meet at an LCM of at most 20000 ticks use one joint window at the latest label. Cinnabar Mansion is the one per-channel score. A first pass that is not note-identical keeps the register repeat, moved back one tick when that holds the downbeat.
 
 ## Simulator clip
 

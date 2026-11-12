@@ -2,7 +2,7 @@
 -- audio1:Music_Cities1
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.cities1 = {ticks=3457, loop=1, notes={
+KantoScores.cities1 = {ticks=3456, loop=0, notes={
 {0,1,27,414.7848,0.8,0.75,197},
 {0,2,27,985.5038,0.8,0.5,195},
 {0,4,1,32768.0,0.5333,0.125,129},
@@ -610,7 +610,4 @@ KantoScores.cities1 = {ticks=3457, loop=1, notes={
 {3442,2,7,829.5696,0.5333,0.5,132},
 {3442,3,14,370.2599,1,0.125,32,"audio1-wave1"},
 {3449,2,7,879.6779,0.6667,0.5,164},
-{3456,1,27,414.7848,0.8,0.75,197},
-{3456,2,27,985.5038,0.8,0.5,195},
-{3456,4,1,32768.0,0.5333,0.125,129},
 }}

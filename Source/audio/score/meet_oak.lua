@@ -2,7 +2,7 @@
 -- audio1:Music_MeetProfOak
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.meet_oak = {ticks=1681, loop=1009, notes={
+KantoScores.meet_oak = {ticks=1680, loop=1008, notes={
 {0,1,5,370.2599,0.7333,0.75,180},
 {0,2,5,492.7519,0.8,0.5,196},
 {5,1,5,494.6113,0.7333,0.75,180},
@@ -322,7 +322,4 @@ KantoScores.meet_oak = {ticks=1681, loop=1009, notes={
 {1659,1,21,416.1016,0.6667,0.75,162},
 {1659,3,5,414.7848,1,0.125,32,"audio1-wave2"},
 {1669,3,5,492.7519,1,0.125,32,"audio1-wave2"},
-{1680,1,31,370.2599,0.6667,0.75,162},
-{1680,2,31,985.5038,0.4,0.5,101},
-{1680,3,5,414.7848,1,0.125,32,"audio1-wave2"},
 }}

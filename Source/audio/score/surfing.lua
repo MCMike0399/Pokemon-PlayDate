@@ -2,7 +2,7 @@
 -- audio3:Music_Surfing
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.surfing = {ticks=1636, loop=196, notes={
+KantoScores.surfing = {ticks=1635, loop=195, notes={
 {0,2,15,439.8389,0.8,0.75,198},
 {15,2,22,414.7848,0.8,0.75,198},
 {37,2,8,369.2169,0.8,0.75,198},
@@ -254,6 +254,4 @@ KantoScores.surfing = {ticks=1636, loop=196, notes={
 {1605,3,15,329.3266,1,0.125,32,"audio3-wave0"},
 {1620,2,45,658.6533,0.8,0.75,198},
 {1620,3,15,219.9195,1,0.125,32,"audio3-wave0"},
-{1635,1,15,330.1562,0.7333,0.75,178},
-{1635,3,15,439.8389,1,0.125,32,"audio3-wave0"},
 }}

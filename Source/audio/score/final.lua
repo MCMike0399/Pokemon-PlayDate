@@ -2,7 +2,7 @@
 -- audio2:Music_FinalBattle
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.final = {ticks=4453, loop=841, notes={
+KantoScores.final = {ticks=4452, loop=840, notes={
 {0,1,5,370.2599,0.7333,0.75,178},
 {0,2,5,1040.254,0.8,0.75,194},
 {0,3,21,329.3266,1,0.125,32,"audio2-wave1"},
@@ -937,7 +937,4 @@ KantoScores.final = {ticks=4453, loop=841, notes={
 {4410,3,10,329.3266,1,0.125,32,"audio2-wave1"},
 {4420,3,11,439.8389,1,0.125,32,"audio2-wave1"},
 {4431,3,21,492.7519,1,0.125,32,"audio2-wave1"},
-{4452,1,21,330.1562,0.7333,0.75,183},
-{4452,2,42,658.6533,0.8667,0.75,215},
-{4452,3,5,329.3266,1,0.125,32,"audio2-wave1"},
 }}

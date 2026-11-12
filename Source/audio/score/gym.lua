@@ -2,7 +2,7 @@
 -- audio1:Music_Gym
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.gym = {ticks=1864, loop=208, notes={
+KantoScores.gym = {ticks=1863, loop=207, notes={
 {0,1,38,392.4311,0.7333,0.75,181},
 {0,2,38,522.1992,0.8,0.75,199},
 {38,1,7,262.144,0.7333,0.75,181},
@@ -343,7 +343,4 @@ KantoScores.gym = {ticks=1864, loop=208, notes={
 {1837,3,13,439.8389,1,0.125,32,"audio1-wave1"},
 {1850,1,13,441.3199,0.7333,0.75,181},
 {1850,3,13,348.5957,1,0.125,32,"audio1-wave1"},
-{1863,1,25,330.1562,0.7333,0.75,181},
-{1863,2,77,522.1992,0.8,0.75,199},
-{1863,3,12,329.3266,1,0.125,32,"audio1-wave1"},
 }}

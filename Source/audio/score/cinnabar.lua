@@ -2,7 +2,7 @@
 -- audio1:Music_Cinnabar
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.cinnabar = {ticks=1324, loop=28, notes={
+KantoScores.cinnabar = {ticks=1296, loop=0, notes={
 {0,2,40,391.2597,0.8,0.75,199},
 {0,3,6,390.0952,1,0.125,32,"audio1-wave0"},
 {27,1,27,293.8834,0.7333,0.75,181},
@@ -207,8 +207,4 @@ KantoScores.cinnabar = {ticks=1324, loop=28, notes={
 {1269,1,27,330.1562,0.6667,0.75,167},
 {1269,3,13,439.8389,1,0.125,32,"audio1-wave0"},
 {1282,3,7,520.127,1,0.125,32,"audio1-wave0"},
-{1296,2,40,391.2597,0.8,0.75,199},
-{1296,3,6,390.0952,1,0.125,32,"audio1-wave0"},
-{1323,1,27,293.8834,0.7333,0.75,181},
-{1323,3,13,492.7519,1,0.125,32,"audio1-wave0"},
 }}

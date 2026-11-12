@@ -2,7 +2,7 @@
 -- audio1:Music_Vermilion
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.vermilion = {ticks=1405, loop=1, notes={
+KantoScores.vermilion = {ticks=1404, loop=0, notes={
 {0,1,29,330.1562,0.7333,0.75,181},
 {0,2,58,439.8389,0.8,0.75,199},
 {0,3,14,439.8389,1,0.125,32,"audio1-wave0"},
@@ -379,8 +379,4 @@ KantoScores.vermilion = {ticks=1405, loop=1, notes={
 {1389,3,15,329.3266,1,0.125,32,"audio1-wave0"},
 {1389,4,1,4096.0,0.3333,0.125,81},
 {1396,4,1,4096.0,0.3333,0.125,81},
-{1404,1,29,330.1562,0.7333,0.75,181},
-{1404,2,58,439.8389,0.8,0.75,199},
-{1404,3,14,439.8389,1,0.125,32,"audio1-wave0"},
-{1404,4,1,4096.0,0.3333,0.125,81},
 }}

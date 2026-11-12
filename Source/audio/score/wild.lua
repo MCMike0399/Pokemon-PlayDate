@@ -2,7 +2,7 @@
 -- audio2:Music_WildBattle
 -- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key
 KantoScores = KantoScores or {}
-KantoScores.wild = {ticks=2809, loop=937, notes={
+KantoScores.wild = {ticks=2808, loop=936, notes={
 {0,1,4,524.288,0.7333,0.75,179},
 {0,2,4,780.1905,0.8,0.75,195},
 {0,3,4,276.5232,1,0.125,32,"audio2-wave1"},
@@ -684,7 +684,4 @@ KantoScores.wild = {ticks=2809, loop=937, notes={
 {2798,1,5,311.3349,0.7333,0.75,179},
 {2798,3,10,390.0952,1,0.125,32,"audio2-wave1"},
 {2803,1,5,293.8834,0.7333,0.75,179},
-{2808,1,4,277.6949,0.7333,0.75,179},
-{2808,2,58,829.5696,0.8,0.75,197},
-{2808,3,58,414.7848,1,0.125,32,"audio2-wave1"},
 }}

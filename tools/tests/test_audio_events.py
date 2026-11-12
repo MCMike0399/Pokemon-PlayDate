@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tools.audio.catalog import Catalog
 from tools.audio.events import build
-from tools.audio.scores import ASSETS, MANSION_LOOP_TICKS, ScoreTrace, checkpoint_maps
+from tools.audio.scores import ASSETS, LabelTrace, ScoreTrace, _sound_loop_targets, checkpoint_maps
 from tools.audio.source import Source
 from tools.measure_boot_budget import LUA_PEAK_BUDGET_KIB, POOL_BYTES
 
@@ -127,11 +127,18 @@ class AudioEventTests(unittest.TestCase):
         manifest = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())
         adapted = set(manifest['adapted'])
         approximated = set(manifest['approximations'])
-        self.assertEqual(manifest['approximations']['mansion'].count('1788480'), 1)
-        mansion = manifest['scores']['mansion']
-        self.assertEqual((mansion['ticks'], mansion['loop']), (MANSION_LOOP_TICKS, 0))
+        self.assertEqual(approximated, set())
         for name, row in manifest['scores'].items():
+            header = (ROOT / f'Source/audio/score/{name}.lua').read_text().split('notes=', 1)[0]
+            self.assertIn(f'ticks={row["ticks"]}', header)
+            if row.get('parts'):
+                self.assertIn('parts={', header)
+                continue
+            shown = 'nil' if row['loop'] is None else str(row['loop'])
+            self.assertIn(f'loop={shown}', header)
             if name in adapted or name in approximated or name == 'alarm':
+                continue
+            if row.get('loop_basis') in ('label', 'joint'):
                 continue
             asset = row['asset']
             trace = ScoreTrace(self.catalog, self.catalog.headers[asset]['family'])
@@ -139,12 +146,61 @@ class AudioEventTests(unittest.TestCase):
             result = trace.run()
             loop = result['repeat']['start_tick'] if result['repeat'] else None
             self.assertNotEqual(result['status'], 'bound', name)
+            if row.get('loop_basis') == 'state':
+                self.assertIsNotNone(loop, name)
+                self.assertEqual(row['ticks'] - row['loop'], result['ticks'] - loop, name)
+                self.assertIn(row['loop'], {loop, loop - 1}, name)
+                continue
             self.assertEqual(row['ticks'], result['ticks'], name)
             self.assertEqual(row['loop'], loop, name)
-            header = (ROOT / f'Source/audio/score/{name}.lua').read_text().split('notes=', 1)[0]
-            shown = 'nil' if loop is None else str(loop)
-            self.assertIn(f'ticks={row["ticks"]}', header)
-            self.assertIn(f'loop={shown}', header)
+
+    def test_loop_points_match_pokered_loop_labels(self):
+        import json
+        manifest = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())
+        label_pcs, loop_pcs = _sound_loop_targets(self.catalog)
+        for name, row in manifest['scores'].items():
+            basis = row.get('loop_basis')
+            if basis not in ('label', 'joint', 'parts', 'state'):
+                continue
+            header = self.catalog.headers[row['asset']]
+            scopes = {channel['entry'] for channel in header['channels']}
+            trace = LabelTrace(self.catalog, header['family'], scopes, label_pcs, loop_pcs)
+            trace.load(row['asset'])
+            trace.run(4000)
+            labels = trace.label_tick
+            self.assertTrue(labels, name)
+            if basis == 'label':
+                self.assertEqual(set(labels.values()), {row['loop']}, name)
+            elif basis == 'joint':
+                self.assertEqual(row['loop'], max(labels.values()), name)
+            elif basis == 'parts':
+                shipped = {part['voice']: part['loop'] for part in row['parts']}
+                self.assertEqual(shipped, labels, name)
+            else:
+                self.assertGreaterEqual(row['loop'], min(labels.values()), name)
+
+    def test_cinnabar_mansion_does_not_seam_at_tick_9315(self):
+        import json
+        row = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())['scores']['mansion']
+        parts = {part['voice']: part for part in row['parts']}
+        self.assertEqual(
+            [(voice, parts[voice]['loop'], parts[voice]['ticks'] - parts[voice]['loop'])
+             for voice in (1, 2, 3, 4)],
+            [(1, 0, 9315), (2, 864, 1728), (3, 0, 3888), (4, 216, 216)],
+        )
+
+        def phase(part, tick):
+            if tick < part['ticks']:
+                return tick
+            span = part['ticks'] - part['loop']
+            return part['loop'] + (tick - part['loop']) % span
+
+        # Channel 1's label returns here. The other channels stay in their own loops.
+        self.assertEqual(phase(parts[1], 9315), 0)
+        self.assertEqual(phase(parts[2], 9315), 2403)
+        self.assertNotEqual(phase(parts[2], 9315), parts[2]['loop'])
+        self.assertEqual(phase(parts[3], 9315), 1539)
+        self.assertEqual(phase(parts[4], 9315), 243)
 
     def test_chirps_keep_the_30fps_gate_adaptation(self):
         import json
