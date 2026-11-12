@@ -114,6 +114,50 @@ The LCD clip is
 first entrance. No second clip of that entrance was kept.
 
 Safari, Koga, and the Warden were already true in sequence 59 and
-were not replayed. `BADGE_VOLCANO` is still unset. The quiz menu is
-still not attached, so the gym gates stay closed. The cave, the
-Mansion, and Blaine are not finished.
+were not replayed. `BADGE_VOLCANO` is still unset.
+
+The ledger commit `fc87b010df9dbce78333925c7769542a91864760` was
+bundled after that push. `/opt/cursor/artifacts/lane-b/lane-b-fc87b010.bundle`,
+range `7a31867a..HEAD`, sha256
+`36aa696ac483d68f929d39c076f6564bd54b8557978745fe9e94fe5781f7964e`.
+
+## Seafoam 1F Strength
+
+Continue from sequence 64 stepped off the door and turned Strength on
+with Sandshrew. A wild battle on the way was run from. Pause SAVE
+wrote sequence 65, sha256
+`d0bf0c504264fd782d83b8b355bc673331c571da1384f35608bcdb9b2c511ffd`
+(`seq65-adventure.a.json`), at Seafoam Islands 1F `(24,8)` facing
+right, walking, with Strength still on. The boulder at `(26,7)` had
+not moved. The frames of that walk were under 60 seconds, so the clip
+was not kept.
+
+The next continue stood on `(26,8)` and pressed into that boulder.
+The first press armed the push. The second press started it, and the
+simulator then stopped:
+
+`game/fieldTravelState.lua:185: attempt to perform arithmetic on a nil value (field 'gridX')`
+
+`self.boulder` is the script token from `NPCMotion:claimScript`, an
+empty table. The landing cell is the npc passed to `openPush`. That
+file is shared, so it is not edited here. The failing test is
+`tools/tests/test_lane_a_boulder_push_grid.py` and the fix is
+`tools/notes/lane-a-boulder-push.patch`. `git apply --check` accepts
+the patch. No boulder flag was set.
+
+The same handoff covers the water edge. `e8fd7768` answers it from
+the coast hook, and Lane A has been asked to adopt it in
+`KantoWorld.connection`. The failing test is
+`tools/tests/test_lane_a_surf_edge_connection.py` and the fix is
+`tools/notes/lane-a-surf-edge.patch`. Both shared files are unchanged.
+
+Blaine's quiz is the coast script. `CoastStory.quizLines` is the
+af519899 question text. Pressing A on a question, facing up, opens
+that text and then a YES/NO menu owned by this lane. The menu widget
+is the existing `BattleMenu`; `menu.lua` is not edited. YES is the
+first item. A right answer sets that gate's flag and rewrites the
+gate collision. A wrong answer says "Sorry! Bad call!" and starts
+`pokered:CINNABAR_GYM:objects:` plus the opponent index only when that
+source event is already registered. The gym, the Mansion, and the
+Volcano Badge are still ahead, because the cave push cannot finish
+until the shared grid fix lands. No clip of the crash was kept.

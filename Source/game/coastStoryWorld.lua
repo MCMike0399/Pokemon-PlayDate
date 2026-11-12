@@ -1,5 +1,8 @@
 -- Live calls into CoastStory. Map bodies stay Lane A's manifest.
 import "game/coastStory"
+import "ui/menu"
+
+local gfx <const> = playdate.graphics
 
 CoastStoryWorld = {}
 
@@ -203,6 +206,98 @@ local function allowSurfConnections()
     connectionWrapped = true
 end
 
+local quizMenu
+
+local function ensureQuiz(game)
+    if game.machine:get("coastQuiz") then
+        return
+    end
+    quizMenu = BattleMenu()
+    game.machine:register("coastQuiz", {
+        enter = function(self, quiz)
+            self.quiz = quiz
+            local lines = CoastStory.quizLines(quiz.index)
+            self.question = lines and lines.question or ""
+            quizMenu:show({ "YES", "NO" }, function(index)
+                local choice = index == 1 and "yes" or "no"
+                local result = CoastStory.quizAnswer(quiz.index, choice)
+                self.machine:pop()
+                if not result then
+                    return
+                end
+                local spoken = CoastStory.quizLines(quiz.index)
+                if result.correct then
+                    if not quiz.game.session:questFlag(result.flag) then
+                        quiz.game.session:setQuestFlag(result.flag, true)
+                    end
+                    applyBlocks(quiz.game, "pokered:CINNABAR_GYM")
+                    quiz.game.machine:push("dialog", spoken.correct)
+                    return
+                end
+                quiz.game.machine:push("dialog", spoken.incorrect, function()
+                    local id = "pokered:CINNABAR_GYM:objects:" .. tostring(result.opponent)
+                    if SourceEvents and SourceEvents.has(id) then
+                        quiz.game.machine:push("event", id, { mode = "talk" })
+                    end
+                end)
+            end, function()
+                quizMenu.onSelect(2, "NO")
+            end)
+        end,
+        handleInput = function()
+            quizMenu:handleInput()
+        end,
+        draw = function(self)
+            local quiz = self.quiz
+            local camera = quiz and quiz.game and quiz.game.camera
+            if camera then
+                camera:reset()
+            end
+            gfx.setDrawOffset(0, 0)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.fillRect(8, 156, 384, 76)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawRect(8, 156, 384, 76)
+            gfx.drawTextInRect(self.question or "", 16, 164, 210, 60)
+            quizMenu:draw(236, 164, 144, 60)
+            if camera then
+                camera:apply()
+            end
+        end,
+        exit = function(self)
+            self.quiz = nil
+            quizMenu:hide()
+        end,
+        update = function() end,
+    })
+end
+
+-- The question tile is the hidden event. The player stands south of it,
+-- facing up, and presses A. That is PrintCinnabarQuiz's facing check.
+local function quizInteract(game)
+    if currentZone.stableID ~= "pokered:CINNABAR_GYM" or not game.player or game.player.facing ~= "up" then
+        return false
+    end
+    local x, y = game.player:getFacingTile()
+    local quiz = CoastStory.quizAt(x, y)
+    if not quiz then
+        return false
+    end
+    local opened = CoastStory.quizAnswer(quiz.index, quiz.answer)
+    if opened and game.session:questFlag(opened.flag) then
+        return false
+    end
+    local lines = CoastStory.quizLines(quiz.index)
+    if not lines then
+        return false
+    end
+    ensureQuiz(game)
+    game.machine:push("dialog", lines.intro, function()
+        game.machine:push("coastQuiz", { index = quiz.index, game = game })
+    end)
+    return true
+end
+
 function CoastStoryWorld.install()
     allowSurfConnections()
     SourceEvents.registerWorldHooks("pokered:ROUTE_19:script:coast", {
@@ -258,6 +353,9 @@ function CoastStoryWorld.install()
             return gymDoor(game, player, map)
         end,
         interact = function(game)
+            if quizInteract(game) then
+                return true
+            end
             local key = CoastStory.secretKey()
             if currentZone.stableID ~= key.map then
                 return false

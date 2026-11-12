@@ -1,0 +1,49 @@
+--- a/Source/game/fieldTravelState.lua
++++ b/Source/game/fieldTravelState.lua
+@@ -72,13 +72,17 @@
+     self.partyVisit = self.party and self.party.visit
+     self.partyView = self.party and self.party.view
+     self.frame, self.message, self.success, self.failure = 0, nil, false, nil
+-    self.boulder, self.choices = nil, nil
++    self.boulder, self.choices, self.pushNpc = nil, nil, nil
+     if self.key == "push" then
+         local motion = self.game.npcManager.motion
+         if not motion.beginBoulderPush then
+             self.message, self.phase = "That boulder can't move yet.", "result"
+             return
+         end
++        -- beginBoulderPush returns a script token, an empty table. The npc
++        -- that actually moved is options.npc, and its grid is updated before
++        -- the token is released.
++        self.pushNpc = options.npc
+         self.boulder, self.failure = motion:beginBoulderPush(options.npc, options.direction, self)
+         self.phase = self.boulder and "push" or "result"
+         if not self.boulder then
+@@ -159,7 +163,7 @@
+     if self.player and self.player.fieldStep then
+         self.player:cancelFieldStep("field-move-cancelled")
+     end
+-    self.active, self.token, self.boulder = false, nil, nil
++    self.active, self.token, self.boulder, self.pushNpc = false, nil, nil, nil
+     self.epoch = (self.epoch or 0) + 1
+     self.menu:hide()
+     self.menu.onSelect, self.menu.onCancel = nil, nil
+@@ -177,15 +181,15 @@
+     if self.phase == "push" then
+         local complete, reason = self.game.npcManager.motion:updateBoulderPush(self.boulder)
+         if complete then
+-            local npc = self.boulder
+-            if EndgameStory and npc and currentZone then
++            local npc = self.pushNpc
++            if EndgameStory and npc and npc.gridX and currentZone then
+                 local mapName = SourceMaps.nameForID(currentZone.stableID)
+                 local entry = mapName and SourceMaps.entry(mapName)
+                 if entry then
+                     EndgameStory.boulderLanded(self.game, mapName, npc.gridX - entry.padding, npc.gridY)
+                 end
+             end
+-            self.boulder = nil
++            self.boulder, self.pushNpc = nil, nil
+             self.game.lastFieldTravel = {key = "strength", kind = "pushed"}
+             self:close(true)
+         elseif complete == nil then

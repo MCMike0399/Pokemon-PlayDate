@@ -325,6 +325,35 @@ function CoastStory.quizAnswer(index, choice)
     return { correct = false, opponent = index + 2 }
 end
 
+-- text/data text_2.asm at af519899. YES is the first menu item, matching
+-- YesNoChoice item 0. The question stays up while the menu is open.
+local QUIZ_QUESTIONS <const> = {
+    "CATERPIE evolves into BUTTERFREE?",
+    "There are 9 certified #MON LEAGUE BADGEs?",
+    "POLIWAG evolves 3 times?",
+    "Are thunder moves effective against ground element-type #MON?",
+    "#MON of the same kind and level are not identical?",
+    "TM28 contains TOMBSTONER?",
+}
+
+function CoastStory.quizLines(index)
+    local question = QUIZ_QUESTIONS[index]
+    if not question then
+        return nil
+    end
+    return {
+        intro = {
+            "#MON Quiz!",
+            "Get it right and the door opens to the next room!",
+            "Get it wrong and face a trainer!",
+            "If you want to conserve your #MON for the GYM LEADER... Then get it right! Here we go!",
+        },
+        question = question,
+        correct = { "You're absolutely correct!", "Go on through!" },
+        incorrect = { "Sorry! Bad call!" },
+    }
+end
+
 function CoastStory.gymGates(flags)
     flags = flags or {}
     local blocks = {}
