@@ -133,6 +133,21 @@ local function current(game, player, map)
     return true
 end
 
+-- Bottom-row cavern warps are stored with edge = "down", so getDoorAt
+-- skips the tile the stairs current lands on. sourceBindings.lua sets
+-- that edge when the warp is on the last row of an interior map.
+local function doorAt(x, y)
+    if not currentZone or not currentZone.doors then
+        return nil
+    end
+    for _, door in ipairs(currentZone.doors) do
+        if door.x == x and door.y == y then
+            return door
+        end
+    end
+    return nil
+end
+
 local function advance(player)
     local step = table.remove(buttons, 1)
     if not step or not STEP[step] then
@@ -143,8 +158,8 @@ local function advance(player)
     local delta <const> = STEP[step]
     local last <const> = #buttons == 0
     player:tryMove(delta[1], delta[2])
-    if last and forcedWarp and player.isMoving and currentZone then
-        local door = currentZone:getDoorAt(player.gridX + delta[1], player.gridY + delta[2])
+    if last and forcedWarp and player.isMoving then
+        local door = doorAt(player.gridX + delta[1], player.gridY + delta[2])
         if door then
             player.pendingEdgeDoor = door
         end
