@@ -411,6 +411,9 @@ local badgeFlags = {
     thunder = "BADGE_THUNDER",
     rainbow = "BADGE_RAINBOW",
     soul = "BADGE_SOUL",
+    marsh = "BADGE_MARSH",
+    volcano = "BADGE_VOLCANO",
+    earth = "BADGE_EARTH",
 }
 function GameSession:hasBadge(name)
     local id=assert(badgeFlags[name],"unsupported badge name")

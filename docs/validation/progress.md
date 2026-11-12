@@ -1,5 +1,15 @@
 # Full-game execution ledger
 
+## 2026-11-12 The session accepts all eight badges
+
+`GameSession:hasBadge` knew boulder, cascade, thunder, rainbow, and soul. Sabrina's victory already writes `BADGE_MARSH`, and the Route 23 guards name marsh, volcano, and earth. Those three names now resolve to the same quest flags. The Kanto and content-transform pins were regenerated with the SDK export because they hash `domain/gameSession.lua`. The only structural change in the Kanto export, besides `build_id`, is the order of two `required_trainers` ids. East, South, and Saffron packets match the previous packets. The Vermilion journey projection was regenerated with its generator for the same reason.
+
+The coverage snapshot is `883c5cc5419290a3fd05b6b4af7eaf922a5ec2381bc37aca1fd482e59c88cb7b`. The previous snapshot is nested. No row was relabeled.
+
+Session `2ab8117478cc4d5e8eac082502e1c9ab` reached `title.visible` at 1001 ms and `initialize.ready` at 5887 ms. The title phase was `menu`. Sampled peak 13316.104 KiB. `tools/measure_boot_budget.py` passed. `MallocPoolSize` stayed `16645684`. The heartbeat was quiescent at 6023 ms.
+
+`python3 -m unittest discover -s tools/tests` ran 1296 tests: OK, 11 skipped.
+
 ## 2026-11-12 The nine installed-map trades are registered
 
 `NPCTrades.install` was still the parked line after `Daycare.install`. The trade payloads, the Take-before-offer rule, and `MidgameServicesState` (the one event executor, subclass of `NPCTradeState`) were already in the tree. The Cerulean trade house is installed, and the ledger says to register `pokered:CERULEAN_TRADE_HOUSE:objects:2`. That call registers every trade whose map is already in `sourceMaps.json`, including the gambler. Object 1 stays the granny's ordinary dialogue. A selected Pokémon that holds an item is still rejected until Take. The Fuchsia Gym floor row already records Miguel's 2026-11-11 option (a): keep the dense Bayer floor, no floor change. Lane B's latest coast commit did not add a shared-code Blaine patch.
