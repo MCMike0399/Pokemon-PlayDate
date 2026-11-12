@@ -11,6 +11,7 @@ local OPEN <const> = 0x0e
 
 local enteredMap
 local buttons
+local forcedWarp
 local arrival
 
 local function quest(session)
@@ -125,6 +126,10 @@ local function current(game, player, map)
         return false
     end
     buttons = row.buttons
+    -- BIT_FORCED_WARP on the Seafoam currents. A surf step never takes a
+    -- door by itself, so the last button has to hand the landing warp to
+    -- pendingEdgeDoor, which explore already honors.
+    forcedWarp = row.forced_warp == true
     return true
 end
 
@@ -132,15 +137,25 @@ local function advance(player)
     local step = table.remove(buttons, 1)
     if not step or not STEP[step] then
         buttons = nil
+        forcedWarp = false
         return false
     end
     local delta <const> = STEP[step]
+    local last <const> = #buttons == 0
     player:tryMove(delta[1], delta[2])
-    if #buttons == 0 then
+    if last and forcedWarp and player.isMoving and currentZone then
+        local door = currentZone:getDoorAt(player.gridX + delta[1], player.gridY + delta[2])
+        if door then
+            player.pendingEdgeDoor = door
+        end
+    end
+    if last then
         buttons = nil
+        forcedWarp = false
     end
     if not player.isMoving and not player.pendingEdgeDoor then
         buttons = nil
+        forcedWarp = false
         return false
     end
     return true
@@ -380,6 +395,7 @@ function CoastStoryWorld.install()
         onLeave = function()
             enteredMap = nil
             buttons = nil
+            forcedWarp = false
             return false
         end,
         onEnter = function(game)
@@ -389,6 +405,7 @@ function CoastStoryWorld.install()
             end
             enteredMap = map
             buttons = nil
+            forcedWarp = false
             local plan = CoastStory.scriptFlags(map)
             if plan then
                 for id in pairs(plan.set or {}) do

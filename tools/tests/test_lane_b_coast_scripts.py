@@ -146,6 +146,14 @@ class CoastScriptTest(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         self.assertIn('coast-story-ok', completed.stdout)
 
+    def test_a_forced_current_hands_its_landing_warp_to_the_door(self):
+        text = (ROOT / 'Source/game/coastStoryWorld.lua').read_text()
+        start = text.index('local function advance')
+        region = text[start:text.index('local function gymDoor', start)]
+        self.assertIn('forcedWarp', region)
+        self.assertIn('getDoorAt', region)
+        self.assertIn('pendingEdgeDoor', region)
+
 
 if __name__ == '__main__':
     unittest.main()

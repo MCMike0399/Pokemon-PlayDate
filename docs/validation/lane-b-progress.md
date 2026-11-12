@@ -560,8 +560,32 @@ sha256
 `05f666d4a19955fba2944eeed8108f4c8ee40f3fc6bb6c54c04bd8c16321be12`
 (`seq88-adventure.b.json`). Its recording was 342 frames and was
 discarded. Sequence 88 is the continue point. The land stair at
-`(8,6)` is reachable from this water without the water pair on line 23,
-and that is the next step onto B4F. Starting Surf while the zone is
-B4F still raises "Seafoam field current controller is not installed"
-in `Source/game/context.lua`. That file stays as it is. Articuno at
-`(6,1)` is not on the foot component of the `(11,7)` landing.
+`(8,6)` is reachable from this water without the water pair on line 23.
+The step onto it stands on `(15,8)` first. That tile is the stairs
+current, `scripts/SeafoamIslandsB3F.asm` lines 61–85
+(`RLEList_ForcedSurfingStrongCurrentNearSteps`: down 6, right 5, down 3).
+It is not a pair collision. The current ends on the same water warp.
+Starting Surf while the zone is B4F still raises "Seafoam field current
+controller is not installed" in `Source/game/context.lua`. That file
+stays as it is. Articuno at `(6,1)` is not on the foot component of the
+`(11,7)` landing.
+
+## The stairs current was dropping its warp
+
+Continue from sequence 88. Surfing toward `(8,7)` stalls at `(16,8)`
+because the only west step is `(15,8)`, and landing there starts the
+stairs current. Pause SAVE is sequence 89, still surfing, sha256
+`5c35ab2ed3f81f5e13bbe31840dd7418221815bc1ac417c70871c3c29a856293`
+(`seq89-adventure.a.json`). The clip is
+`20261112T080139Z-seafoam-b3f.mp4`, 400×240 h264, 89.64 seconds.
+`sha256sum -c` from the artifact directory is clean.
+
+The current row already says `forced_warp`. `CoastStoryWorld` was
+queueing the buttons and then forgetting the flag, so the ride stopped
+on the warp the way sequence 87 did. A surf step still cannot take a
+door on its own. The last button of a forced current now puts that
+landing door on `pendingEdgeDoor`, which the explore loop already
+handles before the field-step return. The manual surf onto the warp is
+still the shared gap in `tools/notes/lane-a-surf-door.patch`. Sequence
+89 is the continue point. The next step is one tile left, onto the
+current.
