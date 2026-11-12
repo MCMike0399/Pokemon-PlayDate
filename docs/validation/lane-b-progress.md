@@ -161,3 +161,10 @@ gate collision. A wrong answer says "Sorry! Bad call!" and starts
 source event is already registered. The gym, the Mansion, and the
 Volcano Badge are still ahead, because the cave push cannot finish
 until the shared grid fix lands. No clip of the crash was kept.
+
+That handoff is `6b1d3445f6b6251a4aeb4aa4224233b28bc7937b`, pushed to
+`origin/cursor/lane-b-south-loop`. Bundle
+`/opt/cursor/artifacts/lane-b/lane-b-6b1d3445.bundle`, range
+`7a31867a..HEAD`, sha256
+`47234e13798ccd23b406c8f8886a675d8b92eeff796c3d1316ae91de5a94df51`.
+`main` was not pushed.
