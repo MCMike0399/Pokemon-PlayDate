@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "34c7ac0e7fb9dc00a55ee4cb50c53d82d33a4d07",
+    "commit": "843ec5eea5a7f773ca5c4e70aa5dbda343fe247e",
     "source_sha256": "0ff156369fe9f0bb8a70e78a81d4a0abdf089f0738381434fd540ed5220a327a",
     "policy_date": "2026-11-12",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",

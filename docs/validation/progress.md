@@ -8,7 +8,7 @@ Lane H's `31ddf0d1` is on this branch. `tools/generate_postgame_story.py` reads 
 
 The Seafoam circle in clip `20261112T144033Z-seafoam-return-to-fuchsia` is the wild-battle iris. `home/overworld.asm` `WarpFound2` writes palette offset 6 only when an outside map warps to `ROCK_TUNNEL_1F`. Seafoam, Cerulean Cave, Mt. Moon, Diglett's Cave, and Victory Road use tileset `CAVERN` and stay lit. `fieldMoves.json` names only Rock Tunnel 1F and B1F. `coastStory.lua` and `coastStoryWorld.lua` do not set a darkness flag.
 
-The coverage snapshot is `0ff156369fe9f0bb8a70e78a81d4a0abdf089f0738381434fd540ed5220a327a`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `main.lua`.
+This entry is `843ec5ee`. The coverage snapshot is `0ff156369fe9f0bb8a70e78a81d4a0abdf089f0738381434fd540ed5220a327a`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `main.lua`.
 
 The Mewtwo, dark-map, Cerulean Cave, late Kanto, STAY, and surf tests passed. The full suite, SDK contracts, production compile, and boot budget were not run. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`. No pull request was opened.
 
