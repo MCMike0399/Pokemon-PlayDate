@@ -131,6 +131,60 @@ function CaveEncounterContracts.run()
         end)
     end
 
+    -- pokered TryDoWildEncounter (engine/battle/wild_encounters.asm) uses
+    -- wGrassRate on any walkable tile once wCurMap >= FIRST_INDOOR_MAP and
+    -- the tileset is not FOREST. These floors set grass_tile to -1, so a
+    -- grass-only check never rolls. Byte 9 is below every listed rate.
+    -- Byte 10 is the exact miss only where the Blue rate is 10.
+    local indoorRates <const> = {
+        PowerPlant = 10, PokemonMansion1F = 10, SeafoamIslands1F = 15,
+        RockTunnel1F = 15, VictoryRoad1F = 15, VictoryRoad2F = 10,
+        VictoryRoad3F = 15, CeruleanCave1F = 10, CeruleanCaveB1F = 25,
+    }
+    for name, rate in pairs(indoorRates) do
+        test(name .. " indoor floor uses the grass table without a grass tile", function()
+            local game <const> = context()
+            local definition <const> = SourceMaps.definition(name)
+            equal(definition.tileset.grass_tile, -1)
+            equal(definition.encounters.grass.rate_byte, rate)
+            assert(definition.source_map_id >= 0x25, name .. " is below FIRST_INDOOR_MAP")
+            assert(definition.tileset.constant ~= "FOREST", name .. " must keep the indoor fallback")
+            local zone <const> = PewterWorld.isolated(name)
+            local x, y = land(zone)
+            equal(zone:isTallGrass(x, y), false)
+            local policy, reason = zone:encounterPolicyAt(x, y)
+            assert(policy, name .. ": " .. tostring(reason))
+            equal(policy.rate.kind, "byte")
+            equal(policy.rate.value, rate)
+            local source <const> = definition.encounters.grass.slots
+            equal(#policy.slots, 10)
+            for i, slot in ipairs(source) do
+                equal(policy.slots[i].species, slot.species)
+                equal(policy.slots[i].minLevel, slot.level)
+                equal(policy.slots[i].maxLevel, slot.level)
+            end
+            RulesRNG.seed(230)
+            local plan, why = prepare(game, zone, x, y)
+            assert(plan, why)
+            local ok, result = FieldEncounters.resolve(plan)
+            assert(ok, result)
+            equal(result.kind, "encounter")
+            equal(result.receipt.rate_roll, 9)
+            equal(result.pokemon.species, source[result.receipt.slot].species)
+            equal(result.pokemon.level, source[result.receipt.slot].level)
+            if rate == 10 then
+                RulesRNG.seed(253)
+                plan, why = prepare(game, zone, x, y)
+                assert(plan, why)
+                ok, result = FieldEncounters.resolve(plan)
+                assert(ok, result)
+                equal(result.kind, "none")
+                equal(result.reason, "rate")
+                equal(result.receipt.rate_roll, 10)
+            end
+        end)
+    end
+
     test("cave blocked cells and invalid coordinates reject without draws", function()
         local game <const> = context()
         for _, name in ipairs({ "MtMoon1F", "MtMoonB1F", "MtMoonB2F" }) do

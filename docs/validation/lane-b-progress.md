@@ -1344,14 +1344,28 @@ down, sha256
 (`seq195-adventure.b.json`). Venusaur is 167/167. Money is 1309.
 `hyperPotion` is 3. `fullHeal` is 1. `revive` is 0.
 
-Pokémon Mansion, the Power Plant, and Seafoam Islands have encounter
-tables and no tall-grass tiles, so `Zone:checkEncounter` never rolls
-there. Route 21's grass is the strongest table and the walk cannot
-reach it. Route 15 is the highest grass that both connects and
-encounters (levels 22–30). Venusaur is grinding there toward the high
-50s, and Pidgeotto is the backup in the same battles. Full Restores
-and Revives are an Indigo lobby purchase before the Elite Four, not a
-reason to retry a faint.
+`Zone:checkEncounter` is grass-only and is not the walk. The step uses
+`FieldEncounters`, and `encounterPolicyAt` already follows pokered
+`TryDoWildEncounter`: on a cave, dungeon, or indoor map at or after
+`FIRST_INDOOR_MAP` whose tileset is not `FOREST`, the grass rate
+applies to any walkable land tile. Mansion, the Power Plant, Seafoam,
+Rock Tunnel, Victory Road, and Cerulean Cave all have `grass_tile`
+-1, a nonzero rate, and walkable land. Mt. Moon already spawned wild
+Pokémon on that path. The named floors are locked in
+`Source/dev/caveEncounterContracts.lua`. No engine patch: the earlier
+"never rolls" line was the grass helper, not the map.
+
+Route 22 `(29, 4)` and `(29, 5)` are the only walk to the Route 22
+gate, so Victory Road stays behind the rival. Mansion and Seafoam do
+not connect from here. The Power Plant does, through Rock Tunnel, and
+its table (rate 10, up to the mid-30s) is the best floor the walk can
+reach before that fight. Sequence 201 is outside the Fuchsia Center
+at `(19, 28)` facing down, sha256
+`c3fda9c6d0f670ad877e686d0e12e840c5fb1eaa684b66682a768ae8082c3b8b`
+(`seq201-adventure.b.json`). Venusaur is still 53 and 167/167.
+Pidgeotto is 28 and 78/78. Money is 1309. `hyperPotion` is 3. The grind
+moves to the Power Plant and heals at the Rock Tunnel Center. Full
+Restores and Revives stay an Indigo lobby purchase.
 
 Clip `20261112T214238Z-route22-rival.mp4` around 0:17 shows "VENUSAUR
 is" / "trying to learn" with YES/NO already open. The harness did not
