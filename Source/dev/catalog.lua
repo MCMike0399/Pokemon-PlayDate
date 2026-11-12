@@ -783,7 +783,43 @@ local function writeCatalog(outputDir)
     manifest.images=chunks
     return manifest
 end
-function VisualCatalog.write(outputDir)
+-- One exporter per Simulator process. The 16 MiB pool resets on the next
+-- launch; this does not shrink or split the image list inside one export.
+local function writeOneExporter(outputDir, name)
+    collectgarbage("collect")
+    assert(playdate.isSimulator and playdate.simulator, "catalog requires Simulator")
+    assert(type(outputDir) == "string" and outputDir:sub(1, 1) == "/", "absolute output directory required")
+    assert(type(name) == "string" and exporters[name], "unknown catalog exporter: " .. tostring(name))
+    if Contracts and Contracts.releaseSuiteCode then Contracts.releaseSuiteCode() end
+    local written, seen = {}, {}
+    gfx.pushContext()
+    local function save(stem, image, category, mask)
+        local filename = stem .. ".png"
+        assert(pathOK(filename) and not seen[filename], "unsafe/duplicate catalog filename: " .. filename)
+        seen[filename] = true
+        local w, h = image:getSize()
+        playdate.simulator.writeToFile(image, outputDir .. "/" .. filename)
+        written[#written + 1] = { path = filename, width = w, height = h, category = category, mask = mask or false }
+        if w * h > 400 * 240 then collectgarbage("collect") end
+    end
+    local ok, metadata = pcall(function() return VisualCatalog.runExporter(name, save) end)
+    gfx.popContext()
+    assert(ok, metadata)
+    table.sort(written, function(a, b) return a.path < b.path end)
+    return { schema = 1, exporter = name, images = written, missing = {}, exporters = { [name] = metadata } }
+end
+function VisualCatalog.write(outputDir, only)
+    if only ~= nil then
+        collectgarbage("collect")
+        assert(not exporting, "catalog export already running")
+        exporting = true
+        local result = table.pack(pcall(function()
+            return CatalogRuntime.guard(function() return writeOneExporter(outputDir, only) end)
+        end))
+        exporting = false
+        assert(result[1], result[2])
+        return table.unpack(result, 2, result.n)
+    end
     collectgarbage("collect")
     -- Suite closures are not part of the export. Drop them before the one
     -- inventory pass so the declarations and the map frames share the pool.

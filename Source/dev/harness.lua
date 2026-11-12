@@ -482,7 +482,7 @@ function Harness.beforeFrame(game)
         elseif command.op == "snapshot" or command.op == "shot" then complete = true
         elseif command.op == "catalog" then
             assert(VisualCatalog, "visual catalog unavailable")
-            Autopilot.catalog = VisualCatalog.write(config.output_dir)
+            Autopilot.catalog = VisualCatalog.write(config.output_dir, command.parts[2])
             complete = true
         elseif command.op == "contracts" then
             assert(Contracts, "contracts unavailable")
