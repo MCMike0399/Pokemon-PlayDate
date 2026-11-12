@@ -77,6 +77,9 @@ class EndgameStoryTests(unittest.TestCase):
         self.assertEqual([guard['badge'] for guard in self.story['route23']['guards']], [
             'BADGE_EARTH', 'BADGE_VOLCANO', 'BADGE_MARSH', 'BADGE_SOUL',
             'BADGE_RAINBOW', 'BADGE_THUNDER', 'BADGE_CASCADE'])
+        session = (ROOT / 'Source/domain/gameSession.lua').read_text()
+        for flag in ('BADGE_MARSH', 'BADGE_VOLCANO', 'BADGE_EARTH'):
+            self.assertIn(flag, session)
         self.assertEqual([guard['y'] for guard in self.story['route23']['guards']],
                          [35, 56, 85, 96, 105, 119, 136])
         switches = {(row['map'], row['x'], row['y'], row['block']['x'], row['block']['y'])

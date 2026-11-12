@@ -31,6 +31,8 @@ class NPCTradeDataTests(unittest.TestCase):
         self.assertEqual((trade['nickname'], trade['wantedName'], trade['offeredName'], trade['index']),
                          ('LOLA', 'POLIWHIRL', 'JYNX', 6))
         self.assertEqual(build()['events']['pokered:CERULEAN_TRADE_HOUSE:objects:2']['content'], 'npc-trades')
+        main = (ROOT / 'Source/main.lua').read_text()
+        self.assertIn('NPCTrades.install()', main)
 
     def test_all_source_dialogue_branches_and_literal_species(self):
         data = build()

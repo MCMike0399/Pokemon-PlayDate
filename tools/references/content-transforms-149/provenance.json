@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "producer": "/tmp/transform-pin-sdk-playtime",
-  "producer_build_sha256": "50424a4d3f9fc8d4c115ac0e7f0baa22a9b66e5ab3385343a7454c79e5ebfe3c",
-  "producer_proof_sha256": "d79bd5cc8807313a4901d06c6818ec163a9554ea9045628ad963273c6c66b662",
+  "producer": "/tmp/kanto-badge-export",
+  "producer_build_sha256": "c0ec98c948fefd4118f45f594be574e659339771ab209e9cef92a1c38244e8d9",
+  "producer_proof_sha256": "eda1355e16e8d30cc22f8346b12656de99cd45230357fa8a57ca4d96479f0178",
   "dependencies": {
     "game/hideoutTowerContent.lua": "fb662674e6cc36147f61a86f41858438253ef15ca23e1328d048bf4a3368f5d7",
     "game/rocketHideoutStory.lua": "b679e61fd27863e671118143f8c013908c4cb93cbd4e9778d3d2cf2acb61e417",
@@ -14,7 +14,7 @@
     "data/towerStory/scenes.json": "fb2faaaa5ecd56a4691585d308f1af87c0b81c527af8ea09ae75d90c7206f253",
     "data/midgameGymStory/events.json": "91f0b10be4a45a08144bb62197b313312e4caada6a0396a0b21927050bcc3b02",
     "data/sourceMaps.json": "3f0d8683db4159837af759523baa166168f269db89865cce0067ff1b205e0389",
-    "domain/gameSession.lua": "5c1465fa54ccb302e3b0d8a8f642a6676bf3f768d07ea855094b9d8f1c7c3d26",
+    "domain/gameSession.lua": "3addc780e04387142b86a651ea9309d760abc099a1c9af26d148ccea4311e568",
     "domain/party.lua": "936d14bf14cdcffec9a244940fcc14b508237e74464302249fd6aced3bee5545",
     "world/sourceMaps.lua": "05629c3f9bd752ab774d5623fd9c10aa094b3748b03ecdcb69036d74ee5c8666",
     "game/silphStory.lua": "fbb84ffcc15b3fe6ca005a6ebd5af7c21f80619a4abe2a7d4843ef318cc2ec80",
@@ -22,9 +22,9 @@
   },
   "content_pins_sha256": "184e249a207ad8fbdd9eae62bfd3965a5d630a1957d5c19821263280df108480",
   "exports": {
-    "midgameEast": "c496c3e0318a9941d9b3dc0ce7d03c42c8ad9b539087b8c591fb7fc5c0e69427",
-    "midgameSouth": "57d481c759ef443bfcab141878606988722d23df47cd4493b3b52c5fed62108d",
-    "midgameSaffron": "f7fe400dcf0350d9fb16f30d6a1a19255f172240be5aabdbcda319058f8f1b52"
+    "midgameEast": "65fdbea40c6889b03e9af06dcc4779133996dd4204cde49b087253d2a289e5f6",
+    "midgameSouth": "a90c66af49013692a18de3c8763b5eadb2b12d7f065667f99c5d432c541f60ba",
+    "midgameSaffron": "dcfdc6bc5b4fdd52d6d43a848f7f2b2f989d6b5a60ee69a42e1e6334e41aeecb"
   },
   "scope": "Actual SDK post-transform outputs; not a Python translation or new gameplay owner.",
   "owner_imports": [
