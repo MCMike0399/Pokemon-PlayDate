@@ -1,6 +1,6 @@
 # Current whole-game coverage
 
-This checkout installs 205 source maps. The earlier header that said 108/222
+This checkout installs 222 source maps. The earlier header that said 108/222
 was the 5.5a checkpoint, and it is not the current install. Accepted Simulator
 campaign maps remain the historical 149/222 through checkpoint B. Device-playable
 maps remain 0/222. The full campaign remains unfinished.
