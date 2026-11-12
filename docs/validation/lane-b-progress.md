@@ -1303,8 +1303,46 @@ for this fight. With the first rival skipped, `EVENT_1ST` is clear and
 The first branch claims the tile and `CeruleanRoutes.plan` returns
 `unavailable-rival`. pret/pokered `Route22DefaultScript` checks
 `EVENT_1ST` first and otherwise starts the second fight from
-`EVENT_2ND`, with no defeated-trainer requirement. The engine file is
-unchanged. The fix and its test are
-`tools/notes/lane-d-route22-second-rival.patch` and
-`tools/tests/test_lane_d_route22_second_rival.py`. The continue is
-sequence 182.
+`EVENT_2ND`, with no defeated-trainer requirement. The check is applied on this branch as
+`tools/notes/lane-d-route22-second-rival.patch`, with
+`tools/tests/test_lane_d_route22_second_rival.py`. Lane E can take that
+same patch for main.
+
+The tile then started `pokered:ROUTE_22:objects:2`. The rival walked
+the four steps and the event died with `source-actor-already-claimed`:
+the walk still held the NPCMotion lease, and `TrainerEvents:prepare`
+rejects a second owner. `EventState:startTrainer` now releases that
+lease first, matching the other story controllers. The notes patch is
+`tools/notes/lane-e-trainer-lease.patch` and the test is
+`tools/tests/test_lane_e_trainer_lease.py`. Lane E can take that for
+main as well.
+
+Sequence 184 is the healed Pause-Save on Route 22 `(30, 5)` facing up,
+sha256 `c31c967cbe3addb6f847b43befb7702155a370a13730302f43befc9eef4d59bd`.
+Venusaur is 161/161. Money is still 1033. The filmed attempt spent two
+Hyper Potions and the Revive, beat the first five Pokémon, and blacked
+out as Alakazam fell to 3 HP. Sequence 186 is outside the Viridian
+Center after that blackout, sha256
+`0a4f0c51878780a6469d480883f4b7640418c5a5e98b9fd6607f58b0e88c1a3f`.
+Money is 516. `hyperPotion` is 1 and `revive` is 0. A later attempt
+that reached Alakazam again spent the last Hyper Potion and leveled
+Venusaur to 53. The level-up Solar Beam prompt was refused.
+
+Sequence 192 is the continue: the player is on Route 22 `(30, 5)`
+facing up, and the blackout checkpoint is Viridian `(23, 26)`. sha256
+`5d503bdaef87398e9bd90d1cae555715c2b9e3d3f706201d798bc09f34c8f5e3`
+(`seq192-adventure.a.json`). Venusaur is level 53, 162/167. Money is
+64. `fullHeal` is 1. `hyperPotion` is 0 and `revive` is 0. Every
+registered trainer flag is already set, so there is no remaining
+trainer payout. A Hyper Potion costs 1500. Cerulean Cave's Full
+Restores and Nugget stay behind the Hall of Fame guard. Another rival
+fight without a Hyper Potion faints to Pidgeot and halves what money
+is left. The second rival, Route 23, Victory Road, and the league are
+not reached.
+
+Clips, lane I's gray encode (`lutrgb` threshold, `format=gray`,
+libx264 crf 0, `-pix_fmt gray`, full range), 400×240, decoded pixels
+only 0 and 255: `20261112T213834Z-route22-rival.mp4` and
+`20261112T214238Z-route22-rival.mp4` (2692 frames, 89.8 seconds, the
+attempt that reached Alakazam). This ffmpeg's libx264 stores that
+encode as `yuvj420p`; the decoded frame is still the 1-bit panel.
