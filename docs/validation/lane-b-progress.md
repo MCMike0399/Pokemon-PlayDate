@@ -784,3 +784,59 @@ h264, 89.96 seconds, 2698 frames, the LCD working image. The recorder
 filled on B3F `(20, 10)`, so the file shows the surf across B3F and
 not the outdoor channel. Sequence 114 is the continue point. The
 Mansion, the Secret Key, and Blaine are next.
+
+## The Secret Key, then the gym quiz
+
+Sequence 115 is Mansion 1F `(5, 27)` facing up, sha256
+`54161af74d513bad957bdc89fd9fbfba91077dd953132be369867bd87f5ffb98`
+(`seq115-adventure.b.json`). The facility gates are half-blocks:
+`$2d` walls its south row, `$5f` its east column, `$54` its north
+row. With the switch off, 1F reaches the 2F stair and 2F reaches
+`(6, 1)`. 3F does not reach a hole until the switch is on. The hole
+at `(16, 14)` lands on 1F `(16, 14)`, and that tile reaches the B1F
+stair only while the switch is on. B1F then needs the south statue
+off and the north statue on before `(5, 12)` can face the key at
+`(5, 13)`.
+
+That walk is what the pad did. Wild battles on 2F, 3F, and B1F were
+fled. The 3F statue went on, the B1F south statue went off, and the
+north statue went on. A on `(5, 13)` granted `secretKey` quantity 1
+and `PICKUP:pokered:POKEMON_MANSION_B1F:objects:8`. Sequence 116 is
+B1F `(5, 12)` facing down, sha256
+`4f6fd08ff627fab3a0f42cecbad28ec64d8d9c21c0433ef39a4a4c7b4304dc59`
+(`seq116-adventure.b.json`). The clip is
+`20261112T115154Z-mansion-basement-secret-key.mp4`, 400×240 h264,
+89.36 seconds, 2680 LCD frames. Recording started at the north
+statue, so the file includes the walk to the key. The budget filled
+on the way back, at B1F `(22, 6)`.
+
+The southeast exits `(26, 27)` and `(27, 27)` are bottom-row warps,
+so they are edge doors: standing on the tile does not leave, and a
+down press does. Sequence 117 is that press not yet taken, 1F
+`(26, 27)` facing down, sha256
+`5a8a9ee629f2b0c7249a33b2ce6c0906ffa815c4c5c55d56450f0ebe8eca796e`
+(`seq117-adventure.a.json`). The down press from 117 resolved
+`LAST_MAP` warp 1 and advanced through the door to Cinnabar
+`(6, 4)` facing down. `CoastStory.scriptFlags` clears
+`EVENT_MANSION_SWITCH_ON` on that arrival. Sequence 118 is that
+tile, key still held, sha256
+`011dfd4d702cb2b785ca9babb6eb5d242bb95251658131d8cd0ea94c5d4248af`
+(`seq118-adventure.b.json`).
+
+The gym door at `(18, 3)` opened with the key and landed on
+`(16, 17)`. The six questions were answered YES, NO, NO, NO, YES, NO.
+All six `EVENT_CINNABAR_GYM_GATE*_UNLOCKED` flags are set. The clip
+is `20261112T120040Z-cinnabar-gym-quiz.mp4`, 400×240 h264, 89.76
+seconds, 2692 LCD frames. It starts outside the gym and the budget
+fills at `(10, 7)`, so questions 3 through 6 are after the file.
+Sequence 119 is the gym at `(3, 4)` facing up, sha256
+`0863638d7d6fbebb904ae7e93a7f23efc3fcc9e3ec59e91b5f238dbacab234b3`
+(`seq119-adventure.a.json`). Venusaur is still level 47 with 93 HP,
+and the other five are unstatused.
+
+A on Blaine sets `lastTraversalBlock` to
+`unimplemented-source-event` /
+`pokered:CINNABAR_GYM:objects:1`. `scripts.json` already lists that
+object as `CinnabarGymBlaineText`, "scripted trainer/reward; story
+worker". No battle started, and `BADGE_VOLCANO` is unset. The badge
+was not written by hand. Sequence 119 is the continue point.
