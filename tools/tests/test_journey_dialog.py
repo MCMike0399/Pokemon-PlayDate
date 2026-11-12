@@ -37,3 +37,14 @@ class DialogJourneyTests(unittest.TestCase):
         driver = self.driver(dialog(8), [dialog(8, line=2), {"root": "overworld"}])
         driver.dialog()
         self.assertEqual(driver.presses, ["press a"] * 2)
+
+    def test_open_clip_holds_a_finished_page(self):
+        driver = self.driver(dialog(8), [dialog(8), {"root": "overworld"}])
+
+        class Recorder:
+            def is_open(self):
+                return True
+
+        driver.clip_recorder = Recorder()
+        driver.dialog()
+        self.assertEqual(driver.presses, ["wait 30", "press a"])

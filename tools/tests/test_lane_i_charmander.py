@@ -32,6 +32,8 @@ from tools.harness.protocol import ProtocolError
 ACTION_PAUSE = 14000
 
 FORBIDDEN_OPS = {"fixture", "warp", "debug", "intro", "seed", "battle", "encounters", "face"}
+# Oddish, Bellsprout, and Pikachu resist Misty's water attacks.
+WATER_COUNTERS = {"oddish", "bellsprout", "pikachu"}
 LCD_OFFSET = (18, 45)
 LCD_SIZE = (400, 240)
 EXPECTED_WINDOW = (486, 700)
@@ -295,17 +297,7 @@ class CharmanderRun(BrockJourney):
         if "CERULEAN" in zone_id and (
             self.flag("EVENT_GOT_DOME_FOSSIL") or self.flag("EVENT_GOT_HELIX_FOSSIL")
         ):
-            self.heal_here("CeruleanPokecenter")
-            self.stock_up("CeruleanMart")
-            self.save()
-            if not self.defeated(cerulean.MISTY):
-                self.fight(cerulean.MISTY)
-            if not all(self.flag(flag) for flag in ("BADGE_CASCADE", "EVENT_BEAT_MISTY", "EVENT_GOT_TM11")) or self.quantity("tm11") != 1:
-                raise ProtocolError("Misty badge or TM11 was not received")
-            self.checkpoint("cascade-badge-tm11")
-            self.heal_here("CeruleanPokecenter")
-            self.save()
-            self._after_cascade()
+            self._misty_badge(cerulean)
             return
         self.heal_here("PewterPokecenter")
         self.stock_up("PewterMart")
@@ -342,17 +334,7 @@ class CharmanderRun(BrockJourney):
         self.fossil_exclusion()
         self.checkpoint("cerulean-fossil-choice")
         self.travel(self.zone("CeruleanCity"))
-        self.heal_here("CeruleanPokecenter")
-        self.stock_up("CeruleanMart")
-        self.save()
-        if not self.defeated(cerulean.MISTY):
-            self.fight(cerulean.MISTY)
-        if not all(self.flag(flag) for flag in ("BADGE_CASCADE", "EVENT_BEAT_MISTY", "EVENT_GOT_TM11")) or self.quantity("tm11") != 1:
-            raise ProtocolError("Misty badge or TM11 was not received")
-        self.checkpoint("cascade-badge-tm11")
-        self.heal_here("CeruleanPokecenter")
-        self.save()
-        self._after_cascade()
+        self._misty_badge(cerulean)
 
     def _after_cascade(self):
         """Nugget Bridge and Bill. Save before each row of trainers."""
@@ -383,6 +365,197 @@ class CharmanderRun(BrockJourney):
         self.heal_here("CeruleanPokecenter")
         self.save()
         self.summary.update(acceptance="Cerulean story saved", natural=True, forbidden_shortcuts=False)
+
+    def _have_counter(self, minimum):
+        return any(
+            mon["species"] in WATER_COUNTERS and mon["level"] >= minimum and mon["hp"] > 0
+            for mon in self.party()
+        )
+
+    def _misty_ready(self):
+        """A water counter at 18, or Charmeleon at 27, can take Starmie's first hit."""
+        if self._have_counter(18):
+            return True
+        return self.party()[self.starter_index() - 1]["level"] >= 27
+
+    def _buy_balls(self):
+        if self.quantity("pokeBall") >= 4:
+            return
+        clerk = self.zone("CeruleanMart") + ":objects:1"
+        price = self.export["shops"][clerk]["prices"]["pokeBall"]
+        count = min(4 - self.quantity("pokeBall"), self.inventory()["money"] // price)
+        if count:
+            self.buy_item(clerk, "pokeBall", count, price)
+
+    def _lead_counter(self, minimum):
+        best = None
+        for index, mon in enumerate(self.party(), 1):
+            if mon["species"] in WATER_COUNTERS and mon["level"] >= minimum and mon["hp"] > 0:
+                if best is None or mon["level"] > best[1]:
+                    best = (index, mon["level"])
+        if best and best[0] != 1:
+            self.field_swap(best[0], 1)
+
+    def _lead_for_misty(self):
+        self._lead_counter(16)
+
+    def _fight_route24_trainers(self):
+        import tools.harness.cerulean_journey as cerulean
+        for index in (6, 5, 4, 3, 2, 1):
+            trainer = cerulean.sid("ROUTE_24", index)
+            if trainer not in self.source_trainers or self.defeated(trainer):
+                continue
+            lead = self.party()[0]
+            if lead["hp"] * 2 < lead["maxHP"] or lead["status"] not in {None, "none"}:
+                self.heal_here("CeruleanPokecenter")
+            self.fight(trainer)
+
+    def _grind_route24(self):
+        """Walk Route 24 grass and fight what appears. Catch a water counter."""
+        from tools.harness.brock_journey import NaturalBlackout, training_lane
+        route = self.zone("Route24")
+        self.travel(route)
+        self.training_mode = "train"
+        self.capture_pending = False
+        start = len(self.summary["training"])
+        lane = None
+        for _ in range(80):
+            if self._misty_ready() or len(self.summary["training"]) - start >= 24:
+                break
+            active = lookup(self.state, "pokemon")
+            if active["hp"] * 2 < active["maxHP"] or active["status"] not in {None, "none"}:
+                self.training_mode = None
+                self.heal_here("CeruleanPokecenter")
+                self.travel(route)
+                self.training_mode = "train"
+                lane = None
+            if self.state.get("zone_id") != route:
+                self.travel(route)
+                lane = None
+            if self._have_counter(1):
+                self._lead_counter(1)
+            try:
+                if lane is None:
+                    lane = training_lane(self.model(), self.position(), self.occupied())
+                goal = lane[1] if self.position() == lane[0] else lane[0]
+                self.navigate(goal)
+            except NaturalBlackout:
+                self.recover_path_blackout("route 24 training")
+                self.travel(route)
+                lane = None
+            except ProtocolError:
+                break
+        self.training_mode = None
+        self.capture_pending = False
+
+    def _prepare_for_misty(self):
+        self.heal_here("CeruleanPokecenter")
+        self.stock_up("CeruleanMart")
+        self._buy_balls()
+        self.save()
+        if self._misty_ready():
+            return
+        self._fight_route24_trainers()
+        self.heal_here("CeruleanPokecenter")
+        self.save()
+        if self._misty_ready():
+            return
+        self._grind_route24()
+        self.heal_here("CeruleanPokecenter")
+        self.save()
+
+    def _misty_badge(self, cerulean):
+        """Train, pause-save, then fight Misty. A loss trains again."""
+        self._prepare_for_misty()
+        self._lead_for_misty()
+        self.save()
+        previous = self.config.get("max_blackouts", 2)
+        self.config["max_blackouts"] = 0
+        try:
+            for attempt in range(3):
+                self.blackouts = 0
+                try:
+                    if not self.defeated(cerulean.MISTY):
+                        self.fight(cerulean.MISTY)
+                    break
+                except ProtocolError as error:
+                    if "blackout" not in str(error) or attempt == 2:
+                        raise
+                    self._prepare_for_misty()
+                    self._lead_for_misty()
+                    self.save()
+            else:
+                raise ProtocolError("Misty training retries exhausted")
+        finally:
+            self.config["max_blackouts"] = previous
+        if not all(self.flag(flag) for flag in ("BADGE_CASCADE", "EVENT_BEAT_MISTY", "EVENT_GOT_TM11")) or self.quantity("tm11") != 1:
+            raise ProtocolError("Misty badge or TM11 was not received")
+        self.checkpoint("cascade-badge-tm11")
+        self.heal_here("CeruleanPokecenter")
+        self.save()
+        self._after_cascade()
+
+    def _throw_ball(self, battle, options):
+        """Throw one real Poké Ball. Used so a counter is not knocked out first."""
+        if self.quantity("pokeBall") <= 0:
+            return False
+        if len(self.summary["captures"]) >= self.config.get("max_capture_attempts", 24):
+            return False
+        before = self.quantity("pokeBall")
+        count = len(self.party())
+        positions = [i for i, value in enumerate(options, 1)
+                     if value == "BAG" or isinstance(value, dict) and value.get("action") == "bag"]
+        if len(positions) != 1:
+            raise ProtocolError("capture requires one real BAG action")
+        self.select("battle.menu.selected", positions[0])
+        self.send("press a")
+        self.require(root="bag")
+        index = next((i for i, row in enumerate(sequence(self.inventory()["slots"], "inventory.slots"), 1)
+                      if row["id"] == "pokeBall"), None)
+        if index is None:
+            raise ProtocolError("actual capture ball disappeared")
+        self.select("bag.selected", index)
+        self.send("press a")
+        self.require(root="battle")
+        if self.quantity("pokeBall") != before - 1:
+            raise ProtocolError("real ball did not consume exactly one")
+        result = lookup(self.state, "battle.capture_result")
+        if not isinstance(result, dict) or type(result.get("caught")) is not bool:
+            raise ProtocolError("actual capture result required")
+        self.summary["captures"].append({
+            "enemy": battle["enemy"], "result": result, "before_quantity": before,
+            "after_quantity": before - 1, "party_before": count, "party_after": len(self.party()),
+        })
+        if result["caught"]:
+            if len(self.party()) != count + 1:
+                raise ProtocolError("caught reserve did not enter actual party")
+            self.capture_pending = False
+        return True
+
+    def battle_preparation_action(self, battle, options):
+        from tools.harness.brock_journey import choose_battle_medicine
+        species = (battle.get("enemy") or {}).get("species")
+        want = (
+            self.training_mode in {"train", "capture"}
+            and battle.get("trainerName") is None
+            and species in WATER_COUNTERS
+            and not self._have_counter(1)
+            and self.quantity("pokeBall") > 0
+            and len(self.party()) < 6
+        )
+        if not want:
+            return super().battle_preparation_action(battle, options)
+        # Throw before Dragon Rage can knock the counter out.
+        self.training_mode = "capture"
+        self.capture_pending = True
+        try:
+            if choose_battle_medicine(battle["player"], self.inventory()):
+                return False
+            return self._throw_ball(battle, options)
+        finally:
+            # The next wild fight records its goal before this method runs.
+            if self.training_mode == "capture":
+                self.training_mode = "train"
 
     def battle(self, name, strategy="attack", expected=None):
         from tools.harness.brock_journey import NaturalBlackout
@@ -568,6 +741,9 @@ class CharmanderTitleTests(unittest.TestCase):
         body = source.split("def after_boulder", 1)[1].split("def _after_cascade", 1)[0]
         self.assertIn("CERULEAN", body)
         self.assertLess(body.index("EVENT_GOT_DOME_FOSSIL"), body.index('self.heal_here("PewterPokecenter")'))
+        self.assertLess(body.index("_misty_badge"), body.index('self.heal_here("PewterPokecenter")'))
+        self.assertIn("def _prepare_for_misty", source)
+        self.assertIn("wait 30", (REPO / "tools/harness/journeys.py").read_text(encoding="utf-8"))
 
     def test_forbidden_ops(self):
         with self.assertRaises(ProtocolError):
@@ -692,14 +868,20 @@ class FightRecorder:
         path = self.directory / f"{label}.mp4"
         if path.exists():
             path = self.directory / f"{label}-{len(self.procs) + 1}.mp4"
+        # Badge clips are 90 seconds so the one-second page holds still fit
+        # after the fight. Other clips stay at 60.
+        seconds = "90" if str(label).startswith("badge-") else "60"
         proc = subprocess.Popen(
             ["ffmpeg", "-y", "-loglevel", "error", "-f", "x11grab",
              "-video_size", f"{LCD_SIZE[0]}x{LCD_SIZE[1]}", "-framerate", "30",
              "-i", f"{display}.0+{origin_x},{origin_y}",
-             "-t", "60", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path)],
+             "-t", seconds, "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path)],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.procs.append((label, path, proc, time.time()))
         return proc
+
+    def is_open(self):
+        return any(proc.poll() is None for _, _, proc, _ in self.procs)
 
     def close(self):
         """Finish every open recording into a playable file before the session exits."""
@@ -840,6 +1022,7 @@ def play(output, probe=False, resume_save=None):
                 print(json.dumps(summary, indent=2, default=str))
                 return summary
             run = CharmanderRun(client, output, config, build_evidence=output)
+            run.clip_recorder = recorder
 
             def record_fight(label):
                 proc = recorder.start(label)
@@ -883,7 +1066,7 @@ def play(output, probe=False, resume_save=None):
                     note = publish_save(data, saves / "latest", run.state)
                     summary["save"] = note
                 summary["clips"] = recorder.close()
-                artifact = Path("/opt/cursor/artifacts/lane-i") / output.parent.name / "clips"
+                artifact = Path("/opt/cursor/artifacts/lane-i") / output.parent.name / output.name / "clips"
                 for clip in summary["clips"]:
                     src = Path(clip["path"])
                     if not src.is_file():

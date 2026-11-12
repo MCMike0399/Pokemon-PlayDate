@@ -76,15 +76,30 @@ class Journey:
         self.fixtures.append({"kind": "supplementary-existing-battle-hp", "options": values})
         self.send({"op": "fixture", "options": {"adjust_battle": values}})
 
+    def _clip_page_hold(self):
+        """True while this journey's LCD clip is still recording."""
+        recorder = getattr(self, "clip_recorder", None)
+        is_open = getattr(recorder, "is_open", None)
+        return bool(is_open and is_open())
+
     def dialog(self):
         # Each press is gated by the current semantic overlay, so a final A
         # cannot reopen an NPC or select the next menu. First A reveals text;
         # the next advances it. No narrative text is used as an oracle.
+        # A finished page stays up for about a second while a clip is open,
+        # so badge, defeat, and prize text can be read in the video.
         for _ in range(64):
             if self.state.get("root") != "dialog":
                 return
             previous = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
             ready = self.state["dialog"].get("ready")
+            if ready and self._clip_page_hold():
+                self.send("wait 30")
+                if self.state.get("root") != "dialog":
+                    return
+                if (self.state["dialog"].get("instance"), self.state["dialog"].get("line")) != previous:
+                    continue
+                ready = self.state["dialog"].get("ready")
             self.send("press a")
             if self.state.get("root") == "dialog" and ready:
                 current = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
