@@ -1086,4 +1086,17 @@ Key. sha256
 (`seq141-adventure.b.json`). Venusaur is 121/150. Money is 2035.
 `hyperPotion` is 1 and `revive` is 1, so the mart purchase is still in
 the save. The bag already holds 20 stacks, and the Card Key quantity
-is 0. The continue is sequence 141.
+is 0. The bag is full, which is why the ball stayed on the floor.
+
+Tossing the antidote stack freed that slot. The same interaction then
+took the Card Key. Sequence 142 is still 5F `(20, 16)` facing right,
+sha256
+`eaf44e60c46cabae4a4e8fe22dae205cae05b73f4c3a32da38c72dd598f15896`
+(`seq142-adventure.b.json`). `cardKey` is 1, `hyperPotion` is 1,
+`revive` is 1, and money is 2035. The two defeated Rockets block both
+ways out of that corridor, so the walker stopped at `(25, 16)`.
+Sequence 143, sha256
+`e9bde95b40778004ece191de023ae7f95c527189e281a4d750d38b31828f8843`
+(`seq143-adventure.a.json`), has the same bag. The continue is
+sequence 143. The open route is the 9F warp `(9, 15)` and that floor's
+elevator to 3F.
