@@ -615,3 +615,15 @@ facing up, on foot, sha256
 discarded. Sequence 91 is the continue point. The next step is the B3F
 boulder into the hole at `(3,16)`, then that hole, then the `(7,3)`
 shore.
+
+## One B3F boulder has moved
+
+Continue from sequence 91, on foot, through the land stair `(11,7)` to
+B3F `(8,6)`. Strength, then the boulder at `(5,14)` pushed left to
+`(4,14)`. The next stand was still listed as blocked, so the other
+pushes waited. Sequence 92 is B3F `(6,14)` facing left, sha256
+`7d1acaca99faadff12628d1b59d351b946e3d3d9b8ebb6bef82a837ef568548d`
+(`seq92-adventure.b.json`). The clip is
+`20261112T082220Z-seafoam-b4f-seafoam-b3f.mp4`, 400×240 h264, 86.36
+seconds. It shows the B4F stair and the B3F push. Sequence 92 is the
+continue point.
