@@ -389,19 +389,17 @@ function TitleState:drawTitleArt()
 end
 
 function TitleState:drawPlayer()
-    local layout = TitleIdle.LAYOUT.player
-    local scale = layout.scale
-    local px, py = layout.x, layout.y
-    self.playerSheet:drawScaled(px, py, scale)
+    self.playerFit = self.playerFit or {}
+    local box = TitleIdle.playerRect()
+    self:fitted(self.playerFit, "body", self.playerSheet, box.w, box.h):draw(box.x, box.y)
     local col, row = TitleIdle.ballTile()
-    local tile = TitleIdle.TILE * scale
-    local cellX = px + col * tile
-    local cellY = py + row * tile
+    local cellX = box.x + col * TitleIdle.COL
+    local cellY = box.y + row * TitleIdle.ROW
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(cellX, cellY, tile, tile)
+    gfx.fillRect(cellX, cellY, TitleIdle.COL, TitleIdle.ROW)
     local packed = TitleIdle.PLAYER_OAM_Y + row * TitleIdle.TILE
-    local dy = (TitleIdle.ballOamY(self.idle) - packed) * scale
-    self.ballTile:drawScaled(cellX, cellY + dy, scale)
+    local dy = math.floor((TitleIdle.ballOamY(self.idle) - packed) * TitleIdle.ROW / TitleIdle.TILE)
+    self:fitted(self.playerFit, "ball", self.ballTile, TitleIdle.COL, TitleIdle.ROW):draw(cellX, cellY + dy)
 end
 
 function TitleState:drawIntroMon(name, col, row)
