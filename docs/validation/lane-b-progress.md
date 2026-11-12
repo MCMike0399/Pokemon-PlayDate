@@ -942,3 +942,31 @@ Thunder, Rainbow, Soul, and Volcano. `BADGE_MARSH` is unset, and
 127, so `EndgameStory.gymDoor` stays locked until the Marsh Badge
 is on the save. Cinnabar's north connection is Route 21, then
 Pallet and Route 1. Giovanni's battle is not started.
+
+## Back through Seafoam to Fuchsia
+
+Sequence 125 left the Cinnabar Center by real input, boarded at
+`(19, 13)`, and stepped east onto Route 20 `(0, 16)` still surfing.
+Pause SAVE wrote sequence 126 there, sha256
+`99953f44b97952f22505555acb8e0a1e985bf054ddd9beb068f6e794470135b8`
+(`seq126-adventure.b.json`). The west Seafoam door is not on that
+channel. The open water reaches the east beach at `(61, 12)`.
+
+From that beach the east door `(58, 9)` returns to Seafoam 1F
+`(26, 17)`. The same boulder path that opened the door, run
+backwards, comes out the west door at Route 20 `(48, 6)`. The
+island land there reaches `(61, 4)`, and surfing east stops on
+the map edge `(99, 4)`. Sequence 127 is that edge, sha256
+`275c66d659b01cf8ab6e9e1b290262fe79413c912d64f47269ee05601fc36a53`
+(`seq127-adventure.b.json`). The clip is
+`20261112T144033Z-seafoam-return-to-fuchsia.mp4`, 400×240 h264,
+89.64 seconds, 2688 frames. It starts on the Cinnabar channel and
+the budget fills on Seafoam B3F.
+
+One more step east is Route 19 `(0, 40)`. Surfing north, landing
+at `(4, 9)`, and walking the shore column reaches Fuchsia
+`(23, 35)` facing up. Sequence 128 is that city tile, sha256
+`3596d9104a49252c66b51f3753496aaa99e871046db27f7a9e8e01fc14cc7b8e`
+(`seq128-adventure.b.json`). The bag still has no Fresh Water,
+Soda Pop, or Lemonade. `BADGE_MARSH` is still unset. The continue
+is sequence 128.
