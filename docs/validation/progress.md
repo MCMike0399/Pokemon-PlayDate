@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-12 The gates after lane G r9
+
+`d2aa6299` ran `python3 -m unittest discover -s tools/tests`: 1363 tests, 161.123 seconds, OK, skipped=11. `tools/build.py` wrote `/tmp/PokemonPoC.pdx` and exited 0. A clean Simulator boot, evidence `boot-clean-20261112`, reached `title.visible` at sequence 45, 971 ms, and `initialize.ready` at sequence 244, 5453 ms. The sampled Lua peak was 13603.870 KiB. `tools/measure_boot_budget.py` printed BUDGET PASS. `MallocPoolSize` stayed 16645684.
+
+The SDK `contracts` command did not finish. Session `18ee4f304a654d1aa6706861409614e7` recorded `party-battle` returned at 13625 KiB, then the Simulator sat in poll until the 150 second request timeout (`command timed out; cancellation unconfirmed`). The catalog command, session `1294b6350f45430eb637bcf1d83aee8d`, stopped in `VisualCatalog.write` with `not enough memory`. No protected baseline was rewritten. `main` stays `bf92c4fc`.
+
 ## 2026-11-12 Lane G r9 adds nicknames, the Name Rater, and the dialog font
 
 Lane G `e93bc416` is merged through `38552dc9`. `tools/notes/lane-e-dialog-font.patch` from that commit is applied. `home/text.asm` `PromptText`, `Paragraph`, and `_ContText` place `▼` at `hlcoord 18, 16`. `DoneText` does not. `Dialog.showsArrow` follows that rule, and the box is `data/text_boxes.asm` `MESSAGE_BOX` (`hlcoord 0, 12`, two rows of 18) drawn with `GbFont`. The fidelity ledger records this as BlueBot's decision extending r1 ruling d.
