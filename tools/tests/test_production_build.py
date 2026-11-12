@@ -119,6 +119,7 @@ class ProductionBuildTests(unittest.TestCase):
                 'game/silphStory', 'game/silphStoryWorld', 'game/silphStoryController',
                 'game/saffronGuards', 'game/endgameStory', 'game/midgameGymStoryController'],
             'game/celadonServicesController': ['game/hiddenItems'],
+            'domain/safariGame': ['domain/hallOfFame'],
         }
         additions_after = {
             'dev/chargeLockContracts': ['dev/hmBattleContracts'],

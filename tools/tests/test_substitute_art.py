@@ -27,7 +27,8 @@ PROTECTED_DRIFT = {
     'Source/data/maps.lua': '42f9286346663a3270ff2a136c0bb6d78fab4745',
 }
 MECHANICS_FREEZE = {
-    'Source/battle/dsl.lua': '02846a40d85c0d3d5965070d44207b7556d74572',
+    # 387bf5e0 lets WeatherEffect accept sunnyday and hail, the ids setWeather already applies.
+    'Source/battle/dsl.lua': '387bf5e0a024e4bd988dd35b92f75d2714450d88',
     'Source/battle/moves.lua': '89905295b577884e020f5b91c131a0179083eb42',
     'Source/battle/ordinaryAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
     'Source/battle/contactAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
