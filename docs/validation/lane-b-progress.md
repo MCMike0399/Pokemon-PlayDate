@@ -589,3 +589,29 @@ handles before the field-step return. The manual surf onto the warp is
 still the shared gap in `tools/notes/lane-a-surf-door.patch`. Sequence
 89 is the continue point. The next step is one tile left, onto the
 current.
+
+## The stairs current reaches B4F
+
+Sequence 90 stepped onto `(15,8)`. The ride matches the reversed RLE
+and stops on `(20,17)`. `getDoorAt` misses that tile: a last-row
+interior warp is stored with `edge = "down"` in `sourceBindings.lua`,
+and `getDoorAt` skips edge doors. The forced warp now reads the door
+list, including that edge. Sequence 90, sha256
+`c9f40e86b3f514f14ee55a6a2483926b3e2f72afcbd61512cd8a165e66739a34`
+(`seq90-adventure.b.json`), is still that B3F tile. Its recording was
+374 frames and was discarded.
+
+The next ride warped. B4F's exit current, which is not a forced warp,
+carried the landing from `(20,17)` to `(20,15)`, still surfing. The
+path toward Articuno then stepped onto land and dismounted at `(23,5)`.
+Every surf step from water `$14` onto land `$05` is
+`pair_collision_tile_ids.asm` line 23, `db CAVERN, $14, $05`. The
+southeast pool has no other shore onto Articuno's floor. The step that
+is not that pair is `(7,4)` `$14` onto `(7,3)` `$15`, and `(7,4)` is in
+the pool under the B3F holes, not this one. Sequence 91 is B4F `(23,5)`
+facing up, on foot, sha256
+`569b3482e709568acae73e5b981410b818d6b1e8f4a10352f3216c7ecacc5062`
+(`seq91-adventure.a.json`). Its recording was 1258 frames and was
+discarded. Sequence 91 is the continue point. The next step is the B3F
+boulder into the hole at `(3,16)`, then that hole, then the `(7,3)`
+shore.
