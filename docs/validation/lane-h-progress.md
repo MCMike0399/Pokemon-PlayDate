@@ -82,10 +82,10 @@ Miguel decided on Nov 12, 2026 at 9:43 AM CST. `docs/validation/lane-h-policy-pr
 
 - Cable Club stays out. Both rooms stay excluded, and the receptionist text stays.
 - Version exclusives stay Blue only. There is no Red/Blue switch.
-- Mew is a Miguel-approved deviation. After the Hall of Fame, the scientist in `Source/data/postgame/story.json` at Cerulean Cave 1F `(23, 16)` gives Mew at level 5. `EVENT_GOT_MEW` makes it one per save. The giver is owned data, not a pokered object.
+- Mew is a Miguel-approved deviation. After the Hall of Fame, a scientist at Cerulean Cave 1F `(23, 16)` gives Mew at level 5. `EVENT_GOT_MEW` makes it one per save. The lines and the flag stay in `Source/data/postgame/`. The sprite is `tools/notes/lane-e-mew-scientist.patch`: object `postgame:CERULEAN_CAVE_1F:mew-gift`, `SPRITE_SCIENTIST`, facing right. That patch is not applied here. An invisible giver is a silent oddity, so the object has to be on the loaded map.
 - LINK CABLE is a Miguel-approved deviation. The name is 10 characters. It is used like a stone on Kadabra, Machoke, Graveler, and Haunter, and on nothing else. The same scientist gives one each time you ask, because Celadon Mart 4F is another lane's generated stone counter and is open before the ceremony. The bag row and the evolution edges are `tools/notes/lane-e-link-cable.patch`. That patch is not applied here.
 
-The pinned cave map is not edited. Its checksum is the runtime cache pin, and the manifest hash of those pins is shared by the cell cache. Inserting the sprite without regenerating that cache would make the cave fail to load. The headless gift stands on `(24, 16)` and faces the scientist.
+The pinned cave map is not edited on this branch. Its checksum is the runtime cache pin, and that manifest hash is the first pin in every `Source/data/sourceMapCells/*.bin` header. `tools/notes/lane-e-mew-scientist.patch` adds only the scientist object. The steps in that file replace `6f393581e8f796642cb5fa61761e5835befa5341d02d005daf3b3f140fbee0e6` with `4bc3a9b4778f66051ce151cdeba61e48c8b4af85fc5797ca79e6c0cf1a048019` in `sourceMaps.json`, `zRemainder/manifest-entries.json`, and `zRemainder/provenance.json`, then rebuild the cache with `python3 tools/generate_source_map_cache.py --output /tmp/lane-e-map-cache --cells-output /tmp/lane-e-map-cells` and install both directories. `--check` is the proof. The same steps rebuild `sourceMapFixture.json`, `ceruleanJourney.json`, and `vermilionJourney.json`, which embed the manifest pin. The two SDK provenance files that pin `data/sourceMaps.json` stay untouched. The headless gift stands on `(24, 16)` and faces the scientist.
 
 ## Headless journey
 
@@ -96,6 +96,10 @@ The walk is 2275 steps on the compact collision graph. It is the shortest path t
 `setLocation` in the host uses an identity resolver, so the Lua side does not prove collision. `postgame_route.py` checks that every recorded step is a successor of the previous cell. The host then applies those coordinates to the continued session and hashes the session location after each move. At the two goal cells it builds `PostgameStory.staticRequest` for Mewtwo (level 70) and Zapdos (level 50), including a run, a win, and a catch setting the beat flag and a wipe setting nothing. `SourceEncounters.prepare` is called there. Both calls fail with `unsupported source encounter` until lane E applies `tools/notes/lane-e-static-encounters.patch`. That battle step is an expected failure. The steps up to the request are not.
 
 The Pallet actor snapshot is a fixture. `SourceActors.describeSource` needs `playdate.file`, so the host stubs `describe` and `WorldMotionData.reconcile` returns `WorldMotionData.empty()`. This environment has no Playdate SDK, so the journey is the session and the map graph, not a simulator clip.
+
+## Uncovered pokered rows
+
+There are none in the pinned postgame and late-Kanto paths. Every pokered object those plans name is already a story or scene row: the cave items and Mewtwo, the Power Plant items and statics, the fossil scientist, the Hall of Fame oak and the Continue warp, the cave guard, Articuno, Moltres, Zapdos, the Secret Key, the seven Route 23 checks, the Elite Four room order, Blaine, and Giovanni. The Mew scientist is not a pokered object. Cable Club and the Red tables stay excluded. Objects on the same pinned files that this lane does not name (gym trainers besides Blaine and Giovanni, the other Elite Four objects, Seafoam boulders, the mansion items besides the Secret Key, the fossil-room trade) stay with the lanes that own those maps.
 
 ## Rows still not played
 
@@ -114,8 +118,8 @@ These rows live in `Source/data/lateKanto/` or `Source/data/postgame/` and the M
 
 ## Tests
 
-`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_lane_h_fossils tools.tests.test_fossil_revival tools.tests.test_late_kanto_story tools.tests.test_lane_h_postgame_journey tools.tests.test_lane_h_policy`
+`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_lane_h_fossils tools.tests.test_fossil_revival tools.tests.test_late_kanto_story tools.tests.test_lane_h_postgame_journey tools.tests.test_lane_h_policy tools.tests.test_lane_e_mew_scientist`
 
-37 tests, 4 expected failures. Two are the static encounter rows missing from `sourceEncounters.lua`: the direct row check, and the journey's `prepare` of Mewtwo and Zapdos. The third is the Continue record missing `wFossilItem`. The fourth is LINK CABLE: the bag does not know the item, so the stone does not evolve Kadabra yet. The static patch, the fossil patch, and `tools/notes/lane-e-link-cable.patch` apply with `patch --dry-run --fuzz=0 -p1`.
+39 tests, 5 expected failures. Two are the static encounter rows missing from `sourceEncounters.lua`: the direct row check, and the journey's `prepare` of Mewtwo and Zapdos. The third is the Continue record missing `wFossilItem`. The fourth is LINK CABLE: the bag does not know the item, so the stone does not evolve Kadabra yet. The fifth is the Mew scientist: the loaded cave has no object at `(23, 16)` until lane E applies `tools/notes/lane-e-mew-scientist.patch` and regenerates the pins. The static patch, the fossil patch, `tools/notes/lane-e-link-cable.patch`, and the scientist patch apply with `patch --dry-run --fuzz=0 -p1`.
 
 This environment has no Playdate SDK, so the static outcomes, the fossil Continue, and the Pallet-to-cave-to-plant walk are host contracts rather than a simulator clip. Zapdos was not recorded on device.
