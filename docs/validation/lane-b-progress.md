@@ -258,3 +258,9 @@ returns blocked-origin there. The failing test names those two steps,
 and `tools/notes/lane-a-surf-edge.patch` is unchanged. `git apply
 --check` accepts it. `kantoWorld.lua` was not edited. The coast wrap
 already accepts a surfing step on that pair.
+
+The walk is `51fe47c869bd71c43c200f57e694581eb50b42a8`, pushed to
+`origin/cursor/lane-b-south-loop`. Bundle
+`/opt/cursor/artifacts/lane-b/lane-b-51fe47c8.bundle`, range
+`7a31867a..HEAD`, sha256
+`ff46c7aca9216178c55092b415f6b5f1e06aee2452dab356619ed09745d3f3e7`.
