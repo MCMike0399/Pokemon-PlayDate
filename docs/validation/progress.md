@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-12 The current boot still stops during content registration
+
+Clip `20261112T061946Z-boot-memory-stop.mp4` is 45 seconds of the 400x240 LCD from build `8b9da209`. The title becomes visible, then content registration stops the game with `error.not enough memory`. The crop has no Simulator menu, Heads up dialog, or device chrome. Seafoam and the league scenes never start, so the clip cannot show the boulder push or a Hall of Fame card. `MallocPoolSize=16645684` stayed on. The simulator and device locks were free; the finished worry-seed and transform sessions were not touched.
+
+Lane B can rebase on `8b9da209`. The bundle `20261112T061946Z-lane-b-rebase.bundle` requires `origin/main` `7a31867a` and its sha256 is `d0d5c2ff3b037ed198063a0d4ca57bf099383e55051ccab068150a38d99d65e6`. `main` was not fast-forwarded. The earlier full-suite log failed its source setup because `POKERED_REFERENCE_DIR` was unset, and this boot still exhausts the 16 MiB pool.
+
 ## 2026-11-12 The transform pins match the thin SDK export
 
 SDK 3.1.2 session `/opt/cursor/artifacts/transform-pin-sdk-20261112-05` used the thin journey profile. The full harness catalog walk still exhausts the 16 MiB pool, so that profile was not used and the pool was not raised. Parsed East, South, and Saffron records match the stored export bytes. `domain/gameSession.lua` now includes the safari readers, `world/sourceMaps.lua` honors a water-tile warp arrival, and `game/silphStory.lua` no longer rebuilds the rival pair on a standing frame. The content pin is the opaque-white overworld sprite rehash. The Kanto packet's only semantic change is Route 22 object 2: the second rival is the source trainer, with the source text and the three source flags, instead of a bespoke stub. `Source/lib/shade.lua` and the gym floor were not edited.
