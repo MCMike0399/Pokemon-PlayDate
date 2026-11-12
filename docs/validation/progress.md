@@ -1,5 +1,15 @@
 # Full-game execution ledger
 
+## 2026-11-12 The field plays the Kanto cues
+
+Lane F's `b9634998` is merged. Score notes load on the first play from `audio/score/<name>.lua`. `tools/notes/lane-e-audio-hooks.patch` is applied. `main.lua` imports `kantoAudio` and calls `KantoAudio.updateGame` after input. `tools/audio/root-hooks.patch` is that same import and call, so it is not applied a second time. `tools/audio/cry-hooks.patch` is not applied. `KantoAudio.noteCries` already plays the wild intro cry and the send-out cries.
+
+`home/audio.asm` `PlayDefaultMusicCommon` plays `MUSIC_BIKE_RIDING` when `wWalkBikeSurfState` is the bicycle and `MUSIC_SURFING` when it is 2. Surf and the bicycle call `setTraversal`, and Continue restores the saved mode. `home/trainers.asm` `PlayTrainerMusic` returns for `OPP_RIVAL1`, `OPP_RIVAL2`, and `OPP_RIVAL3`, and returns when `wGymLeaderNo` is not 0. `EngageMapTrainer` calls it before the gym script stores that number, so a leader still gets the class jingle. The evil and female lists match `data/trainers/encounter_types.asm`. A rival sight battle plays `meet_rival`, the `MUSIC_MEET_RIVAL` cue from the rival scripts, because `PlayTrainerMusic` itself is silent. Map beds follow `data/maps/songs.asm`, including Pallet, Route 1, Viridian Gym, and the Power Plant. The Poké Flute cue is `SFX_POKEFLUTE` from `engine/items/item_effects.asm`.
+
+The boot budget was not measured. This machine has no Playdate SDK, and `tools/measure_boot_budget.py` only reads a trace. No peak and no `initialize.ready` time were produced. `MallocPoolSize` stayed `16645684`. The 14000 KiB budget was not changed. `main` stays at `bf92c4fc`.
+
+This entry is `ff752bda`. The coverage snapshot is `10b6f8ec3f05feb073c5bc94c67f3134a0e10a4e83fdfd6d099d2487167cd22c`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `main.lua`. The audio hook tests passed. The full suite, SDK contracts, production compile, and catalog compare were not run.
+
 ## 2026-11-12 The gate on 6dc41bf6 did not pass, and the Power Plant battles start
 
 `python3 -m unittest discover -s tools/tests` on `6dc41bf6` ran 1249 tests: 34 errors, 15 skipped. The errors are a missing Playdate SDK at `~/Developer/PlaydateSDK`, missing files under `~/Developer/Pokemon-PlayDate-env/references` and `preparation`, a missing pinned move cache, an unset `KANTO_REFERENCE`, `/private/tmp`, and Pillow rejecting `get_flattened_data` on the Hall of Fame pictures. SDK `contracts`, `tools/build.py`, `tools/measure_boot_budget.py`, and the protected catalog compare were not run. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
