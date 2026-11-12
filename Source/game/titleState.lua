@@ -261,6 +261,10 @@ function TitleState:introSheet(name, width)
 end
 
 function TitleState:update()
+    -- lane-f b9634998. Same bed as the audio observer, so a repeat is a no-op.
+    if KantoAudio and KantoAudio.playCue and self.phase ~= "closed" then
+        KantoAudio.playCue("title")
+    end
     if not self:isTop() then return end
     if self.phase == "intro" then
         local pressed = playdate.buttonJustPressed(playdate.kButtonA) or false

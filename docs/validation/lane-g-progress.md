@@ -65,5 +65,5 @@ Playdate Simulator 3.1.2, production bundle `source_sha256` `a8b0b1566576a1c8606
 - Nickname glyphs outside printable ASCII are rejected by `Story.storeNickname`, because `pokemonCodec.lua` rejects them. The keyboard still shows `×` `♂` `♀` `PK` `MN`.
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
 - The intro tilemap scroll (`hSCX` in `IntroMoveMon`) is still the static first frame. The three Gengar poses are in place.
-- `KantoAudio.playTitle` and `playIntro` do not exist yet. The seams no-op.
+- `TitleState:update` calls `KantoAudio.playCue("title")` while the title state is open. The start-menu sound stays on lane F's observer. Intro music is still unwired.
 - No earned save was available for the Continue box.
