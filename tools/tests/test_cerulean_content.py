@@ -78,10 +78,18 @@ class CeruleanContentTests(unittest.TestCase):
                     continue
                 self.assertEqual(self.manifest['maps'][name][field], value, (name, field))
             for field, value in old['maps'][name].items():
-                if field == 'blocked' and name in {'PewterCity', 'Route2'}:
-                    opened = ({'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2'}
-                              if name == 'PewterCity' else
-                              {f'pokered:ROUTE_2:warps:{index}' for index in (1, 3, 4, 5)})
+                if field == 'blocked' and name in {'PewterCity', 'Route2', 'ViridianCity'}:
+                    # The cache blocks a warp only while its destination map is
+                    # absent. These destinations are installed, matching the
+                    # source warp events: Pewter 4/6 are the Nidoran and speech
+                    # houses, Pewter 1/2 are the museum, and Viridian 3/4/5 are
+                    # the school, nickname house, and gym.
+                    opened = {
+                        'PewterCity': {'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2',
+                                       'pokered:PEWTER_CITY:warps:4', 'pokered:PEWTER_CITY:warps:6'},
+                        'Route2': {f'pokered:ROUTE_2:warps:{index}' for index in (1, 3, 4, 5)},
+                        'ViridianCity': {f'pokered:VIRIDIAN_CITY:warps:{index}' for index in (3, 4, 5)},
+                    }[name]
                     self.assertEqual(new['maps'][name][field],
                                      {cell: event for cell, event in value.items() if event not in opened})
                 elif field != 'blocked_connections':
