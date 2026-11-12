@@ -1228,3 +1228,43 @@ The gym door mat does not leave until the step south off it. Sequence
 `hyperPotion` is 3 and `revive` is 2. `BADGE_MARSH` and
 `EVENT_BEAT_SILPH_CO_GIOVANNI` are set. The continue is sequence 166.
 Viridian Gym is the next door.
+
+## Viridian Giovanni
+
+The walk from Saffron to Viridian was real input: Route 5, Cerulean,
+Route 24 on Surf, Mt. Moon, Route 3, Pewter, Viridian Forest. Sequence
+172 is the Pause-Save inside Viridian Gym at `(3, 3)` facing up, before
+Giovanni, sha256
+`6726faf5f3a4a5f36cfb89a5a210c6a938837f46febede42df47f8a4cb49ef70`
+(`seq172-adventure.b.json`). Venusaur is 159/159. Money is 813.
+`hyperPotion` is 3 and `revive` is 2. The Earth Badge is not set.
+
+The first win set `BADGE_EARTH` in memory and then crashed before a
+save. Playdate's `json.decode` stores a `\u00XX` escape as one Latin-1
+byte, and `SourceText.expand` rejects that byte. The prize line in
+`Source/data/endgame/play.json` was `<PLAYER> got \u00a5@`, and
+`POKÉMANIAC` in `story.json` was the same kind of escape. The generator
+now writes raw UTF-8, matching the other dialogue banks, and
+`test_playdate_json_keeps_latin1_letters_as_utf8` pins it. The gender
+signs were already valid UTF-8 after decode. The in-memory win was not
+copied into a save.
+
+The refight from sequence 172 won again. Sequence 174 is the gym at
+`(2, 2)` facing up, sha256
+`0c171791e8af487b41cd00de9904682d951a8eef29c29c72bfd3c49114420585`
+(`seq174-adventure.a.json`). `BADGE_EARTH`,
+`EVENT_BEAT_VIRIDIAN_GYM_GIOVANNI`, and `EVENT_GOT_TM27` are set.
+Venusaur is level 51, 106/160. Money is 5763. The three Hyper Potions
+and both Revives were spent. `fullHeal` is 1 and `tm27` is 1. Pidgey
+evolved to Pidgeotto. The fight clip is
+`20261112T192809Z-viridian-gym-giovanni.mp4`, 400×240 h264, 89.92
+seconds, 2696 game-screen frames. It is the first attempt and ends on
+Rhydon. The winning fight was not filmed again.
+
+Sequence 176 is outside the Viridian Center, `(23, 26)` facing down,
+after the heal, sha256
+`f31d3aa7542ba231f86a5064f93471dfdc692eb2004a5f94b826a94631466953`
+(`seq176-adventure.a.json`). Venusaur is 160/160. Money is 5763.
+`fullHeal` is 1, `hyperPotion` is 0, and `revive` is 0. The continue
+is sequence 176. Route 22 is the next door. Supplies for that rival
+still have to be bought; Viridian Mart does not sell them.
