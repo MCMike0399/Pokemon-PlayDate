@@ -83,3 +83,37 @@ sequence 59 save and were not replayed.
 
 The branch was pushed to `origin/cursor/lane-b-south-loop`. `main` was
 not pushed. No pull request was opened.
+
+## Water edge and Seafoam door
+
+The seam commit is `e8fd776878bcb5c8b6e38d9dd28a01cfbcc5f648`, pushed
+to `origin/cursor/lane-b-south-loop`. Bundle
+`/opt/cursor/artifacts/lane-b/lane-b-e8fd7768.bundle`, range
+`7a31867a..HEAD`, sha256
+`7a980f288ffa66bd9a3d82f2cc3e7459615733e10e6f437bbaf6102bd828903a`.
+
+Continue from sequence 61, still surfing, stepped left and arrived on
+Route 20 `(99,4)` facing left. Pause SAVE wrote sequence 62, sha256
+`1a15d73dbd03db283d03409a4a37e40f2fea1d33808b56d981bf7661ae1a8c12`.
+
+The next continue surfed west along the south water. Column x=62 is
+foot `$32`, which the surf rules already allow, and the step onto the
+island dismounted. A wild battle on the way was run from. The player
+reached the west Seafoam door, entered `SEAFOAM_ISLANDS_1F` at
+`(4,17)` facing up, and the same stretch of inputs then stepped back
+out. Pause SAVE wrote sequence 63, sha256
+`55d1658d62b8f55ea4e99fdd9150f0fe8a38ea274ab878d3a495cc50d64d8063`,
+at Route 20 `(48,6)` facing down, walking. One more up from that tile
+entered the cave again. Pause SAVE wrote sequence 64, sha256
+`f4cfcca443ed266d0d105891d3f9f6761d29a1965b812c9ad654278ea5a44bf1`,
+at Seafoam Islands 1F `(4,17)` facing up.
+
+The LCD clip is
+`/opt/cursor/artifacts/lane-b/20261112T035203Z-route20-seafoam.mp4`,
+400×240, 68.32 seconds, 2048 frames. It is the Route 20 surf and the
+first entrance. No second clip of that entrance was kept.
+
+Safari, Koga, and the Warden were already true in sequence 59 and
+were not replayed. `BADGE_VOLCANO` is still unset. The quiz menu is
+still not attached, so the gym gates stay closed. The cave, the
+Mansion, and Blaine are not finished.
