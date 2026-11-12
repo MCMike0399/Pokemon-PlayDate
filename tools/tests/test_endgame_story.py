@@ -117,7 +117,7 @@ class EndgameStoryTests(unittest.TestCase):
         self.assertEqual((gate['north_map'], gate['south_map'], gate['badge']),
                          ('ROUTE_23', 'ROUTE_22', 'BADGE_BOULDER'))
 
-    def test_decisions_follow_the_story_without_writing_a_save(self):
+    def test_decisions_follow_the_story(self):
         module = ROOT / 'Source/game/endgameStory.lua'
         probe = r'''
 json = { decodeFile = function() return story end }
@@ -176,7 +176,9 @@ check(player.return_to, "title", "credits return")
 check(frames, expected_frames, "credits length")
 local hall = EndgameStory.plan(EndgameStory.story().hall_of_fame.oak_id, {flags = {}})
 check(hall.return_to, "title", "hall returns")
-check(hall.saves, false, "hall does not save")
+check(hall.saves, true, "hall saves")
+check(hall.blackout.zone_id, "pokered:PALLET_TOWN", "pallet blackout")
+check(hall.changes.flags.EVENT_LANCES_ROOM_LOCK_DOOR, false, "indigo lock resets")
 check(hall.steps[#hall.steps].op, "credits", "hall credits")
 check(hall.changes.flags.TOGGLE_CERULEAN_CAVE_GUY, true, "cave guy hides")
 local badges = 0

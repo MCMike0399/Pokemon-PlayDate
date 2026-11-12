@@ -173,13 +173,26 @@ end
 function EventState:finish()
     if not self:valid() or not self:isTop() then return end
     local warp=self.pendingWarp
+    local plan=self.plan
+    if not warp and plan and plan.return_to == "title" and plan.saves then
+        if not plan.recorded then
+            local recorded, problem = self.session:recordHallOfFame(plan.record)
+            if not recorded then self:fail(problem or "hall-record"); return end
+            plan.recorded = true
+        end
+        if plan.blackout then
+            local placed, reason = self.session:setCheckpoint(plan.blackout)
+            if not placed then self:fail(reason or "hall-blackout"); return end
+        end
+        local saved, metadata = self.game.saves:saveFromHall(self)
+        if not saved then self:fail(metadata and (metadata.reason or metadata.error) or "hall-save"); return end
+    end
     self.pendingWarp=nil
     self.phase,self.waiting="complete","none"
     self.machine:pop()
     if warp then self.machine:get("overworld").sub:change("doorWarp",warp) end
-    -- The cartridge's Hall of Fame returns through Init. That is the title.
-    -- The session hide stays in memory. This does not write a save.
-    if not warp and self.plan and self.plan.return_to == "title" and self.plan.saves == false then
+    -- HallOfFamePC saves, then Init returns to the title.
+    if not warp and plan and plan.return_to == "title" then
         self.machine:change("title")
     end
 end

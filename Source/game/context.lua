@@ -102,6 +102,19 @@ function GameContext:isPCSaveBoundary(pc,epoch)
         and pc.epoch==epoch and pc.session==self.session and settledTraversal(self)
         and not self.player.pendingConnection and not self.player.isJumping and true or false
 end
+function GameContext:isHallSaveBoundary(event)
+    local machine = self.machine
+    return type(event) == "table" and type(event.is) == "function" and event:is("EventState")
+        and machine:get("event") == event and machine:current() == event and machine:depth() == 2
+        and machine.stack[1] == machine:get("overworld")
+        and event.game == self and event.active == true and event.session == self.session
+        and type(event.plan) == "table" and event.plan.return_to == "title" and event.plan.saves == true
+        and type(event.plan.record) == "table" and settledTraversal(self) and true or false
+end
+function GameContext:captureSessionFromHall(event)
+    if not self:isHallSaveBoundary(event) then return nil, "save requires the hall of fame boundary" end
+    return captureSettledTraversal(self)
+end
 function GameContext:captureSessionFromPC(pc,epoch)
     if not self:isPCSaveBoundary(pc,epoch) then return nil,"save requires current settled PC boundary" end
     return captureSettledTraversal(self)

@@ -444,16 +444,21 @@ function EndgameStory.plan(id, observation)
     end
     local hall <const> = data.hall_of_fame
     if id == hall.oak_id then
-        local plan <const> = flagPlan(observation, {[hall.hides[1]] = true}, {hall.oak_text})
+        local writes = {[hall.hides[1]] = true}
+        for _, name in ipairs(INDIGO_RESET) do
+            writes[name] = false
+        end
+        local plan <const> = flagPlan(observation, writes, {hall.oak_text})
         local steps <const> = moves(hall.walk)
         steps[#steps + 1] = plan.steps[1]
-        -- HallOfFamePC plays the credits, then the cartridge returns to the
-        -- title. The party record stays on the plan. The save schema does not
-        -- keep it, and this plan does not write a save.
+        -- HallOfFamePC records the party, resets the Indigo range, sets the
+        -- blackout map to Pallet Town, saves, plays the credits, then Init.
         steps[#steps + 1] = {op = "credits"}
         plan.steps = steps
         plan.return_to = hall.return_to
-        plan.saves = false
+        plan.saves = true
+        assert(hall.blackout_map == "PALLET_TOWN", "hall of fame blackout map")
+        plan.blackout = {zone_id = "pokered:PALLET_TOWN", x = 3, y = 17, facing = "up"}
         if pending.party then
             plan.record = EndgameStory.hallRecord(pending.party)
             pending.party = nil

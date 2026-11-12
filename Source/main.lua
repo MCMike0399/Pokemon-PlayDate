@@ -49,6 +49,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "domain/pcItems"
     import "domain/pickup"
     import "domain/coinWallet"
+    import "domain/hallOfFame"
     import "domain/safariGame"
     import "domain/fieldTravel"
     import "domain/fieldCycling"

@@ -167,11 +167,17 @@ check(EndgameStory.championParty("squirtle").party[6].species, "venusaur", "squi
 
 EndgameStory.noteParty({{species = "pikachu", level = 81, name = "PIKACHU"}})
 local hall = EndgameStory.plan(data.hall_of_fame.oak_id, {flags = {}})
-check(hall.saves, false, "hall still does not save")
+check(hall.saves, true, "hall saves")
+check(hall.blackout.zone_id, "pokered:PALLET_TOWN", "blackout map is pallet")
+check(hall.blackout.x, 3, "pallet blackout x")
+check(hall.blackout.y, 17, "pallet blackout y")
 check(hall.steps[#hall.steps].op, "credits", "hall still rolls credits")
 check(hall.record[1].species, "pikachu", "hall record species")
 check(hall.record[1].level, 81, "hall record level")
+check(hall.record[1].name, "PIKACHU", "hall record name")
 check(hall.changes.flags.TOGGLE_CERULEAN_CAVE_GUY, true, "cave guy still hides")
+check(hall.changes.flags.EVENT_LANCES_ROOM_LOCK_DOOR, false, "indigo lock resets")
+check(hall.changes.flags.EVENT_BEAT_CHAMPION_RIVAL, nil, "champion flag stays")
 
 local request = EndgameStory.moltresRequest({})
 check(request.species, "moltres", "moltres species")
@@ -220,10 +226,14 @@ class LaneDEndgameTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
         self.assertIn("lane-d-endgame ok", completed.stdout)
 
-    @unittest.expectedFailure
     def test_save_schema_keeps_a_hall_of_fame_record(self):
         source = (ROOT / "Source/domain/sessionCodec.lua").read_text()
         self.assertIn("hallOfFame=true", source)
+        self.assertIn("HallOfFame.normalize", source)
+        self.assertIn("hallOfFame=session:hallOfFame()", source)
+        session = (ROOT / "Source/domain/gameSession.lua").read_text()
+        self.assertIn("function GameSession:recordHallOfFame", session)
+        self.assertIn("hallOfFame = HallOfFame.empty()", session)
 
 
 if __name__ == "__main__":
