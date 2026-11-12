@@ -12,6 +12,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
 import time
 import unittest
 import uuid
@@ -525,6 +526,33 @@ class CharmanderRun(BrockJourney):
         self.save()
         self._toward_surge()
 
+    def inspect_can(self, can):
+        """Open a trash can. Overworld A fires on the release frame."""
+        from tools.harness.journeys import DIRECTIONS
+        point = (can["x"] + self.model().padding, can["y"])
+        self.navigate(set(self.model().approaches(point)))
+        direction = next((name for name, (dx, dy) in DIRECTIONS.items()
+                          if (self.position()[0] + dx, self.position()[1] + dy) == point), None)
+        if direction is None:
+            raise ProtocolError("no adjacent source can pose")
+        self.face(direction)
+        self.send("press a", "wait 12")
+        if lookup(self.state, "event.id") != can["id"] and self.state.get("root") == "overworld":
+            self.send("press a", "wait 12")
+        if lookup(self.state, "event.id") != can["id"]:
+            raise ProtocolError("actual hidden can dispatch differs")
+        self.drain()
+
+    def _record_gym_entry(self):
+        """One game-screen clip of the gym. The fight keeps playing underneath."""
+        if getattr(self, "_gym_clip_started", False):
+            return
+        recorder = getattr(self, "record_fight", None)
+        if not recorder:
+            return
+        self._gym_clip_started = True
+        recorder("gym-vermilion")
+
     def _seal_cut_tree(self):
         """The staged grid leaves the tree open. A center visit grows it back.
 
@@ -548,7 +576,7 @@ class CharmanderRun(BrockJourney):
         self.cut_witnesses = 0
         self.vermilion_active = True
         for name in (
-            "teach_cut", "field_cut", "puzzle", "inspect_can",
+            "teach_cut", "field_cut", "puzzle",
             "apply_world_observation", "leave_gym",
         ):
             setattr(self, name, getattr(vermilion.VermilionJourney, name).__get__(self, type(self)))
@@ -615,6 +643,7 @@ class CharmanderRun(BrockJourney):
             self._seal_cut_tree()
             self.field_cut(cutter)
             self.travel(self.zone("VermilionGym"))
+            self._record_gym_entry()
             self.puzzle()
             self.fight(vermilion.SURGE)
             if not all(self.flag(flag) for flag in ("BADGE_THUNDER", "EVENT_BEAT_LT_SURGE", "EVENT_GOT_TM24")) or self.quantity("tm24") != 1:
@@ -1506,6 +1535,16 @@ class FightRecorder:
             lcd_clip_command(display, origin_x, origin_y, seconds, path),
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.procs.append((label, path, proc, time.time()))
+
+        def publish():
+            proc.wait()
+            if not path.is_file() or path.stat().st_size <= 0:
+                return
+            store = Path("/cursor/stores/self/clips")
+            store.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, store / path.name)
+
+        threading.Thread(target=publish, daemon=True).start()
         return proc
 
     def is_open(self):
