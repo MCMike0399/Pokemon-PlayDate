@@ -64,18 +64,19 @@ end
 
 function MidgameCatalogExporter.tiles()
     local previous = PewterCatalogExporter.legacyTiles()
-    for key, tile in pairs(shared.tiles()) do
-        previous[key] = tile
+    for key in pairs(shared.tiles()) do
+        previous[key] = true
     end
-    for key, tile in pairs(VermilionCatalogExporter.tiles()) do
-        previous[key] = tile
+    for key in pairs(VermilionCatalogExporter.tiles()) do
+        previous[key] = true
     end
-    local metadata <const> = SourceMaps.compact()
+    local metadata <const> = SourceMaps._sharedCompact()
     local result = {}
     for _, name in ipairs(MidgameCatalogExporter.maps()) do
         for _, key in ipairs(metadata.maps[name].palette) do
             if not previous[key] then
-                result[key] = assert(metadata.tiles[key], "active palette tile missing")
+                assert(metadata.tiles[key], "active palette tile missing")
+                result[key] = true
             end
         end
     end
@@ -214,6 +215,7 @@ function MidgameCatalogExporter.writer(sink)
 end
 
 function MidgameCatalogExporter.register()
+    if BootTrace then BootTrace.mark("MidgameCatalogExporter.register.begin") end
     if FieldGearArt and SourceMaps.nameForID("pokered:FUCHSIA_CITY") then FieldGearArt.prepare() end
     local maps, npcs = {}, {}
     local tiles <const> = MidgameCatalogExporter.tiles()
@@ -225,7 +227,7 @@ function MidgameCatalogExporter.register()
             npcs[CeruleanContent.key(source)] = true
         end
     end
-    return VisualCatalog.registerExporter("midgame", {
+    local exporter = VisualCatalog.registerExporter("midgame", {
         inventory=MidgameCatalogExporter.inventory,
         writer=MidgameCatalogExporter.writer,
         ownsZone=function(zone)
@@ -238,4 +240,6 @@ function MidgameCatalogExporter.register()
             return npcs[key] == true
         end,
     })
+    if BootTrace then BootTrace.mark("MidgameCatalogExporter.register.end") end
+    return exporter
 end

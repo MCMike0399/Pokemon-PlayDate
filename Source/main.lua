@@ -171,6 +171,7 @@ local bootAccepted, bootProblem = pcall(function()
 
     -- @harness imports-7
 
+    BootTrace.mark("import.regionStories.begin")
     import "game/towerStory"
     import "game/snorlaxStory"
     import "game/towerStoryController"
@@ -205,6 +206,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/safariPassage"
     import "game/safariPassageState"
     import "game/safariRuntime"
+    BootTrace.mark("import.regionStories.end")
 
 
     local function campaignActorMetadata(definition, event, runtimeGame)

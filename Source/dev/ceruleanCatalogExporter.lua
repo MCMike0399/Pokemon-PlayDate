@@ -31,12 +31,15 @@ local function maps()
 end
 
 function CeruleanCatalogExporter.tiles()
-    local metadata = SourceMaps.compact()
+    local metadata = SourceMaps._sharedCompact()
     local legacy = PewterCatalogExporter.legacyTiles()
     local result = {}
     for _, name in ipairs(maps()) do
         for _, key in ipairs(metadata.maps[name].palette) do
-            if not legacy[key] then result[key] = assert(metadata.tiles[key], "source palette tile missing") end
+            if not legacy[key] then
+                assert(metadata.tiles[key], "source palette tile missing")
+                result[key] = true
+            end
         end
     end
     return result
