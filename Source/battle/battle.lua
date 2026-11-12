@@ -1162,6 +1162,12 @@ function Battle:resolveTurn(turn)
             self:say(attacker.name .. " has no PP left for that move!")
             return interrupted()
         end
+        -- Pressure on the living target spends one extra PP when any remains.
+        -- The move still resolves after the first point. Struggle has no PP.
+        if key ~= "struggle" and self:targetsFoe(turn.move)
+            and self.effects:livingAbility(self.defender, 46) then
+            attacker:usePP(key)
+        end
     end
     -- Committed action: PP and the interrupt gates have already passed.
     -- Switch-in and faint drop this receipt through conditions:clear.
@@ -1416,6 +1422,13 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
        and opponentTargets[move.targetId or 10]
        and (self:typeMatchup(move.type,defender)==0
             or self.effects:groundImmune(attacker, defender, move)) then
+        -- Lightning Rod still draws Electric moves that Ground would ignore.
+        if move.type=="electric" and self.effects:livingAbility(defender,31) then
+            self.effects:absorbsMove(attacker,defender,move)
+            resetFury()
+            self.conditions:moveFinished(move,false)
+            return nil
+        end
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         resetFury()
         self:say("It doesn't affect " .. defender.name .. "...")
