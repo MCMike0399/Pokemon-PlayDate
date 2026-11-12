@@ -1,12 +1,7 @@
 import "game/gameOptions"
+import "game/gbFont"
 local gfx <const> = playdate.graphics
 Class("OptionsState"):extends(State)
-local rows <const> = {
-    {key = "textSpeed", label = "TEXT SPEED"},
-    {key = "battleAnimations", label = "BATTLE ANIMATION"},
-    {key = "battleStyle", label = "BATTLE STYLE"},
-    {key = "crankScrolling", label = "CRANK SCROLL"},
-}
 
 function OptionsState:init(game)
     OptionsState.super.init(self, "options")
@@ -19,41 +14,90 @@ function OptionsState:enter()
     self.error = nil
 end
 
-function OptionsState:handleInput()
-    if playdate.buttonJustPressed(playdate.kButtonUp) then
-        self.selected = (self.selected - 2) % #rows + 1
-    elseif playdate.buttonJustPressed(playdate.kButtonDown) then
-        self.selected = self.selected % #rows + 1
-    elseif playdate.buttonJustPressed(playdate.kButtonLeft) then
-        GameOptions.cycle(rows[self.selected].key, -1)
-    elseif playdate.buttonJustPressed(playdate.kButtonRight) or playdate.buttonJustPressed(playdate.kButtonA) then
-        GameOptions.cycle(rows[self.selected].key, 1)
-    elseif playdate.buttonJustPressed(playdate.kButtonB) then
-        if GameOptions.save() then
-            self.machine:pop()
-        else
-            self.error = "Options could not be saved. B: Retry"
-        end
+function OptionsState:rowCount()
+    return #GameOptions.rows + 1
+end
+
+function OptionsState:moveChoice(direction)
+    local row = GameOptions.rows[self.selected]
+    if not row then return end
+    local choices = row.choices
+    local current = GameOptions.get(row.key)
+    local index = 1
+    for cursor, value in ipairs(choices) do
+        if value == current then index = cursor end
+    end
+    -- DisplayOptionMenu does not wrap a row's choices.
+    if direction < 0 and index == 1 then return end
+    if direction > 0 and index == #choices then return end
+    GameOptions.set(row.key, choices[index + direction])
+end
+
+function OptionsState:exitMenu()
+    if GameOptions.save() then
+        self.machine:pop()
+    else
+        self.error = "Options could not be saved. B: Retry"
     end
 end
 
+function OptionsState:handleInput()
+    local count = self:rowCount()
+    if playdate.buttonJustPressed(playdate.kButtonUp) then
+        self.selected = (self.selected - 2) % count + 1
+    elseif playdate.buttonJustPressed(playdate.kButtonDown) then
+        self.selected = self.selected % count + 1
+    elseif playdate.buttonJustPressed(playdate.kButtonLeft) then
+        self:moveChoice(-1)
+    elseif playdate.buttonJustPressed(playdate.kButtonRight) then
+        self:moveChoice(1)
+    elseif playdate.buttonJustPressed(playdate.kButtonA) then
+        if self.selected == count then self:exitMenu() end
+    elseif playdate.buttonJustPressed(playdate.kButtonB) then
+        self:exitMenu()
+    end
+end
+
+-- DisplayOptionMenu places ▷ on each row's current choice and ▶ on the
+-- active row (PlaceMenuCursor). The three boxes match options.asm.
+-- CRANK SCROLL sits on the row under the last box. CANCEL has the next
+-- row to itself, with a blank row between them.
 function OptionsState:draw()
     local x, y = gfx.getDrawOffset()
-    local font = gfx.getFont()
     gfx.setDrawOffset(0, 0)
-    gfx.setFont(gfx.getSystemFont())
     gfx.clear(gfx.kColorWhite)
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(4, 4, 392, 232)
-    gfx.drawText("OPTIONS", 20, 16)
-    for index, row in ipairs(rows) do
-        local rowY = 52 + (index - 1) * 38
-        gfx.drawText(index == self.selected and ">" or "", 14, rowY)
-        gfx.drawText(row.label, 30, rowY)
-        gfx.drawText("< " .. GameOptions.get(row.key) .. " >", 260, rowY)
+    local boxes = {
+        {origin = 0, labelRow = 1, choiceRow = 3, cols = {1, 7, 14}},
+        {origin = 5, labelRow = 6, choiceRow = 8, cols = {1, 10}},
+        {origin = 10, labelRow = 11, choiceRow = 13, cols = {1, 10}},
+    }
+    for index, row in ipairs(GameOptions.rows) do
+        local current = GameOptions.get(row.key)
+        local choiceIndex = 1
+        for cursor, value in ipairs(row.choices) do
+            if value == current then choiceIndex = cursor end
+        end
+        local marker = index == self.selected and TitleIdle.CURSOR or TitleIdle.MARK
+        if boxes[index] then
+            local spec = boxes[index]
+            GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 3))
+            GbFont.drawString(row.label, 1, spec.labelRow)
+            for cursor, value in ipairs(row.choices) do
+                local col = spec.cols[cursor] or (1 + (cursor - 1) * 8)
+                if cursor == choiceIndex then GbFont.drawChar(marker, col, spec.choiceRow) end
+                GbFont.drawString(value, col + 1, spec.choiceRow)
+            end
+        else
+            local place = GameOptions.crankPlace(choiceIndex)
+            GbFont.drawString(row.label, place.labelCol, place.row)
+            GbFont.drawChar(marker, place.choiceCol, place.row)
+            GbFont.drawString(row.choices[choiceIndex], place.choiceCol + 1, place.row)
+        end
     end
-    gfx.drawText(self.error or "D-pad: Choose / Change     B: Save & Back", 18, 208)
-    gfx.setFont(font)
+    local cancel = GameOptions.cancelPlace(self.selected == self:rowCount())
+    if cancel.cursor then GbFont.drawChar(TitleIdle.CURSOR, cancel.cursor, cancel.row) end
+    GbFont.drawString(GameOptions.cancelLabel, cancel.col, cancel.row)
+    if self.error then GbFont.drawTight(self.error, 8, 222) end
     gfx.setDrawOffset(x, y)
 end
 
