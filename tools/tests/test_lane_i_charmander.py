@@ -133,6 +133,8 @@ def key_fight(name, trainer_id):
         return "badge-boulder"
     if trainer == "pokered:CERULEAN_GYM:objects:1" or label.startswith("misty"):
         return "badge-cascade"
+    if trainer == "pokered:VERMILION_GYM:objects:1" or label.startswith("surge"):
+        return "badge-thunder"
     return None
 
 
@@ -463,9 +465,24 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("Bill cell separator did not commit: " + flag)
         self.checkpoint("cerulean-bill-restored")
 
+    def _pin_route_trainers(self):
+        """Sighted Route 6 trainers are not in the Cerulean export.
+
+        Their payout pins live with the Vermilion source table. A win still
+        has to match that pin. This does not invent a payout.
+        """
+        path = REPO / "Source" / "dev" / "vermilionJourney.json"
+        trainers = json.loads(path.read_text())["trainers"]
+        for trainer_id, record in trainers.items():
+            if trainer_id in self.source_trainers:
+                continue
+            if isinstance(record, dict) and type(record.get("payout")) is int:
+                self.source_trainers[trainer_id] = record
+
     def _toward_vermilion(self):
         """Walk south to Vermilion. Wild fights are fled. Surge is the next gym."""
         self.training_mode = None
+        self._pin_route_trainers()
         if "VERMILION" not in (self.state.get("zone_id") or ""):
             self.travel(self.zone("VermilionCity"))
         self.heal_here("VermilionPokecenter")
@@ -1121,6 +1138,9 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:1"), "badge-boulder")
         self.assertEqual(key_fight("source", "pokered:PEWTER_GYM:objects:2"), "pewter-jr")
         self.assertEqual(key_fight("source", "pokered:CERULEAN_GYM:objects:1"), "badge-cascade")
+        self.assertEqual(key_fight("source", "pokered:VERMILION_GYM:objects:1"), "badge-thunder")
+        route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
+        self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
 
     def test_clip_encoder_matches_a_raw_lcd_frame(self):
