@@ -434,3 +434,54 @@ point. The other 1F boulder was pushed once, to `(18,9)`, and that
 pose was not the saved map. Articuno, the west exit, Cinnabar, the
 Mansion, the Secret Key, and Blaine are still ahead. The boulder patch
 stays until those pass.
+
+## Both 1F boulders are down
+
+Continue from sequence 82 turned Strength back on, took the west
+stairs to 1F, and pushed the remaining boulder from `(18,10)` up to
+`(18,6)` and left into the hole at `(17,6)`.
+`EVENT_SEAFOAM1_BOULDER1_DOWN_HOLE` is set and the 1F sprite is gone.
+The fall lands on B1F `(18,7)` facing down. Both B1F boulders are
+visible: `objects:1` at `(17,6)` and `objects:2` at `(22,6)`. Pause
+SAVE is sequence 83, sha256
+`c5a36737fecd6a7f6ce3e6b1a0b2ca5ecc14d717146c239dd4248efd67b4438c`
+(`seq83-adventure.a.json`). The clip file is
+`20261112T071018Z-route19-replay.mp4`, 400×240 h264, 89.96 seconds,
+2698 frames. The `route19-replay` suffix is the encoder's old name.
+It shows the 1F push and the B1F landing. The file was not renamed.
+
+## Both B1F boulders are down
+
+Continue from sequence 83 pushed the west B1F boulder right into
+`(18,6)`, then the east boulder, reached by the 1F stairs, right into
+`(23,6)`. The fall lands on B2F `(22,7)` facing down. Both
+`EVENT_SEAFOAM2_BOULDER1_DOWN_HOLE` and
+`EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE` are set. Both B2F boulders are
+visible: `objects:1` at `(18,6)` and `objects:2` at `(23,6)`. Sequence
+84, sha256
+`0ba4b33e2a6ed2d54c3c87d716ae39c9489486ea7f58ecc3699be0713382322b`
+(`seq84-adventure.b.json`). The clip file is
+`20261112T071603Z-route19-replay.mp4`, 89.64 seconds, 2688 frames.
+Same mislabel: it shows the B1F holes and the B2F landing. The earlier
+`20261112T070033Z-route19-replay.mp4` is the first B1F arrival, 68.36
+seconds, 2050 frames. None of the three files were renamed. Clips from
+here on use the floor in the name, such as
+`<UTC>-seafoam-b2f.mp4`.
+
+The south stairs of the east B2F room sit behind a tile pair the
+walker cannot cross (`source-pair-collision`). The north stairs at
+`(25,3)` are the open exit. Sequence 84 is the continue point.
+
+## Lane A's title boot
+
+`origin/cursor/linux-runtime-seams-fcc0` is `d87c387c`, the Hall of
+Fame tip, so that tip was merged. The hourly bundle
+`20261112T070934Z-lane-b-rebase.bundle` was not on this disk. The
+merge is `e3d96cb7`. It brings the 16 MiB boot fix `58287e35` and
+`4454003f`. The `Source/main.lua` conflict keeps the existing coast
+imports and Lane A's `BootTrace.mark("import.regionStories.end")`.
+No other shared file was edited. `MallocPoolSize` stays `16645684`.
+`test_lane_b_save_publish`, `test_lane_b_coast_scripts`, and
+`test_lane_b_searoutes` pass. The sea-routes test read pokered from
+`POKERED_REFERENCE_DIR=/tmp/pokered-tip` because the default checkout
+is absent. This merge is local only.
