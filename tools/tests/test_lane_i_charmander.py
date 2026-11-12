@@ -39,6 +39,37 @@ WATER_COUNTERS = {"oddish", "bellsprout", "pikachu"}
 LCD_OFFSET = (18, 45)
 LCD_SIZE = (400, 240)
 EXPECTED_WINDOW = (486, 700)
+# The Simulator window paints the 1-bit LCD as these two colors. A threshold
+# puts them back to 0 and 255 before the encode, so the file is the framebuffer.
+LCD_WINDOW_WHITE = (214, 211, 203)
+LCD_WINDOW_BLACK = (49, 46, 40)
+# gte() returns 0 or 1. The backslash keeps the comma inside the ffmpeg expression.
+LCD_CLIP_FILTER = (
+    "lutrgb=r='gte(val\\,128)*255':g='gte(val\\,128)*255':b='gte(val\\,128)*255',format=gray"
+)
+
+
+def lcd_clip_output_args(path):
+    """Full-range lossless gray. No 4:2:0 subsample and no TV-range shift."""
+    return [
+        "-an", "-vf", LCD_CLIP_FILTER,
+        "-c:v", "libx264", "-crf", "0", "-preset", "veryfast",
+        "-pix_fmt", "gray", "-color_range", "pc",
+        str(path),
+    ]
+
+
+def lcd_clip_command(display, origin_x, origin_y, seconds, path):
+    """Grab the LCD 1:1. The size matches the panel, so the scaler never runs."""
+    return [
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-f", "x11grab", "-draw_mouse", "0",
+        "-video_size", f"{LCD_SIZE[0]}x{LCD_SIZE[1]}",
+        "-framerate", "30",
+        "-i", f"{display}.0+{origin_x},{origin_y}",
+        "-t", str(seconds),
+        *lcd_clip_output_args(path),
+    ]
 
 
 def command_op(command):
@@ -1054,6 +1085,43 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:CERULEAN_GYM:objects:1"), "badge-cascade")
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
 
+    def test_clip_encoder_matches_a_raw_lcd_frame(self):
+        from PIL import Image
+        raw = Image.new("L", LCD_SIZE, 255)
+        pixels = raw.load()
+        for x in range(LCD_SIZE[0]):
+            pixels[x, 40] = 0
+        for y in range(LCD_SIZE[1]):
+            pixels[10, y] = 0
+        painted = Image.new("RGB", LCD_SIZE)
+        destination = painted.load()
+        for y in range(LCD_SIZE[1]):
+            for x in range(LCD_SIZE[0]):
+                destination[x, y] = LCD_WINDOW_WHITE if pixels[x, y] == 255 else LCD_WINDOW_BLACK
+        directory = Path("/tmp/lane-i-clip-encode-test")
+        if directory.exists():
+            shutil.rmtree(directory)
+        directory.mkdir()
+        source = directory / "window.png"
+        clip = directory / "clip.mp4"
+        decoded = directory / "decoded.png"
+        painted.save(source)
+        subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(source), *lcd_clip_output_args(clip)],
+            check=True)
+        subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(clip),
+             "-frames:v", "1", "-pix_fmt", "gray", str(decoded)],
+            check=True)
+        got = list(Image.open(decoded).convert("L").getdata())
+        self.assertEqual(got, list(raw.getdata()))
+        self.assertEqual(got.count(255), LCD_SIZE[0] * LCD_SIZE[1] - LCD_SIZE[0] - LCD_SIZE[1] + 1)
+        command = lcd_clip_command(":1", 59, 113, "90", directory / "badge.mp4")
+        self.assertIn("gray", command)
+        self.assertIn("pc", command)
+        self.assertNotIn("yuv420p", command)
+        self.assertNotIn("scale", command)
+
     def test_clip_close_waits_for_the_file_once(self):
         class Done:
             def poll(self):
@@ -1240,10 +1308,7 @@ class FightRecorder:
         # after the fight. Other clips stay at 60.
         seconds = "90" if str(label).startswith("badge-") else "60"
         proc = subprocess.Popen(
-            ["ffmpeg", "-y", "-loglevel", "error", "-f", "x11grab",
-             "-video_size", f"{LCD_SIZE[0]}x{LCD_SIZE[1]}", "-framerate", "30",
-             "-i", f"{display}.0+{origin_x},{origin_y}",
-             "-t", seconds, "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path)],
+            lcd_clip_command(display, origin_x, origin_y, seconds, path),
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.procs.append((label, path, proc, time.time()))
         return proc
