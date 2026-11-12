@@ -1146,5 +1146,78 @@ game-screen clips are `20261112T171755Z-silph-co-scientist.mp4`
 35.52s). Each clip is the fight itself. The message patch is still
 unapplied, so those clips still show the short page. The 7F rival
 blacked out to Saffron `(9, 30)` while the white-out dialog was up.
-That run ended before an overworld save, so sequence 143 is still the
-continue.
+That run ended before an overworld save, so sequence 143 stayed the
+continue until the next overworld Pause-Save.
+
+Magneton's Mirror Shot stays. The learnset source is Gen V / B2W2, not
+pokered. `docs/plans/full-game-goal.md` section "1. What we are building"
+puts battle rules, base stats, the physical/special split, learnsets,
+and the 17-type chart on **Gen V / B2W2**, and the next sentence says
+not to revert combat to Gen I for fidelity. The Combat row of
+`docs/validation/fidelity-ledger.md` records the same enhancement.
+`Source/data/pokemon.lua` loads the B2W2 level-up lists, including
+Magneton's `mirrorShot` at level 25. None of those files were edited.
+
+## Silph Giovanni
+
+Sequence 144 is the 1F door mat, `(10, 17)` facing down, sha256
+`4aa0fa84ce70945ea5f789c0954eae3a28cea6ed17a2b1411887fa23c9be2c6f`
+(`seq144-adventure.b.json`). 9F door 2 and door 3 are open. The bag is
+still the sequence 143 bag. Stepping south off that mat leaves the
+building. Sequence 145 is outside the Saffron Center, `(9, 30)` facing
+down, sha256
+`57fe445510afce08cda0a4e87a4b30d0fffd078291f8130b4045423c4be072c5`.
+Four Great Balls and four Poké Balls were sold, then one Hyper Potion
+and one Revive were bought. Venusaur is 150/150. Money is 635.
+`hyperPotion` is 2 and `revive` is 2.
+
+Sequence 146 is the Pause-Save on 3F `(10, 8)` facing right, before the
+warp that lands on the 7F rival. sha256
+`b2bf2026420669bdc782c1b734f7ce294b6b9956da570fa9ac63945ee0f03d99`
+(`seq146-adventure.a.json`). The 3F Hyper Potion ball is taken.
+Venusaur is 72/150 after that floor's Rocket. Money is 1475.
+`hyperPotion` is 3 and `revive` is 2. The rival was then beaten
+(`EVENT_BEAT_SILPH_CO_RIVAL`, `SILPH_STORY_V1_RIVAL_LEFT`). The 11F
+Rocket blacked the party out. Sequence 147 is that white-out, Saffron
+`(9, 30)` facing down, sha256
+`45592f483756e01d85c2c35852073f25431a20081039f4251d644111165de6bf`.
+Venusaur is 153/153. Money is 2037. The potions and the Revive are
+gone. The rival flag is set, so the 7F landing no longer starts a fight.
+
+Sequence 148 bought one Hyper Potion and stood on 3F `(10, 8)` again,
+sha256
+`50b2d7d9418ea696981739dbd2b21b256cfce50b39c883cd867390687b81128c`.
+Venusaur is 153/153. Money is 537. Sequence 149 is the Pause-Save on
+11F `(6, 14)` facing up, with the card door already open, sha256
+`02da82ccac5655645f19cc1b80d8925c3d3a4d3afdc21dee678c88160e198468`.
+Venusaur is 49/153 after the 11F Rocket. Money is 1497. `hyperPotion`
+is 1. The first Giovanni attempt spent that potion and whiteed out
+before a save, so 149 stayed the continue. The winning fight is
+sequence 151, 11F `(6, 13)` facing up, sha256
+`591e872ecbfabf6d9d01d477e9ac95822b0f0c15024f7541e873a2bb7936c171`.
+`EVENT_BEAT_SILPH_CO_GIOVANNI` is set. Venusaur is 86/156. Money is
+5556. Sequence 152 is the same spot, sha256
+`af199881ab1ab1d375f44da8188d21785ad743a4161d7b80c5845f292c027266`.
+The fight clip is `20261112T181512Z-silph-co-giovanni.mp4`, 400×240
+h264, 61.12 seconds, 1832 game-screen frames. Razor Leaf was the move
+into Nidorino, Rhyhorn, and Nidoqueen.
+
+The 11F elevator is not connected to Giovanni's room on the base
+collision. The way out is the 7F warp `(3, 2)`, then 7F `(5, 3)` back
+to 3F, then the 3F elevator. Sequence 154 is outside the Center after
+that walk, a heal, and a Hyper Potion plus a Revive, sha256
+`9b552fd86793866ae3e58a909831dd37735f8c3dfa5f2ed6c89d67189731dcc1`.
+Venusaur is 156/156. Money is 2556. Sequence 155 is the Pause-Save in
+the gym at `(10, 9)` facing left, one step from Sabrina, sha256
+`3f0029f4000d706e1e2c8de179422a8f6d7b18372293560d60ab457c46f1bb95`.
+Sabrina's record is `talk_only` with sight 0, so the step onto `(9, 9)`
+does not start the fight. Sequence 156 is that tile facing up, sha256
+`958908d9e6e830778d1effacfa78eddc0ad559301cd183bdb68935df1be64537`.
+Pressing A there starts the battle. Sequence 158 is the same tile after
+the win, sha256
+`2ec276afc813f212a319e1afbbb0d633bc52664be7254da7b34516f3f2da2be5`
+(`seq158-adventure.a.json`). `BADGE_MARSH`, `EVENT_BEAT_SABRINA`, and
+`EVENT_GOT_TM46` are set. Venusaur is level 51, 81/159. Money is 6813.
+`revive` is 1. The clip is `20261112T182228Z-saffron-gym-sabrina.mp4`,
+400×240 h264, 53.36 seconds, 1600 frames, the whole fight. The continue
+is sequence 158. Viridian Gym is the next door.
