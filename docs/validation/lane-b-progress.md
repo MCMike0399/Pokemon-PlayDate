@@ -264,3 +264,12 @@ The walk is `51fe47c869bd71c43c200f57e694581eb50b42a8`, pushed to
 `/opt/cursor/artifacts/lane-b/lane-b-51fe47c8.bundle`, range
 `7a31867a..HEAD`, sha256
 `ff46c7aca9216178c55092b415f6b5f1e06aee2452dab356619ed09745d3f3e7`.
+
+Continue from sequence 70 walked north on Route 14 to `(19,10)` and
+stepped east. That cell and Route 13 `(0,10)` are both open land, so
+the ordinary connection accepted the step. `(19,12)` is also open on
+Route 14, and Route 13 `(0,12)` is solid, so that row was not used.
+Pause SAVE wrote sequence 71 at Route 13 `(0,10)` facing right, sha256
+`7e75bc65dd9f078dea2c605212d3b4228f0f3f15630bab6339ee8181fc3bc852`
+(`seq71-adventure.a.json`). No second clip: the Route 15 recording
+already covers this run. Sequence 71 is the continue point.
