@@ -2,6 +2,9 @@
 -- Power Plant, Cerulean Cave and the other remainder maps are installed.
 -- This module reads the pinned plan. It does not write badges, write a
 -- save, or place Mew.
+if type(import) == "function" then
+    import "game/postgameStory"
+end
 LateKantoStory = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local cached
@@ -56,7 +59,16 @@ function LateKantoStory.caveEntry(flags)
 end
 
 function LateKantoStory.actorMetadata(id)
+    if PostgameStory and PostgameStory.ensureRuntime then
+        PostgameStory.ensureRuntime()
+    end
     local rule <const> = LateKantoStory.scenes().cerulean_cave
+    if PostgameStory and PostgameStory.visibility then
+        local extra <const> = PostgameStory.visibility(id)
+        if extra then
+            return extra
+        end
+    end
     if id == rule.guard_id then
         return {visibility = {{group = "quest", id = rule.hide, equals = false}}}
     end

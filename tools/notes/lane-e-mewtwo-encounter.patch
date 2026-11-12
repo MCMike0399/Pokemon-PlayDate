@@ -1,0 +1,13 @@
+--- a/Source/domain/sourceEncounters.lua
++++ b/Source/domain/sourceEncounters.lua
+@@ -30,5 +30,9 @@
+     ["pokered:VICTORY_ROAD_2F:objects:6"] = {zone_id = "pokered:VICTORY_ROAD_2F", species = "moltres", level = 50,
+         flag = "EVENT_BEAT_MOLTRES", legendary = true,
+         positions = {{11, 4}, {11, 6}, {10, 5}, {12, 5}}},
++    -- Static trainer. EndTrainerBattle sets the flag unless the battle was lost.
++    ["pokered:CERULEAN_CAVE_B1F:objects:1"] = {zone_id = "pokered:CERULEAN_CAVE_B1F", species = "mewtwo", level = 70,
++        flag = "EVENT_BEAT_MEWTWO", legendary = true,
++        positions = {{27, 12}, {27, 14}, {26, 13}, {28, 13}}},
+ }
+ function SourceEncounters.positions(id)
+     local definition <const> = definitions[id]
