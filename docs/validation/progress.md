@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-12 The transform pins match the thin SDK export
+
+SDK 3.1.2 session `/opt/cursor/artifacts/transform-pin-sdk-20261112-05` used the thin journey profile. The full harness catalog walk still exhausts the 16 MiB pool, so that profile was not used and the pool was not raised. Parsed East, South, and Saffron records match the stored export bytes. `domain/gameSession.lua` now includes the safari readers, `world/sourceMaps.lua` honors a water-tile warp arrival, and `game/silphStory.lua` no longer rebuilds the rival pair on a standing frame. The content pin is the opaque-white overworld sprite rehash. The Kanto packet's only semantic change is Route 22 object 2: the second rival is the source trainer, with the source text and the three source flags, instead of a bespoke stub. `Source/lib/shade.lua` and the gym floor were not edited.
+
 ## 2026-11-10 The remaining maps, the credits roll, and the source legendaries
 
 Pokered `af519899719f0754965776faac0e836a3b906e6d` has 248 `map_const` entries. The 205-map manifest was missing 43 constants. Twenty-two are unused 0×0 maps (`UNUSED_MAP_0B` through `UNUSED_MAP_F4`) and were not given invented layouts. Three constants are header aliases of maps that were already installed: `CERULEAN_TRASHED_HOUSE_COPY`, `UNDERGROUND_PATH_ROUTE_6_COPY`, and `CINNABAR_MART_COPY`. `UNDERGROUND_PATH_ROUTE_7_COPY` declares the same constant as the installed Underground Path Route 7 header, so it is not a second map. Diglett's Cave, Rock Tunnel, Route 2, the forest, and both forest gates were already in the manifest.
