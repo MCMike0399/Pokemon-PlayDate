@@ -83,6 +83,16 @@ Lane E's `db83fbfd` is on this branch. Codec version 5 stores the chosen names. 
 
 Playdate Simulator 3.1.2, production bundle `source_sha256` `f695f58096595da10ffc3b0cb915c526d43b211e66e35ea04225022103775a50`. Captures are in `artifacts/lane-g/r7/`: `nickname-gift.png` (the starter ask), `nickname-catch.png` (the wild ask after Gotcha), `name-rater.png`, `name-rater-yes.png`, `name-rater-rate.png`, `name-rater-keyboard.png`, and `continue-box.png` (`PLAYER` `GARY`).
 
+## Round 6
+
+BlueBot approved the Continue box. The Name Rater words stay `_NameRatersHouseNameRaterGiveItANiceNameText`. The box was the system font. Every dialog box is pokered's two-line, 18-tile box: `MESSAGE_BOX` at `hlcoord 0, 12`, text on rows 14 and 16, and `▼` at column 18 of row 16. Breaks follow `text` / `line` / `cont` / `para`. `dialog.lua` is lane E, so this is `tools/notes/lane-e-dialog-font.patch`. `tools/tests/test_lane_e_dialog_font.py` checks that the patch applies. The assertion that the box already uses `GbFont` is an expected failure until lane E lands it. After applying it, lane E runs `python3 tools/visual/compare.py <reviewed-baseline> <candidate> --protected-preservation` and updates baselines only for dialog-box pixels. The overworld, battle messages, and Oak's speech share these glyphs.
+
+The nickname ask matches `AskName`. `_DoYouWantToNicknameText` prints in the dialog box over the current scene: the battle after a catch, the overworld for a gift. The YES/NO menu is `TWO_OPTION_MENU` at `hlcoord 14, 7`, 4 by 3, cursor column 15, YES on row 8 and NO on row 10. Only YES opens the naming screen. The full-screen ask and its `SQUIRTLE NICKNAME?` title are gone.
+
+`tools/integration/kanto-first-entry/qualified/provenance.json` and `tools/references/content-transforms-149/provenance.json` are restored to the copies lane E regenerates. A production build of this commit fails the transform-dependency check until that regeneration. The scratch build below kept the matching hashes so the simulator could run.
+
+The r8 dialog frames were rendered with the patch applied on a scratch tree. That bundle's `source_sha256` is `b4d2fd7e2cf2298494c8b3005c968f7432e4878e1ae720719d6ea93b00b736b8` and includes the patch, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r8/`: `nickname-gift.png` (the lab, the last question page, and YES/NO), `nickname-catch.png` (the battle after Gotcha, the same question, and YES/NO), `name-rater-rate.png` (`SQUIRTLE, is it?` / `That is a decent` with `▼`), and `overworld-dialog.png` (the house greeting).
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

@@ -391,6 +391,17 @@ function Story.chooseStarter(game, species)
     end)
 end
 
+-- data/text/text_2.asm _DoYouWantToNicknameText. text/line is the first
+-- page. cont scrolls that second line up and writes the species on the
+-- bottom row. The naming screen opens only after YES.
+function Story.nicknamePages(speciesName)
+    local name = speciesName or "POKEMON"
+    return {
+        "Do you want to\ngive a nickname",
+        "give a nickname\nto " .. name .. "?",
+    }
+end
+
 function Story.promptNickname(game, mon, speciesName, done)
     local function finish()
         if done then done(mon and mon.name) end
@@ -399,15 +410,25 @@ function Story.promptNickname(game, mon, speciesName, done)
         finish()
         return false
     end
-    game.machine:push("naming", {
-        kind = "mon",
-        speciesName = speciesName,
-        ask = true,
-        onDone = function(name)
-            if type(name) == "string" then Story.storeNickname(mon, name) end
-            finish()
-        end,
-    })
+    local pages = Story.nicknamePages(speciesName)
+    game.machine:push("dialog", pages, function()
+        game.machine:push("naming", {
+            kind = "yesno",
+            overlay = true,
+            page = pages[#pages],
+            onDone = function(accepted)
+                if not accepted then finish() return end
+                game.machine:push("naming", {
+                    kind = "mon",
+                    speciesName = speciesName,
+                    onDone = function(name)
+                        if type(name) == "string" then Story.storeNickname(mon, name) end
+                        finish()
+                    end,
+                })
+            end,
+        })
+    end)
     return true
 end
 

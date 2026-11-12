@@ -40,6 +40,20 @@ function NamingScreen.askText(speciesName)
     return "Do you want to give a nickname to " .. (speciesName or "POKEMON") .. "?"
 end
 
+-- engine/menus/naming_screen.asm AskName. DisplayTextBoxID TWO_OPTION_MENU
+-- draws the border at hlcoord 14, 7. yes_no_menu_strings.asm sizes that
+-- border 4 by 3. The cursor is lb bc, 8, 15: column 15, YES on row 8,
+-- NO on row 10. B chooses NO.
+function NamingScreen.yesNoBox()
+    return {
+        box = TitleIdle.textBox(14, 7, 4, 3),
+        cursorCol = 15,
+        textCol = 16,
+        yesRow = 8,
+        noRow = 10,
+    }
+end
+
 -- The naming box is 18 tiles. Tight glyphs are 16px, so a line holds 22.
 NamingScreen.LINE_GLYPHS = 22
 
@@ -130,6 +144,8 @@ function NamingScreen.new(kind, options)
         limit = limit,
         speciesName = options.speciesName,
         rater = options.rater == true,
+        overlay = options.overlay == true,
+        page = options.page,
         finished = false,
         result = nil,
     }
@@ -254,33 +270,41 @@ end
 -- (carry from NameRatersHouseCheckMonOTScript) and does not rename.
 NameRater = {}
 
+-- text/NameRatersHouse.asm. Each page is the two rows a text/line pair
+-- shows, and cont/para start the next page. The words are unchanged.
 NameRater.WANT = {
-    "Hello, hello! I am the official NAME RATER!",
-    "Want me to rate the nicknames of your POKEMON?",
+    "Hello, hello!\nI am the official",
+    "I am the official\nNAME RATER!",
+    "Want me to rate\nthe nicknames of",
+    "the nicknames of\nyour POKEMON?",
 }
-NameRater.WHICH = {"Which POKEMON should I look at?"}
-NameRater.WHAT = {"Fine! What should we name it?"}
-NameRater.COME = {"Fine! Come any time you like!"}
+NameRater.WHICH = {"Which POKEMON\nshould I look at?"}
+NameRater.WHAT = {"Fine! What should\nwe name it?"}
+NameRater.COME = {"Fine! Come any\ntime you like!"}
 
 function NameRater.decent(name)
     return {
-        name .. ", is it? That is a decent nickname!",
-        "But, would you like me to give it a nicer name?",
+        name .. ", is it?\nThat is a decent",
+        "That is a decent\nnickname!",
+        "But, would you\nlike me to give",
+        "like me to give\nit a nicer name?",
         "How about it?",
     }
 end
 
 function NameRater.renamed(name)
     return {
-        "OK! This POKEMON has been renamed " .. name .. "!",
-        "That's a better name than before!",
+        "OK! This POKEMON\nhas been renamed",
+        "has been renamed\n" .. name .. "!",
+        "That's a better\nname than before!",
     }
 end
 
 function NameRater.impeccable(name)
     return {
-        name .. ", is it? That is a truly impeccable name!",
-        "Take good care of " .. name .. "!",
+        name .. ", is it?\nThat is a truly",
+        "That is a truly\nimpeccable name!",
+        "Take good care of\n" .. name .. "!",
     }
 end
 
@@ -431,6 +455,7 @@ if Class then
         options = options or {}
         self.onDone = options.onDone
         self.done = false
+        self.pageDialog = nil
         self.screen = NamingScreen.new(options.kind or "player", options)
     end
 
@@ -458,11 +483,34 @@ if Class then
         if self.screen.finished then self:finish(result) end
     end
 
+    function NamingState:drawOverlay(screen)
+        if screen.page and Dialog then
+            if not self.pageDialog then
+                self.pageDialog = Dialog()
+                self.pageDialog:show({screen.page})
+                local line = self.pageDialog.lines and self.pageDialog.lines[1]
+                if line then self.pageDialog.charIndex = #line end
+            end
+            self.pageDialog:draw()
+        end
+        local menu = NamingScreen.yesNoBox()
+        GbFont.drawBox(menu.box)
+        GbFont.drawString("YES", menu.textCol, menu.yesRow)
+        GbFont.drawString("NO", menu.textCol, menu.noRow)
+        local cursorRow = screen.cursor == 1 and menu.yesRow or menu.noRow
+        GbFont.drawChar(TitleIdle.CURSOR, menu.cursorCol, cursorRow)
+    end
+
     function NamingState:draw()
         local screen = self.screen
         if not screen then return end
         local x, y = gfx.getDrawOffset()
         gfx.setDrawOffset(0, 0)
+        if screen.overlay then
+            self:drawOverlay(screen)
+            gfx.setDrawOffset(x, y)
+            return
+        end
         gfx.clear(gfx.kColorWhite)
         GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
         -- A yes/no prompt is the question itself. The header would print it
