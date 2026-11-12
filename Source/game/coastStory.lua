@@ -710,6 +710,26 @@ function CoastStory.gymTrainers()
     return trainers
 end
 
+-- data/maps/CinnabarPokecenter.asm nurse. The checkpoint is the island
+-- door south of the Center, so a later blackout stays on Cinnabar.
+function CoastStory.centerHeal()
+    return {
+        kind = "program", content = GYM_CONTENT,
+        steps = {
+            {
+                op = "heal", id = "CinnabarPokecenter",
+                nurse_id = "pokered:CINNABAR_POKECENTER:objects:1",
+                welcome = "_PokemonCenterWelcomeText",
+                prompt = "_ShallWeHealYourPokemonText",
+                before = "_NeedYourPokemonText",
+                after = "_PokemonFightingFitText",
+                farewell = "_PokemonCenterFarewellText",
+                checkpoint = { zone_id = "pokered:CINNABAR_ISLAND", x = 11, y = 12, facing = "down" },
+            },
+        },
+    }
+end
+
 function CoastStory.gymEvents()
     local events = {}
     local beaten = {}
@@ -756,6 +776,7 @@ function CoastStory.gymEvents()
         guard_flags = { "EVENT_BEAT_BLAINE", "BADGE_VOLCANO" },
         trainers = trainers,
     }
+    events["pokered:CINNABAR_POKECENTER:objects:1"] = CoastStory.centerHeal()
     events[gymId(9)] = {
         kind = "cases", content = GYM_CONTENT,
         cases = {

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Coast story rules against the af519899 Seafoam, Mansion, quiz, and Blaine scripts."""
 
+import json
 import os
 import re
 import shutil
@@ -205,6 +206,10 @@ for index = 2, 8 do
 end
 local wrong = CoastStory.quizAnswer(1, "no")
 assert(wrong.opponent == 3 and roster[wrong.opponent].gate == "EVENT_CINNABAR_GYM_GATE1_UNLOCKED")
+local nurse = events["pokered:CINNABAR_POKECENTER:objects:1"]
+assert(nurse.kind == "program" and nurse.steps[1].op == "heal")
+assert(nurse.steps[1].checkpoint.zone_id == "pokered:CINNABAR_ISLAND")
+assert(nurse.steps[1].checkpoint.x == 11 and nurse.steps[1].checkpoint.y == 12)
 local guide = events["pokered:CINNABAR_GYM:objects:9"]
 assert(guide.kind == "cases")
 assert(guide.cases[1].when.flags.EVENT_BEAT_BLAINE == true)
@@ -297,6 +302,18 @@ class CoastScriptTest(unittest.TestCase):
         world = (ROOT / 'Source/game/coastStoryWorld.lua').read_text()
         self.assertIn('CoastStory.gymEvents()', world)
         self.assertIn('registerTrainerSource("coastGym", CoastStory.gymTrainers)', world)
+        story = (ROOT / 'Source/game/coastStory.lua').read_text()
+        center = json.loads((ROOT / 'Source/data/zCoast/events.json').read_text())
+        nurse = center['events']['pokered:CINNABAR_POKECENTER:objects:1']['steps'][0]
+        self.assertEqual(nurse['op'], 'heal')
+        self.assertEqual(nurse['checkpoint'], {
+            'facing': 'down', 'x': 11, 'y': 12, 'zone_id': 'pokered:CINNABAR_ISLAND',
+        })
+        for token in (
+            'pokered:CINNABAR_POKECENTER:objects:1', nurse['welcome'], nurse['prompt'],
+            nurse['before'], nurse['after'], nurse['farewell'], 'CinnabarPokecenter',
+        ):
+            self.assertIn(token, story)
 
 
 if __name__ == '__main__':
