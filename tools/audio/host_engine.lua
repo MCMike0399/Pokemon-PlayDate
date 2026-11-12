@@ -67,7 +67,13 @@ function sound.synth.new(kind)
         self.kind = "wave"
     end
 
-    function synth:setADSR() end
+    function synth:setADSR(attack, decay, sustain, release)
+        self.adsr = {attack or 0, decay or 0, sustain or 1, release or 0.002}
+    end
+
+    function synth:setLegato(flag)
+        self.legato = flag and true or false
+    end
 
     function synth:noteOff()
         local ev = sounding[self.index]
@@ -78,6 +84,13 @@ function sound.synth.new(kind)
     end
 
     function synth:playNote(hz, amp, dur)
+        -- A legato playNote is a pitch change on the sounding note. The
+        -- envelope clock stays at the original attack, matching setLegato.
+        if self.legato and sounding[self.index] then
+            local ev = sounding[self.index]
+            ev.points[#ev.points + 1] = {t = hostNow, hz = hz}
+            return true
+        end
         local ev = {
             t = hostNow,
             voice = self.index,
@@ -87,6 +100,8 @@ function sound.synth.new(kind)
             kind = self.kind,
             duty = self.duty or 0.5,
             wave = self.wave or "-",
+            adsr = self.adsr or {0, 0, 1, 0.002},
+            points = {{t = hostNow, hz = hz}},
         }
         events[#events + 1] = ev
         sounding[self.index] = ev
@@ -125,11 +140,32 @@ local function ticksFor(seconds)
 end
 
 local function emitNotes()
+    -- One row per audio tick. Pitch points come from the engine's legato
+    -- updates; amplitude is KantoShape.gain of the ADSR the engine set.
     for _, ev in ipairs(events) do
-        io.write(string.format(
-            "note\t%.8f\t%d\t%.6f\t%.6f\t%.8f\t%s\t%.6f\t%s\n",
-            ev.t, ev.voice, ev.hz, ev.amp, ev.dur, ev.kind, ev.duty, ev.wave
-        ))
+        if ev.dur > 0 then
+            local ticks = math.max(1, math.floor(ev.dur / TICK + 1e-6))
+            local adsr = ev.adsr or {0, 0, 1, 0.002}
+            for i = 0, ticks - 1 do
+                local t = ev.t + i * TICK
+                if t >= ev.t + ev.dur - 1e-8 then
+                    break
+                end
+                local hz = ev.hz
+                for _, point in ipairs(ev.points) do
+                    if point.t <= t + 1e-8 then
+                        hz = point.hz
+                    end
+                end
+                local dur = math.min(TICK, ev.t + ev.dur - t)
+                local g0 = ev.amp * KantoShape.gain(adsr[1], adsr[2], adsr[3], adsr[4], i * TICK)
+                local g1 = ev.amp * KantoShape.gain(adsr[1], adsr[2], adsr[3], adsr[4], i * TICK + dur)
+                io.write(string.format(
+                    "note\t%.8f\t%d\t%.6f\t%.6f\t%.8f\t%s\t%.6f\t%s\t%d\t%.6f\n",
+                    t, ev.voice, hz, g0, dur, ev.kind, ev.duty, ev.wave, i == 0 and 0 or 1, g1
+                ))
+            end
+        end
     end
 end
 
@@ -288,12 +324,60 @@ local function observe(kind)
     end
 end
 
+local function shapeProbe()
+    -- Fixed cases. The slide numbers are Music_PkmnHealed channel 1's first
+    -- pitch_slide after Audio1_InitPitchSlideVars (current 2039, target 1915).
+    -- The envelope is note_type 12, 12, 1 (byte 0xC1). The vibrato is extent
+    -- 4, rate 0, delay 0, note-on low byte 100, direction clear.
+    local function line(fmt, ...)
+        io.write(string.format(fmt, ...))
+    end
+    local slide = {0, 1, 14, 16384, 0.5333, 0.5, 129, {p = 2040, s = {2039, 1915, 9, 12, 1}}}
+    for _, elapsed in ipairs({0, 1, 5, 13}) do
+        line("direct\tslide\t%d\t%d\t%.4f\n", elapsed, KantoShape.periodAt(slide, elapsed), KantoShape.hz(slide, elapsed))
+    end
+    local attack, decay, sustain, release = KantoShape.adsr(193, 1)
+    line("direct\tadsr\t%.6f\t%.6f\t%.6f\t%.6f\n", attack, decay, sustain, release)
+    for _, t in ipairs({0, 6 / 64, 12 / 64}) do
+        line("direct\tgain\t%.6f\t%.6f\n", t, KantoShape.gain(attack, decay, sustain, release, t))
+    end
+    local vib = {0, 1, 8, 1000, 1, 0, 0, {p = 100, v = {0, 4, 0, 100, 0}}}
+    for _, elapsed in ipairs({0, 1, 2}) do
+        line("direct\tvibrato\t%d\t%d\t%.4f\n", elapsed, KantoShape.periodAt(vib, elapsed), KantoShape.hz(vib, elapsed))
+    end
+
+    local function play(name, note, steps)
+        KantoSynth.stop()
+        resetClock()
+        KantoScores = KantoScores or {}
+        KantoScores[name] = {ticks = 32, loop = nil, notes = {note}}
+        KantoSynth.music(name)
+        for _ = 1, steps do
+            step(1)
+        end
+        for _, ev in ipairs(events) do
+            for _, point in ipairs(ev.points) do
+                local elapsed = math.floor((point.t - ev.t) / TICK + 1e-6)
+                line(
+                    "engine\t%s\t%d\t%.4f\t%.6f\t%.6f\t%.6f\t%.6f\n",
+                    name, elapsed, point.hz, ev.adsr[1], ev.adsr[2], ev.adsr[3], ev.adsr[4]
+                )
+            end
+        end
+    end
+    play("probe_slide", slide, 13)
+    play("probe_vib", vib, 2)
+    play("probe_env", {0, 1, 16, 440, 12 / 15, 0.5, 193}, 0)
+end
+
 local command = arg[1]
 local name = arg[2]
 if command == "clip" then
     clip(name)
 elseif command == "observe" then
     observe(name)
+elseif command == "shape" then
+    shapeProbe()
 else
-    error("usage: host_engine.lua clip|observe name")
+    error("usage: host_engine.lua clip|observe|shape name")
 end

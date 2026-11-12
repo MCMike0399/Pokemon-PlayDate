@@ -1,4 +1,6 @@
 """Host renderer and the observer paths that do not need another lane."""
+import math
+import re
 import struct
 import subprocess
 import unittest
@@ -29,6 +31,57 @@ def clip(kind):
     return notes, peak_of(pcm)
 
 
+def _score_parts(text):
+    """Part tables, ignoring a trailing shape table inside a note."""
+    parts = {}
+    for match in re.finditer(r'\{ticks=(\d+), loop=(\d+), notes=\{', text):
+        ticks, loop = int(match.group(1)), int(match.group(2))
+        depth = 1
+        index = match.end()
+        while depth:
+            if text[index] == '{':
+                depth += 1
+            elif text[index] == '}':
+                depth -= 1
+            index += 1
+        body = text[match.end():index - 1]
+        rows = []
+        cursor = 0
+        while True:
+            start = body.find('{', cursor)
+            if start < 0:
+                break
+            depth = 0
+            end = start
+            while end < len(body):
+                if body[end] == '{':
+                    depth += 1
+                elif body[end] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        break
+                end += 1
+            literal = body[start + 1:end]
+            nested = literal.find('{')
+            head = literal if nested < 0 else literal[:nested]
+            values = []
+            for item in head.split(','):
+                item = item.strip()
+                if not item:
+                    continue
+                if item.startswith('"'):
+                    values.append(item.strip('"'))
+                elif '.' in item:
+                    values.append(float(item))
+                else:
+                    values.append(int(item))
+            if values and isinstance(values[0], int):
+                rows.append(values)
+            cursor = end + 1
+        parts[rows[0][1]] = {'ticks': ticks, 'loop': loop, 'notes': rows}
+    return parts
+
+
 class HostRendererTests(unittest.TestCase):
     def test_route_render_is_audible_pcm(self):
         import tempfile
@@ -57,21 +110,7 @@ class HostRendererTests(unittest.TestCase):
         seam = mansion_seam(notes)
         self.assertEqual(set(seam), {1, 2, 3, 4})
         text = (ROOT / 'Source/audio/score/mansion.lua').read_text()
-        parts = {}
-        for ticks, loop, body in re.findall(r'\{ticks=(\d+), loop=(\d+), notes=\{(.*?)\}\}', text, re.S):
-            rows = []
-            for row in re.findall(r'\{([^{}]+)\}', body):
-                values = []
-                for item in row.split(','):
-                    item = item.strip()
-                    if item.startswith('"'):
-                        values.append(item.strip('"'))
-                    elif '.' in item:
-                        values.append(float(item))
-                    else:
-                        values.append(int(item))
-                rows.append(values)
-            parts[rows[0][1]] = {'ticks': int(ticks), 'loop': int(loop), 'notes': rows}
+        parts = _score_parts(text)
 
         def phase(part, tick):
             if tick < part['ticks']:
@@ -88,14 +127,16 @@ class HostRendererTests(unittest.TestCase):
             self.assertGreater(chosen[0] + chosen[2], stamp)
             return max(20, min(16000, chosen[3]))
 
-        # Channel 1 is back at its label. Channels 2 and 3 are on a different
-        # pitch than the note at their own loop point.
+        # Channel 1 is back at its label, on that note's attack (vibrato and
+        # slides have not stepped yet). Channels 2 and 3 are not on the note
+        # at their own loop point. Mid-phrase pitch includes vibrato, so it
+        # is not compared to the stored attack.
         self.assertEqual(seam[1]['hz'], hz_at(parts[1], phase(parts[1], 9315)))
         self.assertEqual(phase(parts[1], 9315), 0)
+        self.assertAlmostEqual(seam[1]['hz'], 1310.72, places=2)
         for voice, expected in ((2, 2403), (3, 1539), (4, 243)):
             part = parts[voice]
             self.assertEqual(phase(part, 9315), expected)
-            self.assertEqual(seam[voice]['hz'], hz_at(part, expected))
         self.assertNotEqual(seam[2]['hz'], hz_at(parts[2], parts[2]['loop']))
         self.assertNotEqual(seam[3]['hz'], hz_at(parts[3], parts[3]['loop']))
 
@@ -103,6 +144,85 @@ class HostRendererTests(unittest.TestCase):
         notes, peak = clip('trainer')
         self.assertGreater(peak, 1000)
         self.assertGreater(notes[-1]['t'], 3.5)
+        # ticksFor(3.5) is 209 source ticks, 3.4992 s. The jingle is still
+        # playing just before that. BlueBot's 3.478 s bed is a template-match
+        # offset of about 22 ms, not this cut, so the scheduler stays put.
+        tick = 70224 / 4194304
+        cut = math.floor(3.5 / tick + 0.5) * tick
+        bed = min(
+            note['t'] for note in notes
+            if note['voice'] == 2 and abs(note['hz'] - 879.6779) < 0.01 and note['t'] > 3
+        )
+        self.assertAlmostEqual(bed, cut, delta=0.0001)
+
+    def test_pitch_slide_steps_through_the_intermediate_periods(self):
+        # Audio1_ApplyPitchSlide on the heal ch1 slide: current 2039, target
+        # 1915, step 9, fraction 12, decreasing. Tick 0 is the perfect-pitch
+        # register 2040. The old score held the target, 985.5038 Hz.
+        proc = subprocess.run(
+            ['lua', str(ENGINE), 'shape'],
+            check=True, capture_output=True, text=True,
+        )
+        direct = {}
+        engine = {}
+        adsr = None
+        gains = {}
+        for line in proc.stdout.splitlines():
+            fields = line.split('\t')
+            if fields[0] == 'direct' and fields[1] == 'slide':
+                direct[int(fields[2])] = (int(fields[3]), float(fields[4]))
+            elif fields[0] == 'direct' and fields[1] == 'vibrato':
+                direct[('vib', int(fields[2]))] = (int(fields[3]), float(fields[4]))
+            elif fields[0] == 'direct' and fields[1] == 'adsr':
+                adsr = tuple(float(value) for value in fields[2:])
+            elif fields[0] == 'direct' and fields[1] == 'gain':
+                gains[float(fields[2])] = float(fields[3])
+            elif fields[0] == 'engine':
+                engine.setdefault(fields[1], {})[int(fields[2])] = (
+                    float(fields[3]), tuple(float(value) for value in fields[4:])
+                )
+        self.assertEqual(
+            [direct[elapsed][0] for elapsed in (0, 1, 5, 13)],
+            [2040, 2030, 1993, 1920],
+        )
+        self.assertEqual(direct[0][1], 16000)
+        self.assertAlmostEqual(direct[1][1], 7281.7778, places=4)
+        self.assertNotAlmostEqual(direct[1][1], 985.5038, places=1)
+        for elapsed in (0, 1, 5, 13):
+            played, played_adsr = engine['probe_slide'][elapsed]
+            self.assertAlmostEqual(played, direct[elapsed][1], places=4)
+            # envelope 129 is volume 8, pace 1: decay 8/64 s.
+            self.assertEqual(played_adsr, (0.0, 8 / 64, 0.0, 0.002))
+        # note_type 12, 12, 1 is byte 193: decay 12/64 s, no attack.
+        self.assertEqual(adsr, (0.0, 12 / 64, 0.0, 0.002))
+        self.assertAlmostEqual(gains[0.0], 1.0, places=4)
+        self.assertAlmostEqual(gains[6 / 64], 0.5, places=4)
+        self.assertAlmostEqual(gains[12 / 64], 0.0, places=4)
+        # Extent 4 toggles +2 then -2 around the note-on low byte. Both the
+        # direct curve and a real KantoSynth.update land on those periods.
+        self.assertEqual(
+            [direct[('vib', elapsed)][0] for elapsed in (0, 1, 2)],
+            [100, 102, 98],
+        )
+        for elapsed in (0, 1, 2):
+            played, played_adsr = engine['probe_vib'][elapsed]
+            self.assertAlmostEqual(played, direct[('vib', elapsed)][1], places=4)
+            self.assertEqual(played_adsr, (0.0, 0.0, 1.0, 0.002))
+        env_hz, env_adsr = engine['probe_env'][0]
+        self.assertAlmostEqual(env_hz, 440.0, places=4)
+        self.assertEqual(env_adsr, (0.0, 12 / 64, 0.0, 0.002))
+        host = ENGINE.read_text()
+        engine_src = (ROOT / 'Source/audio/engine.lua').read_text()
+        self.assertIn('KantoShape.gain', host)
+        self.assertNotIn('pace', host)
+        self.assertIn('KantoShape.adsr', engine_src)
+        self.assertIn('KantoShape.hz', engine_src)
+        self.assertNotIn('envelopeTime', engine_src)
+
+    def test_heal_score_stores_the_glide_instead_of_the_target(self):
+        text = (ROOT / 'Source/audio/score/heal.lua').read_text()
+        self.assertIn('s={2039,1915,9,12,1}', text)
+        self.assertNotRegex(text, r'\{13,1,14,985\.5038,')
 
 
 class ObserverGapTests(unittest.TestCase):

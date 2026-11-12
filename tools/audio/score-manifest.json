@@ -669,7 +669,7 @@
   "menu_adaptation": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
   "revision": "af519899719f0754965776faac0e836a3b906e6d",
   "schema": 3,
-  "score_sha256": "7952c48d94dec767a8cef9766b2c43012d106143a8e2ab4b1dec14e4c220fc32",
+  "score_sha256": "d4602aecf1c91836756624b9f6ec68b62c8a45b95bde9756e11d9088e0a5dbca",
   "scores": {
     "alarm": {
       "adapted": false,
@@ -1224,7 +1224,7 @@
   "target": "Playdate synth adaptation",
   "tools_sha256": {
     "tools/audio/catalog.py": "52f6d57d510d88130eb4e1d2791c14464769ef2af428b35362dfe9c5256991b2",
-    "tools/audio/scores.py": "de6615d9d2eee2f038e62b394e83614d30546ffc2be920fe43b8e0738765b932",
+    "tools/audio/scores.py": "bcadb9624ae8923c852326a9589237baceeaacf00a35d1598e467fee51466129",
     "tools/audio/source.py": "73ce33da16d31bbd0bfede9ea54176092ffe60ee399cd7a33a7545aef83c60b5",
     "tools/audio/trace.py": "eae8e251d5f3390cd3bff279e1f69884877439b8f96c5c495c9672839a7693bd"
   },

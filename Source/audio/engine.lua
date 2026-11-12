@@ -1,7 +1,10 @@
 -- Four physical synth voices, musical clock in source ticks; no gameplay state.
 -- Scores and cries load on first play so importing this module stays small.
+-- Pitch slides, vibrato, and envelope curves live in audio/shape.lua so the
+-- host renderer and this synth share one implementation.
 
 KantoSynth = {}
+import "audio/shape"
 
 local sound <const> = playdate.sound
 local tickSeconds <const> = 70224 / 4194304
@@ -149,6 +152,7 @@ local function advance(playing, now)
         if note and note[1] + track.offset <= tick then
             track.active[note[2]] = {
                 note = note,
+                born = track.start + (track.offset + note[1]) * tickSeconds,
                 finish = track.start + (track.offset + note[1] + note[3]) * tickSeconds,
                 id = track.serial .. ":" .. track.offset .. ":" .. track.cursor,
                 cry = score.holds ~= nil,
@@ -191,6 +195,26 @@ local function choose(i, now)
     return voiced(bed, i)
 end
 
+local function waveKey(note)
+    for index = #note, 8, -1 do
+        if type(note[index]) == "string" then
+            return note[index]
+        end
+    end
+end
+
+local function elapsedTicks(active, now)
+    return math.max(0, math.floor((now - active.born) / tickSeconds + 1e-6))
+end
+
+local function pitched(active, now)
+    local pitch = KantoShape.hz(active.note, elapsedTicks(active, now))
+    if not active.cry then
+        pitch = math.max(20, math.min(16000, pitch))
+    end
+    return pitch
+end
+
 function KantoSynth.update(now)
     if not master then
         return
@@ -204,8 +228,8 @@ function KantoSynth.update(now)
     for i = 1, 4 do
         local active = choose(i, now)
         local id = active and active.id
+        local synth = voices[i]
         if rendered[i] ~= id then
-            local synth = voices[i]
             synth:noteOff()
             rendered[i] = id
 
@@ -214,7 +238,7 @@ function KantoSynth.update(now)
                 if i <= 2 then
                     synth:setParameter(1, note[6])
                 elseif i == 3 then
-                    local key = assert(note[8], "wave note has no source waveform")
+                    local key = assert(waveKey(note), "wave note has no source waveform")
                     if currentWave ~= key then
                         local sample = waveSamples[key]
                         if not sample then
@@ -232,35 +256,29 @@ function KantoSynth.update(now)
                 end
 
                 -- Source envelope pace is 64 Hz; SDK ADSR is the audible approximation.
-                local pace = note[7] & 7
-                local rising = (note[7] & 8) ~= 0
-                local envelopeTime = 0
-                if pace > 0 then
-                    local envelopeSteps = note[7] >> 4
-                    if rising then
-                        envelopeSteps = 15 - envelopeSteps
-                    end
-                    envelopeTime = pace * envelopeSteps / 64
-                end
+                local attack, decay, sustain, release = KantoShape.adsr(note[7], i)
+                synth:setADSR(attack, decay, sustain, release)
+                synth:setLegato(false)
 
-                if i == 3 then
-                    synth:setADSR(0, 0, 1, 0.002)
-                elseif pace == 0 then
-                    synth:setADSR(0, 0, 1, 0.002)
-                elseif rising then
-                    synth:setADSR(envelopeTime, 0, 1, 0.002)
-                else
-                    synth:setADSR(0, envelopeTime, 0, 0.002)
-                end
-
-                local pitch = note[4]
-                if not active.cry then
-                    pitch = math.max(20, math.min(16000, pitch))
-                end
+                local pitch = pitched(active, now)
+                active.pitch = pitch
                 assert(
                     synth:playNote(pitch, note[5], math.max(.001, active.finish - now)),
                     "Kanto synth note rejected"
                 )
+            end
+        elseif active then
+            -- Same note. setLegato keeps the envelope running while the pitch
+            -- follows Audio1_ApplyPitchSlide / the vibrato block.
+            local pitch = pitched(active, now)
+            if math.abs(pitch - active.pitch) >= 0.00005 then
+                active.pitch = pitch
+                synth:setLegato(true)
+                assert(
+                    synth:playNote(pitch, active.note[5], math.max(.001, active.finish - now)),
+                    "Kanto synth pitch update rejected"
+                )
+                synth:setLegato(false)
             end
         end
     end

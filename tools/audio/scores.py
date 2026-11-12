@@ -76,11 +76,15 @@ ROOT = Path(__file__).resolve().parents[2]
 class ScoreTrace(Trace):
     """Intentional musical recurrence, never advertised as register recurrence.
 
-    Same interpreter/tick arithmetic. Effects still execute, but synth notes take
-    only note-on pitch/duty/envelope; persistent vibrato/slide phases are omitted.
+    Same interpreter/tick arithmetic. A slide or vibrato note keeps the attack
+    period plus the counters Audio1_InitPitchSlideVars and the vibrato command
+    left in channel RAM. Playback steps those with Audio1_ApplyPitchSlide and
+    Audio1_ApplyMusicAffects `.vibrato` (see Source/audio/shape.lua). The shape
+    is parallel to the note so a note row stays length 7, or 8 with a wave key.
     """
     def __init__(self, catalog, family):
         self.notes = []
+        self.shapes = []
         self.waves = {}
         super().__init__(catalog, family)
 
@@ -92,6 +96,34 @@ class ScoreTrace(Trace):
                         'vibrato_rate', 'vibrato_direction', 'frequency_low', 'slide'):
                 ch.pop(key)
         return value
+
+    def _shape(self, ch, voice, period):
+        """Attack period plus the slide and vibrato counters at note-on.
+
+        Slide fields are what Audio1_InitPitchSlideVars stored: current is the
+        frequency before toggle_perfect_pitch, and the written attack period is
+        the register after that increment. Vibrato fields are the delay, the
+        command extent n, the live rate byte, the note-on low byte, and direction.
+        """
+        if voice == 4 or period is None:
+            return None
+        slide = ch.slide
+        if slide is None and not ch.vibrato_depth:
+            return None
+        shape = {'p': period & 2047}
+        if slide is not None:
+            shape['s'] = [
+                slide['current'] & 65535, slide['target'] & 65535,
+                slide['step'] & 255, slide['fraction'] & 255,
+                1 if slide['decreasing'] else 0,
+            ]
+        if ch.vibrato_depth:
+            shape['v'] = [
+                ch.vibrato_delay & 255, ch.vibrato_depth & 15,
+                ch.vibrato_rate & 255, ch.frequency_low & 255,
+                1 if ch.vibrato_direction else 0,
+            ]
+        return shape
 
     def decode(self, i):
         start = len(self.events)
@@ -118,9 +150,6 @@ class ScoreTrace(Trace):
             hz = 524288 / divisor / (2 ** (nr >> 4))
         else:
             period = reg.get(base+3, 0) | ((reg.get(base+4, 0) & 7) << 8)
-            # Native adaptation lands pitch slides immediately at their target.
-            # The heal harmony starts above hearing range before sliding down.
-            if ch.slide is not None: period = ch.slide['target'] & 2047
             hz = (65536 if voice == 3 else 131072) / (2048-period)
         # Wave identity travels with the note, including across voice stealing.
         note = [self.tick, voice, ch.delay or 256, round(hz, 4),
@@ -137,6 +166,7 @@ class ScoreTrace(Trace):
             self.waves[key] = data
             note.append(key)
         self.notes.append(note)
+        self.shapes.append(self._shape(ch, voice, None if voice == 4 else period))
 
 
 def wave_asset(data):
@@ -158,10 +188,11 @@ def wave_asset(data):
 def adapt_menu(score):
     # Explicit native adaptation: two source pitches with >=50ms gates, so a
     # 30FPS observer cannot coalesce the whole chirp. No APU timing claim.
+    shapes = score.get('shapes') or [None] * len(score['notes'])
     first, last = list(score['notes'][0]), list(score['notes'][-1])
     first[0], first[2] = 0, 3
     last[0], last[2] = 3, 5
-    return dict(score, ticks=8, notes=[first, last])
+    return dict(score, ticks=8, notes=[first, last], shapes=[shapes[0], shapes[-1]])
 
 
 def checkpoint_maps():
@@ -293,8 +324,22 @@ def _boundary_notes(notes, tick):
     return sorted((note[1:] for note in notes if note[0] == tick), key=lambda row: row[0])
 
 
-def _clip(notes, ticks):
-    return [note for note in notes if note[0] < ticks]
+def _aligned(notes, shapes):
+    if shapes is None:
+        shapes = [None] * len(notes)
+    if len(shapes) != len(notes):
+        raise AudioError(f'shape rows {len(shapes)} do not match {len(notes)} notes')
+    return list(notes), list(shapes)
+
+
+def _clip_pair(notes, shapes, ticks):
+    notes, shapes = _aligned(notes, shapes)
+    kept_n, kept_s = [], []
+    for note, shape in zip(notes, shapes):
+        if note[0] < ticks:
+            kept_n.append(note)
+            kept_s.append(shape)
+    return kept_n, kept_s
 
 
 def resolve_loop(trace, result):
@@ -307,12 +352,13 @@ def resolve_loop(trace, result):
     """
     missing = trace.expected - set(trace.label_scope.values())
     solved, _abandoned = ({}, set()) if missing else trace.solutions()
-    notes = trace.notes
+    notes, shapes = _aligned(trace.notes, trace.shapes)
     if solved and len(solved) == len(trace.label_tick) and not missing:
         if len(set(solved.values())) == 1:
             label, period = next(iter(solved.values()))
             ticks = label + period
-            return dict(ticks=ticks, loop=label, notes=_clip(notes, ticks),
+            kept, kept_shapes = _clip_pair(notes, shapes, ticks)
+            return dict(ticks=ticks, loop=label, notes=kept, shapes=kept_shapes,
                         loop_basis='label', parts=None)
         start = max(label for label, _period in solved.values())
         period = _lcm(span for _label, span in solved.values())
@@ -324,30 +370,37 @@ def resolve_loop(trace, result):
             )
             if same:
                 ticks = start + period
-                return dict(ticks=ticks, loop=start, notes=_clip(notes, ticks),
+                kept, kept_shapes = _clip_pair(notes, shapes, ticks)
+                return dict(ticks=ticks, loop=start, notes=kept, shapes=kept_shapes,
                             loop_basis='joint', parts=None)
         parts = []
         for voice, (label, period) in sorted(solved.items()):
             ticks = label + period
+            part_notes, part_shapes = [], []
+            for note, shape in zip(notes, shapes):
+                if note[1] == voice and note[0] < ticks:
+                    part_notes.append(note)
+                    part_shapes.append(shape)
             parts.append(dict(
                 voice=voice, ticks=ticks, loop=label,
-                notes=[note for note in notes if note[1] == voice and note[0] < ticks],
+                notes=part_notes, shapes=part_shapes,
             ))
         return dict(ticks=max(part['ticks'] for part in parts), loop=None, notes=[],
-                    loop_basis='parts', parts=parts)
+                    shapes=[], loop_basis='parts', parts=parts)
     if not result.get('repeat'):
         raise AudioError('music did not reach a loop label or a register repeat')
     start = result['repeat']['start_tick']
     end = result['repeat']['end_tick']
-    kept = _clip(notes, end)
+    kept, kept_shapes = _clip_pair(notes, shapes, end)
     if start >= 1 and _boundary_notes(kept, start - 1) == _boundary_notes(notes, end - 1):
         # The register snapshot is one tick after the downbeat. Keep that
         # downbeat inside the window so later laps retrigger it.
         if _boundary_notes(kept, start - 1):
             start -= 1
             end -= 1
-            kept = _clip(kept, end)
-    return dict(ticks=end, loop=start, notes=kept, loop_basis='state', parts=None)
+            kept, kept_shapes = _clip_pair(kept, kept_shapes, end)
+    return dict(ticks=end, loop=start, notes=kept, shapes=kept_shapes,
+                loop_basis='state', parts=None)
 
 
 def _note_count(score):
@@ -375,11 +428,39 @@ def _score_summary(score):
     return summary
 
 
+def _lua_shape(shape):
+    """Trailing table stepped by Source/audio/shape.lua. Absent when unused."""
+    if not shape:
+        return None
+    parts = [f'p={shape["p"]}']
+    if 's' in shape:
+        current, target, step, fraction, decreasing = shape['s']
+        parts.append(f's={{{current},{target},{step},{fraction},{decreasing}}}')
+    if 'v' in shape:
+        delay, depth, rate, low, direction = shape['v']
+        parts.append(f'v={{{delay},{depth},{rate},{low},{direction}}}')
+    return '{' + ','.join(parts) + '}'
+
+
+def _note_literals(notes, shapes):
+    notes, shapes = _aligned(notes, shapes)
+    lines = []
+    for note, shape in zip(notes, shapes):
+        body = ','.join(json.dumps(x) for x in note)
+        rendered = _lua_shape(shape)
+        if rendered:
+            body += ',' + rendered
+        lines.append('{' + body + '},')
+    return lines
+
+
 def emit_score(name, score):
     lines = [
         '-- Generated by tools/audio/scores.py; do not hand edit.',
         f'-- {score["asset"]}',
         '-- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key',
+        '-- shape, when present: {p=attack period, s={current,target,step,fraction,decreasing}, v={delay,depth,rate,low,direction}}',
+        '-- s is Audio1_InitPitchSlideVars; v is the Audio1 vibrato counters at note-on',
     ]
     if score.get('adapted'):
         lines.append('-- adapted: gates lengthened so a 30FPS observer cannot drop the chirp')
@@ -390,13 +471,13 @@ def emit_score(name, score):
         lines.append(f'KantoScores.{name} = {{ticks={score["ticks"]}, parts={{')
         for part in score['parts']:
             lines.append(f'{{ticks={part["ticks"]}, loop={part["loop"]}, notes={{')
-            lines.extend('{' + ','.join(json.dumps(x) for x in note) + '},' for note in part['notes'])
+            lines.extend(_note_literals(part['notes'], part.get('shapes')))
             lines.append('}},')
         lines.append('}}')
     else:
         loop = 'nil' if score['loop'] is None else str(score['loop'])
         lines.append(f'KantoScores.{name} = {{ticks={score["ticks"]}, loop={loop}, notes={{')
-        lines.extend('{' + ','.join(json.dumps(x) for x in note) + '},' for note in score['notes'])
+        lines.extend(_note_literals(score['notes'], score.get('shapes')))
         lines.append('}}')
     lines.append('')
     return '\n'.join(lines).encode()
@@ -411,7 +492,8 @@ def _trace_score(catalog, asset, label_pcs, loop_pcs):
         result = trace.run(max_ticks=40000, on_tick=trace.finished)
         if result['status'] == 'ended':
             return trace, dict(asset=asset, ticks=result['ticks'], loop=None,
-                               notes=trace.notes, loop_basis=None, parts=None)
+                               notes=trace.notes, shapes=trace.shapes,
+                               loop_basis=None, parts=None)
         if result['status'] == 'bound' and not trace.label_tick:
             raise AudioError(f'{asset}: adapted score did not close within default bound')
         try:
@@ -428,7 +510,8 @@ def _trace_score(catalog, asset, label_pcs, loop_pcs):
         raise AudioError(f'{asset}: adapted score did not close within default bound')
     return trace, dict(asset=asset, ticks=result['ticks'],
                        loop=result['repeat']['start_tick'] if result['repeat'] else None,
-                       notes=trace.notes, loop_basis=None, parts=None)
+                       notes=trace.notes, shapes=trace.shapes,
+                       loop_basis=None, parts=None)
 
 
 def generate(source):
