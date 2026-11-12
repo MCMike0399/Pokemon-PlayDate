@@ -1,5 +1,13 @@
 # Full-game execution ledger
 
+## 2026-11-12 The Cinnabar delay patch stays unapplied
+
+Lane B's `tools/notes/lane-a-cinnabar-trainer-delay.patch` is on their agent, not on `origin/cursor/lane-b-south-loop` (`d33d853a`). It teaches `WorldMotionData.normalize` to copy a saved actor and, when `phase` is `delay` and `spec.random` is false, store `static` with both delay fields cleared. The paired test expects that settle and currently marks it an expected failure until the shared file changes.
+
+That is not the pokered gym. `data/maps/objects/CinnabarGym.asm` at `af519899` gives Blaine, the seven Super Nerds, and the guide `STAY`. They do not take a wander delay. `EVENT_2A7` is set in `home/overworld.asm` after a Cinnabar Gym battle and cleared at the start of `CinnabarGymSetMapAndTiles`. No other instruction in that tree reads the flag. The patch never mentions it.
+
+The rewrite also keeps the saved coordinates. A `STAY` object that had already wandered would remain off its `object_event` tile. It applies to every non-random actor, not only sequence 119. `normalize` still rejects a `delay` record unless `spec.random` is set. Shared battle code was not changed.
+
 ## 2026-11-12 The session accepts all eight badges
 
 `GameSession:hasBadge` knew boulder, cascade, thunder, rainbow, and soul. Sabrina's victory already writes `BADGE_MARSH`, and the Route 23 guards name marsh, volcano, and earth. Those three names now resolve to the same quest flags. The Kanto and content-transform pins were regenerated with the SDK export because they hash `domain/gameSession.lua`. The only structural change in the Kanto export, besides `build_id`, is the order of two `required_trainers` ids. East, South, and Saffron packets match the previous packets. The Vermilion journey projection was regenerated with its generator for the same reason.
