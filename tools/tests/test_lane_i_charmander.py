@@ -27,7 +27,9 @@ from tools.harness.parcel_journey import NAMES as PARCEL_NAMES
 from tools.harness.parcel_journey import sequence
 from tools.harness.protocol import ProtocolError
 
-ACTION_PAUSE = 17000
+# Leave several thousand button presses so the pause Save finishes
+# before ParcelJourney's hard cap of 20000.
+ACTION_PAUSE = 14000
 
 FORBIDDEN_OPS = {"fixture", "warp", "debug", "intro", "seed", "battle", "encounters", "face"}
 LCD_OFFSET = (18, 45)
@@ -147,6 +149,9 @@ class CharmanderRun(BrockJourney):
         if self.state.get("root") != "overworld":
             raise ProtocolError("action pause could not return to the overworld")
         self.save()
+        closer = getattr(self, "close_recordings", None)
+        if closer:
+            closer()
 
     def training_battle(self):
         super().training_battle()
@@ -282,9 +287,7 @@ class CharmanderRun(BrockJourney):
         self._bind_kanto_route()
         import tools.harness.cerulean_journey as cerulean
         if self.flag("BADGE_CASCADE") and self.defeated(cerulean.MISTY):
-            self.heal_here("CeruleanPokecenter")
-            self.save()
-            self.summary["acceptance"] = "Cascade badge saved"
+            self._after_cascade()
             return
         self.heal_here("PewterPokecenter")
         self.stock_up("PewterMart")
@@ -309,10 +312,12 @@ class CharmanderRun(BrockJourney):
         rocket = cerulean.sid("MT_MOON_B2F", 2)
         if not self.defeated(rocket):
             self.heal_here("MtMoonPokecenter")
+            self.save()
             self.fight(rocket)
             self.heal_here("MtMoonPokecenter")
             self.save()
         if not self.defeated(cerulean.NERD):
+            self.save()
             trigger = self.scenes["fossil_trigger"]
             self.travel(self.zone("MtMoonB2F"), (trigger["x"] + self.models[self.zone("MtMoonB2F")].padding, trigger["y"]))
         self.reward(*cerulean.FOSSILS[self.config.get("fossil", "dome")])
@@ -329,7 +334,37 @@ class CharmanderRun(BrockJourney):
         self.checkpoint("cascade-badge-tm11")
         self.heal_here("CeruleanPokecenter")
         self.save()
-        self.summary.update(acceptance="Cascade badge saved", natural=True, forbidden_shortcuts=False)
+        self._after_cascade()
+
+    def _after_cascade(self):
+        """Nugget Bridge and Bill. Save before each row of trainers."""
+        import tools.harness.cerulean_journey as cerulean
+        if not self.defeated(cerulean.BRIDGE_RIVAL):
+            self.save()
+            self.fight(cerulean.BRIDGE_RIVAL)
+            self.heal_here("CeruleanPokecenter")
+        self.stock_up("CeruleanMart")
+        self.save()
+        for index in (6, 5, 4, 3, 2, 1):
+            trainer = cerulean.sid("ROUTE_24", index)
+            if not self.defeated(trainer):
+                self.fight(trainer)
+        if not self.flag("EVENT_GOT_NUGGET") or self.quantity("nugget") != 1:
+            raise ProtocolError("Nugget Bridge gift was not received")
+        self.checkpoint("cerulean-nugget-bridge")
+        self.heal_here("CeruleanPokecenter")
+        self.save()
+        if not self.flag("EVENT_GOT_SS_TICKET"):
+            self.travel(self.zone("Route25"))
+            self.bill_scene()
+            self.reward(cerulean.TICKET, "ssTicket", "EVENT_GOT_SS_TICKET")
+            self.interact(source_id=cerulean.TICKET)
+            if self.quantity("ssTicket") != 1:
+                raise ProtocolError("S.S. Ticket was not received once")
+            self.checkpoint("cerulean-ticket")
+        self.heal_here("CeruleanPokecenter")
+        self.save()
+        self.summary.update(acceptance="Cerulean story saved", natural=True, forbidden_shortcuts=False)
 
     def battle(self, name, strategy="attack", expected=None):
         from tools.harness.brock_journey import NaturalBlackout
@@ -467,6 +502,21 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:CERULEAN_GYM:objects:1"), "badge-cascade")
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
 
+    def test_clip_close_waits_for_the_file_once(self):
+        class Done:
+            def poll(self):
+                return 0
+            def wait(self, timeout=0):
+                return 0
+            def send_signal(self, sig):
+                raise AssertionError("a finished recording was signaled")
+            def kill(self):
+                raise AssertionError("a finished recording was killed")
+        recorder = FightRecorder(Path("/tmp/lane-i-clip-close-test"))
+        recorder.procs.append(("badge-cascade", Path("/tmp/does-not-exist-lane-i.mp4"), Done(), time.time() - 60))
+        self.assertEqual(recorder.close(), [])
+        self.assertEqual(recorder.finish(), [])
+
     def test_action_pause_only_happens_in_the_overworld(self):
         self.assertTrue(needs_action_pause(ACTION_PAUSE, {"root": "overworld"}, False))
         self.assertFalse(needs_action_pause(ACTION_PAUSE, {"root": "battle"}, False))
@@ -589,6 +639,8 @@ class FightRecorder:
         self.directory.mkdir(parents=True, exist_ok=True)
         self.procs = []
         self.origin = None
+        self._closed = False
+        self._clips = []
 
     def calibrate(self):
         for _ in range(80):
@@ -620,28 +672,38 @@ class FightRecorder:
             ["ffmpeg", "-y", "-loglevel", "error", "-f", "x11grab",
              "-video_size", f"{LCD_SIZE[0]}x{LCD_SIZE[1]}", "-framerate", "30",
              "-i", f"{display}.0+{origin_x},{origin_y}",
-             "-t", "75", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path)],
+             "-t", "60", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path)],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        self.procs.append((label, path, proc))
+        self.procs.append((label, path, proc, time.time()))
         return proc
 
-    def finish(self):
+    def close(self):
+        """Finish every open recording into a playable file before the session exits."""
+        if self._closed:
+            return list(self._clips)
         clips = []
-        for label, path, proc in self.procs:
-            try:
-                proc.wait(timeout=5)
-            except subprocess.TimeoutExpired:
+        for label, path, proc, started in self.procs:
+            if proc.poll() is None and str(label).startswith("badge-"):
+                remain = 30 - (time.time() - started)
+                if 0 < remain <= 30:
+                    time.sleep(remain)
+            if proc.poll() is None:
                 proc.send_signal(signal.SIGINT)
-                try:
-                    proc.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.wait(timeout=5)
+            try:
+                proc.wait(timeout=20)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=5)
             if path.is_file() and path.stat().st_size > 0:
                 clips.append({"label": label, "path": str(path),
                               "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                               "bytes": path.stat().st_size})
-        return clips
+        self._clips = clips
+        self._closed = True
+        return list(clips)
+
+    def finish(self):
+        return self.close()
 
 
 def install_save(data_dir, save_dir):
@@ -764,6 +826,7 @@ def play(output, probe=False, resume_save=None):
                 return _stop
 
             run.record_fight = record_fight
+            run.close_recordings = recorder.close
             try:
                 if resume_save is None:
                     run.natural()
@@ -795,7 +858,15 @@ def play(output, probe=False, resume_save=None):
                 if run is not None and run.state:
                     note = publish_save(data, saves / "latest", run.state)
                     summary["save"] = note
-                summary["clips"] = recorder.finish()
+                summary["clips"] = recorder.close()
+                artifact = Path("/opt/cursor/artifacts/lane-i") / output.parent.name / "clips"
+                for clip in summary["clips"]:
+                    src = Path(clip["path"])
+                    if not src.is_file():
+                        continue
+                    artifact.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(src, artifact / src.name)
+                    clip["artifact"] = str(artifact / src.name)
         finally:
             if process is not None and process.poll() is None:
                 process.terminate()
