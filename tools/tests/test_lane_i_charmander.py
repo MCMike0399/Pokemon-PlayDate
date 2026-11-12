@@ -721,6 +721,47 @@ class CharmanderRun(BrockJourney):
             return None
         return sum(1 for value in owned.values() if value)
 
+    def _enter_route9(self):
+        """Every Route 9 west arrival stops at the Cut tree, so it looks closed.
+
+        Step onto the cell beside that tree. The south door back to Route 5
+        is a different pocket and is not the way east.
+        """
+        if self.state.get("zone_id") == self.zone("Route9"):
+            return
+        self.travel(self.zone("CeruleanCity"))
+        route9 = self.models[self.zone("Route9")]
+        tree = (5 + route9.padding, 8)
+        approaches = set(route9.approaches(tree))
+        options = []
+        for point, kind, detail in self.portals(self.model()):
+            if kind != "connection":
+                continue
+            direction, destination = detail
+            zone, dest = destination[0], tuple(destination[1])
+            if zone != route9.name:
+                continue
+            try:
+                route9.path(dest, approaches, set())
+            except ProtocolError:
+                continue
+            try:
+                route = self.model().path(self.position(), {point}, self.occupied())
+            except ProtocolError:
+                continue
+            options.append((len(route), point, direction, zone, dest))
+        if not options:
+            raise ProtocolError("no source step from Cerulean onto the Route 9 tree")
+        options.sort()
+        _length, point, direction, zone, dest = options[0]
+        if self.position() != point:
+            self.navigate(point)
+        origin = self.state["zone_id"]
+        self.cross(direction, zone, dest)
+        self.summary["transitions"].append({
+            "from": origin, "kind": "connection", "source": direction, "to": [zone, list(dest)],
+        })
+
     def _cut_tree(self, zone_name, cell):
         """Seal the Cut target, then use the party menu. A reload grows it back."""
         model = self.models[self.zone(zone_name)]
@@ -858,6 +899,7 @@ class CharmanderRun(BrockJourney):
                 self._cut_tree("CeruleanCity", (19, 28))
             self._train_bench(True)
             if self.state.get("zone_id") != self.zone("Route9") or self.position()[0] <= 15:
+                self._enter_route9()
                 self._cut_tree("Route9", (5, 8))
             self.travel(self.zone("Route10"))
             self.heal_here("RockTunnelPokecenter")
