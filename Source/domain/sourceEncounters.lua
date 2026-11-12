@@ -30,6 +30,11 @@ local definitions <const> = {
     ["pokered:VICTORY_ROAD_2F:objects:6"] = {zone_id = "pokered:VICTORY_ROAD_2F", species = "moltres", level = 50,
         flag = "EVENT_BEAT_MOLTRES", legendary = true,
         positions = {{11, 4}, {11, 6}, {10, 5}, {12, 5}}},
+    -- SeafoamIslandsB4F object 3. Sight is 0, so the player talks from a
+    -- neighboring tile. EndTrainerBattle sets the flag unless the battle is lost.
+    ["pokered:SEAFOAM_ISLANDS_B4F:objects:3"] = {zone_id = "pokered:SEAFOAM_ISLANDS_B4F", species = "articuno", level = 50,
+        flag = "EVENT_BEAT_ARTICUNO", legendary = true,
+        positions = {{6, 2}, {5, 1}, {7, 1}, {6, 0}}},
 }
 function SourceEncounters.positions(id)
     local definition <const> = definitions[id]

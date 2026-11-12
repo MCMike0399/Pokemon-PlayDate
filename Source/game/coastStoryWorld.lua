@@ -358,6 +358,40 @@ local function quizInteract(game)
 end
 
 local described = false
+local ARTICUNO <const> = "pokered:SEAFOAM_ISLANDS_B4F:objects:3"
+local articunoInstalled = false
+
+function CoastStoryWorld.advanceArticuno(state)
+    if not state.plan or state.plan.scene ~= "coast-articuno" then
+        return false
+    end
+    if not state:valid() or not state:isTop() then
+        return true
+    end
+    if not state.coastArticuno or state.coastArticuno.epoch ~= state.epoch then
+        state.coastArticuno = { epoch = state.epoch, phase = "text" }
+        if state.plan.scene_script == "return" then
+            if KantoScenes and KantoScenes.reconcileActors then
+                KantoScenes.reconcileActors(state.game)
+            end
+            state:finish()
+            return true
+        end
+        state:source({ "_SeafoamIslandsB4FArticunoBattleText" }, function()
+            state:advance()
+        end)
+        return true
+    end
+    if state.coastArticuno.phase == "text" and state.plan.scene_script == "battle" then
+        state.coastArticuno.phase = "battle"
+        local request <const> = CoastStory.articunoRequest(state.session:flags().quest)
+        local ok, reason = FieldBattle.startSourceEncounter(state.game, request)
+        if not ok then
+            state:fail(reason)
+        end
+    end
+    return true
+end
 
 local function decorateActors(descriptor)
     if not descriptor or not descriptor.actors then
@@ -372,12 +406,48 @@ local function decorateActors(descriptor)
                 }
             end
         end
+        if spec.id == "pokered:SEAFOAM_ISLANDS_B4F:objects:3" then
+            spec.visibility[#spec.visibility + 1] = {
+                group = "quest", id = "EVENT_BEAT_ARTICUNO", equals = false,
+            }
+        end
     end
     return descriptor
 end
 
 function CoastStoryWorld.install()
     allowSurfConnections()
+    if not articunoInstalled then
+        local build <const> = SourceActors.objectDefinition
+        function SourceActors.objectDefinition(definition, event, spec, options)
+            local actor = build(definition, event, spec, options)
+            if event.id == ARTICUNO and options and options.questFlag then
+                local prior = actor.appearsIf
+                actor.appearsIf = function()
+                    if prior and not prior() then
+                        return false
+                    end
+                    return options.questFlag("EVENT_BEAT_ARTICUNO") ~= true
+                end
+            end
+            return actor
+        end
+        SourceEventHandlers[ARTICUNO] = function(observation)
+            return CoastStory.articunoPlan(observation)
+        end
+        SourceEvents.registerEventSource("coastArticuno", {
+            [ARTICUNO] = { kind = "bespoke", content = "coastArticuno" },
+        })
+        SourceEvents.registerTextSource("coastArticuno", CoastStory.articunoText)
+        local previous <const> = HideoutTowerController.advance
+        function HideoutTowerController.advance(state)
+            if CoastStoryWorld.advanceArticuno(state) then
+                return true
+            end
+            return previous(state)
+        end
+        articunoInstalled = true
+    end
     if not described then
         local describe = SourceActors.describe
         function SourceActors.describe(...)

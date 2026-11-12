@@ -681,6 +681,24 @@ by `CoastStory.current`. `CoastStory.currentTooFast` is that B4F
 predicate. `GameContext:fieldTravelRestrictions` still errors for
 every B4F coordinate, so it cannot call the predicate. That file is
 shared. The failing test is `tools/tests/test_lane_a_seafoam_current.py`
-and the wiring is `tools/notes/lane-a-seafoam-current.patch`. Articuno
-was not battled and the west exit was not attempted on top of this
-gap. Sequence 94 stays the continue point.
+and the wiring is `tools/notes/lane-a-seafoam-current.patch`.
+
+## Articuno was fought and the party blacked out
+
+Sequence 94 stands on B4F `(6, 2)` facing object 3. Pressing A shows
+`Gyaoo!` and starts the static encounter: Articuno, level 50, 150 HP,
+no trainer name. `SourceEncounters` treats it like Moltres. A win,
+catch, or run sets `EVENT_BEAT_ARTICUNO` and the sprite hides. A loss
+does not. Venusaur's Double-Edge brought it to 53 HP. Reflect was up,
+Petal Dance locked Venusaur, and Ice Beam knocked it out. The other
+five fainted in turn. The battle ended `defeat` with Articuno at 49
+HP. Money fell from 7808 to 3904. The party was healed at the Fuchsia
+checkpoint `(19, 28)`. `EVENT_BEAT_ARTICUNO` is still clear, and the
+bird is not on that map. Sequence 95 is that checkpoint, sha256
+`23cfd552d5ea417bed486d8865028321b44b5cf6dd29fd99329b6b6f52f380a6`
+(`seq95-adventure.a.json`). The clip is
+`20261112T085538Z-seafoam-b4f-articuno-battle.mp4`, 400×240 h264,
+89.92 seconds. `origin/cursor/linux-runtime-seams-fcc0` at `0c6ecb0a`
+still errors in `fieldTravelRestrictions` for all of B4F, so the
+current patch is not merged and the west exit was not attempted.
+Sequence 95 is the continue point.

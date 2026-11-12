@@ -356,6 +356,8 @@ function CoastStory.currentTooFast(map, x, y, flags)
     return x == 7 and y == 11
 end
 
+local ARTICUNO_FLAG <const> = "EVENT_BEAT_ARTICUNO"
+
 function CoastStory.articuno(beaten)
     if beaten then
         return nil, "already-fought"
@@ -367,8 +369,58 @@ function CoastStory.articuno(beaten)
         x = 6,
         y = 1,
         sight = 0,
-        flag = "EVENT_BEAT_ARTICUNO",
+        flag = ARTICUNO_FLAG,
     }
+end
+
+-- Same request shape as Moltres. SourceEncounters.prepare rejects anything
+-- that is not the pinned object, level, and non-loss hide flag.
+function CoastStory.articunoRequest(flags)
+    local bird <const> = CoastStory.articuno(flags and flags[ARTICUNO_FLAG] == true)
+    if not bird then
+        return nil, "already-fought"
+    end
+    return {
+        id = bird.id,
+        zone_id = "pokered:SEAFOAM_ISLANDS_B4F",
+        species = bird.species,
+        level = bird.level,
+        guards = { flags = { [bird.flag] = false }, items = {} },
+        rules = { capture = true, unidentified = false },
+        outcomes = {
+            victory = { flags = { [bird.flag] = true } },
+            caught = { flags = { [bird.flag] = true } },
+            run = { flags = { [bird.flag] = true } },
+            defeat = { flags = {} },
+        },
+    }
+end
+
+function CoastStory.articunoPlan(observation)
+    local receipt = observation.source_receipt
+    if receipt then
+        return {
+            status = "ready", scene = "coast-articuno", scene_script = "return", steps = {},
+            source_receipt = {
+                id = receipt.id, zone_id = receipt.zone_id, confirmed = receipt.confirmed,
+                kind = receipt.kind, completed = receipt.completed,
+            },
+        }
+    end
+    if observation.flags and observation.flags[ARTICUNO_FLAG] then
+        return { status = "already-complete", steps = {} }
+    end
+    return { status = "ready", scene = "coast-articuno", scene_script = "battle", steps = {} }
+end
+
+local articunoText
+function CoastStory.articunoText(label)
+    if not articunoText then
+        local data <const> = assert(json.decodeFile("data/zCoast/dialogue.json"))
+        assert(data.schema == 1 and data.source_revision == REVISION, "unverified coast dialogue")
+        articunoText = data.texts
+    end
+    return articunoText[label]
 end
 
 function CoastStory.secretKey()
