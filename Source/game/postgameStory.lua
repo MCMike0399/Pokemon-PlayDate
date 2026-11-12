@@ -62,36 +62,62 @@ local function listed(names, name)
     return false
 end
 
-function PostgameStory.mewtwoRequest(flags)
-    local row <const> = story().cave.mewtwo
+local function eachStatic(visit)
+    local data <const> = story()
+    visit(data.cave.mewtwo)
+    for _, row in ipairs(data.power_plant.statics) do
+        visit(row)
+    end
+end
+
+local function staticById(id)
+    local found
+    eachStatic(function(row)
+        if row.id == id then
+            found = row
+        end
+    end)
+    return found
+end
+
+function PostgameStory.staticRequest(id, flags)
+    local row <const> = assert(staticById(id), "unknown static")
     local flag <const> = row.flag
     assert(flags[flag] ~= true, "already-complete")
     local outcomes = {}
     for _, name in ipairs({"victory", "caught", "run", "defeat"}) do
         outcomes[name] = listed(row.battle.hide_on, name) and {flags = {[flag] = true}} or {flags = {}}
-        assert(listed(row.battle.hide_on, name) ~= listed(row.battle.stay_on, name), "mewtwo outcome overlap")
+        assert(listed(row.battle.hide_on, name) ~= listed(row.battle.stay_on, name), "static outcome overlap")
     end
     return {id = row.id, zone_id = "pokered:" .. row.map_constant, species = row.species:lower(), level = row.level,
         guards = {flags = {[flag] = false}, items = {}},
         rules = {capture = true, unidentified = false}, outcomes = outcomes}
 end
 
-function PostgameStory.mewtwoPlan(id, observation)
-    local row <const> = story().cave.mewtwo
-    assert(id == row.id, "mewtwo plan id")
+function PostgameStory.mewtwoRequest(flags)
+    return PostgameStory.staticRequest(story().cave.mewtwo.id, flags)
+end
+
+function PostgameStory.staticPlan(id, observation)
+    local row <const> = assert(staticById(id), "unknown static")
     if observation.source_receipt then
-        return {status = "ready", scene = "postgame", scene_script = "mewtwo-return", steps = {},
-            source_receipt = copy(observation.source_receipt)}
+        return {status = "ready", scene = "postgame", scene_script = "static-return", steps = {},
+            static_id = row.id, source_receipt = copy(observation.source_receipt)}
     end
     if observation.flags and observation.flags[row.flag] then
         return {status = "already-complete", steps = {}}
     end
-    return {status = "ready", scene = "postgame", scene_script = "mewtwo", cry = row.cry, steps = {}}
+    return {status = "ready", scene = "postgame", scene_script = "static", static_id = row.id,
+        text = row.text, cry = row.cry, steps = {}}
+end
+
+function PostgameStory.mewtwoPlan(id, observation)
+    return PostgameStory.staticPlan(id, observation)
 end
 
 function PostgameStory.visibility(id)
-    local row <const> = story().cave.mewtwo
-    if id == row.id then
+    local row <const> = staticById(id)
+    if row then
         return {visibility = {{group = "quest", id = row.flag, equals = false}}}
     end
 end
@@ -214,10 +240,24 @@ function PostgameStory.installEvents()
                 flag = "PICKUP:" .. item.id, success = {"_FoundItemText"}, full = {"_NoMoreRoomForItemText"}}
         end
     end
-    local mewtwo <const> = data.cave.mewtwo
-    events[mewtwo.id] = {kind = "bespoke", content = CONTENT}
-    SourceEventHandlers[mewtwo.id] = function(observation)
-        return PostgameStory.mewtwoPlan(mewtwo.id, observation)
+    local function addStatic(row)
+        events[row.id] = {kind = "bespoke", content = CONTENT}
+        SourceEventHandlers[row.id] = function(observation)
+            return PostgameStory.staticPlan(row.id, observation)
+        end
+    end
+    addStatic(data.cave.mewtwo)
+    for _, item in ipairs(data.power_plant.items) do
+        events[item.id] = {kind = "pickup", content = CONTENT, item = item.item,
+            flag = "PICKUP:" .. item.id, success = {"_FoundItemText"}, full = {"_NoMoreRoomForItemText"}}
+    end
+    for _, row in ipairs(data.power_plant.statics) do
+        addStatic(row)
+    end
+    local scientist <const> = data.fossil.scientist
+    events[scientist.id] = {kind = "bespoke", content = CONTENT}
+    SourceEventHandlers[scientist.id] = function()
+        return PostgameStory.fossilPlan(scientist.id)
     end
     SourceEvents.registerTextSource(CONTENT, PostgameStory.text)
     SourceEvents.registerEventSource(CONTENT, events)
@@ -225,7 +265,125 @@ function PostgameStory.installEvents()
     return true
 end
 
+function PostgameStory.fossilPlan(id)
+    local scientist <const> = story().fossil.scientist
+    assert(id == scientist.id, "fossil plan id")
+    return {status = "ready", scene = "postgame", scene_script = "fossil", steps = {}}
+end
+
+function PostgameStory.fossilOpen(session)
+    assert(FossilRevival, "fossil-service-unavailable")
+    local result <const> = FossilRevival.talk(session)
+    if result.status == "offer" then
+        return {ok = true, status = "offer", fossils = result.fossils,
+            labels = {"_CinnabarLabFossilRoomScientist1Text"}}
+    end
+    if result.status == "no-fossils" then
+        return {ok = true, status = "no-fossils", labels = {"_CinnabarLabFossilRoomScientist1NoFossilsText"}}
+    end
+    if result.status == "still-reviving" then
+        return {ok = true, status = "still-reviving", labels = {"_CinnabarLabFossilRoomScientist1GoForAWalkText"}}
+    end
+    if result.status == "revived" or result.status == "box-full" then
+        return {ok = result.status == "revived", status = result.status,
+            labels = {"_CinnabarLabFossilRoomScientist1FossilIsBackToLifeText"}}
+    end
+    return result
+end
+
+-- Selecting a fossil writes wFossilItem before Yes/No. Cancel does not.
+function PostgameStory.fossilSelect(session, symbol)
+    assert(FossilRevival, "fossil-service-unavailable")
+    local result <const> = FossilRevival.confirm(session, symbol, false)
+    if not result.ok then
+        return result
+    end
+    return {ok = true, status = "confirm", item = symbol,
+        labels = {"_CinnabarLabFossilRoomScientist1SeesFossilText"}}
+end
+
+function PostgameStory.fossilDecline()
+    if FossilRevival then
+        FossilRevival.cancel()
+    end
+    return {ok = true, status = "cancelled", labels = {"_CinnabarLabFossilRoomScientist1ComeAgainText"}}
+end
+
+function PostgameStory.fossilAnswer(session, symbol, accepted)
+    if accepted ~= true then
+        return PostgameStory.fossilDecline()
+    end
+    assert(FossilRevival, "fossil-service-unavailable")
+    local result <const> = FossilRevival.confirm(session, symbol, true)
+    if result.status ~= "reviving" then
+        return result
+    end
+    return {ok = true, status = "reviving", labels = {
+        "_CinnabarLabFossilRoomScientist1TakesFossilText",
+        "_CinnabarLabFossilRoomScientist1GoForAWalkText2"}}
+end
+
+local function showFossilLabels(state, labels, done)
+    state:source(labels, function()
+        if done then
+            done()
+        else
+            state:finish()
+        end
+    end)
+end
+
+function PostgameStory.presentFossil(state)
+    local opened <const> = PostgameStory.fossilOpen(state.session)
+    if opened.status ~= "offer" then
+        if not opened.labels then
+            state:fail(opened.status or "fossil-failed")
+            return
+        end
+        showFossilLabels(state, opened.labels)
+        return
+    end
+    showFossilLabels(state, opened.labels, function()
+        local names = {}
+        for _, symbol in ipairs(opened.fossils) do
+            local itemId <const> = ItemData.bySymbol[symbol]
+            names[#names + 1] = ItemData.definitions[itemId].name
+        end
+        state.menu:show(names, state:guard(function(index)
+            state.menu:hide()
+            local symbol <const> = opened.fossils[index]
+            local selected <const> = PostgameStory.fossilSelect(state.session, symbol)
+            if not selected.labels then
+                state:fail(selected.status or "fossil-failed")
+                return
+            end
+            showFossilLabels(state, selected.labels, function()
+                state.menu:show({"YES", "NO"}, state:guard(function(choice)
+                    state.menu:hide()
+                    local answer <const> = PostgameStory.fossilAnswer(state.session, symbol, choice == 1)
+                    if not answer.labels then
+                        state:fail(answer.status or "fossil-failed")
+                        return
+                    end
+                    showFossilLabels(state, answer.labels)
+                end), function()
+                    state.menu:hide()
+                    local answer <const> = PostgameStory.fossilAnswer(state.session, symbol, false)
+                    showFossilLabels(state, answer.labels)
+                end)
+            end)
+        end), function()
+            state.menu:hide()
+            showFossilLabels(state, PostgameStory.fossilDecline().labels)
+        end)
+    end)
+end
+
 function PostgameStory.onEnter(game)
+    local fossil <const> = story().fossil
+    if FossilRevival and currentZone and currentZone.stableID == fossil.island_zone then
+        FossilRevival.onMapLoad(game.session, fossil.island_map)
+    end
     local rematch <const> = story().rematch
     if currentZone and currentZone.stableID == rematch.hall_zone then
         hallEnteredSet = game.session:questFlag(story().cave.hide) == true
@@ -294,30 +452,39 @@ function PostgameStory.advanceScene(state)
     end
     if not state.postgameScene or state.postgameScene.epoch ~= state.epoch then
         state.postgameScene = {epoch = state.epoch, phase = "text"}
-        if state.plan.scene_script == "mewtwo" then
-            PostgameStory.playCry(state.plan.cry or "mewtwo")
-            state:source({"_MewtwoBattleText"}, function()
+        if state.plan.scene_script == "static" or state.plan.scene_script == "mewtwo" then
+            PostgameStory.playCry(state.plan.cry)
+            state:source({state.plan.text}, function()
                 state:advance()
             end)
             return true
         end
-        if state.plan.scene_script == "mewtwo-return" then
+        if state.plan.scene_script == "static-return" or state.plan.scene_script == "mewtwo-return" then
             if KantoScenes and KantoScenes.reconcileActors then
                 KantoScenes.reconcileActors(state.game)
             end
             state:finish()
             return true
         end
+        if state.plan.scene_script == "fossil" then
+            state.postgameScene.phase = "wait"
+            local ok, problem = pcall(PostgameStory.presentFossil, state)
+            if not ok then
+                state:fail(tostring(problem))
+            end
+            return true
+        end
         state:fail("unsupported-postgame-scene")
         return true
     end
-    if state.plan.scene_script == "mewtwo" and state.postgameScene.phase == "text" then
+    if (state.plan.scene_script == "static" or state.plan.scene_script == "mewtwo")
+        and state.postgameScene.phase == "text" then
         state.postgameScene.phase = "battle"
         if not FieldBattle or not FieldBattle.startSourceEncounter then
             state:fail("source-encounter-unavailable")
             return true
         end
-        local request <const> = PostgameStory.mewtwoRequest(state.session:flags().quest)
+        local request <const> = PostgameStory.staticRequest(state.plan.static_id, state.session:flags().quest)
         local started, reason = FieldBattle.startSourceEncounter(state.game, request)
         if not started then
             state:fail(reason)

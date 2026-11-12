@@ -1,0 +1,43 @@
+--- a/Source/domain/sessionCodec.lua
++++ b/Source/domain/sessionCodec.lua
+@@ -58,13 +58,31 @@
+     return GameSession._intro(result)
+ end
+ local safeStages={pre_oak=true,choose=true,pre_rival=true,done=true}
++-- wFossilItem is the saved item byte: 0, OLD_AMBER $1F, DOME_FOSSIL $29, HELIX_FOSSIL $2A.
++local FOSSIL_ITEM_BYTES={OLD_AMBER=31,DOME_FOSSIL=41,HELIX_FOSSIL=42}
++local function fossilItemByte(quests)
++    local byte=0
++    if type(quests)~="table" then return 0 end
++    for id,value in pairs(quests) do
++        if value==true and type(id)=="string" and id:sub(1,12)=="wFossilItem:" then
++            local item=FOSSIL_ITEM_BYTES[id:sub(13)]
++            assert(item and byte==0,"invalid wFossilItem")
++            byte=item
++        end
++    end
++    return byte
++end
+ local function normalize(record,deps)
+     deps=GameSession._dependencies(deps)
+     local data=copy(record)
+     checkpoint()
+     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
+-        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true,safari=true,coins=true,hallOfFame=true,playTime=true})
++        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true,safari=true,coins=true,hallOfFame=true,playTime=true,wFossilItem=true})
+     assert((data.version==1 or data.version==2 or data.version==3 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
++    if data.wFossilItem~=nil then
++        assert(type(data.wFossilItem)=="number" and data.wFossilItem==math.floor(data.wFossilItem),"invalid wFossilItem")
++        assert(data.wFossilItem==fossilItemByte(data.questFlags),"wFossilItem does not match the saved fossil")
++    end
+     object(data.title,{playerName=true,rivalName=true})
+     assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
+     local intro=introFromWire(data.intro)
+@@ -194,6 +212,7 @@
+             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
+             party=assert(current.party:toData(unique)),storage=assert(current.storage:toData(unique)),inventory=current.inventory:toData(),itemStorage=current.itemStorage:toData()}
+         data.daycare = Daycare.toData(session, unique)
++        data.wFossilItem = fossilItemByte(data.questFlags)
+         if exportingSession ~= session then
+             normalize(data, current.deps)
+         else

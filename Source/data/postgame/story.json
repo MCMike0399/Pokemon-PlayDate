@@ -352,6 +352,532 @@
     },
     "opens_when": "HallOfFame HideObject"
   },
+  "fossil": {
+    "clear_flag": "EVENT_LAB_STILL_REVIVING_FOSSIL",
+    "island_map": "CINNABAR_ISLAND",
+    "island_zone": "pokered:CINNABAR_ISLAND",
+    "item_bytes": {
+      "DOME_FOSSIL": 41,
+      "HELIX_FOSSIL": 42,
+      "OLD_AMBER": 31
+    },
+    "scientist": {
+      "id": "pokered:CINNABAR_LAB_FOSSIL_ROOM:objects:1",
+      "sprite": "SPRITE_SCIENTIST",
+      "x": 5,
+      "y": 2
+    }
+  },
+  "power_plant": {
+    "grass": [
+      {
+        "index": 0,
+        "level": 21,
+        "species": "voltorb",
+        "species_source": "VOLTORB",
+        "weight_256": 51
+      },
+      {
+        "index": 1,
+        "level": 21,
+        "species": "magnemite",
+        "species_source": "MAGNEMITE",
+        "weight_256": 51
+      },
+      {
+        "index": 2,
+        "level": 20,
+        "species": "pikachu",
+        "species_source": "PIKACHU",
+        "weight_256": 39
+      },
+      {
+        "index": 3,
+        "level": 24,
+        "species": "pikachu",
+        "species_source": "PIKACHU",
+        "weight_256": 25
+      },
+      {
+        "index": 4,
+        "level": 23,
+        "species": "magnemite",
+        "species_source": "MAGNEMITE",
+        "weight_256": 25
+      },
+      {
+        "index": 5,
+        "level": 23,
+        "species": "voltorb",
+        "species_source": "VOLTORB",
+        "weight_256": 25
+      },
+      {
+        "index": 6,
+        "level": 32,
+        "species": "magneton",
+        "species_source": "MAGNETON",
+        "weight_256": 13
+      },
+      {
+        "index": 7,
+        "level": 35,
+        "species": "magneton",
+        "species_source": "MAGNETON",
+        "weight_256": 13
+      },
+      {
+        "index": 8,
+        "level": 33,
+        "species": "raichu",
+        "species_source": "RAICHU",
+        "weight_256": 11
+      },
+      {
+        "index": 9,
+        "level": 36,
+        "species": "raichu",
+        "species_source": "RAICHU",
+        "weight_256": 3
+      }
+    ],
+    "grass_rate": 10,
+    "items": [
+      {
+        "id": "pokered:POWER_PLANT:objects:10",
+        "index": 10,
+        "item": "carbos",
+        "symbol": "CARBOS",
+        "x": 7,
+        "y": 25
+      },
+      {
+        "id": "pokered:POWER_PLANT:objects:11",
+        "index": 11,
+        "item": "hpUp",
+        "symbol": "HP_UP",
+        "x": 28,
+        "y": 3
+      },
+      {
+        "id": "pokered:POWER_PLANT:objects:12",
+        "index": 12,
+        "item": "rareCandy",
+        "symbol": "RARE_CANDY",
+        "x": 34,
+        "y": 3
+      },
+      {
+        "id": "pokered:POWER_PLANT:objects:13",
+        "index": 13,
+        "item": "tm25",
+        "symbol": "TM_THUNDER",
+        "x": 26,
+        "y": 32
+      },
+      {
+        "id": "pokered:POWER_PLANT:objects:14",
+        "index": 14,
+        "item": "tm33",
+        "symbol": "TM_REFLECT",
+        "x": 20,
+        "y": 32
+      }
+    ],
+    "map": "PowerPlant",
+    "map_constant": "POWER_PLANT",
+    "statics": [
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_0",
+        "id": "pokered:POWER_PLANT:objects:1",
+        "index": 1,
+        "level": 40,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            9,
+            19
+          ],
+          [
+            9,
+            21
+          ],
+          [
+            8,
+            20
+          ],
+          [
+            10,
+            20
+          ]
+        ],
+        "species": "VOLTORB",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 9,
+        "y": 20
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_1",
+        "id": "pokered:POWER_PLANT:objects:2",
+        "index": 2,
+        "level": 40,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            32,
+            17
+          ],
+          [
+            32,
+            19
+          ],
+          [
+            31,
+            18
+          ],
+          [
+            33,
+            18
+          ]
+        ],
+        "species": "VOLTORB",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 32,
+        "y": 18
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_2",
+        "id": "pokered:POWER_PLANT:objects:3",
+        "index": 3,
+        "level": 40,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            21,
+            24
+          ],
+          [
+            21,
+            26
+          ],
+          [
+            20,
+            25
+          ],
+          [
+            22,
+            25
+          ]
+        ],
+        "species": "VOLTORB",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 21,
+        "y": 25
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_3",
+        "id": "pokered:POWER_PLANT:objects:4",
+        "index": 4,
+        "level": 43,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            25,
+            17
+          ],
+          [
+            25,
+            19
+          ],
+          [
+            24,
+            18
+          ],
+          [
+            26,
+            18
+          ]
+        ],
+        "species": "ELECTRODE",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 25,
+        "y": 18
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_4",
+        "id": "pokered:POWER_PLANT:objects:5",
+        "index": 5,
+        "level": 40,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            23,
+            33
+          ],
+          [
+            23,
+            35
+          ],
+          [
+            22,
+            34
+          ],
+          [
+            24,
+            34
+          ]
+        ],
+        "species": "VOLTORB",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 23,
+        "y": 34
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_5",
+        "id": "pokered:POWER_PLANT:objects:6",
+        "index": 6,
+        "level": 40,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            26,
+            27
+          ],
+          [
+            26,
+            29
+          ],
+          [
+            25,
+            28
+          ],
+          [
+            27,
+            28
+          ]
+        ],
+        "species": "VOLTORB",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 26,
+        "y": 28
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_6",
+        "id": "pokered:POWER_PLANT:objects:7",
+        "index": 7,
+        "level": 43,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            21,
+            13
+          ],
+          [
+            21,
+            15
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            22,
+            14
+          ]
+        ],
+        "species": "ELECTRODE",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 21,
+        "y": 14
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "disguised": true,
+        "flag": "EVENT_BEAT_POWER_PLANT_VOLTORB_7",
+        "id": "pokered:POWER_PLANT:objects:8",
+        "index": 8,
+        "level": 40,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            37,
+            31
+          ],
+          [
+            37,
+            33
+          ],
+          [
+            36,
+            32
+          ],
+          [
+            38,
+            32
+          ]
+        ],
+        "species": "VOLTORB",
+        "sprite": "SPRITE_POKE_BALL",
+        "text": "_PowerPlantVoltorbBattleText",
+        "x": 37,
+        "y": 32
+      },
+      {
+        "battle": {
+          "hide_on": [
+            "victory",
+            "caught",
+            "run"
+          ],
+          "lost_marker": "LOST_BATTLE",
+          "source": "home/trainers.asm:EndTrainerBattle",
+          "stay_on": [
+            "defeat"
+          ]
+        },
+        "cry": "zapdos",
+        "disguised": false,
+        "flag": "EVENT_BEAT_ZAPDOS",
+        "id": "pokered:POWER_PLANT:objects:9",
+        "index": 9,
+        "level": 50,
+        "map_constant": "POWER_PLANT",
+        "positions": [
+          [
+            4,
+            8
+          ],
+          [
+            4,
+            10
+          ],
+          [
+            3,
+            9
+          ],
+          [
+            5,
+            9
+          ]
+        ],
+        "species": "ZAPDOS",
+        "sprite": "SPRITE_BIRD",
+        "text": "_PowerPlantZapdosBattleText",
+        "x": 4,
+        "y": 9
+      }
+    ],
+    "water_rate": 0
+  },
   "rematch": {
     "champion_flag": "EVENT_BEAT_CHAMPION_RIVAL",
     "continue_spawn": {

@@ -1,11 +1,11 @@
--- Unactivated Cinnabar Lab fossil revival. Maps stay uninstalled.
--- This module does not register the scientist, place the lab, or run from main.
+-- Cinnabar Lab fossil revival. The lab map is already installed.
+-- This module does not register the scientist. PostgameStory does.
 -- ROOT_HOOK: import "game/fossilRevival"
 -- ROOT_ANCHOR: import "domain/gameSession"
--- That line belongs directly after the anchor. Loading the module does not make the lab playable.
--- wFossilItem and wFossilMon are not codec fields. The choice is two quest flags,
--- wFossilItem:<item> and wFossilMon:<species>. Continue reads that pair from the
--- decoded session. No sessionCodec, GameSession, or SaveStore patch is required.
+-- The runtime choice is two quest flags, wFossilItem:<item> and wFossilMon:<species>.
+-- The WRAM byte wFossilItem (0, OLD_AMBER $1F, DOME_FOSSIL $29, HELIX_FOSSIL $2A)
+-- is the lane E codec field in tools/notes/lane-e-fossil-item.patch.
+-- This file does not edit sessionCodec.lua.
 import "domain/party"
 import "domain/storage"
 import "game/lateKantoStory"
@@ -168,6 +168,30 @@ function FossilRevival.pending(session)
     local value = durableChoice(session)
     if not value then return nil end
     return {item = value.item, species = value.species}
+end
+
+-- ram/wram.asm wFossilItem. The item byte is the saved fossil; 0 means none.
+function FossilRevival.storedItem(session)
+    local value = durableChoice(session)
+    if not value then return 0 end
+    local numeric = ItemData.definitions[itemId(value.item)].numericId
+    assert(numeric == 31 or numeric == 41 or numeric == 42, "fossil byte")
+    return numeric
+end
+
+-- scripts/MtMoonB2F.asm gives one fossil. The other object is hidden, and the
+-- super nerd takes it. Both flags set is not a state the script can reach.
+function FossilRevival.moonChoice(flags)
+    flags = type(flags) == "table" and flags or {}
+    local dome = flags.EVENT_GOT_DOME_FOSSIL == true
+    local helix = flags.EVENT_GOT_HELIX_FOSSIL == true
+    if dome and helix then
+        return {ok = false, status = "both-fossils"}
+    end
+    local open = not dome and not helix
+    return {ok = true, status = dome and "dome" or helix and "helix" or "either",
+        dome_visible = open, helix_visible = open,
+        taken = dome and "DOME_FOSSIL" or helix and "HELIX_FOSSIL" or nil}
 end
 
 function FossilRevival.fossilsInBag(session, revival)
