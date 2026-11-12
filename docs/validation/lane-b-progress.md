@@ -518,3 +518,50 @@ Both `EVENT_SEAFOAM3` flags are now set. The next step is the hole at
 `(19,6)`, which lands on B3F. Articuno, the west exit, Cinnabar, the
 Mansion, the Secret Key, and Blaine are still ahead. The boulder patch
 stays until those pass. Sequence 86 is the continue point.
+
+## The south-row refusal is the cavern land pair
+
+The B2F steps that stopped on `source-pair-collision` are the land
+table, not a port-only wall. `data/tilesets/pair_collision_tile_ids.asm`
+line 7 is `db CAVERN, $20, $05`. `home/overworld.asm` checks that table
+while walking (`CheckForTilePairCollisions`, the land path near line
+1239) and the water table while surfing (line 23 is
+`db CAVERN, $14, $05`). The refused B2F steps were foot `$20` into foot
+`$05`. Routing around them matches pokered. The port also applies the
+water pair while walking; none of these refusals needed that row.
+
+## The B2F hole drops into the left current
+
+Continue from sequence 86. The hole at `(19,6)` is the left boulder.
+The landing is B3F `(18,7)`, which is water, so the arrival is surfing.
+The scripted current then runs
+`scripts/SeafoamIslandsB3F.asm` lines 131–135
+(`PAD_DOWN 6`, `PAD_RIGHT 2`, `PAD_DOWN 4`). The observed path is
+`(18,8)`, `(18,10)`, `(19,11)`, `(20,12)`, `(20,14)`, `(20,16)`, and it
+stops on `(20,17)` facing down, still surfing. Both current rocks are
+visible: `objects:5` at `(18,6)` and `objects:6` at `(19,6)`. The four
+pushable boulders are still there. Pause SAVE is sequence 87, sha256
+`3d1c4a831854663c2f258b16e606ca33a4194262918df406875d281ba733bca4`
+(`seq87-adventure.a.json`). The recording was 330 frames and was
+discarded. It is not an evidence clip.
+
+## The water stair does not fire while surfing
+
+`(20,17)` is `SeafoamIslandsB3F` warps:6, to B4F `(20,17)`. Sequence 88
+stepped off that tile to `(20,15)` and back. The warp did not fire.
+`Source/game/overworldState.lua` lines 77–90 return while
+`player.fieldStep` is set, and the `getDoorAt` check is at line 96.
+Surf steps set `fieldStep`, so a surf landing never takes a door.
+Walking cannot enter the water stair. This is the same file for every
+map, so it is not patched here. The failing test is
+`tools/tests/test_lane_a_surf_door.py` and the fix is
+`tools/notes/lane-a-surf-door.patch`. Sequence 88 is the same pose,
+sha256
+`05f666d4a19955fba2944eeed8108f4c8ee40f3fc6bb6c54c04bd8c16321be12`
+(`seq88-adventure.b.json`). Its recording was 342 frames and was
+discarded. Sequence 88 is the continue point. The land stair at
+`(8,6)` is reachable from this water without the water pair on line 23,
+and that is the next step onto B4F. Starting Surf while the zone is
+B4F still raises "Seafoam field current controller is not installed"
+in `Source/game/context.lua`. That file stays as it is. Articuno at
+`(6,1)` is not on the foot component of the `(11,7)` landing.

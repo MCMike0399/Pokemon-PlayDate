@@ -1,0 +1,19 @@
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -84,8 +84,16 @@
+         if not player.fieldStep and player.stepJustFinished then
+             game.session:daycareStep()
+         if SafariRuntime then
+             SafariRuntime.completedStep(game)
+         end
++            -- A surf step finishes inside this branch. The door check
++            -- after the return never runs, so Seafoam's water stairs
++            -- (B3F (20, 17) and (21, 17)) cannot be taken while surfing.
++            local door = currentZone:getDoorAt(player.gridX, player.gridY)
++            if door then
++                self.machine:change("doorWarp", door)
++                return
++            end
+         end
+         return
+     end
