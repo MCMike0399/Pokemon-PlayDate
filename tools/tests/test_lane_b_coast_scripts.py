@@ -22,35 +22,33 @@ dofile(arg[1])
 local function join(list)
   return table.concat(list or {}, ",")
 end
-local stairs = CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 15, 8, {
+local closed = {
   EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE = true,
   EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE = true,
-}, false)
+}
+local stairs = CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 15, 8, {}, false)
 assert(stairs and stairs.kind == "b3-stairs" and stairs.forced_warp and not stairs.surf)
 assert(join(stairs.buttons) == "down,down,down,right,right,right,right,right,down,down,down,down,down,down")
-assert(CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 15, 8, {}, false) == nil)
+assert(CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 15, 8, closed, false) == nil)
 
-local quiet = CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 18, 7, {
-  EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE = true,
-  EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE = true,
-}, false)
+local quiet = CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 18, 7, closed, false)
 assert(quiet == nil)
-local left = CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 18, 7, {
-  EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE = true,
-  EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE = true,
-}, true)
+assert(CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 18, 7, closed, true) == nil)
+local left = CoastStory.current("pokered:SEAFOAM_ISLANDS_B3F", 18, 7, {}, true)
 assert(left.surf and left.forced_warp and join(left.buttons) == "down,down,down,down,right,right,down,down,down,down,down,down")
 
-local exit = CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 20, 16, {
-  EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE = true,
-  EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE = true,
-}, false)
+local exit = CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 20, 16, {}, false)
 assert(join(exit.buttons) == "up" and exit.forced_warp == false)
-local mouth = CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 21, 17, {
-  EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE = true,
-  EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE = true,
-}, false)
+assert(CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 20, 16, closed, false) == nil)
+local mouth = CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 21, 17, {}, false)
 assert(join(mouth.buttons) == "up,up")
+assert(CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 21, 17, closed, false) == nil)
+local pool = CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 4, 14, {}, true)
+assert(pool.kind == "b4-left" and pool.surf and pool.dismount_before_last and pool.buttons[1] == "up")
+assert(CoastStory.current("pokered:SEAFOAM_ISLANDS_B4F", 4, 14, {
+  EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE = true,
+  EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE = true,
+}, true) == nil)
 
 local fall = CoastStory.boulderFall("pokered:SEAFOAM_ISLANDS_B2F", 22, 6)
 assert(fall.index == 2 and fall.flag == "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE")

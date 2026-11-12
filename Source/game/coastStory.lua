@@ -291,19 +291,24 @@ end
 
 -- Currents that the default map script checks every step pass arrival=false.
 -- The four surf tiles run only as the dungeon-warp MoveObject script.
+-- CheckBothEventsSet sets Z when both events are set. SeafoamIslandsB3F
+-- and SeafoamIslandsB4F `ret z` / `jr z` before queueing buttons, so the
+-- current runs only while that boulder pair is still open. Once both
+-- SEAFOAM3 boulders are down, (15, 8) is ordinary water and the B3F
+-- crossing to the east shore is walkable.
 function CoastStory.current(map, x, y, flags, arrival)
     flags = flags or {}
     local b3 = both(flags, "EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE", "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE")
     local b4 = both(flags, "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE")
     if map == "pokered:SEAFOAM_ISLANDS_B3F" and x == 15 and y == 8 then
-        if not b3 then
+        if b3 then
             return nil
         end
         return { kind = "b3-stairs", buttons = copy(B3_STAIRS), forced_warp = true, surf = false }
     end
     if arrival and map == "pokered:SEAFOAM_ISLANDS_B3F" and y == 7 and (x == 18 or x == 19) then
-        if not b3 then
-            return { kind = x == 18 and "b3-left" or "b3-right", surf = true }
+        if b3 then
+            return nil
         end
         return {
             kind = x == 18 and "b3-left" or "b3-right",
@@ -313,20 +318,20 @@ function CoastStory.current(map, x, y, flags, arrival)
         }
     end
     if arrival and map == "pokered:SEAFOAM_ISLANDS_B4F" and y == 14 and (x == 4 or x == 5) then
-        local row = {
+        if b4 then
+            return nil
+        end
+        return {
             kind = x == 4 and "b4-left" or "b4-right",
+            buttons = copy(x == 4 and B4_LEFT or B4_RIGHT),
             surf = true,
             dismount_before_last = true,
         }
-        if b4 then
-            row.buttons = copy(x == 4 and B4_LEFT or B4_RIGHT)
-        end
-        return row
     end
     if map == "pokered:SEAFOAM_ISLANDS_B4F" then
         for index, coord in ipairs(B4_EXIT) do
             if coord.x == x and coord.y == y then
-                if not b3 then
+                if b3 then
                     return nil
                 end
                 local ups = index >= 3 and 1 or 2
