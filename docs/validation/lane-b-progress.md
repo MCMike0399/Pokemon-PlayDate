@@ -205,5 +205,56 @@ fails on that assignment. `tools/notes/lane-a-boulder-push.patch`
 remembers `options.npc` and still evaluates `npc.gridX - entry.padding`.
 It does not skip the call when the grid is missing. `git apply --check`
 accepts it. No new save and no clip: the boulder does not move until
-that patch is in the shared file. Sequence 65 is still the newest
-earned save.
+that patch is in the shared file. Sequence 65 was the newest earned
+save when that note was written.
+
+The commit that records the reproduction is
+`43bd57edf7a9a70a852a3b4d9b2d45709604e5d0`. Its bundle is
+`/opt/cursor/artifacts/lane-b/lane-b-43bd57ed.bundle`, range
+`7a31867a..HEAD`, sha256
+`d89689a586a56c09e83494ce4cada4483f0c6953d287d62ae3e2e4cda0e27c88`.
+
+## East to Route 14 while the boulder waits
+
+Lane A has the boulder handoff. `fieldTravelState.lua` was not edited
+and the boulder was not pushed. There is no Fly user, so Pallet is a
+walk. Continue from sequence 65, real button input only.
+
+The south mouth at `(4,17)` is an edge door. Standing on it and
+walking down left the cave onto Route 20 `(48,6)` facing down. Pause
+SAVE wrote sequence 66, sha256
+`d316cf43c42a2b7c2b15ef56eacc643892ad569b73be8842add9b68042ff44c9`
+(`seq66-adventure.b.json`). Surf from `(61,5)` onto `(62,5)`, east
+along the water, and one step right entered Route 19 `(0,40)` still
+surfing. Sequence 67, sha256
+`95b0e1a20af2a8f0f6a298873f6e321d00adbbf8817ceec5bc255707fd97859d`
+(`seq67-adventure.a.json`). North onto the shore and up into Fuchsia
+`(23,35)`. Sequence 68, sha256
+`5cd0e00b0b72dc5b759ea25dbe54b802ea66f76b98865cd58d86035c2e9f5306`
+(`seq68-adventure.b.json`). East through the city onto Route 15
+`(0,8)`. Sequence 69, sha256
+`95e6fb3adab522476bfa1306524d75a608137abde985c8703801cfe760c23a0b`
+(`seq69-adventure.a.json`).
+
+The west gate is a step door at `(7,8)`. Walking through
+`Route15Gate1F` and out the east door returned to Route 15 `(14,8)`.
+The clip starts at `(15,8)`, on the road east of that gate. It follows
+the road to `(59,8)`, steps onto Route 14 `(0,44)`, and the road turns
+north. Pause SAVE wrote sequence 70 at Route 14 `(16,38)` facing up,
+sha256
+`b418bd7ced77237885c85e559a977b7e45338516d86fcd80b9ffe012ed0c2b90`
+(`seq70-adventure.b.json`). Wild battles fled. No flag or badge was
+set.
+
+The clip is
+`/opt/cursor/artifacts/lane-b/20261112T044323Z-route15-route14.mp4`,
+400×240 h264, 74.56 seconds, 2236 frames. Sequence 70 is the continue
+point. Route 14's east edge is the way on to Route 13. Seafoam stays
+where it is until the shared boulder fix is in the tree.
+
+Pallet Town `(5,17)` down and Route 21 `(3,89)` down are the same
+foot-`$14` water edge as Route 19. `KantoWorld.connection` still
+returns blocked-origin there. The failing test names those two steps,
+and `tools/notes/lane-a-surf-edge.patch` is unchanged. `git apply
+--check` accepts it. `kantoWorld.lua` was not edited. The coast wrap
+already accepts a surfing step on that pair.

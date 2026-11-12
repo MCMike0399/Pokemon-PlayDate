@@ -2,9 +2,10 @@
 """Lane A: a surfing water edge is not a blocked origin.
 
 KantoWorld.connection returns blocked-origin for every collision ~= 0 cell
-before it asks for a source connection. Route 19 (0, 40) facing left is
-foot $14 on both banks. A surfing step there is the Route 20 door at
-(99, 4). A walking step on that cell stays blocked.
+before it asks for a source connection. These surfing steps are foot $14
+on both banks: Route 19 (0, 40) left to Route 20 (99, 4), Pallet Town
+(5, 17) down to Route 21 (5, 0), and Route 21 (3, 89) down to Cinnabar
+(3, 0). A walking step on those cells stays blocked.
 
 The fix is tools/notes/lane-a-surf-edge.patch. It does not belong in this
 branch: kantoWorld.lua is shared. CoastStoryWorld still answers the door
