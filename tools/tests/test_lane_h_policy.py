@@ -1,9 +1,8 @@
 """Post-Hall-of-Fame Mew gift and LINK CABLE.
 
 Miguel picked these on Nov 12, 2026 at 9:43 AM CST. Mew is a level 5 gift,
-one per save. LINK CABLE is a stone. The bag row and the evolution rules are
-the lane E patch, so using the cable is an expected failure until that patch
-lands. The walk is the session and the map graph, not a simulator clip.
+one per save. LINK CABLE is a stone. Lane E applied the bag row and the
+evolution rules. The walk is the session and the map graph, not a simulator clip.
 """
 import json
 import os
@@ -126,7 +125,6 @@ class PolicyGiftTests(unittest.TestCase):
         if not host["kadabra"]["ok"]:
             self.assertIn("invalid-stone", host["kadabra"]["error"])
 
-    @unittest.expectedFailure
     def test_link_cable_evolves_kadabra_and_not_squirtle(self):
         host = self.host
         self.assertTrue(host["cable"]["ok"])
@@ -138,7 +136,7 @@ class PolicyGiftTests(unittest.TestCase):
         self.assertIn("no-evolution", host["squirtle"]["error"])
         self.assertEqual(host["squirtle"]["species"], "squirtle")
 
-    def test_link_cable_patch_is_one_dry_run(self):
+    def test_link_cable_patch_is_already_applied(self):
         patch = PATCH.read_text()
         self.assertIn("linkCable", patch)
         self.assertIn("LINK CABLE", patch)
@@ -149,4 +147,4 @@ class PolicyGiftTests(unittest.TestCase):
         completed = subprocess.run(
             ["patch", "--dry-run", "--fuzz=0", "-p1"],
             input=patch, text=True, capture_output=True, cwd=ROOT)
-        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
+        self.assertNotEqual(completed.returncode, 0, completed.stdout)

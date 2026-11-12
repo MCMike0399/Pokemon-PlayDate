@@ -1,0 +1,7 @@
+{
+  "commands": [
+    {"op": "fixture", "options": {"intro": "skip", "seed": 7, "player_pokemon": {"species": "squirtle", "level": 5}}},
+    "wait 8",
+    "contracts postgame-statics"
+  ]
+}

@@ -1,9 +1,9 @@
 """Headless post-Hall-of-Fame walk to Mewtwo and Zapdos.
 
-The battle step is an expected failure until lane E applies
-tools/notes/lane-e-static-encounters.patch. Every step before that request
-has to succeed. There is no Playdate SDK here, so this is the session and
-the map graph, not a simulator clip. The Pallet actor snapshot is a fixture.
+Lane E applied tools/notes/lane-e-static-encounters.patch, so the battle
+step prepares Mewtwo and Zapdos. Every step before that request has to
+succeed. The Pallet actor snapshot is a fixture. The Simulator contracts
+are a separate run.
 """
 import json
 import os
@@ -116,7 +116,6 @@ class PostgameJourneyTests(unittest.TestCase):
             if not host[name]["ok"]:
                 self.assertIn("unsupported source encounter", host[name]["error"])
 
-    @unittest.expectedFailure
     def test_battle_step_prepares_mewtwo_and_zapdos(self):
         self.assertTrue(self.host["mewtwo_battle"]["ok"])
         self.assertTrue(self.host["zapdos_battle"]["ok"])

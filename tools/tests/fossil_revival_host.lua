@@ -207,6 +207,7 @@ import "domain/npcTrades"
 import "domain/pokemonCodec"
 import "game/daycare"
 import "domain/sessionCodec"
+import "game/lateKantoStory"
 import "game/fossilRevival"
 
 local processes = setmetatable({}, {__mode = "k"})
