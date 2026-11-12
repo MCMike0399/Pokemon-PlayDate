@@ -1,5 +1,40 @@
 # Full-game execution ledger
 
+## 2026-11-12 Per-process shards, still red, main not moved
+
+Each catalog exporter and each contract suite was launched in its own Simulator so the 16 MiB pool resets. `MallocPoolSize` stayed 16645684. No budget was lowered. No skip or expected-failure marker was added. The timebox closed the run at 89 of 129 contract suites. `main` stays `bf92c4fc`. Host suite, production compile, and the boot budget were not re-run.
+
+Catalog compare is red on both sides. Neither exporter finished a `catalog.json`. Head is `8f9acbb3` plus the shard runner. Main's four launches used a detached worktree of `bf92c4fc` with only the named-exporter command added.
+
+- `pewter`, head: `pewterCatalogExporter.lua:70` `copyImage failed: out of memory` after 222 frames. Main: `catalog.lua:127` `not enough memory` after 133 frames. Also red on `bf92c4fc`.
+- `cerulean`, head: `ceruleanCatalogExporter.lua:129` `malloc(207376)` after 398 frames. Main: `not enough memory` after 5 frames. Also red on `bf92c4fc`.
+- `vermilion`, head: shared painter `ceruleanCatalogExporter.lua:129` `malloc(184336)` after 390 frames. Main: `not enough memory` after 5 frames. Also red on `bf92c4fc`.
+- `midgame`, head: shared painter `ceruleanCatalogExporter.lua:129` `malloc(230416)` after 630 frames. Main: `not enough memory` after 5 frames. Also red on `bf92c4fc`.
+
+Contract shards that fail on head and pass on `bf92c4fc`:
+
+- `learning`: `forgot/learned narration: expected 2, got 3`.
+- `items`: `unexpected item linkCable`.
+- `session`: `GameSession` pointer `~= nil` in the malformed-candidate test.
+- `event-ui`: expected `RED got POTION!`, got `RED got`.
+- `pokedex`: nickname codec expected `nil`, got a table.
+- `battleLearningContracts`: `battleLearningContracts.lua:109` did not find `did not learn`; the dialog text begins `CHARMANDER did`.
+- `title-recovery-probe`: `metadata` is nil, then `onSelect` is not callable.
+- `home-lead`: `All boys leave` assertion at `homeLeadContracts.lua:123`, and the MOM rest assertion at line 137.
+
+Contract shards that are also red on `bf92c4fc`:
+
+- `persistence`: both `not enough memory`.
+- `world`: both `overworld.lua:150` `malloc(92176)`.
+- `viridian-slice`: both `expected 1, got 0`, then the same `malloc(92176)`.
+- `capture-animation`: both `expected false, got true`.
+- `pewterProviderContracts`: both `expected 1, got 0`, then `not enough memory`.
+- `brock-field-items`: both `field-town-map-forest: 3637 source-map RGBA pixels differ`.
+- `cerulean-catalog`: both `not enough memory`, then `unknown Blue source actor`, a blocked warp, and map `malloc` failures.
+- `comprehensive-catalog`: both `not enough memory`.
+
+73 contract shards passed on head. These 40 were not started before the deadline: `move-failure`, `source-maps`, `source-events`, `source-text`, `scripted-npc`, `generic-actors`, `source-map-activation`, `cerulean-content`, `cerulean-story`, `cerulean-scenes`, `cerulean-routes`, `tutorial-escort`, `kanto-scenes`, `kanto-services`, `common-abilities`, `cerulean-ambient-dialogue`, `entry-abilities`, `contact-abilities`, `field-moves`, `field-world`, `vermilion-gifts`, `vermilion-story`, `daycare`, `vermilion-preparation`, `vermilion-ship`, `field-acquisition`, `vermilion-abilities`, `vermilion-catalog`, `cave-encounters`, `pickup`, `grass-cut`, `vermilion-ambient`, `battle-presentation`, `approved-qol`, `npc-trades`, `saffron-guards`, `field-travel`, `source-encounters`, `field-gear`, `celadon-services`.
+
 ## 2026-11-12 Bisect of the two red gates
 
 The range is `bf92c4fc` (current `main`) through `bd43dc3e`. `26a9d9d5`, `2c223be7`, and the LINK CABLE and Mew map-pin regenerations were not given their own Simulator runs. Both ends of the range are already red, and `catalog.lua` and `contracts.lua` do not differ between those ends, so the first bad commit is at or before `bf92c4fc`.
@@ -8,7 +43,7 @@ The range is `bf92c4fc` (current `main`) through `bd43dc3e`. `26a9d9d5`, `2c223b
 
 On the uncommitted tree after `bd43dc3e`, dropping the contract module tables takes the catalog command from about 12505 KiB to 9156 KiB. Dropping the shared compact catalogue, which the world provider also retains, takes 12452 KiB to 10759 KiB. Cerulean then finishes near 10171 KiB. One path set cannot grow past 8192 slots: 8000 placeholder keys reached 9849 KiB and the next growth died. A dense image array has the same ceiling: reserving 8192 slots reached 9299 KiB and the next growth, toward 12000, died. Vermilion's inventory still dies after Pewter at about 11394 KiB. The five gates are not green. `MallocPoolSize` stayed 16645684. `main` stays `bf92c4fc`.
 
-The post-FF queue, still frozen until the first main fast-forward, and re-gated before each further one. These block the starter runs and land first: lane B `cursor/lane-b-south-loop` `a4d4fba4` `tools/notes/lane-e-learn-pages.patch` and `tools/tests/test_lane_e_learn_pages.py` (`LearningState:showAsk` opens YES/NO only after the trying-to-learn text has paged through the two-line box, per pokered); lane B `f97a1c97` `tools/notes/lane-e-trainer-lease.patch` and `tools/tests/test_lane_e_trainer_lease.py` (`EventState:startTrainer` releases the scripted walk's actor lease before the trainer claim); lane B `851797d5` `tools/notes/lane-d-route22-second-rival.patch` and `tools/tests/test_lane_d_route22_second_rival.py`. Review those three as lane E code with their tests, keep the lease test as an expectedFailure until applied, and verify the lease and Route 22 rival against `af519899`. Then lane G pull `cursor/lane-g-front-end` through `0dadd38a` (`bc3add2b`, then `fde6a429`, then `0dadd38a`; each step only lane G files plus its patch and test notes), then `lane-e-dialog-font`, `lane-e-battle-hud`, `lane-e-battle-intro-text`, `lane-e-battle-sprite-order`, `lane-e-sprite-mask`, and `lane-e-enemy-platform-shift`, each expectedFailure turning green, with every battle-file hunk reviewed as lane E code and both provenance files regenerated. After that, the rest in the previous order: lane H through `53103630`; lane F `01d20480` with `lane-e-audio-gaps.patch`; lane B `lane-e-battle-message.patch` (already applied at `2c223be7`); lane H `lane-e-battle-text-flicker.patch` from `7b1f1925` on `cursor/lane-h-postgame` after the lane G pull, because both touch `battleScene.lua`; lane B prize-text `f0dd27db`; then Pallet mockup C and "Now saving...". A cave/indoor wild-encounter patch from lane B is likely to follow.
+The post-FF queue, still frozen until the first main fast-forward, and re-gated before each further one. These block the starter runs and land first: lane B `cursor/lane-b-south-loop` `a4d4fba4` `tools/notes/lane-e-learn-pages.patch` and `tools/tests/test_lane_e_learn_pages.py` (`LearningState:showAsk` opens YES/NO only after the trying-to-learn text has paged through the two-line box, per pokered); lane B `f97a1c97` `tools/notes/lane-e-trainer-lease.patch` and `tools/tests/test_lane_e_trainer_lease.py` (`EventState:startTrainer` releases the scripted walk's actor lease before the trainer claim); lane B `851797d5` `tools/notes/lane-d-route22-second-rival.patch` and `tools/tests/test_lane_d_route22_second_rival.py`. Review those three as lane E code with their tests, keep the lease test as an expectedFailure until applied, and verify the lease and Route 22 rival against `af519899`. Then lane G pull `cursor/lane-g-front-end` through `0dadd38a` (`bc3add2b`, then `fde6a429`, then `0dadd38a`; each step only lane G files plus its patch and test notes), then `lane-e-dialog-font`, `lane-e-battle-hud`, `lane-e-battle-intro-text`, `lane-e-battle-sprite-order`, `lane-e-sprite-mask`, and `lane-e-enemy-platform-shift`, each expectedFailure turning green, with every battle-file hunk reviewed as lane E code and both provenance files regenerated. After that, the rest in the previous order: lane H through `53103630`; lane F `01d20480` with `lane-e-audio-gaps.patch`; lane B `lane-e-battle-message.patch` (already applied at `2c223be7`); lane H `lane-e-battle-text-flicker.patch` from `7b1f1925` on `cursor/lane-h-postgame` after the lane G pull, because both touch `battleScene.lua`; lane B prize-text `f0dd27db`; then Pallet mockup C and "Now saving...".
 
 ## 2026-11-12 Pause Save keeps the picture, and STAY actors redraw after the snap
 

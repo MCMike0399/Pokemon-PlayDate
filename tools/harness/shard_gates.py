@@ -129,13 +129,17 @@ def main():
         print(json.dumps(compare_catalogs(args.output, args.compare), indent=2))
         return 0
     args.output.mkdir(parents=True, exist_ok=True)
-    rows = []
+    existing = args.output / "shards.json"
+    rows = json.loads(existing.read_text()) if existing.is_file() else []
+    done = {(row.get("kind"), row.get("name")) for row in rows}
     plan = []
     if not args.skip_catalog:
         plan += [("catalog", name) for name in EXPORTERS]
     if not args.skip_contracts:
         plan += [("contracts", name) for name in suite_names()]
     for index, (kind, name) in enumerate(plan, 1):
+        if (kind, name) in done:
+            continue
         if args.deadline_epoch is not None and time.time() >= args.deadline_epoch:
             rows.append({"kind": kind, "name": name, "ok": False, "error": "not started before deadline"})
             continue
