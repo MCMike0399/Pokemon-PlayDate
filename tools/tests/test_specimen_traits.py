@@ -11,9 +11,14 @@ class TraitSources(unittest.TestCase):
   self.assertEqual(data['pikachu']['held'],[0,236,0]);self.assertEqual(data['nidoranF']['ratio'],254);self.assertEqual(data['nidoranM']['ratio'],0)
  def test_all72_original151_evolution_edges_preserve_ratio(self):
   data=g.collect(g.load(ROOT/'tools/references/traits'),ROOT);n=0
+  cable=0
   for species,body in re.findall(r'^    (\w+) = (.*)$',(ROOT/'Source/data/evolutionData.lua').read_text(),re.M):
    for target in re.findall(r'to = "(\w+)"',body):self.assertEqual(data[species]['ratio'],data[target]['ratio']);n+=1
-  self.assertEqual(n,72)
+   cable+=body.count('item = "linkCable"')
+  # The 72 pokered edges stay. Kadabra, Machoke, Graveler, and Haunter each
+  # add one LINK CABLE stone edge in front of the trade edge.
+  self.assertEqual(cable,4)
+  self.assertEqual(n,76)
  def test_primary_light_ball_both_stats_and_post_stage_hook_order(self):
   raw=g.load(ROOT/'tools/references/traits');base=raw['ps_data_items.ts'].decode();body=base.split('\tlightball: {',1)[1].split('\n\t},',1)[0]
   for token in ('onModifyAtkPriority: 1','onModifySpAPriority: 1','onModifyAtk(','onModifySpA(','chainModify(2)'):self.assertIn(token,body)

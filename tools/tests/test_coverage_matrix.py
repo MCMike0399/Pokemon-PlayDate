@@ -7,7 +7,7 @@ class CurrentMatrixTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):cls.data=json.loads((ROOT/'docs/validation/coverage-current.json').read_text())
  def test_complete_source_indices_without_completion_promotion(self):
-  result=validate(self.data,ROOT);self.assertEqual(result['rows'],1512);self.assertEqual(result['map_slots'],248);self.assertEqual(result['moves'],430);self.assertEqual(result['generated_moves'],425);self.assertEqual(result['runtime_moves'],5);self.assertEqual(result['items'],131);self.assertEqual(result['pickup_items'],6);self.assertEqual(result['audio_sources'],375)
+  result=validate(self.data,ROOT);self.assertEqual(result['rows'],1513);self.assertEqual(result['map_slots'],248);self.assertEqual(result['moves'],430);self.assertEqual(result['generated_moves'],425);self.assertEqual(result['runtime_moves'],5);self.assertEqual(result['items'],132);self.assertEqual(result['pickup_items'],6);self.assertEqual(result['audio_sources'],375)
   self.assertEqual(self.data['accepted_milestone_rows'],[])
  def test_layer_mutants_and_unknown_evidence_rejected(self):
   for change in('evidence','acceptance','due','unknown'):
