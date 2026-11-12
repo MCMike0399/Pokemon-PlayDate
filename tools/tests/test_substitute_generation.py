@@ -46,7 +46,16 @@ class SubstituteProducerTests(unittest.TestCase):
         self.assertEqual(c.producer_epoch(self.after_text), 19)
         before, after = c.read_rows(self.before_text), c.read_rows(self.after_text)
         self.assertEqual(len(after), 425)
-        self.assertEqual({key for key in before if before[key] != after[key]}, {'substitute'})
+        # d9c39c11 on main is the substitute port and changes only that row.
+        # 8195076c and efd093cb then add rampage, recharge, defrost, Low Kick,
+        # Sunny Day, and Hail. Those fields are introduced at epoch 19 so the
+        # epoch-18 snapshot still inverts, and the generator reproduces them.
+        ported = c.read_rows(subprocess.check_output(
+            ['git', 'show', 'd9c39c11:Source/battle/moves.lua'], cwd=ROOT, text=True))
+        self.assertEqual({key for key in before if before[key] != ported[key]}, {'substitute'})
+        self.assertEqual({key for key in before if before[key] != after[key]}, {
+            'substitute', 'thrash', 'outrage', 'hyperBeam', 'gigaImpact',
+            'flameWheel', 'flareBlitz', 'lowKick', 'sunnyDay', 'hail'})
         self.assertEqual(c.split_payload(before['substitute'])[0], c.split_payload(after['substitute'])[0])
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
@@ -68,7 +77,8 @@ class SubstituteProducerTests(unittest.TestCase):
     def test_all_existing_migration_edges_original_hashes_and_epoch18_inverse_are_retained(self):
         old = json.loads(historical('tools/references/move-producer-migrations.json'))
         new = c.load_contract()
-        self.assertEqual(set(new['transitions']) - set(old['transitions']), {'substitute'})
+        # sunnyDay and hail are the epoch-19 weather edges for efd093cb.
+        self.assertEqual(set(new['transitions']) - set(old['transitions']), {'substitute', 'sunnyDay', 'hail'})
         for key, value in old['transitions'].items():
             self.assertEqual(new['transitions'][key], value, key)
         for key in old:

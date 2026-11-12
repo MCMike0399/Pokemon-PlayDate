@@ -159,6 +159,8 @@ def build_effects(key, meta, stat_changes, target_id, is_status):
         "roar": ["ForceSwitchEffect(DEFENDER)"],
         "sandstorm": ["SandstormEffect()"],
         "rainDance": ['WeatherEffect("raindance")'],
+        "sunnyDay": ['WeatherEffect("sunnyday")'],
+        "hail": ['WeatherEffect("hail")'],
         "focusEnergy": ["FocusEnergyEffect()"],
         "protect": ["ProtectEffect()"],
         "roost": ["RoostEffect()"],
@@ -394,6 +396,8 @@ function Move:init(m)
     self.attemptRule = m.attemptRule
     self.chargeRule = m.chargeRule
     self.lockRule = m.lockRule
+    self.recharge = m.recharge or false
+    self.defrost = m.defrost or false
     self.weatherAccuracy = m.weatherAccuracy or false
     self.ignoreDefensive = m.ignoreDefensive or false
     self.ignoreEvasion = m.ignoreEvasion or false

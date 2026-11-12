@@ -113,12 +113,32 @@
       "content": "npc-trades",
       "restore_interaction_facing": true
     },
+    "pokered:CINNABAR_LAB_FOSSIL_ROOM:objects:2": {
+      "kind": "bespoke",
+      "content": "npc-trades",
+      "restore_interaction_facing": true
+    },
     "pokered:VERMILION_TRADE_HOUSE:objects:1": {
       "kind": "bespoke",
       "content": "npc-trades",
       "restore_interaction_facing": true
     },
     "pokered:ROUTE_18_GATE_2F:objects:1": {
+      "kind": "bespoke",
+      "content": "npc-trades",
+      "restore_interaction_facing": true
+    },
+    "pokered:CERULEAN_TRADE_HOUSE:objects:2": {
+      "kind": "bespoke",
+      "content": "npc-trades",
+      "restore_interaction_facing": true
+    },
+    "pokered:CINNABAR_LAB_TRADE_ROOM:objects:2": {
+      "kind": "bespoke",
+      "content": "npc-trades",
+      "restore_interaction_facing": true
+    },
+    "pokered:CINNABAR_LAB_TRADE_ROOM:objects:3": {
       "kind": "bespoke",
       "content": "npc-trades",
       "restore_interaction_facing": true

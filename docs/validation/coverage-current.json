@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "598f64d2cea8840fe962015d4d51f4abfb411b3d",
-    "source_sha256": "6114486f49a7850dd36c8812582fb51695edd2333b1d22d1dec9ec99274a7f0b",
-    "policy_date": "2026-11-04",
+    "commit": "28ede55503b84945afc735d773f4b759c51d8740",
+    "source_sha256": "ba799da376fabccb2ccfc940dc93e48f4cce31cc5785cdcf005833546f60756d",
+    "policy_date": "2026-11-12",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Main149 accepted; development named-contract dispatch only. Production unchanged; C171 unaccepted and latency gates remain open.",
+    "scope": "Source identity after the 222-map install and the surfing water connection. Snapshot identifies this tree only. No row is promoted. The 2026-11-04 review and its evidence hashes stay the acceptance record. Previous snapshot source_sha256 6114486f49a7850dd36c8812582fb51695edd2333b1d22d1dec9ec99274a7f0b.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",

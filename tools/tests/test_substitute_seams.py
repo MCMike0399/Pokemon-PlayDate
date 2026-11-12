@@ -71,10 +71,15 @@ class SubstituteSeamTests(unittest.TestCase):
     def test_exact_base_schema_scalars_inverse_and_remaining_gaps_preserved(self):
         names = ['Source/data/pokemon.lua', 'Source/domain/sessionCodec.lua',
                  'Source/domain/pokemonCodec.lua', 'Source/data/sourceMaps.json']
+        pins = {
+            # 75d90990 on main is the current codec: validation reuse and relieveHeap.
+            'Source/domain/sessionCodec.lua': '75d90990',
+            # 68ff3b1f installs the remaining source maps. Its blob matches this tree.
+            'Source/data/sourceMaps.json': '68ff3b1f',
+        }
         for name in names:
-            # Preserve the independently adopted Save factory opt-in exactly.
-            expected = (subprocess.check_output(['git', 'show', '1ffd6fa7:' + name], cwd=ROOT)
-                        if name == 'Source/domain/sessionCodec.lua' else base_bytes(name))
+            expected = (subprocess.check_output(['git', 'show', pins[name] + ':' + name], cwd=ROOT)
+                        if name in pins else base_bytes(name))
             self.assertEqual((ROOT / name).read_bytes(), expected, name)
         text = (ROOT / 'Source/battle/moves.lua').read_text()
         self.assertEqual(c.producer_epoch(text), 19)
@@ -87,7 +92,12 @@ class SubstituteSeamTests(unittest.TestCase):
             self.assertIn('gap', support['moves'][key])
         before = c.read_rows(base_bytes('Source/battle/moves.lua').decode())
         after = c.read_rows(text)
-        self.assertEqual({key for key in before if before[key] != after[key]}, {'substitute'})
+        ported = c.read_rows(subprocess.check_output(
+            ['git', 'show', 'd9c39c11:Source/battle/moves.lua'], cwd=ROOT, text=True))
+        self.assertEqual({key for key in before if before[key] != ported[key]}, {'substitute'})
+        self.assertEqual({key for key in before if before[key] != after[key]}, {
+            'substitute', 'thrash', 'outrage', 'hyperBeam', 'gigaImpact',
+            'flameWheel', 'flareBlitz', 'lowKick', 'sunnyDay', 'hail'})
         self.assertEqual(c.split_payload(before['substitute'])[0], c.split_payload(after['substitute'])[0])
 
 

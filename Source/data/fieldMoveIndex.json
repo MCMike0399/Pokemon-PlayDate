@@ -24,6 +24,10 @@
       "name": "LavenderTown",
       "path": "data/fieldMoveMaps/LavenderTown.json"
     },
+    "pokered:PALLET_TOWN": {
+      "name": "PalletTown",
+      "path": "data/fieldMoveMaps/PalletTown.json"
+    },
     "pokered:PEWTER_CITY": {
       "name": "PewterCity",
       "path": "data/fieldMoveMaps/PewterCity.json"
@@ -71,6 +75,10 @@
     "pokered:ROUTE_2": {
       "name": "Route2",
       "path": "data/fieldMoveMaps/Route2.json"
+    },
+    "pokered:ROUTE_21": {
+      "name": "Route21",
+      "path": "data/fieldMoveMaps/Route21.json"
     },
     "pokered:ROUTE_22": {
       "name": "Route22",

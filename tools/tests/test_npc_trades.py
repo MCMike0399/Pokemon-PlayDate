@@ -24,7 +24,13 @@ class NPCTradeDataTests(unittest.TestCase):
             for _, _, _, _, map_name, actor, _ in EXPECTED if map_name in installed
         }
         self.assertEqual(set(build()['events']), expected_events)
-        self.assertNotIn('pokered:CERULEAN_TRADE_HOUSE:objects:2', build()['events'])
+        # Object 2 is the gambler. CeruleanTradeHouseGamblerText loads
+        # TRADE_FOR_LOLA, the Poliwhirl-for-Jynx row in trades.asm. The map is
+        # installed, so the trade owner is registered instead of left reserved.
+        trade = build()['trades']['pokered:CERULEAN_TRADE_HOUSE:objects:2']
+        self.assertEqual((trade['nickname'], trade['wantedName'], trade['offeredName'], trade['index']),
+                         ('LOLA', 'POLIWHIRL', 'JYNX', 6))
+        self.assertEqual(build()['events']['pokered:CERULEAN_TRADE_HOUSE:objects:2']['content'], 'npc-trades')
 
     def test_all_source_dialogue_branches_and_literal_species(self):
         data = build()

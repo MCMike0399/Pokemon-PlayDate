@@ -110,11 +110,15 @@ class ProductionBuildTests(unittest.TestCase):
         # precede SDK imports; exact B 7fb7bf76 adds only these explicit story,
         # field travel/gear and Safari modules at the named historical anchors.
         additions_before = {
+            'world/zone': ['game/waterEncounters'],
+            'game/titleState': ['game/titleIdle'],
+            'game/eventState': ['game/creditsPlayer'],
             'game/rocketHideoutStory': [
                 'game/towerStory', 'game/snorlaxStory', 'game/towerStoryController'],
             'game/midgameGymStory': [
                 'game/silphStory', 'game/silphStoryWorld', 'game/silphStoryController',
-                'game/saffronGuards', 'game/midgameGymStoryController'],
+                'game/saffronGuards', 'game/endgameStory', 'game/midgameGymStoryController'],
+            'game/celadonServicesController': ['game/hiddenItems'],
         }
         additions_after = {
             'dev/chargeLockContracts': ['dev/hmBattleContracts'],

@@ -1068,7 +1068,7 @@ moveData = {
         return Move{ name = "MAGNET RISE", type = "electric", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
     end,
     flareBlitz = function()
-        return Move{ name = "FLARE BLITZ", type = "fire", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, drain = -33, defrost = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+        return Move{ name = "FLARE BLITZ", type = "fire", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, defrost = true, drain = -33, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
     end,
     auraSphere = function()
         return Move{ name = "AURA SPHERE", type = "fighting", category = "special", power = 90, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
