@@ -525,6 +525,18 @@ class CharmanderRun(BrockJourney):
         self.save()
         self._toward_surge()
 
+    def _seal_cut_tree(self):
+        """The staged grid leaves the tree open. A center visit grows it back.
+
+        Mark the Cut target solid so the walk stops beside it instead of
+        stepping onto the tile the game rejects.
+        """
+        site = self.vermilion["cut_sites"][0]
+        model = self.models[self.zone("VermilionCity")]
+        for target in site["targets"]:
+            x, y = target["x"] + model.padding, target["y"]
+            model.collision[y][x] = 1
+
     def _vermilion_tools(self):
         """Bind the ship and gym button methods. Do not run the 5.4 campaign."""
         import tools.harness.vermilion_journey as vermilion
@@ -582,24 +594,21 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("the S.S. Anne did not leave")
             self.save()
         if not self.flag("BADGE_THUNDER"):
-            # The staged city grid leaves the tree walkable. The game blocks it.
-            # Mark the Cut target solid so the walk stops beside the tree.
-            site = self.vermilion["cut_sites"][0]
-            model = self.models[self.zone("VermilionCity")]
-            for target in site["targets"]:
-                cell = (target["x"] + model.padding, target["y"])
-                model.collision[cell[1]][cell[0]] = 1
             cutter = next(i for i, mon in enumerate(self.party(), 1) if "cut" in mon["moves"])
-            self.field_cut(cutter)
             for trainer_index in (4, 3, 2):
                 trainer_id = cerulean.sid("VERMILION_GYM", trainer_index)
                 if self.defeated(trainer_id):
                     continue
                 self.heal_here("VermilionPokecenter")
                 self.save()
+                # A center reload puts the tree back. Cut again, then enter.
+                self._seal_cut_tree()
+                self.field_cut(cutter)
                 self.fight(trainer_id)
             self.heal_here("VermilionPokecenter")
             self.save()
+            self._seal_cut_tree()
+            self.field_cut(cutter)
             self.travel(self.zone("VermilionGym"))
             self.puzzle()
             self.fight(vermilion.SURGE)
