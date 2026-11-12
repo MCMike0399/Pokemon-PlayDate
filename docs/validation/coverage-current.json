@@ -50941,6 +50941,50 @@
       "notes": ""
     },
     {
+      "id": "item:linkCable",
+      "kind": "item",
+      "title": "linkCable",
+      "owner": "rules",
+      "dependencies": [
+        "system:party-domain",
+        "system:original-progression"
+      ],
+      "due_milestone": {
+        "campaign_path": "postgame-release",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "linkCable",
+        "definition_file": "Source/data/items.lua"
+      },
+      "campaign_path": {
+        "implementation": "indexed",
+        "verification": "source_only",
+        "evidence": [
+          "exposure-current"
+        ],
+        "notes": "Miguel-approved LINK CABLE. It is not a pokered item and it is not in a mart."
+      },
+      "regional_fidelity": {
+        "implementation": "indexed",
+        "verification": "source_only",
+        "evidence": [
+          "kanto-inventory"
+        ],
+        "notes": "Item id 251 is the first id after TM_SUBSTITUTE. Pokered ids are unchanged."
+      },
+      "full_mechanics": {
+        "implementation": "indexed",
+        "verification": "unreviewed",
+        "evidence": [
+          "kanto-inventory"
+        ],
+        "notes": "Bag USE evolves Kadabra, Machoke, Graveler, and Haunter. The trade edge stays."
+      },
+      "notes": ""
+    },
+    {
       "id": "item:nugget",
       "kind": "item",
       "title": "nugget",
