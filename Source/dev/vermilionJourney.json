@@ -3378,7 +3378,7 @@
     "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
     "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
-    "dev/ceruleanJourney.json": "f2f274acfd3a02e20983ce2e7e4a266e96384730e556b4dbdda1a0c7a66d7323",
+    "dev/ceruleanJourney.json": "171c385ad8a09730d4cb750101533d722fdb52df4c0e8de51ffdbea8245527b7",
     "dev/daycareContracts.lua": "c3507079193c523b1bd21a6ddefb70164f37e3a31ec0529ed0886174756ee1ec",
     "dev/diagnostics.lua": "9191b2de500699b8dd12f573f1e1d681cb94ad757d5632f6380566c6cf5928c8",
     "dev/fixtures.lua": "d21e4044712c04ec91eb1a5c3618d18543e0e92ea8d87cdff03b677c828f94c6",
@@ -3405,7 +3405,7 @@
     "game/vermilionStoryIntent.lua": "31bf40875b5d9940b81fdc3a463a6aca67c3a7e94878a69086c658138862c440",
     "game/vermilionStoryState.lua": "084cfdd3ae23d32f84c34bbde7ad8b7251a323d876819e724084b0c97658ec29",
     "game/vermilionStoryTerrain.lua": "7d216e3e86bf6b250f805f9b97986221df91a238fe43fb031a7036ae7cd47de2",
-    "main.lua": "c322a72b446ef41d3ce16041b979beb077e35e2bdac629b839ec5da0bc145a1c",
+    "main.lua": "c87d3344819536d22c7eefe508a81fb3c8cea1301cdd05ade4056360f50e60e0",
     "world/sourceBindings.lua": "2d20052569e31f121c5369426480e0875bc051a9a4b3074628b49de1fa19447b",
     "world/zone.lua": "fbd6ef917807cf43d6d85de31b6e4e60993831be1e30d01cc0dec5a55d299a62"
   },

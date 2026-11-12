@@ -86,6 +86,15 @@ function ExploreSubstate:update()
         if SafariRuntime then
             SafariRuntime.completedStep(game)
         end
+            -- pret/pokered af519899 data/maps/objects/SeafoamIslandsB3F.asm
+            -- warp_event 20, 17 and 21, 17 land on SEAFOAM_ISLANDS_B4F.
+            -- A surf step finishes in this branch. The door check after
+            -- the return never ran, so those water stairs could not be taken.
+            local door = currentZone:getDoorAt(player.gridX, player.gridY)
+            if door then
+                self.machine:change("doorWarp", door)
+                return
+            end
         end
         return
     end

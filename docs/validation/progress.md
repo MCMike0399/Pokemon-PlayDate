@@ -1,5 +1,19 @@
 # Full-game execution ledger
 
+## 2026-11-12 Fixed-facing STAY actors load, and the coast stairs can be taken
+
+Lane A's last head is `427918f0` on `cursor/linux-runtime-seams-fcc0`. It is not on main, and its suite was not finished. `SourceActors.wanders` from that commit is the rule kept here. pret/pokered `af519899` `constants/map_object_constants.asm` defines `STAY` as `$FF` and `WALK` as `$FE`. `engine/overworld/movement.asm` sends both through `.randomMovement`. Fixed `DOWN`, `UP`, `LEFT`, and `RIGHT` ignore the random byte. `TryWalking` writes the facing, then `CanWalkOntoTile` rejects `$FF` before `MAPX` and `MAPY` change. `NONE` and `ANY_DIR` still turn. Cinnabar Gym's nine objects are `STAY, DOWN`. The center nurse and the link receptionist are `STAY, DOWN`. The gentleman is `STAY, NONE`, so he still turns and his delay still loads.
+
+That commit still rejected a stationary delay. Sequences 119, 124, and 125 store `delay` on the gym guide, the nurse, and the receptionist, on their `object_event` tiles. Rejecting the record would stop Continue. `WorldMotionData.normalize` publishes a `delay`, `ready`, or `moving` record for an actor that does not wander as `static` on the object tile. The saved cell is not kept. Lane B's `WALK`-only line is not applied. The first normalize rewrite, which kept the saved cell, stays rejected. The count of 135 `STAY, NONE` NPCs was not reproduced. The object files contain 251 `STAY, NONE` rows.
+
+The Seafoam door handoff is adopted. `data/maps/objects/SeafoamIslandsB3F.asm` warps `(20, 17)` and `(21, 17)` to B4F. A surf step used to return before `getDoorAt`. The Route 21 edge handoff is adopted. `data/maps/headers/Route21.asm` connects north to Pallet and south to Cinnabar. `data/maps/headers/Route1.asm` is the south connection that still defers to the Pallet adapter. Only that south connection returns early.
+
+Lane B's coast module is on this branch: `coastStory.lua`, `coastStoryWorld.lua`, `tools/lane_b_publish.py`, and the coast and save-publish tests. `main.lua` installs it, and Articuno is the B4F static encounter from `data/maps/objects/SeafoamIslandsB4F.asm` object 3 at `(6, 1)`, level 50. The Cinnabar delay test was not copied. It still expects the `WALK`-only line. No lane F, G, H, or I branch was on origin. No codec field was added. The endgame move audit is not in this commit.
+
+The coverage snapshot is `a118ac8a8e7dbfc0855c7745e49d82cb1429b6d547d94290505ab12e2abf1e7b`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated with their generators.
+
+`python3 -m unittest discover -s tools/tests` on this machine, before the surf and coast edits, ran 1231 tests: 34 errors, 15 skipped. Those errors are a missing Playdate SDK at `~/Developer/PlaydateSDK`, missing files under `~/Developer/Pokemon-PlayDate-env/references` and `preparation`, and `/private/tmp`. The STAY, surf, Seafoam, coast, journey, and coverage checks passed on the edited tree. Boot was not measured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
 ## 2026-11-12 The Cinnabar delay patch stays unapplied
 
 Lane B's `tools/notes/lane-a-cinnabar-trainer-delay.patch` is on their agent, not on `origin/cursor/lane-b-south-loop` (`d33d853a`). It teaches `WorldMotionData.normalize` to copy a saved actor and, when `phase` is `delay` and `spec.random` is false, store `static` with both delay fields cleared. The paired test expects that settle and currently marks it an expected failure until the shared file changes.
