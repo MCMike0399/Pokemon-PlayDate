@@ -10,8 +10,11 @@
 -- swapped relative to that branch.
 --
 -- title.asm DrawPlayerCharacter places gfx/title/player.png on a 5-by-7
--- OAM grid at ($5a, $60) and parks a Poké Ball on sprite 10. That sprite
--- is column 0, row 2 of the sheet. TitleBallYTable moves it. The species
+-- OAM grid with `lb de, $60, $5a` (Y, then X) and parks a Poké Ball on
+-- sprite 10. OAM Y is the screen row plus 16 and OAM X is the screen
+-- column plus 8, so the sprite is GB y 80-135 and x 82-122. That ends one
+-- pixel row above the copyright at hlcoord 2, 17 (GB y 136). Sprite 10 is
+-- column 0, row 2 of the sheet. TitleBallYTable moves it. The species
 -- slot does not draw the ball.
 
 TitleIdle = {}
@@ -131,12 +134,11 @@ TitleIdle.BADGE_FLAGS = {
     "BADGE_BOULDER", "BADGE_CASCADE", "BADGE_THUNDER", "BADGE_RAINBOW",
     "BADGE_SOUL", "BADGE_MARSH", "BADGE_VOLCANO", "BADGE_EARTH",
 }
--- 400x240 placement. The Game Boy screen is 160x144; Playdate scale is 2,
--- so Red (40x56) sits on the right and the TitleMon keeps the open slot.
+-- 400x240 placement. Logo and version stay at the approved scale. Red uses
+-- playerRect(), the same 20-by-13 cells as the copyright row.
 TitleIdle.LAYOUT = {
     logo = {x = 8, y = 4, scale = 2},
     version = {x = 24, y = 112, scale = 2},
-    player = {x = 308, y = 118, scale = 2},
     mon = {col = 5, row = 10, tiles = 7},
     copyright = {col = 2, row = 17, tiles = #TitleIdle.COPYRIGHT_TILES},
 }
@@ -324,6 +326,19 @@ end
 
 function TitleIdle.copyrightRect()
     return TitleIdle.cellRect(TitleIdle.COPYRIGHT_COL, TitleIdle.COPYRIGHT_ROW, #TitleIdle.COPYRIGHT_TILES, 1)
+end
+
+-- DrawPlayerCharacter's 5-by-7 grid, mapped with the copyright cells.
+-- One GB pixel is COL/TILE by ROW/TILE, and tile (0, 0) is the origin.
+function TitleIdle.playerRect()
+    local screenX = TitleIdle.PLAYER_OAM_X - 8
+    local screenY = TitleIdle.PLAYER_OAM_Y - 16
+    return {
+        x = screenX * TitleIdle.COL / TitleIdle.TILE,
+        y = screenY * TitleIdle.ROW / TitleIdle.TILE,
+        w = TitleIdle.PLAYER_COLUMNS * TitleIdle.COL,
+        h = TitleIdle.PLAYER_ROWS * TitleIdle.ROW,
+    }
 end
 
 -- The pic is sampled into the 7 by 7 slot. A 2x blit of a 56px front

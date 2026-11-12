@@ -75,6 +75,8 @@ Playdate Simulator 3.1.2, production bundle `source_sha256` `8ca9b2687c421e0d96f
 
 The r4 title row listed `$41` through `$4E` once each, so `$42` (the `'9` tile) was drawn once and the years read `©'95.68`. The row is now the `.tileScreenCopyrightTiles` sequence with `$42` three times. `artifacts/lane-g/r5/title.png` is that screen, bundle `36f846d031cafdc10b3f4addfb50754cf0c22664500c244c54eaee3fcce8087d`.
 
+`DrawPlayerCharacter` is `lb de, $60, $5a` on a 5-by-7 grid: GB y 80–135 and x 82–122. The copyright row is y 136, so the feet stop one pixel row above it and the body sits over GAME FREAK. r5 drew that sheet at scale 2 from `(308, 118)`, which crossed the row and covered `inc.` The same 20-by-13 cells now map the OAM box. Sprite 10 still follows `TitleBallYTable`. `artifacts/lane-g/r6/title.png` is that frame, bundle `3701fa64d49b77451857f9b1a493771a5af6d8233875a3399c058df28bb4402f`.
+
 ## Blockers
 
 - Chosen names do not survive Continue. The codec still asserts `RED` / `BLUE`.
