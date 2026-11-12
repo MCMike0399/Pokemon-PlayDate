@@ -167,4 +167,17 @@ That handoff is `6b1d3445f6b6251a4aeb4aa4224233b28bc7937b`, pushed to
 `/opt/cursor/artifacts/lane-b/lane-b-6b1d3445.bundle`, range
 `7a31867a..HEAD`, sha256
 `47234e13798ccd23b406c8f8886a675d8b92eeff796c3d1316ae91de5a94df51`.
+The ledger commit after it is `7039a6a691b3f812ba7de058c39c50306d79b8a7`.
+Its bundle is `/opt/cursor/artifacts/lane-b/lane-b-7039a6a6.bundle`,
+sha256 `f673abd6f7aacdf6ee54b2bf765abae27fbd00d2e6151d53a177195474116cd4`.
 `main` was not pushed.
+
+## Hourly clip
+
+No clip. The newest earned save is sequence 65 at Seafoam Islands 1F
+`(24,8)`, not the lost B2F pair. `FieldTravelState:update` still reads
+`self.boulder` as the npc, so the next Strength press crashes before
+a boulder moves. The B2F stair assert is a different, older block, and
+those saves are not on this pod. A new recording would be the entrance
+walk again or a crash under 60 seconds. `4faac7cf` is already an
+ancestor. Nothing was rebased.
