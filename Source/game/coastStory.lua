@@ -538,6 +538,32 @@ function CoastStory.switchDecision(on, yes)
     return { on = on ~= true, changed = true }
 end
 
+-- Facility blockset, the bottom-left foot of each quadrant, against
+-- Facility_Coll. ReplaceTileBlock writes one 2x2. A closed gate is not
+-- four solid cells: $2d walls only its south row, $5f only its east
+-- column, and $54 only its north row. $0e is empty floor.
+local GATE_SOLID <const> = {
+    [0x2d] = { false, false, true, true },
+    [0x5f] = { false, true, false, true },
+    [0x54] = { true, true, false, false },
+}
+
+function CoastStory.gateQuadrantSolid(block, dx, dy)
+    local pattern = GATE_SOLID[block]
+    if not pattern then
+        return block ~= OPEN_FLOOR
+    end
+    return pattern[dy * 2 + dx + 1] == true
+end
+
+function CoastStory.switchLines()
+    return {
+        prompt = { "A secret switch!", "Press it?" },
+        pressed = { "Who wouldn't?" },
+        declined = { "Not quite yet!" },
+    }
+end
+
 function CoastStory.mansionDoors(map, on)
     local floor = MANSION[map]
     if not floor then

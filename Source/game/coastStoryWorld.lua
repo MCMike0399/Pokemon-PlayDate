@@ -33,7 +33,8 @@ end
 local function setBlock(zone, block, padding)
     for dy = 0, 1 do
         for dx = 0, 1 do
-            setCollision(zone, block.x * 2 + dx + padding, block.y * 2 + dy, block.solid)
+            setCollision(zone, block.x * 2 + dx + padding, block.y * 2 + dy,
+                CoastStory.gateQuadrantSolid(block.block, dx, dy))
         end
     end
 end
@@ -357,6 +358,77 @@ local function quizInteract(game)
     return true
 end
 
+local switchMenu
+
+local function ensureSwitch(game)
+    if game.machine:get("coastSwitch") then
+        return
+    end
+    switchMenu = BattleMenu()
+    game.machine:register("coastSwitch", {
+        enter = function(self, switch)
+            self.switch = switch
+            local lines = CoastStory.switchLines()
+            switchMenu:show({ "YES", "NO" }, function(index)
+                local yes = index == 1
+                local on = switch.game.session:questFlag("EVENT_MANSION_SWITCH_ON") == true
+                local decision = CoastStory.switchDecision(on, yes)
+                self.machine:pop()
+                if decision.changed then
+                    switch.game.session:setQuestFlag("EVENT_MANSION_SWITCH_ON", decision.on)
+                    applyBlocks(switch.game, currentZone.stableID)
+                end
+                switch.game.machine:push("dialog", yes and lines.pressed or lines.declined)
+            end, function()
+                switchMenu.onSelect(2, "NO")
+            end)
+        end,
+        handleInput = function()
+            switchMenu:handleInput()
+        end,
+        draw = function(self)
+            local switch = self.switch
+            local camera = switch and switch.game and switch.game.camera
+            if camera then
+                camera:reset()
+            end
+            gfx.setDrawOffset(0, 0)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.fillRect(8, 156, 384, 76)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawRect(8, 156, 384, 76)
+            gfx.drawTextInRect("Press it?", 16, 164, 210, 60)
+            switchMenu:draw(236, 164, 144, 60)
+            if camera then
+                camera:apply()
+            end
+        end,
+        exit = function(self)
+            self.switch = nil
+            switchMenu:hide()
+        end,
+        update = function() end,
+    })
+end
+
+-- hidden_events.asm. The statue is the facing tile. YesNoChoice item 0
+-- toggles EVENT_MANSION_SWITCH_ON, and the map script replaces the gates.
+local function switchInteract(game)
+    if not game.player or game.player.facing ~= "up" then
+        return false
+    end
+    local x, y = game.player:getFacingTile()
+    if not CoastStory.mansionSwitch(currentZone.stableID, x, y) then
+        return false
+    end
+    local lines = CoastStory.switchLines()
+    ensureSwitch(game)
+    game.machine:push("dialog", lines.prompt, function()
+        game.machine:push("coastSwitch", { game = game })
+    end)
+    return true
+end
+
 local described = false
 local ARTICUNO <const> = "pokered:SEAFOAM_ISLANDS_B4F:objects:3"
 local articunoInstalled = false
@@ -536,6 +608,9 @@ function CoastStoryWorld.install()
         end,
         interact = function(game)
             if quizInteract(game) then
+                return true
+            end
+            if switchInteract(game) then
                 return true
             end
             local key = CoastStory.secretKey()

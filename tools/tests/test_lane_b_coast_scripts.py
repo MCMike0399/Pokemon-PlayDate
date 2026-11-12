@@ -153,6 +153,29 @@ assert(CoastStory.quizLines(4).question == "Are thunder moves effective against 
 assert(CoastStory.quizLines(5).question == "#MON of the same kind and level are not identical?")
 assert(CoastStory.quizLines(6).question == "TM28 contains TOMBSTONER?")
 assert(CoastStory.quizLines(7) == nil)
+assert(CoastStory.gateQuadrantSolid(0x2d, 0, 0) == false)
+assert(CoastStory.gateQuadrantSolid(0x2d, 1, 0) == false)
+assert(CoastStory.gateQuadrantSolid(0x2d, 0, 1) == true)
+assert(CoastStory.gateQuadrantSolid(0x2d, 1, 1) == true)
+assert(CoastStory.gateQuadrantSolid(0x5f, 0, 0) == false)
+assert(CoastStory.gateQuadrantSolid(0x5f, 1, 0) == true)
+assert(CoastStory.gateQuadrantSolid(0x5f, 0, 1) == false)
+assert(CoastStory.gateQuadrantSolid(0x5f, 1, 1) == true)
+assert(CoastStory.gateQuadrantSolid(0x54, 0, 0) == true)
+assert(CoastStory.gateQuadrantSolid(0x54, 1, 0) == true)
+assert(CoastStory.gateQuadrantSolid(0x54, 0, 1) == false)
+assert(CoastStory.gateQuadrantSolid(0x54, 1, 1) == false)
+assert(CoastStory.gateQuadrantSolid(0x0e, 0, 0) == false)
+assert(CoastStory.gateQuadrantSolid(0x0e, 1, 1) == false)
+local stairDoor = off[3]
+assert(stairDoor.x == 10 and stairDoor.y == 8 and stairDoor.block == 0x2d)
+assert(CoastStory.gateQuadrantSolid(stairDoor.block, 1, 0) == false)
+assert(CoastStory.gateQuadrantSolid(stairDoor.block, 1, 1) == true)
+local switchLines = CoastStory.switchLines()
+assert(switchLines.prompt[1] == "A secret switch!")
+assert(switchLines.prompt[2] == "Press it?")
+assert(switchLines.pressed[1] == "Who wouldn't?")
+assert(switchLines.declined[1] == "Not quite yet!")
 print("coast-story-ok")
 '''
 
@@ -174,6 +197,15 @@ class CoastScriptTest(unittest.TestCase):
         self.assertIn('forcedWarp', region)
         self.assertIn('currentZone.doors', region)
         self.assertIn('pendingEdgeDoor', region)
+
+    def test_mansion_gates_use_the_facility_quadrant(self):
+        text = (ROOT / 'Source/game/coastStoryWorld.lua').read_text()
+        start = text.index('local function setBlock')
+        region = text[start:text.index('local function applyBlocks', start)]
+        self.assertIn('CoastStory.gateQuadrantSolid', region)
+        self.assertNotIn('block.solid', region)
+        self.assertIn('function switchInteract', text)
+        self.assertIn('coastSwitch', text)
 
 
 if __name__ == '__main__':
