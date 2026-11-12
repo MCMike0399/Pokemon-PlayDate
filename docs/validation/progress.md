@@ -1,5 +1,19 @@
 # Full-game execution ledger
 
+## 2026-11-12 Cable Club, Blue exclusives, Mew, and trade evolutions are recorded
+
+Miguel's picks from BlueBot's chat on 2026-11-12 at 9:43 AM CST are in the fidelity ledger. The Cable Club is excluded, so the Trade Center and the Colosseum stay non-functional. The game stays Blue only: no Red/Blue switch, and exclusives stay as in Blue. Mew and the trade evolutions are labelled Miguel-approved deviations from pokered. Mew is a post-Hall-of-Fame gift at level 5, one per save, behind its own flag, and lane H is implementing it. Kadabra, Machoke, Graveler, and Haunter will evolve with a Linking Cord-style item, likely named LINK CABLE. Lane H will send that item, the evolution rows, and the mart table as a failing test plus a patch. Every other species and item keeps its pokered data. No Source file changed for these rows.
+
+`cursor/lane-g-front-end` is not merged. The names, nickname, and menu-font handoffs already on this branch stay. Lane G's remaining frames wait for the four r3 fixes, and lane F's title music cue waits with them.
+
+## 2026-11-12 Chosen names save, and a gift can be nicknamed
+
+Lane G's `965ab902` name, nickname, and menu-font patches are installed. `namingState.lua` is not imported, and lane G's title frames and `story.lua` are not pulled. The rival actor in `vermilionStory/trainers.json` stays `BLUE`. Dialogue uses `Story.playerName` and `Story.rivalName` when those functions exist.
+
+`SessionCodec.VERSION` is 5. Versions 1 through 4 still load. A save with no player or rival name loads as RED and BLUE. `constants/text_constants.asm` sets `PLAYER_NAME_LENGTH` to 8 and `NAME_LENGTH` to 11, so the visible names are 1 to 7 and 1 to 10 glyphs. `constants/charmap.asm` allows printable ASCII plus `×` (`$f1`), `♂` (`$ef`), and `♀` (`$f5`). The rest of that table, including `é`, is rejected. `wFossilItem` stays in this same version. A catch stores `pendingNickname`. Lapras, the gym gifts, Eevee, and Magikarp call `Story.promptNickname` when it exists. The Name Rater hook is the comment for `pokered:NAME_RATERS_HOUSE:objects:1`. `BattleMenu` draws `▶` and a 4px frame. The fidelity ledger records the four r1 picks. The intro pictures are not pulled.
+
+This entry is `db83fbfd`. The coverage snapshot is `6d9d22ed228f945a7371687207d3fd2e7867243cfc73b0d10c843aeaeda5c8ec`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `sessionCodec.lua`. The name, nickname, menu, play-time, fossil, and Cerulean projection tests passed. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
 ## 2026-11-12 The field plays the Kanto cues
 
 Lane F's `b9634998` is merged. Score notes load on the first play from `audio/score/<name>.lua`. `tools/notes/lane-e-audio-hooks.patch` is applied. `main.lua` imports `kantoAudio` and calls `KantoAudio.updateGame` after input. `tools/audio/root-hooks.patch` is that same import and call, so it is not applied a second time. `tools/audio/cry-hooks.patch` is not applied. `KantoAudio.noteCries` already plays the wild intro cry and the send-out cries.
