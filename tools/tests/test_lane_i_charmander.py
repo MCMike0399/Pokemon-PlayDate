@@ -599,15 +599,17 @@ class CharmanderRun(BrockJourney):
                 trainer_id = cerulean.sid("VERMILION_GYM", trainer_index)
                 if self.defeated(trainer_id):
                     continue
-                # Leaving the gym must not plan a step onto the tree. A center
-                # reload grows it back, so Cut again on the way in.
+                # The tree is the only staged link between the gym and the center.
+                # Cut from whichever side we are on, cross, then Cut again.
                 self._seal_cut_tree()
+                self.field_cut(cutter)
                 self.heal_here("VermilionPokecenter")
                 self.save()
                 self._seal_cut_tree()
                 self.field_cut(cutter)
                 self.fight(trainer_id)
             self._seal_cut_tree()
+            self.field_cut(cutter)
             self.heal_here("VermilionPokecenter")
             self.save()
             self._seal_cut_tree()
@@ -617,6 +619,8 @@ class CharmanderRun(BrockJourney):
             self.fight(vermilion.SURGE)
             if not all(self.flag(flag) for flag in ("BADGE_THUNDER", "EVENT_BEAT_LT_SURGE", "EVENT_GOT_TM24")) or self.quantity("tm24") != 1:
                 raise ProtocolError("Lt. Surge win, badge, or TM24 is missing")
+            self._seal_cut_tree()
+            self.field_cut(cutter)
             self.heal_here("VermilionPokecenter")
             self.save()
         self.summary.update(acceptance="Thunder Badge earned", natural=True, forbidden_shortcuts=False)
