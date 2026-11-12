@@ -204,6 +204,8 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/safariPassage"
     import "game/safariPassageState"
     import "game/safariRuntime"
+    import "game/coastStory"
+    import "game/coastStoryWorld"
 
 
     local function campaignActorMetadata(definition, event, runtimeGame)
@@ -283,6 +285,7 @@ local bootAccepted, bootProblem = pcall(function()
             EndgameStory.install()
             BootTrace.mark("HideoutTowerContent.install.begin")
             HideoutTowerContent.install()
+            CoastStoryWorld.install()
             CopycatService.install()
             BootTrace.mark("HideoutTowerContent.install.end")
             BootTrace.mark("MidgameServices.install.begin")
