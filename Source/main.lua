@@ -216,6 +216,10 @@ local bootAccepted, bootProblem = pcall(function()
         for _, condition in ipairs(story.visibility) do
             metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
         end
+        local league = EndgameStory.actorMetadata(event.id)
+        for _, condition in ipairs(league.visibility or {}) do
+            metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
+        end
         return metadata
     end
 

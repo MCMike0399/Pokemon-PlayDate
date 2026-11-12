@@ -96,8 +96,9 @@ function CeruleanRoutes.descriptors()
             flags[name] = false
             guards[#guards+1] = name
         end
-        second = {kind="trainer", content=CONTENT, scene_script="later-rival",
+        second = {kind="bespoke", content=CONTENT, scene_script="later-rival",
             before=copy(rival.before), won=copy(rival.won), after=copy(rival.after), lost=copy(rival.lost),
+            script_positions={{x=26,y=5},{x=27,y=5},{x=28,y=5},{x=28,y=4}},
             victory={flags=flags, guard_flags=guards}}
     end
     events["pokered:ROUTE_22:objects:2"] = second
@@ -131,7 +132,9 @@ function CeruleanRoutes.nuggetPlan(session)
         changes={flags={EVENT_GOT_NUGGET=true}, items={{op="add",id="nugget",quantity=1}}}}
 end
 function CeruleanRoutes.plan(id, state)
-    assert(id ~= "pokered:ROUTE_22:objects:2", "second Route22 rival belongs to the later campaign")
+    if id == "pokered:ROUTE_22:objects:2" then
+        return EndgameStory.route22RivalPlan(id, state)
+    end
     if id == NUGGET then
         if state.receipt then
             assert(state.receipt.won and state.trainers[id], "unconfirmed Rocket receipt")
@@ -221,8 +224,12 @@ function CeruleanRoutes.check(game)
         and game.session:trainerDefeated(ROUTE)
         and game.session:questFlag("EVENT_2ND_ROUTE22_RIVAL_BATTLE")
         and game.session:questFlag("EVENT_ROUTE22_RIVAL_WANTS_BATTLE")
-        and not game.session:questFlag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE")
-        and at(data().triggers.route22,x,y) then id="pokered:ROUTE_22:objects:2"
+        and not game.session:questFlag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE") then
+        local index = at(data().triggers.route22,x,y)
+        if index then
+            EndgameStory.noteRoute22Tile(index)
+            id="pokered:ROUTE_22:objects:2"
+        end
     elseif zone.stableID == "pokered:CERULEAN_CITY" then
         if not game.session:trainerDefeated(THIEF) and at(data().triggers.thief,x,y) then id=THIEF
         elseif not game.session:trainerDefeated(RIVAL) and at(data().triggers.cerulean,x,y) then id=RIVAL end

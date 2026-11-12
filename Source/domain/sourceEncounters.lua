@@ -26,7 +26,25 @@ local definitions <const> = {
     ["pokered:ROUTE_16:objects:7"] = {zone_id = "pokered:ROUTE_16", species = "snorlax", level = 30,
         flag = "EVENT_BEAT_ROUTE16_SNORLAX", fight = "EVENT_FIGHT_ROUTE16_SNORLAX",
         positions = {{27,10}, {25,10}}},
+    -- Wild static. A win or a catch hides it. A run or a loss leaves it.
+    ["pokered:VICTORY_ROAD_2F:objects:6"] = {zone_id = "pokered:VICTORY_ROAD_2F", species = "moltres", level = 50,
+        flag = "EVENT_BEAT_MOLTRES", legendary = true,
+        positions = {{11, 4}, {11, 6}, {10, 5}, {12, 5}}},
 }
+function SourceEncounters.positions(id)
+    local definition <const> = definitions[id]
+    return definition and definition.positions or nil
+end
+function SourceEncounters.completed(definition, kind, unidentified)
+    assert(kind == "victory" or kind == "caught" or kind == "run" or kind == "defeat", "unsupported-source-result")
+    if definition.legendary then
+        return kind == "victory" or kind == "caught"
+    end
+    if definition.fight then
+        return kind ~= "defeat"
+    end
+    return kind == "victory" and not unidentified
+end
 function SourceEncounters.policy(session, zoneID, definition)
     local identified <const> = session:inventory():quantity("silphScope") > 0
     local restless <const> = definition and definition.species == "marowak"
@@ -53,7 +71,11 @@ function SourceEncounters.prepare(session, request, location)
     local expected <const> = {flags = {[d.flag] = false}, items = {}}
     local outcomes
     local policy <const> = SourceEncounters.policy(session, d.zone_id, d)
-    if d.fight then
+    if d.legendary then
+        outcomes = {victory = {flags = {[d.flag] = true}}, caught = {flags = {[d.flag] = true}},
+            run = {flags = {}}, defeat = {flags = {}}}
+        assert(equal(request.rules, {capture = true, unidentified = false}), "forged source battle rules")
+    elseif d.fight then
         assert(session:questFlag(d.fight), "unarmed-source-snorlax")
         assert(session:inventory():quantity("pokeFlute") > 0, "no-flute")
         expected.flags[d.fight] = true
@@ -114,8 +136,7 @@ function SourceEncounters.terminal(session, record, battle, won, kind)
     end
     local d <const> = record.definition
     if not d then return {flags = {}, completed = false} end
-    local completed <const> = d.fight and kind ~= "defeat"
-        or not d.fight and kind == "victory" and not record.policy.unidentified
+    local completed <const> = SourceEncounters.completed(d, kind, record.policy and record.policy.unidentified)
     local changes = {}
     if completed then changes[d.flag] = true end
     if d.fight then changes[d.fight] = false end
