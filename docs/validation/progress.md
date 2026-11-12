@@ -1,5 +1,13 @@
 # Full-game execution ledger
 
+## 2026-11-12 Play time is on the session, and the suite is still not green
+
+Lane D round 5 (`046bf608` on `d87c387c`) is on this branch. Red's card follows `HoFDisplayPlayerStats`: the name box at `hlcoord 5, 0`, the stats box at `0, 4`, play time, money with the yen sign, and three 120-frame pages. `text_decimal` left-aligns the counts, so `Seen:20` matches the source. The Hall of Fame box stays inside the party loop. Oak's plan order matches `ChampionsRoom.asm`. `ShowObject` runs when the five-step walk starts, in the same script as `MoveSprite`. `CheckAndResetEventA` clears `EVENT_HALL_OF_FAME_DEX_RATING` after the paragraph is chosen.
+
+Play time is `wPlayTimeHours`, `wPlayTimeMinutes`, `wPlayTimeSeconds`, and `wPlayTimeFrames` on the v4 save. A save that predates the field loads as a zero clock. `TrackPlayTime` rolls 60 frames into a second and stops when the hour becomes 255. Counting starts when the overworld is entered and stops on the title. Red's card reads that clock. SDK 3.1.2 session `0ab4ac7130bc433aafe865da9cb11e5c` refreshed the transform pins after `gameSession.lua` changed. The parsed East, South, Saffron, and Kanto packets match the previous export aside from the build id and Lua key order.
+
+`python3 -m unittest discover -s tools/tests` ran 1288 tests: 4 failures, 14 errors, 11 skipped. The failures are the coverage-matrix source pin, the Cerulean observation projection, and the Vermilion acquisition and journey projections. The errors are the unset `PARCEL_BUNDLE_SOURCE` Brock fixtures, Cerulean `provenance.json` drift, and the move-producer checks for `thrash` and `whirlwind`. `main` stays at `7a31867a`.
+
 ## 2026-11-12 Full boot reaches the title inside the 16 MiB pool
 
 Clip `20261112T061946Z-boot-memory-stop.mp4` opens on the error screen. The whole 45 seconds is `Game stopped safely`, then `error.not enough memory`, then `not enough memory` again. The title is not in that file. The earlier note said content registration passes the title. That described a boot trace, not the clip: the recorder started after the stop, so the frames before the crash were missed. Recordings now start before the simulator opens. The trace for build `8b9da209` does mark `title.visible` at 2163 ms and `error.not enough memory` at 3446 ms, with a sampled Lua peak of 13792 KiB. `MallocPoolSize` stayed `16645684`.
