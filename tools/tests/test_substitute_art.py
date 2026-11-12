@@ -112,9 +112,9 @@ class SubstituteArtTests(unittest.TestCase):
             # while production mechanics retain their native-qualified baseline.
             expected_base = '4160ce96' if name == 'Source/dev/substituteContracts.lua' else MECHANICS_BASE
             if name == 'Source/domain/sessionCodec.lua':
-                # Reviewed Save inspection reuse changes only factory wiring;
-                # pin its accepted bytes without relaxing other preservation.
-                expected_base = '1ffd6fa7'
+                # 75d90990 on main adds validation reuse and relieveHeap.
+                # Pin those accepted bytes without relaxing the other files.
+                expected_base = '75d90990'
             self.assertEqual((art.ROOT/name).read_bytes(), original(name, expected_base), name)
         name = 'Source/dev/battlePresentationContracts.lua'
         before = re.findall(r'    test\("([^"]+)"', original(name).decode())
