@@ -119,6 +119,25 @@ function ImportedMaps:init(data,factory)
     end
     stores[self]=store
 end
+-- The catalog inventory keeps every exporter declaration at once. The shared
+-- catalogue is already validated; drop it for that copy, then point the same
+-- indexes at the reloaded table. This does not rebuild zones or the ledger.
+function ImportedMaps:releaseCatalogue()
+    local store=stores[self]
+    store.data, store.byID, store.byKey = nil, {}, {}
+    store.count = 0
+end
+function ImportedMaps:retargetCatalogue(data)
+    assert(type(data)=="table" and data.schema==1, "unverified compact imported definitions")
+    local store=stores[self]
+    store.data = data
+    store.byID, store.byKey = {}, {}
+    store.count = 0
+    for _, descriptor in pairs(data.maps) do
+        store.byID[descriptor.id], store.byKey[descriptor.key] = descriptor, descriptor
+        store.count = store.count + 1
+    end
+end
 function ImportedMaps:hasID(id) return stores[self].byID[id]~=nil end
 function ImportedMaps:hasKey(key) return stores[self].byKey[key]~=nil end
 function ImportedMaps:keyForID(id) local d=stores[self].byID[id];return d and d.key end

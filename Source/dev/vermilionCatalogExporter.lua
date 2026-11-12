@@ -93,11 +93,12 @@ function VermilionCatalogExporter.inventory()
     end
     for _, name in ipairs(VermilionCatalogExporter.maps()) do
         result.map_count = result.map_count + 1
-        local descriptor <const> = SourceMaps.descriptor(name)
+        local width, height = SourceMaps.frameSize(name)
+        if GameBootstrap then GameBootstrap.yieldIfDue() end
         for _, kind in ipairs(kinds) do
             local viewport <const> = kind == "viewport"
             add(result.images, "vermilion-" .. name .. "-" .. kind,
-                viewport and 400 or descriptor.width * 32, viewport and 240 or descriptor.height * 32,
+                viewport and 400 or width * 32, viewport and 240 or height * 32,
                 viewport and "map-viewport" or kind == "events" and "events-warps-connections" or kind)
         end
     end
@@ -110,6 +111,15 @@ function VermilionCatalogExporter.inventory()
     for _, key in ipairs(keys(VermilionCatalogExporter.tiles())) do
         result.tile_count = result.tile_count + 1
         asset(result.images, "tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
+    end
+    -- Map sizes and tile keys are copied out. The shared catalogue is about
+    -- 1.7 MiB, and the strip/pose rows plus their detached copy do not fit
+    -- beside it.
+    local provider = WorldDeltas.definitionProvider and WorldDeltas.definitionProvider()
+    if provider and provider.releaseCatalogue and SourceMaps._releaseSharedCompact then
+        provider:releaseCatalogue()
+        SourceMaps._releaseSharedCompact()
+        collectgarbage("collect")
     end
     local actors <const> = VermilionCatalogExporter.actors()
     for _, source in ipairs(keys(actors)) do
@@ -161,6 +171,9 @@ function VermilionCatalogExporter.inventory()
     end
     table.sort(result.images, function(a, b) return a.path < b.path end)
     table.sort(result.shared_images, function(a, b) return a.path < b.path end)
+    if provider and provider.retargetCatalogue and SourceMaps._sharedCompact then
+        provider:retargetCatalogue(SourceMaps._sharedCompact())
+    end
     return result
 end
 

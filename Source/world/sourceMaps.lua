@@ -153,6 +153,10 @@ end
 
 -- Internal provider input only. Consumers must treat this validated catalogue
 -- as read-only; public compact/descriptor/tile getters still return copies.
+function SourceMaps._releaseSharedCompact()
+    compact, tileGrids = nil, nil
+end
+
 function SourceMaps._sharedCompact()
     return compactData()
 end
@@ -572,6 +576,14 @@ end
 
 function SourceMaps.descriptor(name)
     return copy(assert(compactData().maps[name], "unknown source map"))
+end
+
+-- Width, height and padding without copying tile rows. Catalog inventory
+-- only needs the frame size; a full descriptor copy retains every row table
+-- until the next collection and the 16 MiB pool is already full.
+function SourceMaps.frameSize(name)
+    local descriptor = assert(compactData().maps[name], "unknown source map")
+    return descriptor.width, descriptor.height, descriptor.padding or 0
 end
 
 function SourceMaps.cell(name, x, y)

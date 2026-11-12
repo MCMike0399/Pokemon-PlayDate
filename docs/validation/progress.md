@@ -1,5 +1,13 @@
 # Full-game execution ledger
 
+## 2026-11-12 Bisect of the two red gates
+
+The range is `bf92c4fc` (current `main`) through `bd43dc3e`. `26a9d9d5`, `2c223be7`, and the LINK CABLE and Mew map-pin regenerations were not given their own Simulator runs. Both ends of the range are already red, and `catalog.lua` and `contracts.lua` do not differ between those ends, so the first bad commit is at or before `bf92c4fc`.
+
+`bf92c4fc` catalog, session `e8d279d3c9ce42eb917d830d19dc0454`, stops in `VisualCatalog.write` with `dev/catalog.lua:469: not enough memory`. That boot peaks at 13318.934 KiB. `initialize.ready` is sequence 262 at 6463 ms, heap 12044.500 KiB. `bf92c4fc` contracts, session `f3da1f47a7d34b70a5261bd56b99796f`, pass `party-battle` and stop after `individual-stats-v1` returned at 13910.872 KiB (`time_ms` 20565). The main thread is in `do_poll`. Extra progress-file opens, session `d2344618c264477f9c4ddb79905c3ab9`, move that stall earlier, into `healing-composition`, at about 13568 KiB. On `d2aa6299`, session `18ee4f304a654d1aa6706861409614e7`, `party-battle` returned at 13625 KiB and the Simulator sat in poll until the 150 second timeout. The same tree's catalog, session `1294b6350f45430eb637bcf1d83aee8d`, stops in `VisualCatalog.write` with `not enough memory`. The earlier stall is the same file-bridge wait with a higher live set. The clean boot that includes the audio cues peaked at 13603.870 KiB, about 285 KiB above main's 13318.934 KiB catalog boot.
+
+On the uncommitted tree after `bd43dc3e`, dropping the contract module tables takes the catalog command from about 12505 KiB to 9156 KiB. Dropping the shared compact catalogue, which the world provider also retains, takes 12452 KiB to 10759 KiB. Cerulean then finishes near 10171 KiB. One path set cannot grow past 8192 slots: 8000 placeholder keys reached 9849 KiB and the next growth died. Vermilion's inventory still dies after Pewter at about 11394 KiB. The five gates are not green. `MallocPoolSize` stayed 16645684. `main` stays `bf92c4fc`.
+
 ## 2026-11-12 Pause Save keeps the picture, and STAY actors redraw after the snap
 
 Lane I `77016410`. `GameSaves:save` and `GameSaves:saveFromHall` pass a draw callback that returns true, so `GameBootstrap.showLoading` leaves the frame that is already on the LCD. `engine/menus/save.asm` `SaveMenu` keeps the map and the text box, clears the box text, and prints `NowSavingString` before `GameSavedText`. `scripts/HallOfFame.asm:50` calls `SaveGameData` with the ceremony still up. The port does not print "Now saving..." yet. It no longer replaces that box with `Pokemon Blue` / `Loading...` / `Save.begin` / `Phase N`.

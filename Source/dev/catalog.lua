@@ -67,6 +67,17 @@ end
 local function pathOK(path)
     return type(path)=="string" and #path<=255 and path:match("^[A-Za-z0-9_-]+%.png$")~=nil
 end
+local function copyImageList(list)
+    local out={}
+    for index,entry in ipairs(list) do
+        out[index]=Party._primitive(entry)
+        list[index]=nil
+        -- One full extra copy of a Vermilion-sized list does not fit beside the
+        -- original. Drop each source row as its detached copy is kept.
+        if index%256==0 then collectgarbage("collect") end
+    end
+    return out
+end
 local function rows(record)
     local inventory=CatalogRuntime.guard(record.inventory)
     assert(type(inventory)=="table" and type(inventory.images)=="table","exporter image inventory required")
@@ -78,7 +89,18 @@ local function rows(record)
         assert(type(entry.category)=="string" and type(entry.mask)=="boolean","explicit category and mask required")
         seen[entry.path]=true
     end
-    return Party._primitive(inventory)
+    seen=nil
+    collectgarbage("collect")
+    local detached={}
+    for key,value in pairs(inventory) do
+        if key=="images" or key=="shared_images" then
+            assert(Party._array(value,16384),"bounded dense exporter inventory required")
+            detached[key]=copyImageList(value)
+        else
+            detached[key]=Party._primitive(value)
+        end
+    end
+    return detached
 end
 function VisualCatalog.registerExporter(name,record)
     assert(not exporting and not collecting and not registering,"cannot register during export")
@@ -134,17 +156,51 @@ local function legacyZone(key,zone) return protection().maps[key] or not owns("o
 local function legacyNPC(key) return protection().npcs[key] or not owns("ownsNPC",key) end
 local function legacyTile(key) return protection().tiles[key] or not owns("ownsTile",key) end
 function VisualCatalog.expectedInventory()
+    -- Decode the shared map catalogue before the protected image list is
+    -- copied. Doing it afterwards asks for the catalogue while the Lua heap
+    -- is already near the 16 MiB pool, and the decode dies with
+    -- "not enough memory".
+    if SourceMaps and SourceMaps._sharedCompact then SourceMaps._sharedCompact() end
+    collectgarbage("collect")
     local result={schema=1,images={},exporters={},protected_count=1635,review_status="additions unreviewed"}
-    local seen={}
+    -- One path table that grows past 8192 slots asks for a contiguous rehash
+    -- the pool cannot satisfy, even though the rows themselves fit. Four sets
+    -- stay under that rehash.
+    local seen={{},{},{},{}}
+    local count=0
+    -- rows() already returns a detached copy. Share that detached row,
+    -- including the decoded protected rows. The export only reads those fields.
     local function add(entry)
-        assert(pathOK(entry.path) and not seen[entry.path],"duplicate/unsafe catalog path: "..tostring(entry.path))
-        seen[entry.path]=true;result.images[#result.images+1]=Party._primitive(entry)
+        local path=entry.path
+        assert(pathOK(path),"duplicate/unsafe catalog path: "..tostring(path))
+        local index=(string.byte(path,1)+string.byte(path,#path)+#path)%4+1
+        assert(not seen[index][path],"duplicate/unsafe catalog path: "..path)
+        seen[index][path]=true
+        count=count+1
+        result.images[count]=entry
     end
-    for _,entry in ipairs(protection().images) do add(entry) end
+    -- Copying the 1635 protected rows first leaves too little of the 16 MiB
+    -- pool for the exporter frame lists (cerulean starts near 13696 KiB and
+    -- dies). Build the exporter lists while the heap is still near the
+    -- post-boot live set, then copy the protected rows.
     for _,name in ipairs(keys(exporters)) do
+        collectgarbage("collect")
         local inventory=rows(exporters[name]);result.exporters[name]=inventory
         for _,entry in ipairs(inventory.images) do add(entry) end
+        collectgarbage("collect")
+        local mark=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+        if mark then mark:write("rows-after "..name.."\t"..tostring(collectgarbage("count")).."\n"); mark:close() end
     end
+    local function heapMark(label)
+        local file=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+        if file then file:write(label.."\t"..tostring(collectgarbage("count")).."\n"); file:close() end
+    end
+    local protectedImages=protection().images
+    collectgarbage("collect")
+    heapMark("protected-decoded "..tostring(#protectedImages).." flat "..tostring(count))
+    for _, entry in ipairs(protectedImages) do add(entry) end
+    collectgarbage("collect")
+    heapMark("protected-after "..tostring(count).." len "..tostring(#result.images))
     table.sort(result.images,function(a,b) return a.path<b.path end);return result
 end
 
@@ -237,9 +293,12 @@ end
 function VisualCatalog.additionInventory() return additionInventory() end
 
 local function writeCatalog(outputDir)
+    collectgarbage("collect")
     assert(playdate.isSimulator and playdate.simulator, "catalog requires Simulator")
     assert(type(outputDir) == "string" and outputDir:sub(1, 1) == "/", "absolute output directory required")
     local expected=VisualCatalog.expectedInventory()
+    local mark=playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+    if mark then mark:write("inventory-done\t"..tostring(collectgarbage("count")).."\n"); mark:close() end
     local declarations,seen={},{};for _,entry in ipairs(expected.images) do declarations[entry.path]=entry end
     local manifest = { expected_inventory=expected, exporters={}, schema = 1, images = {}, missing = {}, maps = {}, tiles = {}, source_npcs = {}, event_art = {}, runtime_art = {},
         added_inventory = VisualCatalog.additionInventory(),
@@ -257,9 +316,14 @@ local function writeCatalog(outputDir)
         assert(category==declared.category and (mask or false)==declared.mask,"catalog metadata differs from declaration: "..filename)
         playdate.simulator.writeToFile(image, outputDir .. "/" .. filename)
         manifest.images[#manifest.images + 1] = { path = filename, width = w, height = h, category = category, mask = mask or false }
-        -- Native image buffers are larger than their Lua userdata wrappers.
-        -- Release completed exports before the fixed device-sized pool fills.
-        if #manifest.images % 32 == 0 then
+        -- Native image buffers are larger than their Lua userdata wrappers, so
+        -- the Lua heap can sit near 13 MiB while unreferenced map frames still
+        -- fill the 16 MiB pool. A full route is hundreds of KiB. Collect after
+        -- every large frame so the previous buffer is gone before the next
+        -- route is allocated. Small tiles stay on the 32-image cadence.
+        -- The image argument is still referenced, so this collect frees only
+        -- earlier frames.
+        if w * h > 400 * 240 or #manifest.images % 32 == 0 then
             collectgarbage("collect")
         end
     end
@@ -419,6 +483,9 @@ local function writeCatalog(outputDir)
                     if zone.collision[y][x] == 1 then gfx.fillRect((x-1)*TILE_SIZE, (y-1)*TILE_SIZE, TILE_SIZE, TILE_SIZE) end
                 end end
             end), "collision")
+            -- The collision frame is unreferenced now. Drop it before the
+            -- events frame, which has to keep the map image beside it.
+            collectgarbage("collect")
             save(prefix .. "__events", render(w, h, gfx.kColorWhite, function()
                 map:draw(0, 0)
                 local function mark(x, y, label)
@@ -449,8 +516,12 @@ local function writeCatalog(outputDir)
                 registry_keys=keys(registryKeys), source_events=events, binding_issues=zone:getBindingIssues(),
                 width = zone.width, height = zone.height, doors = zone.doors,
                 coordinates = "zero-based movement cells; 32 Playdate pixels/cell", npcPolicy = "all definitions, including conditional; predicates not evaluated" }
+            map = nil
+            collectgarbage("collect")
             end
         end
+        localImages = nil
+        collectgarbage("collect")
         for _,name in ipairs(keys(exporters)) do
             manifest.exporters[name]=VisualCatalog.runExporter(name,save)
         end
@@ -462,6 +533,12 @@ local function writeCatalog(outputDir)
     return manifest
 end
 function VisualCatalog.write(outputDir)
+    collectgarbage("collect")
+    -- Suite closures are not part of the export. Drop them before the one
+    -- inventory pass so the declarations and the map frames share the pool.
+    if Contracts and Contracts.releaseSuiteCode then Contracts.releaseSuiteCode() end
+    local mark=playdate.file.open("catalog-mark.txt", playdate.file.kFileWrite)
+    if mark then mark:write("after-release\t"..tostring(collectgarbage("count")).."\n"); mark:close() end
     assert(not exporting,"catalog export already running")
     exporting=true
     local result=table.pack(pcall(function() return CatalogRuntime.guard(function() return writeCatalog(outputDir) end) end))

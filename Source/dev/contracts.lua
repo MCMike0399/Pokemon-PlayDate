@@ -6,6 +6,16 @@ local suites = {}
 -- A bounded checkpoint survives a native SDK stall before the final reply.
 function Contracts.progress(suite, name, status)
     if not HarnessBuild or not HarnessBuild.enabled then return end
+    -- playdate.file.open allocates from the same pool as Lua. Once the heap
+    -- is near 13.9 MiB the open sits in poll until the request times out
+    -- instead of raising "not enough memory". Drop publication copies and
+    -- collect before the checkpoint so the aggregate can keep going. Every
+    -- registered suite still runs.
+    if SessionCodec and SessionCodec.relieveHeap then
+        SessionCodec.relieveHeap()
+    else
+        collectgarbage("collect")
+    end
     local file = assert(playdate.file.open("contract-progress.tmp", playdate.file.kFileWrite))
     file:write(json.encode({suite=suite,name=name,status=status,
         time_ms=playdate.getCurrentTimeMilliseconds(),heap_kib=collectgarbage("count")}))
@@ -17,6 +27,24 @@ function Contracts.register(name, run)
     assert(type(name) == "string" and type(run) == "function", "contract suite requires a name and function")
     for _, suite in ipairs(suites) do assert(suite.name ~= name, "duplicate contract suite: " .. name) end
     suites[#suites + 1] = { name = name, run = run }
+end
+local suiteCodeReleased = false
+-- The catalog export builds every image declaration in one pass. The contract
+-- modules are already registered and are not read by that export. Their
+-- closures hold about 3.3 MiB, which is the difference between the inventory
+-- fitting and dying at "not enough memory". Releasing them is process-local:
+-- the catalog command does not run suites afterward.
+function Contracts.releaseSuiteCode()
+    if suiteCodeReleased then return end
+    suiteCodeReleased = true
+    for _, suite in ipairs(suites) do suite.run = nil end
+    for key, value in pairs(_G) do
+        if type(key) == "string" and type(value) == "table" and key:find("Contract", 1, true) and key ~= "Contracts" then
+            _G[key] = nil
+        end
+    end
+    collectgarbage("collect")
+    collectgarbage("collect")
 end
 local function equal(actual, expected, label)
     assert(actual == expected, (label or "value") .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
@@ -413,6 +441,7 @@ function Contracts.run(only)
                 test(suite.name .. ": report", function() error("inconsistent contract totals") end)
             end
         end
+        child = nil
     end
     RulesRNG.restore(savedRNG)
     playdate.display.setOffset(savedOffsetX, savedOffsetY)

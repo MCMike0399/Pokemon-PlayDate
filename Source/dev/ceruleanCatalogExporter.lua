@@ -146,12 +146,13 @@ function CeruleanCatalogExporter.inventory()
         asset("tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
     end
     for _, name in ipairs(mapNames) do
-        local descriptor = SourceMaps.descriptor(name)
+        local width, height = SourceMaps.frameSize(name)
+        if GameBootstrap then GameBootstrap.yieldIfDue() end
         for _, kind in ipairs(mapKinds) do
             local viewport = kind == "viewport"
             -- Map images have no synthetic mask/composites.
-            add("cerulean-" .. name .. "-" .. kind, viewport and 400 or descriptor.width * 32,
-                viewport and 240 or descriptor.height * 32,
+            add("cerulean-" .. name .. "-" .. kind, viewport and 400 or width * 32,
+                viewport and 240 or height * 32,
                 viewport and "map-viewport" or kind == "events" and "events-warps-connections" or kind)
         end
     end
@@ -165,10 +166,13 @@ function CeruleanCatalogExporter.inventory()
             asset("cerulean-frame-" .. source .. "-" .. index, 32, 32, "source-frame", true)
         end
     end
+    collectgarbage("collect")
     assert(strips == result.actor_strip_count and frames == result.source_frame_count, "explicit source strip inventory changed")
     local poses = CeruleanCatalogExporter.poses()
+    collectgarbage("collect")
     assert(#poses == result.directional_pose_count, "explicit source pose inventory changed")
     for _, pose in ipairs(poses) do asset(pose.name, 32, 32, "cerulean-character", true) end
+    collectgarbage("collect")
     local art = TutorialEscortData.get().art
     local artCount, frameCount = 0, 0
     for _, name in ipairs(keys(art)) do
@@ -278,11 +282,18 @@ local function mapImages(name, sink, packagePrefix, hiddenEvents)
                     status = assert(specs[id]).status }
             end
         end), "events-warps-connections")
-        return { name = name, zone_id = descriptor.id, key = descriptor.key,
+        local report = { name = name, zone_id = descriptor.id, key = descriptor.key,
             width = zone.width, height = zone.height, source_width = descriptor.source_width, padding = descriptor.padding,
             source_sha256 = descriptor.source_sha256, actors = actorRows, events = events, connections = connections,
             directional_rules = definition.directional_rules, issues = zone:getBindingIssues(),
             campaign_ready = zone:isCampaignReady(), slice_ready = zone:isSliceReady() }
+        -- The map bitmap and the padded definition are finished. Drop them
+        -- before the next route allocates its own pair.
+        terrain = nil
+        definition = nil
+        zone = nil
+        collectgarbage("collect")
+        return report
     end)
     if view then view:dispose() end
     if not ok then error(result, 0) end
@@ -302,7 +313,10 @@ function CeruleanCatalogExporter.writer(sink)
         report.tiles[#report.tiles + 1] = { stable_key = key, path = name .. ".png",
             terrain = tile.terrain, collision = tile.collision }
     end
-    for _, name in ipairs(maps()) do report.maps[#report.maps + 1] = mapImages(name, sink) end
+    for _, name in ipairs(maps()) do
+        report.maps[#report.maps + 1] = mapImages(name, sink)
+        collectgarbage("collect")
+    end
     for _, source in ipairs(keys(actors())) do
         local strip = CeruleanContent.sprite(source)
         sink.asset("cerulean-strip-" .. source, sourceStrip(source), "source-strip", true)
