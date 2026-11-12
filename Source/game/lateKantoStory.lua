@@ -74,3 +74,7 @@ function LateKantoStory.actorMetadata(id)
     end
     return {}
 end
+
+if type(import) == "function" then
+    import "game/fossilRevival"
+end

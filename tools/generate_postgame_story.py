@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cerulean Cave, the Hall of Fame rematch, and the post-credits Continue spawn.
+"""Cerulean Cave, the Power Plant, the Hall of Fame rematch, and Continue.
 
 Reads the pinned pokered revision. Does not invent a wild slot, an item, a
 second champion roster, or a Mew.
@@ -35,6 +35,14 @@ FILES = [
     'text/CeruleanCaveB1F.asm',
     'data/text/text_1.asm',
     'data/trainers/parties.asm',
+    'data/wild/maps/PowerPlant.asm',
+    'data/maps/objects/PowerPlant.asm',
+    'scripts/PowerPlant.asm',
+    'text/PowerPlant.asm',
+    'data/maps/objects/CinnabarLabFossilRoom.asm',
+    'scripts/CinnabarIsland.asm',
+    'text/CinnabarLabFossilRoom.asm',
+    'engine/events/cinnabar_lab.asm',
 ]
 FLOORS = ('CeruleanCave1F', 'CeruleanCave2F', 'CeruleanCaveB1F')
 
@@ -151,10 +159,8 @@ def text_record(text, label, source):
         line_no = index + 1
         if stripped.startswith('text_ram '):
             recipe.append(dict(op='text_ram', source_line=line_no, symbol=stripped.split()[1]))
-        elif stripped == 'text_end':
-            recipe.append(dict(op='control', source='text_end', source_line=line_no))
-        elif stripped == 'done':
-            recipe.append(dict(op='control', source='done', source_line=line_no))
+        elif stripped in ('text_end', 'done', 'prompt', 'text_start'):
+            recipe.append(dict(op='control', source=stripped, source_line=line_no))
         else:
             found = re.match(r'(text|line|cont|para) "(.*)"$', stripped)
             if not found:
@@ -213,6 +219,33 @@ def continue_spawn(sources):
         raise ValueError('Pallet fly warp missing')
     return dict(zone_id='pokered:PALLET_TOWN', map='PALLET_TOWN', x=int(found.group(1)),
                 y=int(found.group(2)), facing='down', source='data/maps/special_warps.asm:.PalletTown')
+
+
+def adjacent(x, y):
+    return [[x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]]
+
+
+def power_plant_flags(script):
+    headers = dict(re.findall(
+        r'(?m)^(\w+TrainerHeader):\n\ttrainer (EVENT_[A-Z0-9_]+),', script))
+    pointers = script.split('PowerPlant_TextPointers:', 1)[1].split('PowerPlantTrainerHeaders:', 1)[0]
+    flags = []
+    for name in re.findall(r'dw_const (\w+),', pointers):
+        if name == 'PickUpItemText':
+            continue
+        body = script.split('\n' + name + ':', 1)[1]
+        found = re.search(r'ld hl, (\w+TrainerHeader)', body)
+        if found is None or found.group(1) not in headers:
+            raise ValueError(name + ' does not load a Power Plant trainer header')
+        flags.append(headers[found.group(1)])
+    if flags != [
+        'EVENT_BEAT_POWER_PLANT_VOLTORB_0', 'EVENT_BEAT_POWER_PLANT_VOLTORB_1',
+        'EVENT_BEAT_POWER_PLANT_VOLTORB_2', 'EVENT_BEAT_POWER_PLANT_VOLTORB_3',
+        'EVENT_BEAT_POWER_PLANT_VOLTORB_4', 'EVENT_BEAT_POWER_PLANT_VOLTORB_5',
+        'EVENT_BEAT_POWER_PLANT_VOLTORB_6', 'EVENT_BEAT_POWER_PLANT_VOLTORB_7',
+        'EVENT_BEAT_ZAPDOS']:
+        raise ValueError('Power Plant trainer headers moved')
+    return flags
 
 
 def champion_roster(sources):
@@ -275,6 +308,64 @@ def build(reference):
     oak = hall_people[0]
     if oak['index'] != 1 or oak['sprite'] != 'SPRITE_OAK':
         raise ValueError('Hall of Fame Oak is not object 1')
+    rate, water, slots = grass_table(sources['data/wild/maps/PowerPlant.asm'])
+    if rate != 10 or water != 0:
+        raise ValueError('Power Plant encounter rates changed')
+    plant_constant, plant_items, plant_statics, plant_people = map_objects(
+        sources['data/maps/objects/PowerPlant.asm'])
+    if plant_constant != 'POWER_PLANT' or plant_people:
+        raise ValueError('Power Plant object list changed')
+    plant_flags = power_plant_flags(sources['scripts/PowerPlant.asm'])
+    if len(plant_statics) != len(plant_flags):
+        raise ValueError('Power Plant statics and trainer headers differ')
+    grass = []
+    for index, (level, species) in enumerate(slots):
+        if species in ('MEW', 'MEWTWO', 'ZAPDOS', 'ELECTABUZZ'):
+            raise ValueError('Power Plant Blue grass contains ' + species)
+        grass.append(dict(index=index, level=level, species=species.lower(),
+                          species_source=species, weight_256=slot_weights[index]))
+    plant_pickups = []
+    for item in plant_items:
+        if item['sprite'] != 'SPRITE_POKE_BALL':
+            raise ValueError('Power Plant item is not a pokeball')
+        plant_pickups.append(dict(id=item['id'], index=item['index'], x=item['x'], y=item['y'],
+                                  symbol=item['symbol'], item=symbols[item['symbol']]))
+    if [item['symbol'] for item in plant_pickups] != [
+            'CARBOS', 'HP_UP', 'RARE_CANDY', 'TM_THUNDER', 'TM_REFLECT']:
+        raise ValueError('Power Plant item list changed')
+    statics = []
+    for obj, flag in zip(plant_statics, plant_flags):
+        disguised = obj['sprite'] == 'SPRITE_POKE_BALL'
+        if obj['species'] == 'ZAPDOS':
+            if disguised or obj['level'] != 50 or (obj['x'], obj['y']) != (4, 9) or flag != 'EVENT_BEAT_ZAPDOS':
+                raise ValueError('Zapdos is not the level 50 bird at (4, 9)')
+            text, cry = '_PowerPlantZapdosBattleText', 'zapdos'
+        else:
+            if not disguised or obj['species'] not in ('VOLTORB', 'ELECTRODE'):
+                raise ValueError('Power Plant static is not a disguised ball')
+            text, cry = '_PowerPlantVoltorbBattleText', None
+        row = dict(id=obj['id'], index=obj['index'], map_constant=plant_constant,
+                   x=obj['x'], y=obj['y'], species=obj['species'], level=obj['level'],
+                   sprite=obj['sprite'], disguised=disguised, flag=flag, text=text,
+                   positions=adjacent(obj['x'], obj['y']), battle=model)
+        if cry:
+            row['cry'] = cry
+        statics.append(row)
+    if 'call PlayCry' not in sources['scripts/PowerPlant.asm'].split('PowerPlantZapdosBattleText:', 1)[1]:
+        raise ValueError('Zapdos no longer plays a cry')
+    lab_constant, lab_items, lab_statics, lab_people = map_objects(
+        sources['data/maps/objects/CinnabarLabFossilRoom.asm'])
+    if lab_constant != 'CINNABAR_LAB_FOSSIL_ROOM' or lab_items or lab_statics or len(lab_people) != 2:
+        raise ValueError('fossil room object list changed')
+    scientist = lab_people[0]
+    if scientist['index'] != 1 or scientist['sprite'] != 'SPRITE_SCIENTIST' or (scientist['x'], scientist['y']) != (5, 2):
+        raise ValueError('fossil scientist is not object 1 at (5, 2)')
+    island_script = sources['scripts/CinnabarIsland.asm']
+    island_body = island_script.split('CinnabarIsland_Script:', 1)[1].split('CinnabarIsland_ScriptPointers:', 1)[0]
+    if 'ResetEvent EVENT_LAB_STILL_REVIVING_FOSSIL' not in island_body:
+        raise ValueError('Cinnabar Island no longer clears the fossil revival')
+    if 'ld [wFossilItem], a' not in sources['engine/events/cinnabar_lab.asm']:
+        raise ValueError('the lab no longer stores wFossilItem')
     hall_script = sources['scripts/HallOfFame.asm']
     if 'TOGGLE_CERULEAN_CAVE_GUY' not in hall_script or 'predef HideObject' not in hall_script:
         raise ValueError('Hall of Fame no longer hides the cave guard')
@@ -292,6 +383,14 @@ def build(reference):
                         x=mewtwo['x'], y=mewtwo['y'], level=mewtwo['level'], species=mewtwo['species'],
                         sprite=mewtwo['sprite'], flag='EVENT_BEAT_MEWTWO', text='_MewtwoBattleText',
                         cry='mewtwo', positions=positions, battle=model),
+        ),
+        power_plant=dict(map='PowerPlant', map_constant=plant_constant, grass_rate=rate,
+                         water_rate=water, grass=grass, items=plant_pickups, statics=statics),
+        fossil=dict(
+            scientist=dict(id=scientist['id'], x=scientist['x'], y=scientist['y'], sprite=scientist['sprite']),
+            island_zone='pokered:CINNABAR_ISLAND', island_map='CINNABAR_ISLAND',
+            clear_flag='EVENT_LAB_STILL_REVIVING_FOSSIL',
+            item_bytes={'OLD_AMBER': 31, 'DOME_FOSSIL': 41, 'HELIX_FOSSIL': 42},
         ),
         rematch=dict(
             champion_flag='EVENT_BEAT_CHAMPION_RIVAL',
@@ -312,6 +411,34 @@ def build(reference):
                                           'data/text/text_1.asm'),
             '_NoMoreRoomForItemText': text_record(sources['data/text/text_1.asm'], '_NoMoreRoomForItemText',
                                                   'data/text/text_1.asm'),
+            '_PowerPlantVoltorbBattleText': text_record(sources['text/PowerPlant.asm'],
+                                                        '_PowerPlantVoltorbBattleText', 'text/PowerPlant.asm'),
+            '_PowerPlantZapdosBattleText': text_record(sources['text/PowerPlant.asm'],
+                                                       '_PowerPlantZapdosBattleText', 'text/PowerPlant.asm'),
+            '_CinnabarLabFossilRoomScientist1Text': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1Text',
+                'text/CinnabarLabFossilRoom.asm'),
+            '_CinnabarLabFossilRoomScientist1NoFossilsText': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1NoFossilsText',
+                'text/CinnabarLabFossilRoom.asm'),
+            '_CinnabarLabFossilRoomScientist1GoForAWalkText': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1GoForAWalkText',
+                'text/CinnabarLabFossilRoom.asm'),
+            '_CinnabarLabFossilRoomScientist1FossilIsBackToLifeText': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1FossilIsBackToLifeText',
+                'text/CinnabarLabFossilRoom.asm'),
+            '_CinnabarLabFossilRoomScientist1SeesFossilText': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1SeesFossilText',
+                'text/CinnabarLabFossilRoom.asm'),
+            '_CinnabarLabFossilRoomScientist1TakesFossilText': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1TakesFossilText',
+                'text/CinnabarLabFossilRoom.asm'),
+            '_CinnabarLabFossilRoomScientist1GoForAWalkText2': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1GoForAWalkText2',
+                'text/CinnabarLabFossilRoom.asm'),
+            '_CinnabarLabFossilRoomScientist1ComeAgainText': text_record(
+                sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1ComeAgainText',
+                'text/CinnabarLabFossilRoom.asm'),
         },
     )
     return {

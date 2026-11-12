@@ -147,6 +147,36 @@ class CeruleanCaveSourceTests(unittest.TestCase):
         warps = (REFERENCE / 'data/maps/special_warps.asm').read_text()
         self.assertRegex(warps, r'\.PalletTown:\s+fly_warp PALLET_TOWN,\s+5,\s+6')
 
+    def test_power_plant_items_disguises_and_zapdos_follow_the_script(self):
+        plant = self.story['power_plant']
+        installed = json.loads((ROOT / 'Source/data/zRemainder/PowerPlant.json').read_text())
+        self.assertEqual(plant['grass'], installed['encounters']['grass']['slots'])
+        self.assertEqual(plant['grass_rate'], installed['encounters']['grass']['rate_byte'])
+        self.assertEqual(plant['water_rate'], 0)
+        self.assertNotIn('electabuzz', [slot['species'] for slot in plant['grass']])
+        script = (REFERENCE / 'scripts/PowerPlant.asm').read_text()
+        pointers = script.split('PowerPlant_TextPointers:', 1)[1].split('PowerPlantTrainerHeaders:', 1)[0]
+        flags = []
+        for name in re.findall(r'dw_const (\w+),', pointers):
+            if name == 'PickUpItemText':
+                continue
+            body = script.split('\n' + name + ':', 1)[1]
+            header = re.search(r'ld hl, (\w+TrainerHeader)', body).group(1)
+            flags.append(re.search(header + r':\n\ttrainer (EVENT_[A-Z0-9_]+)', script).group(1))
+        self.assertEqual([row['flag'] for row in plant['statics']], flags)
+        disguised = [row for row in plant['statics'] if row['disguised']]
+        self.assertEqual(len(disguised), 8)
+        self.assertEqual(sorted(row['species'] for row in disguised), ['ELECTRODE', 'ELECTRODE', 'VOLTORB', 'VOLTORB', 'VOLTORB', 'VOLTORB', 'VOLTORB', 'VOLTORB'])
+        zapdos = plant['statics'][-1]
+        self.assertEqual((zapdos['species'], zapdos['level'], zapdos['x'], zapdos['y'], zapdos['sprite'], zapdos['cry']),
+                         ('ZAPDOS', 50, 4, 9, 'SPRITE_BIRD', 'zapdos'))
+        self.assertEqual(zapdos['battle']['hide_on'], ['victory', 'caught', 'run'])
+        self.assertEqual(zapdos['battle']['stay_on'], ['defeat'])
+        self.assertEqual([item['item'] for item in plant['items']], ['carbos', 'hpUp', 'rareCandy', 'tm25', 'tm33'])
+        self.assertEqual(self.play['texts']['_PowerPlantVoltorbBattleText']['recipe'][0]['text'], 'Bzzzt!')
+        self.assertEqual(self.play['texts']['_PowerPlantZapdosBattleText']['recipe'][0]['text'], 'Gyaoo!@')
+        self.assertNotIn('cry', plant['statics'][0])
+
     def test_runtime_hides_mewtwo_clears_the_champion_and_continues_in_pallet(self):
         module = ROOT / 'Source/game/postgameStory.lua'
         probe = r'''
@@ -230,8 +260,30 @@ for id, event in pairs(registered.events) do
         check(string.sub(event.flag, 1, 7), "PICKUP:", id)
     end
 end
-check(pickups, 8, "pickups")
+check(pickups, 13, "pickups")
 check(registered.events[request.id].kind, "bespoke", "mewtwo event")
+local zapdos = PostgameStory.staticRequest("pokered:POWER_PLANT:objects:9", {})
+check(zapdos.species, "zapdos", "zapdos species")
+check(zapdos.level, 50, "zapdos level")
+check(zapdos.zone_id, "pokered:POWER_PLANT", "zapdos zone")
+check(zapdos.outcomes.run.flags.EVENT_BEAT_ZAPDOS, true, "zapdos run hides")
+check(zapdos.outcomes.victory.flags.EVENT_BEAT_ZAPDOS, true, "zapdos win hides")
+check(zapdos.outcomes.caught.flags.EVENT_BEAT_ZAPDOS, true, "zapdos catch hides")
+check(next(zapdos.outcomes.defeat.flags), nil, "zapdos loss stays")
+local voltorb = PostgameStory.staticRequest("pokered:POWER_PLANT:objects:1", {})
+check(voltorb.species, "voltorb", "voltorb species")
+check(voltorb.level, 40, "voltorb level")
+check(voltorb.outcomes.run.flags.EVENT_BEAT_POWER_PLANT_VOLTORB_0, true, "voltorb run hides")
+check(registered.events[voltorb.id].kind, "bespoke", "voltorb is not a pickup")
+check(registered.events["pokered:POWER_PLANT:objects:4"].kind, "bespoke", "electrode is not a pickup")
+check(registered.events["pokered:POWER_PLANT:objects:10"].kind, "pickup", "carbos")
+check(registered.events["pokered:POWER_PLANT:objects:10"].item, "carbos", "carbos id")
+check(registered.events["pokered:POWER_PLANT:objects:13"].item, "tm25", "tm thunder")
+check(registered.events["pokered:POWER_PLANT:objects:14"].item, "tm33", "tm reflect")
+local hidden = PostgameStory.visibility(zapdos.id)
+check(hidden.visibility[1].id, "EVENT_BEAT_ZAPDOS", "zapdos flag")
+check(hidden.visibility[1].equals, false, "zapdos hidden when set")
+check(registered.events["pokered:CINNABAR_LAB_FOSSIL_ROOM:objects:1"].kind, "bespoke", "fossil scientist")
 check(registered.text("_MewtwoBattleText").recipe[1].text, "Mew!@", "cry text")
 check(GameSaves:continueGame(), hallCandidate, "continue returns")
 check(captured.location.zone_id, "pokered:PALLET_TOWN", "relocated zone")
@@ -264,24 +316,36 @@ print("lane-h cave ok")
         self.assertIn('lane-h cave ok', completed.stdout)
 
 
-class LaneEMewtwoHandoffTests(unittest.TestCase):
-    def test_mewtwo_patch_matches_the_source_object_and_is_installed(self):
-        patch = (ROOT / 'tools/notes/lane-e-mewtwo-encounter.patch').read_text()
-        self.assertIn('pokered:CERULEAN_CAVE_B1F:objects:1', patch)
-        self.assertIn('species = "mewtwo", level = 70', patch)
-        self.assertIn('positions = {{27, 12}, {27, 14}, {26, 13}, {28, 13}}', patch)
-        self.assertIn('legendary = true', patch)
-        installed = (ROOT / 'Source/domain/sourceEncounters.lua').read_text()
-        self.assertIn('["pokered:CERULEAN_CAVE_B1F:objects:1"]', installed)
-        self.assertIn('positions = {{27, 12}, {27, 14}, {26, 13}, {28, 13}}', installed)
-        completed = subprocess.run(['patch', '--dry-run', '-p1'], input=patch, text=True,
+class LaneEStaticEncounterHandoffTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.story = json.loads((GEN.OUTPUT / 'story.json').read_text())
+        cls.patch = (ROOT / 'tools/notes/lane-e-static-encounters.patch').read_text()
+
+    def test_one_patch_covers_mewtwo_and_the_power_plant_statics(self):
+        self.assertFalse((ROOT / 'tools/notes/lane-e-mewtwo-encounter.patch').exists())
+        rows = [self.story['cave']['mewtwo'], *self.story['power_plant']['statics']]
+        self.assertEqual(len(rows), 10)
+        for row in rows:
+            self.assertIn('["' + row['id'] + '"]', self.patch)
+            self.assertIn('species = "' + row['species'].lower() + '", level = ' + str(row['level']), self.patch)
+            self.assertIn('flag = "' + row['flag'] + '", legendary = true', self.patch)
+        self.assertIn('species = "mewtwo", level = 70', self.patch)
+        self.assertIn('species = "zapdos", level = 50', self.patch)
+        self.assertIn('species = "electrode", level = 43', self.patch)
+        self.assertEqual(sum(1 for line in self.patch.splitlines() if line.startswith('+') and 'legendary = true' in line), 10)
+        # Articuno is already in the table, and these ten rows are installed.
+        # The patch context cannot apply a second time.
+        completed = subprocess.run(['patch', '--dry-run', '--fuzz=0', '-p1'], input=self.patch, text=True,
                                    cwd=ROOT, capture_output=True, check=False)
         self.assertNotEqual(completed.returncode, 0, completed.stdout)
 
-    def test_source_encounters_defines_mewtwo(self):
+    def test_source_encounters_defines_the_static_rows(self):
         text = (ROOT / 'Source/domain/sourceEncounters.lua').read_text()
-        self.assertIn('["pokered:CERULEAN_CAVE_B1F:objects:1"]', text)
-        self.assertIn('flag = "EVENT_BEAT_MEWTWO", legendary = true', text)
+        for row in (self.story['cave']['mewtwo'], *self.story['power_plant']['statics']):
+            needle = '["' + row['id'] + '"]'
+            self.assertEqual(text.count(needle), 1, row['id'])
+            self.assertIn('flag = "' + row['flag'] + '", legendary = true', text)
 
 
 if __name__ == '__main__':

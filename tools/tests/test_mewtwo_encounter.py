@@ -119,7 +119,7 @@ function Party._validPokemon(mon)
   return type(mon) == "table" and type(mon.is) == "function" and mon:is("Pokemon")
     and pokemonData[mon.species] ~= nil and mon.maxHP == 1 and mon.hp == 1
 end
-pokemonData = { mewtwo = true }
+pokemonData = { mewtwo = true, voltorb = true, electrode = true, zapdos = true }
 
 json = {}
 function json.decodeFile(path)
@@ -210,7 +210,7 @@ local event = { epoch = 0, active = false }
 function event:valid() return self.active end
 function event:isTop() return currentName == "event" end
 function event:source(labels, callback)
-  assert(labels[1] == "_MewtwoBattleText", "mewtwo text")
+  self.openedLabel = labels[1]
   self.onConfirm = callback
 end
 function event:advance()
@@ -225,7 +225,7 @@ function event:enter(id)
   self.game = game
   self.player = game.player
   self.plan = SourceEventHandlers[id]({ flags = {} })
-  assert(self.plan and self.plan.scene == "postgame" and self.plan.scene_script == "mewtwo",
+  assert(self.plan and self.plan.scene == "postgame" and self.plan.scene_script == "static",
     "plan " .. tostring(self.plan and self.plan.scene) .. " " .. tostring(self.plan and self.plan.scene_script))
   assert(self:valid() == true and self:isTop() == true,
     "ready " .. tostring(self:valid()) .. " top " .. tostring(self:isTop())
@@ -255,16 +255,12 @@ end
 
 currentZone = {
   stableID = "pokered:CERULEAN_CAVE_B1F",
-  width = 40, height = 20,
+  width = 50, height = 40,
   isSliceReady = function() return false end,
 }
 PCTerminals = { tryInteract = function() return false end }
 
-local mewtwo = {
-  gridX = 27, gridY = 13,
-  def = { source_event_id = MEWTWO },
-  faceTowards = function() end,
-}
+local actor = { gridX = 27, gridY = 13, def = {}, faceTowards = function() end }
 local player = { gridX = 27, gridY = 14, facing = "up", isMoving = false }
 function player:getFacingTile()
   if self.facing == "up" then return self.gridX, self.gridY - 1 end
@@ -275,7 +271,7 @@ end
 local motion = { requestInteraction = function() return false end }
 local npcManager = { motion = motion }
 function npcManager:getNPCAt(x, y)
-  if x == mewtwo.gridX and y == mewtwo.gridY then return mewtwo end
+  if x == actor.gridX and y == actor.gridY then return actor end
 end
 game = {
   player = player, session = session, machine = machine, npcManager = npcManager,
@@ -289,6 +285,7 @@ local function reset()
   event.epoch = 0
   event.active = false
   event.onConfirm = nil
+  event.openedLabel = nil
   event.plan = nil
   event.postgameScene = nil
   session._pending = nil
@@ -303,28 +300,55 @@ end
 assert(found, "mewtwo was not registered among " .. count)
 assert(type(SourceEventHandlers[MEWTWO]) == "function", "handler")
 
-local function press_a(x, y, facing)
+local function press_a(zone, ax, ay, id, x, y, facing)
   reset()
+  currentZone.stableID = zone
+  actor.gridX, actor.gridY = ax, ay
+  actor.def.source_event_id = id
   player.gridX, player.gridY, player.facing = x, y, facing
   return KantoWorld.tryInteract(game)
 end
 
-assert(press_a(27, 14, "up") == true, "south talk")
+local CAVE = "pokered:CERULEAN_CAVE_B1F"
+local PLANT = "pokered:POWER_PLANT"
+assert(press_a(CAVE, 27, 13, MEWTWO, 27, 14, "up") == true, "south talk")
 assert(#cries == 1 and cries[1].species == "mewtwo" and cries[1].where == "event", "cry before battle")
 assert(currentName == "event" and started == nil, "text is still up")
+assert(event.openedLabel == "_MewtwoBattleText", "mewtwo text")
 assert(type(event.onConfirm) == "function", "A dismisses the cry text")
 event.onConfirm()
 assert(currentName == "battle", "battle started")
 assert(started.species == "mewtwo" and started.level == 70, "mewtwo level 70")
 
-assert(press_a(26, 13, "right") == true, "west talk")
+assert(press_a(CAVE, 27, 13, MEWTWO, 26, 13, "right") == true, "west talk")
 event.onConfirm()
 assert(started.species == "mewtwo" and started.level == 70, "west neighbor")
 
-assert(press_a(27, 15, "up") == false, "one tile south of the neighbor does not talk")
+assert(press_a(CAVE, 27, 13, MEWTWO, 27, 15, "up") == false, "one tile south of the neighbor does not talk")
 assert(#cries == 0 and currentName == "overworld", "no cry off the neighbor")
 
-assert(press_a(27, 13, "down") == false, "standing on Mewtwo is not a talk")
+assert(press_a(CAVE, 27, 13, MEWTWO, 27, 13, "down") == false, "standing on Mewtwo is not a talk")
+
+local VOLTORB = "pokered:POWER_PLANT:objects:1"
+assert(press_a(PLANT, 9, 20, VOLTORB, 9, 21, "up") == true, "voltorb talk")
+assert(#cries == 0, "a disguised voltorb does not cry")
+assert(event.openedLabel == "_PowerPlantVoltorbBattleText", "voltorb text")
+event.onConfirm()
+assert(started.species == "voltorb" and started.level == 40, "voltorb level 40")
+
+local ELECTRODE = "pokered:POWER_PLANT:objects:4"
+assert(press_a(PLANT, 25, 18, ELECTRODE, 25, 19, "up") == true, "electrode talk")
+assert(#cries == 0, "a disguised electrode does not cry")
+event.onConfirm()
+assert(started.species == "electrode" and started.level == 43, "electrode level 43")
+
+local ZAPDOS = "pokered:POWER_PLANT:objects:9"
+assert(press_a(PLANT, 4, 9, ZAPDOS, 4, 10, "up") == true, "zapdos talk")
+assert(#cries == 1 and cries[1].species == "zapdos", "zapdos cry")
+assert(event.openedLabel == "_PowerPlantZapdosBattleText", "zapdos text")
+event.onConfirm()
+assert(started.species == "zapdos" and started.level == 50, "zapdos level 50")
+assert(press_a(PLANT, 4, 9, ZAPDOS, 4, 11, "up") == false, "zapdos off the neighbor")
 local request = PostgameStory.mewtwoRequest({})
 local ok, err = pcall(SourceEncounters.prepare, session, request, {
   zone_id = "pokered:CERULEAN_CAVE_B1F", x = 27, y = 13,
@@ -345,6 +369,21 @@ class MewtwoEncounterTests(unittest.TestCase):
         text = ENCOUNTERS.read_text()
         self.assertIn('["pokered:CERULEAN_CAVE_B1F:objects:1"]', text)
         self.assertIn('species = "mewtwo", level = 70', text)
+        plant = story["power_plant"]["statics"]
+        self.assertEqual(len(plant), 9)
+        by_id = {row["id"]: row for row in plant}
+        voltorb = by_id["pokered:POWER_PLANT:objects:1"]
+        electrode = by_id["pokered:POWER_PLANT:objects:4"]
+        zapdos = by_id["pokered:POWER_PLANT:objects:9"]
+        self.assertEqual([voltorb["species"], voltorb["level"], voltorb["x"], voltorb["y"]], ["VOLTORB", 40, 9, 20])
+        self.assertEqual([electrode["species"], electrode["level"], electrode["x"], electrode["y"]], ["ELECTRODE", 43, 25, 18])
+        self.assertEqual([zapdos["species"], zapdos["level"], zapdos["x"], zapdos["y"]], ["ZAPDOS", 50, 4, 9])
+        self.assertNotIn("cry", voltorb)
+        self.assertEqual(zapdos["cry"], "zapdos")
+        self.assertIn('species = "voltorb", level = 40', text)
+        self.assertIn('species = "electrode", level = 43', text)
+        self.assertIn('species = "zapdos", level = 50', text)
+        self.assertEqual(text.count('["pokered:CERULEAN_CAVE_B1F:objects:1"]'), 1)
         header = "\n".join([
             "story_path = " + json.dumps(str(STORY)),
             "encounters_path = " + json.dumps(str(ROOT / "Source/domain/sourceEncounters.lua")),

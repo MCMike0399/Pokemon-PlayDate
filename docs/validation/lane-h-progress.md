@@ -3,7 +3,7 @@
 Reference: pret/pokered `af519899719f0754965776faac0e836a3b906e6d`, checked out at `/tmp/pokered`.
 Base: `bf92c4fc` on `main`. Branch: `cursor/lane-h-postgame`.
 
-The owner moved the definition of done to any starter reaching the credits and then the postgame with real input. This checkpoint is that path. Power Plant, fossil revival, the coverage rows, and the link/exclusive/trade-evolution/Mew policy page stay later.
+The owner moved the definition of done to any starter reaching the credits and then the postgame with real input. Cerulean Cave, the rematch, Continue, the Power Plant, and fossil revival are on this branch. The link, exclusive, trade-evolution, and Mew choices are a proposal only.
 
 ## Cerulean Cave
 
@@ -18,7 +18,7 @@ The three floors, their Blue grass tables, and the city warp were already instal
 
 `home/trainers.asm` `EndTrainerBattle` sets the flag and hides the sprite unless `wIsInBattle` is `LOST_BATTLE` (`$FF`). `engine/battle/end_of_battle.asm` clears `wIsInBattle` before returning, and `home/overworld.asm` `.allPokemonFainted` is what writes `LOST_BATTLE`. A win, a catch, and a run hide Mewtwo. A party wipe leaves him. The lane prompt said a run leaves the sprite. That is not what this source does, and it is not what lane D's Moltres does. This lane follows the source and lane D.
 
-The battle table in `Source/domain/sourceEncounters.lua` is a local with no registration API. `tools/notes/lane-e-mewtwo-encounter.patch` adds the Mewtwo row with `legendary = true`, which is the same completion rule as Moltres. Until that patch is applied, talking to Mewtwo plays the cry and then `FieldBattle.startSourceEncounter` rejects the request. `tools/tests/test_lane_h_cerulean_cave.py` marks that missing definition as an expected failure.
+The battle table in `Source/domain/sourceEncounters.lua` is a local with no registration API. `tools/notes/lane-e-static-encounters.patch` is the one patch for Mewtwo and every Power Plant static, each with `legendary = true`, the same completion rule as Moltres. The earlier Mewtwo-only patch is gone so lane E does not apply two overlapping hunks. Until that patch is applied, the cry plays and `FieldBattle.startSourceEncounter` rejects the request. The missing rows are an expected failure.
 
 ## Rematch
 
@@ -36,14 +36,56 @@ A later visit to the Hall of Fame, when the cave flag is already set, dispatches
 
 `Source/main.lua` is not edited. `Source/game/kantoScenes.lua` already imports `LateKantoStory`, and that file imports `PostgameStory` when the Playdate `import` function exists. `PostgameStory.boot` registers the cave events and the Continue wrap at load. The Hall of Fame wrap and the Mewtwo scene wrap wait until `EndgameStory` and `HideoutTowerController` exist, which is the first `LateKantoStory.actorMetadata` call after those modules install.
 
+## Power Plant
+
+`data/maps/objects/PowerPlant.asm` has five real items and nine statics. A trailing level makes the object a static. `PostgameStory.installEvents` registers the items as pickups and the statics as bespoke actors.
+
+- Items: Carbos `(7, 25)`, HP Up `(28, 3)`, Rare Candy `(34, 3)`, TM25 Thunder `(26, 32)`, TM33 Reflect `(20, 32)`.
+- Six Voltorb at level 40 and two Electrode at level 43 use `SPRITE_POKE_BALL`. They are not pickups. `scripts/PowerPlant.asm` loads the headers in object order, and the Electrode headers are `EVENT_BEAT_POWER_PLANT_VOLTORB_3` and `EVENT_BEAT_POWER_PLANT_VOLTORB_6`. The shared line is `Bzzzt!` (`text/PowerPlant.asm`). The script does not call `PlayCry` for them.
+- Zapdos is object 9, `SPRITE_BIRD`, level 50, at `(4, 9)`, flag `EVENT_BEAT_ZAPDOS`. The line is `Gyaoo!` and the script calls `PlayCry`. The adjacent tiles are `(4, 8)`, `(4, 10)`, `(3, 9)`, `(5, 9)`.
+- The same `EndTrainerBattle` rule as Mewtwo: a win, a catch, and a run set the flag and hide the sprite. A party wipe leaves it. The installed `Source/data/zRemainder/PowerPlant.json` grass is the English Blue table, rate 10, Raichu in the last two slots, water rate 0. This lane does not edit that file.
+
+## Fossils
+
+`FossilRevival` already ran the lab state machine on the quest flags `wFossilItem:<item>` and `wFossilMon:<species>`. `PostgameStory` now registers `pokered:CINNABAR_LAB_FOSSIL_ROOM:objects:1`, the scientist at `(5, 2)`. Talk offers the fossils in the bag, writes the choice before Yes/No, and removes the item only on Yes. The lines are the `_CinnabarLabFossilRoomScientist1*` text. Scientist 2 stays the in-game trade. `scripts/CinnabarIsland.asm` clears only `EVENT_LAB_STILL_REVIVING_FOSSIL` on map load, and `PostgameStory.onEnter` calls `FossilRevival.onMapLoad` for that map.
+
+`scripts/MtMoonB2F.asm` gives one of Dome or Helix. `FossilRevival.moonChoice` is that check: neither flag means both objects are still there; either flag means both are gone, because the player took one and the super nerd takes the other. Both flags is not a state the script can reach. `CeruleanStory.actorMetadata` already hides `pokered:MT_MOON_B2F:objects:6` and `objects:7` unless both `EVENT_GOT_DOME_FOSSIL` and `EVENT_GOT_HELIX_FOSSIL` are clear. This lane does not register those objects again.
+
+`ram/wram.asm` `wFossilItem` is the item byte: 0, Old Amber `$1F` (31), Dome Fossil `$29` (41), Helix Fossil `$2A` (42). The quest flags already survive Continue. The byte itself is not a codec field. `tools/notes/lane-e-fossil-item.patch` adds `wFossilItem` to `SessionCodec`, checks it against the quest flag, and writes it on encode. Old saves omit the key and still load. `tools/tests/test_fossil_revival.py` expects a Continue after giving the Dome Fossil to round-trip `41`. That test is an expected failure until lane E applies the patch. `Source/domain/sessionCodec.lua` is not edited here.
+
+## Coverage
+
+The matrix in `docs/validation/coverage-current.json` has no lane owner. Its owners are `rules`, `root`, and `harness`. This lane does not edit that file. The rows below are the ones no story lane owns. Everything implemented here is data already in pokered `af519899`.
+
+Implemented from that data, with host tests:
+
+- Power Plant items, the eight disguised statics, Zapdos, and the Blue grass table.
+- Cerulean Cave items, Blue grass, and Mewtwo.
+- Cinnabar Lab fossil revival and the Mt. Moon one-fossil check.
+
+Excluded, with the reason:
+
+- `UNUSED_MAP_0B`, `UNUSED_MAP_69`, `UNUSED_MAP_6A`, `UNUSED_MAP_6B`, `UNUSED_MAP_6D`, `UNUSED_MAP_6E`, `UNUSED_MAP_6F`, `UNUSED_MAP_70`, `UNUSED_MAP_72`, `UNUSED_MAP_73`, `UNUSED_MAP_74`, `UNUSED_MAP_75`, `UNUSED_MAP_CC`, `UNUSED_MAP_CD`, `UNUSED_MAP_CE`, `UNUSED_MAP_E7`, `UNUSED_MAP_ED`, `UNUSED_MAP_EE`, `UNUSED_MAP_F1`, `UNUSED_MAP_F2`, `UNUSED_MAP_F3`, and `UNUSED_MAP_F4`. `constants/map_constants.asm` gives each `map_const` a width and height of 0. Empty slot. `$6C` is Victory Road and `$71` is Lance's room, so those two ids are not in this list.
+- `CERULEAN_TRASHED_HOUSE_COPY`. `data/maps/map_header_pointers.asm` points it at `CeruleanTrashedHouse_h`. Alias of the real house, not a second room.
+- `UNDERGROUND_PATH_ROUTE_6_COPY`. The same file points it at `UndergroundPathRoute6_h`. Alias.
+- `CINNABAR_MART_COPY`. The same file points it at `CinnabarMart_h`. Alias.
+- `UNDERGROUND_PATH_ROUTE_7_COPY`. It has its own header, and every object and text label in `scripts/UndergroundPathRoute7Copy.asm` and `text/UndergroundPathRoute7Copy.asm` is named Unused. No other map warps to it. Leftover, not a campaign room.
+- `TRADE_CENTER` and `COLOSSEUM`. Link rooms. See the policy page. Not implemented.
+- Mew. No wild slot and no object event in this revision. See the policy page. Not added.
+- Trade evolutions of Kadabra, Machoke, Graveler, and Haunter. No link means they do not evolve. See the policy page. Not implemented.
+- A Red/Blue version switch. This port's installed wild tables are English Blue. See the policy page. Not implemented.
+- `sunStone`, `heartScale`, `kingsRock`, `ironBall`, `prismScale`, and `leftovers`. They are not in `constants/item_constants.asm`. Not Red/Blue items.
+
+The other indexed and partial map rows are campaign maps other lanes already installed or still own: Saffron, Silph, Seafoam, the Pokémon Tower, Safari Zone, Victory Road, the gyms, and the Elite Four rooms. This lane does not take those rows and does not mark them excluded.
+
+## Policy
+
+`docs/validation/lane-h-policy-proposal.md` is the one-page choice for the Cable Club, version exclusives, trade evolutions, and Mew. It recommends leaving all four out. None of it is implemented.
+
 ## Tests
 
-`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_late_kanto_story`
+`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_lane_h_cerulean_cave tools.tests.test_lane_h_fossils tools.tests.test_fossil_revival tools.tests.test_late_kanto_story`
 
-The new file checks the generator against the installed JSON and the asm, the eight items, the Blue wild tables, the champion flag's place in the Hall of Fame range, the Pallet fly warp, and a host Lua probe for the Mewtwo outcomes, the champion clear, the Continue relocation, and one rematch dispatch per Hall entry. The Mewtwo `SourceEncounters` row is an expected failure until the lane E patch lands. The patch applies with `patch --dry-run -p1`.
+30 tests, 2 expected failures. One is the static encounter rows missing from `sourceEncounters.lua`. The other is the Continue record missing `wFossilItem`. Both patches apply with `patch --dry-run --fuzz=0 -p1`.
 
-This environment has no Playdate SDK, so the four outcomes are the host contract rather than a simulator clip.
-
-## Still later
-
-Power Plant items, the Voltorb and Electrode item disguises, and Zapdos at `(4, 9)` level 50. Fossil revival, the Mt. Moon choice, and the `wFossilItem` Continue round trip. Coverage-matrix rows. The one-page policy for the Cable Club, version exclusives, trade evolutions, and Mew. None of those are implemented here.
+This environment has no Playdate SDK, so the static outcomes and the fossil Continue are host contracts rather than a simulator clip. Zapdos was not recorded on device.
