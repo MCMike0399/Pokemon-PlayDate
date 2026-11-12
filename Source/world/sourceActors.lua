@@ -18,6 +18,13 @@ end
 function SourceActors.validate(payload,world,location,flags)
     return WorldMotionData.normalize(payload,SourceActors.describe(location.zone_id,world),location,flags)
 end
+-- Oak starts on the Lance warp at source (3, 7) and leaves through the Hall of
+-- Fame warp at source (3, 0). Champions Room padding moves that column to x = 5.
+function SourceActors.championsOakMayCrossWarp(id, x, y)
+    return id == "pokered:CHAMPIONS_ROOM:objects:2"
+        and (y == 7 or y == 0)
+        and (x == 3 or x == 5)
+end
 -- Independent proof used by the session retention boundary. It re-resolves the
 -- candidate descriptor and flags and rejects both unknown and still-visible
 -- actors, so a custom validator cannot claim an arbitrary removal.
@@ -199,6 +206,9 @@ function SourceActors.describeSource(zoneID, world, game)
             local silphExit = event.id == "pokered:SILPH_CO_7F:objects:9"
                 and position.x == event.x + 2 and position.y == 3
             if (towerExit or towerRivalExit or silphExit) and warps[cell] then
+                transit = true
+            end
+            if SourceActors.championsOakMayCrossWarp(event.id, position.x, position.y) and warps[cell] then
                 transit = true
             end
             -- A declared route may stand on and leave a real warp. Connection

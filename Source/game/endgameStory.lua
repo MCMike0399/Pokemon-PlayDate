@@ -3,7 +3,7 @@
 EndgameStory = {}
 local CONTENT <const> = "endgame"
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
-local cached, playCached
+local cached, playCached, visualCached, spriteCatalog
 local pending = {}
 local armed = {}
 local sceneWrapped = false
@@ -207,6 +207,121 @@ function EndgameStory.creditTiming()
     return story().hall_of_fame.timing
 end
 
+local function visual()
+    if not visualCached then
+        local data <const> = assert(json.decodeFile("data/endgame/visual.json"))
+        assert(data.schema == 1 and data.source_revision == REVISION and type(data.blocks) == "table",
+            "unverified endgame visual map")
+        visualCached = data
+    end
+    return visualCached
+end
+
+local function endgameSprites()
+    if not spriteCatalog then
+        local data <const> = assert(json.decodeFile("data/zEndgame/sprites.json"))
+        assert(data.schema == 1 and data.source_revision == REVISION, "unverified endgame sprites")
+        spriteCatalog = data.sprites
+    end
+    return spriteCatalog
+end
+
+function EndgameStory.visual()
+    return visual()
+end
+
+function EndgameStory.unmappedSprites()
+    local names = {}
+    for index, name in ipairs(visual().unmapped_sprites) do
+        names[index] = name
+    end
+    return names
+end
+
+function EndgameStory.monTypes(species)
+    local types <const> = visual().types[species]
+    if not types then
+        return {}
+    end
+    return {types[1], types[2]}
+end
+
+function EndgameStory.hallPhotoTiming()
+    return visual().hall
+end
+
+function EndgameStory.hallPhotos(record)
+    local photos = {}
+    for _, mon in ipairs(record or {}) do
+        photos[#photos + 1] = {kind = "pokemon", species = mon.species, level = mon.level,
+            name = mon.name, types = EndgameStory.monTypes(mon.species), cry = mon.species}
+    end
+    photos[#photos + 1] = {kind = "player", name = "RED"}
+    return photos
+end
+
+function EndgameStory.blockKeys(tileset, blockId)
+    local rows <const> = visual().blocks[tileset]
+    return rows and rows[tostring(blockId)]
+end
+
+local SPIN_FACING <const> = {down = "left", left = "up", up = "right", right = "down"}
+
+function EndgameStory.spinnerFacing(facing)
+    return assert(SPIN_FACING[facing], "spinner facing")
+end
+
+function EndgameStory.exclamation(id)
+    local data <const> = story()
+    if id == data.champion.id or id == data.route22_rival.id or id == data.viridian_gym.leader.id then
+        return false
+    end
+    for _, room in ipairs(data.elite_four) do
+        if id == room.id then
+            return false
+        end
+    end
+    return nil
+end
+
+function EndgameStory.oakCells()
+    -- Source column x = 3. Champions Room adds two columns of padding, so the
+    -- runtime object and its warps sit at x = 5. The host probe has no map table.
+    local pad = 0
+    if SourceMaps and SourceMaps.entry then
+        local ok, entry = pcall(SourceMaps.entry, "ChampionsRoom")
+        if ok and entry and entry.padding then
+            pad = entry.padding
+        end
+    end
+    local x = 3 + pad
+    local cells = {}
+    for y = 6, 1, -1 do
+        cells[#cells + 1] = {x = x, y = y}
+    end
+    -- (3, 7) and (3, 0) are warps. They stay unlisted until the movement
+    -- engine grants Oak transit across those two cells.
+    if SourceActors and SourceActors.championsOakMayCrossWarp then
+        cells[#cells + 1] = {x = x, y = 7}
+        cells[#cells + 1] = {x = x, y = 0}
+    end
+    return cells
+end
+
+function EndgameStory.playCue(name)
+    if type(name) ~= "string" or not KantoAudio or not KantoAudio.playSFX then
+        return false
+    end
+    return pcall(KantoAudio.playSFX, name) == true
+end
+
+function EndgameStory.playCry(species)
+    if type(species) ~= "string" or not KantoAudio or not KantoAudio.playCry then
+        return false
+    end
+    return pcall(KantoAudio.playCry, species) == true
+end
+
 local function copy(value)
     if GameSession then
         return GameSession._copy(value)
@@ -293,6 +408,9 @@ local function trainerPlan(row, observation, id)
         if flags[GIOVANNI_HIDE] ~= true and id == story().viridian_gym.leader.id then
             plan.expected = {flags = {[GIOVANNI_HIDE] = false}, items = {}, trainers = {}}
             plan.changes = {flags = {[GIOVANNI_HIDE] = true}, items = {}, trainers = {}}
+            local fade <const> = visual().fade
+            plan.disappear = {flag = GIOVANNI_HIDE, fade_out_steps = fade.out_steps,
+                fade_frames = fade.frames, delay = fade.delay, fade_in_steps = fade.in_steps}
         end
     end
     return plan
@@ -323,19 +441,26 @@ function EndgameStory.championPlan(id, observation)
     if observation.receipt and observation.receipt.won then
         plan.ram = plan.ram or {}
         plan.ram.wNameBuffer = starterName(observation)
+        -- OakEntranceAfterVictoryMovement is five ups from the warp at (3, 7).
+        -- WalkToHallOfFame_RLEMovement is up 4, left 1. The third up lands on
+        -- the hall warp at (4, 0); pokered warps there and drops the rest.
+        -- Simulated joypad movement ignores sprite collision. The engine does
+        -- not, until the lane A patch, so a blocked step still warps.
+        plan.oakWalk = true
+        plan.simulated = true
+        plan.showOak = OAK_SHOW
+        plan.follow = {{direction = "up", count = 4}, {direction = "left", count = 1}}
+        local oak <const> = "pokered:CHAMPIONS_ROOM:objects:2"
         plan.steps[#plan.steps + 1] = {op = "dialog", labels = copy(champ.after)}
-        plan.steps[#plan.steps + 1] = {op = "set-flag", id = OAK_SHOW, value = true}
-        plan.steps[#plan.steps + 1] = {op = "move-npc", id = "pokered:CHAMPIONS_ROOM:objects:2", direction = "up", count = 5}
         plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakText"}}
-        plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakCongratulatesPlayerText"}}
-        plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakDisappointedWithRivalText"}}
-        plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakComeWithMeText"}}
-        plan.steps[#plan.steps + 1] = {op = "move-npc", id = "pokered:CHAMPIONS_ROOM:objects:2", direction = "up", count = 2}
-        plan.steps[#plan.steps + 1] = {op = "set-flag", id = OAK_SHOW, value = false}
-        -- The simulated list is consumed in reverse: left, then four ups.
-        -- The last up steps off the Hall of Fame warp. These three ups land
-        -- on it, and the warp below takes that last step.
-        plan.steps[#plan.steps + 1] = {op = "move", direction = "left", count = 1}
+        plan.steps[#plan.steps + 1] = {op = "move-npc", id = oak, direction = "up", count = 5}
+        plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakCongratulatesPlayerText"},
+            face_player = "left", face = {{id = id, direction = "left"}, {id = oak, direction = "down"}}}
+        plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakDisappointedWithRivalText"},
+            face = {{id = oak, direction = "right"}}}
+        plan.steps[#plan.steps + 1] = {op = "dialog", labels = {"_ChampionsRoomOakComeWithMeText"},
+            face = {{id = oak, direction = "down"}}}
+        plan.steps[#plan.steps + 1] = {op = "move-npc", id = oak, direction = "up", count = 2}
         plan.steps[#plan.steps + 1] = {op = "move", direction = "up", count = 3}
         plan.steps[#plan.steps + 1] = {op = "warp", to = "kanto_hall_of_fame", toX = 5, toY = 7, facing = "up"}
     end
@@ -395,7 +520,7 @@ function EndgameStory.moltresPlan(id, observation)
     if observation.flags and observation.flags.EVENT_BEAT_MOLTRES then
         return {status = "already-complete", steps = {}}
     end
-    return {status = "ready", scene = "endgame", scene_script = "moltres", steps = {}}
+    return {status = "ready", scene = "endgame", scene_script = "moltres", cry = "moltres", steps = {}}
 end
 
 function EndgameStory.plan(id, observation)
@@ -417,7 +542,10 @@ function EndgameStory.plan(id, observation)
         local x <const> = observation.arrow_x or pending.x
         local y <const> = observation.arrow_y or pending.y
         local steps <const> = assert(EndgameStory.arrow(x, y), "viridian arrow tile missing")
-        return {status = "ready", spinner = true, steps = moves(steps)}
+        local spin <const> = visual().spinner
+        return {status = "ready", spin = true,
+            audio = {source = spin.source, name = spin.score, when = "start"},
+            steps = moves(steps)}
     end
     if id == "pokered:CHAMPIONS_ROOM:script:entrance" then
         return {status = "ready", steps = moves(data.champion.walk)}
@@ -430,7 +558,7 @@ function EndgameStory.plan(id, observation)
                     {op = "dialog", labels = {room.dont_run_text}},
                     {op = "move", direction = "up", count = 1}}}
             end
-            return {status = "ready", steps = approachWalk(room)}
+            return {status = "ready", steps = approachWalk(room, pending.x)}
         end
     end
     local gate <const> = data.route22_gate
@@ -438,8 +566,10 @@ function EndgameStory.plan(id, observation)
         if observation.flags[gate.badge] then
             return {status = "ready", steps = {{op = "dialog", labels = gate.accepted_text}}}
         end
+        local denied <const> = visual().denied
         return {status = "denied", steps = {
-            {op = "dialog", labels = gate.denied_text},
+            {op = "dialog", labels = {gate.denied_text[1]}},
+            {op = "dialog", labels = {gate.denied_text[2]}, audio = {source = denied.source, name = denied.score}},
             {op = "move", direction = "down", count = 1}}}
     end
     local hall <const> = data.hall_of_fame
@@ -463,6 +593,8 @@ function EndgameStory.plan(id, observation)
             plan.record = EndgameStory.hallRecord(pending.party)
             pending.party = nil
         end
+        -- AnimateHallOfFame shows every party Pokémon, then Red, then the credits.
+        plan.photos = EndgameStory.hallPhotos(plan.record)
         return plan
     end
     for _, guard in ipairs(data.route23.guards) do
@@ -476,9 +608,10 @@ function EndgameStory.plan(id, observation)
                 plan.ram = ram
                 return plan
             end
+            local denied <const> = visual().denied
             return {status = "denied", ram = ram, steps = {
                 {op = "dialog", labels = {data.route23.denied_text}},
-                {op = "move", direction = "down", count = 1}}}
+                {op = "move", direction = "down", count = 1, audio = {source = denied.source, name = denied.score}}}}
         end
     end
     if id == data.viridian_gym.leader.id then
@@ -526,6 +659,60 @@ local function setBlock(zone, block, padding, solid)
     end
 end
 
+local DOORS <const> = {
+    LoreleisRoom = {tileset = "GYM", open = 5, closed = 36},
+    BrunosRoom = {tileset = "GYM", open = 5, closed = 36},
+    AgathasRoom = {tileset = "CEMETERY", open = 14, closed = 59},
+}
+local LANCE_BLOCKS <const> = {tileset = "DOJO", open = {49, 50}, closed = {114, 115}}
+local tileOverlays = {}
+
+function EndgameStory.clearOverlay(zone, x, y)
+    local id <const> = tostring(zone) .. ":" .. x .. ":" .. y
+    local sprite <const> = tileOverlays[id]
+    if sprite then
+        sprite:remove()
+        tileOverlays[id] = nil
+    end
+end
+
+function EndgameStory.overlayMissing(zone, x, y, key)
+    local record <const> = visual().missing_tiles[key]
+    local gfx <const> = playdate and playdate.graphics
+    if not record or not gfx or not SpriteFactory then
+        return
+    end
+    EndgameStory.clearOverlay(zone, x, y)
+    local image <const> = SpriteFactory.makeSprite(record.grid, {0, 0})
+    local sprite <const> = gfx.sprite.new(image)
+    local size <const> = TILE_SIZE or 32
+    sprite:setCenter(0, 0)
+    sprite:moveTo(x * size, y * size)
+    sprite:setZIndex(20)
+    sprite:add()
+    tileOverlays[tostring(zone) .. ":" .. x .. ":" .. y] = sprite
+end
+
+local function paintBlock(zone, block, padding, keys)
+    if not keys or not zone.setTile then
+        return
+    end
+    local places <const> = {{0, 0, 1}, {1, 0, 2}, {0, 1, 3}, {1, 1, 4}}
+    for _, place in ipairs(places) do
+        local x <const> = block.x * 2 + place[1] + padding
+        local y <const> = block.y * 2 + place[2]
+        local key <const> = keys[place[3]]
+        local ok <const> = pcall(function()
+            zone:setTile(x, y, key)
+        end)
+        if ok then
+            EndgameStory.clearOverlay(zone, x, y)
+        else
+            EndgameStory.overlayMissing(zone, x, y, key)
+        end
+    end
+end
+
 function EndgameStory.applyRoom(game)
     local data <const> = story()
     local zone <const> = currentZone
@@ -555,18 +742,27 @@ function EndgameStory.applyRoom(game)
     end
     for _, switch in ipairs(data.victory_road.switches) do
         if switch.map == name and game.session:questFlag(switch.event) then
+            paintBlock(zone, switch.block, padding, EndgameStory.blockKeys("CAVERN", switch.tile))
             setBlock(zone, switch.block, padding, 0)
         end
     end
     for _, room in ipairs(data.elite_four) do
         if room.map == name and room.exit_block then
-            setBlock(zone, room.exit_block, padding, game.session:questFlag(room.flag) and 0 or 1)
+            local open <const> = game.session:questFlag(room.flag) == true
+            local door <const> = DOORS[name]
+            if door then
+                paintBlock(zone, room.exit_block, padding,
+                    EndgameStory.blockKeys(door.tileset, open and door.open or door.closed))
+            end
+            setBlock(zone, room.exit_block, padding, open and 0 or 1)
         end
         if room.map == name and room.entrance_blocks then
             -- Map load closes the door whenever the lock flag is set. Beating
             -- Lance does not reopen it; the north warp is the way forward.
             local closed <const> = game.session:questFlag(room.lock_event)
-            for _, block in ipairs(room.entrance_blocks) do
+            local ids <const> = closed and LANCE_BLOCKS.closed or LANCE_BLOCKS.open
+            for index, block in ipairs(room.entrance_blocks) do
+                paintBlock(zone, block, padding, EndgameStory.blockKeys(LANCE_BLOCKS.tileset, ids[index]))
                 setBlock(zone, block, padding, closed and 1 or 0)
             end
         end
@@ -587,7 +783,11 @@ function EndgameStory.boulderLanded(game, mapName, x, y)
     end
     if switch.block and currentZone then
         local entry <const> = SourceMaps.entry(mapName)
-        setBlock(currentZone, switch.block, entry and entry.padding or 0, 0)
+        local padding <const> = entry and entry.padding or 0
+        if switch.tile then
+            paintBlock(currentZone, switch.block, padding, EndgameStory.blockKeys("CAVERN", switch.tile))
+        end
+        setBlock(currentZone, switch.block, padding, 0)
     end
     return switch
 end
@@ -691,8 +891,6 @@ function EndgameStory.check(game)
             end
             if room.entrance then
                 local action <const> = EndgameStory.entranceAction(room, x, y, flags)
-                -- The six-step walk stops at y=5. Sight is 0, so the player
-                -- talks once they are next to the trainer.
                 if action == "autowalk" and not armed[room.id] then
                     if room.autowalk_event then
                         game.session:setQuestFlag(room.autowalk_event, true)
@@ -732,6 +930,415 @@ end
 local function trainerEvent(row)
     return {kind = "trainer", content = CONTENT, before = copy(row.before), won = copy(row.won),
         after = copy(row.after), victory = {flags = {[row.flag] = true}, guard_flags = {row.flag}}}
+end
+
+local function unmapped(source)
+    for _, name in ipairs(visual().unmapped_sprites) do
+        if name == source then
+            return true
+        end
+    end
+    return false
+end
+
+local artPrepared = false
+
+function EndgameStory.prepareArt()
+    if artPrepared then
+        return
+    end
+    assert(CeruleanContent and SpriteFactory, "endgame art is installed with the source actors")
+    local originalKey <const> = CeruleanContent.key
+    local originalPose <const> = CeruleanContent.poseImage
+    local originalSprite <const> = CeruleanContent.sprite
+    local originalMeta <const> = CeruleanContent._spritePoseMetadata
+    local originalStep <const> = CeruleanContent.stepImage
+
+    function CeruleanContent.key(source)
+        if unmapped(source) then
+            return "endgame_" .. source:lower()
+        end
+        return originalKey(source)
+    end
+
+    function CeruleanContent.poseImage(source, pose, facing)
+        if not unmapped(source) then
+            return originalPose(source, pose, facing)
+        end
+        local strip <const> = assert(endgameSprites()[source], "missing endgame sprite")
+        local direction <const> = facing == "right" and "left" or facing
+        local index <const> = (pose == "stand" and strip.standing or strip.walking)[direction]
+        local grid <const> = assert(strip.frames[tostring(index)], "missing endgame sprite frame")
+        local image = SpriteFactory.makeSprite(grid, {0, 0})
+        if facing == "right" or pose == "alternate" and (facing == "down" or facing == "up") then
+            image = SpriteFactory.flipped(image)
+        end
+        return image
+    end
+
+    function CeruleanContent.sprite(source)
+        if not unmapped(source) then
+            return originalSprite(source)
+        end
+        return copy(assert(endgameSprites()[source], "missing endgame sprite"))
+    end
+
+    function CeruleanContent._spritePoseMetadata(source)
+        if not unmapped(source) then
+            return originalMeta(source)
+        end
+        local strip <const> = assert(endgameSprites()[source], "missing endgame sprite")
+        return {standing = copy(strip.standing), fixed = strip.fixed}
+    end
+
+    function CeruleanContent.stepImage(source, facing, tick)
+        if not unmapped(source) then
+            return originalStep(source, facing, tick)
+        end
+        local pose <const> = CeruleanContent.poseAtTick(tick)
+        return CeruleanContent.poseImage(source, pose == "stand" and "stand" or pose, facing)
+    end
+
+    artPrepared = true
+end
+
+function EndgameStory.setShown(state, name, value)
+    if state.session and state.session.setQuestFlag then
+        state.session:setQuestFlag(name, value)
+    end
+    if KantoScenes and KantoScenes.reconcileActors and state.game then
+        KantoScenes.reconcileActors(state.game)
+    end
+end
+
+function EndgameStory.applyFacing(state, step)
+    if not step then
+        return
+    end
+    if step.face_player and state.player then
+        state.player.facing = step.face_player
+        if state.player.updateSprite then
+            state.player:updateSprite()
+        end
+    end
+    for _, pose in ipairs(step.face or {}) do
+        local manager = state.game and state.game.npcManager
+        if manager then
+            for _, npc in ipairs(manager.npcs) do
+                if npc.def and npc.def.source_event_id == pose.id and npc.setFacing then
+                    npc:setFacing(pose.direction)
+                end
+            end
+        end
+    end
+end
+
+function EndgameStory.skipBlockedMove(state, advance)
+    -- One blocked cell would fail the whole champion ending. Skip the rest of
+    -- this simulated walk and keep the dialogue and the hall warp.
+    while state.ops[state.index] and (state.ops[state.index].op == "move"
+        or state.ops[state.index].op == "move-npc") do
+        state.index = state.index + 1
+    end
+    state.phase = "running"
+    state.waiting = "none"
+    if state.ops[state.index] then
+        advance(state)
+    end
+end
+
+function EndgameStory.beginPhotos(state, advance)
+    state.photoAdvance = advance
+    state.photo = {index = 1, clock = 0, stage = "preamble"}
+    state.phase = "hall-photo"
+    state.waiting = "hall-of-fame"
+end
+
+function EndgameStory.updatePhotos(state)
+    local timing <const> = visual().hall
+    local photo <const> = state.photo
+    photo.clock = photo.clock + 1
+    if photo.stage == "preamble" then
+        if photo.clock >= timing.preamble then
+            photo.stage = "show"
+            photo.clock = 0
+            local entry <const> = state.plan.photos[photo.index]
+            if entry and entry.cry then
+                EndgameStory.playCry(entry.cry)
+            end
+        end
+        return
+    end
+    if photo.stage == "show" and photo.clock >= timing.mon_delay + timing.caption then
+        photo.stage = "fade"
+        photo.clock = 0
+        return
+    end
+    if photo.stage == "fade" and photo.clock >= timing.fade_white then
+        photo.index = photo.index + 1
+        if photo.index > #state.plan.photos then
+            state.photosDone = true
+            state.phase = "running"
+            state.waiting = "none"
+            local advance <const> = state.photoAdvance
+            state.photo = nil
+            if advance then
+                advance(state)
+            end
+            return
+        end
+        photo.stage = "show"
+        photo.clock = 0
+        local entry <const> = state.plan.photos[photo.index]
+        if entry and entry.cry then
+            EndgameStory.playCry(entry.cry)
+        end
+    end
+end
+
+function EndgameStory.beginDisappear(state)
+    state.phase = "giovanni-fade"
+    state.waiting = state.plan.disappear.flag
+    state.fadeClock = 0
+end
+
+function EndgameStory.updateDisappear(state, commit)
+    local fade <const> = visual().fade
+    state.fadeClock = (state.fadeClock or 0) + 1
+    local outFrames <const> = fade.out_steps * fade.frames
+    local inFrames <const> = fade.in_steps * fade.frames
+    if not state.fadeHid and state.fadeClock >= outFrames then
+        state.fadeHid = true
+        if state.plan.expected and state.session and state.session.transact then
+            local ok, reason = state.session:transact(state.plan.expected, state.plan.changes)
+            if not ok then
+                state:fail(reason)
+                return
+            end
+            state.committed = true
+            state.plan.expected = nil
+            state.plan.changes = nil
+            if KantoScenes and KantoScenes.reconcileActors then
+                KantoScenes.reconcileActors(state.game)
+            end
+        end
+    end
+    if state.fadeClock >= outFrames + fade.delay + inFrames then
+        state.phase = "running"
+        commit(state)
+    end
+end
+
+function EndgameStory.drawFade(gfx, state)
+    local fade <const> = visual().fade
+    local clock <const> = state.fadeClock or 0
+    local step
+    if not state.fadeHid then
+        step = math.min(fade.out_steps, math.floor(clock / fade.frames) + 1)
+    else
+        local into <const> = clock - fade.out_steps * fade.frames - fade.delay
+        step = math.max(1, fade.in_steps - math.floor(math.max(into, 0) / fade.frames))
+    end
+    gfx.pushContext()
+    gfx.setDrawOffset(0, 0)
+    if step >= fade.out_steps then
+        gfx.setColor(gfx.kColorBlack)
+        gfx.fillRect(0, 0, 400, 240)
+    elseif step >= 3 and Shade then
+        gfx.setPattern(Shade.DARK)
+        gfx.fillRect(0, 0, 400, 240)
+    elseif step >= 2 and Shade then
+        gfx.setPattern(Shade.LIGHT)
+        gfx.fillRect(0, 0, 400, 240)
+    end
+    gfx.popContext()
+end
+
+function EndgameStory.drawPhoto(gfx, state)
+    local photo = state.photo and state.plan.photos[state.photo.index]
+    gfx.pushContext()
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.setFont(gfx.getSystemFont())
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(0, 0, 400, 240)
+    gfx.setColor(gfx.kColorBlack)
+    if not photo or state.photo.stage == "preamble" then
+        gfx.popContext()
+        return
+    end
+    if photo.kind == "pokemon" and PokemonArt and gfx.image then
+        local front <const> = PokemonArt.path(photo.species, "front")
+        local back <const> = PokemonArt.path(photo.species, "back")
+        pcall(function()
+            gfx.image.new(front):draw(220, 40)
+        end)
+        pcall(function()
+            gfx.image.new(back):draw(40, 70)
+        end)
+    elseif photo.kind == "player" and state.player and state.player.getImage then
+        local image <const> = state.player:getImage()
+        if image then
+            image:draw(80, 80)
+        end
+    end
+    local types <const> = photo.types or {}
+    gfx.drawText((photo.name or "") .. "\nLEVEL " .. tostring(photo.level or "")
+        .. "\nTYPE1/ " .. (types[1] or "") .. "\nTYPE2/ " .. (types[2] or "") .. "\nHALL OF FAME", 16, 150)
+    if state.photo.stage == "fade" and Shade then
+        gfx.setPattern(Shade.LIGHT)
+        gfx.fillRect(0, 0, 400, 240)
+    end
+    gfx.popContext()
+end
+
+function EndgameStory.drawOverlay(state)
+    local gfx <const> = playdate and playdate.graphics
+    if not gfx then
+        return
+    end
+    if state.phase == "giovanni-fade" then
+        EndgameStory.drawFade(gfx, state)
+    elseif state.phase == "hall-photo" then
+        EndgameStory.drawPhoto(gfx, state)
+    end
+end
+
+function EndgameStory.clearSpin(state)
+    for _, sprite in ipairs(state.spinSprites or {}) do
+        sprite:remove()
+    end
+    state.spinSprites = nil
+end
+
+function EndgameStory.showSpinner(state, anim)
+    EndgameStory.clearSpin(state)
+    local gfx <const> = playdate and playdate.graphics
+    if not gfx or not SpriteFactory then
+        return
+    end
+    local size <const> = TILE_SIZE or 32
+    state.spinSprites = {}
+    for _, cell in ipairs(visual().spinner.cells) do
+        local image <const> = SpriteFactory.makeSprite(anim and cell.after or cell.before, {0, 0})
+        local sprite <const> = gfx.sprite.new(image)
+        sprite:setCenter(0, 0)
+        sprite:moveTo(cell.x * size, cell.y * size)
+        sprite:setZIndex(40)
+        sprite:add()
+        state.spinSprites[#state.spinSprites + 1] = sprite
+    end
+end
+
+function EndgameStory.spinTick(state)
+    local player <const> = state.player
+    if player and player.facing then
+        player.facing = EndgameStory.spinnerFacing(player.facing)
+        if player.updateSprite then
+            player:updateSprite()
+        end
+    end
+    local remaining = 0
+    for index = state.index, #(state.ops or {}) do
+        if state.ops[index].op == "move" then
+            remaining = remaining + 1
+        end
+    end
+    local anim <const> = remaining % 2 == 1
+    if state.spinAnim ~= anim then
+        state.spinAnim = anim
+        EndgameStory.showSpinner(state, anim)
+    end
+end
+
+function EndgameStory.interceptAdvance(state, advance)
+    local step = state.ops and state.ops[state.index]
+    if not step or not state.plan then
+        return false
+    end
+    if step.audio and step.audio.name then
+        EndgameStory.playCue(step.audio.name)
+    end
+    if state.plan.spin and step.op == "move" and not state.spinStarted then
+        state.spinStarted = true
+        if state.plan.audio then
+            EndgameStory.playCue(state.plan.audio.name)
+        end
+    end
+    if step.op == "credits" and state.plan.photos and not state.photosDone then
+        EndgameStory.beginPhotos(state, advance)
+        return true
+    end
+    EndgameStory.applyFacing(state, step)
+    if step.op == "move-npc" and state.plan.showOak and not state.oakShown then
+        state.oakShown = true
+        EndgameStory.setShown(state, state.plan.showOak, true)
+    end
+    if step.op == "move" and state.plan.oakWalk and state.oakShown and not state.oakHidden then
+        state.oakHidden = true
+        EndgameStory.setShown(state, state.plan.showOak, false)
+    end
+    return false
+end
+
+function EndgameStory.interceptUpdate(state, commit)
+    if state.phase == "hall-photo" then
+        EndgameStory.updatePhotos(state)
+        return true
+    end
+    if state.phase == "giovanni-fade" then
+        EndgameStory.updateDisappear(state, commit)
+        return true
+    end
+    return false
+end
+
+local eventWrapped = false
+
+local function wrapEvents()
+    if eventWrapped or not EventState then
+        return
+    end
+    eventWrapped = true
+    local advance <const> = EventState.advance
+    local update <const> = EventState.update
+    local commit <const> = EventState.commit
+    local draw <const> = EventState.draw
+    function EventState:advance()
+        if EndgameStory.interceptAdvance(self, advance) then
+            return
+        end
+        advance(self)
+        if self.phase == "failed" and self.plan and self.plan.oakWalk then
+            EndgameStory.skipBlockedMove(self, advance)
+        end
+    end
+    function EventState:update()
+        if EndgameStory.interceptUpdate(self, commit) then
+            return
+        end
+        update(self)
+        if self.plan and self.plan.spin then
+            if self.phase == "move" then
+                EndgameStory.spinTick(self)
+            elseif self.spinSprites then
+                EndgameStory.clearSpin(self)
+            end
+        end
+    end
+    function EventState:commit()
+        if self.plan and self.plan.disappear and not self.disappearPlayed then
+            self.disappearPlayed = true
+            EndgameStory.beginDisappear(self)
+            return
+        end
+        return commit(self)
+    end
+    function EventState:draw()
+        draw(self)
+        EndgameStory.drawOverlay(self)
+    end
 end
 
 function EndgameStory.install()
@@ -795,18 +1402,7 @@ function EndgameStory.install()
     end
     events["pokered:VICTORY_ROAD_3F:script:hole"] = {kind = "bespoke", content = CONTENT}
     events[MOLTRES] = {kind = "bespoke", content = CONTENT}
-    local oakPositions = {}
-    local champions <const> = SourceMaps._runtimePadded("ChampionsRoom")
-    for _, event in ipairs(champions.events.objects) do
-        if event.id == "pokered:CHAMPIONS_ROOM:objects:2" then
-            for y = event.y - 1, 0, -1 do
-                oakPositions[#oakPositions + 1] = {x = event.x, y = y}
-            end
-        end
-    end
-    assert(#oakPositions == 7, "oak's walk from the lance warp to the hall door")
-    events["pokered:CHAMPIONS_ROOM:objects:2"] = {kind = "bespoke", content = CONTENT,
-        script_positions = oakPositions}
+    events["pokered:CHAMPIONS_ROOM:objects:2"] = {kind = "bespoke", content = CONTENT}
     events["pokered:VIRIDIAN_GYM:objects:10"] = {kind = "cases", content = CONTENT, cases = {{
         when = {flags = {EVENT_BEAT_VIRIDIAN_GYM_GIOVANNI = true}},
         ["then"] = {kind = "program", steps = {{op = "dialog", labels = {"_ViridianGymGuidePostBattleText"}}}},
@@ -877,6 +1473,12 @@ function EndgameStory.install()
         end,
         explore = EndgameStory.check,
     })
+    SourceEvents.registerWorldHooks("pokered:CHAMPIONS_ROOM:objects:2", {
+        actorPositions = function()
+            return EndgameStory.oakCells()
+        end,
+    })
+    wrapEvents()
     if HideoutTowerController and not sceneWrapped then
         local previous <const> = HideoutTowerController.advance
         function HideoutTowerController.advance(state)
@@ -903,6 +1505,7 @@ function EndgameStory.advanceScene(state)
     if not state.endgameScene or state.endgameScene.epoch ~= state.epoch then
         state.endgameScene = {epoch = state.epoch, phase = "text"}
         if state.plan.scene_script == "moltres" then
+            EndgameStory.playCry(state.plan.cry or "moltres")
             state:source({"_VictoryRoad2FMoltresBattleText"}, function()
                 state:advance()
             end)

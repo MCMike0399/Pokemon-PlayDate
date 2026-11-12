@@ -16,6 +16,8 @@ local priorities <const> = {
     menu = 3,
     hit = 2,
     faint = 1,
+    arrow_tiles = 2,
+    denied = 2,
 }
 
 local function init()

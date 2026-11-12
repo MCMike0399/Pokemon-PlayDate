@@ -120,7 +120,10 @@ class EndgameStoryTests(unittest.TestCase):
     def test_decisions_follow_the_story(self):
         module = ROOT / 'Source/game/endgameStory.lua'
         probe = r'''
-json = { decodeFile = function() return story end }
+json = { decodeFile = function(path)
+    if string.find(path, "visual.json", 1, true) then return visual end
+    return story
+end }
 dofile(module_path)
 local function check(actual, expected, label)
     if actual ~= expected then
@@ -209,7 +212,9 @@ print("endgame-decisions ok")
                 self.fail(command)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'probe.lua'
-            path.write_text('story = ' + lua_literal(self.story) + '\nmodule_path = '
+            visual = json.loads((ROOT / 'Source/data/endgame/visual.json').read_text())
+            path.write_text('story = ' + lua_literal(self.story) + '\nvisual = '
+                            + lua_literal(visual) + '\nmodule_path = '
                             + json.dumps(str(module)) + '\ncredits_path = '
                             + json.dumps(str(ROOT / 'Source/game/creditsPlayer.lua'))
                             + '\nexpected_frames = ' + str(expected) + '\n' + probe)

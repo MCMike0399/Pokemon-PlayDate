@@ -294,8 +294,17 @@ function EventState:startMove(direction)
     local player = self.player
     local x, y = player.gridX + delta[1], player.gridY + delta[2]
     local counterStep = SaffronGuards and SaffronGuards.permitsCounterStep(self, player, delta[1], delta[2])
-    if not counterStep and (not self.zone.collision[y + 1] or self.zone.collision[y + 1][x + 1] ~= 0
+    -- CollisionCheckOnLand skips sprite and tile collision while
+    -- wSimulatedJoypadStatesIndex is set. The destination still has to be on the map.
+    local simulated = self.plan and self.plan.simulated
+    local row = self.zone.collision[y + 1]
+    local offMap = not row or row[x + 1] == nil
+    if not counterStep and not simulated and (offMap or row[x + 1] ~= 0
         or self.game.npcManager:getNPCAt(x, y)) then
+        self:fail("blocked-scripted-move")
+        return
+    end
+    if simulated and offMap then
         self:fail("blocked-scripted-move")
         return
     end
@@ -304,6 +313,15 @@ function EventState:startMove(direction)
     player.running = false
     if counterStep then
         player:stepAcrossSourceCounter(self, delta[1], delta[2])
+    elseif simulated then
+        -- tryMove already skips sprite and tile rules while noclip is set.
+        -- CollisionCheckOnLand does the same while the joypad is simulated.
+        local flags = DEBUG_FLAGS
+        local previous = flags and flags.noclip
+        if not DEBUG_FLAGS then DEBUG_FLAGS = {} end
+        DEBUG_FLAGS.noclip = true
+        player:tryMove(delta[1], delta[2])
+        if flags then flags.noclip = previous else DEBUG_FLAGS = nil end
     else
         player:tryMove(delta[1], delta[2])
     end

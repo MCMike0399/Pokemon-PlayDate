@@ -1,0 +1,60 @@
+Lane A owns the movement engine. Do not apply this from lane D.
+
+Oak starts on Champions Room warp (3, 7) and his exit step lands on warp
+(3, 0). SourceActors rejects a script position on a warp, so those two cells
+are not registered and NPCMotion:claimScript fails. The player follow is
+pokered's simulated joypad (WalkToHallOfFame_RLEMovement): CollisionCheckOnLand
+skips sprite and tile collision while wSimulatedJoypadStatesIndex is set, which
+is how the player walks through the rival. EventState:startMove still rejects
+an occupied cell.
+
+EndgameStory.oakCells adds (3, 7) and (3, 0) once
+SourceActors.championsOakMayCrossWarp exists. The champion plan sets
+plan.simulated. Until both hunks land, a blocked step is skipped and the hall
+warp still runs, so the ending does not get stuck. The lines and the walk
+steps are already in the plan.
+
+tools/tests/test_lane_d_endgame.py marks test_oak_can_cross_the_champion_warps
+and test_simulated_follow_ignores_sprite_collision as expected failures.
+
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -44,6 +44,10 @@ local compatibility = { viridian = { motion = false } }
+ local zoneProfiles = {}
+ local facingSteps = {up = {0, -1}, down = {0, 1}, left = {-1, 0}, right = {1, 0}}
+ local contentResolvers = {}
++
++function SourceActors.championsOakMayCrossWarp(id, x, y)
++    return id == "pokered:CHAMPIONS_ROOM:objects:2" and x == 3 and (y == 7 or y == 0)
++end
+ 
+ function SourceActors.registerContent(profile, resolver)
+     assert(profile == "source", "reviewed actor content cannot be replaced")
+@@ -199,6 +203,9 @@ function SourceActors.describe(d, game, resolver)
+             local silphExit = event.id == "pokered:SILPH_CO_7F:objects:9"
+                 and position.x == event.x + 2 and position.y == 3
+             if (towerExit or towerRivalExit or silphExit) and warps[cell] then
++                transit = true
++            end
++            if SourceActors.championsOakMayCrossWarp(event.id, position.x, position.y) and warps[cell] then
+                 transit = true
+             end
+             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -258,8 +258,14 @@ function EventState:startMove(direction)
+     local player = self.player
+     local x, y = player.gridX + delta[1], player.gridY + delta[2]
+     local counterStep = SaffronGuards and SaffronGuards.permitsCounterStep(self, player, delta[1], delta[2])
+-    if not counterStep and (not self.zone.collision[y + 1] or self.zone.collision[y + 1][x + 1] ~= 0
++    local simulated = self.plan and self.plan.simulated
++    local offMap = not self.zone.collision[y + 1] or self.zone.collision[y + 1][x + 1] == nil
++    if not counterStep and not simulated and (offMap or self.zone.collision[y + 1][x + 1] ~= 0
+         or self.game.npcManager:getNPCAt(x, y)) then
++        self:fail("blocked-scripted-move")
++        return
++    end
++    if simulated and offMap then
+         self:fail("blocked-scripted-move")
+         return
+     end
