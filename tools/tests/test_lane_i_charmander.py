@@ -871,7 +871,7 @@ class CharmanderRun(BrockJourney):
 
     def _cross_rock_tunnel(self):
         """North door, grass, then the ladder chain. A wipe restarts from the center."""
-        for _ in range(3):
+        for _ in range(12):
             try:
                 self._cross_rock_tunnel_once()
             except _TunnelReturned:
@@ -896,6 +896,9 @@ class CharmanderRun(BrockJourney):
             self.travel(self.zone("Route10"))
         self._tunnel_warp(self.zone("RockTunnel1F"), self.zone("Route10") + ":warps:2")
         self._probe_rock_tunnel()
+        # The grass probe leads Pidgey. The ladder trainers are the starter's fights.
+        self.training_mode = "train"
+        self._arrange_lead("starter")
         ladders = (
             ("RockTunnel1F", 5, "RockTunnelB1F"),
             ("RockTunnelB1F", 2, "RockTunnel1F"),
