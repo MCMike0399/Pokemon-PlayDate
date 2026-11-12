@@ -702,3 +702,46 @@ bird is not on that map. Sequence 95 is that checkpoint, sha256
 still errors in `fieldTravelRestrictions` for all of B4F, so the
 current patch is not merged and the west exit was not attempted.
 Sequence 95 is the continue point.
+
+## Articuno is beaten and the party is outside Seafoam
+
+`origin/main` `93d58071` is merged. `GameContext:fieldTravelRestrictions`
+calls `CoastStory.currentTooFast`. The full coast module was kept.
+The two unapplied Lane A patches are still the surf-door handoff and
+the Route 21 surf edge. This VM's suite is not the 1291 result: the
+ability oracle is absent, and those two patch tests still fail.
+
+From the Fuchsia blackout the mart sold 2 Ultra Balls, 1 Full Heal,
+and 1 Super Potion. Money left was 204. The return fell the open holes.
+B4F `(7, 11)` is land, so a surf step onto it dismounts, and Surf
+cannot be boarded there while one B4F boulder is still up. The south
+pool does not join Articuno's pool. The open B3F hole `(6, 16)` lands
+surfing at `(5, 14)`.
+
+The second fight blacked out. Sequence 106 is Fuchsia `(19, 28)`,
+sha256 `9c9474431bde8e80d225a0e89a6709c6faabea4f596e10a5341174e66456b26f`
+(`seq106-adventure.b.json`). Money is 102. Both Ultra Balls were used.
+That loss stays.
+
+The next fight used Razor Leaf and Super Potions and did not lock
+Petal Dance. Articuno reached 0 HP. `EVENT_BEAT_ARTICUNO` is set.
+Sequence 111 is B4F `(6, 2)` facing up, sha256
+`e4c875f2ecdb43ea26c8ba7f6198018c2f4d30a0236f3c0cb498abdbae3896b3`
+(`seq111-adventure.a.json`). The clip is
+`20261112T100754Z-seafoam-b4f-articuno-seafoam-islands-b4f.mp4`,
+400×240 h264, 89.92 seconds.
+
+From that save the party surfed off `(7, 3)`, landed on the stair
+`(7, 11)`, and climbed B3F `(5, 12)`, B2F `(13, 7)`, B1F `(7, 5)`, and
+the 1F south door. Sequence 112 is Route 20 `(48, 6)` facing down,
+sha256 `7d2e1a21777db6d733a2b4f260480ed03fb4073a29c4b332da690c85af1aca51`
+(`seq112-adventure.b.json`). The clip is
+`20261112T101508Z-seafoam-b4f-articuno-seafoam-islands-b4f-seafoam-islands-b3f-seafoam-i.mp4`,
+400×240 h264, 89.44 seconds. It shows the climb. Sequence 112 is the
+continue point.
+
+Route 20's west channel, the water that reaches x=0 and Cinnabar, does
+not touch the Seafoam shore. Column x=43 is rock (`$3A`) from y=2
+through y=13, and the island land has no shore onto the water west of
+that column. The east channel, minimum x=62, is the Route 19 side.
+Cinnabar, the Mansion, the Secret Key, and Blaine are still ahead.
