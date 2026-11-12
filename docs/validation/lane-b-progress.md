@@ -1100,3 +1100,42 @@ Sequence 143, sha256
 (`seq143-adventure.a.json`), has the same bag. The continue is
 sequence 143. The open route is the 9F warp `(9, 15)` and that floor's
 elevator to 3F.
+
+## Silph clip review
+
+`20261112T163555Z-silph-co-scientist.mp4` and
+`20261112T163724Z-silph-co-rocket.mp4` were read frame by frame.
+
+SECRET KEY does not revive. The rocket bag cursor sits on SECRET KEY
+while the list is scrolling, and the confirmed line is `RED used REVIVE`.
+Revive is numeric id 53 and restores half of Venusaur's 150, which is 75.
+SECRET KEY is numeric id 43, effect `unsupported`. `Battle:useItem` and
+`Items.planUse` both return `unsupported-item-use` before the revive
+branch, and the battle bag only opens a party target for heal, full
+restore, cure, revive, and PP. `test_no_key_item_is_usable_in_battle`
+covers every key item. It passes. There is no patch.
+
+Mirror Shot is the move on screen. Magneton's B2W2 learnset has
+`mirrorShot|25|-|429`, the Move literal is steel, and a level 28
+Magneton still has it in the four-move window. pokered af519899 has no
+`MIRROR_SHOT`; Magneton there learns SonicBoom at 21 and Thundershock
+at 25. The steel row has no grass or poison entry, so
+`TypeChart.getMatchup("steel", "grass", "poison")` is 1. The
+`It's not very effective...` line is the next message, after
+`VENUSAUR used DOUBLE EDGE!`. Double-Edge is normal, and normal against
+electric/steel is 0.5. The chart stays as it is.
+
+The item line and the recoil line are typed and then replaced. The
+scientist clip reaches `RED used HYPER POTION on VENUSAUR` and the next
+sample is already `MAGNETON used`. The rocket clip reaches
+`VENUSAUR is dam` and the next sample is `RATICATE fainted`. Dialog
+counts a held A while the typewriter is running, and one mashed A both
+finishes the line and, on the next frame, confirms it. The finished
+sentence is up for one frame. Lane E owns `Source/ui/dialog.lua`. The
+failing test is `tools/tests/test_lane_e_battle_review.py`
+(`test_mashed_a_holds_the_finished_battle_line`, expected failure) and
+the patch is `tools/notes/lane-e-battle-message.patch`. It is not
+applied. A mashed A has to leave the finished line up for 10 frames
+before the next press turns the page. `advance()` still presents a
+page for the learning contract, which acknowledges that page on the
+following A.
