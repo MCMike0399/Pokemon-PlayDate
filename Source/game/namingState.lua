@@ -256,6 +256,7 @@ function NameRater.rename(state, name)
 end
 
 if Class then
+    import "game/gbFont"
     local gfx <const> = playdate.graphics
     Class("NamingState"):extends(State)
 
@@ -301,37 +302,32 @@ if Class then
         local x, y = gfx.getDrawOffset()
         gfx.setDrawOffset(0, 0)
         gfx.clear(gfx.kColorWhite)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawRect(4, 4, 392, 232)
-        gfx.drawText(NamingScreen.header(screen.kind, screen.speciesName), 16, 12)
+        GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
+        GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName), 24, 20)
         if screen.phase == "presets" then
-            gfx.drawText("NAME", 16, 36)
             for index, label in ipairs(screen.presets) do
-                local marker = index == screen.cursor and ">" or " "
-                gfx.drawText(marker .. " " .. label, 16, 52 + (index - 1) * 22)
+                local marker = index == screen.cursor and TitleIdle.CURSOR or " "
+                GbFont.drawTight(marker .. label, 24, 36 + (index - 1) * 20)
             end
         elseif screen.phase == "ask" then
-            gfx.drawTextInRect(NamingScreen.askText(screen.speciesName), 16, 48, 360, 60)
-            gfx.drawText((screen.cursor == 1 and ">" or " ") .. " YES", 16, 120)
-            gfx.drawText((screen.cursor == 2 and ">" or " ") .. " NO", 16, 144)
+            GbFont.drawTight(NamingScreen.askText(screen.speciesName), 24, 48)
+            GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, 96)
+            GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, 120)
         else
-            gfx.drawText(NamingScreen.text(screen), 16, 36)
+            GbFont.drawTight(NamingScreen.text(screen), 24, 40)
             local grid = screen.upper and NamingScreen.UPPER or NamingScreen.LOWER
             for row, letters in ipairs(grid) do
-                local line = {}
+                local cursor = 24
                 for col, letter in ipairs(letters) do
-                    if row == screen.row and col == screen.col then
-                        line[#line + 1] = ">" .. letter
-                    else
-                        line[#line + 1] = " " .. letter
-                    end
+                    local marker = (row == screen.row and col == screen.col) and TitleIdle.CURSOR or " "
+                    GbFont.drawTight(marker .. letter, cursor, 64 + (row - 1) * 18)
+                    cursor = cursor + 36
                 end
-                gfx.drawText(table.concat(line, " "), 16, 58 + (row - 1) * 22)
             end
-            local caseLabel = screen.row == 6 and ">" or " "
-            caseLabel = caseLabel .. (screen.upper and "lower case" or "UPPER CASE")
-            gfx.drawText(caseLabel, 16, 180)
-            gfx.drawText("B: Delete    A on ED: Done", 16, 208)
+            local caseMark = screen.row == 6 and TitleIdle.CURSOR or " "
+            local caseLabel = screen.upper and "lower case" or "UPPER CASE"
+            GbFont.drawTight(caseMark .. caseLabel, 24, 168)
+            GbFont.drawTight("B delete   A on ED done", 24, 196)
         end
         gfx.setDrawOffset(x, y)
     end

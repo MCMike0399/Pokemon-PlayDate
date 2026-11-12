@@ -173,6 +173,158 @@ function TitleIdle.startAction(hasDex, index)
     return actions[index]
 end
 
+-- home/text.asm TextBoxBorder. The border adds one tile on every side,
+-- so a box at hlcoord col,row with inner size c,b occupies
+-- (c + 2) by (b + 2) tiles.
+-- The battle UI maps a GB column to 20px (400 / 20). Eighteen rows at
+-- 13px stay on the 240px screen (18 * 13 = 234). Tile (0, 0) is the
+-- top-left, which is where main_menu.asm draws the main menu. The
+-- start menu is the same map at hlcoord 10, 0.
+TitleIdle.COL = 20
+TitleIdle.ROW = 13
+
+function TitleIdle.textBox(col, row, innerW, innerH)
+    return {
+        col = col, row = row, innerW = innerW, innerH = innerH,
+        x = col * TitleIdle.COL,
+        y = row * TitleIdle.ROW,
+        w = (innerW + 2) * TitleIdle.COL,
+        h = (innerH + 2) * TitleIdle.ROW,
+    }
+end
+
+function TitleIdle.boxInterior(box)
+    return {
+        x = box.x + TitleIdle.COL,
+        y = box.y + TitleIdle.ROW,
+        w = box.w - 2 * TitleIdle.COL,
+        h = box.h - 2 * TitleIdle.ROW,
+    }
+end
+
+function TitleIdle.cellRect(col, row, cols, rows)
+    return {
+        x = col * TitleIdle.COL,
+        y = row * TitleIdle.ROW,
+        w = (cols or 1) * TitleIdle.COL,
+        h = (rows or 1) * TitleIdle.ROW,
+    }
+end
+
+function TitleIdle.contains(outer, inner)
+    return inner.x >= outer.x and inner.y >= outer.y
+        and inner.x + inner.w <= outer.x + outer.w
+        and inner.y + inner.h <= outer.y + outer.h
+end
+
+-- DisplayContinueGameInfo: hlcoord 4, 7; b = 8; c = 14.
+-- PlaceString of SaveScreenInfoText starts at hlcoord 5, 9 and <NEXT>
+-- is two rows. The numbers are PrintNumBadges, PrintNumOwnedMons, PrintPlayTime.
+TitleIdle.CONTINUE_BOX_SPEC = {col = 4, row = 7, innerW = 14, innerH = 8}
+TitleIdle.CONTINUE_TEXT = {
+    {label = "PLAYER", labelCol = 5, row = 9, valueCol = 12},
+    {label = "BADGES", labelCol = 5, row = 11, valueCol = 17},
+    {label = "POKéDEX", labelCol = 5, row = 13, valueCol = 16},
+    {label = "TIME", labelCol = 5, row = 15, valueCol = 13},
+}
+
+function TitleIdle.continueBox()
+    local spec = TitleIdle.CONTINUE_BOX_SPEC
+    return TitleIdle.textBox(spec.col, spec.row, spec.innerW, spec.innerH)
+end
+
+function TitleIdle.continueCells(name, badges, owned, timeText)
+    local values = {
+        name,
+        string.format("%2d", badges),
+        string.format("%3d", owned),
+        timeText,
+    }
+    local cells = {}
+    for index, spec in ipairs(TitleIdle.CONTINUE_TEXT) do
+        local value = values[index]
+        cells[#cells + 1] = {
+            label = spec.label,
+            value = value,
+            labelRect = TitleIdle.cellRect(spec.labelCol, spec.row, utf8.len(spec.label), 1),
+            valueRect = TitleIdle.cellRect(spec.valueCol, spec.row, utf8.len(value), 1),
+        }
+    end
+    return cells
+end
+
+-- MainMenu with a save is hlcoord 0, 0; b = 6; c = 13. No save is b = 4.
+-- ContinueText / NewGameText start at hlcoord 2, 2 and <NEXT> skips a row.
+-- The cursor is wTopMenuItemX = 1. Recovery rows keep that stride.
+function TitleIdle.mainMenuBox(hasSave, extra)
+    local innerH = (hasSave and 6 or 4) + (extra or 0) * 2
+    return TitleIdle.textBox(0, 0, 13, innerH)
+end
+
+function TitleIdle.mainMenuCells(labels)
+    local cells = {}
+    for index, label in ipairs(labels) do
+        local row = 2 + (index - 1) * 2
+        cells[#cells + 1] = {
+            label = label,
+            row = row,
+            cursor = TitleIdle.cellRect(1, row, 1, 1),
+            text = TitleIdle.cellRect(2, row, utf8.len(label), 1),
+        }
+    end
+    return cells
+end
+
+-- DrawStartMenu: hlcoord 10, 0. With the dex, b = 14; without, b = 12.
+-- Items start at hlcoord 12, 2. The cursor column is $0b.
+function TitleIdle.startMenuBox(hasDex)
+    return TitleIdle.textBox(10, 0, 8, hasDex and 14 or 12)
+end
+
+function TitleIdle.startMenuCells(labels)
+    local cells = {}
+    for index, label in ipairs(labels) do
+        local row = 2 + (index - 1) * 2
+        cells[#cells + 1] = {
+            label = label,
+            row = row,
+            cursor = TitleIdle.cellRect(11, row, 1, 1),
+            text = TitleIdle.cellRect(12, row, utf8.len(label), 1),
+        }
+    end
+    return cells
+end
+
+-- gfx/font/font.png tiles are (code - $80). font_extra.png is (code - $60).
+-- constants/charmap.asm. The filled cursor is ▶ and the hollow one is ▷.
+function TitleIdle.glyph(char)
+    local extra = {
+        [" "] = 0x7f - 0x60,
+        ["┌"] = 0x79 - 0x60, ["─"] = 0x7a - 0x60, ["┐"] = 0x7b - 0x60,
+        ["│"] = 0x7c - 0x60, ["└"] = 0x7d - 0x60, ["┘"] = 0x7e - 0x60,
+    }
+    if extra[char] then return "extra", extra[char] end
+    local font = {
+        ["▶"] = 0xed - 0x80, ["▷"] = 0xec - 0x80,
+        ["é"] = 0xba - 0x80, [":"] = 0x9c - 0x80,
+        ["-"] = 0xe3 - 0x80, ["."] = 0xe8 - 0x80,
+        ["'"] = 0xe0 - 0x80, ["?"] = 0xe6 - 0x80, ["!"] = 0xe7 - 0x80,
+        ["("] = 0x9a - 0x80, [")"] = 0x9b - 0x80,
+        ["/"] = 0xf3 - 0x80, [","] = 0xf4 - 0x80,
+    }
+    if font[char] then return "font", font[char] end
+    local byte = char:byte()
+    if byte and #char == 1 then
+        if byte >= 65 and byte <= 90 then return "font", byte - 65 end
+        if byte >= 97 and byte <= 122 then return "font", 0x20 + (byte - 97) end
+        if byte >= 48 and byte <= 57 then return "font", (0xf6 - 0x80) + (byte - 48) end
+    end
+    return "extra", extra[" "]
+end
+
+TitleIdle.CURSOR = "▶"
+TitleIdle.MARK = "▷"
+
 -- PrintPlayTime: hours in 3 digits, colon tile, minutes in 2 digits.
 function TitleIdle.playTimeText(hours, minutes)
     hours = math.max(0, math.min(255, math.floor(hours or 0)))

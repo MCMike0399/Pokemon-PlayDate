@@ -1,6 +1,7 @@
 import "game/optionsState"
 import "game/namingState"
 import "game/introMovie"
+import "game/gbFont"
 local gfx <const> = playdate.graphics
 
 Class("TitleState"):extends(State)
@@ -143,7 +144,6 @@ function TitleState:openMainMenu()
 end
 
 function TitleState:continueInfo(session)
-    local title = session.title and session:title() or {}
     local flags = {}
     if session.questFlag then
         for _, id in ipairs(TitleIdle.BADGE_FLAGS) do
@@ -158,8 +158,7 @@ function TitleState:continueInfo(session)
         end
     end
     local clock = session.playTime and session:playTime() or {hours = 0, minutes = 0}
-    local name = title.playerName
-    if type(name) ~= "string" or name == "" then name = Story.playerName(self.game) end
+    local name = Story.playerName(self.game)
     return {
         {label = "PLAYER", value = name},
         {label = "BADGES", value = string.format("%2d", TitleIdle.countFlags(flags))},
@@ -240,13 +239,23 @@ function TitleState:monImage()
     return image
 end
 
-function TitleState:frontImage(species)
-    self.frontArt = self.frontArt or {}
-    local image = self.frontArt[species]
+function TitleState:introSheet(name, width)
+    self.introArt = self.introArt or {}
+    local key = name .. ":" .. tostring(width or "full")
+    local image = self.introArt[key]
     if image == nil then
-        local ok, loaded = pcall(gfx.image.new, PokemonArt.path(species, "front"))
-        image = ok and loaded or false
-        self.frontArt[species] = image
+        local sheet = gfx.image.new("images/title/intro/" .. name)
+        if sheet and width then
+            local _, height = sheet:getSize()
+            local frame = gfx.image.new(width, height, gfx.kColorWhite)
+            gfx.pushContext(frame)
+            sheet:draw(0, 0)
+            gfx.popContext()
+            image = frame
+        else
+            image = sheet or false
+        end
+        self.introArt[key] = image
     end
     if image then return image end
 end
@@ -324,8 +333,8 @@ function TitleState:drawPlayer()
     self.ballTile:drawScaled(cellX, cellY + dy, scale)
 end
 
-function TitleState:drawIntroMon(species, x, y)
-    local image = self:frontImage(species)
+function TitleState:drawIntroMon(name, x, y, width)
+    local image = self:introSheet(name, width)
     if image then image:drawScaled(x, y, 2) end
 end
 
@@ -337,11 +346,13 @@ function TitleState:draw()
         IntroMovie.draw(self.intro, gfx)
         local scene = self.intro and IntroMovie.SCENES[self.intro.index]
         if scene and scene.cast then
+            -- Blue's FightIntroFrontMon is gfx/intro/blue_jigglypuff_*.png.
+            -- The scene id stays nidorino because the timing table is shared.
             if scene.cast == "nidorino" or scene.cast == "both" then
-                self:drawIntroMon("nidorino", 36, 64)
+                self:drawIntroMon("blue_jigglypuff_1", 36, 64)
             end
             if scene.cast == "gengar" or scene.cast == "both" then
-                self:drawIntroMon("gengar", 210, 64)
+                self:drawIntroMon("gengar", 200, 48, 56)
             end
         end
         return
@@ -350,9 +361,8 @@ function TitleState:draw()
         self:drawTitleArt()
         if self.phase == "preparing" then
             gfx.setColor(gfx.kColorWhite)
-            gfx.fillRect(8, 200, 220, 28)
-            gfx.setColor(gfx.kColorBlack)
-            gfx.drawText("Preparing adventure...", 16, 206)
+            gfx.fillRect(8, 200, 360, 32)
+            GbFont.drawTight("Preparing adventure...", 16, 206)
         end
         return
     end
@@ -365,20 +375,39 @@ function TitleState:draw()
             and "Start a new adventure?\nOn SAVE, old save files will be kept as a backup before replacement."
             or "Recover this save? Current save files will first be kept as a backup."
         gfx.drawTextInRect(text, 20, 40, 360, 96)
-        self.menu:draw(200, 140, 180, 60)
+        local box = TitleIdle.textBox(10, 10, 6, 2)
+        GbFont.drawBox(box)
+        for index, label in ipairs(self.menu.options) do
+            local row = 11 + index - 1
+            if index == self.menu.selectedIndex then
+                GbFont.drawChar(TitleIdle.CURSOR, 11, row)
+            end
+            GbFont.drawString(label, 12, row)
+        end
         return
     end
-    self.menu:draw(8, 8, 220, 16 + #self.menu.options * 20)
-    if self.phase == "continue-info" and self.info then
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRect(8, 150, 384, 82)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawRect(8, 150, 384, 82)
-        for index, row in ipairs(self.info) do
-            gfx.drawText(row.label, 20, 156 + (index - 1) * 18)
-            gfx.drawText(row.value, 140, 156 + (index - 1) * 18)
+    local hasSave = self.candidate ~= nil
+    local extra = #self.menu.options - #TitleIdle.mainMenu(hasSave)
+    GbFont.drawBox(TitleIdle.mainMenuBox(hasSave, extra))
+    for index, cell in ipairs(TitleIdle.mainMenuCells(self.menu.options)) do
+        if index == self.menu.selectedIndex then
+            GbFont.drawChar(TitleIdle.CURSOR, 1, cell.row)
         end
-        gfx.drawText("A: Continue    B: Back", 240, 210)
+        GbFont.drawString(cell.label, 2, cell.row)
+    end
+    if self.phase == "continue-info" and self.info then
+        local box = TitleIdle.continueBox()
+        GbFont.drawBox(box)
+        local cells = TitleIdle.continueCells(
+            self.info[1].value, tonumber(self.info[2].value), tonumber(self.info[3].value), self.info[4].value)
+        for _, cell in ipairs(cells) do
+            local spec = nil
+            for _, row in ipairs(TitleIdle.CONTINUE_TEXT) do
+                if row.label == cell.label then spec = row end
+            end
+            GbFont.drawString(cell.label, spec.labelCol, spec.row)
+            GbFont.drawString(cell.value, spec.valueCol, spec.row)
+        end
     end
 end
 

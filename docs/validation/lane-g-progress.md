@@ -37,6 +37,18 @@ Apply `tools/notes/lane-e-names.patch` first, then `tools/notes/lane-e-nicknames
 
 `tools/tests/test_lane_e_names.py` and `tools/tests/test_lane_e_nicknames.py` check that the patches apply. The assertions that the codec and the catch ask for names are `expectedFailure` until lane E lands them.
 
+## Round 2
+
+`DisplayContinueGameInfo` is `hlcoord 4, 7`, `b = 8`, `c = 14`. The four `PlaceString` rows are 9, 11, 13, and 15. `TitleIdle.continueCells` places each label and value inside that border. The host test rejects a row that crosses it. The main menu is `hlcoord 0, 0` on the same 20px by 13px map, with `▶` in column 1. The start menu is `hlcoord 10, 0` with the cursor in column `$0b`. Options use `▷` on the current choice and `▶` on the active row (`PlaceUnfilledArrowMenuCursor` / `PlaceMenuCursor`).
+
+Names go through `Story.readName`. Oak's speech, the naming screen, and the continue box all use `Story.playerName` / `Story.rivalName`. Lane E's codec change is the `title()` return. No second read was added.
+
+The 8×8 font is `gfx/font/font.png` and `font_extra.png`, thresholded into `Source/images/title/font/`. Box corners are the font_extra tiles. `BattleMenu` in `ui/menu.lua` is still a 1px rect and a `>` cursor. That file is lane E's. `tools/notes/lane-e-menu-font.patch` switches it to the battle font, the dialog frame, and `▶`. The title, start menu, options, naming screen, and the loading line do not wait on that patch.
+
+Blue's intro front is `gfx/intro/blue_jigglypuff_*.png` (`FightIntroFrontMon` under `_BLUE`). Gengar is `gfx/intro/gengar.png`, three 56×56 frames. The Red Nidorino sheets are pinned in the same manifest and are not drawn. The battle fronts are no longer the intro stand-in. The tilemap wave is still the static first frame.
+
+The continue-box capture is a Playdate Simulator 3.1.2 frame, `simulator-continue.png`.
+
 ## Blockers
 
 - Chosen names do not survive Continue. The codec still asserts `RED` / `BLUE`.

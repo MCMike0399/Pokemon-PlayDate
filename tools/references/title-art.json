@@ -513,6 +513,96 @@
       ],
       "output": "ghost.png",
       "scale": 2
+    },
+    {
+      "path": "gfx/font/font.png",
+      "sha256": "80faa0c5778c172ca83dd7ad90aa9e79ad8923fb579c69e8a10240b00ad19606",
+      "size": [
+        128,
+        64
+      ],
+      "output": "font/font.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/font/font_extra.png",
+      "sha256": "323964a2067b08a20d9609e4377e327cd6eaae4cc4c5668d4f9abfaad9aae984",
+      "size": [
+        128,
+        16
+      ],
+      "output": "font/extra.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/intro/gengar.png",
+      "sha256": "f1ae02a34d6cd9f0aa5adf9fa7d00a345358a38f5c778e871ad4b3842d0615b9",
+      "size": [
+        168,
+        56
+      ],
+      "output": "intro/gengar.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/intro/blue_jigglypuff_1.png",
+      "sha256": "4558887ef938c87d10d6635fdc30e4a23b279bd241c777e8354cabb4f15776c6",
+      "size": [
+        48,
+        48
+      ],
+      "output": "intro/blue_jigglypuff_1.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/intro/blue_jigglypuff_2.png",
+      "sha256": "82dda202f1e93cc1e77c1d91a77b5b02592f4f7baacdb95f16a7260475ae5911",
+      "size": [
+        48,
+        48
+      ],
+      "output": "intro/blue_jigglypuff_2.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/intro/blue_jigglypuff_3.png",
+      "sha256": "e0e5439a9171d43efa35950e200a361d46e391ee332df2efdb3a14d7e622827c",
+      "size": [
+        48,
+        48
+      ],
+      "output": "intro/blue_jigglypuff_3.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/intro/red_nidorino_1.png",
+      "sha256": "c7a7bb12d459ae8bd9ce875377c735d6b973fdfacc68af9d7e9b05563ee0b215",
+      "size": [
+        48,
+        48
+      ],
+      "output": "intro/red_nidorino_1.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/intro/red_nidorino_2.png",
+      "sha256": "b61b2a1af9fddbc9ebab6530ddf6964dac9be645a9fed9675b2ee3166255f349",
+      "size": [
+        48,
+        48
+      ],
+      "output": "intro/red_nidorino_2.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/intro/red_nidorino_3.png",
+      "sha256": "7f4c4baf83d82c31687de4ccf1b5cb904cde8db6f335a751c3e59c3f9dca51e0",
+      "size": [
+        48,
+        48
+      ],
+      "output": "intro/red_nidorino_3.png",
+      "scale": 1
     }
   ],
   "sources": [

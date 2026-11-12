@@ -1,3 +1,4 @@
+import "game/gbFont"
 local gfx <const> = playdate.graphics
 Class("PauseState"):extends(State)
 
@@ -62,7 +63,14 @@ function PauseState:draw()
     local x, y = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
     if self.phase == "menu" then
-        self.menu:draw(208, 8, 184, 16 + #self.menu.options * 20)
+        local hasDex = self.game.session:questFlag("EVENT_GOT_POKEDEX")
+        GbFont.drawBox(TitleIdle.startMenuBox(hasDex))
+        for index, cell in ipairs(TitleIdle.startMenuCells(self.menu.options)) do
+            if index == self.menu.selectedIndex then
+                GbFont.drawChar(TitleIdle.CURSOR, 11, cell.row)
+            end
+            GbFont.drawString(cell.label, 12, cell.row)
+        end
     else
         gfx.setColor(gfx.kColorWhite); gfx.fillRect(16, 24, 368, 192)
         gfx.setColor(gfx.kColorBlack); gfx.drawRect(16, 24, 368, 192)

@@ -61,38 +61,28 @@ local BALLS <const> = {
 
 Story._names = setmetatable({}, {__mode = "k"})
 
-function Story.playerName(game)
+-- One read for Oak's speech, the naming screen, and the continue box.
+-- Lane E's codec patch is the title() return. This function does not
+-- grow a second source when that return stops being RED / BLUE.
+function Story.readName(game, who, field, fallback)
     local session = game and game.session
     local bag = session and Story._names[session]
-    if bag and type(bag.player) == "string" and bag.player ~= "" then return bag.player end
-    if session and type(session.playerName) == "function" then
-        local ok, name = pcall(session.playerName, session)
-        if ok and type(name) == "string" and name ~= "" then return name end
-    end
+    if bag and type(bag[who]) == "string" and bag[who] ~= "" then return bag[who] end
     if session and type(session.title) == "function" then
         local ok, title = pcall(session.title, session)
-        if ok and type(title) == "table" and type(title.playerName) == "string" and title.playerName ~= "" then
-            return title.playerName
+        if ok and type(title) == "table" and type(title[field]) == "string" and title[field] ~= "" then
+            return title[field]
         end
     end
-    return "RED"
+    return fallback
+end
+
+function Story.playerName(game)
+    return Story.readName(game, "player", "playerName", "RED")
 end
 
 function Story.rivalName(game)
-    local session = game and game.session
-    local bag = session and Story._names[session]
-    if bag and type(bag.rival) == "string" and bag.rival ~= "" then return bag.rival end
-    if session and type(session.rivalName) == "function" then
-        local ok, name = pcall(session.rivalName, session)
-        if ok and type(name) == "string" and name ~= "" then return name end
-    end
-    if session and type(session.title) == "function" then
-        local ok, title = pcall(session.title, session)
-        if ok and type(title) == "table" and type(title.rivalName) == "string" and title.rivalName ~= "" then
-            return title.rivalName
-        end
-    end
-    return "BLUE"
+    return Story.readName(game, "rival", "rivalName", "BLUE")
 end
 
 function Story.remember(game, who, name)

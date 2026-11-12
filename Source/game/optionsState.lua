@@ -1,4 +1,5 @@
 import "game/gameOptions"
+import "game/gbFont"
 local gfx <const> = playdate.graphics
 Class("OptionsState"):extends(State)
 
@@ -57,30 +58,46 @@ function OptionsState:handleInput()
     end
 end
 
+-- DisplayOptionMenu places ▷ on each row's current choice and ▶ on the
+-- active row (PlaceMenuCursor). CRANK SCROLL keeps a row under the three
+-- source boxes. Cancel is hlcoord 2, 16.
 function OptionsState:draw()
     local x, y = gfx.getDrawOffset()
-    local font = gfx.getFont()
     gfx.setDrawOffset(0, 0)
-    gfx.setFont(gfx.getSystemFont())
     gfx.clear(gfx.kColorWhite)
-    gfx.setColor(gfx.kColorBlack)
+    local boxes = {
+        {origin = 0, labelRow = 1, choiceRow = 3, cols = {1, 7, 14}},
+        {origin = 5, labelRow = 6, choiceRow = 8, cols = {1, 10}},
+        {origin = 10, labelRow = 11, choiceRow = 13, cols = {1, 10}},
+    }
     for index, row in ipairs(GameOptions.rows) do
-        local rowY = 8 + (index - 1) * 44
-        gfx.drawRect(8, rowY, 384, 40)
-        gfx.drawText(row.label, 20, rowY + 4)
-        local line = {}
         local current = GameOptions.get(row.key)
-        for _, choice in ipairs(row.choices) do
-            local marker = (index == self.selected and choice == current) and ">" or " "
-            line[#line + 1] = marker .. choice
+        local choiceIndex = 1
+        for cursor, value in ipairs(row.choices) do
+            if value == current then choiceIndex = cursor end
         end
-        gfx.drawText(table.concat(line, "   "), 20, rowY + 20)
+        local marker = index == self.selected and TitleIdle.CURSOR or TitleIdle.MARK
+        if boxes[index] then
+            local spec = boxes[index]
+            GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 3))
+            GbFont.drawString(row.label, 1, spec.labelRow)
+            for cursor, value in ipairs(row.choices) do
+                local col = spec.cols[cursor] or (1 + (cursor - 1) * 8)
+                if cursor == choiceIndex then GbFont.drawChar(marker, col, spec.choiceRow) end
+                GbFont.drawString(value, col + 1, spec.choiceRow)
+            end
+        else
+            local col = choiceIndex == 1 and 14 or 17
+            GbFont.drawString(row.label, 1, 15)
+            GbFont.drawChar(marker, col, 15)
+            GbFont.drawString(row.choices[choiceIndex], col + 1, 15)
+        end
     end
-    local cancelY = 8 + #GameOptions.rows * 44
-    local marker = self.selected == self:rowCount() and ">" or " "
-    gfx.drawText(marker .. GameOptions.cancelLabel, 20, cancelY)
-    gfx.drawText(self.error or "D-pad: Choose     A on CANCEL / B: Save & Back", 16, 214)
-    gfx.setFont(font)
+    if self.selected == self:rowCount() then
+        GbFont.drawChar(TitleIdle.CURSOR, 1, 16)
+    end
+    GbFont.drawString(GameOptions.cancelLabel, 2, 16)
+    if self.error then GbFont.drawTight(self.error, 8, 222) end
     gfx.setDrawOffset(x, y)
 end
 
