@@ -589,6 +589,188 @@ function CoastStory.surfEdge(surfing, origin, arrival, outside)
     return water(origin) and water(arrival)
 end
 
+-- scripts/CinnabarGym.asm and data/trainers/parties.asm at af519899.
+-- BlaineData is the $FF party. Money is the class base times the last
+-- mon's level (pic_pointers_money.asm). A wrong quiz answer sends text
+-- id = question + 2, and winning that battle opens gate (text id - 2).
+local GYM_MAP <const> = "pokered:CINNABAR_GYM"
+local GYM_CONTENT <const> = "coastGym"
+
+local function species(level, name)
+    return { level = level, species = name }
+end
+
+local GYM_ROSTER <const> = {
+    {
+        index = 1, name = "BLAINE", sprite = "SPRITE_MIDDLE_AGED_MAN",
+        class_source = "OPP_BLAINE", roster = 1, base = 99, x = 3, y = 3, leader = true,
+        party = { species(42, "growlithe"), species(40, "ponyta"), species(42, "rapidash"), species(47, "arcanine") },
+    },
+    {
+        index = 2, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 9, base = 25, x = 17, y = 2,
+        before = "_CinnabarGymSuperNerd1BattleText",
+        won = "_CinnabarGymSuperNerd1EndBattleText",
+        after = "_CinnabarGymSuperNerd1AfterBattleText",
+        party = { species(36, "vulpix"), species(36, "vulpix"), species(36, "ninetales") },
+    },
+    {
+        index = 3, name = "BURGLAR", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_BURGLAR", roster = 4, base = 90, x = 17, y = 8,
+        before = "_CinnabarGymSuperNerd2BattleText",
+        won = "_CinnabarGymSuperNerd2EndBattleText",
+        after = "_CinnabarGymSuperNerd2AfterBattleText",
+        party = { species(36, "growlithe"), species(36, "vulpix"), species(36, "ninetales") },
+    },
+    {
+        index = 4, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 10, base = 25, x = 11, y = 4,
+        before = "_CinnabarGymSuperNerd3BattleText",
+        won = "_CinnabarGymSuperNerd3EndBattleText",
+        after = "_CinnabarGymSuperNerd3AfterBattleText",
+        party = { species(34, "ponyta"), species(34, "charmander"), species(34, "vulpix"), species(34, "growlithe") },
+    },
+    {
+        index = 5, name = "BURGLAR", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_BURGLAR", roster = 5, base = 90, x = 11, y = 8,
+        before = "_CinnabarGymSuperNerd4BattleText",
+        won = "_CinnabarGymSuperNerd4EndBattleText",
+        after = "_CinnabarGymSuperNerd4AfterBattleText",
+        party = { species(41, "ponyta") },
+    },
+    {
+        index = 6, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 11, base = 25, x = 11, y = 14,
+        before = "_CinnabarGymSuperNerd5BattleText",
+        won = "_CinnabarGymSuperNerd5EndBattleText",
+        after = "_CinnabarGymSuperNerd5AfterBattleText",
+        party = { species(41, "rapidash") },
+    },
+    {
+        index = 7, name = "BURGLAR", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_BURGLAR", roster = 6, base = 90, x = 3, y = 14,
+        before = "_CinnabarGymSuperNerd6BattleText",
+        won = "_CinnabarGymSuperNerd6EndBattleText",
+        after = "_CinnabarGymSuperNerd6AfterBattleText",
+        party = { species(37, "vulpix"), species(37, "growlithe") },
+    },
+    {
+        index = 8, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 12, base = 25, x = 3, y = 8,
+        before = "_CinnabarGymSuperNerd7BattleText",
+        won = "_CinnabarGymSuperNerd7EndBattleText",
+        after = "_CinnabarGymSuperNerd7AfterBattleText",
+        party = { species(37, "growlithe"), species(37, "vulpix") },
+    },
+}
+
+local function gymId(index)
+    return GYM_MAP .. ":objects:" .. tostring(index)
+end
+
+local function copyParty(party)
+    local out = {}
+    for index, mon in ipairs(party) do
+        out[index] = { level = mon.level, species = mon.species }
+    end
+    return out
+end
+
+function CoastStory.gymRoster()
+    local rows = {}
+    for _, row in ipairs(GYM_ROSTER) do
+        local copyRow = {
+            index = row.index, id = gymId(row.index), name = row.name, sprite = row.sprite,
+            class_source = row.class_source, roster = row.roster, base = row.base,
+            x = row.x, y = row.y, leader = row.leader == true,
+            party = copyParty(row.party), payout = row.base * row.party[#row.party].level,
+        }
+        if not row.leader then
+            copyRow.flag = "EVENT_BEAT_CINNABAR_GYM_TRAINER_" .. tostring(row.index - 2)
+            copyRow.gate = "EVENT_CINNABAR_GYM_GATE" .. tostring(row.index - 2) .. "_UNLOCKED"
+            copyRow.before = row.before
+            copyRow.won = row.won
+            copyRow.after = row.after
+        end
+        rows[#rows + 1] = copyRow
+    end
+    return rows
+end
+
+function CoastStory.gymTrainers()
+    local trainers = {}
+    for _, row in ipairs(CoastStory.gymRoster()) do
+        trainers[row.id] = {
+            id = row.id, map_id = GYM_MAP, name = row.name, sprite_source = row.sprite,
+            payout = row.payout, sight_range_cells = 0, talk_only = true,
+            party = copyParty(row.party), class_source = row.class_source,
+            roster_id = row.roster, source_flag = row.flag, x = row.x, y = row.y,
+        }
+    end
+    return trainers
+end
+
+function CoastStory.gymEvents()
+    local events = {}
+    local beaten = {}
+    local trainers = {}
+    for _, row in ipairs(CoastStory.gymRoster()) do
+        if row.leader then
+            events[row.id] = {
+                kind = "trainer", content = GYM_CONTENT,
+                before = { "_CinnabarGymBlainePreBattleText" },
+                won = { "_CinnabarGymBlaineReceivedVolcanoBadgeText" },
+                after = { "_CinnabarGymBlainePostBattleAdviceText" },
+                reward = {
+                    before = { "_CinnabarGymBlaineVolcanoBadgeInfoText" },
+                    flag = "EVENT_GOT_TM38",
+                    full = { "_CinnabarGymBlaineTM38NoRoomText" },
+                    full_status = "bag-full",
+                    item = "tm38",
+                    success = {
+                        "_CinnabarGymBlaineReceivedTM38Text",
+                        "_CinnabarGymBlaineTM38ExplanationText",
+                    },
+                },
+            }
+        else
+            beaten[row.flag] = true
+            trainers[row.id] = true
+            events[row.id] = {
+                kind = "trainer", content = GYM_CONTENT,
+                before = { row.before }, won = { row.won }, after = { row.after },
+                victory = {
+                    flags = { [row.flag] = true, [row.gate] = true },
+                    guard_flags = { row.flag, row.gate },
+                },
+            }
+        end
+    end
+    local leader = events[gymId(1)]
+    local flags = { BADGE_VOLCANO = true, EVENT_BEAT_BLAINE = true }
+    for flag in pairs(beaten) do
+        flags[flag] = true
+    end
+    leader.victory = {
+        flags = flags,
+        guard_flags = { "EVENT_BEAT_BLAINE", "BADGE_VOLCANO" },
+        trainers = trainers,
+    }
+    events[gymId(9)] = {
+        kind = "cases", content = GYM_CONTENT,
+        cases = {
+            { when = { flags = { EVENT_BEAT_BLAINE = true } },
+              ["then"] = { kind = "program", steps = {
+                  { op = "dialog", labels = { "_CinnabarGymGymGuideBeatBlaineText" } },
+              } } },
+        },
+        otherwise = { kind = "program", steps = {
+            { op = "dialog", labels = { "_CinnabarGymGymGuideChampInMakingText" } },
+        } },
+    }
+    return events
+end
+
 function CoastStory.scriptFlags(map)
     if map == "pokered:SEAFOAM_ISLANDS_1F" then
         return { set = { EVENT_IN_SEAFOAM_ISLANDS = true } }

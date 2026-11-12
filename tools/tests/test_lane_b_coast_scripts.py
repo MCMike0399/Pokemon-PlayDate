@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""Coast story rules against the af519899 Seafoam, Mansion, and quiz scripts."""
+"""Coast story rules against the af519899 Seafoam, Mansion, quiz, and Blaine scripts."""
 
+import os
+import re
 import shutil
 import subprocess
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+REF = Path(os.environ.get('POKERED_REFERENCE_DIR', Path.home() / 'Developer/Pokemon-PlayDate-env/pokered'))
 
 
 def lua_binary():
@@ -176,14 +179,50 @@ assert(switchLines.prompt[1] == "A secret switch!")
 assert(switchLines.prompt[2] == "Press it?")
 assert(switchLines.pressed[1] == "Who wouldn't?")
 assert(switchLines.declined[1] == "Not quite yet!")
+local roster = CoastStory.gymRoster()
+assert(#roster == 8)
+local blaine = roster[1]
+assert(blaine.leader and blaine.name == "BLAINE" and blaine.payout == 99 * 47)
+assert(blaine.party[1].species == "growlithe" and blaine.party[1].level == 42)
+assert(blaine.party[4].species == "arcanine" and blaine.party[4].level == 47)
+assert(blaine.id == "pokered:CINNABAR_GYM:objects:1")
+local events = CoastStory.gymEvents()
+local leader = events[blaine.id]
+assert(leader.kind == "trainer" and leader.content == "coastGym")
+assert(leader.reward.item == "tm38" and leader.reward.flag == "EVENT_GOT_TM38")
+assert(leader.victory.flags.BADGE_VOLCANO == true)
+assert(leader.victory.flags.EVENT_BEAT_BLAINE == true)
+assert(leader.before[1] == "_CinnabarGymBlainePreBattleText")
+assert(leader.won[1] == "_CinnabarGymBlaineReceivedVolcanoBadgeText")
+for index = 2, 8 do
+  local row = roster[index]
+  assert(row.payout == row.base * row.party[#row.party].level)
+  assert(events[row.id].victory.flags[row.flag] == true)
+  assert(events[row.id].victory.flags[row.gate] == true)
+  assert(leader.victory.flags[row.flag] == true)
+  assert(leader.victory.trainers[row.id] == true)
+  print(string.format("gym %d %s %d %s %d", row.index, row.class_source, row.roster, row.party[#row.party].species, row.payout))
+end
+local wrong = CoastStory.quizAnswer(1, "no")
+assert(wrong.opponent == 3 and roster[wrong.opponent].gate == "EVENT_CINNABAR_GYM_GATE1_UNLOCKED")
+local guide = events["pokered:CINNABAR_GYM:objects:9"]
+assert(guide.kind == "cases")
+assert(guide.cases[1].when.flags.EVENT_BEAT_BLAINE == true)
+assert(guide.otherwise.steps[1].labels[1] == "_CinnabarGymGymGuideChampInMakingText")
+print(string.format("blaine %d %d %d %d payout %d", blaine.party[1].level, blaine.party[2].level, blaine.party[3].level, blaine.party[4].level, blaine.payout))
 print("coast-story-ok")
 '''
 
 
+def write_host():
+    host = Path('/tmp/lane_b_coast_story_host.lua')
+    host.write_text(HOST)
+    return host
+
+
 class CoastScriptTest(unittest.TestCase):
     def test_seafoam_mansion_and_quiz_match_the_pinned_scripts(self):
-        host = Path('/tmp/lane_b_coast_story_host.lua')
-        host.write_text(HOST)
+        host = write_host()
         completed = subprocess.run(
             [lua_binary(), str(host), str(ROOT / 'Source/game/coastStory.lua')],
             check=False, capture_output=True, text=True)
@@ -206,6 +245,58 @@ class CoastScriptTest(unittest.TestCase):
         self.assertNotIn('block.solid', region)
         self.assertIn('function switchInteract', text)
         self.assertIn('coastSwitch', text)
+
+    def test_blaine_matches_the_pinned_gym_script(self):
+        parties = (REF / 'data/trainers/parties.asm').read_text()
+        blaine = re.search(
+            r'BlaineData:\s*db \$FF,\s*42,\s*GROWLITHE,\s*40,\s*PONYTA,\s*42,\s*RAPIDASH,\s*47,\s*ARCANINE,\s*0',
+            parties)
+        self.assertIsNotNone(blaine)
+        nerd = re.search(r'SuperNerdData:(.*?)(?=\n\n[A-Za-z])', parties, re.S)
+        burglar = re.search(r'BurglarData:(.*?)(?=\n\n[A-Za-z])', parties, re.S)
+        self.assertIsNotNone(nerd and burglar)
+
+        def parties_of(block):
+            rows = []
+            for line in block.group(1).splitlines():
+                match = re.match(r'\s*db\s+(.+)', line)
+                if not match or match.group(1).startswith('$FF'):
+                    continue
+                parts = [part.strip() for part in match.group(1).split(',')]
+                level = int(parts[0])
+                rows.append((level, [name for name in parts[1:] if name != '0']))
+            return rows
+
+        nerds = parties_of(nerd)
+        burglars = parties_of(burglar)
+        self.assertEqual(nerds[8], (36, ['VULPIX', 'VULPIX', 'NINETALES']))
+        self.assertEqual(nerds[9], (34, ['PONYTA', 'CHARMANDER', 'VULPIX', 'GROWLITHE']))
+        self.assertEqual(nerds[10], (41, ['RAPIDASH']))
+        self.assertEqual(nerds[11], (37, ['GROWLITHE', 'VULPIX']))
+        self.assertEqual(burglars[3], (36, ['GROWLITHE', 'VULPIX', 'NINETALES']))
+        self.assertEqual(burglars[4], (41, ['PONYTA']))
+        self.assertEqual(burglars[5], (37, ['VULPIX', 'GROWLITHE']))
+        script = (REF / 'scripts/CinnabarGym.asm').read_text()
+        for token in (
+            'SetEvent EVENT_BEAT_BLAINE', 'TM_FIRE_BLAST', 'SetEvent EVENT_GOT_TM38',
+            'BIT_VOLCANOBADGE',
+            'SetEventRange EVENT_BEAT_CINNABAR_GYM_TRAINER_0, EVENT_BEAT_CINNABAR_GYM_TRAINER_6',
+            '_CinnabarGymBlainePreBattleText', '_CinnabarGymBlaineReceivedVolcanoBadgeText',
+            '_CinnabarGymBlaineVolcanoBadgeInfoText', '_CinnabarGymBlaineReceivedTM38Text',
+        ):
+            self.assertIn(token, script)
+        money = (REF / 'data/trainers/pic_pointers_money.asm').read_text()
+        self.assertIn('pic_money BlainePic,       9900', money)
+        self.assertIn('base money × level of last enemy mon', money)
+        host = write_host()
+        completed = subprocess.run(
+            [lua_binary(), str(host), str(ROOT / 'Source/game/coastStory.lua')],
+            check=False, capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+        self.assertIn('blaine 42 40 42 47 payout 4653', completed.stdout)
+        world = (ROOT / 'Source/game/coastStoryWorld.lua').read_text()
+        self.assertIn('CoastStory.gymEvents()', world)
+        self.assertIn('registerTrainerSource("coastGym", CoastStory.gymTrainers)', world)
 
 
 if __name__ == '__main__':

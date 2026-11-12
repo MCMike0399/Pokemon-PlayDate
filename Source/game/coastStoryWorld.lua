@@ -432,6 +432,7 @@ end
 local described = false
 local ARTICUNO <const> = "pokered:SEAFOAM_ISLANDS_B4F:objects:3"
 local articunoInstalled = false
+local gymInstalled = false
 
 function CoastStoryWorld.advanceArticuno(state)
     if not state.plan or state.plan.scene ~= "coast-articuno" then
@@ -519,6 +520,12 @@ function CoastStoryWorld.install()
             return previous(state)
         end
         articunoInstalled = true
+    end
+    if not gymInstalled then
+        SourceEvents.registerEventSource("coastGym", CoastStory.gymEvents())
+        SourceEvents.registerTextSource("coastGym", CoastStory.articunoText)
+        SourceEvents.registerTrainerSource("coastGym", CoastStory.gymTrainers)
+        gymInstalled = true
     end
     if not described then
         local describe = SourceActors.describe
