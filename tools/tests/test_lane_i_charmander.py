@@ -245,6 +245,14 @@ class CharmanderRun(BrockJourney):
             if started:
                 started()
 
+    def capture_presentation(self, label, kind):
+        # The Brock save reuses one screenshot name. Later pause saves need their own.
+        serial = getattr(self, "_presentation", 0) + 1
+        self._presentation = serial
+        if (self.frames_dir / (label + ".png")).exists():
+            label = f"{label}-{serial}"
+        return super().capture_presentation(label, kind)
+
     def save(self):
         super().save()
         self._archive_earned_save()
