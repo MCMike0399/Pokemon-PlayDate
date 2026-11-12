@@ -75,6 +75,7 @@ function SnorlaxStory.fluteText(label)
     return record and copy(record) or nil
 end
 function SnorlaxStory.useFlute(bag)
+    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("flute") end
     local game <const> = bag.game
     local machine <const> = game.machine
     local world <const> = machine:get("overworld")

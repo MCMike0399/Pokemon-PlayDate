@@ -196,6 +196,19 @@ function ExploreSubstate:interact()
         local battleData = npc:getBattleData()
         if battleData and not npc:hasInteracted() and game.session:party():firstUsable() then
             local session=game.session
+            if KantoAudio and KantoAudio.trainerJingle then
+                local id = npc.trainerID
+                local definition = game.trainers and game.trainers:definition(id)
+                local class = BattleState.trainerClassFor(id, definition)
+                -- PlayTrainerMusic is silent for rivals. Those scripts play
+                -- MUSIC_MEET_RIVAL (scripts/OaksLab.asm and the other sites
+                -- listed in Source/audio/events.lua).
+                local score = KantoAudio.trainerJingle(class, nil)
+                if not score and (class == "OPP_RIVAL1" or class == "OPP_RIVAL2" or class == "OPP_RIVAL3") then
+                    score = "meet_rival"
+                end
+                if score then KantoAudio.playJingle(score) end
+            end
             rootMachine:push("dialog", lines, function()
                 if game.session ~= session or rootMachine:current() ~= self.owner
                     or not Specimen.isActiveSession(session) or not session:party():firstUsable() then
@@ -576,6 +589,9 @@ function OverworldState:enter(opts)
     if not retainedVisit and not (opts and opts.fieldRestore) then
         local travel, cyclingForced = FieldWorld.entryTravel(game,
             {zone_id=currentZone.stableID, x=pos.x, y=pos.y}, WorldDeltas.export(), "continue")
+        if KantoAudio and KantoAudio.setTraversal then
+            KantoAudio.setTraversal(travel and travel.mode)
+        end
         assert(travel, cyclingForced)
         assert(game.session:captureTraversal({world = WorldDeltas.export(), cyclingForced=cyclingForced,
             location = {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},

@@ -79,6 +79,9 @@ function FieldGearState:complete()
     self.game.lastFieldGear = {kind=result.kind, item=self.id,
         receipt=result.receipt and GameSession._copy(result.receipt) or nil}
     if result.kind == "bicycle" then
+        if KantoAudio and KantoAudio.setTraversal then
+            KantoAudio.setTraversal(result.mode)
+        end
         local label = result.mode == "bicycle" and "GotOn" or "GotOff"
         self:showResult({"_" .. label .. "BicycleText1", "_" .. label .. "BicycleText2"},
             {wStringBuffer=ItemData.definitions.bicycle.name})

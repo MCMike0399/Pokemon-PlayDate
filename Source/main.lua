@@ -88,6 +88,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/overworldState"
     import "game/dialogState"
     import "game/battleState"
+    import "game/kantoAudio"
     import "game/debugState"
     import "game/learningState"
     import "game/saves"
@@ -470,6 +471,7 @@ local bootAccepted, bootProblem = pcall(function()
 
             machine:update()
             machine:handleInput()
+            KantoAudio.updateGame(game)
             -- vblank TrackPlayTime. Counting starts on map entry and stops on the title.
             game.session:trackPlayTime()
             machine:get("overworld"):flushPendingPresentation()

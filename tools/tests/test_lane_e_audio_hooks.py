@@ -1,4 +1,4 @@
-"""Lane E has not applied the audio hooks. expectedFailure keeps the suite green."""
+"""The root calls KantoAudio after input, and the field hooks play the cues."""
 import unittest
 from pathlib import Path
 
@@ -6,13 +6,11 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class LaneEAudioHookTests(unittest.TestCase):
-    @unittest.expectedFailure
     def test_main_updates_audio_after_input(self):
         text = (ROOT / 'Source/main.lua').read_text()
         self.assertIn('import "game/kantoAudio"', text)
         self.assertIn('KantoAudio.updateGame(game)', text)
 
-    @unittest.expectedFailure
     def test_trainer_jingle_and_traversal_and_flute_are_hooked(self):
         overworld = (ROOT / 'Source/game/overworldState.lua').read_text()
         travel = (ROOT / 'Source/game/fieldTravelState.lua').read_text()
