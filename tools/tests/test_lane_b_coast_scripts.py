@@ -206,6 +206,10 @@ for index = 2, 8 do
 end
 local wrong = CoastStory.quizAnswer(1, "no")
 assert(wrong.opponent == 3 and roster[wrong.opponent].gate == "EVENT_CINNABAR_GYM_GATE1_UNLOCKED")
+local potion = events["pokered:POKEMON_MANSION_3F:objects:3"]
+assert(potion.kind == "pickup" and potion.item == "maxPotion")
+local restore = events["pokered:POKEMON_MANSION_B1F:objects:4"]
+assert(restore.kind == "pickup" and restore.item == "fullRestore")
 local nurse = events["pokered:CINNABAR_POKECENTER:objects:1"]
 assert(nurse.kind == "program" and nurse.steps[1].op == "heal")
 assert(nurse.steps[1].checkpoint.zone_id == "pokered:CINNABAR_ISLAND")

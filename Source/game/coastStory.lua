@@ -777,6 +777,17 @@ function CoastStory.gymEvents()
         trainers = trainers,
     }
     events["pokered:CINNABAR_POKECENTER:objects:1"] = CoastStory.centerHeal()
+    -- Mansion medicine. Both are still on the floor in the seq 118 save.
+    events["pokered:POKEMON_MANSION_3F:objects:3"] = {
+        kind = "pickup", content = GYM_CONTENT, item = "maxPotion",
+        flag = "PICKUP:pokered:POKEMON_MANSION_3F:objects:3",
+        full = { "_NoMoreRoomForItemText" }, success = { "_FoundItemText" },
+    }
+    events["pokered:POKEMON_MANSION_B1F:objects:4"] = {
+        kind = "pickup", content = GYM_CONTENT, item = "fullRestore",
+        flag = "PICKUP:pokered:POKEMON_MANSION_B1F:objects:4",
+        full = { "_NoMoreRoomForItemText" }, success = { "_FoundItemText" },
+    }
     events[gymId(9)] = {
         kind = "cases", content = GYM_CONTENT,
         cases = {
