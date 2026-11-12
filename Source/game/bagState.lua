@@ -29,8 +29,10 @@ local fieldKeyActions = {
 }
 
 function BagState.canRegister(id)
-    if (id == "bicycle" or id == "oldRod" or id == "goodRod" or id == "superRod")
-        and not FieldGearState then
+    -- docs/plans/approved-qol.md registers Town Map only. Bicycle, rods and
+    -- the Itemfinder keep their Bag USE actions and stay unregistered even
+    -- when FieldGearState or HiddenItems is loaded.
+    if id ~= "townMap" then
         return false
     end
     local item = ItemData.definitions[id]

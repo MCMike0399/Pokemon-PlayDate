@@ -78,14 +78,14 @@ They are not release-accepted until native checks and motion review pass.
 
 
 The user approved all four additional quality-of-life proposals on 2026-10-28.
-Implementation and native acceptance are tracked separately from this approval.
+The four behaviors are in the game. Native input witnesses are not claimed.
 
 | Area | Original reference behavior | Project decision | Reason | Evidence/status |
 |---|---|---|---|---|
-| Crank | Blue has directional menu input | Optional crank scrolling in menus and PC boxes, with D-pad retained | Native Playdate controls | User approved; implementation in progress |
-| Registered key item | Blue requires opening the Bag | Register one key item in the Bag and use A+B in the field | Convenient access to existing item actions | User approved; implementation in progress |
-| Bag sorting | Blue preserves manual item order | Explicit manual Sort command with key-item grouping and stable ties | Easier inventory navigation | User approved; implementation in progress |
-| TMs | Blue consumes TMs | Reusable Gen V TMs, with compatibility and move-learning confirmation retained | Selected modern quality-of-life policy | User approved; implementation in progress |
+| Crank | Blue has directional menu input | Optional crank scrolling in menus and PC boxes, with D-pad retained | Native Playdate controls | Implemented. CRANK SCROLL defaults OFF. A 24-degree detent scrolls lists of five or more in menus, Bag, Party, Pokédex, shop, item PC, Pokémon PC, and the twelve-box selector. D-pad remains. Native input witness not claimed |
+| Registered key item | Blue requires opening the Bag | Register one key item in the Bag and use A+B in the field | Convenient access to existing item actions | Implemented for Town Map only, per `docs/plans/approved-qol.md`. REGISTER/UNREGISTER stores it in game-options. Field A+B reuses Bag USE and returns to the field. Bicycle, rods, and Itemfinder stay unregistered. Native input witness not claimed |
+| Bag sorting | Blue preserves manual item order | Explicit manual Sort command with key-item grouping and stable ties | Easier inventory navigation | Implemented. Field Bag shows SORT BAG after two or more stacks. `Inventory:sort` groups key items, then case-insensitive names, and keeps original order on ties. Battle and held selection have no Sort. Native input witness not claimed |
+| TMs | Blue consumes TMs | Reusable Gen V TMs, with compatibility and move-learning confirmation retained | Selected modern quality-of-life policy | Implemented. Teaching keeps the TM (`consumed=false`) and the same item can teach a second compatible member. Compatibility, replacement, HM protection, and stale requests stay. Native input witness not claimed |
 | Area | Original reference behavior | Project decision | Reason | Evidence/status |
 |---|---|---|---|---|
 | Display | GB four-shade tonal values | Match GB tonal values with 1-bit dithering (user decision 2026-10-28): fixed-phase Bayer on imported terrain; protected authored art and characters retain their pixels | Reproduce the original tones on Playdate | Native motion passed; 186 approved protected terrain images updated, 2308 remain exact. See gb-tone-approved-images-20261028.json. |

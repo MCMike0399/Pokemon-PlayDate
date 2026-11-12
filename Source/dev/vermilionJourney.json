@@ -3391,7 +3391,7 @@
     "domain/specimen.lua": "2058b5c9c6581f7fd377bf143dca9bacc6e63f8648587ca2a4f3cf4b6f05de05",
     "domain/storage.lua": "970a31c0fc7b4bf3257ec630f372f16b2d69b950f5f87064175322e3a7c0ed81",
     "domain/teaching.lua": "365ac63a657629131b0b0797acf00793aaa10d2918d1afd6cdaafb4d6246245c",
-    "game/bagState.lua": "7efea31e23492604213ebc3de63d88ab500d95207ae191aab77db0e821eb4a94",
+    "game/bagState.lua": "18708945c96ff241d048c9aa7df19bf4be16a67a9691c82750c9f41bbfe3fdba",
     "game/daycare.lua": "c5216bd89b6eac1fc2d580271c452fa4a85de005114ec2b520a1c3bba90f0844",
     "game/daycareState.lua": "b6870bcb8a69ea54de4e6552186a9d68e0326b8b18f83fec4460dba6417b6ef9",
     "game/fieldMoveState.lua": "3c8281f6d7eda0668a512906698b1a8d2ce9b2405f57d956f592e842c6ed0b06",

@@ -1,5 +1,17 @@
 # Full-game execution ledger
 
+## 2026-11-12 Town Map is the only registered key item
+
+The four approved quality-of-life rows were still marked in progress. The behaviors are in the game. `BagState.canRegister` had begun offering the Bicycle, the rods, and the Itemfinder once `FieldGearState` or `HiddenItems` was loaded. `docs/plans/approved-qol.md` registers Town Map only. Those other items keep their Bag USE actions and stay unregistered. The ledger now says that, and it does not claim a native input witness.
+
+SDK 3.1.2 session `68d24a1a9ee44bd987c8b96b6d1c1cd0` ran `contracts approved-qol`. The report was 24 passed and 0 failed, including the crank, Town Map registration, bag sort, and reusable TM cases. FieldGearState was loaded, and the Bicycle stayed unregistered.
+
+The coverage snapshot is `7cc1d14dd038402530989807908095146093ff5be68c5edcd339bef6bca3e48f`. The previous snapshot is nested. No row was relabeled. Vermilion's journey projection was regenerated; the only hash that moved is `game/bagState.lua`. Cerulean's `--check` still passed.
+
+`python3 -m unittest discover -s tools/tests` ran 1291 tests: OK, 11 skipped.
+
+Session `3e7e15bd67ea4044adb2d4e27b887b4b` reached `title.visible` at 1105 ms and `initialize.ready` at 21479 ms. Sampled peak 13456.679 KiB. `tools/measure_boot_budget.py` passed. `MallocPoolSize` stayed `16645684`. The LCD clip is `/opt/cursor/artifacts/hourly/20261112T093817Z-boot-to-title.mp4`, 22 seconds, 400×240, sha256 `03f11e118813caf2dab63376b793c0ce74ab05d4a97dae04a9e61c766ac6f6f9`. It starts on the loading screen and ends on NEW GAME / OPTIONS. No Simulator chrome.
+
 ## 2026-11-12 The suite is green and boot still reaches the title
 
 `python3 -m unittest discover -s tools/tests` ran 1291 tests: OK, 11 skipped. The skips are the same ones as the previous run. The Brock fixtures ran. They stage committed Source when `PARCEL_BUNDLE_SOURCE` is unset.
