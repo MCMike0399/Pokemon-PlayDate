@@ -866,4 +866,71 @@ saved delay to static inside `normalize` and kept the saved cell.
 That would leave a STAY object off its tile if it had wandered.
 The replacement patch changes only the random bit: WALK is the only
 random mover. `normalize` still rejects a stationary delay. The
-loadable continue is sequence 118.
+loadable continue was sequence 118.
+
+## The Volcano Badge
+
+Sequence 118 was reloaded. The Max Potion on Mansion 3F and the Full
+Restore on B1F were both picked up. The quiz was answered YES, NO,
+NO, NO, YES, NO. The center healed Venusaur from 93 to 147. Pause
+SAVE on the island door `(11, 12)` facing down wrote sequence 120,
+sha256
+`96e37257cb6d39b2ed7279484358e8d81c1bcaa0b0cad148630e90b5faf25c1d`
+(`seq120-adventure.b.json`). Both potions were still in the bag, and
+the six gate flags were set.
+
+Blaine's party is Growlithe 42, Ponyta 40, Rapidash 42, Arcanine 47.
+Double Edge was the only attack. Growlithe was in range of one more
+hit, so no potion was spent on it. Max Potion was used before
+Ponyta, Full Restore before Rapidash, and one Revive after Venusaur
+fainted to Arcanine. Petal Dance and Razor Leaf were not selected.
+The shift prompt was declined. The result is `BADGE_VOLCANO`,
+`EVENT_BEAT_BLAINE`, `EVENT_GOT_TM38`, and `tm38` quantity 1. Money
+went from 102 to 4755, which is the class base 99 times Arcanine's
+level. Venusaur is level 48. Sequence 124 is the gym at `(3, 4)`
+facing up, sha256
+`4723cff52b015a27c4bc03d1010e3602d427508db56a6f2a1a8569c6e4d08813`
+(`seq124-adventure.b.json`). It loaded. The eight trainers are
+`static` on their `object_event` tiles. The guide is object 9,
+`(16, 13)`, STAY, and it is the one actor in `delay`. That is the
+same `SourceActors` bit: a STAY object that is not a trainer is
+still marked random, so `NPCMotion` stores a wander delay. The
+patch covers the guide too. Applying it will reject sequence 124.
+
+The approach clip is
+`20261112T141018Z-cinnabar-gym-blaine.mp4`, 400×240 h264, 89.64
+seconds, 2688 LCD frames. Recording started at the island door and
+the budget filled at gym `(5, 11)`, before A on Blaine.
+
+Sequence 122 is the pre-fight island payload republished as the
+other slot of that victory write. It has no badge. It is not the
+continue.
+
+## After the badge
+
+Sequence 124 was continued by real input. Down from `(16, 17)`
+returned to the island, and the center healed the party. Venusaur
+is 150/150. Sequence 125 is the center at `(3, 3)` facing up,
+sha256
+`9b45b239b77e95954895bd6a309973ff9bfc2fcd0de222a29b0e56af3490d0cf`
+(`seq125-adventure.b.json`). The badge, the beat flag, and TM38
+are still set. The exit clip is
+`20261112T141909Z-cinnabar-after-blaine.mp4`, 400×240 h264, 89.56
+seconds, 2686 frames. It starts in front of Blaine and the budget
+fills on the island at `(18, 9)`.
+
+`data/maps/objects/CinnabarPokecenter.asm` gives the nurse, the
+gentleman, and the link receptionist STAY. Those three are in
+`delay` on sequence 125. The cooltrainer is WALK and is `ready`.
+Sequence 125 loads on the current code. The same patch will reject
+the three STAY delays. `normalize` was not relaxed, and the save
+was not rewritten.
+
+## Toward Viridian Gym
+
+`EndgameStory.badgeValue` is 95. The set bits are Boulder, Cascade,
+Thunder, Rainbow, Soul, and Volcano. `BADGE_MARSH` is unset, and
+`EVENT_VIRIDIAN_GYM_OPEN` is unset. `viridian_gym.required_mask` is
+127, so `EndgameStory.gymDoor` stays locked until the Marsh Badge
+is on the save. Cinnabar's north connection is Route 21, then
+Pallet and Route 1. Giovanni's battle is not started.
