@@ -5,9 +5,9 @@ when EVENT_ROUTE22_RIVAL_WANTS_BATTLE is set. EVENT_1ST selects the
 first rival. Otherwise EVENT_2ND selects the second. Giovanni sets the
 shared wants-battle flag together with EVENT_2ND, including when the
 first rival was skipped, so objects:1 was never defeated and EVENT_1ST
-stays clear. The current check takes that tile as the first rival, and
-CeruleanRoutes.plan then returns unavailable-rival. This file does not
-edit the engine. The patch is for lane D.
+stays clear. The check now follows that script: EVENT_1ST still starts
+the first rival, and otherwise EVENT_2ND starts the second. The notes
+patch is the applied diff.
 """
 import re
 import subprocess
@@ -63,29 +63,22 @@ print(id or "none")
 
 
 class Route22SecondRivalTests(unittest.TestCase):
-    def test_skipped_first_rival_is_claimed_by_the_unavailable_battle(self):
+    def test_skipped_first_rival_starts_the_second_battle(self):
         source = SOURCE.read_text()
         self.assertIn('return empty("unavailable-rival")', source)
-        self.assertEqual(dispatch(source, SKIPPED_FIRST, defeated=False, on_tile=True), FIRST)
-        self.assertNotIn('EVENT_1ST_ROUTE22_RIVAL_BATTLE', route22_chunk(source).split('objects:2', 1)[0])
+        self.assertEqual(dispatch(source, SKIPPED_FIRST, defeated=False, on_tile=True), SECOND)
+        still_first = dict(SKIPPED_FIRST, EVENT_1ST_ROUTE22_RIVAL_BATTLE=True)
+        self.assertEqual(dispatch(source, still_first, defeated=False, on_tile=True), FIRST)
+        self.assertEqual(dispatch(source, SKIPPED_FIRST, defeated=True, on_tile=True), SECOND)
+        beaten = dict(SKIPPED_FIRST, EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE=True)
+        self.assertIsNone(dispatch(source, beaten, defeated=False, on_tile=True))
+        self.assertIsNone(dispatch(source, SKIPPED_FIRST, defeated=False, on_tile=False))
 
-    def test_patch_follows_the_source_script_and_leaves_the_engine_file(self):
+    def test_applied_patch_matches_the_notes_diff(self):
         original = SOURCE.read_text()
         check = subprocess.run(
-            ['git', 'apply', '--check', str(PATCH)], cwd=ROOT, capture_output=True, text=True)
+            ['git', 'apply', '--reverse', '--check', str(PATCH)], cwd=ROOT, capture_output=True, text=True)
         self.assertEqual(check.returncode, 0, check.stderr)
-        applied = subprocess.run(
-            ['patch', '-o', '-', str(SOURCE), str(PATCH)],
-            capture_output=True, text=True)
-        self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
-        patched = applied.stdout
-        self.assertEqual(dispatch(patched, SKIPPED_FIRST, defeated=False, on_tile=True), SECOND)
-        still_first = dict(SKIPPED_FIRST, EVENT_1ST_ROUTE22_RIVAL_BATTLE=True)
-        self.assertEqual(dispatch(patched, still_first, defeated=False, on_tile=True), FIRST)
-        self.assertEqual(dispatch(patched, SKIPPED_FIRST, defeated=True, on_tile=True), SECOND)
-        beaten = dict(SKIPPED_FIRST, EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE=True)
-        self.assertIsNone(dispatch(patched, beaten, defeated=False, on_tile=True))
-        self.assertIsNone(dispatch(patched, SKIPPED_FIRST, defeated=False, on_tile=False))
         self.assertEqual(SOURCE.read_text(), original)
 
 
