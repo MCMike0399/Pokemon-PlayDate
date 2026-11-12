@@ -171,10 +171,10 @@ class AudioBootTests(unittest.TestCase):
         engine = (ROOT / 'Source/audio/engine.lua').read_text()
         stub = (ROOT / 'Source/audio/scores.lua').read_text()
         self.assertNotIn('import "audio/scores"', audio)
-        self.assertNotIn('import "audio/cries"', engine.split('function KantoSynth.cry', 1)[0])
-        self.assertIn('import "audio/cries"', engine.split('function KantoSynth.cry', 1)[1])
+        self.assertNotIn('file.run("audio/cries")', engine.split('function KantoSynth.cry', 1)[0])
+        self.assertIn('file.run("audio/cries")', engine.split('function KantoSynth.cry', 1)[1])
         self.assertIn('"audio/score/" .. name', engine)
-        self.assertIn('import(scorePath)', engine)
+        self.assertIn('playdate.file.run(scorePath)', engine)
         self.assertNotIn('notes=', stub)
         self.assertNotIn('KantoMusicMaps', stub)
         for banned in ('fieldTravelData', 'RulesRNG', ':members(', 'getSnapshot', 'fieldTravelMode'):

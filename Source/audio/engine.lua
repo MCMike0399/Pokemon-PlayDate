@@ -41,16 +41,17 @@ local function ensureScore(name)
         return KantoScores[name]
     end
     KantoScores = KantoScores or {}
-    -- pdc 3.1.2 treats a literal "audio/score/" prefix as a file path.
-    -- The path is built at play time, and each score .lua is its own pdz.
+    -- import() is only legal while a pdz is loading, and pdc 3.1.2 treats a
+    -- literal "audio/score/" prefix as a file request. file.run loads the
+    -- compiled score pdz the first time that score plays.
     local scorePath = "audio/score/" .. name
-    import(scorePath)
+    playdate.file.run(scorePath)
     return assert(KantoScores[name], "unknown Kanto score")
 end
 
 local function init()
     if not KantoWaveforms then
-        import "audio/routes"
+        playdate.file.run("audio/routes")
     end
     if master then
         return
@@ -283,7 +284,7 @@ end
 
 function KantoSynth.cry(species)
     if not KantoCries then
-        import "audio/cries"
+        playdate.file.run("audio/cries")
     end
     local bed = layers.jingle or layers.music
     local family = bed and KantoCryMusicBanks[bed.name] or 1
