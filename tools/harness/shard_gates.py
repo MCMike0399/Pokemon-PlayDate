@@ -33,10 +33,10 @@ def run_shard(kind, name, output, deadline):
     if output.exists():
         raise SystemExit(f"shard output already exists: {output}")
     if kind == "contracts":
-        command = ["contracts", name]
+        command = ["contracts " + name]
         timeout, ready, frames = "120", "90", "1800"
     else:
-        command = ["catalog", name]
+        command = ["catalog " + name]
         timeout, ready, frames = "600", "180", "18000"
     argv = [
         sys.executable, str(PROJECT / "tools/harness/run.py"),
