@@ -13,8 +13,9 @@ from PIL import Image
 from tools import generate_substitute_art as art
 
 # fd4561b4 and 66ff1861 are not in this clone. These commits are, and their
-# blobs are the current bytes. ordinaryAbilities and contactAbilities also
-# still match the sha256 recorded for the missing mechanics baseline.
+# blobs are the current bytes. contactAbilities still matches the sha256
+# recorded for the missing mechanics baseline. ordinaryAbilities moved at
+# 59103c25, when Chlorophyll and Lightning Rod gained their Gen V callbacks.
 ART_FREEZE = '251c12dc1a845de7718b227a2b576b01352c1b74'
 PRESENTATION_FREEZE = '0721a2b2c3f45e4b826796ff3f3957e05c277d3d'
 PRESENTATION_PREFIX = '178b7f6f1527626b0b306e5d4cbfe7437d84c53d'
@@ -30,11 +31,12 @@ MECHANICS_FREEZE = {
     # 387bf5e0 lets WeatherEffect accept sunnyday and hail, the ids setWeather already applies.
     'Source/battle/dsl.lua': '387bf5e0a024e4bd988dd35b92f75d2714450d88',
     'Source/battle/moves.lua': '89905295b577884e020f5b91c131a0179083eb42',
-    'Source/battle/ordinaryAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
+    'Source/battle/ordinaryAbilities.lua': '59103c25ae2206381b5026ae4e5edbfb4c6d6246',
     'Source/battle/contactAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
     'Source/battle/substitutePolicy.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
-    'Source/domain/pokemonCodec.lua': '0ed37d2bdadb65e5934b8d1f201c4856b6daf1ea',
-    'Source/domain/sessionCodec.lua': 'f81016bf6d647dddec9cb25f10432476cf071fda',
+    # db83fbfd widens names to printable ASCII plus × ♂ ♀ and saves them at session version 5.
+    'Source/domain/pokemonCodec.lua': 'db83fbfd90fdaae160b406a088b744386d8faa11',
+    'Source/domain/sessionCodec.lua': 'db83fbfd90fdaae160b406a088b744386d8faa11',
     'Source/lib/rng.lua': '921f02bb3a81c25010b2983d9c0024b307ea7708',
     # 264d302a puts Thrash and the sibling fields back at epoch 6 and Sunny Day/Hail at epoch 7.
     'tools/references/move-producer-migrations.json': '264d302a0640f6387c5084198b3ecc71c15713b1',
@@ -42,7 +44,7 @@ MECHANICS_FREEZE = {
     'Source/dev/substituteSeamContracts.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
 }
 RECORDED_BASELINE_SHA256 = {
-    'Source/battle/ordinaryAbilities.lua': 'e6d576d9bb878df59d5df44efe12d45985d8982234ec2ce91f0972eaa50f314d',
+    'Source/battle/ordinaryAbilities.lua': '5d31b76be75d5cd9fe7394599714ab3533635c823dc6d702074474aef24fd868',
     'Source/battle/contactAbilities.lua': 'aafe03063ffc3cc5796993cf622da8b1ee7c0fd1f2bc1ad108cf6711fc5db400',
 }
 
