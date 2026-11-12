@@ -319,3 +319,18 @@ facing up, sha256
 `/opt/cursor/artifacts/lane-b/20261112T045913Z-route13-route12.mp4`,
 400×240 h264, 75.76 seconds, 2272 frames. Sequence 72 is the continue
 point. The road north is Lavender.
+
+## Route 12 to Lavender
+
+The hourly continue is sequence 72, not 71. The beaten Route 12 Snorlax
+is already hidden, so the road at `(10,62)` is open. Real steps went
+north. A fisherman at `(12,40)` facing left started a fight; the first
+pass stopped in his dialog, and that walk is the clip
+`/opt/cursor/artifacts/lane-b/20261112T050701Z-route12-north.mp4`,
+400×240 h264, 89.64 seconds, 2688 frames. The second pass, with no
+second clip, won that fight, entered Route 12 Gate 1F at `(5,7)`, left
+by the north door onto Route 12 `(10,15)`, and stepped into Lavender
+`(9,17)`. Pause SAVE wrote sequence 73, sha256
+`a8bb26dc44c5a3726f9b520a611628569eaff4f55b12340659a79e2b9a8d36de`
+(`seq73-adventure.a.json`). Sequence 73 is the continue point. The
+boulder line is still `self.boulder`. Nobody knows Fly.
