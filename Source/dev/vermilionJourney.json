@@ -3320,7 +3320,7 @@
   },
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
-    "battle/battle.lua": "856022f94e0c12cf80f79a04b49ed84c696d657a3a6b44b045c9706f4b96771e",
+    "battle/battle.lua": "b9ece7b8e134aa291da9e3f94fbe7b751c18a4fa008d26d1e526bc00bbb9c125",
     "data/captureData.lua": "b7e4cb7ae9f833129cfa9a18ad6b51929723c685ebd61b68c6e3900e2ac2cdb1",
     "data/ceruleanContent.lua": "a8cfaab6477c65a80c134cc801150ff54b14864a3f74cbe334529e95d7700d88",
     "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
