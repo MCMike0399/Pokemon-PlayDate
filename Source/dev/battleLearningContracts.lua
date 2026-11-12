@@ -24,7 +24,7 @@ local function settle(b, stopMessage)
     end
     error("script did not reach command/learning after presentation")
 end
-local function setup(species,level,moves,two,enemyLevel)
+local function setup(species,level,moves,two,enemyLevel,enemySpecies)
     local game=GameContext();local mon=Pokemon(species or "squirtle",level or 6);assert(game:recruit(mon))
     if species and species~="squirtle" and species~="bulbasaur" and species~="charmander" then assert(game:recruit(Pokemon("charmander",5))) end
     local starter=({charmander=true,squirtle=true,bulbasaur=true})[mon.species] and mon.species or "charmander"
@@ -32,7 +32,7 @@ local function setup(species,level,moves,two,enemyLevel)
     assert(game.session:setIntro({stage="done",starter=starter,rivalStarter=rival,rivalOutcome=true}))
     if moves then own(mon,moves) end
     mon.xp=mon:xpForLevel(mon.level+1)-1
-    local enemy=Pokemon("rattata",enemyLevel or 5);own(enemy,{"growl"})
+    local enemy=Pokemon(enemySpecies or "rattata",enemyLevel or 5);own(enemy,{"growl"})
     local enemies=Party();assert(enemies:add(enemy))
     local reserve=Pokemon("geodude",5);own(reserve,{"defenseCurl"});if two then assert(enemies:add(reserve)) end
     game.machine:register("overworld",State("overworld"));game.machine:register("learning",LearningState(game))
@@ -62,6 +62,61 @@ local function declineAll(game,learning)
         elseif learning.phase=="ask" then learning.menu.onSelect(2)
         elseif learning.phase=="stop" then learning.menu.onSelect(1)
         else error("unexpected learning phase "..learning.phase) end
+    end
+end
+-- pokered LearnMove: NO on TryingToLearn returns carry to AbandonLearning.
+-- YES (wCurrentMenuItem == 0) prints DidNotLearn and returns b=0, which ends
+-- that move. The confirmation text is _AbandonLearningText ("Abandon learning"
+-- plus the move name and "?"), not a later-generation "Stop learning" line.
+local function dismissLearningMessage(game, learning)
+    for _ = 1, 6 do
+        eq(game.machine:getCurrent(), "learning")
+        eq(learning.phase, "message")
+        Autopilot.beginFrame()
+        Autopilot.step({"press", "a"}, game)
+        game.machine:handleInput()
+        if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+            return
+        end
+    end
+    error("learning message did not end")
+end
+local function declineByButtons(game, learning, seen)
+    eq(learning.phase, "ask")
+    local id, move = learning.choiceId, learning.pendingMove
+    assert(not seen[id], "declined choice " .. tostring(id) .. " reopened")
+    seen[id] = move
+    local before = #learning.pokemon:getPendingMoveChoices()
+    Autopilot.beginFrame()
+    Autopilot.step({"press", "down"}, game)
+    game.machine:handleInput()
+    eq(learning.phase, "ask")
+    eq(learning.menu.selectedIndex, 2)
+    Autopilot.beginFrame()
+    Autopilot.step({"press", "a"}, game)
+    game.machine:handleInput()
+    eq(learning.phase, "stop")
+    eq(learning.choiceId, id)
+    assert(learning.prompt:find("Abandon learning", 1, true), learning.prompt)
+    assert(learning.prompt:find(moveData[move].name, 1, true), learning.prompt)
+    eq(learning.menu.selectedIndex, 1)
+    Autopilot.beginFrame()
+    Autopilot.step({"press", "a"}, game)
+    game.machine:handleInput()
+    eq(learning.phase, "message")
+    eq(learning.messageKind, "declined")
+    local text = table.concat(learning.dialog.lines, "\n")
+    assert(text:find("did not learn", 1, true), text)
+    assert(text:find(moveData[move].name, 1, true), text)
+    eq(#learning.pokemon:getPendingMoveChoices(), before - 1)
+    for _, choice in ipairs(learning.pokemon:getPendingMoveChoices()) do
+        eq(choice.id == id, false, "declined choice still pending")
+        eq(choice.move == move, false, "declined move was queued again")
+    end
+    dismissLearningMessage(game, learning)
+    if game.machine:getCurrent() == "learning" then
+        eq(learning.choiceId == id, false, "same choice reopened")
+        eq(learning.pendingMove == move, false, "same move prompt reopened")
     end
 end
 function BattleLearningContracts.run()
@@ -285,6 +340,40 @@ function BattleLearningContracts.run()
         local p=Pokemon("squirtle",6);eq(p:hasMove("bubble"),false);local found=0
         for _,entry in ipairs(pokemonData.squirtle.learnset) do if entry.move=="bubble" then eq(entry.level,7);eq(entry.id,145);found=found+1 end end
         eq(found,1);p:gainXP(p:xpForLevel(7)-p.xp);eq(p:getPendingMoveChoices()[1].move,"bubble");eq(p:hasMove("bubble"),false)
+    end)
+    test("Level 50 Articuno decline then YES ends that move and the win can emit", function()
+        -- Seafoam B4F Articuno is level 50. A full moveset must be able to
+        -- refuse every new move and still reach the battleEnd that saves the win.
+        local game, owner, p = setup("charmander", 6, {"scratch", "growl", "tackle", "tailWhip"}, false, 50, "articuno")
+        local b = faint(owner)
+        eq(b.enemy.species, "articuno")
+        eq(b.enemy.level, 50)
+        local initial = #p:getPendingMoveChoices()
+        assert(initial > 1, "expected more than one move from the level 50 award")
+        local learning = overlay(game, owner)
+        eq(learning:getSnapshot().input_blocked, true)
+        Autopilot.resetControls()
+        Autopilot.beginFrame()
+        game.machine:handleInput()
+        eq(learning:getSnapshot().input_blocked, false)
+        local seen, steps = {}, 0
+        while game.machine:getCurrent() == "learning" do
+            steps = steps + 1
+            assert(steps <= initial, "learn prompt reopened after every queued move was declined")
+            declineByButtons(game, learning, seen)
+        end
+        eq(steps, initial)
+        eq(#p:getPendingMoveChoices(), 0)
+        for _, key in ipairs({"scratch", "growl", "tackle", "tailWhip"}) do eq(p:hasMove(key), true) end
+        settle(b)
+        eq(b:phase(), "ended")
+        eq(b.outcome, "victory")
+        local saved = false
+        b:clearListeners()
+        b:on("battleEnd", function(won, kind) saved = won == true and kind == "victory" end)
+        assert(b:emitEnd())
+        eq(saved, true)
+        eq(b:emitEnd(), false)
     end)
     RulesRNG.restore(saved);return report
 end
