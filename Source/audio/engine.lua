@@ -1,5 +1,5 @@
 -- Four physical synth voices, musical clock in source ticks; no gameplay state.
-import "audio/cries"
+-- Scores and cries load on first play so importing this module stays small.
 
 KantoSynth = {}
 
@@ -12,15 +12,43 @@ local waveSamples = {}
 local currentWave = nil
 local master = nil
 local serial = 0
+-- A playing sound rejects a new one when its number is lower.
+-- faint (1) therefore blocks menu (3); equal numbers replace.
 local priorities <const> = {
-    menu = 3,
-    hit = 2,
     faint = 1,
+    flute = 1,
+    hit = 2,
     arrow_tiles = 2,
     denied = 2,
+    boulder = 2,
+    text = 2,
+    ledge = 2,
+    healing_machine = 2,
+    menu = 3,
+    start_menu = 3,
+    go_inside = 3,
+    go_outside = 3,
+    cut = 3,
+    pc_on = 3,
+    pc_off = 3,
+    pc_enter = 3,
+    pc_withdraw = 3,
+    tink = 3,
 }
 
+local function ensureScore(name)
+    if KantoScores and KantoScores[name] then
+        return KantoScores[name]
+    end
+    KantoScores = KantoScores or {}
+    import("audio/score/" .. name)
+    return assert(KantoScores[name], "unknown Kanto score")
+end
+
 local function init()
+    if not KantoWaveforms then
+        import "audio/routes"
+    end
     if master then
         return
     end
@@ -39,7 +67,7 @@ local function init()
 end
 
 local function layer(name, now, score)
-    score = score or assert(KantoScores[name], "unknown Kanto score")
+    score = score or ensureScore(name)
     serial = serial + 1
     local firstLoop = 1
 
@@ -202,15 +230,33 @@ function KantoSynth.update(now)
     end
 end
 
-function KantoSynth.music(name)
+function KantoSynth.music(name, keepJingle)
     init()
+    -- Same bed: leave an in-progress jingle alone.
     if layers.music and layers.music.name == name then
         return
     end
-
-    layers.jingle = nil
+    if not keepJingle then
+        layers.jingle = nil
+    end
     layers.music = name and layer(name, sound.getCurrentTime()) or nil
     KantoSynth.update()
+end
+
+function KantoSynth.jingle(name)
+    init()
+    local now = sound.getCurrentTime()
+    layers.jingle = layer(name, now)
+    KantoSynth.update(now)
+    return true
+end
+
+function KantoSynth.jingling()
+    return layers.jingle ~= nil
+end
+
+function KantoSynth.scoreTicks(name)
+    return ensureScore(name).ticks
 end
 
 function KantoSynth.sfx(name)
@@ -233,6 +279,9 @@ function KantoSynth.sfx(name)
 end
 
 function KantoSynth.cry(species)
+    if not KantoCries then
+        import "audio/cries"
+    end
     local bed = layers.jingle or layers.music
     local family = bed and KantoCryMusicBanks[bed.name] or 1
     local score, reason = KantoCries.score(species, family)
