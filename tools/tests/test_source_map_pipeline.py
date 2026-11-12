@@ -83,7 +83,6 @@ class SourceMapManifestTests(unittest.TestCase):
         for name, entry in self.maps.items():
             with self.subTest(name=name):
                 path = ROOT / "Source" / entry["path"]
-                vermilion = entry['path'].startswith('data/vermilionPreparation/')
                 package = self.packages[name][0] if name in self.packages else entry['profile'] + 'Slice'
                 self.assertEqual(entry["path"], f'data/{package}/{name}.json')
                 raw = json.loads(path.read_text())
@@ -94,11 +93,13 @@ class SourceMapManifestTests(unittest.TestCase):
                 self.assertEqual(entry["width"], max(13, width))
                 self.assertEqual(entry["height"], height)
                 self.assertEqual(entry["padding"], max(0, (13 - width) // 2))
-                if package.startswith("midgame") or package in ("zCoast", "zEndgame", "zRemainder"):
+                # b2a497b is not in this clone. The 35 Vermilion preparation
+                # maps are pinned by the source_sha256 their manifest records.
+                if package.startswith("midgame") or package in ("zCoast", "zEndgame", "zRemainder", "vermilionPreparation"):
                     self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),
                                      self.packages[name][1]["source_sha256"])
                 else:
-                    pin = 'b2a497b' if vermilion else '7eae5e1' if entry['profile'] == 'source' else BASE
+                    pin = '7eae5e1' if entry['profile'] == 'source' else BASE
                     original = subprocess.check_output(["git", "show", f'{pin}:Source/{entry["path"]}'], cwd=ROOT)
                     self.assertEqual(hashlib.sha256(path.read_bytes()).digest(), hashlib.sha256(original).digest())
                 for events in raw["events"].values():
