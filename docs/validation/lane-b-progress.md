@@ -745,3 +745,42 @@ not touch the Seafoam shore. Column x=43 is rock (`$3A`) from y=2
 through y=13, and the island land has no shore onto the water west of
 that column. The east channel, minimum x=62, is the Route 19 side.
 Cinnabar, the Mansion, the Secret Key, and Blaine are still ahead.
+
+## The east Seafoam door opens the Cinnabar channel
+
+The `(48, 5)` pocket is the wrong exit. `SeafoamIslands1F.asm` sends
+`(4, 17)` and `(5, 17)` to Route 20 warp 1, and `(26, 17)` and
+`(27, 17)` to warp 2 at `(58, 9)`. Decoding `maps/Route20.blk` with
+`gfx/blocksets/overworld.bst` matches the port: land at `(56–61, 10–11)`,
+water `$14` from `(56–61, 12)`, and rows y=14–16 open west to x=0.
+Column 62, y=2–9, is foot `$32`. `FieldTravel.surfSurface` already
+treats `$32` and `$48` as surf on every tileset except `SHIP_PORT`.
+No overworld water pair mentions `$32`. That column is the Fuchsia
+side of the route, not the Cinnabar channel, and the port's collision
+there matches pokered. No lane A patch.
+
+`CheckBothEventsSet` sets Z when both flags are set, and the B3F and
+B4F scripts return before they queue buttons. The coast module had
+that test backwards, so `(15, 8)` still swept the party after both
+SEAFOAM3 boulders were down. The current now runs only while the pair
+is open. With both down, `(15, 8)` is ordinary water. The one legal
+west shore is `(15, 7)` foot `$15`; the east dismount is `(23, 9)`.
+
+From sequence 112 the party stepped back into the west door, climbed
+B1F `(13, 7)`, B2F `(5, 13)`, and B3F `(15, 7)`, surfed to `(23, 10)`,
+and stepped onto `(23, 9)`. B2F `(25, 14)`, B1F `(25, 11)`, and 1F
+`(23, 15)` lead to the east door. Sequence 113 is Route 20 `(58, 10)`
+facing down, sha256
+`9a470a6468ee3172169f2549b44349a1c246eab2a42b37b651eda8089b480b98`
+(`seq113-adventure.b.json`). Surf from `(58, 11)` onto `(58, 12)`,
+then west along y=16, avoiding the swimmer sight on that channel.
+Stepping off x=0 landed on Cinnabar `(19, 16)` still surfing. Three
+steps north dismounted on `(19, 13)`. Sequence 114 is that tile,
+facing up, on foot, sha256
+`fbe14d4fb095617a32dcfe250b575e23f394d5fc22a1e8c3427139879af8c7fc`
+(`seq114-adventure.a.json`). The clip is
+`20261112T104902Z-route20-east-door-cinnabar-channel.mp4`, 400×240
+h264, 89.96 seconds, 2698 frames, the LCD working image. The recorder
+filled on B3F `(20, 10)`, so the file shows the surf across B3F and
+not the outdoor channel. Sequence 114 is the continue point. The
+Mansion, the Secret Key, and Blaine are next.
