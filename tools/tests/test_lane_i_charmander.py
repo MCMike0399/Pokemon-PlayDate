@@ -364,7 +364,11 @@ class CharmanderRun(BrockJourney):
 
     def after_boulder(self):
         """Walk the earned Boulder save toward Misty and the Cerulean story."""
-        if not self.defeated(BROCK) or not self.flag("BADGE_BOULDER") or self.quantity("tm34") != 1:
+        # sell_old_item spends TM34 once the bag fills after Cascade. The
+        # receipt flag stays. A Boulder-only save must still hold the TM.
+        sold_after_cascade = self.flag("BADGE_CASCADE") and self.flag("EVENT_GOT_TM34")
+        if not self.defeated(BROCK) or not self.flag("BADGE_BOULDER") or not (
+                self.quantity("tm34") == 1 or sold_after_cascade):
             raise ProtocolError("Boulder reward is not in this save")
         if self.state.get("zone_id") == MAPS["PewterGym"]:
             self.warp(MAPS["PewterCity"])
@@ -2193,6 +2197,8 @@ class CharmanderTitleTests(unittest.TestCase):
         source = Path(__file__).read_text(encoding="utf-8")
         body = source.split("def after_boulder", 1)[1].split("def _after_cascade", 1)[0]
         self.assertIn("CERULEAN", body)
+        self.assertIn("sold_after_cascade", body)
+        self.assertLess(body.index("sold_after_cascade"), body.index("EVENT_GOT_DOME_FOSSIL"))
         self.assertLess(body.index("EVENT_GOT_DOME_FOSSIL"), body.index('self.heal_here("PewterPokecenter")'))
         self.assertLess(body.index("_misty_badge"), body.index('self.heal_here("PewterPokecenter")'))
         self.assertIn("def _prepare_for_misty", source)
