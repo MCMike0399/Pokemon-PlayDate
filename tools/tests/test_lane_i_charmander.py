@@ -702,6 +702,25 @@ class CharmanderRun(BrockJourney):
             self.source_trainers[trainer_id] = record
         self._cached_trainers_pinned = True
 
+    def _pin_tower_rival(self):
+        """The tower rival is a Rival2 party, not an ordinary cache trainer.
+
+        HideoutTowerContent pays base money times the last party member's
+        level. Charmander uses party index 4, which is 1625.
+        """
+        scenes = json.loads((REPO / "Source" / "data" / "towerStory" / "scenes.json").read_text())
+        trainers = json.loads((REPO / "Source" / "data" / "midgameEast" / "trainers.json").read_text())
+        index = scenes["scenes"]["rival"]["rival_party_indices"][self.starter]
+        rival_class = trainers["rival_classes"]["OPP_RIVAL2"]
+        party = rival_class["parties"][index - 1]["party"]
+        rival = scenes["scenes"]["rival"]["id"]
+        self.source_trainers[rival] = {
+            "id": rival,
+            "map_id": "pokered:POKEMON_TOWER_2F",
+            "party": party,
+            "payout": rival_class["base_money"] * party[-1]["level"],
+        }
+
     def _zone_has(self, *tokens):
         zone = self.state.get("zone_id") or ""
         return any(token in zone for token in tokens)
@@ -1121,6 +1140,7 @@ class CharmanderRun(BrockJourney):
         import tools.harness.cerulean_journey as cerulean
         self.training_mode = None
         self._arrange_lead("starter")
+        self._pin_tower_rival()
         self.heal_here("LavenderPokecenter")
         self.save()
         self.travel(self.zone("PokemonTower1F"))
