@@ -1,0 +1,28 @@
+diff --git a/Source/dev/healingCompositionContracts.lua b/Source/dev/healingCompositionContracts.lua
+--- a/Source/dev/healingCompositionContracts.lua
++++ b/Source/dev/healingCompositionContracts.lua
+@@ -99,6 +99,8 @@ function HealingCompositionContracts.run()
+                 eq(mask:sample(x,y),opaque and gfx.kColorWhite or gfx.kColorBlack)
+             end end
+         end
++        -- rOBP1=$e0 paints OBJ color 1 white. The ball center and the monitor bar are that color.
++        eq(ball:sample(6,10),gfx.kColorWhite);eq(ball:sample(7,10),gfx.kColorWhite);eq(monitor:sample(2,4),gfx.kColorWhite)
+         local original=assert(json.decodeFile("data/event-art.json"));eq(original.source_revision,"af519899719f0754965776faac0e836a3b906e6d")
+     end)
+     test("Native1/2/6-party compositions match source OAM over actual map and translated camera",function()
+diff --git a/Source/game/eventArt.lua b/Source/game/eventArt.lua
+--- a/Source/game/eventArt.lua
++++ b/Source/game/eventArt.lua
+@@ -30,7 +30,11 @@ function EventArt.pokedex()
+ end
+ local function small(first)
+     local gfx=playdate.graphics;local rows={};local grid=source().heal_machine.grid
+-    for y=1,16 do rows[y]=(y<=8 and grid[first+y-1] or string.rep(".",8))..string.rep(".",8) end
++    -- AnimateHealingMachine shows these tiles under rOBP1=$e0, so OBJ color 1 is white.
++    for y=1,16 do
++        local cell=y<=8 and grid[first+y-1] or string.rep(".",8)
++        rows[y]=cell:gsub("1","w")..string.rep(".",8)
++    end
+     local full=SpriteFactory.makeSprite(rows,{0,0});local out=gfx.image.new(16,16,gfx.kColorClear)
+     gfx.pushContext(out);gfx.setDrawOffset(0,0);full:draw(0,0);gfx.popContext();return out
+ end
