@@ -171,6 +171,7 @@ function NPCTradeContracts.run()
             report.failed = report.failed + 1
             report.ok = false
         end
+        collectgarbage("collect")
     end
     for _, offer in ipairs(offers()) do
         test(offer.nickname .. " exact object, normal traits, OTID draw order, healthy last-member", function()
@@ -492,8 +493,9 @@ function NPCTradeContracts.run()
         local members <const> = s:party():members()
         for box = 1, Storage.BOX_COUNT do
             assert(s:storage():selectBox(box))
-            for _ = 1, Storage.BOX_CAPACITY do
+            for n = 1, Storage.BOX_CAPACITY do
                 assert(s:recruit(Pokemon("mew", 5)))
+                if n % 10 == 0 then collectgarbage("collect") end
             end
         end
         local storage <const> = wire(s).storage

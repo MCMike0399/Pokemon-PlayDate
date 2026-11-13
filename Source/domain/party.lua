@@ -154,7 +154,10 @@ function Party:toData(encodePokemon)
     if type(encodePokemon) ~= "function" then return nil, "codec-required" end
     local ok, result = pcall(function()
         local data = { version = 1, active = self:activeIndex(), members = {} }
-        for i, mon in ipairs(states[self].members) do data.members[i] = primitive(encodePokemon(mon)) end
+        for i, mon in ipairs(states[self].members) do
+            data.members[i] = primitive(encodePokemon(mon))
+            if PokemonCodec.releaseSnapshot then PokemonCodec.releaseSnapshot(mon) end
+        end
         return data
     end)
     if not ok then return nil, "encode-failed" end
