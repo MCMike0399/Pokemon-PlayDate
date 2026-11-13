@@ -140,6 +140,10 @@ def key_fight(name, trainer_id):
         return "badge-rainbow"
     if trainer == "pokered:FUCHSIA_GYM:objects:1" or label.startswith("koga"):
         return "badge-soul"
+    if trainer == "pokered:SAFFRON_GYM:objects:1" or label.startswith("sabrina"):
+        return "badge-marsh"
+    if trainer == "pokered:CINNABAR_GYM:objects:1" or label.startswith("blaine"):
+        return "badge-volcano"
     return None
 
 
@@ -1981,6 +1985,8 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:VERMILION_GYM:objects:1"), "badge-thunder")
         self.assertEqual(key_fight("source", "pokered:CELADON_GYM:objects:1"), "badge-rainbow")
         self.assertEqual(key_fight("source", "pokered:FUCHSIA_GYM:objects:1"), "badge-soul")
+        self.assertEqual(key_fight("source", "pokered:SAFFRON_GYM:objects:1"), "badge-marsh")
+        self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
