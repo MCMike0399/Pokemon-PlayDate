@@ -725,6 +725,14 @@ class CharmanderRun(BrockJourney):
             "payout": rival_class["base_money"] * party[-1]["level"],
         }
 
+    def _pin_map_shops(self, map_name):
+        """The Saffron clerk is outside the Vermilion shop table."""
+        owners = self.observe("midgame-owners:" + map_name)
+        shops = owners.get("shops") if isinstance(owners, dict) else None
+        if not isinstance(shops, dict) or not shops:
+            raise ProtocolError("actual shop owner unavailable: " + map_name)
+        self.vermilion.setdefault("shops", {}).update(shops)
+
     def _pin_silph_rival(self):
         """The Silph rival is a starter Rival2 party, not a cache trainer.
 
@@ -1341,10 +1349,15 @@ class CharmanderRun(BrockJourney):
         self._pin_cached_trainers()
         self._pin_silph_rival()
         self._bind_post_rainbow()
+        self._pin_map_shops("SaffronMart")
         self.training_mode = None
         self._arrange_lead("starter")
         self.route_c_guard()
         from tools.harness.brock_journey import NaturalBlackout
+        silph_done = (self.flag("EVENT_GOT_MASTER_BALL") and self.quantity("masterBall") >= 1
+                      and self.flag("EVENT_BEAT_SILPH_CO_GIOVANNI") and self.flag("BIT_GOT_LAPRAS"))
+        if silph_done:
+            self.completed_steps.add("silph-rival-lapras-giovanni-president")
         blackouts = 0
         for _boundary in range(8):
             if "silph-rival-lapras-giovanni-president" in self.completed_steps:
@@ -1368,7 +1381,17 @@ class CharmanderRun(BrockJourney):
                 self.summary.setdefault("silph_boundaries", []).append(text)
         else:
             raise ProtocolError("Silph save boundary repeated")
-        self.route_c_sabrina()
+        for _attempt in range(3):
+            try:
+                self.route_c_sabrina()
+                break
+            except NaturalBlackout:
+                if _attempt == 2:
+                    raise
+                self.summary.setdefault("sabrina_blackouts", []).append(self.state.get("zone_id"))
+                self._arrange_lead("starter")
+        else:
+            raise ProtocolError("Sabrina blackout retry exhausted")
         self.summary.update(acceptance="Marsh Badge earned", natural=True, forbidden_shortcuts=False)
 
     def _toward_koga(self):
