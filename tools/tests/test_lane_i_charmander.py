@@ -1169,6 +1169,41 @@ class CharmanderRun(BrockJourney):
         self.heal_here("LavenderPokecenter")
         self.save()
 
+    def _through_route12_gate(self):
+        """The gate is a warp, so the north edge looks closed to a plain path."""
+        route12 = self.zone("Route12")
+        if self.state["zone_id"] == route12 and self.position()[1] > 18:
+            return
+        self.travel(self.zone("LavenderTown"))
+        self.travel(route12)
+        if self.state["zone_id"] == route12 and self.position()[1] > 18:
+            return
+        self.warp(self.zone("Route12Gate1F"), "pokered:ROUTE_12:warps:1")
+        self.warp(route12, "pokered:ROUTE_12_GATE_1F:warps:3")
+
+    def _wake_route12(self):
+        if self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
+            return
+        self.training_mode = None
+        self._through_route12_gate()
+        self.source_waypoint(10, 61)
+        self.scripted_wild = {"species": "snorlax", "level": 30}
+        self.use_item("pokeFlute")
+        self.scripted_wild = None
+        if not self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
+            raise ProtocolError("actual source Snorlax battle did not remove blocker")
+        self.refresh_world()
+
+    def _reach_route13(self):
+        if self.state["zone_id"] == self.zone("Route13"):
+            return
+        from tools.harness.cerulean_journey import connection_projection
+        self._through_route12_gate()
+        point = (11, 107)
+        zone, dest = connection_projection(self.models, self.model(), point, "down")
+        self.navigate(point)
+        self.cross("down", zone, dest)
+
     def _koga(self):
         import tools.harness.cerulean_journey as cerulean
         self.training_mode = None
@@ -1200,10 +1235,9 @@ class CharmanderRun(BrockJourney):
         if not self.flag("EVENT_GOT_POKE_FLUTE"):
             self._pokemon_tower()
         if not self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
-            self.training_mode = None
-            self.wake_snorlax("ROUTE_12", 1, (10, 61))
-            self.heal_here("LavenderPokecenter")
+            self._wake_route12()
             self.save()
+        self._reach_route13()
         self.enter_route14_from_east()
         self.finish_eastern_road_to_fuchsia()
         self._koga()
