@@ -3389,7 +3389,7 @@
     "domain/gameSession.lua": "144ddc28580f0833911a477b4eb1460ab76f23bc462293e412f96fe4cd2fba33",
     "domain/sessionCodec.lua": "16f44a379e6d88384a8b8786891f2146d8454c165cb1fe00b532c9ffc4e9ac07",
     "domain/specimen.lua": "2058b5c9c6581f7fd377bf143dca9bacc6e63f8648587ca2a4f3cf4b6f05de05",
-    "domain/storage.lua": "5cd5dd1373dbe98660cb5337292665cfe04ca63e8f56386b9199c751de5f0574",
+    "domain/storage.lua": "2d0e68c973de0aa7fbadc14a632758f787166c4c63abef14cc613408e9ec5d64",
     "domain/teaching.lua": "365ac63a657629131b0b0797acf00793aaa10d2918d1afd6cdaafb4d6246245c",
     "game/bagState.lua": "18708945c96ff241d048c9aa7df19bf4be16a67a9691c82750c9f41bbfe3fdba",
     "game/daycare.lua": "c5216bd89b6eac1fc2d580271c452fa4a85de005114ec2b520a1c3bba90f0844",

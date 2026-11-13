@@ -76,13 +76,16 @@ function Storage:toData(encodePokemon)
         local out = { version = 1, active = self:activeBox(), boxes = {} }
         for b = 1, Storage.BOX_COUNT do
             out.boxes[b] = {}
+            local occupied = false
             for i, mon in ipairs(states[self].boxes[b]) do
+                occupied = true
                 out.boxes[b][i] = Party._primitive(encodePokemon(mon))
                 if PokemonCodec.releaseSnapshot then PokemonCodec.releaseSnapshot(mon) end
             end
             -- A full box's encode copies are garbage once the primitive is stored.
-            -- Leave them for the next box and the 240-slot save crosses the pool.
-            if b % 2 == 0 then collectgarbage("collect") end
+            -- Empty boxes skip the collection so a city save is not collected
+            -- six times while its map is still live.
+            if occupied and b % 2 == 0 then collectgarbage("collect") end
         end
         return out
     end)
