@@ -1234,12 +1234,24 @@ class CharmanderRun(BrockJourney):
             self._rocket_hideout()
         if not self.flag("EVENT_GOT_POKE_FLUTE"):
             self._pokemon_tower()
-        if not self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
-            self._wake_route12()
-            self.save()
-        self._reach_route13()
-        self.enter_route14_from_east()
-        self.finish_eastern_road_to_fuchsia()
+        from tools.harness.brock_journey import NaturalBlackout
+        for attempt in range(4):
+            try:
+                if not self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
+                    self._wake_route12()
+                    self.save()
+                self._arrange_lead("starter")
+                self._reach_route13()
+                self.enter_route14_from_east()
+                self.finish_eastern_road_to_fuchsia()
+                break
+            except NaturalBlackout:
+                if attempt == 3:
+                    raise
+                self.recover_path_blackout("east road")
+                self._arrange_lead("starter")
+                self.heal_here("LavenderPokecenter")
+                self.save()
         self._koga()
 
     def _have_counter(self, minimum):
