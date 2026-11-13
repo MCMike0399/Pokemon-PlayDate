@@ -1,0 +1,28 @@
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -405,6 +405,25 @@
+             local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
+             local provider = WorldDeltas.definitionProvider()
+             local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
++            local descriptor = provider and provider:hasKey(door.to) and provider:descriptor(door.to)
++            local map = descriptor and descriptor.source_map_constant
++            local tileset = descriptor and descriptor.tileset and descriptor.tileset.constant
++            local game = self.owner.game
++            if FieldCycling and map and tileset then
++                local plan, failure = FieldCycling.enter(game.session:fieldTravelData(),
++                    game.session:questFlag(FieldCycling.FLAG),
++                    game.session:inventory():quantity("bicycle") == 1,
++                    map, tileset, door.toX - (descriptor.padding or 0), door.toY, "map")
++                if not plan and failure == "bicycle-required" then
++                    local player = game.player
++                    player.stepJustFinished = false
++                    player.pendingEdgeDoor = nil
++                    player.pendingConnection = nil
++                    player.lastTraversalBlock = {kind = "bicycle-required"}
++                    self.machine:change("explore")
++                    return
++                end
++            end
+             SourceEvents.worldHook("onLeave", self.owner.game, destination, door)
+             if BootTrace then
+                 BootTrace.mark("door.map.begin")

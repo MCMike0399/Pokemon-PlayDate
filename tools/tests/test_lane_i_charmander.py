@@ -1387,6 +1387,12 @@ class CharmanderRun(BrockJourney):
         self.config.setdefault("packet", "lane-i")
         self.training_mode = None
         self._arrange_lead("starter")
+        # A later save is already in Fuchsia. Going back to Saffron from here
+        # walks onto the Cycling Road, and that door crashes without a Bicycle.
+        if self.flag("BADGE_MARSH") and self.flag("EVENT_GOT_TM46") and self.quantity("tm46") >= 1:
+            self.summary.update(acceptance="Marsh Badge earned", natural=True, forbidden_shortcuts=False)
+            self._toward_blaine()
+            return
         self.route_c_guard()
         from tools.harness.brock_journey import NaturalBlackout
         silph_done = (self.flag("EVENT_GOT_MASTER_BALL") and self.quantity("masterBall") >= 1
@@ -2200,6 +2206,8 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:SAFFRON_GYM:objects:1"), "badge-marsh")
         source = Path(__file__).read_text(encoding="utf-8")
         self.assertIn('self.config.setdefault("packet", "lane-i")', source)
+        sabrina = source.split("def _toward_sabrina", 1)[1].split("def _toward_blaine", 1)[0]
+        self.assertLess(sabrina.index('if self.flag("BADGE_MARSH")'), sabrina.index("self.route_c_guard()"))
         self.assertIn("press down", source.split("def fixed_warp", 1)[1].split("def key_door", 1)[0])
         blaine = source.split("def _toward_blaine", 1)[1].split("def _east_to_fuchsia", 1)[0]
         self.assertLess(blaine.index('self.ensure_room("SaffronMart")'), blaine.index("self.safari_journey()"))
