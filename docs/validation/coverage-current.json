@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "d8f852318d811a1751021f3a44d7522a3a4c6c4a",
+    "source_sha256": "1705ef64a390a759c79a17be196770bd3e71c80915d3682df6f7092e4b940a73",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after idle map scores are released and the next city is collected. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 d1e75d82970ed1dbc1dec33f993f759f844fb61322ca5cc6e32701b7deaf3c4d.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "f5cf5def51f31f4fe5dbc7f2807b94128127d2c8",
     "source_sha256": "d1e75d82970ed1dbc1dec33f993f759f844fb61322ca5cc6e32701b7deaf3c4d",
     "policy_date": "2026-11-12",
@@ -1269,6 +1280,7 @@
         }
       }
     }
+  }
   },
   "accepted_milestone_rows": [],
   "schedule": {
