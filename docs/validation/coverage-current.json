@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "f036d38c17d5a2db4ca5d47d09c38369d29a6a22",
+    "source_sha256": "64dac2f750b802a99e916d00b06aa490d8142ae52c069ae23a7d3effe33b1659",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after inactive cities are released before the next map view. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 b4b22b7ab8111041dc0273658c8ba7bc66f32d0e903cf2bb417fb8aba7ebf6c2.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "4e7fc8ea3b3d05e4595e1570ad713e0cec2a0ed7",
     "source_sha256": "b4b22b7ab8111041dc0273658c8ba7bc66f32d0e903cf2bb417fb8aba7ebf6c2",
     "policy_date": "2026-11-13",
@@ -1313,6 +1324,7 @@
         }
       }
     }
+  }
   }
   }
   }
