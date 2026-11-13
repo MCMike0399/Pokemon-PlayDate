@@ -1,26 +1,15 @@
-diff --git a/Source/data/silphStory/scenes.json b/Source/data/silphStory/scenes.json
-index 5808dae4..efa709f6 100644
---- a/Source/data/silphStory/scenes.json
-+++ b/Source/data/silphStory/scenes.json
-@@ -380,8 +380,8 @@
-         {
-           "closed_block": 84,
-           "closed_keys": [
--            "pokered:FACILITY:cell:08-08-18-18",
--            "pokered:FACILITY:cell:08-08-18-18",
-+            "pokered:FACILITY:cell:01-01-01-01",
-+            "pokered:FACILITY:cell:01-01-01-01",
-             "pokered:FACILITY:cell:01-01-01-01",
-             "pokered:FACILITY:cell:01-01-01-01"
-           ],
-@@ -401,8 +401,8 @@
-         {
-           "closed_block": 84,
-           "closed_keys": [
--            "pokered:FACILITY:cell:08-08-18-18",
--            "pokered:FACILITY:cell:08-08-18-18",
-+            "pokered:FACILITY:cell:01-01-01-01",
-+            "pokered:FACILITY:cell:01-01-01-01",
-             "pokered:FACILITY:cell:01-01-01-01",
-             "pokered:FACILITY:cell:01-01-01-01"
-           ],
+diff --git a/Source/game/silphStoryWorld.lua b/Source/game/silphStoryWorld.lua
+index 2cc24948..20079dc8 100644
+--- a/Source/game/silphStoryWorld.lua
++++ b/Source/game/silphStoryWorld.lua
+@@ -23,6 +23,10 @@ function SilphStoryWorld.unlock(game, id)
+         {flags = {[door.flag] = false}, items = {cardKey = quantity}},
+         {flags = {[door.flag] = true}, items = {}}, "SILPH_STORY_SCENE_V1_")
+ end
++-- Silph Co. 9F doors 1002 and 1003 are the gate callback's block $54 at
++-- block (9, 2) and (9, 5). The .blk stores floor there. While locked, the
++-- top cells are tiles $08/$18, which card_key.asm accepts and which collide.
++-- Replacing those closed keys with the floor cell makes the doors walkable.
+ function SilphStoryWorld.reconcile(game)
+     local doors <const> = SilphStory.scenes().doors[currentZone.stableID]
+     if not doors then
