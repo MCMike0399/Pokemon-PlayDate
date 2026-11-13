@@ -1354,6 +1354,9 @@ class CharmanderRun(BrockJourney):
         self._pin_silph_rival()
         self._bind_post_rainbow()
         self._pin_map_shops("SaffronMart")
+        # restock() reads packet. The 5.5b list is the large stack. This walk
+        # buys the ordinary antidote and Super Potion counts.
+        self.config.setdefault("packet", "lane-i")
         self.training_mode = None
         self._arrange_lead("starter")
         self.route_c_guard()
@@ -2107,6 +2110,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:CELADON_GYM:objects:1"), "badge-rainbow")
         self.assertEqual(key_fight("source", "pokered:FUCHSIA_GYM:objects:1"), "badge-soul")
         self.assertEqual(key_fight("source", "pokered:SAFFRON_GYM:objects:1"), "badge-marsh")
+        self.assertIn('self.config.setdefault("packet", "lane-i")', Path(__file__).read_text(encoding="utf-8"))
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
