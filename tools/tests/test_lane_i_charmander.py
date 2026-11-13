@@ -1442,11 +1442,17 @@ class CharmanderRun(BrockJourney):
         self.summary.update(acceptance="Marsh Badge earned", natural=True, forbidden_shortcuts=False)
         self._toward_blaine()
 
+    def _surf_known(self):
+        return any("surf" in mon["moves"] for mon in self.party())
+
     def _toward_blaine(self):
         """Escape Rope, then the Safari Zone for HM03 and Surf."""
         self.summary["acceptance"] = "walking toward the Volcano Badge"
-        self._pin_map_shops("SaffronMart")
         self.config["content_scope"] = "lane-i"
+        if self._surf_known():
+            self._to_cinnabar()
+            return
+        self._pin_map_shops("SaffronMart")
         if self.quantity("escapeRope") < 1:
             clerk = self.zone("SaffronMart") + ":objects:1"
             shop = self.vermilion["shops"][clerk]
@@ -1464,6 +1470,7 @@ class CharmanderRun(BrockJourney):
         if "FUCHSIA" not in zone and "SAFARI_ZONE" not in zone:
             self._east_to_fuchsia()
         self.safari_journey()
+        self._to_cinnabar()
 
     def _east_to_fuchsia(self):
         """Saffron's west edge dead-ends on Celadon. The east road reaches Fuchsia."""
@@ -1498,6 +1505,266 @@ class CharmanderRun(BrockJourney):
             return
         self.warp(self.zone("Route8Gate"), "pokered:ROUTE_8:warps:1")
         self.warp(self.zone("Route8"), "pokered:ROUTE_8_GATE:warps:3")
+
+    def _to_cinnabar(self):
+        """Pallet, then Surf south on Route 21. The Route 20 rock stays closed."""
+        from tools.harness.brock_journey import NaturalBlackout
+        self.summary["acceptance"] = "walking toward the Volcano Badge"
+        self.training_mode = None
+        for _ in range(3):
+            try:
+                self._cinnabar_once()
+                return
+            except NaturalBlackout:
+                self.summary.setdefault("cinnabar_blackouts", []).append(self.state.get("zone_id"))
+                self._arrange_lead("starter")
+        raise ProtocolError("Cinnabar walk blacked out")
+
+    def _cinnabar_once(self):
+        self._arrange_lead("starter")
+        zone = self.state.get("zone_id") or ""
+        if self.flag("BADGE_VOLCANO"):
+            self._toward_giovanni()
+            return
+        if "CINNABAR" in zone or "MANSION" in zone:
+            self._mansion_and_blaine()
+            return
+        if "ROUTE_21" in zone:
+            self._follow_route21()
+            self._mansion_and_blaine()
+            return
+        if "PALLET" in zone or zone == "pallet_town":
+            self._surf_from_pallet()
+            self._mansion_and_blaine()
+            return
+        self._walk_to_pallet()
+        self._surf_from_pallet()
+        self._mansion_and_blaine()
+
+    def _map_name(self):
+        return self.state.get("zone_id") or ""
+
+    def _on(self, name):
+        return self._map_name() == self.zone(name)
+
+    def _cross_edge(self, direction):
+        """Walk onto the nearest passable header edge and take that connection."""
+        from tools.harness.cerulean_journey import connection_projection
+        model = self.model()
+        if direction == "down":
+            points = [(x, model.height - 1) for x in range(model.width)]
+        elif direction == "up":
+            points = [(x, 0) for x in range(model.width)]
+        elif direction == "left":
+            points = [(0, y) for y in range(model.height)]
+        else:
+            points = [(model.width - 1, y) for y in range(model.height)]
+        options = []
+        for point in points:
+            if model.collision[point[1]][point[0]]:
+                continue
+            try:
+                connection_projection(self.models, model, point, direction)
+            except ProtocolError:
+                continue
+            try:
+                route = model.path(self.position(), {point}, self.occupied())
+            except ProtocolError:
+                continue
+            options.append((len(route), point))
+        if not options:
+            raise ProtocolError("no open " + direction + " edge from " + self._map_name())
+        options.sort()
+        point = options[0][1]
+        if self.position() != point:
+            self.navigate(point)
+        zone, dest = self.project(direction)
+        self.cross(direction, zone, dest)
+
+    def _walk_to_pallet(self):
+        zone = self._map_name()
+        if any(token in zone for token in ("FUCHSIA", "ROUTE_15", "ROUTE_14", "ROUTE_13")):
+            if "FUCHSIA" in zone and len(self.inventory()["slots"]) > 15:
+                self.store_unused_items("FuchsiaPokecenter")
+            self.return_from_fuchsia_to_route12()
+        if self._on("Route12"):
+            self.return_from_route12_to_lavender()
+        if self._on("LavenderTown") or "LAVENDER" in self._map_name() and "ROUTE" not in self._map_name():
+            if self._on("LavenderPokecenter"):
+                self.warp(self.zone("LavenderTown"))
+            self.heal_here("LavenderPokecenter")
+            self.save()
+            self.warp(self.zone("LavenderTown"))
+            self._cross_edge("left")
+        if self._on("Route8"):
+            if self.position()[0] > 8:
+                self.warp(self.zone("Route8Gate"), "pokered:ROUTE_8:warps:3")
+                self.warp(self.zone("Route8"), "pokered:ROUTE_8_GATE:warps:1")
+            self._cross_edge("left")
+        if self._on("SaffronCity") or "SAFFRON" in self._map_name():
+            self.heal_here("SaffronPokecenter")
+            self.save()
+            self.warp(self.zone("SaffronCity"))
+            self._cross_edge("up")
+        if self._on("Route5"):
+            if self.position()[1] > 30:
+                self.warp(self.zone("Route5Gate"), "pokered:ROUTE_5:warps:3")
+                self.warp(self.zone("Route5"), "pokered:ROUTE_5_GATE:warps:4")
+            self._cross_edge("up")
+        if self._on("CeruleanCity"):
+            self.heal_here("CeruleanPokecenter")
+            self.save()
+            self.warp(self.zone("CeruleanCity"))
+            self._cross_edge("left")
+        if any(token in self._map_name() for token in ("ROUTE_4", "ROUTE_3", "MT_MOON", "CERULEAN", "PEWTER")):
+            if "PEWTER" not in self._map_name():
+                self.travel(self.zone("PewterCity"))
+            self.heal_here("PewterPokecenter")
+            self.save()
+            self.warp(self.zone("PewterCity"))
+            self._cross_edge("down")
+        if self._on("Route2") and self.position()[1] < 40:
+            self.warp(self.zone("ViridianForestNorthGate"), "pokered:ROUTE_2:warps:2")
+        if self._on("ViridianForestNorthGate"):
+            self.warp(self.zone("ViridianForest"), "pokered:VIRIDIAN_FOREST_NORTH_GATE:warps:3")
+        if self._on("ViridianForest"):
+            self.navigate((16, 46))
+            self.warp(self.zone("ViridianForestSouthGate"), "pokered:VIRIDIAN_FOREST:warps:4")
+        if self._on("ViridianForestSouthGate"):
+            self.warp(self.zone("Route2"), "pokered:VIRIDIAN_FOREST_SOUTH_GATE:warps:3")
+        if self._on("Route2"):
+            self._cross_edge("down")
+        if self._on("ViridianCity") or "VIRIDIAN_CITY" in self._map_name() or "VIRIDIAN_POKECENTER" in self._map_name():
+            self.heal_here("ViridianPokecenter")
+            self.save()
+            self.warp(self.zone("ViridianCity"))
+            self.navigate((20, 35))
+            self.cross("down", self.zone("Route1"), (10, 0))
+        if self._on("Route1"):
+            # Source Route 1 lands on imported Pallet. The authored seam is not the runtime arrival.
+            self.navigate((10, 35))
+            self.send("press down", "wait 12")
+            self.drain()
+        zone = self._map_name()
+        if "PALLET" not in zone and zone != "pallet_town":
+            raise ProtocolError("legal walk did not reach Pallet: " + zone + " " + str(self.position()))
+        self.save()
+
+    def _surf_press(self, direction, count):
+        for _ in range(count):
+            if self._on("CinnabarIsland"):
+                return
+            self.send("press " + direction, "wait 10")
+            self.drain()
+
+    def _surf_from_pallet(self):
+        if "PALLET" not in self._map_name() and self._map_name() != "pallet_town":
+            return
+        self.navigate((8, 16))
+        self.face("left")
+        index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+        self.use_field(index, "surf")
+        if self.position() == (8, 16):
+            self._surf_press("left", 1)
+        self._surf_press("down", 3)
+        if not self._on("Route21"):
+            raise ProtocolError("Surf south from Pallet did not enter Route 21: " + str(self.position()))
+        self._follow_route21()
+
+    def _follow_route21(self):
+        """Water from the north shore (6, 0) reaches Cinnabar at (3, 89)."""
+        if self.position()[1] == 0 and self.position()[0] != 6:
+            direction = "left" if self.position()[0] > 6 else "right"
+            self._surf_press(direction, abs(self.position()[0] - 6))
+        if self.position() == (6, 0):
+            self._surf_press("down", 23)
+            self._surf_press("left", 3)
+            self._surf_press("down", 67)
+        elif not self._on("CinnabarIsland"):
+            self._surf_press("down", 90)
+        if not self._on("CinnabarIsland"):
+            raise ProtocolError("Route 21 Surf did not reach Cinnabar: " + str(self.position()))
+        for _ in range(8):
+            x, y = self.position()
+            if self.model().collision[y][x] == 0:
+                break
+            self._surf_press("down" if y < 4 else "right", 1)
+        x, y = self.position()
+        if self.model().collision[y][x] != 0:
+            raise ProtocolError("Cinnabar Surf did not reach land: " + str(self.position()))
+
+    def _mansion_and_blaine(self):
+        if self.flag("BADGE_VOLCANO"):
+            self._toward_giovanni()
+            return
+        if len(self.inventory()["slots"]) > 15:
+            self.store_unused_items("CinnabarPokecenter")
+        if self.quantity("secretKey") < 1 and not self.flag("PICKUP:pokered:POKEMON_MANSION_B1F:objects:8"):
+            if not self._on("PokemonMansionB1F"):
+                if not self._on("PokemonMansion1F"):
+                    if not self._on("CinnabarIsland"):
+                        self.warp(self.zone("CinnabarIsland"))
+                    self.warp(self.zone("PokemonMansion1F"), "pokered:CINNABAR_ISLAND:warps:1")
+                self.warp(self.zone("PokemonMansionB1F"), "pokered:POKEMON_MANSION_1F:warps:6")
+            self.pickup("pokered:POKEMON_MANSION_B1F:objects:8", "secretKey")
+        self.heal_here("CinnabarPokecenter")
+        self.save()
+        self._arrange_lead("starter")
+        self.warp(self.zone("CinnabarGym"), "pokered:CINNABAR_ISLAND:warps:2")
+        self._fight_story("pokered:CINNABAR_GYM:objects:1")
+        if not self.flag("BADGE_VOLCANO"):
+            raise ProtocolError("Blaine did not award the Volcano Badge")
+        self.heal_here("CinnabarPokecenter")
+        self.save()
+        self.summary.update(acceptance="Volcano Badge earned", natural=True, forbidden_shortcuts=False)
+        self._toward_giovanni()
+
+    def _toward_giovanni(self):
+        """Surf back up Route 21. Viridian Gym opens once Earth is the missing badge."""
+        self.summary["acceptance"] = "walking toward the Earth Badge"
+        self._arrange_lead("starter")
+        if self.flag("BADGE_EARTH"):
+            self.heal_here("ViridianPokecenter")
+            self.save()
+            self.summary.update(acceptance="Earth Badge earned", natural=True, forbidden_shortcuts=False)
+            return
+        zone = self._map_name()
+        if "CINNABAR" in zone or "MANSION" in zone:
+            if not self._on("CinnabarIsland"):
+                self.warp(self.zone("CinnabarIsland"))
+            self.navigate((4, 4))
+            self.face("left")
+            index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+            if self.model().collision[self.position()[1]][self.position()[0]] == 0:
+                self.use_field(index, "surf")
+            self._surf_press("up", 6)
+        if self._on("Route21"):
+            if self.position() != (3, 89):
+                self._surf_press("up", max(0, self.position()[1] - 23))
+            if self.position()[0] < 6:
+                self._surf_press("right", 6 - self.position()[0])
+            self._surf_press("up", 30)
+        if "PALLET" in self._map_name() or self._map_name() == "pallet_town":
+            x, y = self.position()
+            if self.model().collision[y][x] != 0:
+                self._surf_press("up", 2)
+                self._surf_press("right", 3)
+            self.navigate((10, 0))
+            self._cross_edge("up")
+        if self._on("Route1"):
+            self.navigate((10, 0))
+            self._cross_edge("up")
+        if "VIRIDIAN" in self._map_name() and "FOREST" not in self._map_name():
+            self.heal_here("ViridianPokecenter")
+            self.save()
+            self.warp(self.zone("ViridianCity"))
+            self.warp(self.zone("ViridianGym"), "pokered:VIRIDIAN_CITY:warps:5")
+            self._fight_story("pokered:VIRIDIAN_GYM:objects:1")
+        if not self.flag("BADGE_EARTH"):
+            raise ProtocolError("Giovanni did not award the Earth Badge: " + self._map_name() + " " + str(self.position()))
+        self.heal_here("ViridianPokecenter")
+        self.save()
+        self.summary.update(acceptance="Earth Badge earned", natural=True, forbidden_shortcuts=False)
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
@@ -2214,6 +2481,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertLess(sabrina.index('if self.flag("BADGE_MARSH")'), sabrina.index("self.route_c_guard()"))
         self.assertIn("press down", source.split("def fixed_warp", 1)[1].split("def key_door", 1)[0])
         blaine = source.split("def _toward_blaine", 1)[1].split("def _east_to_fuchsia", 1)[0]
+        self.assertLess(blaine.index("self._surf_known()"), blaine.index('self.quantity("escapeRope")'))
         self.assertLess(blaine.index('self.ensure_room("SaffronMart")'), blaine.index("self.safari_journey()"))
         self.assertIn("self._east_to_fuchsia()", blaine)
         east = source.split("def _east_to_fuchsia", 1)[1].split("def _toward_koga", 1)[0]
