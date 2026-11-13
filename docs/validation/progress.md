@@ -1,5 +1,22 @@
 # Full-game execution ledger
 
+## 2026-11-13 Actor strips, the pickup buffer, and the fixture blame
+
+`main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added.
+
+`git blame -L 7,11 Source/dev/sessionFixture.lua` is `df8406b2d` Miguel Quintero, 2026-10-29, "Repair lazy map and art setup in existing SDK fixtures". Those lines stay. The codec still rejects `hallOfFame` and `playTime` on versions below 4. Daycare's two legacy failures stay for Miguel.
+
+Actor install reads the imported `data/zEndgame/sprites.json` and `data/zRemainder/sprites.json` strips for Agatha, Bruno, Lance, Lorelei, Oak, Daisy, Mom, and Red. No placeholder grids were added. A missing standing frame is installed from that strip. The Mew gift at `postgame:CERULEAN_CAVE_1F:mew-gift` keeps an empty script route because its id is not a pokered object index. Visible pickups fill `wStringBuffer` (`GiveItem` / `_FoundItemText`). Hidden pickups fill `wNameBuffer` (`GetItemName` / `_FoundHiddenItemText`). The Cerulean and Vermilion journey projections were regenerated. The coverage snapshot was nested. No row was relabeled.
+
+| suite | result | passed | failed | heap KiB | session |
+| --- | --- | --- | --- | --- | --- |
+| kanto-scenes | pass | 7 | 0 | 12829.446 | `01851b63ccdc43e4b94bdca9946a3885` |
+| generic-actors | fail | 1 | 7 | 12722.124 | `f1020a76133d409885b75fb74522c311` |
+| source-maps | fail | 9 | 14 | 13202.915 | `a00892b8a3644d4ab1eacc13214f9f60` |
+| cerulean-content | fail | 100 | 9 | 12670.275 | `3c0ee14593104de680f1d9ee0c80eb9b` |
+
+`kanto-scenes` is the child score. Its parent command passed 27 and failed 0. `generic-actors` passed the twelve-map motion policy. Its seven scene tests still report `not enough memory`. `source-maps` no longer dies on a nil strip; the fourteen failures are `not enough memory`, `original warp arrival is blocked`, and one unexpected field. `cerulean-content` no longer dies on a missing strip; nine failures remain, seven of them `not enough memory`. These four rows are the child scores. The host suite, `tools/build.py`, and the boot budget were not rerun after the pickup change. `main` was not fast-forwarded.
+
 ## 2026-11-13 Contract audit, the source-map pin, and the memory table
 
 `main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added. The coverage snapshot was nested for the Source fingerprint. No row was relabeled. The post-FF patches are not applied, except lane I's door-fade stencil. YellowBot's thirteen debug-warp crashes are queued with that first group, beside lane B. The full actor-install fix lands with or before `lane-e-pallet-cutover`. `lane-e-pallet-actors` is a stopgap and is dropped once that fix is in. The lane G pull is `cursor/lane-g-front-end` through `18c11ded`, and it waits until main's gates are green. Lane B `5c27a3f8`, `4e1f7fc6`, and `4a42e55b` are handoffs in that first group, beside learn-pages and the trainer lease. They are audited against `scripts/Route22.asm` and `TryDoWildEncounter` before they are applied. After the EXP page, lane I `b6cb9595` queues the evolution-cancel hint and the heal-ball palette. Lane I `8ec9dd27` `tools/notes/lane-e-door-fade-oom.patch` is applied, with `tools/tests/test_lane_e_door_fade_oom.py`: the door fade uses `setStencilPattern` instead of `image:drawFaded`. The rest of that group is not applied.
