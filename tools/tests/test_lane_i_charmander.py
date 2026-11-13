@@ -1032,9 +1032,13 @@ class CharmanderRun(BrockJourney):
         self.event_choices = {}
         for name in (
             "scene_data", "source_waypoint", "background", "fixed_hideout",
-            "fixed_warp", "pickup", "exit_hideout_lift", "use_item",
+            "fixed_warp", "fixed_leg", "pickup", "exit_hideout_lift", "use_item",
             "wake_snorlax", "enter_route14_from_east",
             "finish_eastern_road_to_fuchsia", "refill_after_route13",
+            "event_offer", "restock", "ride_silph", "key_door", "c_gift",
+            "party_is_restored", "ensure_room", "celadon_service",
+            "return_from_fuchsia_to_route12", "return_from_route12_to_lavender",
+            "route_c_guard", "route_c_silph", "route_c_sabrina",
         ):
             setattr(self, name, getattr(midgame.MidgameJourney, name).__get__(self, type(self)))
         self.refresh_world = vermilion.VermilionJourney.refresh_world.__get__(self, type(self))
@@ -1217,10 +1221,45 @@ class CharmanderRun(BrockJourney):
         self.save()
         self.summary.update(acceptance="Soul Badge earned", natural=True, forbidden_shortcuts=False)
 
+    def _in_fuchsia(self):
+        return self.state.get("zone_id") in {
+            self.zone("FuchsiaCity"),
+            self.zone("FuchsiaPokecenter"),
+            self.zone("FuchsiaGym"),
+        }
+
+    def _toward_sabrina(self):
+        """Fresh Water for the gate, then Silph Co. and Sabrina."""
+        self.summary["acceptance"] = "walking toward the Marsh Badge"
+        self._vermilion_tools()
+        self._pin_route_trainers()
+        self._pin_cached_trainers()
+        self._bind_post_rainbow()
+        self.training_mode = None
+        self._arrange_lead("starter")
+        self.route_c_guard()
+        for _boundary in range(6):
+            if "silph-rival-lapras-giovanni-president" in self.completed_steps:
+                break
+            try:
+                self.route_c_silph()
+                break
+            except ProtocolError as error:
+                text = str(error)
+                if "Save boundary" not in text:
+                    raise
+                # The split already saved. The next call takes the following branch.
+                self.summary.setdefault("silph_boundaries", []).append(text)
+        else:
+            raise ProtocolError("Silph save boundary repeated")
+        self.route_c_sabrina()
+        self.summary.update(acceptance="Marsh Badge earned", natural=True, forbidden_shortcuts=False)
+
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
         if self.flag("BADGE_SOUL") and self.quantity("tm06") >= 1:
             self.summary.update(acceptance="Soul Badge earned", natural=True, forbidden_shortcuts=False)
+            self._toward_sabrina()
             return
         self.summary["acceptance"] = "walking toward the Soul Badge"
         self._vermilion_tools()
@@ -1234,25 +1273,29 @@ class CharmanderRun(BrockJourney):
             self._rocket_hideout()
         if not self.flag("EVENT_GOT_POKE_FLUTE"):
             self._pokemon_tower()
-        from tools.harness.brock_journey import NaturalBlackout
-        for attempt in range(4):
-            try:
-                if not self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
-                    self._wake_route12()
+        # Sequence 184 is already inside the Fuchsia Center. Walking the east
+        # road again treats the gate as a dead edge on the way back to Lavender.
+        if not self._in_fuchsia():
+            from tools.harness.brock_journey import NaturalBlackout
+            for attempt in range(4):
+                try:
+                    if not self.flag("EVENT_BEAT_ROUTE12_SNORLAX"):
+                        self._wake_route12()
+                        self.save()
+                    self._arrange_lead("starter")
+                    self._reach_route13()
+                    self.enter_route14_from_east()
+                    self.finish_eastern_road_to_fuchsia()
+                    break
+                except NaturalBlackout:
+                    if attempt == 3:
+                        raise
+                    self.recover_path_blackout("east road")
+                    self._arrange_lead("starter")
+                    self.heal_here("LavenderPokecenter")
                     self.save()
-                self._arrange_lead("starter")
-                self._reach_route13()
-                self.enter_route14_from_east()
-                self.finish_eastern_road_to_fuchsia()
-                break
-            except NaturalBlackout:
-                if attempt == 3:
-                    raise
-                self.recover_path_blackout("east road")
-                self._arrange_lead("starter")
-                self.heal_here("LavenderPokecenter")
-                self.save()
         self._koga()
+        self._toward_sabrina()
 
     def _have_counter(self, minimum):
         return any(
