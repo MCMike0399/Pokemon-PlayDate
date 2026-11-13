@@ -1458,16 +1458,30 @@ class CharmanderRun(BrockJourney):
         """Saffron's west edge dead-ends on Celadon. The east road reaches Fuchsia."""
         from tools.harness.cerulean_journey import connection_projection
         zone = self.state.get("zone_id") or ""
-        if not any(token in zone for token in ("LAVENDER", "ROUTE_12", "ROUTE_13", "ROUTE_14", "ROUTE_15")):
+        if self.state.get("zone_id") == self.zone("Route8"):
+            self._through_route8_gate()
+            self.navigate((59, 8))
+            name, dest = connection_projection(self.models, self.model(), self.position(), "right")
+            self.cross("right", name, dest)
+            self.require(zone_id=self.zone("LavenderTown"))
+        elif not any(token in zone for token in ("LAVENDER", "ROUTE_12", "ROUTE_13", "ROUTE_14", "ROUTE_15")):
             if self.state.get("zone_id") != self.zone("SaffronCity"):
                 self.travel(self.zone("SaffronCity"))
             self.navigate((39, 16))
             name, dest = connection_projection(self.models, self.model(), self.position(), "right")
             self.cross("right", name, dest)
+            self._through_route8_gate()
             self.navigate((59, 8))
             name, dest = connection_projection(self.models, self.model(), self.position(), "right")
             self.cross("right", name, dest)
             self.require(zone_id=self.zone("LavenderTown"))
+
+    def _through_route8_gate(self):
+        """The west gate splits Route 8. The road continues on the far side."""
+        if self.state["zone_id"] != self.zone("Route8") or self.position()[0] >= 8:
+            return
+        self.warp(self.zone("Route8Gate"), "pokered:ROUTE_8:warps:1")
+        self.warp(self.zone("Route8"), "pokered:ROUTE_8_GATE:warps:3")
         self._reach_route13()
         self.enter_route14_from_east()
         self.finish_eastern_road_to_fuchsia()
@@ -2189,6 +2203,8 @@ class CharmanderTitleTests(unittest.TestCase):
         blaine = source.split("def _toward_blaine", 1)[1].split("def _east_to_fuchsia", 1)[0]
         self.assertLess(blaine.index('self.ensure_room("SaffronMart")'), blaine.index("self.safari_journey()"))
         self.assertIn("self._east_to_fuchsia()", blaine)
+        east = source.split("def _east_to_fuchsia", 1)[1].split("def _toward_koga", 1)[0]
+        self.assertIn("Route8Gate", east)
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
