@@ -1446,7 +1446,33 @@ class CharmanderRun(BrockJourney):
             self.buy_item(clerk, "escapeRope", 1, price)
         if self.quantity("escapeRope") < 1:
             raise ProtocolError("Escape Rope was not bought")
+        # The rope fills the bag. Sell the old TMs here. FuchsiaMart is past
+        # the Celadon edge, and that edge is a dead pocket.
+        self.ensure_room("SaffronMart")
+        zone = self.state.get("zone_id") or ""
+        if "FUCHSIA" not in zone and "SAFARI_ZONE" not in zone:
+            self._east_to_fuchsia()
         self.safari_journey()
+
+    def _east_to_fuchsia(self):
+        """Saffron's west edge dead-ends on Celadon. The east road reaches Fuchsia."""
+        from tools.harness.cerulean_journey import connection_projection
+        zone = self.state.get("zone_id") or ""
+        if not any(token in zone for token in ("LAVENDER", "ROUTE_12", "ROUTE_13", "ROUTE_14", "ROUTE_15")):
+            if self.state.get("zone_id") != self.zone("SaffronCity"):
+                self.travel(self.zone("SaffronCity"))
+            self.navigate((39, 16))
+            name, dest = connection_projection(self.models, self.model(), self.position(), "right")
+            self.cross("right", name, dest)
+            self.navigate((59, 8))
+            name, dest = connection_projection(self.models, self.model(), self.position(), "right")
+            self.cross("right", name, dest)
+            self.require(zone_id=self.zone("LavenderTown"))
+        self._reach_route13()
+        self.enter_route14_from_east()
+        self.finish_eastern_road_to_fuchsia()
+        self.heal_here("FuchsiaPokecenter")
+        self.save()
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
@@ -2160,6 +2186,9 @@ class CharmanderTitleTests(unittest.TestCase):
         source = Path(__file__).read_text(encoding="utf-8")
         self.assertIn('self.config.setdefault("packet", "lane-i")', source)
         self.assertIn("press down", source.split("def fixed_warp", 1)[1].split("def key_door", 1)[0])
+        blaine = source.split("def _toward_blaine", 1)[1].split("def _east_to_fuchsia", 1)[0]
+        self.assertLess(blaine.index('self.ensure_room("SaffronMart")'), blaine.index("self.safari_journey()"))
+        self.assertIn("self._east_to_fuchsia()", blaine)
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
