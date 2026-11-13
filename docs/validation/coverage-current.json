@@ -1,11 +1,33 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "de2450e28ec5ca861f03004f03c01be4a64d1573",
+    "source_sha256": "aed0f0a1537e8adf4523df4cecd248bc1c849222f7e8694d6cf92d7eb8b9fcd8",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after actor install reads the imported zEndgame and zRemainder strips and the Mew gift keeps an empty script route. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 bf54ab384183bde4c5ad8a11096cae63c3704f6a3090916f36cf2e8da4da8ba8.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "884dfff2f3fff57df088eeaa93d3bec48283da23",
     "source_sha256": "bf54ab384183bde4c5ad8a11096cae63c3704f6a3090916f36cf2e8da4da8ba8",
     "policy_date": "2026-11-13",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Source identity after actor install reads the imported zEndgame and zRemainder strips. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 776a0895d47c37c8c8f3b62ecc9991bc47316c0b064d7799ad7612fffa17b8a7.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "25d3739e08104fce01a1814b2a48c63f08989677",
+    "source_sha256": "776a0895d47c37c8c8f3b62ecc9991bc47316c0b064d7799ad7612fffa17b8a7",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after contact receipts stay visible and catalog cells are sampled one tile at a time. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 64dac2f750b802a99e916d00b06aa490d8142ae52c069ae23a7d3effe33b1659.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
@@ -1335,6 +1357,8 @@
         }
       }
     }
+  }
+  }
   }
   }
   }
