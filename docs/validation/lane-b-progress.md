@@ -1439,3 +1439,31 @@ The Route 22 losses are the pokered `Rival2Data` party for a
 Bulbasaur starter: Pidgeot 47, Rhyhorn 45, Exeggcute 45, Gyarados 47,
 Alakazam 50, Charizard 53. Charizard's Flamethrower is the knockout.
 That party is not an engine bug.
+
+## Cerulean Center continue
+
+Play stopped inside a Pokémon Center. The Route 22 rival fight was
+not underway. Sequence 422 is the Pause-Save in Cerulean Poké Center
+`(3, 3)` facing up, sha256
+`060aed802805448affeb9f79f18e99224542c01d8c5a66560e698739a50ce36c`
+(`seq422-adventure.a.json`). `SHA256SUMS` lists that file.
+
+Venusaur is 58, 182 HP, xp 190279. The Center restored Razor Leaf to
+25. Moves are Petal Dance, Take Down, Razor Leaf, and Double Edge.
+Bellsprout is 24 with Cut, Growth, Wrap, and Sleep Powder. Pidgeotto
+is 31 with Tackle, Sand Attack, Gust, and Quick Attack. Drowzee is 24,
+Sandshrew is 14, and Poliwag is 10. Money is 1404. `hyperPotion` is 3.
+`fullHeal` is 1. `revive` is 0. `BADGE_EARTH` is set.
+`EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE` is unset. The blackout
+checkpoint is Cerulean City `(19, 18)` facing down. Level 59 needs
+xp 199999, so this continue is still level 58.
+
+Sleep Powder is only on Bellsprout. Charizard moves first and knocks
+that Bellsprout out before the powder. No party or boxed Pokémon
+knows Leech Seed, and there is no move relearner. X Accuracy, X
+Attack, X Defend, X Speed, and X Special are `effect = "unsupported"`.
+`Battle:useItem` accepts heal, full restore, cure, revive, and PP, so
+a bought X Speed does not raise Speed. One stage is 3/2. The handoff
+is `tools/notes/lane-e-x-items.patch` with
+`tools/tests/test_lane_e_x_items.py`. It is not applied. Guard Spec.
+and Dire Hit are not a single stage and stay unsupported.
