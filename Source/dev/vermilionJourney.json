@@ -3322,7 +3322,7 @@
   "sources": {
     "battle/battle.lua": "7e29470c4cbbe846a0ee6c4f0e0791bd1c4f20629705c1c35287b6528ebac1ea",
     "data/captureData.lua": "b7e4cb7ae9f833129cfa9a18ad6b51929723c685ebd61b68c6e3900e2ac2cdb1",
-    "data/ceruleanContent.lua": "a8cfaab6477c65a80c134cc801150ff54b14864a3f74cbe334529e95d7700d88",
+    "data/ceruleanContent.lua": "edfbab43e4c226b93edac6796010bcbc65a36f6e4f5fa7d62f1f5ce101d65d3c",
     "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
     "data/fieldMoves.json": "d0e496f62e5e959bfa41b6881edc276cd50fe49b2d65b5f0505f9d4f2019b76d",
     "data/items.lua": "f13fef555a905ff4d15ebbb41bb89bb0b46edf2630c0ea4aec840e87eb03c1e2",
@@ -3378,7 +3378,7 @@
     "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
     "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
-    "dev/ceruleanJourney.json": "99498fbfe87fe9d5ef1193a7ef8dbf42e0adef6198c24de85a3b059aa4346867",
+    "dev/ceruleanJourney.json": "06f2786d865cbf000502ecffd8bfd47e322234bc32a8774cb541af5b06f2dfaf",
     "dev/daycareContracts.lua": "c3507079193c523b1bd21a6ddefb70164f37e3a31ec0529ed0886174756ee1ec",
     "dev/diagnostics.lua": "9191b2de500699b8dd12f573f1e1d681cb94ad757d5632f6380566c6cf5928c8",
     "dev/fixtures.lua": "d21e4044712c04ec91eb1a5c3618d18543e0e92ea8d87cdff03b677c828f94c6",
@@ -3407,7 +3407,7 @@
     "game/vermilionStoryTerrain.lua": "7d216e3e86bf6b250f805f9b97986221df91a238fe43fb031a7036ae7cd47de2",
     "main.lua": "3f91a3e140a8f0699e78967211a13c77bceba2fa3fbd4b3e0e079d44c3020afb",
     "world/sourceBindings.lua": "2d20052569e31f121c5369426480e0875bc051a9a4b3074628b49de1fa19447b",
-    "world/zone.lua": "fbd6ef917807cf43d6d85de31b6e4e60993831be1e30d01cc0dec5a55d299a62"
+    "world/zone.lua": "5262c4f16470ab022ecc4d82282362e6a8f38a38cb2c5c38a523df1b170dbc69"
   },
   "trainers": {
     "pokered:ROUTE_11:objects:1": {

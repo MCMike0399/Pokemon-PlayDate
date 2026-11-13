@@ -198,7 +198,12 @@ function SourceActors.describeSource(zoneID, world, game)
             local delta=({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
             for i=0,math.max(0,trainer.sight_range_cells-1)do spec.script_positions[(event.y+delta[2]*i)*surface.width+event.x+delta[1]*i+1]=true end
         end
-        local positions = SourceEvents.actorPositions(event.id)
+        -- The Mew gift uses a postgame id, not a pokered object index. It has no
+        -- script route. Pokered object ids still go through the stable-id check.
+        local positions = {}
+        if event.id:match("^pokered:[^:]+:objects:%d+$") then
+            positions = SourceEvents.actorPositions(event.id)
+        end
         for _,position in ipairs(positions) do
             assert(position.x < surface.width and position.y < surface.height, "script position outside source map")
             local cell = position.y * surface.width + position.x + 1
@@ -235,14 +240,16 @@ function SourceActors.describeSource(zoneID, world, game)
             spec.script_positions[cell] = true
         end
         spec.script_overlap = {}
-        for _, position in ipairs(SourceEvents.actorOverlapPositions(event.id)) do
+        local overlaps = event.id:match("^pokered:[^:]+:objects:%d+$") and SourceEvents.actorOverlapPositions(event.id) or {}
+        for _, position in ipairs(overlaps) do
             local cell = position.y * surface.width + position.x + 1
             assert(spec.script_positions[cell], "script overlap outside source script positions")
             spec.script_overlap[cell] = true
         end
         local metadata = resolver.metadata and resolver.metadata(d, event, game) or {}
         spec.script_collision_positions = {}
-        for _, position in ipairs(SourceEvents.actorCollisionPositions(event.id)) do
+        local collisions = event.id:match("^pokered:[^:]+:objects:%d+$") and SourceEvents.actorCollisionPositions(event.id) or {}
+        for _, position in ipairs(collisions) do
             local cell = position.y * surface.width + position.x + 1
             assert(spec.script_positions[cell] and not protected[cell], "collision exception outside source script positions")
             spec.script_collision_positions[cell] = true
