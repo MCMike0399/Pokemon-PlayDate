@@ -725,6 +725,25 @@ class CharmanderRun(BrockJourney):
             "payout": rival_class["base_money"] * party[-1]["level"],
         }
 
+    def _pin_silph_rival(self):
+        """The Silph rival is a starter Rival2 party, not a cache trainer.
+
+        HideoutTowerContent pays base money times the last party member's
+        level. Charmander uses party index 7, which is 2600.
+        """
+        scenes = json.loads((REPO / "Source" / "data" / "silphStory" / "scenes.json").read_text())
+        trainers = json.loads((REPO / "Source" / "data" / "midgameSaffron" / "trainers.json").read_text())
+        index = scenes["scenes"]["rival"]["rival_party_indices"][self.starter]
+        rival_class = trainers["rival_classes"]["OPP_RIVAL2"]
+        party = rival_class["parties"][index - 1]["party"]
+        rival = scenes["scenes"]["rival"]["id"]
+        self.source_trainers[rival] = {
+            "id": rival,
+            "map_id": "pokered:SILPH_CO_7F",
+            "party": party,
+            "payout": rival_class["base_money"] * party[-1]["level"],
+        }
+
     def _zone_has(self, *tokens):
         zone = self.state.get("zone_id") or ""
         return any(token in zone for token in tokens)
@@ -1277,6 +1296,7 @@ class CharmanderRun(BrockJourney):
         self._vermilion_tools()
         self._pin_route_trainers()
         self._pin_cached_trainers()
+        self._pin_silph_rival()
         self._bind_post_rainbow()
         self.training_mode = None
         self._arrange_lead("starter")
