@@ -1076,6 +1076,32 @@ class CharmanderRun(BrockJourney):
                 return
             return base_key_door(point, facing, flag)
         self.key_door = key_door
+        def fixed_leg(filename, label):
+            # A trainer notice can consume the scripted press. Walk that cell again.
+            path = midgame.SCENARIOS / filename
+            route = json.loads(path.read_bytes())["routes"][label]
+            self.require(zone_id=self.zone(route["map"]))
+            padding = self.model().padding
+            if self.position() != (route["start"][0] + padding, route["start"][1]):
+                raise ProtocolError("fixed script entry differs: " + label + ":" + str(self.position()))
+            self.summary.setdefault("fixed_scripts", []).append(dict(
+                script=filename, route=label, sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+            for number, step in enumerate(route["steps"]):
+                wait = "18" if step["kind"] == "ledge" else "10"
+                self.send("press " + step["direction"], "wait " + wait)
+                self.drain()
+                target = route.get("destination")
+                arrived = (step["to"][0] + padding, step["to"][1])
+                if not (target and number == len(route["steps"]) - 1 and self.state["zone_id"] == self.zone(target)):
+                    if self.position() != arrived:
+                        self.send("press " + step["direction"], "wait " + wait)
+                        self.drain()
+                if target and number == len(route["steps"]) - 1:
+                    self.require(zone_id=self.zone(target))
+                elif self.position() != arrived:
+                    raise ProtocolError("fixed source script step failed: " + label + ":" + str(step))
+            self.refresh_world()
+        self.fixed_leg = fixed_leg
         self.refresh_world = vermilion.VermilionJourney.refresh_world.__get__(self, type(self))
         self.require_event = lambda stable: None
         base_project = self.project_warp
