@@ -1069,6 +1069,13 @@ class CharmanderRun(BrockJourney):
         self.event_map = vermilion.VermilionJourney.event_map.__get__(self, type(self))
         self.collection_owner = vermilion.VermilionJourney.collection_owner.__get__(self, type(self))
         self.species_count = midgame.MidgameJourney.species_count
+        base_key_door = self.key_door
+        def key_door(point, facing, flag):
+            # face() presses the direction. An open door would take that step.
+            if self.flag(flag):
+                return
+            return base_key_door(point, facing, flag)
+        self.key_door = key_door
         self.refresh_world = vermilion.VermilionJourney.refresh_world.__get__(self, type(self))
         self.require_event = lambda stable: None
         base_project = self.project_warp
