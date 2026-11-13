@@ -1409,3 +1409,33 @@ only 0 and 255: `20261112T213834Z-route22-rival.mp4` and
 `20261112T214238Z-route22-rival.mp4` (2692 frames, 89.8 seconds, the
 attempt that reached Alakazam). This ffmpeg's libx264 stores that
 encode as `yuvj420p`; the decoded frame is still the 1-bit panel.
+
+## Potion menu and clip encode
+
+A Hyper Potion chosen after FIGHT was already inside the move list, so
+the command loop selected Razor Leaf or Double Edge and never opened
+the bag. `leave_move_menu_for_item` presses B first and returns to
+FIGHT/BAG/POKEMON/RUN. The item is used on the next command.
+`tools/tests/test_lane_b_harness.py` covers that check.
+
+ffmpeg exit 243 used to raise `CalledProcessError` from the clip
+encode, and the fight returned before the post-battle Pause-Save.
+`battle_continues_after_clip` is true for every status, including 0
+and 243. The failure is logged and the battle save still runs.
+
+Sequence 344 is the Pause-Save on Route 2 `(3, 11)` facing up,
+sha256
+`6009671d35813566cff45df574ad867322f686318f84293ac2bb5ac25c0423c2`
+(`seq344-adventure.a.json`). Venusaur is 58, 182/182, xp 190041,
+Razor Leaf 23. Money is 1404. `hyperPotion` is 3. `fullHeal` is 1.
+`revive` is 0. The blackout checkpoint is Viridian City `(23, 26)`
+facing down. Bellsprout's moves are Cut, Growth, Wrap, and Sleep
+Powder. `EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE` is unset. The walk
+that wrote it passed the Viridian Forest north gate at sequence 341,
+sha256
+`ad9bafbbde3b1873aaaa2d2c9b5587eeb987e8a07e68e242e9c11b935462090e`.
+
+The Route 22 losses are the pokered `Rival2Data` party for a
+Bulbasaur starter: Pidgeot 47, Rhyhorn 45, Exeggcute 45, Gyarados 47,
+Alakazam 50, Charizard 53. Charizard's Flamethrower is the knockout.
+That party is not an engine bug.
