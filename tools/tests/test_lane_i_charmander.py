@@ -1059,15 +1059,33 @@ class CharmanderRun(BrockJourney):
         def advance_event(stop_phase=None):
             phase = lookup(self.state, "event.phase")
             if (self.state.get("root") == "event"
-                    and lookup(self.state, "event.menu.active") is True
-                    and phase in {"hideout-floor", "silph-floor"}):
-                options = sequence(lookup(self.state, "event.menu.options"), "elevator options")
-                choice = getattr(self, "floor_choice", None)
-                if choice is None or options.count(choice) != 1:
-                    raise ProtocolError("unplanned actual elevator menu: " + str(options))
-                self.select("event.menu.selected", options.index(choice) + 1)
-                self.send("press a")
-                return True
+                    and lookup(self.state, "event.menu.active") is True):
+                options = sequence(lookup(self.state, "event.menu.options"), "event options")
+                if phase == "celadon-menu":
+                    choices = getattr(self, "celadon_choices", None)
+                    if not choices:
+                        raise ProtocolError("unplanned Celadon menu: " + str(options))
+                    choice = choices.pop(0)
+                    if options.count(choice) != 1:
+                        raise ProtocolError("fixed Celadon choice absent: " + choice + ": " + str(options))
+                    self.select("event.menu.selected", options.index(choice) + 1)
+                    self.send("press a")
+                    return True
+                if phase in {"hideout-floor", "silph-floor"}:
+                    choice = getattr(self, "floor_choice", None)
+                    if choice is None or options.count(choice) != 1:
+                        raise ProtocolError("unplanned actual elevator menu: " + str(options))
+                    self.select("event.menu.selected", options.index(choice) + 1)
+                    self.send("press a")
+                    return True
+                event = lookup(self.state, "event.id")
+                choice = getattr(self, "event_choices", {}).get(event)
+                if choice is not None:
+                    if options.count(choice) != 1:
+                        raise ProtocolError("source service menu differs: " + str(event) + ": " + str(options))
+                    self.select("event.menu.selected", options.index(choice) + 1)
+                    self.send("press a")
+                    return True
             return base_advance(stop_phase)
         self.advance_event = advance_event
         self._post_rainbow = True
