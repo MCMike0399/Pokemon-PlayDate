@@ -14,6 +14,7 @@ import subprocess
 import sys
 import threading
 import time
+import traceback
 import unittest
 import uuid
 from pathlib import Path
@@ -1475,6 +1476,11 @@ class CharmanderRun(BrockJourney):
             name, dest = connection_projection(self.models, self.model(), self.position(), "right")
             self.cross("right", name, dest)
             self.require(zone_id=self.zone("LavenderTown"))
+        self._reach_route13()
+        self.enter_route14_from_east()
+        self.finish_eastern_road_to_fuchsia()
+        self.heal_here("FuchsiaPokecenter")
+        self.save()
 
     def _through_route8_gate(self):
         """The west gate splits Route 8. The road continues on the far side."""
@@ -1482,11 +1488,6 @@ class CharmanderRun(BrockJourney):
             return
         self.warp(self.zone("Route8Gate"), "pokered:ROUTE_8:warps:1")
         self.warp(self.zone("Route8"), "pokered:ROUTE_8_GATE:warps:3")
-        self._reach_route13()
-        self.enter_route14_from_east()
-        self.finish_eastern_road_to_fuchsia()
-        self.heal_here("FuchsiaPokecenter")
-        self.save()
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
@@ -2621,6 +2622,7 @@ def play(output, probe=False, resume_save=None):
             except BaseException as error:
                 summary["ok"] = False
                 summary["error"] = str(error)
+                summary["trace"] = traceback.format_exc(limit=15)
                 summary["last"] = {
                     "root": run.state.get("root"),
                     "zone": run.state.get("zone"),
