@@ -109,6 +109,10 @@ function FieldTravelRuntime.fly(game, expected, plan)
         if target == previous.zone then
             target:detachView(previous.view)
         end
+        -- The origin view object stays for rollback. Its atlas does not: the
+        -- destination inflate fails while both bitmaps are live.
+        if previous.view and previous.view.releaseBitmaps then previous.view:releaseBitmaps() end
+        collectgarbage("collect")
         currentZone = target
         view = setmetatable({}, WorldView)
         view:init(target)
@@ -164,7 +168,9 @@ function FieldTravelRuntime.fly(game, expected, plan)
             undoWorld()
         end
         undoRuntime()
+        collectgarbage("collect")
         if previous.view and not previous.view.disposed then
+            if previous.view.ensureBitmaps then previous.view:ensureBitmaps() end
             previous.zone:attachView(previous.view)
         end
         game.camera:apply()

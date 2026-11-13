@@ -51,6 +51,12 @@ function WorldView:init(zone, options)
     self.imageCount = zone.registry:maxID()
     self.animTiles = animatedTiles()
     self.animTick, self.animStep = 0, 0
+    -- Cell probes sample the image table. A full tilemap bitmap is the
+    -- malloc that large isolated maps cannot pay for beside the catalogue.
+    if options.cellsOnly then
+        zone:attachView(self)
+        return
+    end
     self.tilemap = gfx.tilemap.new()
     self.tilemap:setImageTable(self.images)
     self.tilemap:setSize(zone.width, zone.height)
@@ -71,6 +77,42 @@ function WorldView:init(zone, options)
     self.sprite:setZIndex(-1)
     zone:attachView(self)
     if self.attached then
+        self.sprite:add()
+    end
+end
+function WorldView:releaseBitmaps()
+    if self.disposed or not self.tilemap then return end
+    -- The sprite retains the tilemap bitmap. Remove it before the next
+    -- city's atlas inflates, and keep this view object for rollback.
+    if self.sprite then
+        self.sprite:remove()
+        self.sprite = nil
+    end
+    self.tilemap = nil
+    self.images = nil
+    self.cellScratch = nil
+end
+function WorldView:ensureBitmaps()
+    if self.disposed or self.tilemap then return end
+    self.images = generateTileImages(self.zone.registry)
+    self.imageCount = self.zone.registry:maxID()
+    self.animTiles = self.animTiles or animatedTiles()
+    self.tilemap = gfx.tilemap.new()
+    self.tilemap:setImageTable(self.images)
+    self.tilemap:setSize(self.zone.width, self.zone.height)
+    local tileIDs = {}
+    for y = 1, self.zone.height do
+        for x = 1, self.zone.width do
+            tileIDs[#tileIDs + 1] = self.zone.tiles[y][x]
+        end
+    end
+    self.tilemap:setTiles(tileIDs, self.zone.width)
+    self.sprite = gfx.sprite.new()
+    self.sprite:setTilemap(self.tilemap)
+    self.sprite:setCenter(0, 0)
+    self.sprite:moveTo(0, 0)
+    self.sprite:setZIndex(-1)
+    if self.attached ~= false then
         self.sprite:add()
     end
 end
@@ -178,7 +220,7 @@ function WorldView:renderCell(x, y)
 end
 function WorldView:dispose()
     if self.disposed then return end
-    self.sprite:remove()
+    if self.sprite then self.sprite:remove() end
     self.zone:detachView(self)
     -- The sprite and tilemap own the map's bitmap. Drop those references
     -- before the next city allocates its own, or both images sit in the pool.
