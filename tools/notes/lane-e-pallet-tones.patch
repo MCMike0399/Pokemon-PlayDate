@@ -1,22 +1,28 @@
 diff --git a/Source/world/tileRegistry.lua b/Source/world/tileRegistry.lua
-index 4aacca68..b844c58e 100644
+index 4aacca68..e8f1cef3 100644
 --- a/Source/world/tileRegistry.lua
 +++ b/Source/world/tileRegistry.lua
-@@ -153,6 +153,69 @@ local function compiledTerrainImage(rows, policy, renderer, sourceKey)
+@@ -153,6 +153,81 @@ local function compiledTerrainImage(rows, policy, renderer, sourceKey)
      return image:copy()
  end
  
-+-- Pallet mockup C, per source tile. Open ground (tile $23) is a light patchy
-+-- grass. Tile $39 tufts stay faint. The lab lawn (tile $2C) keeps that tile's
-+-- stipple. These patterns are not Shade.LIGHT and not importedTonePatterns.
-+-- 1-bits are white. $23 is a 15.6% patchy fill. $2C keeps one dark pixel
-+-- in every source cell so its stipple survives. $39 keeps only the middle
-+-- row of each tuft, so those marks stay faint.
-+local PALLET_TONE <const> = {
-+    ["23"] = {0x9F, 0xFF, 0xF3, 0xFF, 0xE7, 0x7F, 0xBF, 0xDD},
-+    ["2c"] = {0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF},
-+    ["39"] = {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xFF, 0xFF, 0xFF},
++-- Pallet mockup C. Tiles $23, $39 and $2C share one diagonal grass field.
++-- The open center of town, including this comparison window, is the
++-- 192-black-pixel cell (18.8%). A lighter 78-pixel variant of the same
++-- stroke sits on the town border; one tile override cannot select both.
++-- 1-bits in PALLET_GROUND are black. This is not Shade.LIGHT and not
++-- importedTonePatterns. Other quadrants keep the approved Bayer shades.
++local PALLET_GROUND <const> = {
++    0x888A888A, 0x44444444, 0x20222022, 0x00000000,
++    0x80A880A8, 0x40444044, 0x22A222A2, 0x00000000,
++    0x8A888A88, 0x44444444, 0x220A220A, 0x00000000,
++    0x08280828, 0x04040404, 0x2AA22AA2, 0x00000000,
++    0x888A888A, 0x44444444, 0x20222022, 0x00000000,
++    0x80A880A8, 0x40444044, 0x22A222A2, 0x00000000,
++    0x8A888A88, 0x44444444, 0x220A220A, 0x00000000,
++    0x08280828, 0x04040404, 0x2AA22AA2, 0x00000000,
 +}
++local PALLET_TONE <const> = { ["23"] = true, ["2c"] = true, ["39"] = true }
 +local function palletQuadrants(sourceKey)
 +    if type(sourceKey) ~= "string" then return nil end
 +    local body = sourceKey:match("^pokered:OVERWORLD:cell:([%da-f]+%-[%da-f]+%-[%da-f]+%-[%da-f]+)$")
@@ -36,10 +42,18 @@ index 4aacca68..b844c58e 100644
 +    for index, id in ipairs(quads) do
 +        local col0 = (index - 1) % 2 * 8
 +        local row0 = (index - 1) // 2 * 8
-+        local pattern = PALLET_TONE[id]
-+        if id == "23" then
-+            gfx.setPattern(pattern, 0, 0)
-+            gfx.fillRect(col0 * 2, row0 * 2, 16, 16)
++        if PALLET_TONE[id] then
++            local qx = (index - 1) % 2
++            local qy = (index - 1) // 2
++            gfx.setColor(gfx.kColorBlack)
++            for y = 0, 15 do
++                local bits <const> = PALLET_GROUND[qy * 16 + y + 1]
++                for x = 0, 15 do
++                    if (bits >> (31 - (qx * 16 + x))) & 1 == 1 then
++                        gfx.drawPixel(qx * 16 + x, qy * 16 + y)
++                    end
++                end
++            end
 +        else
 +            for y = 1, 8 do
 +                local row = rows[row0 + y]
@@ -53,8 +67,6 @@ index 4aacca68..b844c58e 100644
 +                    if shade ~= "." then
 +                        if shade == "#" then
 +                            gfx.setColor(gfx.kColorBlack)
-+                        elseif shade == "1" and pattern then
-+                            gfx.setPattern(pattern, 0, 0)
 +                        else
 +                            gfx.setPattern(shade == "1" and policy.light or policy.dark, 0, 0)
 +                        end
@@ -72,7 +84,7 @@ index 4aacca68..b844c58e 100644
  local tonePolicy
  function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
      if tonePolicy == nil then
-@@ -171,6 +234,10 @@ function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
+@@ -171,6 +246,10 @@ function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
              assert(type(value) == "number" and value % 1 == 0 and value >= 0 and value <= 255, "invalid tone byte")
          end
      end
