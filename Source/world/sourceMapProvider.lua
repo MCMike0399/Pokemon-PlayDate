@@ -79,9 +79,9 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
         ensureKeys(registry, desired.tiles)
         zone:applyDeltas(desired)
     end
-    -- The padded definition and the zone stay referenced. A minor step drops
-    -- the decode temporaries before the caller builds dialogue on top.
-    collectgarbage("step", 1000)
+    -- The padded definition and the zone stay referenced. Finish the
+    -- collection before the caller builds the view or the dialogue on top.
+    collectgarbage("collect")
     return zone
 end
 

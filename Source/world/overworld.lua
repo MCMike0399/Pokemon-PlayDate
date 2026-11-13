@@ -159,11 +159,26 @@ function WorldView:dispose()
     if self.disposed then return end
     self.sprite:remove()
     self.zone:detachView(self)
+    -- The sprite and tilemap own the map's bitmap. Drop those references
+    -- before the next city allocates its own, or both images sit in the pool.
+    self.sprite = nil
+    self.tilemap = nil
+    self.images = nil
     self.disposed = true
 end
 function setupOverworld()
     currentZone:assertEnterable()
-    if activeView then activeView:dispose() end
+    -- A door keeps the source city in the two-slot cache until the destination
+    -- view is built. That city is no longer on screen. Release it, and the
+    -- source view, before the destination tilemap asks for its bitmap.
+    if WorldDeltas and WorldDeltas.releaseInactiveZones then
+        WorldDeltas.releaseInactiveZones()
+    end
+    if activeView then
+        if not activeView.disposed then activeView:dispose() end
+        activeView = nil
+    end
+    collectgarbage("collect")
     activeView = WorldView(currentZone)
 end
 function getOverworldView() return activeView end
