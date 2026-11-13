@@ -1059,7 +1059,8 @@ class CharmanderRun(BrockJourney):
             "wake_snorlax", "enter_route14_from_east",
             "finish_eastern_road_to_fuchsia", "refill_after_route13",
             "event_offer", "restock", "ride_silph", "key_door", "c_gift",
-            "party_is_restored", "ensure_room", "celadon_service",
+            "party_is_restored", "ensure_room", "sell_old_item", "store_unused_items",
+            "celadon_service",
             "return_from_fuchsia_to_route12", "return_from_route12_to_lavender",
             "route_c_guard", "route_c_silph", "route_c_sabrina", "complete_at_center",
         ):
