@@ -14,6 +14,9 @@ local function wire(g)
 end
 
 local function scene(fn)
+    -- The previous Route 2 view is already unreferenced. Collect it before
+    -- this scene copies the screen and builds the next tilemap.
+    collectgarbage("collect")
     local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
     local oldStory, oldRNG, oldOwner = Story.currentContext(), RulesRNG.toData(), GameSession.activeRNGSession()
     local oldWorld = WorldDeltas.export()
@@ -136,8 +139,10 @@ local function scene(fn)
     gfx.setDrawOffset(0, 0)
     screen:draw(0, 0)
     gfx.setDrawOffset(ox, oy)
+    screen = nil
     eq(gfx.sprite.spriteCount(), count)
     eq(WorldTiles:maxID(), ids)
+    collectgarbage("collect")
     if not ok then
         error(problem, 0)
     end
@@ -388,7 +393,8 @@ function FieldWorldContracts.run()
             local world = WorldDeltas.export()
             local d = WorldDeltas.definitionProvider():descriptor(currentZone.stableID)
             local allowed = {}
-            for _, site in ipairs(FieldMoves.data().maps[d.id].sites) do
+            local record = assert(FieldMoves._mapData(d.id), "field map missing")
+            for _, site in ipairs(record.sites) do
                 for _, cell in ipairs(site.cells) do
                     if cell.before ~= cell.after and FieldMoves.tile(cell.before).collision == 1
                         and FieldMoves.tile(cell.after).collision == 0 then
@@ -406,6 +412,7 @@ function FieldWorldContracts.run()
                         checked = checked + 1
                     end
                 end
+                if y % 4 == 3 then collectgarbage("collect") end
             end
             assert(checked>0)
         end)
@@ -541,6 +548,10 @@ function FieldWorldContracts.run()
             local old = SessionFixture.forVersion(saved, 1)
             old.fieldWorld = nil
             old.daycare = nil
+            -- Hall of Fame and play time arrived with the v4 card. The codec
+            -- rejects both on a v1 document. This migration input omits them.
+            old.hallOfFame = nil
+            old.playTime = nil
             local migrated = assert(SessionCodec.decode(old, g:getSessionDependencies()))
             same(migrated:fieldWorldData(), {version = 1, mapPalOffset = 0})
             assert(migrated:fieldWorldEpoch() ~= g.session:fieldWorldEpoch())
