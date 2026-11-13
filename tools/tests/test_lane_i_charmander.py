@@ -1042,9 +1042,10 @@ class CharmanderRun(BrockJourney):
             "event_offer", "restock", "ride_silph", "key_door", "c_gift",
             "party_is_restored", "ensure_room", "celadon_service",
             "return_from_fuchsia_to_route12", "return_from_route12_to_lavender",
-            "route_c_guard", "route_c_silph", "route_c_sabrina",
+            "route_c_guard", "route_c_silph", "route_c_sabrina", "complete_at_center",
         ):
             setattr(self, name, getattr(midgame.MidgameJourney, name).__get__(self, type(self)))
+        self.visit_event = vermilion.VermilionJourney.visit_event.__get__(self, type(self))
         self.refresh_world = vermilion.VermilionJourney.refresh_world.__get__(self, type(self))
         self.require_event = lambda stable: None
         base_project = self.project_warp
