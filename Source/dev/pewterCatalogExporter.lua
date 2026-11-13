@@ -188,9 +188,11 @@ function PewterCatalogExporter.inventory()
         asset("tile_imported_"..VisualCatalog.stableName(key),32,32,"imported-tile",false)
     end end
     for _,name in ipairs(PewterSlice.names()) do
-        local d=PewterSlice.descriptor(name)
+        local frame=SourceMaps.descriptor(name)
+        local width,height=frame.width,frame.height
+        if GameBootstrap then GameBootstrap.yieldIfDue() end
         for _,kind in ipairs({"terrain","collision","actors","events"}) do
-            add("pewter-"..name.."-"..kind,d.width*32,d.height*32,kind=="events" and "events-warps-connections" or kind)
+            add("pewter-"..name.."-"..kind,width*32,height*32,kind=="events" and "events-warps-connections" or kind)
         end
         add("pewter-"..name.."-viewport",400,240,"map-viewport")
     end

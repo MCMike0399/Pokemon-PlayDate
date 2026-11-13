@@ -4,11 +4,27 @@ Contracts = {}
 local suites = {}
 
 -- A bounded checkpoint survives a native SDK stall before the final reply.
-function Contracts.progress(suite, name, status)
+function Contracts.progress(suite, name, status, counts)
     if not HarnessBuild or not HarnessBuild.enabled then return end
+    -- playdate.file.open allocates from the same pool as Lua. Once the heap
+    -- is near 13.9 MiB the open sits in poll until the request times out
+    -- instead of raising "not enough memory". Drop publication copies and
+    -- collect before the checkpoint so the aggregate can keep going. Every
+    -- registered suite still runs.
+    if SessionCodec and SessionCodec.relieveHeap then
+        SessionCodec.relieveHeap()
+    else
+        collectgarbage("collect")
+    end
+    local row = {suite=suite,name=name,status=status,
+        time_ms=playdate.getCurrentTimeMilliseconds(),heap_kib=collectgarbage("count")}
+    if type(counts) == "table" then
+        row.ok = counts.ok == true
+        row.passed = counts.passed
+        row.failed = counts.failed
+    end
     local file = assert(playdate.file.open("contract-progress.tmp", playdate.file.kFileWrite))
-    file:write(json.encode({suite=suite,name=name,status=status,
-        time_ms=playdate.getCurrentTimeMilliseconds(),heap_kib=collectgarbage("count")}))
+    file:write(json.encode(row))
     file:close()
     assert(playdate.file.rename("contract-progress.tmp","contract-progress.json"))
 end
@@ -17,6 +33,24 @@ function Contracts.register(name, run)
     assert(type(name) == "string" and type(run) == "function", "contract suite requires a name and function")
     for _, suite in ipairs(suites) do assert(suite.name ~= name, "duplicate contract suite: " .. name) end
     suites[#suites + 1] = { name = name, run = run }
+end
+local suiteCodeReleased = false
+-- The catalog export builds every image declaration in one pass. The contract
+-- modules are already registered and are not read by that export. Their
+-- closures hold about 3.3 MiB, which is the difference between the inventory
+-- fitting and dying at "not enough memory". Releasing them is process-local:
+-- the catalog command does not run suites afterward.
+function Contracts.releaseSuiteCode()
+    if suiteCodeReleased then return end
+    suiteCodeReleased = true
+    for _, suite in ipairs(suites) do suite.run = nil end
+    for key, value in pairs(_G) do
+        if type(key) == "string" and type(value) == "table" and key:find("Contract", 1, true) and key ~= "Contracts" then
+            _G[key] = nil
+        end
+    end
+    collectgarbage("collect")
+    collectgarbage("collect")
 end
 local function equal(actual, expected, label)
     assert(actual == expected, (label or "value") .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
@@ -393,7 +427,13 @@ function Contracts.run(only)
         report.suites[#report.suites + 1] = executed
         Contracts.progress(suite.name,nil,"running")
         local ok, child = pcall(suite.run)
-        Contracts.progress(suite.name,nil,"returned")
+        -- Counts ride on the checkpoint that already fits. The later scored
+        -- open can sit in poll once the heap is near 13.9 MiB.
+        local early = nil
+        if ok and type(child) == "table" then
+            early = {ok = child.ok == true, passed = child.passed, failed = child.failed}
+        end
+        Contracts.progress(suite.name, nil, "returned", early)
         if not ok then
             test(suite.name .. ": execution", function() error(child) end)
         elseif type(child) ~= "table" or type(child.tests) ~= "table" or #child.tests == 0 then
@@ -413,6 +453,10 @@ function Contracts.run(only)
                 test(suite.name .. ": report", function() error("inconsistent contract totals") end)
             end
         end
+        -- The score is on disk before the result snapshot. A stalled reply
+        -- still leaves passed/failed for the timeout to record.
+        Contracts.progress(suite.name, nil, "scored", executed)
+        child = nil
     end
     RulesRNG.restore(savedRNG)
     playdate.display.setOffset(savedOffsetX, savedOffsetY)

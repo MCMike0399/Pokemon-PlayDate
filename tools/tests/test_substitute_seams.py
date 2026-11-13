@@ -72,10 +72,11 @@ class SubstituteSeamTests(unittest.TestCase):
         names = ['Source/data/pokemon.lua', 'Source/domain/sessionCodec.lua',
                  'Source/domain/pokemonCodec.lua', 'Source/data/sourceMaps.json']
         pins = {
-            # f81016bf keeps the v4 codec and adds the play-time clock.
-            'Source/domain/sessionCodec.lua': 'f81016bf',
-            # 68ff3b1f installs the remaining source maps. Its blob matches this tree.
-            'Source/data/sourceMaps.json': '68ff3b1f',
+            # db83fbfd is version 5: names, nickname glyphs, and wFossilItem.
+            'Source/domain/sessionCodec.lua': 'db83fbfd',
+            'Source/domain/pokemonCodec.lua': 'db83fbfd',
+            # a7347868 places the Mew scientist and regenerates the map pin.
+            'Source/data/sourceMaps.json': 'a7347868',
         }
         for name in names:
             expected = (subprocess.check_output(['git', 'show', pins[name] + ':' + name], cwd=ROOT)

@@ -163,8 +163,15 @@ local function eevee(state)
         labels[#labels + 1] = "_SentToBoxText"
     end
     state:source(labels, function()
-        CeladonServices.reconcileActors(state.game)
-        state:finish()
+        local function leave()
+            CeladonServices.reconcileActors(state.game)
+            state:finish()
+        end
+        if Story and Story.promptNickname and result.mon then
+            Story.promptNickname(state.game, result.mon, "EEVEE", leave)
+        else
+            leave()
+        end
     end)
 end
 local function coins(state)

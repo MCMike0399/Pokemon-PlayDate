@@ -98,10 +98,21 @@ function FieldTravelRuntime.fly(game, expected, plan)
         assert(key, "Fly destination not installed")
         target = assert(WorldDeltas.ensureZone(key))
         target:assertEnterable()
+        -- The departing view stays referenced for rollback. Pin the destination
+        -- so the inactive release can drop every other cached city first.
+        local provider = WorldDeltas.definitionProvider()
+        local unpin = provider and provider.owns and provider:owns(target) and provider:pin(target)
+        WorldDeltas.releaseInactiveZones()
+        collectgarbage("collect")
+        if unpin then unpin() end
         -- Same-city Fly must also stage a replacement view without disposing it.
         if target == previous.zone then
             target:detachView(previous.view)
         end
+        -- The origin view object stays for rollback. Its atlas does not: the
+        -- destination inflate fails while both bitmaps are live.
+        if previous.view and previous.view.releaseBitmaps then previous.view:releaseBitmaps() end
+        collectgarbage("collect")
         currentZone = target
         view = setmetatable({}, WorldView)
         view:init(target)
@@ -157,7 +168,9 @@ function FieldTravelRuntime.fly(game, expected, plan)
             undoWorld()
         end
         undoRuntime()
+        collectgarbage("collect")
         if previous.view and not previous.view.disposed then
+            if previous.view.ensureBitmaps then previous.view:ensureBitmaps() end
             previous.zone:attachView(previous.view)
         end
         game.camera:apply()

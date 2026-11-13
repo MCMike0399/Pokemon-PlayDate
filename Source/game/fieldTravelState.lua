@@ -204,6 +204,9 @@ function FieldTravelState:update()
             self.fieldEpoch = self.session:fieldWorldEpoch()
             if result and result.ok then
                 self.game.lastFieldTravel = {key = "surf", kind = "complete", mode = self.session:fieldTravelData().mode}
+                if KantoAudio and KantoAudio.setTraversal then
+                    KantoAudio.setTraversal(self.game.lastFieldTravel.mode)
+                end
                 self.game.session:daycareStep()
                 if SafariRuntime then
                     SafariRuntime.completedStep(self.game, self)

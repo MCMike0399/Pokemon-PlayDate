@@ -108,7 +108,9 @@ function SessionContracts.run()
         local changes={
             function(d) d.version=SessionCodec.VERSION+1 end,
             function(d) d.pokemonEncoding="unknown" end,
-            function(d) d.title.playerName="ASH" end,
+            -- PLAYER_NAME_LENGTH is 8 including the terminator, so 7 glyphs fit.
+            -- ASH is a legal name. Eight glyphs are still rejected.
+            function(d) d.title.playerName="ABCDEFGH" end,
             function(d) d.intro.rivalStarter="bulbasaur" end,
             function(d) d.questFlags.bad=1 end,
             function(d) d.trainerFlags["bad key"]=true end,

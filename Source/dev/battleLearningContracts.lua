@@ -69,15 +69,34 @@ end
 -- that move. The confirmation text is _AbandonLearningText ("Abandon learning"
 -- plus the move name and "?"), not a later-generation "Stop learning" line.
 local function dismissLearningMessage(game, learning)
-    for _ = 1, 6 do
+    -- A finishes the typewriter. The complete page then stays up for 10
+    -- frames, which is MESSAGE_MIN_FRAMES / WaitForTextScrollButtonPress,
+    -- before a later A can turn it. Each wrapped page has to clear that hold.
+    for _ = 1, 8 do
+        if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+            return
+        end
         eq(game.machine:getCurrent(), "learning")
         eq(learning.phase, "message")
         Autopilot.beginFrame()
         Autopilot.step({"press", "a"}, game)
         game.machine:handleInput()
+        for _ = 1, 12 do
+            if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+                return
+            end
+            Autopilot.beginFrame()
+            game.machine:handleInput()
+        end
         if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
             return
         end
+        Autopilot.beginFrame()
+        Autopilot.step({"press", "a"}, game)
+        game.machine:handleInput()
+    end
+    if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+        return
     end
     error("learning message did not end")
 end
@@ -105,9 +124,10 @@ local function declineByButtons(game, learning, seen)
     game.machine:handleInput()
     eq(learning.phase, "message")
     eq(learning.messageKind, "declined")
-    local text = table.concat(learning.dialog.lines, "\n")
-    assert(text:find("did not learn", 1, true), text)
-    assert(text:find(moveData[move].name, 1, true), text)
+    -- data/text/text_4.asm _DidNotLearnText: name, then "did not learn",
+    -- then `cont` scrolls that row up and prints the move.
+    eq(learning.dialog.lines[1], learning.pokemon.name .. "\ndid not learn")
+    eq(learning.dialog.lines[2], "did not learn\n" .. moveData[move].name .. "!")
     eq(#learning.pokemon:getPendingMoveChoices(), before - 1)
     for _, choice in ipairs(learning.pokemon:getPendingMoveChoices()) do
         eq(choice.id == id, false, "declined choice still pending")

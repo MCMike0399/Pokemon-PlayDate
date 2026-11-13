@@ -74,6 +74,26 @@ function Inventory:quantity(id)
     for _, slot in ipairs(states[self].slots) do if slot.id == id then n = n + slot.quantity end end
     return n
 end
+-- Same acceptance rules as add, without copying the bag or the catalog.
+function Inventory:canAdd(id, quantity)
+    local state = states[self]
+    local definition = state.definitions[id]
+    if not definition then return false, "unknown-item" end
+    if not integer(quantity, 1, Inventory.STACK_LIMIT) then return false, "invalid-quantity" end
+    if definition.keyItem and (quantity ~= 1 or self:quantity(id) > 0) then return false, "unique-key-item" end
+    local left = quantity
+    for _, slot in ipairs(state.slots) do
+        if slot.id == id then
+            local room = Inventory.STACK_LIMIT - slot.quantity
+            local add = room > 0 and math.min(left, room) or 0
+            left = left - add
+        end
+    end
+    if left <= 0 then return true end
+    local stacks = math.floor((left + Inventory.STACK_LIMIT - 1) / Inventory.STACK_LIMIT)
+    if stacks > Inventory.CAPACITY - #state.slots then return false, "bag-full" end
+    return true
+end
 function Inventory:add(id, quantity)
     local state = states[self]
     local definition = state.definitions[id]

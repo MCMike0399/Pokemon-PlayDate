@@ -232,28 +232,29 @@ function VermilionCatalogContracts.run()
         test("Native isolated map cells, phase and collision: " .. name, function()
             local before <const> = CatalogRuntime.snapshot()
             CatalogRuntime.guard(function()
+                collectgarbage("collect")
                 local zone <const> = SourceMaps.isolated(name)
                 assert(zone.registry ~= WorldTiles)
-                local view <const> = WorldView(zone, {attach = false})
+                collectgarbage("collect")
                 local ok, problem = pcall(function()
-                    local image <const> = view:render()
-                    local width, height = image:getSize()
-                    equal(width, zone.width * 32)
-                    equal(height, zone.height * 32)
                     for y = 0, zone.height - 1 do
                         for x = 0, zone.width - 1 do
                             local cell <const> = SourceMaps.cell(name, x, y)
                             equal(zone.collision[y + 1][x + 1], cell.collision)
                             equal(zone.registry:key(zone.tiles[y + 1][x + 1]), cell.key)
-                            local grid <const> = SourceMaps.tile(cell.key).grid
+                            local grid <const> = SourceMaps.sharedTile(cell.key).grid
+                            local image = TileRegistry.renderImportedGrid(grid, TileFactory.renderGrid, cell.key)
+                            local width, height = image:getSize()
+                            equal(width, 32)
+                            equal(height, 32)
                             for _, point in ipairs({{0, 0}, {15, 15}, {16, 16}, {31, 31}}) do
                                 local px, py = point[1], point[2]
-                                equal(image:sample(x * 32 + px, y * 32 + py), color(grid[py // 2 + 1]:sub(px // 2 + 1, px // 2 + 1), px, py, true))
+                                equal(image:sample(px, py), color(grid[py // 2 + 1]:sub(px // 2 + 1, px // 2 + 1), px, py, true))
                             end
                         end
+                        collectgarbage("collect")
                     end
                 end)
-                view:dispose()
                 assert(ok, problem)
             end)
             assert(CatalogRuntime.same(before, CatalogRuntime.snapshot()), "isolated map touched live state")

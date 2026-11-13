@@ -125,7 +125,7 @@ function LearningState:nextChoice()
             local result=self:resolveChoice("learn")
             self.results[#self.results+1]=result
             self:message({result.kind=="failed" and "That machine could not be used."
-                or self.pokemon.name.." learned "..moveData[self.pendingMove].name.."!"},result.kind)
+                or self.pokemon.name.." learned\n"..moveData[self.pendingMove].name.."!"},result.kind)
         else self:showAsk() end
         return
     end
@@ -141,8 +141,9 @@ function LearningState:nextChoice()
             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
         elseif #self.pokemon.moves < 4 then
             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
-            -- data/text/text_4.asm _LearnedMove1Text, printed by PrintLearnedMove.
-            self:message({self.pokemon.name .. " learned " .. moveData[choice.move].name .. "!"}, "learned")
+            -- data/text/text_4.asm _LearnedMove1Text: the name and " learned"
+            -- fill the first row, and `line` puts the move and "!" on the second.
+            self:message({self.pokemon.name .. " learned\n" .. moveData[choice.move].name .. "!"}, "learned")
             return
         else
             self:showAsk()
@@ -185,7 +186,11 @@ function LearningState:showStopConfirmation()
         if index == 2 then self:showAsk(); return end
         local result = self:resolveChoice("decline")
         self.results[#self.results + 1] = result
-        self:message({self.pokemon.name .. " did not learn " .. moveData[self.pendingMove].name .. "!"}, "declined")
+        -- data/text/text_4.asm _DidNotLearnText. The name is the first row,
+        -- `line` prints "did not learn", and `cont` scrolls that row up
+        -- before the move name and "!".
+        self:message({self.pokemon.name .. "\ndid not learn",
+            "did not learn\n" .. moveData[self.pendingMove].name .. "!"}, "declined")
     end), self:guard(function() self:showAsk() end))
 end
 
@@ -226,8 +231,9 @@ function LearningState:showConfirmation()
         local result = self:resolveChoice("learn", self.slot)
         self.results[#self.results + 1] = result
         if result.kind=="failed" then self:message({"That machine could not be used."},"failed");return end
-        self:message({self.pokemon.name .. " forgot " .. moveData[result.forgotten].name .. ".",
-            self.pokemon.name .. " learned " .. moveData[result.move].name .. "!"}, "learned")
+        -- _ForgotAndText ends the move with "!". _LearnedMove1Text is the next page.
+        self:message({self.pokemon.name .. " forgot\n" .. moveData[result.forgotten].name .. "!",
+            self.pokemon.name .. " learned\n" .. moveData[result.move].name .. "!"}, "learned")
     end), self:guard(function() self:showReplacement(self.slot) end))
 end
 

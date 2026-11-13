@@ -282,11 +282,11 @@ local function normalize(value)
         valid = true
     elseif op == "battle" then valid = pokemonData[args[1]] and integer(args[2], 1, 100) and #args == 2
     elseif op == "warp" then valid = integer(args[1], 0, 10000) and integer(args[2], 0, 10000) and #args == 2
-    elseif op == "contracts" then
+    elseif op == "contracts" or op == "catalog" then
         valid = #args == 0 or (#args == 1 and type(args[1]) == "string"
             and args[1]:match("^[%w_%-]+$") ~= nil)
     elseif op == "snapshot" or op == "gamestate" or op == "state" or op == "pokemon"
-        or op == "dismiss" or op == "atlas" or op == "catalog" or op == "quiesce" then
+        or op == "dismiss" or op == "atlas" or op == "quiesce" then
         valid = #args == 0
     end
     assert(valid, "invalid command: " .. op)
@@ -482,7 +482,7 @@ function Harness.beforeFrame(game)
         elseif command.op == "snapshot" or command.op == "shot" then complete = true
         elseif command.op == "catalog" then
             assert(VisualCatalog, "visual catalog unavailable")
-            Autopilot.catalog = VisualCatalog.write(config.output_dir)
+            Autopilot.catalog = VisualCatalog.write(config.output_dir, command.parts[2])
             complete = true
         elseif command.op == "contracts" then
             assert(Contracts, "contracts unavailable")

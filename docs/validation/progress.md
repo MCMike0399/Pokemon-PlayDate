@@ -1,5 +1,945 @@
 # Full-game execution ledger
 
+## 2026-11-13 Empty-box encode collection, gates, and the queued handoffs
+
+`main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added. `Source/dev/sessionFixture.lua` was not edited. Daycare still fails on Miguel's fixture: `legacy session cannot contain a hall of fame record` at `daycareContracts.lua:383` and `:409`.
+
+`9fb424d6` skips the PC encode collection when a box is empty. Occupied boxes still collect on even indexes. The Vermilion journey pin matches that storage hash. `21cfc01f` nests the coverage snapshot for that tree. No row was relabeled. Four unscored edits are stashed, not committed: the terrain-atlas collect in `Source/world/tileRegistry.lua`, the source-map scope collect, the Cerulean inventory switch to `sharedDefinition`, and the Vermilion catalog step collection.
+
+A clean harness boot, evidence `/tmp/pokemon-boot-final`, reached `title.visible` at sequence 46, 1089 ms, and `initialize.ready` at sequence 377, 10680 ms. Sampled peak 12820.637 KiB. `tools/measure_boot_budget.py` printed BUDGET PASS.
+
+`python3 -m unittest discover -s tools/tests` ran 1368 tests in 158.072 seconds: 6 failures, 6 errors, 11 skipped. `tools/build.py --output /tmp/PokemonPoC.pdx --stage /tmp/prod-stage-lane-e-final` exited 1 with `transform dependency changed: domain/party.lua`. The Kanto pin also differs for `game/sourceEvents.lua`, `data/ceruleanContent.lua`, `world/sourceMaps.lua`, and `domain/party.lua`. Neither provenance file was hand-edited.
+
+The device suites below are one fresh Simulator each, on `21cfc01f`. 109 passed. 20 did not. `source-events` and `vermilion-gifts` never left `running` (command timed out; the gifts Simulator died before a score). `vermilion-catalog` was OOM-killed during startup (`exit 143`) and has no child score.
+
+| suite | result | passed | failed | heap KiB | session |
+| --- | --- | --- | --- | --- | --- |
+| learnsets | pass | 14 | 0 | 13021.038 | `22cb5e45216349cdafc17d5eaaf756d1` |
+| collections | pass | 9 | 0 | 12599.067 | `ce605743fab54bf49ce3e546aed58a4f` |
+| learning | pass | 12 | 0 | 12595.652 | `7145fa7b8c524f419d4f89bff163c4f5` |
+| persistence | fail | 25 | 1 | 12759.912 | `5aeb7e328a8b4a13be86e468fdd5603c` |
+| combat | pass | 34 | 0 | 12736.329 | `137ccc2b746f42c5bcf4a92419346ddd` |
+| rng-persistence | pass | 14 | 0 | 12587.212 | `7bf64205df65434e8ea5a653e0981302` |
+| world | fail | 15 | 1 | 12886.805 | `db6d456686d843b4b3053d28bd4a48a8` |
+| growth | pass | 14 | 0 | 13000.827 | `2a03cbfa6c2b415b8ac74e27956ee65b` |
+| items | pass | 25 | 0 | 12629.344 | `e705c57cefe14279a61c1e31beb6cb30` |
+| session | pass | 11 | 0 | 12623.536 | `85a62d871c324d66b97d86052ee61802` |
+| capture | pass | 16 | 0 | 12659.575 | `9df5e34f2835416ca1a59d1b7d6f1604` |
+| viridian-slice | fail | 12 | 2 | 12849.564 | `f6e00d5fbc374956a1296c26b53f0d91` |
+| session-bridge | pass | 9 | 0 | 12613.633 | `2e32be70e94448e29e168d559702155d` |
+| party-battle | pass | 27 | 0 | 13055.112 | `9dd56d94973a4ac99c958117ce08cce2` |
+| shop | pass | 12 | 0 | 12590.295 | `a1521c553ab54dc3848017d8b1b117cb` |
+| capture-animation | fail | 12 | 1 | 12588.005 | `371cc803a30c456b8f555d7f91190f7e` |
+| traversal | pass | 11 | 0 | 12934.505 | `ef5486b161564f4cb65d2a16f80a0c6c` |
+| event-ui | pass | 22 | 0 | 12979.794 | `a87bde817bd049ad9a08c8b7a9f097ad` |
+| event-catalog | pass | 2 | 0 | 13119.946 | `ee43e7f8cc07420b81ddd6815d4dc969` |
+| pokedex | pass | 10 | 0 | 12744.767 | `f5f8a933689f463d8293e87bc2f97715` |
+| early-combat | pass | 23 | 0 | 12699.342 | `eb502e1372254541ab3a69da822c8987` |
+| runtime-art | pass | 3 | 0 | 13338.900 | `629f32f39953420f9d27ac98d959d897` |
+| pc-ui | pass | 17 | 0 | 12704.769 | `01655e14b9ed439aba38b687db9d3b36` |
+| evolution | pass | 27 | 0 | 12865.645 | `932c34b2f5e344bf8ed3be31e0d1827d` |
+| healing-composition | pass | 6 | 0 | 13070.552 | `bbb3f55007db4b2cbcd6df2d396d1669` |
+| trainerContracts | pass | 10 | 0 | 12733.574 | `255d61f8321e4157b6f2f8ff4b1b426f` |
+| pewterProviderContracts | fail | 7 | 4 | 12945.145 | `1b0cf08349de4ca08765734c2f3f45b3` |
+| pewterInstallContracts | fail | 0 | 1 | 12796.099 | `c243d289ea0a4a5586597c54238c1295` |
+| eventReceiptContracts | pass | 1 | 0 | 12781.475 | `0b78e83c8290493d95e20d5c03111a26` |
+| battleLearningContracts | pass | 21 | 0 | 12628.607 | `3c21b811251e442f8a241e79fd65011e` |
+| battleLearningEvolutionContracts | pass | 2 | 0 | 12619.436 | `a819093ff05e4c8e8b0d474c26696ed1` |
+| battle-items | pass | 9 | 0 | 12638.939 | `e7bc76268b764e838725bd613cfa3acc` |
+| native-condition-witness | pass | 2 | 0 | 12598.892 | `f4b807e6879242f5bd4179463b18e4a4` |
+| condition-checkpoints-v1 | pass | 8 | 0 | 12602.846 | `c3e98418fe6a459b89bc675d6fb4a1f8` |
+| battle-rewards-v1 | pass | 27 | 0 | 12695.625 | `8e4beb71c7494e65a06fca7ee925bb63` |
+| individual-stats-v1 | pass | 17 | 0 | 13050.125 | `de4d04df474c46b8a8f4e3780e5527b0` |
+| specimenContracts | pass | 21 | 0 | 13048.389 | `9f2458518bda44339097bfe99114881e` |
+| specimenTrainerContracts | pass | 4 | 0 | 12600.861 | `70e7568042a947069960412a0ddcb74f` |
+| specimen-ownership | pass | 8 | 0 | 12591.618 | `1f1639d581e14591b586005fd680cf63` |
+| strength-boulder | pass | 1 | 0 | 12668.856 | `0369f9b29af94741ad835106a9b85cba` |
+| npcMotionContracts | pass | 15 | 0 | 12966.864 | `74847cb8f8d44d81bc87a82b137d055e` |
+| npcMotionLegacyContracts | pass | 3 | 0 | 12789.031 | `d2c8bf1ab5fd4e7cab4d047c0cc9e88b` |
+| worldViewRollbackContracts | pass | 1 | 0 | 12598.457 | `4472b14fc7d24c7ba0cdad496f21d316` |
+| held-items | pass | 25 | 0 | 12651.893 | `739e8c1521df4199a5ba2ed2370212da` |
+| held-lifecycle | pass | 2 | 0 | 12606.029 | `2d0c7deebb8e483b98dce3c3ecce9f6c` |
+| early-abilities | pass | 46 | 0 | 13042.886 | `6789a8df21f04ea0aa5f9a71f3160e48` |
+| ability-compatibility | pass | 12 | 0 | 13021.664 | `f6f2ae875b2840a5b48e701cce2ff7a7` |
+| brock-mechanics | pass | 19 | 0 | 13052.837 | `0e98d4363a364020bbe81a592e5f1da4` |
+| brock-move-batch01 | pass | 36 | 0 | 12702.153 | `a8e4964f66be4cf49533c803e8408f8f` |
+| brock-move-batch01-errata | pass | 1 | 0 | 12605.756 | `784f668f63ab4996afac61208ac84776` |
+| bide | pass | 29 | 0 | 13032.159 | `3395734d57c64b3298966077e8d20ca3` |
+| specimen-sex-light-ball | pass | 20 | 0 | 12968.482 | `55b8cc971804417c94f5fb160670fbac` |
+| teaching | pass | 16 | 0 | 12654.323 | `2b023d75fa404a3580058233d2a09db5` |
+| bide-teaching | pass | 1 | 0 | 12613.685 | `d5cebe42725247e195f4b02f21d19b8e` |
+| brock-field-items | fail | 5 | 3 | 13061.138 | `498954ba6c734bb9b5fd975379602b28` |
+| sex-abilities | pass | 30 | 0 | 12696.326 | `69746310f91d4193952bec0c3d414c7f` |
+| own-tempo | pass | 6 | 0 | 12598.942 | `ca59d0ce146d4ba7ab41fb9c5aae4f88` |
+| charge-lock | pass | 31 | 0 | 12669.775 | `f707014f5f2d4aa6badf52d1e7c99f72` |
+| hm-battle | pass | 25 | 0 | 12669.942 | `0313bccbaf02442da8dfcb24b2016d38` |
+| charge-own-tempo | pass | 1 | 0 | 12612.081 | `c6e4efbae2cc4070a984cec7ed53901e` |
+| basepower-order | pass | 8 | 0 | 12641.753 | `55de159d8a6e421c9db5c9669b24bb8f` |
+| rain | pass | 27 | 0 | 12673.576 | `5f05769bc8a24336b4c6931f40819cf8` |
+| worry-seed | pass | 22 | 0 | 12785.868 | `377df6805a1f450db8112ad1872c21b3` |
+| brock-integration | pass | 1 | 0 | 12599.811 | `149af78562d8433193284a5349abfff9` |
+| protect | pass | 33 | 0 | 13031.655 | `38ad2b6ce27f44c59efb53a91045a13a` |
+| sides | pass | 25 | 0 | 12689.550 | `14ce855e951e4354b784fa6f3231d352` |
+| stage-reset | pass | 9 | 0 | 12652.924 | `4b20ce9a12d949108c40eeb4b2ec8f71` |
+| earned-b-moves | pass | 33 | 0 | 12657.764 | `2a887bfc86984cdcb7fd6b05c5f4ace7` |
+| self-ko-moves | pass | 15 | 0 | 12662.012 | `34e1347a8a76449da64c5c3e5b736a87` |
+| substitute-seams | pass | 8 | 0 | 12606.893 | `5e7b105139b44fcd9de45302834fc010` |
+| substitute | pass | 24 | 0 | 12676.456 | `4bdf899cdf2047faa697b82c1cc7fd65` |
+| roost | pass | 25 | 0 | 12666.828 | `e66986b51942412fa7760564eacd2ee7` |
+| roost-predicates | pass | 4 | 0 | 12593.011 | `0464bf05a6234e42bafe7b6f1da7d18e` |
+| poison-fang | pass | 12 | 0 | 12669.229 | `06fc75205cd04bdf9be59707125f0423` |
+| secondaries | pass | 15 | 0 | 13022.165 | `c13893c53a0e44f984fe5239fe6340f3` |
+| title-recovery-probe | pass | 8 | 0 | 12700.731 | `8742b0c35ef244b7afccf8bedfe201b0` |
+| title-recovery | pass | 20 | 0 | 12591.524 | `7c9229dc526040878afc0bb350474138` |
+| title-archive-safety | pass | 2 | 0 | 12584.120 | `54672b6c34144c7b963bf8b65e4772e0` |
+| cerulean-catalog | fail | 101 | 116 | 12792.577 | `d4526ca38e7147febb8302e8566800cd` |
+| comprehensive-catalog | fail | 3 | 4 | 12814.125 | `0b0f9f48fcf44eaab6e3a7285b4be495` |
+| catalog-motion | pass | 2 | 0 | 12655.525 | `f6f55f631f804df5b72f4f5d70450ba5` |
+| catalog-ability | pass | 1 | 0 | 12591.478 | `b9c5fbdc67e14e04ab1e0c9243810b28` |
+| world-presentation | pass | 5 | 0 | 12755.754 | `440ae42fc59a42ac8e8fcf88b8b67737` |
+| home-lead | pass | 11 | 0 | 12667.970 | `83dccd5dca45492da890d3909f375618` |
+| red-pc-items | pass | 18 | 0 | 12755.562 | `5c6400a3f476403cb7ccaf5ca36ab41e` |
+| field-encounters | pass | 18 | 0 | 12807.879 | `cc09cce46ef046fa972f806c3e83bd9f` |
+| reward-fault-guards | pass | 1 | 0 | 12594.784 | `ee77f53829b042538463c4e92df37291` |
+| weather-reward-witness | pass | 1 | 0 | 12582.609 | `0c909d2efe4a43cb8b225723dc6b600e` |
+| whirlwind | pass | 27 | 0 | 12699.308 | `dd2c9d3f3263441d822488bbfb6aa1f8` |
+| move-failure | fail | 14 | 1 | 12757.028 | `e5d684cdfbd740498280bc3768f74d7a` |
+| source-maps | fail | 8 | 15 | 13287.829 | `ad03f5e861cb48d8a70b32a3bcb8a703` |
+| source-events | timeout |  |  | 12581.565 | `668dbef2bce040bdb7c8b604e2c2b3cf` |
+| source-text | pass | 42 | 0 | 12639.891 | `f646245add8f47d68393a24cbebc4023` |
+| scripted-npc | pass | 6 | 0 | 12814.001 | `fe7c7876be3e420fa38577e8e6ebd7fa` |
+| generic-actors | pass | 8 | 0 | 12845.923 | `bb85ef0157da48469c35a2fc6ec12236` |
+| source-map-activation | pass | 9 | 0 | 12587.048 | `fbf0e9023a934560855042a952b44727` |
+| cerulean-content | fail | 108 | 1 | 12769.980 | `566a8b1f524342cda95005ec482ad57a` |
+| cerulean-story | pass | 11 | 0 | 12820.638 | `2766f5af64f1470d9fa8515de60b4db1` |
+| cerulean-scenes | pass | 13 | 0 | 12809.262 | `88dac069d2d24e4bb99c9f996305c7af` |
+| cerulean-routes | pass | 20 | 0 | 12906.912 | `ff4c49df350d47c2bc9e9fb280aff9ed` |
+| tutorial-escort | pass | 17 | 0 | 12922.022 | `c10d7aea37ca449e843c182fbc6d426b` |
+| kanto-scenes | pass | 7 | 0 | 12845.777 | `d9e018f27d7a4caf86fa732feda4dfec` |
+| kanto-services | pass | 22 | 0 | 12813.625 | `dec87bbb30a746a3b6a90ac0591e0fd2` |
+| common-abilities | pass | 16 | 0 | 12609.004 | `14684d977f774eb79623b988f30b127a` |
+| cerulean-ambient-dialogue | fail | 26 | 2 | 12746.395 | `a427bff37e5e407391565ab0a2b48fc4` |
+| entry-abilities | pass | 29 | 0 | 12668.318 | `dada1f744d424c4cbc14a82c7187d4cd` |
+| contact-abilities | pass | 25 | 0 | 12679.290 | `850db06f157440dda1c1fe21a768b982` |
+| field-moves | pass | 16 | 0 | 13247.950 | `9be54d9c9e674782b3c9e77d6124c434` |
+| field-world | fail | 13 | 1 | 13335.553 | `b40387c596d0453bb9cdc2e1f7a5654a` |
+| vermilion-gifts | timeout |  |  | 12582.175 | `b933572571c7441a81078932efcbdbeb` |
+| vermilion-story | pass | 26 | 0 | 12871.182 | `8e45eb90c3274c0c994f9b997a5110f5` |
+| daycare | fail | 18 | 2 | 13037.219 | `5190734b3448421c9e59350f9ba026dc` |
+| vermilion-preparation | pass | 113 | 0 | 12642.871 | `2e0d390f0dde4ba482163deb49e80fb2` |
+| vermilion-ship | pass | 11 | 0 | 12798.396 | `54bcad6245fb4ee3803b33733ac6feff` |
+| field-acquisition | pass | 15 | 0 | 12793.582 | `93839592a73a4e46b6216a099cd9bf73` |
+| vermilion-abilities | pass | 39 | 0 | 12694.000 | `90eec4c4c74f406d85f54d71ff2119a3` |
+| vermilion-catalog | crash |  |  |  | `` |
+| cave-encounters | pass | 8 | 0 | 12882.006 | `31d6da7dd3ab4434887648053dd138fc` |
+| pickup | pass | 42 | 0 | 12705.778 | `8d33585b3f3c4df79bbc2e8c6ad743a5` |
+| grass-cut | pass | 15 | 0 | 13208.352 | `c3ef005abfc141acb085a3ef4776bc46` |
+| vermilion-ambient | pass | 48 | 0 | 12645.064 | `de99269856584bc18277fd9ad146fbdc` |
+| battle-presentation | pass | 23 | 0 | 12684.152 | `d0c9a340a4e3477da47d2ddb97ef37da` |
+| approved-qol | pass | 4 | 0 | 12687.368 | `29f7189ecbcb4d7b8030f9b55b037ffd` |
+| npc-trades | fail | 43 | 6 | 13405.627 | `becf7ccc8a1c4d04a13c48058fe0a553` |
+| saffron-guards | pass | 91 | 0 | 12856.096 | `54d976134b414ddfa0ea896a0a04f81f` |
+| field-travel | fail | 2 | 1 | 13154.867 | `25fa67eb052040e3ace38ece475d01d8` |
+| source-encounters | pass | 4 | 0 | 12886.377 | `053d4bc6e80d4072b13ff2c735917c67` |
+| field-gear | pass | 2 | 0 | 12593.635 | `925d5f1611e34fb6a1c6c1f68ca6fe05` |
+| celadon-services | pass | 6 | 0 | 12867.719 | `b6b1d44340de4438835da7d2305fd1f2` |
+
+Queued, not applied. Lane B `cursor/lane-b-south-loop` `c87e503d` adds `tools/notes/lane-e-x-items.patch` and `tools/tests/test_lane_e_x_items.py`. X Accuracy, X Attack, X Defend, X Speed, and X Special are still `effect='unsupported'`. Also queued from that branch: `tools/notes/lane-e-learn-pages.patch`, `tools/notes/lane-e-trainer-lease.patch`, and `tools/notes/lane-e-battle-message.patch`, plus the three ownership-break commits `5c27a3f8` (Route 22 rival start in `ceruleanRoutes.lua`), `4e1f7fc6` (release the scripted walk in `eventState.lua`), and `4a42e55b` (cave encounter contract). Audit `5c27a3f8` against `scripts/Route22.asm` and `4a42e55b` against `TryDoWildEncounter` before applying them.
+
+YellowBot did not push `main`. These three fast-forward `bf92c4fc` and are ready to pull later, not now. Lane F `cursor/lane-f-audio` `01d20480`: its audio edits leave the coverage-matrix source fingerprint stale, which must be regenerated through its generator, and `pdc` compile fails in that environment. Lane G `cursor/lane-g-front-end` `18c11ded`. Lane H `cursor/lane-h-postgame` `7b1f1925`.
+
+## 2026-11-13 Cycling Road gate, and the Route 20 rock
+
+Lane I `ab75c2ea` `tools/notes/lane-e-bicycle-road.patch` stopped a door that would land on a forced Cycling Road cell, then returned to explore with no guard text. The crash is `OverworldState:enter` asserting `bicycle-required` from `FieldWorld.entryTravel`. The door now asks `FieldCycling.enter` before the fade. A forced Route 16 cell `(17, 10)` or `(17, 11)`, or a forced Route 18 cell `(33, 8)` or `(33, 9)`, with no Bicycle, stays on the gate. Route 16 shows `Excuse me! Wait up please!` and `No pedestrians are allowed on CYCLING ROAD!` (`text/Route16Gate1F.asm`). Route 18 shows `Excuse me!` and `You need a BICYCLE for CYCLING ROAD!` (`text/Route18Gate1F.asm`). The dialog then steps once in the gate's `return_direction`, which is `right` on both gates (`scripts/Route16Gate1F.asm`, `scripts/Route18Gate1F.asm`). `FieldCycling.returnDirection` reads that field. The arrival assert is unchanged for every other entry. `field-gear` session `a2e54e38fecb45619b3507ee60a7869b` passed 2, failed 0, heap 12593.599 KiB. The parent command passed 22 and failed 0.
+
+Lane I `ab75c2ea` `tools/notes/lane-e-route20-seam.patch` is not applied. `maps/Route20.blk` at `af519899` is 50 by 9. Block row 7 is water `$43` except the west shore `$2E` at column 0 and block `$18` at column 31. Block `$18` in `gfx/blocksets/overworld.bst` has left quadrants `$2A $2B / $3A $3B` and right quadrants of water `$14`. Foot `$3A` is absent from `Overworld_Coll` and is not the surf tile `$14` (`home/overworld.asm` keeps surfing only on `$14`). Cells `(62, 14)` and `(62, 15)` are those left quadrants. The imported tile is the decoder's tile for that block, not a bad write. Block rows 1 through 4 at column 31 are `$43`, so the channel goes north of the rock. Replacing those two cells with water would open a path the blk does not have. No map JSON was hand-edited.
+
+## 2026-11-13 Actor strips, the pickup buffer, and the fixture blame
+
+`main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added.
+
+`git blame -L 7,11 Source/dev/sessionFixture.lua` is `df8406b2d` Miguel Quintero, 2026-10-29, "Repair lazy map and art setup in existing SDK fixtures". Those lines stay. The codec still rejects `hallOfFame` and `playTime` on versions below 4. Daycare's two legacy failures stay for Miguel.
+
+Actor install reads the imported `data/zEndgame/sprites.json` and `data/zRemainder/sprites.json` strips for Agatha, Bruno, Lance, Lorelei, Oak, Daisy, Mom, and Red. No placeholder grids were added. A missing standing frame is installed from that strip. The Mew gift at `postgame:CERULEAN_CAVE_1F:mew-gift` keeps an empty script route because its id is not a pokered object index. Visible pickups fill `wStringBuffer` (`GiveItem` / `_FoundItemText`). Hidden pickups fill `wNameBuffer` (`GetItemName` / `_FoundHiddenItemText`). The Cerulean and Vermilion journey projections were regenerated. The coverage snapshot was nested. No row was relabeled.
+
+| suite | result | passed | failed | heap KiB | session |
+| --- | --- | --- | --- | --- | --- |
+| kanto-scenes | pass | 7 | 0 | 12829.446 | `01851b63ccdc43e4b94bdca9946a3885` |
+| generic-actors | fail | 1 | 7 | 12722.124 | `f1020a76133d409885b75fb74522c311` |
+| source-maps | fail | 9 | 14 | 13202.915 | `a00892b8a3644d4ab1eacc13214f9f60` |
+| cerulean-content | fail | 100 | 9 | 12670.275 | `3c0ee14593104de680f1d9ee0c80eb9b` |
+
+`kanto-scenes` is the child score. Its parent command passed 27 and failed 0. `generic-actors` passed the twelve-map motion policy. Its seven scene tests still report `not enough memory`. `source-maps` no longer dies on a nil strip; the fourteen failures are `not enough memory`, `original warp arrival is blocked`, and one unexpected field. `cerulean-content` no longer dies on a missing strip; nine failures remain, seven of them `not enough memory`. These four rows are the child scores. The host suite, `tools/build.py`, and the boot budget were not rerun after the pickup change. `main` was not fast-forwarded.
+
+## 2026-11-13 Contract audit, the source-map pin, and the memory table
+
+`main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added. The coverage snapshot was nested for the Source fingerprint. No row was relabeled. The post-FF patches are not applied, except lane I's door-fade stencil. YellowBot's thirteen debug-warp crashes are queued with that first group, beside lane B. The full actor-install fix lands with or before `lane-e-pallet-cutover`. `lane-e-pallet-actors` is a stopgap and is dropped once that fix is in. The lane G pull is `cursor/lane-g-front-end` through `18c11ded`, and it waits until main's gates are green. Lane B `5c27a3f8`, `4e1f7fc6`, and `4a42e55b` are handoffs in that first group, beside learn-pages and the trainer lease. They are audited against `scripts/Route22.asm` and `TryDoWildEncounter` before they are applied. After the EXP page, lane I `b6cb9595` queues the evolution-cancel hint and the heal-ball palette. Lane I `8ec9dd27` `tools/notes/lane-e-door-fade-oom.patch` is applied, with `tools/tests/test_lane_e_door_fade_oom.py`: the door fade uses `setStencilPattern` instead of `image:drawFaded`. The rest of that group is not applied.
+
+Daycare's Route 6 connection, Pewter escort, and Daycare scene no longer run out of memory. The destination view releases the previous unpinned city and its tilemap, then collects, before it allocates the next tilemap. `createZone` finishes that collection before the caller builds the view. Session `8736e940903e45ef984124f59f367a36` passed 18, failed 2, heap 13019.575 KiB, 29905 ms. Both failures are `domain/sessionCodec.lua:136`, `legacy session cannot contain a hall of fame record`, at `daycareContracts.lua:383` and `:409`. `SessionFixture.forVersion` for versions below 4 clears `fieldTravel`, `safari`, and `coins` only. The codec comment says Hall of Fame arrived after the private v4 saves and older versions cannot contain the field. pokered keeps `wHallOfFame` in WRAM and saves it from `scripts/HallOfFame.asm`; that SRAM image is not this project's versioned document. The assertion stays, and the fixture stays. `MallocPoolSize` stayed 16645684.
+
+The red suites on that city-release commit, then the two follow-up runs. `main` was not fast-forwarded.
+
+| suite | result | passed | failed | heap KiB | session |
+| --- | --- | --- | --- | --- | --- |
+| daycare | fail | 18 | 2 | 13019.575 | `8736e940903e45ef984124f59f367a36` |
+| cerulean-ambient-dialogue | pass | 28 | 0 | 12727.687 | `5ebe580a993d43e78f7e4000d95a143e` |
+| contact-abilities | pass | 25 | 0 | 12661.733 | `eb63df13ab25498b8d6ab36301585091` |
+| vermilion-catalog | fail | 34 | 5 | 12746.829 | `87f3e6e717df49a1aa76e3efc5a4b87c` |
+| cerulean-content | fail | 97 | 12 | 12515.850 | `120bf8d29933466d94b9e491550981cc` |
+| field-moves | fail | 12 | 4 | 13878.766 | `45acb8412aed4ca0a809e3bbc3f890f3` |
+| field-travel | fail | 2 | 1 | 13056.145 | `a8d01177204a459599a2bbe0efd4d61c` |
+| field-world | fail | 11 | 3 | 13318.380 | `f324e5167bc744ac9462e48bb3e42404` |
+| generic-actors | fail | 0 | 8 | 12708.597 | `a441ccc7e270482e9cfc7e7dc3a35451` |
+| kanto-scenes | fail | 6 | 1 | 12821.700 | `e5a07a1955c041ce81fcc5314934e1ce` |
+| kanto-services | fail | 21 | 1 | 12790.702 | `8c55c0a229314e9c853c4d31508e5567` |
+| npc-trades | fail | 43 | 6 | 12931.741 | `240a5f1528fc4f19b188e7072e6be286` |
+| source-events | fail | 57 | 7 | 12527.085 | `d5a897e20e704ee998b317b93a8a8225` |
+| source-map-activation | fail | 2 | 7 | 12565.794 | `0f0d947f6a4846f29dfe335b730a2a66` |
+| source-maps | fail | 9 | 14 | 13104.600 | `6e9726798d6149dea8cb304be14e55cc` |
+| vermilion-gifts | timeout |  |  | 12563.218 | `1a80ab5de4944ff98bc430343456ffd6` |
+
+Contact-abilities is the rerun after the damage-number waypoint. Vermilion-catalog is the rerun after cell sampling; it was 25 passed and 14 failed before that, and the full-map `malloc` is gone. The other rows are the city-release tree. Daycare's two failures are the hall-of-fame assertion. `kanto-scenes` fails at `ceruleanContent.lua:256` because the actor art is not installed. `generic-actors` also reports `missing Blue source sprite: SPRITE_DAISY`. `source-events` reports an extra `wNameBuffer` on Viridian Forest and Route 2. `field-travel` failed with `pd_readcompressed inflate failed, out of memory`. Vermilion-gifts timed out after the simulator died and left no score. `MallocPoolSize` stayed 16645684.
+
+The four suites that were new failures on this head now pass. Idle map scores are released before the next score loads, the next zone is collected before it is built, and an event observation checks the live bag instead of copying an inventory per item. `vermilion-story` session `6130e414b13a4aafa014bbee66352018` passed 26, failed 0, heap 12849.506 KiB. `cerulean-scenes` session `4fffe252a6924fe286ef899dc7cbafd9` passed 13, failed 0, heap 12788.418 KiB. `vermilion-ambient` session `9f57afdaca8349709abf300aead84d41` passed 48, failed 0, heap 12624.634 KiB. `cerulean-routes` session `4490a2f052de4a77bcc180e003d74e34` passed 20, failed 0, heap 12886.170 KiB. `MallocPoolSize` stayed 16645684. `python3 -m unittest discover -s tools/tests` ran 1368 tests in 169.122 seconds: OK, 11 skipped. `tools/build.py --output /tmp/PokemonPoC-mem2.pdx --stage /tmp/prod-stage-mem2` exited 0. A clean Simulator boot, evidence `boot-mem`, shows `title.visible` sequence 46 at 1262 ms and `initialize.ready` sequence 363 at 10322 ms. Peak 12792.699 KiB. The 14000 KiB budget passed. The Cerulean and Vermilion journey projections were regenerated with their generators after `eventState.lua` changed the Cerulean digest. The coverage snapshot was nested for those Source fingerprints. No row was relabeled.
+
+### The eleven contracts
+
+Each diff below is `61c79264` through the working tree. The parent of the page-matching commit is the left side. A contract moves only toward `af519899` or a decision already in the fidelity ledger.
+
+`RÉD` is the literal `player="RÉD"` Miguel wrote in `760a58e3` ("Prepare pinned Vermilion content…") inside "SDK reads literal UTF-8 payout…". `EventText` prints `ram.player`. The default player name is RED. Nothing in the game rewrites RED to RÉD. The fixture now passes RED. The yen and the line break stay, because those are the source.
+
+- `learning`. The game was printing a period and one concatenated sentence. `data/text/text_4.asm:142` `_ForgotAndText` ends the forgotten move with `!` (`text "!"` at line 150). `_LearnedMove1Text` at line 84 is the name, ` learned`, then `line` and the move. `LearningState` now emits those two pages. The contract requires `CHARMANDER forgot\nGROWL!` and `CHARMANDER learned\nDRAGON RAGE!`. Rerun session `c798e468323641279a9a9c918c2f601d`: 12 passed, 0 failed.
+- `items`. LINK CABLE is the Miguel-approved deviation in the fidelity ledger (BlueBot chat, 2026-11-12 9:43 AM CST). `constants/item_constants.asm:210` is `add_tm SUBSTITUTE ; $FA` (250). Item 251 is the next id. Price 0, evolution item, not in a mart. The legacy list includes `linkCable`. Blue items are 125 and the total is 126. The game item was already that decision. The contract was counting the list from before the cable existed.
+- `session`. `constants/text_constants.asm:1` is `DEF PLAYER_NAME_LENGTH EQU 8`, the buffer including the terminator, so seven glyphs fit. ASH is a legal name. The malformed candidate is `ABCDEFGH`.
+- `event-ui`. `text/Route1.asm:16` is `<PLAYER> got` and line 18 is the item and `!`, so the page is `RED got\nPOTION!`. `text/OaksLab.asm:99` is `<PLAYER> delivered` and line 100 is `OAK's PARCEL.`. The parcel check joins whitespace and requires those words. `releaseContractZones` drops `contract_` zones between Oak sides so the fourth BLUE face is not the pool. That release does not change the text.
+- `pokedex`. `constants/charmap.asm:185` is `charmap "♀", $f5`. `NIDORAN♀` round-trips. The name codec still rejects `é` (`charmap.asm:153`, `$ba`) and an 11-glyph name. That rejection is the lane G codec decision: printable ASCII plus `×`, `♂`, and `♀`. `NIDORANé` encodes as nil. The contract stopped treating the female glyph as illegal.
+- `battleLearningContracts`. `data/text/text_4.asm:104` `_DidNotLearnText` is the name, `line "did not learn"`, then `cont` and the move and `!`. The game now emits those two pages. The 10-frame hold is `MESSAGE_MIN_FRAMES` / `home/joypad2.asm` `WaitForTextScrollButtonPress`. Rerun session `912f89c92b1e45d0b246803fbee61494`: 21 passed, 0 failed.
+- `title-recovery-probe`. `engine/movie/intro.asm:311` `PlayShootingStar` waits 180 frames on the copyright with `DelayFrames`, and line 323 waits 64 on the black bars. Those waits ignore A. `AnimateShootingStar` and the fight call `CheckForUserInterruption` (`home/overworld.asm:2394`), which returns carry on A or Start. The probe now lets the intro finish before it reads the menu. Confirmed New Game lands on `oak` when that state is registered.
+- `home-lead`. `text/RedsHouse1F.asm:1` `_RedsHouse1FMomWakeUpText` and line 18 `_RedsHouse1FMomLookingGreatText` are the words. `HomeRest` already joins `line` and `cont` into those sentences. `#` expands to `POKE` (`sourceText.lua:4`, the reviewed short-dialogue policy), so the rest line says POKEMON. The check now requires `All boys leave home some day. It said so on TV.`, `PROF.OAK, next door, is looking for you.`, and `MOM: Oh good! You and your POKEMON are looking great! Take care now!`.
+- `source-text`. The sentence is a fixture, not a pokered label. `SourceText.number` already required `text_decimal` to pad 7 as `  7`. `data/text_boxes.asm:10` is `MESSAGE_BOX` from tile (0, 12) to (19, 17); the interior is two rows of 18. `Dialog` wraps at the space, so the page is `Count:   7\nPOKéMON.`. The é in that fixture is the charmap spelling of `#` (`constants/charmap.asm:16`, `$54` is `POKé`). It is the fixture text, and it is not the player name.
+- `vermilion-preparation`. `data/text/text_2.asm:868` `_MoneyForWinningText` is `<PLAYER> got ¥`, `text_bcd` with `LEADING_ZEROES | LEFT_ALIGN` (175 stays `175`), then `line "for winning!"`. The page is `RED got ¥175\nfor winning!`. Rerun session `8c8e09d4ff584f92bcd63f0849423773`: 113 passed, 0 failed.
+- `saffron-guards`. `text/SaffronGates.asm:1` fills two rows, and each `cont` scrolls the second row up and waits, so each `cont` is its own page. Thirsty is three pages, the drink speech is fifteen, and the thanks page is `Hi, thanks for\nthe cool drinks!`.
+
+```diff
+diff --git a/Source/dev/battleLearningContracts.lua b/Source/dev/battleLearningContracts.lua
+index e2351bfd..d9f9abb0 100644
+--- a/Source/dev/battleLearningContracts.lua
++++ b/Source/dev/battleLearningContracts.lua
+@@ -69,15 +69,34 @@ end
+ -- that move. The confirmation text is _AbandonLearningText ("Abandon learning"
+ -- plus the move name and "?"), not a later-generation "Stop learning" line.
+ local function dismissLearningMessage(game, learning)
+-    for _ = 1, 6 do
++    -- A finishes the typewriter. The complete page then stays up for 10
++    -- frames, which is MESSAGE_MIN_FRAMES / WaitForTextScrollButtonPress,
++    -- before a later A can turn it. Each wrapped page has to clear that hold.
++    for _ = 1, 8 do
++        if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
++            return
++        end
+         eq(game.machine:getCurrent(), "learning")
+         eq(learning.phase, "message")
+         Autopilot.beginFrame()
+         Autopilot.step({"press", "a"}, game)
+         game.machine:handleInput()
++        for _ = 1, 12 do
++            if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
++                return
++            end
++            Autopilot.beginFrame()
++            game.machine:handleInput()
++        end
+         if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+             return
+         end
++        Autopilot.beginFrame()
++        Autopilot.step({"press", "a"}, game)
++        game.machine:handleInput()
++    end
++    if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
++        return
+     end
+     error("learning message did not end")
+ end
+@@ -105,9 +124,10 @@ local function declineByButtons(game, learning, seen)
+     game.machine:handleInput()
+     eq(learning.phase, "message")
+     eq(learning.messageKind, "declined")
+-    local text = table.concat(learning.dialog.lines, "\n")
+-    assert(text:find("did not learn", 1, true), text)
+-    assert(text:find(moveData[move].name, 1, true), text)
++    -- data/text/text_4.asm _DidNotLearnText: name, then "did not learn",
++    -- then `cont` scrolls that row up and prints the move.
++    eq(learning.dialog.lines[1], learning.pokemon.name .. "\ndid not learn")
++    eq(learning.dialog.lines[2], "did not learn\n" .. moveData[move].name .. "!")
+     eq(#learning.pokemon:getPendingMoveChoices(), before - 1)
+     for _, choice in ipairs(learning.pokemon:getPendingMoveChoices()) do
+         eq(choice.id == id, false, "declined choice still pending")
+diff --git a/Source/dev/eventContracts.lua b/Source/dev/eventContracts.lua
+index 24aaf690..322bd105 100644
+--- a/Source/dev/eventContracts.lua
++++ b/Source/dev/eventContracts.lua
+@@ -19,6 +19,11 @@ local function fingerprint(game)
+     local rng=RulesRNG.toData();out[#out+1]=rng.state;out[#out+1]=rng.rolls
+     return table.concat(out,"|")
+ end
++local function releaseContractZones()
++    for key,zone in pairs(zoneRegistry) do
++        if type(key)=="string" and key:sub(1,9)=="contract_" and zone~=currentZone then zoneRegistry[key]=nil end
++    end
++end
+ local function setup(name,x,y)
+     SliceSprites.install() -- real, idempotent production installation before map binding
+     local policy={sliceZones={}}
+@@ -63,6 +68,7 @@ local function renderedAfterManualStep(sprite,step,draw,clock,offsetY)
+         states[#states+1]={sprite=item,visible=item:isVisible(),enabled=item:updatesEnabled()}
+         item:setVisible(false);item:setUpdatesEnabled(false)
+     end
++    releaseContractZones();collectgarbage("collect")
+     local paper=gfx.image.new(400,240,gfx.kColorWhite);local background=gfx.sprite.new(paper)
+     background:setCenter(0,0);background:setIgnoresDrawOffset(true);background:setZIndex(-32768);background:moveTo(0,0);background:add()
+     local calls=0;local sentinel=gfx.sprite.new();sentinel:setSize(1,1);sentinel:setVisible(false)
+@@ -101,14 +107,20 @@ function EventContracts.run()
+         for key,value in pairs(spriteSets) do SpriteFactory.npc[key]=value end
+         zoneRegistry,currentZone=registry,zone;gfx.setDrawOffset(ox,oy)
+         gfx.sprite.addDirtyRect(0,0,400,240);EventState.redrawSprites()
++        games={}
++        releaseContractZones()
++        collectgarbage("collect")
+         report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(problem) or nil}
+         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
+     end
+     test("Source paragraphs expand only declared names/items and identify gated receipts",function()
+         local pages=EventText.pages({"_Route1Youngster1GotPotionText"});eq(#pages,1)
+-        eq(pages[1].text,"RED got POTION!");eq(pages[1].receipt,true)
++        -- text/Route1.asm puts <LINE> between "<PLAYER> got" and the item name.
++        eq(pages[1].text,"RED got\nPOTION!");eq(pages[1].receipt,true)
+         local delivered=EventText.pages({"_OaksLabOak1DeliverParcelText"});eq(delivered[#delivered].receipt,true)
+-        assert(delivered[#delivered].text:find("RED delivered OAK's PARCEL",1,true))
++        -- text/OaksLab.asm breaks "<PLAYER> delivered" and "OAK's PARCEL." across <LINE>.
++        local flat=delivered[#delivered].text:gsub("%s+"," ")
++        assert(flat:find("RED delivered OAK's PARCEL",1,true),delivered[#delivered].text)
+         eq(pcall(EventText.pages,{"_UnknownMadeUpText"}),false)
+     end)
+     test("Pinned BLUE stride keeps protected standing hair phase and restores graphics offset",function()
+@@ -177,6 +189,10 @@ function EventContracts.run()
+     end)
+     test("Adapted BLUE speech faces actual RED from every Oak interaction side",function()
+         for _,position in ipairs({{5,4},{4,3},{6,3},{5,2}}) do
++            -- Each side is its own lab. Drop the previous one before the next
++            -- slice install so four fresh registries do not share the pool.
++            if games[#games] then games[#games]=nil end
++            releaseContractZones();collectgarbage("collect")
+             local game,event=setup("oaks_lab",position[1],position[2])
+             local oak=NPC(5,3,"OAK",{},nil,"oak","down");oak.def={source_event_id="contract:oak"};game.npcManager:addNPC(oak)
+             assert(game.session:inventory():add("oaksParcel",1));assert(game.session:setQuestFlag("EVENT_GOT_OAKS_PARCEL",true))
+diff --git a/Source/dev/homeLeadContracts.lua b/Source/dev/homeLeadContracts.lua
+index 31ea459b..a152e01c 100644
+--- a/Source/dev/homeLeadContracts.lua
++++ b/Source/dev/homeLeadContracts.lua
+@@ -1,6 +1,9 @@
+ HomeLeadContracts={}
+ local gfx=playdate.graphics
+ local function eq(a,b)assert(a==b,"expected "..tostring(b)..", got "..tostring(a))end
++local function spoken(g)
++    return table.concat(g.machine:get("dialog").dialog.lines," "):gsub("%s+"," ")
++end
+ local function same(a,b)
+     if type(a)~=type(b)then return false end;if type(a)~="table"then return a==b end
+     for k,v in pairs(a)do if not same(v,b[k])then return false end end
+@@ -120,7 +123,9 @@ function HomeLeadContracts.run()
+         scene("home",function(g)
+             local mon=g:getPlayerPokemon();mon.hp=1;assert(g.session:setIntro({stage="pre_oak"}))
+             assert(HomeRest.tryInteract(g));eq(g.machine:getCurrent(),"dialog")
+-            assert(g.machine:get("dialog").dialog.lines[1]:find("All boys leave",1,true))
++            local wake=spoken(g)
++            assert(wake:find("All boys leave home some day. It said so on TV.",1,true),wake)
++            assert(wake:find("PROF.OAK, next door, is looking for you.",1,true),wake)
+             closeDialog(g);eq(g.machine:getCurrent(),"overworld");eq(mon.hp,1)
+         end)
+     end)
+@@ -134,7 +139,8 @@ function HomeLeadContracts.run()
+             rest:update();eq(rest.phase,"white");eq(first.hp,first.maxHP);eq(first.status,nil);eq(reserve.hp,reserve.maxHP);assert(reserve.pp[reserve.moves[1]]>0)
+             local tick=rest.tick;g.machine:get("overworld"):flushPendingPresentation();g.machine:draw();write("home-mom-white");rest:draw();rest:draw();eq(rest.tick,tick)
+             for i=1,24 do rest:update()end;eq(g.machine:getCurrent(),"dialog")
+-            assert(g.machine:get("dialog").dialog.lines[1]:find("looking great",1,true));closeDialog(g)
++            local rested=spoken(g)
++            assert(rested:find("MOM: Oh good! You and your POKEMON are looking great! Take care now!",1,true),rested);closeDialog(g)
+             eq(g.machine:getCurrent(),"overworld");eq(g.session:party():active(),reserve)
+             assert(same(cp,g.session:checkpoint()));assert(same(flags,g.session:flags()));eq(g.session:inventory():money(),money)
+             assert(same(rules,RulesRNG.toData()));assert(same(world,g.session:worldRngData()))
+diff --git a/Source/dev/itemContracts.lua b/Source/dev/itemContracts.lua
+index f863d851..88861fe6 100644
+--- a/Source/dev/itemContracts.lua
++++ b/Source/dev/itemContracts.lua
+@@ -46,7 +46,7 @@ xSpeed xSpecial coinCase oaksParcel itemfinder silphScope pokeFlute liftKey expA
+ superRod ppUp ether maxEther elixir maxElixir hm01 hm02 hm03 hm04 hm05 tm01 tm02 tm03 tm04 tm05 tm06
+ tm07 tm08 tm09 tm10 tm11 tm12 tm13 tm14 tm15 tm16 tm17 tm18 tm19 tm20 tm21 tm22 tm23 tm24 tm25 tm26
+ tm27 tm28 tm29 tm30 tm31 tm32 tm33 tm34 tm35 tm36 tm37 tm38 tm39 tm40 tm41 tm42 tm43 tm44 tm45 tm46
+-tm47 tm48 tm49 tm50 lightBall
++tm47 tm48 tm49 tm50 lightBall linkCable
+ ]]):gmatch("%S+") do
+             assert(legacy[id] == nil, "duplicate legacy item " .. id)
+             local item <const> = assert(ItemData.definitions[id], "missing legacy item " .. id)
+@@ -54,8 +54,19 @@ tm47 tm48 tm49 tm50 lightBall
+             count = count + 1
+             if item.numericId ~= nil then blue = blue + 1 end
+         end
+-        equal(blue, 124)
+-        equal(count, 125)
++        equal(blue, 125)
++        equal(count, 126)
++        -- Item 251, the first id after TM_SUBSTITUTE. Not a mart item.
++        local cable <const> = ItemData.definitions.linkCable
++        equal(cable.symbol, "LINK_CABLE")
++        equal(cable.numericId, 251)
++        equal(cable.name, "LINK CABLE")
++        equal(cable.price, 0)
++        equal(cable.sellPrice, 0)
++        equal(cable.keyItem, false)
++        equal(cable.category, "evolution")
++        equal(cable.effect, "evolution")
++        equal(ItemData.bySymbol.LINK_CABLE, "linkCable")
+         local additions <const> = {
+             sunStone={80,80,2100,"SUN_STONE"}, heartScale={93,93,100,"HEART_SCALE"},
+             kingsRock={221,198,100,"KINGS_ROCK"}, ironBall={278,255,200,"IRON_BALL"},
+diff --git a/Source/dev/learningContracts.lua b/Source/dev/learningContracts.lua
+index 15c2829d..137b686e 100644
+--- a/Source/dev/learningContracts.lua
++++ b/Source/dev/learningContracts.lua
+@@ -95,7 +95,11 @@ function LearningContracts.run()
+         equal(state.phase, "message"); equal(p.moves[2], "dragonRage")
+         equal(p.pp.growl, nil); equal(p.pp.dragonRage, moveData.dragonRage.maxPP)
+         equal(p.pp.scratch, scratchPP); equal(#p:getPendingMoveChoices(), 0)
+-        equal(#state.dialog.lines, 2, "forgot/learned narration")
++        -- data/text/text_4.asm _ForgotAndText and _LearnedMove1Text.
++        -- Each `line` is the second row. The forgotten move ends with "!".
++        equal(#state.dialog.lines, 2, "forgot/learned pages")
++        equal(state.dialog.lines[1], p.name .. " forgot\n" .. moveData.growl.name .. "!")
++        equal(state.dialog.lines[2], p.name .. " learned\n" .. moveData.dragonRage.name .. "!")
+         messageComplete(state); equal(game.machine:getCurrent(), "world")
+     end)
+ 
+diff --git a/Source/dev/pokedexContracts.lua b/Source/dev/pokedexContracts.lua
+index aa3b4fc8..e283774e 100644
+--- a/Source/dev/pokedexContracts.lua
++++ b/Source/dev/pokedexContracts.lua
+@@ -65,10 +65,11 @@ function PokedexContracts.run()
+         eq(g.session:pokedex().owned.bulbasaur,true);eq(g.session:pokedex().seen.mew,nil);s:back();s:back()
+     end)
+     test("Codec preserves saved nicknames and legacy ASCII names without guessed migration",function()
+-        for _,name in ipairs({"MY MIME","MR","FARFETCHD"}) do
++        -- constants/charmap.asm allows ♀. The codec stores that glyph, it does not rewrite it to "F".
++        for _,name in ipairs({"MY MIME","MR","FARFETCHD","NIDORAN♀"}) do
+             local mon=Pokemon("mr",5);mon.name=name;local record=assert(PokemonCodec.encode(mon));local copy=assert(PokemonCodec.decode(record));eq(copy.name,name)
+         end
+-        local mon=Pokemon("mr",5);mon.name="NIDORAN♀";eq(PokemonCodec.encode(mon),nil)
++        local mon=Pokemon("mr",5);mon.name="NIDORANé";eq(PokemonCodec.encode(mon),nil)
+         mon.name="ELEVENCHARS";eq(PokemonCodec.encode(mon),nil)
+     end)
+     test("Existing starter names, moves and species stats are unchanged",function()
+diff --git a/Source/dev/saffronGuardContracts.lua b/Source/dev/saffronGuardContracts.lua
+index 08bc760f..b50b4622 100644
+--- a/Source/dev/saffronGuardContracts.lua
++++ b/Source/dev/saffronGuardContracts.lua
+@@ -57,18 +57,43 @@ function SaffronGuardContracts.run()
+     end
+     local definitions <const> = SaffronGuards.definitions()
+     local flag <const> = definitions.flag
++    local function pageText(pages)
++        local lines <const> = {}
++        for index, page in ipairs(pages) do lines[index] = page.text end
++        return lines
++    end
++    local function samePages(actual, expected)
++        eq(#actual, #expected)
++        for index, text in ipairs(expected) do eq(actual[index], text) end
++    end
+     test("guard-exact-source-paragraphs", function()
+-        local pages <const> = EventText.pagesFrom(definitions.thirsty, SaffronGuards.text)
+-        eq(#pages, 2)
+-        eq(pages[1].text, "I'm on guard duty. Gee, I'm thirsty, though!")
+-        eq(pages[2].text, "Oh wait there, the road's closed.")
+-        local accepted <const> = EventText.pagesFrom(definitions.accepted, SaffronGuards.text)
+-        eq(#accepted, 2)
+-        eq(accepted[1].text, "Whoa, boy! I'm parched! ... Huh? I can have this drink? Gee, thanks!")
+-        eq(accepted[2].text, "... Glug glug... ... Gulp... If you want to go to SAFFRON CITY... ... You can go on through. I'll share this with the other guards!")
+-        local completed <const> = EventText.pagesFrom(definitions.completed, SaffronGuards.text)
+-        eq(#completed, 1)
+-        eq(completed[1].text, "Hi, thanks for the cool drinks!")
++        -- text/SaffronGates.asm. text and line fill the two rows. cont scrolls
++        -- the second row up and waits, so each cont is its own page.
++        samePages(pageText(EventText.pagesFrom(definitions.thirsty, SaffronGuards.text)), {
++            "I'm on guard duty.\nGee, I'm thirsty,",
++            "Gee, I'm thirsty,\nthough!",
++            "Oh wait there,\nthe road's closed.",
++        })
++        samePages(pageText(EventText.pagesFrom(definitions.accepted, SaffronGuards.text)), {
++            "Whoa, boy!\nI'm parched!",
++            "I'm parched!\n...",
++            "...\nHuh? I can have",
++            "Huh? I can have\nthis drink?",
++            "this drink?\nGee, thanks!",
++            "...\nGlug glug...",
++            "Glug glug...\n...",
++            "...\nGulp...",
++            "Gulp...\nIf you want to go",
++            "If you want to go\nto SAFFRON CITY...",
++            "to SAFFRON CITY...\n...",
++            "...\nYou can go on",
++            "You can go on\nthrough. I'll",
++            "through. I'll\nshare this with",
++            "share this with\nthe other guards!",
++        })
++        samePages(pageText(EventText.pagesFrom(definitions.completed, SaffronGuards.text)), {
++            "Hi, thanks for\nthe cool drinks!",
++        })
+     end)
+     for id, guard in pairs(definitions.guards) do
+         if guard.active then
+diff --git a/Source/dev/sessionContracts.lua b/Source/dev/sessionContracts.lua
+index efaae66c..32856d38 100644
+--- a/Source/dev/sessionContracts.lua
++++ b/Source/dev/sessionContracts.lua
+@@ -108,7 +108,9 @@ function SessionContracts.run()
+         local changes={
+             function(d) d.version=SessionCodec.VERSION+1 end,
+             function(d) d.pokemonEncoding="unknown" end,
+-            function(d) d.title.playerName="ASH" end,
++            -- PLAYER_NAME_LENGTH is 8 including the terminator, so 7 glyphs fit.
++            -- ASH is a legal name. Eight glyphs are still rejected.
++            function(d) d.title.playerName="ABCDEFGH" end,
+             function(d) d.intro.rivalStarter="bulbasaur" end,
+             function(d) d.questFlags.bad=1 end,
+             function(d) d.trainerFlags["bad key"]=true end,
+diff --git a/Source/dev/sourceTextContracts.lua b/Source/dev/sourceTextContracts.lua
+index 43c155fd..1d86ec0c 100644
+--- a/Source/dev/sourceTextContracts.lua
++++ b/Source/dev/sourceTextContracts.lua
+@@ -81,8 +81,10 @@ function SourceTextContracts.run()
+         equal(pages[1].receipt, true); equal(pages[1].source, "test.asm")
+         equal(pages[2].text, "Found POKé BALL."); equal(pages[2].receipt, false)
+         equal(SourceText.number("text_decimal hCount, 1, 3", {hCount = 7}), "  7")
++        -- MESSAGE_BOX is two rows of 18. The padded count stays; the name wraps.
+         local padded = Dialog(); padded:show({"Count:   7 POKéMON."})
+-        equal(padded.lines[1], "Count:   7 POKéMON.")
++        equal(#padded.lines, 1)
++        equal(padded.lines[1], "Count:   7\nPOKéMON.")
+         equal(SourceText.number("text_bcd hMoney, 3 | LEADING_ZEROES | LEFT_ALIGN", {hMoney = 0}), "0")
+         rejects(function() EventText.pagesFrom({"money"}, resolve) end)
+         rejects(function() SourceText.number("text_decimal hCount, 1, 3", {hCount = 256}) end)
+diff --git a/Source/dev/titleRecoveryProbe.lua b/Source/dev/titleRecoveryProbe.lua
+index 6a9885e8..92bbd2ba 100644
+--- a/Source/dev/titleRecoveryProbe.lua
++++ b/Source/dev/titleRecoveryProbe.lua
+@@ -36,14 +36,35 @@ function TitleRecoveryProbe.run()
+   for key,value in pairs(bytes)do assert(fs.write(prefix.."."..key..".json",value))end
+   g.machine:change("title");return g,g.machine:get("title"),prefix,bytes
+  end
++ -- pret/pokered intro.asm: copyright and the black bars ignore A, the star
++ -- skips to the fight, and A during the fight finishes it. Inspection runs
++ -- after that, then the title screen opens the menu.
++ local function openTitle(title)
++  local guard=0
++  while title.phase=="intro" do
++   guard=guard+1
++   assert(guard<400,"intro did not finish")
++   local scene=IntroMovie.current(title.intro)
++   local skip=scene and (scene.input=="next" or scene.input=="finish")
++   IntroMovie.advance(title.intro, skip and true or false)
++   if title.intro.done then
++    title.introDone=true
++    title.phase="preparing"
++    if title.startupReady then title:refresh() end
++   end
++  end
++  assert(title.metadata,"title inspection did not publish metadata")
++  if title.phase=="title" then title:openMainMenu() end
++  assert(title.phase=="menu" and type(title.menu.onSelect)=="function","title menu was not opened")
++ end
+  test("NO at actual Title confirmation preserves session and all corrupt bytes",function(games)
+-  local g,title,prefix,bytes=setup(games);local old=g.session;eq(title.metadata.reason,"corrupt");eq(title.candidate,nil)
++  local g,title,prefix,bytes=setup(games);openTitle(title);local old=g.session;eq(title.metadata.reason,"corrupt");eq(title.candidate,nil)
+   title:choose("new");eq(title.phase,"confirm-new");title.menu.onSelect(1);eq(g.session,old);eq(g.machine:getCurrent(),"title")
+   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
+  end)
+  test("Confirmed New Game can Save after all old artifacts are corrupt",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2)
+-  eq(g.machine:getCurrent(),"dialog","new adventure reached opening")
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2)
++  eq(g.machine:getCurrent(),g.machine:get("oak") and "oak" or "dialog","new adventure reached opening")
+   g.machine:pop();eq(g.machine:getCurrent(),"overworld")
+   local payload,why=g:captureSession();assert(payload,"test did not reach valid settled save boundary: "..tostring(why))
+   local ok,metadata=g.saves:save()
+@@ -59,14 +80,14 @@ function TitleRecoveryProbe.run()
+   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
+  end)
+  test("session replacement invalidates an earlier explicit Title request",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   assert(g:beginNewSession(RulesRNG.snapshot().seed))
+   local ok,why=g.saves:save();eq(ok,false);eq(why.reason,"replacement-session-changed")
+   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
+   eq(fs.read(g.saves.store:_archivePaths(1).manifest),nil)
+  end)
+  test("Title request stale after confirmation cannot refresh its observed bytes",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   assert(fs.write(prefix..".b.json","newly discovered bytes"))
+   local ok,why=g.saves:save();eq(ok,false);eq(why.reason,"stale-replacement")
+   ok,why=g.saves:save();eq(ok,false);eq(why.reason,"stale-replacement")
+@@ -74,7 +95,7 @@ function TitleRecoveryProbe.run()
+   eq(fs.read(g.saves.store:_archivePaths(1).manifest),nil)
+  end)
+  test("failed archival attempt cannot fall through to ordinary save on retry",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   local actual=g.saves.store._fs
+   g.saves.store._fs={read=actual.read,rename=actual.rename,write=function(path,data)
+    if path==g.saves.store:_archivePaths(1).a then return false,"injected archive failure"end
+@@ -90,7 +111,7 @@ function TitleRecoveryProbe.run()
+   local old=assert(SessionCodec.encode(g.session,{root="overworld",overworld="explore",settled=true}))
+   local bytes={}
+   for index,key in ipairs({"a","b","candidate"})do bytes[key]=assert(g.saves.store:_envelope(old,index));assert(fs.write(prefix.."."..key..".json",bytes[key]))end
+-  title:refresh();title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  openTitle(title);title:refresh();openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   g.machine:register("pc",PCState(g));g.machine:push("pc");local pc=g.machine:get("pc")
+   local ok,metadata=g.saves:changeBoxFromPC(pc,2,pc.epoch);assert(ok,metadata.reason);eq(metadata.archived,true)
+   eq(g.session:storage():activeBox(),2);eq(g.saves._replacement,nil)
+@@ -98,7 +119,7 @@ function TitleRecoveryProbe.run()
+   local restored=assert(g.saves:inspect());eq(restored:storage():activeBox(),2)
+  end)
+  test("failed confirmed PC save rolls box back without bypassing archive on retry",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   g.machine:register("pc",PCState(g));g.machine:push("pc");local pc=g.machine:get("pc");local previous=g.session:storage():activeBox()
+   local actual=g.saves.store._fs
+   g.saves.store._fs={read=actual.read,rename=actual.rename,write=function(path,data)
+diff --git a/Source/dev/vermilionPreparationContracts.lua b/Source/dev/vermilionPreparationContracts.lua
+index 46f97393..b049e9fe 100644
+--- a/Source/dev/vermilionPreparationContracts.lua
++++ b/Source/dev/vermilionPreparationContracts.lua
+@@ -64,9 +64,12 @@ function VermilionPreparationContracts.run()
+         end
+     end
+     test("SDK reads literal UTF-8 payout and non-underscore recipe boundaries", function()
++        -- data/text/text_2.asm _MoneyForWinningText. <PLAYER> is the saved
++        -- name. The default is RED. The yen sign is charmap $f0, and
++        -- <LINE> puts "for winning!" on the second row.
+         local pages = EventText.pagesFrom({"_MoneyForWinningText"}, text,
+-            {player="RÉD", wAmountMoneyWon=175})
+-        assert(pages[1].text == "RÉD got ¥175 for winning!")
++            {player="RED", wAmountMoneyWon=175})
++        assert(pages[1].text == "RED got ¥175\nfor winning!")
+         assert(#EventText.pagesFrom({"SSAnneKitchenCook7SalmonDuSaladText"}, text) > 0)
+     end)
+     test("standard Center has shared fourteen by eight healing geometry", function()
+diff --git a/Source/game/learningState.lua b/Source/game/learningState.lua
+index b872e99c..af4a82d1 100644
+--- a/Source/game/learningState.lua
++++ b/Source/game/learningState.lua
+@@ -125,7 +125,7 @@ function LearningState:nextChoice()
+             local result=self:resolveChoice("learn")
+             self.results[#self.results+1]=result
+             self:message({result.kind=="failed" and "That machine could not be used."
+-                or self.pokemon.name.." learned "..moveData[self.pendingMove].name.."!"},result.kind)
++                or self.pokemon.name.." learned\n"..moveData[self.pendingMove].name.."!"},result.kind)
+         else self:showAsk() end
+         return
+     end
+@@ -141,8 +141,9 @@ function LearningState:nextChoice()
+             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
+         elseif #self.pokemon.moves < 4 then
+             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
+-            -- data/text/text_4.asm _LearnedMove1Text, printed by PrintLearnedMove.
+-            self:message({self.pokemon.name .. " learned " .. moveData[choice.move].name .. "!"}, "learned")
++            -- data/text/text_4.asm _LearnedMove1Text: the name and " learned"
++            -- fill the first row, and `line` puts the move and "!" on the second.
++            self:message({self.pokemon.name .. " learned\n" .. moveData[choice.move].name .. "!"}, "learned")
+             return
+         else
+             self:showAsk()
+@@ -185,7 +186,11 @@ function LearningState:showStopConfirmation()
+         if index == 2 then self:showAsk(); return end
+         local result = self:resolveChoice("decline")
+         self.results[#self.results + 1] = result
+-        self:message({self.pokemon.name .. " did not learn " .. moveData[self.pendingMove].name .. "!"}, "declined")
++        -- data/text/text_4.asm _DidNotLearnText. The name is the first row,
++        -- `line` prints "did not learn", and `cont` scrolls that row up
++        -- before the move name and "!".
++        self:message({self.pokemon.name .. "\ndid not learn",
++            "did not learn\n" .. moveData[self.pendingMove].name .. "!"}, "declined")
+     end), self:guard(function() self:showAsk() end))
+ end
+ 
+@@ -226,8 +231,9 @@ function LearningState:showConfirmation()
+         local result = self:resolveChoice("learn", self.slot)
+         self.results[#self.results + 1] = result
+         if result.kind=="failed" then self:message({"That machine could not be used."},"failed");return end
+-        self:message({self.pokemon.name .. " forgot " .. moveData[result.forgotten].name .. ".",
+-            self.pokemon.name .. " learned " .. moveData[result.move].name .. "!"}, "learned")
++        -- _ForgotAndText ends the move with "!". _LearnedMove1Text is the next page.
++        self:message({self.pokemon.name .. " forgot\n" .. moveData[result.forgotten].name .. "!",
++            self.pokemon.name .. " learned\n" .. moveData[result.move].name .. "!"}, "learned")
+     end), self:guard(function() self:showReplacement(self.slot) end))
+ end
+ 
+```
+
+### `world/sourceMaps.lua` and pin `05629c3f`
+
+The pin in `tools/references/content-transforms-149/provenance.json` is `05629c3f9bd752ab774d5623fd9c10aa094b3748b03ecdcb69036d74ee5c8666`, set in `d2d05ed8`. Three commits after that pin changed the file: `193ede89`, `57c2edb0`, and `c9c15b73`. The delta is catalog pool code: separate caches, catalog-mark writes, compact and tile-grid release, a strong tile-grid cache, and `frameSize`. It is not source-derived map data. `bf92c4fc` already has the pinned bytes. The file is restored to that pin. The hash matches. The four catalog exporters take width and height from `SourceMaps.descriptor` because the pinned file has no `frameSize`.
+
+`python3 -m unittest discover -s tools/tests` then ran 1368 tests in 160.623 seconds: 1 failure, 11 skipped. The failure is `test_coverage_matrix.CurrentMatrixTests.test_complete_source_indices_without_completion_promotion`: `matrix stale: Source fingerprint differs; regenerate/review, never relabel evidence`. The sourceMaps pin errors are gone. The snapshot was not regenerated and no row was relabeled. `tools/build.py --output /tmp/PokemonPoC-pin.pdx --stage /tmp/prod-stage-pin` exited 0.
+
+### The memory table
+
+Each suite had its own Simulator, the pool at 16645684, and the 14000 KiB budget. The eleven out-of-memory suites were rerun on a clean worktree of `bf92c4fc` (`/tmp/wt-main`). Evidence is `shard-oom-main`. Head's earlier run is `shard-rest`. `cerulean-routes`, `field-moves`, and `field-travel` were rerun with a 140 second timeout that returns a result. Head evidence is `shard-audit` and `shard-recount`. Main evidence for those three is `shard-main3`. A returned or scored `contract-progress.json` is copied to `contract-score.json` when the reply stalls, and the child totals are written on the returned checkpoint.
+
+| Suite | `bf92c4fc` | Head | Class |
+| --- | --- | --- | --- |
+| `source-maps` | not enough memory | not enough memory | already red |
+| `generic-actors` | not enough memory | not enough memory | already red |
+| `source-map-activation` | not enough memory | not enough memory | already red |
+| `cerulean-scenes` | passed, session `1e5e25a74dee4c088b433845ae67872f` | `ceruleanSceneContracts.lua:75` not enough memory, session `8f2c56d7a6d545dab0ef9c86c7230702` | new |
+| `kanto-services` | `kantoServicesContracts.lua:118` not enough memory | same | already red |
+| `cerulean-ambient-dialogue` | not enough memory, first boundary byte 99 | not enough memory, also byte 60 | already red |
+| `field-world` | not enough memory | not enough memory | already red |
+| `vermilion-gifts` | not enough memory | not enough memory | already red |
+| `vermilion-story` | passed, session `105de9caa1f745bbb37ef3162c114265` | `vermilionStoryFixture.lua:61` not enough memory, session `b19f5a611c0142dea332b69145289d9e` | new |
+| `vermilion-catalog` | not enough memory, then `overworld.lua:150` malloc | same | already red |
+| `vermilion-ambient` | passed, session `383b0eec5c6e4ade98d4af0bdbe2cf3f` | `kantoServicesContracts.lua:118` not enough memory, session `a2c896790b364857b1ff9871a0b8e0d3` | new |
+| `cerulean-routes` | passed, session `7289fe9e4a554431920352d64547cd02` | 5 passed, 15 failed, session `a053e014b6a842b2a156cb4b2e65ee16`. `CeruleanRoutes.text` asks `EndgameStory.text` after `CeruleanContent.text` errors. The reported labels are in `sourceSlice/dialogue.json` on both trees and are absent from `endgame/story.json` | new |
+| `field-moves` | not enough memory, session `44e80819270646d69aa5b7fc217c3f1e`, heap 13680.508 KiB | 1 passed, 15 failed, not enough memory, session `a02e931241684d4caf6c3d83042aecc2`, heap 13484.852 KiB | already red |
+| `field-travel` | Fly, `fieldTravelContracts.lua:89` not enough memory, session `d38e00bda6884bb492992b5891e80432` | 0 passed, 3 failed (Surf, the expired-Surf inflate, and Fly), session `ce148561a66644a9b5d47ee044f4a6f3`, heap 13169.583 KiB | already red |
+
+Eight of the eleven were already red on `bf92c4fc` with the same not-enough-memory failure. Three are new on head: `cerulean-scenes`, `vermilion-story`, and `vermilion-ambient`. `cerulean-routes` also passes on `bf92c4fc` and fails on head. `field-moves` and `field-travel` were already red. None of these three sat in poll until the timeout. The scored rows are the result.
+
+These six still fail on both sides. They stay recorded for Miguel. That decision is pending:
+
+- `source-events`: extra field `wNameBuffer` on the Viridian Forest and Route 2 plans.
+- `kanto-scenes`: `data/ceruleanContent.lua:256` source actor art not installed. Head also reports `missing endgame text: _CeruleanCityRivalPreBattleText`.
+- `contact-abilities`: `contactAbilityContracts.lua:522` and `:546`, both assertion failed.
+- `daycare`: legacy session cannot contain a hall of fame record.
+- `npc-trades`: `encode-failed` on the full party and 240 PC slots.
+- `cerulean-content`: `data/ceruleanContent.lua:241` nil `strip`.
+
+
+## 2026-11-12 The remaining shards finished, and eleven contract pages now match the box
+
+The eight suites that failed on this branch and passed on `bf92c4fc` now pass, and so do three more from the forty that had not been started. Each contract still described the previous flattened paragraph, a name the charmap accepts, or a slice the pool could not keep. `MallocPoolSize` stayed 16645684. The 14000 KiB budget was not lowered. No skip or expected-failure marker was added. `main` stays `bf92c4fc`.
+
+- `learning`: the forgot and learned sentences share the two-row box, so a line count of 2 does not hold. The check matches `forgot GROWL.` and `learned DRAGON RAGE!` after the rows are joined.
+- `items`: LINK CABLE is item 251, the first id after `TM_SUBSTITUTE`, price 0, an evolution item, and not in a mart. The legacy list includes `linkCable`. Blue items are 125 and the total is 126.
+- `session`: `PLAYER_NAME_LENGTH` is 8 including the terminator, so seven glyphs fit. `ASH` is a legal name. The malformed candidate is now `ABCDEFGH`.
+- `event-ui`: `text/Route1.asm` and `text/OaksLab.asm` put `<LINE>` in the receipt, so the pages are `RED got\nPOTION!` and `RED delivered` / `OAK's PARCEL.`. The framebuffer copy collects first. Each Oak side drops the previous `contract_` zone before the next lab. That was the `not enough memory` on the fourth BLUE face.
+- `pokedex`: `constants/charmap.asm` allows `♀`. `NIDORAN♀` round-trips. `NIDORANé` and an 11-glyph name still encode as nil.
+- `battleLearningContracts`: the decline page wraps after `did`. The check joins the rows and still requires `did not learn` and the move name. A finishes the typewriter, then the page stays up for 10 frames before the next A. That is `MESSAGE_MIN_FRAMES` / `WaitForTextScrollButtonPress`.
+- `title-recovery-probe`: the copyright and the black bars ignore A, the star skips to the fight, and A during the fight finishes it. Inspection runs after that, then the title opens the menu. Confirmed New Game lands on `oak` when that state is registered.
+- `home-lead`: the wake and the rest line span pages. The check joins the rows and matches `All boys leave home some day. It said so on TV.` plus Oak next door, and `MOM: Oh good! You and your POKEMON are looking great! Take care now!`.
+
+Those eight were rerun in their own Simulator processes. `learning`, `items`, `session`, `pokedex`, `title-recovery-probe`, and `home-lead` passed on the first rerun. `battleLearningContracts` passed on the second. `event-ui` passed on the fourth, after the zone release.
+
+The forty unstarted suites each got a fresh Simulator. Seventeen passed on that pass. Three failed only on head. A clean worktree of `bf92c4fc` passed all three. They now pass here:
+
+- `source-text`: `Dialog` wraps `Count:   7 POKéMON.` at the space. The page is `Count:   7\nPOKéMON.`. The three spaces before `7` are the `text_decimal` pad.
+- `vermilion-preparation`: `_MoneyForWinningText` follows `data/text/text_2.asm`. The page is `RÉD got ¥175\nfor winning!`.
+- `saffron-guards`: `text/SaffronGates.asm` fills two rows, and each `cont` scrolls the second row up and waits. The thirsty speech is three pages, the drink speech is fifteen, and the thanks speech is `Hi, thanks for\nthe cool drinks!`.
+
+That rerun is evidence `shard-fix5`. All three exited 0.
+
+Twenty of the forty are still red. These six fail the same way on `bf92c4fc`, so they stay:
+
+- `source-events`: `extra field wNameBuffer` on the Viridian Forest and Route 2 plans.
+- `kanto-scenes`: `data/ceruleanContent.lua:256` `source actor art not installed`. Head also reports `missing endgame text: _CeruleanCityRivalPreBattleText`.
+- `contact-abilities`: `contactAbilityContracts.lua:522` and `:546`, both `assertion failed!`.
+- `daycare`: `legacy session cannot contain a hall of fame record`. Later head tests also run out of memory.
+- `npc-trades`: `encode-failed` on the full party and 240 PC slots. Later head tests also run out of memory.
+- `cerulean-content`: `data/ceruleanContent.lua:241` `attempt to index a nil value (local 'strip')`. Head's shared projections also run out of memory before that test.
+
+These ran out of memory on head and were not launched on `bf92c4fc` in this pass: `source-maps`, `generic-actors`, `source-map-activation`, `cerulean-scenes`, `kanto-services`, `cerulean-ambient-dialogue`, `field-world`, `vermilion-gifts`, `vermilion-story`, `vermilion-catalog` (`overworld.lua:150` `malloc(184336)`), `vermilion-ambient`.
+
+`cerulean-routes` never became ready (`ready handshake timed out`, session `9f99c6dbdaab4a309e13d5131932a5ee`). `field-moves` returned at 13878.882 KiB (session `daddc635952f403d897da8bdcc5f1c3c`) and `field-travel` returned at 13141.788 KiB (session `75671d62b074422880f22ee57192c6e7`). Neither wrote `result.json`, neither raised, and both sat in poll until the command timeout.
+
+The twenty that passed: `move-failure`, `scripted-npc`, `cerulean-story`, `tutorial-escort`, `common-abilities`, `entry-abilities`, `vermilion-ship`, `field-acquisition`, `vermilion-abilities`, `cave-encounters`, `pickup`, `grass-cut`, `battle-presentation`, `approved-qol`, `source-encounters`, `field-gear`, `celadon-services`, `source-text`, `vermilion-preparation`, `saffron-guards`.
+
+`python3 -m unittest discover -s tools/tests` ran 1362 tests in 151.633 seconds: 3 failures, 6 errors, 11 skipped. Every one of them is `world/sourceMaps.lua` against `tools/references/content-transforms-149/provenance.json`, or the coverage fingerprint that moved with this Source tree. The pin is `05629c3f9bd752ab774d5623fd9c10aa094b3748b03ecdcb69036d74ee5c8666`. The file is `3dd973f072b5715a67e946b6c61c524a9d7157e41315cced0e79c124dc053b45`. Neither pin was edited. `tools/build.py --output /tmp/PokemonPoC.pdx --stage /tmp/prod-stage-lane-e` exited 1 on that same check.
+
+A clean Simulator boot, evidence `boot-clean-20261112-lane-e`, session `0277110c42654b7f894093486c2717e2`, reached `title.visible` at sequence 45, 1004 ms, and `initialize.ready` at sequence 371, 10177 ms. The sampled Lua peak was 12790.555 KiB. `tools/measure_boot_budget.py` printed BUDGET PASS.
+
+The post-FF queue in the bisect note below now places lane I `26ef16fe` `tools/notes/lane-e-trainer-victory-text.patch` and `tools/tests/test_lane_e_trainer_victory_text.py` before lane I `3dc2a903` `tools/notes/lane-e-exp-points-text.patch` and `tools/tests/test_lane_e_exp_points_text.py`. The EXP page becomes `<NAME> gained` / `<N> EXP. Points!`, and the growth and reward-HUD contract strings move to match. Both touch `battle.lua`. Victory text lands first. Then lane I `b6cb9595` `tools/notes/lane-e-evolution-cancel-hint.patch` and `tools/tests/test_lane_e_evolution_cancel_hint.py`, which removes the `B: Stop evolution` draw. BlueBot's ruling matches pokered: B still cancels and the dialog lines stay. Then `tools/notes/lane-e-healing-machine-balls.patch` and `tools/tests/test_lane_e_healing_machine_balls.py`, which paints heal color 1 solid white so the balls show, per `healing_machine.asm` rOBP1 `$e0`. The gym-door fade is `tools/notes/lane-e-door-fade-oom.patch` from lane I `8ec9dd27`, applied with its host test. The other patches in this note are not applied.
+
+## 2026-11-12 Per-process shards, still red, main not moved
+
+Each catalog exporter and each contract suite was launched in its own Simulator so the 16 MiB pool resets. `MallocPoolSize` stayed 16645684. No budget was lowered. No skip or expected-failure marker was added. The timebox closed the run at 89 of 129 contract suites. `main` stays `bf92c4fc`. Host suite, production compile, and the boot budget were not re-run.
+
+Catalog compare is red on both sides. Neither exporter finished a `catalog.json`. Head is `8f9acbb3` plus the shard runner. Main's four launches used a detached worktree of `bf92c4fc` with only the named-exporter command added.
+
+- `pewter`, head: `pewterCatalogExporter.lua:70` `copyImage failed: out of memory` after 222 frames. Main: `catalog.lua:127` `not enough memory` after 133 frames. Also red on `bf92c4fc`.
+- `cerulean`, head: `ceruleanCatalogExporter.lua:129` `malloc(207376)` after 398 frames. Main: `not enough memory` after 5 frames. Also red on `bf92c4fc`.
+- `vermilion`, head: shared painter `ceruleanCatalogExporter.lua:129` `malloc(184336)` after 390 frames. Main: `not enough memory` after 5 frames. Also red on `bf92c4fc`.
+- `midgame`, head: shared painter `ceruleanCatalogExporter.lua:129` `malloc(230416)` after 630 frames. Main: `not enough memory` after 5 frames. Also red on `bf92c4fc`.
+
+Contract shards that fail on head and pass on `bf92c4fc`:
+
+- `learning`: `forgot/learned narration: expected 2, got 3`.
+- `items`: `unexpected item linkCable`.
+- `session`: `GameSession` pointer `~= nil` in the malformed-candidate test.
+- `event-ui`: expected `RED got POTION!`, got `RED got`.
+- `pokedex`: nickname codec expected `nil`, got a table.
+- `battleLearningContracts`: `battleLearningContracts.lua:109` did not find `did not learn`; the dialog text begins `CHARMANDER did`.
+- `title-recovery-probe`: `metadata` is nil, then `onSelect` is not callable.
+- `home-lead`: `All boys leave` assertion at `homeLeadContracts.lua:123`, and the MOM rest assertion at line 137.
+
+Contract shards that are also red on `bf92c4fc`:
+
+- `persistence`: both `not enough memory`.
+- `world`: both `overworld.lua:150` `malloc(92176)`.
+- `viridian-slice`: both `expected 1, got 0`, then the same `malloc(92176)`.
+- `capture-animation`: both `expected false, got true`.
+- `pewterProviderContracts`: both `expected 1, got 0`, then `not enough memory`.
+- `brock-field-items`: both `field-town-map-forest: 3637 source-map RGBA pixels differ`.
+- `cerulean-catalog`: both `not enough memory`, then `unknown Blue source actor`, a blocked warp, and map `malloc` failures.
+- `comprehensive-catalog`: both `not enough memory`.
+
+73 contract shards passed on head. These 40 were not started before the deadline: `move-failure`, `source-maps`, `source-events`, `source-text`, `scripted-npc`, `generic-actors`, `source-map-activation`, `cerulean-content`, `cerulean-story`, `cerulean-scenes`, `cerulean-routes`, `tutorial-escort`, `kanto-scenes`, `kanto-services`, `common-abilities`, `cerulean-ambient-dialogue`, `entry-abilities`, `contact-abilities`, `field-moves`, `field-world`, `vermilion-gifts`, `vermilion-story`, `daycare`, `vermilion-preparation`, `vermilion-ship`, `field-acquisition`, `vermilion-abilities`, `vermilion-catalog`, `cave-encounters`, `pickup`, `grass-cut`, `vermilion-ambient`, `battle-presentation`, `approved-qol`, `npc-trades`, `saffron-guards`, `field-travel`, `source-encounters`, `field-gear`, `celadon-services`.
+
+## 2026-11-12 Bisect of the two red gates
+
+The range is `bf92c4fc` (current `main`) through `bd43dc3e`. `26a9d9d5`, `2c223be7`, and the LINK CABLE and Mew map-pin regenerations were not given their own Simulator runs. Both ends of the range are already red, and `catalog.lua` and `contracts.lua` do not differ between those ends, so the first bad commit is at or before `bf92c4fc`.
+
+`bf92c4fc` catalog, session `e8d279d3c9ce42eb917d830d19dc0454`, stops in `VisualCatalog.write` with `dev/catalog.lua:469: not enough memory`. That boot peaks at 13318.934 KiB. `initialize.ready` is sequence 262 at 6463 ms, heap 12044.500 KiB. `bf92c4fc` contracts, session `f3da1f47a7d34b70a5261bd56b99796f`, pass `party-battle` and stop after `individual-stats-v1` returned at 13910.872 KiB (`time_ms` 20565). The main thread is in `do_poll`. Extra progress-file opens, session `d2344618c264477f9c4ddb79905c3ab9`, move that stall earlier, into `healing-composition`, at about 13568 KiB. On `d2aa6299`, session `18ee4f304a654d1aa6706861409614e7`, `party-battle` returned at 13625 KiB and the Simulator sat in poll until the 150 second timeout. The same tree's catalog, session `1294b6350f45430eb637bcf1d83aee8d`, stops in `VisualCatalog.write` with `not enough memory`. The earlier stall is the same file-bridge wait with a higher live set. The clean boot that includes the audio cues peaked at 13603.870 KiB, about 285 KiB above main's 13318.934 KiB catalog boot.
+
+On the uncommitted tree after `bd43dc3e`, dropping the contract module tables takes the catalog command from about 12505 KiB to 9156 KiB. Dropping the shared compact catalogue, which the world provider also retains, takes 12452 KiB to 10759 KiB. Cerulean then finishes near 10171 KiB. One path set cannot grow past 8192 slots: 8000 placeholder keys reached 9849 KiB and the next growth died. A dense image array has the same ceiling: reserving 8192 slots reached 9299 KiB and the next growth, toward 12000, died. Vermilion's inventory still dies after Pewter at about 11394 KiB. The five gates are not green. `MallocPoolSize` stayed 16645684. `main` stays `bf92c4fc`.
+
+The post-FF queue, still frozen until the first main fast-forward, and re-gated before each further one. These block the starter runs and land first, alongside lane B: YellowBot's visual audit (`/workspace/visual-audit/AUDIT.md`, frames from lane G `0dadd38a`). Thirteen debug warps crash. Twelve crash in `ceruleanContent.lua` actor install. A missing sprite strip crashes `kanto_pallet_town`, `kanto_oaks_lab`, the Elite Four rooms, the Champion room, and the Hall of Fame. An unknown actor crashes `kanto_reds_house_1f`, `kanto_blues_house`, the Colosseum, and the Trade Center. `kanto_rock_tunnel_b1f` raises `unsupported Rock Tunnel outside entry`. That is the same class as the already-red `cerulean-content` nil `strip` at `ceruleanContent.lua:241`. The fix installs the missing strips and actor definitions from pokered through their importers, makes actor install fail in the test instead of crashing the map, and adds a test that installs actors for every map. The Elite Four, the Champion, and the Hall of Fame have to load in real play. That full actor-install fix lands with or before `lane-e-pallet-cutover`, which moves Pallet, Oak's Lab, Red's house 1F, and Blue's house onto the imported `kanto_*` maps. `lane-e-pallet-actors` is only a stopgap and is dropped once that full fix is in. With those blockers, lane I `8ec9dd27` `tools/notes/lane-e-door-fade-oom.patch` and `tools/tests/test_lane_e_door_fade_oom.py`: the Fuchsia Gym door fade's `image:drawFaded` allocates a temporary bitmap and runs out of memory under a full pool. The patch draws the same Bayer rows with `setStencilPattern`, which allocates nothing. Those rows were pixel-identical to `drawFaded` at alpha 0.875 and 0.5. `MallocPoolSize` stays 16645684. It is applied. Then lane B `cursor/lane-b-south-loop` `a4d4fba4` `tools/notes/lane-e-learn-pages.patch` and `tools/tests/test_lane_e_learn_pages.py` (`LearningState:showAsk` opens YES/NO only after the trying-to-learn text has paged through the two-line box, per pokered); lane B `f97a1c97` `tools/notes/lane-e-trainer-lease.patch` and `tools/tests/test_lane_e_trainer_lease.py` (`EventState:startTrainer` releases the scripted walk's actor lease before the trainer claim); lane B `851797d5` `tools/notes/lane-d-route22-second-rival.patch` and `tools/tests/test_lane_d_route22_second_rival.py`. With those, three later lane B handoffs that broke file ownership: `5c27a3f8` rewrites the Route 22 rival start in `Source/game/ceruleanRoutes.lua`, `4e1f7fc6` releases the scripted walk in `Source/game/eventState.lua` before the trainer claim, and `4a42e55b` adds `Source/dev/caveEncounterContracts.lua`. Before any of those three is applied, audit `5c27a3f8` against `scripts/Route22.asm` and `4a42e55b` against `TryDoWildEncounter` in `engine/battle/wild_encounters.asm`. Take only the behavior that matches that source, and land it with tests. `ceruleanRoutes.lua` and `eventState.lua` stay on their pins until that audit. Review the learn-pages, trainer-lease, and Route 22 patch as lane E code with their tests, keep the lease test as an expectedFailure until applied, and verify the lease and Route 22 rival against `af519899`. Then lane I `cursor/lane-i-device-perf` `26ef16fe` `tools/notes/lane-e-trainer-victory-text.patch` and `tools/tests/test_lane_e_trainer_victory_text.py`: on a trainer win the battle shows the defeat line, the end-battle text, and the prize before the fade, per pokered, and the overworld prize copy is removed. Then `3dc2a903` `tools/notes/lane-e-exp-points-text.patch` and `tools/tests/test_lane_e_exp_points_text.py`: the EXP page is `<NAME> gained` / `<N> EXP. Points!`, and the growth and reward-HUD contract strings move to match. Both touch `battle.lua`. `lane-e-battle-message.patch` is already applied at `2c223be7`, so these two land after learn-pages and that battle-message patch, victory-text first and the EXP page immediately after it. Then lane I `b6cb9595` `tools/notes/lane-e-evolution-cancel-hint.patch` and `tools/tests/test_lane_e_evolution_cancel_hint.py`: delete the `B: Stop evolution` draw. pokered `Evolution_CheckForCancel` reads PAD_B with no hint. B still cancels, and the dialog lines stay. Then `tools/notes/lane-e-healing-machine-balls.patch` and `tools/tests/test_lane_e_healing_machine_balls.py`: `AnimateHealingMachine` sets rOBP1 to `$e0`, so heal color 1 is solid white and the ball center and the monitor bar stay white. The 2bpp grid and the ball positions stay. Neither of those two patches is applied. Then lane G pull `cursor/lane-g-front-end` through `18c11ded`. That tip fast-forwards `0dadd38a` (`bc3add2b`, then `fde6a429`, then `0dadd38a`), so the pull includes the battle-HUD set: `tools/notes/lane-e-dialog-font.patch` and `tools/tests/test_lane_e_dialog_font.py`, `tools/notes/lane-e-battle-hud.patch` and `tools/tests/test_lane_e_battle_hud.py`, `tools/notes/lane-e-battle-intro-text.patch` and `tools/tests/test_lane_e_battle_intro_text.py`, `tools/notes/lane-e-battle-sprite-order.patch` and `tools/tests/test_lane_e_battle_sprite_order.py`, `tools/notes/lane-e-sprite-mask.patch` and `tools/tests/test_lane_e_sprite_mask.py`, and `tools/notes/lane-e-enemy-platform-shift.patch` and `tools/tests/test_lane_e_enemy_platform_shift.py`. Each expectedFailure turns green, every battle-file hunk is reviewed as lane E code, and both provenance files are regenerated. The four patches new since `0dadd38a`, each with its test, are `tools/notes/lane-e-pallet-cutover.patch` and `tools/tests/test_lane_e_pallet_cutover.py`, `tools/notes/lane-e-pallet-actors.patch` and `tools/tests/test_lane_e_pallet_actors.py`, `tools/notes/lane-e-pallet-tones.patch` and `tools/tests/test_lane_e_pallet_tones.py`, and `tools/notes/lane-e-silph-9f-panel.patch` and `tools/tests/test_lane_e_silph_9f_panel.py`. BlueBot approved those four visually. The tones patch is Miguel's mockup C. Frames are `/workspace/lane-g/r19/` on the shared box. The pull waits until main's gates are green. None of those patches are applied. After that, the rest in the previous order: lane H through `53103630`; lane F `01d20480` with `lane-e-audio-gaps.patch`; lane B `lane-e-battle-message.patch` (already applied at `2c223be7`); lane H `lane-e-battle-text-flicker.patch` from `7b1f1925` on `cursor/lane-h-postgame` after the lane G pull, because both touch `battleScene.lua`; lane B prize-text `f0dd27db`; then the "Now saving..." line.
+
+## 2026-11-12 Pause Save keeps the picture, and STAY actors redraw after the snap
+
+Lane I `77016410`. `GameSaves:save` and `GameSaves:saveFromHall` pass a draw callback that returns true, so `GameBootstrap.showLoading` leaves the frame that is already on the LCD. `engine/menus/save.asm` `SaveMenu` keeps the map and the text box, clears the box text, and prints `NowSavingString` before `GameSavedText`. `scripts/HallOfFame.asm:50` calls `SaveGameData` with the ceremony still up. The port does not print "Now saving..." yet. It no longer replaces that box with `Pokemon Blue` / `Loading...` / `Save.begin` / `Phase N`.
+
+`data/maps/objects/PewterGym.asm` places `SPRITE_GYM_GUIDE` at (7, 10), `STAY`, `DOWN`. `NPC:init` calls `setImage` before `Camera:snapTo`. `NPCMotion:tick` calls `setImage` again only for random walkers, and that call is still before `camera:apply`. A scan of the stored object tiles found 502 `STAY` actors outside the origin 400 by 240 screen, including the Cerulean and Viridian gym guides. `OverworldState:enter` now applies the snapped offset and calls `setImage` and `markDirty` on every npc. The Pewter catalog viewport is a terrain crop, and the actors sheet draws with `sprite:draw`, so those baselines are unchanged. The catalog export still stops with `not enough memory`. `main` stays `bf92c4fc`.
+
+## 2026-11-12 The Silph message hold and the remaining cues were already on this branch
+
+Lane B `975d8c87` `tools/notes/lane-e-battle-message.patch` matches the copy in this tree. `Dialog:handleInput` finishes a line on A, then keeps the complete page up for 10 frames, which is `MESSAGE_MIN_FRAMES` in `Source/battle/battle.lua`. That is `home/print_text.asm` `PrintLetterDelay` plus `home/joypad2.asm` `WaitForTextScrollButtonPress`. `test_mashed_a_holds_the_finished_battle_line` passes with the decorator removed. The hold changes when the page turns. It does not change the drawn pixels, and the catalog export still stops in `VisualCatalog.write` with `not enough memory`, so no protected baseline was rewritten.
+
+Lane F `d34adec3` `tools/notes/lane-e-audio-gaps.patch` is stored and already applied. `engine/movie/hall_of_fame.asm:37` is `MUSIC_HALL_OF_FAME`, and `HoFDisplayMonInfo` ends at `jp PlayCry` (line 178). `scripts/ViridianGym.asm:46`, `RocketHideoutB2F.asm:29`, and `RocketHideoutB3F.asm:29` are `SFX_ARROW_TILES`. `scripts/Route22Gate.asm:82` is `SFX_DENIED`. `engine/items/item_effects.asm:1804` is `SFX_POKEFLUTE`. The flute line is also in the earlier hooks patch. `SnorlaxStory.useFlute` plays it once. `test_hall_flute_arrow_and_denied_call_sites` passes. The clean boot that includes these cues peaked at 13603.870 KiB with `MallocPoolSize` 16645684. `main` stays `bf92c4fc`.
+
+## 2026-11-12 The gates after lane G r9
+
+`d2aa6299` ran `python3 -m unittest discover -s tools/tests`: 1363 tests, 161.123 seconds, OK, skipped=11. `tools/build.py` wrote `/tmp/PokemonPoC.pdx` and exited 0. A clean Simulator boot, evidence `boot-clean-20261112`, reached `title.visible` at sequence 45, 971 ms, and `initialize.ready` at sequence 244, 5453 ms. The sampled Lua peak was 13603.870 KiB. `tools/measure_boot_budget.py` printed BUDGET PASS. `MallocPoolSize` stayed 16645684.
+
+The SDK `contracts` command did not finish. Session `18ee4f304a654d1aa6706861409614e7` recorded `party-battle` returned at 13625 KiB, then the Simulator sat in poll until the 150 second request timeout (`command timed out; cancellation unconfirmed`). The catalog command, session `1294b6350f45430eb637bcf1d83aee8d`, stopped in `VisualCatalog.write` with `not enough memory`. No protected baseline was rewritten. `main` stays `bf92c4fc`.
+
+## 2026-11-12 Lane G r9 adds nicknames, the Name Rater, and the dialog font
+
+Lane G `e93bc416` is merged through `38552dc9`. `tools/notes/lane-e-dialog-font.patch` from that commit is applied. `home/text.asm` `PromptText`, `Paragraph`, and `_ContText` place `▼` at `hlcoord 18, 16`. `DoneText` does not. `Dialog.showsArrow` follows that rule, and the box is `data/text_boxes.asm` `MESSAGE_BOX` (`hlcoord 0, 12`, two rows of 18) drawn with `GbFont`. The fidelity ledger records this as BlueBot's decision extending r1 ruling d.
+
+A catch reads `wPokedexOwned` before recruit, which is `engine/items/item_effects.asm` `ItemUseBall`. The dex page then returns to the battle, and `engine/pokemon/add_mon.asm` `_AddPartyMon` asks for the nickname. Lane G's 30-frame pause between those two is not in pokered, so it is not kept. `DialogState:draw` applies the overworld camera after the box. `BattleScene:draw` draws the field from the origin and restores the previous offset, so the sprite and HUD stay on screen.
+
+`tools/integration/kanto-first-entry/export.py --execute` wrote SDK evidence `transform-refresh-20261112-05`, session `1f6c763ef43d47e3b8253cf32c017f92`, outcome ok. `--collect` regenerated both provenance files. `domain/gameSession.lua` is `144ddc28580f0833911a477b4eb1460ab76f23bc462293e412f96fe4cd2fba33`. The Cerulean and Vermilion journeys were regenerated by their generators. The Name Rater production handler stays a comment in `sourceEventHandlers.lua`. The protected catalog compare was not given a new baseline: the Simulator still dies while writing catalog frames. `main` stays at `bf92c4fc`. Boot was not remeasured. `MallocPoolSize` stayed `16645684`.
+
+## 2026-11-12 A finished battle line stays up, and the remaining cues play
+
+Lane B `975d8c87` hands `tools/notes/lane-e-battle-message.patch`. A mashed A was finishing a battle sentence and confirming it on the next frame, so the box showed a prefix such as "VENUSAUR is dam" before the next `say`. pokered `home/print_text.asm` `PrintLetterDelay` only shortens the per-letter wait while A is held. `home/joypad2.asm` `WaitForTextScrollButtonPress` then requires a new press. `BattleScriptPhase` already waits `MESSAGE_MIN_FRAMES` (10) before that press can turn the page. The finished line now stays up for those 10 frames. Key items still refuse a battle revive. Steel against grass/poison stays neutral. `MIRROR_SHOT` is not in pokered `af519899`; the port's move 429 stays the B2W2 move, and the "not very effective" line on Double-Edge is the normal-versus-electric/steel matchup.
+
+Lane F `d34adec3` is the audio-gap handoff, not a merge of `tools/audio/**`. `engine/movie/hall_of_fame.asm` `AnimateHallOfFame` plays `MUSIC_HALL_OF_FAME` before the party photo loop, and `HoFDisplayMonInfo` ends in `PlayCry`. The spinner start plays `SFX_ARROW_TILES`, which `scripts/ViridianGym.asm`, `scripts/RocketHideoutB2F.asm`, and `scripts/RocketHideoutB3F.asm` play at the same moment. Step cues named `denied` and `arrow_tiles` go through `KantoAudio.playCue`. The Poké Flute cue was already installed. `root-hooks.patch` and `cry-hooks.patch` stay unapplied. The host tests passed. The SDK `contracts` command still deadlocks the Simulator after the `individual-stats-v1` checkpoint, so `main` stays at `bf92c4fc`. Boot was not remeasured. `MallocPoolSize` stayed `16645684`.
+
+## 2026-11-12 Score files load with file.run after startup
+
+The SDK export of the Mew scientist tree compiled, then the Simulator stopped at tick 1 with `audio/engine.lua: import() called outside of pdz loading`. `import()` is only legal while a pdz is loading, and the title cue asks for its score after that. `playdate.file.run` loads the compiled `audio/score/<name>.pdz`, `audio/routes.pdz`, and `audio/cries.pdz` on first play. The path is still built at play time, so pdc 3.1.2 does not treat `audio/score/` as a literal file request. The audio event tests passed. The coverage snapshot is `9ce5eec5b9850607eb819c0c20baaa7fdb8fae52010d1a9ed07e75372b7fefb5`. The previous snapshot is nested. No row was relabeled. `MallocPoolSize` stayed `16645684`. This is not a boot measurement.
+
+## 2026-11-12 The Mew scientist stands on Cerulean Cave 1F
+
+Lane H `3b2c6afb` did not change `lane-e-static-encounters.patch`, `lane-e-fossil-item.patch`, or `lane-e-link-cable.patch`. Those adoptions stay. `tools/notes/lane-e-mew-scientist.patch` adds object `postgame:CERULEAN_CAVE_1F:mew-gift` at cell (23, 16). The sprite is `SPRITE_SCIENTIST`, which `gfx/sprites.asm` already includes as `ScientistSprite` from `gfx/sprites/scientist.2bpp`. No new art was added. The cave file digest is `4bc3a9b4778f66051ce151cdeba61e48c8b4af85fc5797ca79e6c0cf1a048019`. `tools/activate_remainder.py` rewrote `sourceMaps.json` after that pin was recomputed from the file bytes. `tools/generate_source_map_cache.py` rewrote `compact.json`, every `runtime-*.json`, `tile-grids.json`, and the cell bins. Every cache file changed its manifest hash. The cave source pin and the new object are the only other cache changes. Tile and collision bytes are unchanged. `sourceMapFixture.json`, the Cerulean journey, and the Vermilion journey were regenerated by their generators. Those journeys also picked up the LINK CABLE `items.lua` hash the earlier projection had missed. The remainder provenance now hashes the cave file and the updated manifest entries. The content-transform provenance still names the old `sourceMaps.json` and was not edited by hand. The gift script stays on lane H's postgame story. The coverage snapshot is `9be706e74957dcdc46fe74ee06a92a1514b84ffac80f74fdb5742b63701918f3`. The previous snapshot is nested. No row was relabeled. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
+Lane B moved to `5a762fba` with Silph Co. save notes only. Lane I moved to `d667f6da` so later pause screenshots keep their own names. Neither sent a defect or a patch for this lane.
+
+## 2026-11-12 LINK CABLE evolves Kadabra, Machoke, Graveler, and Haunter
+
+Lane H `90c351a4` did not change `lane-e-static-encounters.patch` or `lane-e-fossil-item.patch`. Those adoptions stay. `tools/notes/lane-e-link-cable.patch` is applied. LINK CABLE is item 251, the first id after `constants/item_constants.asm` `TM_SUBSTITUTE` (`$FA`). It is not in any mart. Kadabra, Machoke, Graveler, and Haunter keep the Gen5 trade edge and gain a stone edge in front of it. No other species gains that item. A host opens the bag, presses A on the cable, presses A on USE, presses A on Kadabra, and lets the evolution animation finish. Kadabra is Alakazam and the cable is gone. The fidelity ledger records the deviation. The coverage snapshot is `67b8c980e5002a2508ca42ee0aac81f058c4c004eae1ff4f9fba15bca0c777ef`. The previous snapshot is nested. No row was relabeled. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
+`pdc` 3.1.2 also needed `Source/game/lateKantoStory.lua` to stop treating `type(import)` as a request for a file named function. The score loader still builds `audio/score/` at play time.
+
+## 2026-11-12 Lane G r6 puts Red above the copyright
+
+Lane G `e6df2b02` was already merged. `840ffe52` fast-forwards that branch and is merged on top as `a8124559`. `engine/movie/title.asm` `DrawPlayerCharacter` places Red with `lb de, $60, $5a` on a 5-by-7 grid. That is GB y 80–135 and x 82–122, so his feet stop one pixel row above the copyright at `hlcoord 2, 17`. The scale-2 blit from (308, 118) is not used. `TitleState:update` still calls `KantoAudio.playCue("title")`. The front-end host and the title-cue test passed. `tools/generate_title_art.py --check` verified 64 images from the pinned pokered tree. `title-art.json` was not edited by hand. `gbFont.lua` reads `gfx/font/font.png`, `gfx/font/font_extra.png`, and `gfx/font/ED.png` at the `constants/charmap.asm` indexes, and those three sheets match the threshold of the pokered files. The fidelity ledger records this as BlueBot's r6 decision. The r6 frame named by lane G is `artifacts/lane-g/r6/title.png`. It is not on this machine, so it was not reopened here. The coverage snapshot is `48bbbb47144462746acd8959a6529720ad161f1ce47a51ead4ddb91f5b661a06`. The previous snapshot is nested. No row was relabeled. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
+Lane H `90c351a4` did not change `lane-e-static-encounters.patch` or `lane-e-fossil-item.patch`. Those two adoptions still match. The LINK CABLE patch is in that commit and is not applied yet.
+
+## 2026-11-12 The gate still fails, and the endgame abilities now do their Gen V effects
+
+`python3 -m unittest discover -s tools/tests` on `f5a2f764` ran 1275 tests in 117.597s: 3 failures, 38 errors, 15 skipped, 1 expected failure. Two failures are `test_region_registrations.py`. `tools/generate_region_registrations.py` checks the live transform hashes before the owner-import drift the tests stage. `game/snorlaxStory.lua` is now the flute hook and `domain/gameSession.lua` is now the name setters, so both differ from `tools/references/content-transforms-149/provenance.json`. Refreshing that proof needs an SDK 3.1.2 export. The hashes were not rewritten by hand. The third failure was the mechanics freeze, which still pinned `pokemonCodec.lua` and `sessionCodec.lua` to the commits from before version 5. Those pins now name `db83fbfd`. The 38 errors are the missing Playdate SDK at `~/Developer/PlaydateSDK`, missing reference caches, `/private/tmp`, and Pillow rejecting `get_flattened_data`. SDK `contracts`, `tools/build.py`, `tools/measure_boot_budget.py`, and the protected catalog compare were not run. There is no `pdc` and `PLAYDATE_SDK_PATH` is unset. Boot was not remeasured. No peak and no `initialize.ready` time were produced. `MallocPoolSize` stayed `16645684`. The 14000 KiB budget was not changed. `main` stays at `bf92c4fc`.
+
+Lane B's `origin/cursor/lane-b-south-loop` is `bb8060a4`. That move is notes only. Lane I's `origin/cursor/lane-i-device-perf` is `749fe996`. It saves the Charmander file and continues it. Neither branch sent a patch or a defect for this lane.
+
+Lane H is still `69264273`. The Power Plant rows and the one Mewtwo row are already in `sourceEncounters.lua` from `de97bd2a`. `wFossilItem` is in the same version-5 codec as the names. Lane F is still `b9634998`. `lane-e-audio-hooks.patch` is already applied at `ff752bda`. `root-hooks.patch` and `cry-hooks.patch` are not applied. The boot budget still cannot be measured. Lane G's name, nickname, and menu-font patches are the ones from `965ab902`, installed at `db83fbfd`. `SessionCodec.VERSION` is 5 and it accepts 1 through 4. `cursor/lane-g-front-end` at `533f97af` is not merged, and the title music cue is not applied.
+
+The suite on the ability tree, before the projection refresh, ran 1276 tests in 117.607s: 4 failures, 38 errors, 15 skipped, 1 expected failure. The two region failures are the same provenance mismatch. The mechanics freeze passed. The other two failures were the Vermilion journey projection, which hashes `battle/battle.lua`. `tools/generate_vermilion_journey.py` rewrote that one hash. Those two tests then passed. `main` was not moved.
+
+Giovanni, the Elite Four, the champion, and Articuno, Zapdos, Moltres, and Mewtwo can roll abilities that had no callback. Those eight now do the Gen V effect. Limber blocks paralysis. Lightning Rod draws an Electric move, including one Ground would ignore, and raises Special Attack by one stage. Chlorophyll doubles Speed in sun, the same way Swift Swim doubles it in rain. Pressure spends a second PP when the target is hit and any PP remains. Thick Fat halves Fire and Ice power. Iron Fist multiplies a punch by 4915/4096. Reckless does the same for a move whose drain is negative. Hydration clears a status at the end of a rainy turn. Synchronize was already bouncing burn, poison, and paralysis. A move in `MoveSupport.gaps`, such as Perish Song, still says "But it failed!" and records the gap. The ability commit is `59103c25`. The projection commit is `e91e1f0d`. The coverage snapshot is `d002cacf233d971b24b1f6e68d21f370bbcb67234528fd745b97dce93f7f104d`. The previous snapshot is nested. No row was relabeled.
+
+## 2026-11-12 Cable Club, Blue exclusives, Mew, and trade evolutions are recorded
+
+Miguel's picks from BlueBot's chat on 2026-11-12 at 9:43 AM CST are in the fidelity ledger. The Cable Club is excluded, so the Trade Center and the Colosseum stay non-functional. The game stays Blue only: no Red/Blue switch, and exclusives stay as in Blue. Mew and the trade evolutions are labelled Miguel-approved deviations from pokered. Mew is a post-Hall-of-Fame gift at level 5, one per save, behind its own flag, and lane H is implementing it. Kadabra, Machoke, Graveler, and Haunter will evolve with a Linking Cord-style item, likely named LINK CABLE. Lane H will send that item, the evolution rows, and the mart table as a failing test plus a patch. Every other species and item keeps its pokered data. No Source file changed for these rows.
+
+`cursor/lane-g-front-end` is not merged. The names, nickname, and menu-font handoffs already on this branch stay. Lane G's remaining frames wait for the four r3 fixes, and lane F's title music cue waits with them.
+
+## 2026-11-12 Chosen names save, and a gift can be nicknamed
+
+Lane G's `965ab902` name, nickname, and menu-font patches are installed. `namingState.lua` is not imported, and lane G's title frames and `story.lua` are not pulled. The rival actor in `vermilionStory/trainers.json` stays `BLUE`. Dialogue uses `Story.playerName` and `Story.rivalName` when those functions exist.
+
+`SessionCodec.VERSION` is 5. Versions 1 through 4 still load. A save with no player or rival name loads as RED and BLUE. `constants/text_constants.asm` sets `PLAYER_NAME_LENGTH` to 8 and `NAME_LENGTH` to 11, so the visible names are 1 to 7 and 1 to 10 glyphs. `constants/charmap.asm` allows printable ASCII plus `×` (`$f1`), `♂` (`$ef`), and `♀` (`$f5`). The rest of that table, including `é`, is rejected. `wFossilItem` stays in this same version. A catch stores `pendingNickname`. Lapras, the gym gifts, Eevee, and Magikarp call `Story.promptNickname` when it exists. The Name Rater hook is the comment for `pokered:NAME_RATERS_HOUSE:objects:1`. `BattleMenu` draws `▶` and a 4px frame. The fidelity ledger records the four r1 picks. The intro pictures are not pulled.
+
+This entry is `db83fbfd`. The coverage snapshot is `6d9d22ed228f945a7371687207d3fd2e7867243cfc73b0d10c843aeaeda5c8ec`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `sessionCodec.lua`. The name, nickname, menu, play-time, fossil, and Cerulean projection tests passed. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
+## 2026-11-12 The field plays the Kanto cues
+
+Lane F's `b9634998` is merged. Score notes load on the first play from `audio/score/<name>.lua`. `tools/notes/lane-e-audio-hooks.patch` is applied. `main.lua` imports `kantoAudio` and calls `KantoAudio.updateGame` after input. `tools/audio/root-hooks.patch` is that same import and call, so it is not applied a second time. `tools/audio/cry-hooks.patch` is not applied. `KantoAudio.noteCries` already plays the wild intro cry and the send-out cries.
+
+`home/audio.asm` `PlayDefaultMusicCommon` plays `MUSIC_BIKE_RIDING` when `wWalkBikeSurfState` is the bicycle and `MUSIC_SURFING` when it is 2. Surf and the bicycle call `setTraversal`, and Continue restores the saved mode. `home/trainers.asm` `PlayTrainerMusic` returns for `OPP_RIVAL1`, `OPP_RIVAL2`, and `OPP_RIVAL3`, and returns when `wGymLeaderNo` is not 0. `EngageMapTrainer` calls it before the gym script stores that number, so a leader still gets the class jingle. The evil and female lists match `data/trainers/encounter_types.asm`. A rival sight battle plays `meet_rival`, the `MUSIC_MEET_RIVAL` cue from the rival scripts, because `PlayTrainerMusic` itself is silent. Map beds follow `data/maps/songs.asm`, including Pallet, Route 1, Viridian Gym, and the Power Plant. The Poké Flute cue is `SFX_POKEFLUTE` from `engine/items/item_effects.asm`.
+
+The boot budget was not measured. This machine has no Playdate SDK, and `tools/measure_boot_budget.py` only reads a trace. No peak and no `initialize.ready` time were produced. `MallocPoolSize` stayed `16645684`. The 14000 KiB budget was not changed. `main` stays at `bf92c4fc`.
+
+This entry is `ff752bda`. The coverage snapshot is `10b6f8ec3f05feb073c5bc94c67f3134a0e10a4e83fdfd6d099d2487167cd22c`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `main.lua`. The audio hook tests passed. The full suite, SDK contracts, production compile, and catalog compare were not run.
+
+## 2026-11-12 The gate on 6dc41bf6 did not pass, and the Power Plant battles start
+
+`python3 -m unittest discover -s tools/tests` on `6dc41bf6` ran 1249 tests: 34 errors, 15 skipped. The errors are a missing Playdate SDK at `~/Developer/PlaydateSDK`, missing files under `~/Developer/Pokemon-PlayDate-env/references` and `preparation`, a missing pinned move cache, an unset `KANTO_REFERENCE`, `/private/tmp`, and Pillow rejecting `get_flattened_data` on the Hall of Fame pictures. SDK `contracts`, `tools/build.py`, `tools/measure_boot_budget.py`, and the protected catalog compare were not run. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
+Lane B's `origin/cursor/lane-b-south-loop` is `0f809437`. It adds no code after the coast module already on this branch. The surf-door decision stands: `SeafoamIslandsB3F.asm` warps `(20, 17)` and `(21, 17)` are taken before the surf step returns. The surf-edge decision stands: only Route 1's south connection into Pallet defers to the Pallet adapter, and the Route 21 water banks can be surfed. The STAY decision stands: a fixed facing does not wander, a saved delay on that actor loads as static on the object tile, and `STAY, NONE` still turns.
+
+Lane H's `69264273` is merged. `data/maps/objects/PowerPlant.asm` objects 1, 2, 3, 5, 6, and 8 are Voltorb at level 40. Objects 4 and 7 are Electrode at level 43. Object 9 is Zapdos at `(4, 9)`, level 50, `STAY`, `UP`. `scripts/PowerPlant.asm` gives every one of them sight 0, and the trainer flags are `EVENT_BEAT_POWER_PLANT_VOLTORB_0` through `_7` and `EVENT_BEAT_ZAPDOS`. Mewtwo stays the single Cerulean Cave B1F row. A talk from a neighboring tile starts each of those battles. A disguised Voltorb or Electrode does not play a cry. Zapdos does. `ram/wram.asm` `wFossilItem` is the item byte, and `constants/item_constants.asm` gives Old Amber `$1F`, the Dome Fossil `$29`, and the Helix Fossil `$2A`. A save without that field still loads. Choosing the Dome Fossil and continuing writes byte 41. The names codec is not in this commit, so the session version stays 4.
+
+This entry is `de97bd2a`. The coverage snapshot is `104ad1d15117ae7364e78cea03ce9e1f089c046276348e8ba6fd90afe3bc8bc1`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `sessionCodec.lua`.
+
+## 2026-11-12 Talking to Mewtwo starts the battle
+
+Lane H's `31ddf0d1` is on this branch. `tools/generate_postgame_story.py` reads the pinned pokered cave objects, scripts, and Blue wild tables. Mewtwo is not a wild slot. `data/maps/objects/CeruleanCaveB1F.asm` object 1 is Mewtwo at `(27, 13)`, level 70, `STAY`, `DOWN`. `scripts/CeruleanCaveB1F.asm` gives that trainer sight 0, so the player talks from a neighboring tile. `home/trainers.asm` `EndTrainerBattle` sets `EVENT_BEAT_MEWTWO` unless the battle was lost. A run counts as an end, and a party wipe does not. `scripts/HallOfFame.asm` hides the Cerulean Cave guard and `HallOfFameResetEventsAndSaveScript` clears the indigo range through `EVENT_BEAT_CHAMPION_RIVAL`. That flag is outside the older reset list, which stopped at `EVENT_LANCES_ROOM_LOCK_DOOR`. Continue from the Hall of Fame uses `data/maps/special_warps.asm` `.PalletTown`, `(5, 6)`, facing down.
+
+`SourceEncounters` has no registration API. The row in `tools/notes/lane-e-mewtwo-encounter.patch` is now in the table, after Articuno. Without it, the cry plays and the battle is rejected. A talk from `(27, 14)` facing up, or from `(26, 13)` facing right, plays the cry and `FieldBattle.startSourceEncounter` starts Mewtwo at level 70. One tile farther south does not talk. Standing on `(27, 13)` is not a trigger. `main.lua` calls `PostgameStory.ensureRuntime` after the coast install, because the cave module boots with the Kanto scenes, before `HideoutTowerController` exists.
+
+The Seafoam circle in clip `20261112T144033Z-seafoam-return-to-fuchsia` is the wild-battle iris. `home/overworld.asm` `WarpFound2` writes palette offset 6 only when an outside map warps to `ROCK_TUNNEL_1F`. Seafoam, Cerulean Cave, Mt. Moon, Diglett's Cave, and Victory Road use tileset `CAVERN` and stay lit. `fieldMoves.json` names only Rock Tunnel 1F and B1F. `coastStory.lua` and `coastStoryWorld.lua` do not set a darkness flag.
+
+This entry is `843ec5ee`. The coverage snapshot is `0ff156369fe9f0bb8a70e78a81d4a0abdf089f0738381434fd540ed5220a327a`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated because they hash `main.lua`.
+
+The Mewtwo, dark-map, Cerulean Cave, late Kanto, STAY, and surf tests passed. The full suite, SDK contracts, production compile, and boot budget were not run. Boot was not remeasured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`. No pull request was opened.
+
+## 2026-11-12 Fixed-facing STAY actors load, and the coast stairs can be taken
+
+Lane A's last head is `427918f0` on `cursor/linux-runtime-seams-fcc0`. It is not on main, and its suite was not finished. `SourceActors.wanders` from that commit is the rule kept here. pret/pokered `af519899` `constants/map_object_constants.asm` defines `STAY` as `$FF` and `WALK` as `$FE`. `engine/overworld/movement.asm` sends both through `.randomMovement`. Fixed `DOWN`, `UP`, `LEFT`, and `RIGHT` ignore the random byte. `TryWalking` writes the facing, then `CanWalkOntoTile` rejects `$FF` before `MAPX` and `MAPY` change. `NONE` and `ANY_DIR` still turn. Cinnabar Gym's nine objects are `STAY, DOWN`. The center nurse and the link receptionist are `STAY, DOWN`. The gentleman is `STAY, NONE`, so he still turns and his delay still loads.
+
+That commit still rejected a stationary delay. Sequences 119, 124, and 125 store `delay` on the gym guide, the nurse, and the receptionist, on their `object_event` tiles. Rejecting the record would stop Continue. `WorldMotionData.normalize` publishes a `delay`, `ready`, or `moving` record for an actor that does not wander as `static` on the object tile. The saved cell is not kept. Lane B's `WALK`-only line is not applied. The first normalize rewrite, which kept the saved cell, stays rejected. The count of 135 `STAY, NONE` NPCs was not reproduced. The object files contain 251 `STAY, NONE` rows.
+
+The Seafoam door handoff is adopted. `data/maps/objects/SeafoamIslandsB3F.asm` warps `(20, 17)` and `(21, 17)` to B4F. A surf step used to return before `getDoorAt`. The Route 21 edge handoff is adopted. `data/maps/headers/Route21.asm` connects north to Pallet and south to Cinnabar. `data/maps/headers/Route1.asm` is the south connection that still defers to the Pallet adapter. Only that south connection returns early.
+
+Lane B's coast module is on this branch: `coastStory.lua`, `coastStoryWorld.lua`, `tools/lane_b_publish.py`, and the coast and save-publish tests. `main.lua` installs it, and Articuno is the B4F static encounter from `data/maps/objects/SeafoamIslandsB4F.asm` object 3 at `(6, 1)`, level 50. The Cinnabar delay test was not copied. It still expects the `WALK`-only line. No lane F, G, H, or I branch was on origin. No codec field was added. The endgame move audit is not in this commit.
+
+The coverage snapshot is `a118ac8a8e7dbfc0855c7745e49d82cb1429b6d547d94290505ab12e2abf1e7b`. The previous snapshot is nested. No row was relabeled. Cerulean and Vermilion journey projections were regenerated with their generators.
+
+`python3 -m unittest discover -s tools/tests` on this machine, before the surf and coast edits, ran 1231 tests: 34 errors, 15 skipped. Those errors are a missing Playdate SDK at `~/Developer/PlaydateSDK`, missing files under `~/Developer/Pokemon-PlayDate-env/references` and `preparation`, and `/private/tmp`. The STAY, surf, Seafoam, coast, journey, and coverage checks passed on the edited tree. Boot was not measured. `MallocPoolSize` stayed `16645684`. `main` stays at `bf92c4fc`.
+
 ## 2026-11-12 The Cinnabar delay patch stays unapplied
 
 Lane B's `tools/notes/lane-a-cinnabar-trainer-delay.patch` is on their agent, not on `origin/cursor/lane-b-south-loop` (`d33d853a`). It teaches `WorldMotionData.normalize` to copy a saved actor and, when `phase` is `delay` and `spec.random` is false, store `static` with both delay fields cleared. The paired test expects that settle and currently marks it an expected failure until the shared file changes.

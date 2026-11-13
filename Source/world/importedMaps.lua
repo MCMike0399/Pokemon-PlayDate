@@ -119,6 +119,25 @@ function ImportedMaps:init(data,factory)
     end
     stores[self]=store
 end
+-- The catalog inventory keeps every exporter declaration at once. The shared
+-- catalogue is already validated; drop it for that copy, then point the same
+-- indexes at the reloaded table. This does not rebuild zones or the ledger.
+function ImportedMaps:releaseCatalogue()
+    local store=stores[self]
+    store.data, store.byID, store.byKey = nil, {}, {}
+    store.count = 0
+end
+function ImportedMaps:retargetCatalogue(data)
+    assert(type(data)=="table" and data.schema==1, "unverified compact imported definitions")
+    local store=stores[self]
+    store.data = data
+    store.byID, store.byKey = {}, {}
+    store.count = 0
+    for _, descriptor in pairs(data.maps) do
+        store.byID[descriptor.id], store.byKey[descriptor.key] = descriptor, descriptor
+        store.count = store.count + 1
+    end
+end
 function ImportedMaps:hasID(id) return stores[self].byID[id]~=nil end
 function ImportedMaps:hasKey(key) return stores[self].byKey[key]~=nil end
 function ImportedMaps:keyForID(id) local d=stores[self].byID[id];return d and d.key end
@@ -275,6 +294,28 @@ end
 -- ordinary eviction never invokes this reset or changes quest/trainer flags.
 -- Resident compatibility Zones retain the same lifetime as their former eager
 -- registrations; WorldDeltas.reset applies their terrain reset separately.
+-- The current map, pinned actors and resident compatibility zones stay.
+-- Every other cached city is rebuilt on the next visit. Door transitions
+-- call this before the destination view so the source city's tiles are
+-- not still live when the destination tilemap is allocated.
+function ImportedMaps:releaseInactive()
+    local store=stores[self]
+    local cache, order = {}, {}
+    for _, id in ipairs(store.order) do
+        local zone = store.cache[id]
+        local resident = store.resident[store.byID[id].key]
+        local pinned = (store.pins[id] or 0) > 0
+        local current = currentZone and currentZone.stableID == id
+        if resident or pinned or current then
+            cache[id] = zone
+            order[#order + 1] = id
+        else
+            store.factory.release(zone)
+            removeRegistry(store, zone)
+        end
+    end
+    store.cache, store.order = cache, order
+end
 function ImportedMaps:disposeCache()
     local store=stores[self]
     for _,count in pairs(store.pins) do assert(count==0,"imported actor/view still pinned during reset") end

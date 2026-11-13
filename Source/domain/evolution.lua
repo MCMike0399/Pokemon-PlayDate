@@ -3,7 +3,7 @@ import "data/evolutionData"
 Evolution={}
 Class("EvolutionRequest")
 local requests=setmetatable({}, {__mode="k"})
-local stones={moonStone=true,fireStone=true,thunderStone=true,waterStone=true,leafStone=true}
+local stones={moonStone=true,fireStone=true,thunderStone=true,waterStone=true,leafStone=true,linkCable=true}
 local function object(value,fields)
     if type(value)~="table" or getmetatable(value) then return false end
     for key in pairs(value) do if not fields[key] then return false end end
@@ -54,7 +54,8 @@ local function prepare(session,mon,trigger,tradeAuthorized)
     return request
 end
 function Evolution.prepare(session,mon,trigger) return prepare(session,mon,trigger,false) end
--- Explicit external policy seam. No Link Cable, NPC or multiplayer availability is invented.
+-- Trade remains the Gen5 method and still needs an explicit authorize hook.
+-- LINK CABLE is a stone, not this hook.
 function Evolution.prepareTrade(session,mon,authorize)
     if type(authorize)~="function" then return nil,"trade-hook-required" end
     local candidates,reason=Evolution.candidates(session,mon,{kind="trade"})

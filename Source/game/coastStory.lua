@@ -1,23 +1,813 @@
--- pret/pokered af519899 engine/overworld/field_move_messages.asm
--- IsSurfingAllowed, lines 21-50. dbmapcoord stores y then x, so the
--- stairs coordinate is x=7, y=11. CheckBothEventsSet sets Z when both
--- events are set, and that path returns with Surf still allowed.
--- Lane B's coast module owns the rest of the Seafoam story. Keep this
--- predicate when that module is the one loaded.
-CoastStory = CoastStory or {}
+-- Seafoam currents and boulder holes, the Mansion switches, the Secret Key,
+-- and Blaine's quiz. Coordinates and button lists are pret/pokered
+-- af519899. Simulated joypad bytes are consumed from the end of the RLE
+-- expansion, so the button queue is that expansion reversed.
+CoastStory = {}
+
+local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
+
+local function copy(list)
+    local out = {}
+    for index, value in ipairs(list) do
+        out[index] = value
+    end
+    return out
+end
+
+local function expand(steps)
+    local forward = {}
+    for _, step in ipairs(steps) do
+        for _ = 1, step[2] do
+            forward[#forward + 1] = step[1]
+        end
+    end
+    local played = {}
+    for index = #forward, 1, -1 do
+        played[#played + 1] = forward[index]
+    end
+    return played
+end
 
 local function both(flags, left, right)
     return flags[left] == true and flags[right] == true
 end
 
-if CoastStory.currentTooFast == nil then
-    function CoastStory.currentTooFast(map, x, y, flags)
-        if map ~= "pokered:SEAFOAM_ISLANDS_B4F" then
+-- scripts/SeafoamIslandsB3F.asm and SeafoamIslandsB4F.asm.
+local B3_STAIRS <const> = expand({ { "down", 6 }, { "right", 5 }, { "down", 3 } })
+local B3_LEFT <const> = expand({ { "down", 6 }, { "right", 2 }, { "down", 4 } })
+local B3_RIGHT <const> = expand({ { "down", 6 }, { "right", 2 }, { "down", 4 }, { "left", 1 } })
+local B4_LEFT <const> = expand({ { "up", 3 }, { "right", 3 }, { "up", 1 } })
+local B4_RIGHT <const> = expand({ { "up", 3 }, { "right", 2 }, { "up", 1 } })
+
+-- Hole order is wCoordIndex. Landings are DungeonWarpData in
+-- data/maps/special_warps.asm. Boulder flags are the CheckBoulderCoords events.
+local HOLES <const> = {
+    ["pokered:SEAFOAM_ISLANDS_1F"] = {
+        destination = "pokered:SEAFOAM_ISLANDS_B1F",
+        entry = "SeafoamIslandsB1F",
+        coords = { { x = 17, y = 6 }, { x = 24, y = 6 } },
+        landings = { { x = 18, y = 7 }, { x = 23, y = 7 } },
+        falls = {
+            { flag = "EVENT_SEAFOAM1_BOULDER1_DOWN_HOLE" },
+            { flag = "EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE" },
+        },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B1F"] = {
+        destination = "pokered:SEAFOAM_ISLANDS_B2F",
+        entry = "SeafoamIslandsB2F",
+        coords = { { x = 18, y = 6 }, { x = 23, y = 6 } },
+        landings = { { x = 19, y = 7 }, { x = 22, y = 7 } },
+        falls = {
+            { flag = "EVENT_SEAFOAM2_BOULDER1_DOWN_HOLE" },
+            { flag = "EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE" },
+        },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B2F"] = {
+        destination = "pokered:SEAFOAM_ISLANDS_B3F",
+        entry = "SeafoamIslandsB3F",
+        coords = { { x = 19, y = 6 }, { x = 22, y = 6 } },
+        landings = { { x = 18, y = 7 }, { x = 19, y = 7 } },
+        falls = {
+            { flag = "EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE" },
+            { flag = "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE" },
+        },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F"] = {
+        destination = "pokered:SEAFOAM_ISLANDS_B4F",
+        entry = "SeafoamIslandsB4F",
+        coords = { { x = 3, y = 16 }, { x = 6, y = 16 } },
+        landings = { { x = 4, y = 14 }, { x = 5, y = 14 } },
+        falls = {
+            { flag = "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE" },
+            { flag = "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE" },
+        },
+    },
+    ["pokered:POKEMON_MANSION_3F"] = {
+        coords = { { x = 16, y = 14 }, { x = 17, y = 14 }, { x = 19, y = 14 } },
+        landings = {
+            { map = "pokered:POKEMON_MANSION_1F", entry = "PokemonMansion1F", x = 16, y = 14 },
+            { map = "pokered:POKEMON_MANSION_1F", entry = "PokemonMansion1F", x = 16, y = 14 },
+            { map = "pokered:POKEMON_MANSION_2F", entry = "PokemonMansion2F", x = 18, y = 14 },
+        },
+    },
+}
+
+local B4_EXIT <const> = {
+    { x = 20, y = 17 },
+    { x = 21, y = 17 },
+    { x = 20, y = 16 },
+    { x = 21, y = 16 },
+}
+
+-- hidden_events.asm. The high nibble is hGymGateAnswer, and YesNoChoice
+-- stores YES as menu item 0. AdjustEventBit adds nothing because
+-- EVENT_CINNABAR_GYM_GATE0_UNLOCKED is bit 0 of its byte, so question N
+-- unlocks GATE{N}. Gate blocks are CinnabarGymGateCoords. $0e is the open floor.
+local QUIZ <const> = {
+    { x = 15, y = 7, index = 1, answer = "yes" },
+    { x = 10, y = 1, index = 2, answer = "no" },
+    { x = 9, y = 7, index = 3, answer = "no" },
+    { x = 9, y = 13, index = 4, answer = "no" },
+    { x = 1, y = 13, index = 5, answer = "yes" },
+    { x = 1, y = 7, index = 6, answer = "no" },
+}
+
+local GATES <const> = {
+    { index = 1, x = 9, y = 3, closed = 0x54 },
+    { index = 2, x = 6, y = 3, closed = 0x54 },
+    { index = 3, x = 6, y = 6, closed = 0x54 },
+    { index = 4, x = 3, y = 8, closed = 0x5f },
+    { index = 5, x = 2, y = 6, closed = 0x54 },
+    { index = 6, x = 2, y = 3, closed = 0x54 },
+}
+
+-- lb bc is y, x. $0e is empty floor. $2d, $54 and $5f are closed gates.
+local function door(x, y, closed, open)
+    return { x = x, y = y, off = closed, on = open }
+end
+
+local MANSION <const> = {
+    ["pokered:POKEMON_MANSION_1F"] = {
+        switch = { x = 2, y = 5 },
+        doors = {
+            door(12, 6, 0x0e, 0x2d),
+            door(8, 3, 0x2d, 0x0e),
+            door(10, 8, 0x2d, 0x0e),
+            door(13, 13, 0x2d, 0x0e),
+        },
+    },
+    ["pokered:POKEMON_MANSION_2F"] = {
+        switch = { x = 2, y = 11 },
+        doors = {
+            door(4, 2, 0x0e, 0x5f),
+            door(9, 4, 0x54, 0x0e),
+            door(3, 11, 0x5f, 0x0e),
+        },
+    },
+    ["pokered:POKEMON_MANSION_3F"] = {
+        switch = { x = 10, y = 5 },
+        doors = {
+            door(7, 2, 0x0e, 0x5f),
+            door(7, 5, 0x5f, 0x0e),
+        },
+    },
+    ["pokered:POKEMON_MANSION_B1F"] = {
+        switches = { { x = 20, y = 3 }, { x = 18, y = 25 } },
+        doors = {
+            door(13, 8, 0x0e, 0x2d),
+            door(6, 11, 0x0e, 0x5f),
+            door(4, 3, 0x5f, 0x0e),
+            door(8, 8, 0x54, 0x0e),
+        },
+    },
+}
+
+local OPEN_FLOOR <const> = 0x0e
+
+function CoastStory.revision()
+    return REVISION
+end
+
+function CoastStory.holes()
+    return HOLES
+end
+
+local function holeIndex(floor, x, y)
+    for index, coord in ipairs(floor.coords) do
+        if coord.x == x and coord.y == y then
+            return index
+        end
+    end
+end
+
+function CoastStory.boulderFall(map, x, y)
+    local floor = HOLES[map]
+    if not floor or not floor.falls then
+        return nil
+    end
+    local index = holeIndex(floor, x, y)
+    if not index then
+        return nil
+    end
+    local fall = floor.falls[index]
+    return { index = index, flag = fall.flag }
+end
+
+-- pret/pokered af519899 toggleable_objects.asm and the Seafoam scripts.
+-- A down-hole flag hides the boulder that fell and shows the matching
+-- boulder on the floor below. B3F's toggle ids are not its object order:
+-- toggle 1 is object 2, toggle 2 is object 3, toggle 3 is object 5,
+-- toggle 4 is object 6. Objects with no row stay put.
+local BOULDER_VISIBILITY <const> = {
+    ["pokered:SEAFOAM_ISLANDS_1F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_1F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B1F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER1_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B1F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B2F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER1_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B2F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE", equals = true },
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:3"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE", equals = false },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:5"] = {
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE", equals = true },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B3F:objects:6"] = {
+        { group = "quest", id = "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE", equals = true },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B4F:objects:1"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", equals = true },
+    },
+    ["pokered:SEAFOAM_ISLANDS_B4F:objects:2"] = {
+        { group = "quest", id = "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE", equals = true },
+    },
+}
+
+function CoastStory.boulderVisibility(id)
+    local rules = BOULDER_VISIBILITY[id]
+    if not rules then
+        return nil
+    end
+    local copy = {}
+    for index, rule in ipairs(rules) do
+        copy[index] = { group = rule.group, id = rule.id, equals = rule.equals }
+    end
+    return copy
+end
+
+function CoastStory.boulderVisible(id, flags)
+    local rules = BOULDER_VISIBILITY[id]
+    if not rules then
+        return true
+    end
+    flags = flags or {}
+    for _, rule in ipairs(rules) do
+        if (flags[rule.id] == true) ~= rule.equals then
             return false
         end
-        if both(flags or {}, "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE") then
-            return false
+    end
+    return true
+end
+
+function CoastStory.playerHole(map, x, y, onWarp)
+    if onWarp then
+        return nil
+    end
+    local floor = HOLES[map]
+    if not floor then
+        return nil
+    end
+    local index = holeIndex(floor, x, y)
+    if not index then
+        return nil
+    end
+    local landing = floor.landings[index]
+    return {
+        index = index,
+        map = landing.map or floor.destination,
+        entry = landing.entry or floor.entry,
+        x = landing.x,
+        y = landing.y,
+    }
+end
+
+-- Currents that the default map script checks every step pass arrival=false.
+-- The four surf tiles run only as the dungeon-warp MoveObject script.
+-- CheckBothEventsSet sets Z when both events are set. SeafoamIslandsB3F
+-- and SeafoamIslandsB4F `ret z` / `jr z` before queueing buttons, so the
+-- current runs only while that boulder pair is still open. Once both
+-- SEAFOAM3 boulders are down, (15, 8) is ordinary water and the B3F
+-- crossing to the east shore is walkable.
+function CoastStory.current(map, x, y, flags, arrival)
+    flags = flags or {}
+    local b3 = both(flags, "EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE", "EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE")
+    local b4 = both(flags, "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE")
+    if map == "pokered:SEAFOAM_ISLANDS_B3F" and x == 15 and y == 8 then
+        if b3 then
+            return nil
         end
-        return x == 7 and y == 11
+        return { kind = "b3-stairs", buttons = copy(B3_STAIRS), forced_warp = true, surf = false }
+    end
+    if arrival and map == "pokered:SEAFOAM_ISLANDS_B3F" and y == 7 and (x == 18 or x == 19) then
+        if b3 then
+            return nil
+        end
+        return {
+            kind = x == 18 and "b3-left" or "b3-right",
+            buttons = copy(x == 18 and B3_LEFT or B3_RIGHT),
+            forced_warp = true,
+            surf = true,
+        }
+    end
+    if arrival and map == "pokered:SEAFOAM_ISLANDS_B4F" and y == 14 and (x == 4 or x == 5) then
+        if b4 then
+            return nil
+        end
+        return {
+            kind = x == 4 and "b4-left" or "b4-right",
+            buttons = copy(x == 4 and B4_LEFT or B4_RIGHT),
+            surf = true,
+            dismount_before_last = true,
+        }
+    end
+    if map == "pokered:SEAFOAM_ISLANDS_B4F" then
+        for index, coord in ipairs(B4_EXIT) do
+            if coord.x == x and coord.y == y then
+                if b3 then
+                    return nil
+                end
+                local ups = index >= 3 and 1 or 2
+                local buttons = {}
+                for _ = 1, ups do
+                    buttons[#buttons + 1] = "up"
+                end
+                return { kind = "b4-exit", buttons = buttons, forced_warp = false, surf = false }
+            end
+        end
+    end
+end
+
+-- engine/overworld/field_move_messages.asm IsSurfingAllowed, lines 21-50.
+-- B4F denies Surf only at (7, 11), and only before both SEAFOAM4
+-- boulders are down (CheckBothEventsSet sets Z when both are set, and
+-- that path returns with Surf still allowed). B3F is not in that check.
+-- CheckForceBikeOrSurf still forces Surf on B3F (18, 7)/(19, 7) and
+-- B4F (4, 14)/(5, 14); those arrivals are CoastStory.current.
+function CoastStory.currentTooFast(map, x, y, flags)
+    if map ~= "pokered:SEAFOAM_ISLANDS_B4F" then
+        return false
+    end
+    if both(flags or {}, "EVENT_SEAFOAM4_BOULDER1_DOWN_HOLE", "EVENT_SEAFOAM4_BOULDER2_DOWN_HOLE") then
+        return false
+    end
+    return x == 7 and y == 11
+end
+
+local ARTICUNO_FLAG <const> = "EVENT_BEAT_ARTICUNO"
+
+function CoastStory.articuno(beaten)
+    if beaten then
+        return nil, "already-fought"
+    end
+    return {
+        id = "pokered:SEAFOAM_ISLANDS_B4F:objects:3",
+        species = "articuno",
+        level = 50,
+        x = 6,
+        y = 1,
+        sight = 0,
+        flag = ARTICUNO_FLAG,
+    }
+end
+
+-- Same request shape as Moltres. SourceEncounters.prepare rejects anything
+-- that is not the pinned object, level, and non-loss hide flag.
+function CoastStory.articunoRequest(flags)
+    local bird <const> = CoastStory.articuno(flags and flags[ARTICUNO_FLAG] == true)
+    if not bird then
+        return nil, "already-fought"
+    end
+    return {
+        id = bird.id,
+        zone_id = "pokered:SEAFOAM_ISLANDS_B4F",
+        species = bird.species,
+        level = bird.level,
+        guards = { flags = { [bird.flag] = false }, items = {} },
+        rules = { capture = true, unidentified = false },
+        outcomes = {
+            victory = { flags = { [bird.flag] = true } },
+            caught = { flags = { [bird.flag] = true } },
+            run = { flags = { [bird.flag] = true } },
+            defeat = { flags = {} },
+        },
+    }
+end
+
+function CoastStory.articunoPlan(observation)
+    local receipt = observation.source_receipt
+    if receipt then
+        return {
+            status = "ready", scene = "coast-articuno", scene_script = "return", steps = {},
+            source_receipt = {
+                id = receipt.id, zone_id = receipt.zone_id, confirmed = receipt.confirmed,
+                kind = receipt.kind, completed = receipt.completed,
+            },
+        }
+    end
+    if observation.flags and observation.flags[ARTICUNO_FLAG] then
+        return { status = "already-complete", steps = {} }
+    end
+    return { status = "ready", scene = "coast-articuno", scene_script = "battle", steps = {} }
+end
+
+local articunoText
+function CoastStory.articunoText(label)
+    if not articunoText then
+        local data <const> = assert(json.decodeFile("data/zCoast/dialogue.json"))
+        assert(data.schema == 1 and data.source_revision == REVISION, "unverified coast dialogue")
+        articunoText = data.texts
+    end
+    return articunoText[label]
+end
+
+function CoastStory.secretKey()
+    return {
+        id = "pokered:POKEMON_MANSION_B1F:objects:8",
+        map = "pokered:POKEMON_MANSION_B1F",
+        x = 5,
+        y = 13,
+        item = "secretKey",
+        flag = "PICKUP:pokered:POKEMON_MANSION_B1F:objects:8",
+    }
+end
+
+-- CinnabarIslandDefaultScript checks the tile south of the gym warp.
+function CoastStory.gymDoor(x, y, hasKey)
+    if hasKey or x ~= 18 or y ~= 4 then
+        return nil
+    end
+    return { facing = "up", step = "down", text = { "The door is", "locked..." } }
+end
+
+function CoastStory.quizAt(x, y)
+    for _, row in ipairs(QUIZ) do
+        if row.x == x and row.y == y then
+            return { index = row.index, answer = row.answer }
+        end
+    end
+end
+
+function CoastStory.quizAnswer(index, choice)
+    local row
+    for _, candidate in ipairs(QUIZ) do
+        if candidate.index == index then
+            row = candidate
+            break
+        end
+    end
+    if not row or (choice ~= "yes" and choice ~= "no") then
+        return nil
+    end
+    if choice == row.answer then
+        return { correct = true, flag = "EVENT_CINNABAR_GYM_GATE" .. index .. "_UNLOCKED" }
+    end
+    return { correct = false, opponent = index + 2 }
+end
+
+-- text/data text_2.asm at af519899. YES is the first menu item, matching
+-- YesNoChoice item 0. The question stays up while the menu is open.
+local QUIZ_QUESTIONS <const> = {
+    "CATERPIE evolves into BUTTERFREE?",
+    "There are 9 certified #MON LEAGUE BADGEs?",
+    "POLIWAG evolves 3 times?",
+    "Are thunder moves effective against ground element-type #MON?",
+    "#MON of the same kind and level are not identical?",
+    "TM28 contains TOMBSTONER?",
+}
+
+function CoastStory.quizLines(index)
+    local question = QUIZ_QUESTIONS[index]
+    if not question then
+        return nil
+    end
+    return {
+        intro = {
+            "#MON Quiz!",
+            "Get it right and the door opens to the next room!",
+            "Get it wrong and face a trainer!",
+            "If you want to conserve your #MON for the GYM LEADER... Then get it right! Here we go!",
+        },
+        question = question,
+        correct = { "You're absolutely correct!", "Go on through!" },
+        incorrect = { "Sorry! Bad call!" },
+    }
+end
+
+function CoastStory.gymGates(flags)
+    flags = flags or {}
+    local blocks = {}
+    for _, gate in ipairs(GATES) do
+        local open = flags["EVENT_CINNABAR_GYM_GATE" .. gate.index .. "_UNLOCKED"] == true
+        blocks[#blocks + 1] = {
+            x = gate.x,
+            y = gate.y,
+            block = open and OPEN_FLOOR or gate.closed,
+            solid = not open,
+        }
+    end
+    return blocks
+end
+
+function CoastStory.mansionSwitch(map, x, y)
+    local floor = MANSION[map]
+    if not floor then
+        return nil
+    end
+    if floor.switch and floor.switch.x == x and floor.switch.y == y then
+        return { facing = "up" }
+    end
+    for _, switch in ipairs(floor.switches or {}) do
+        if switch.x == x and switch.y == y then
+            return { facing = "up" }
+        end
+    end
+end
+
+function CoastStory.switchDecision(on, yes)
+    if not yes then
+        return { on = on == true, changed = false }
+    end
+    return { on = on ~= true, changed = true }
+end
+
+-- Facility blockset, the bottom-left foot of each quadrant, against
+-- Facility_Coll. ReplaceTileBlock writes one 2x2. A closed gate is not
+-- four solid cells: $2d walls only its south row, $5f only its east
+-- column, and $54 only its north row. $0e is empty floor.
+local GATE_SOLID <const> = {
+    [0x2d] = { false, false, true, true },
+    [0x5f] = { false, true, false, true },
+    [0x54] = { true, true, false, false },
+}
+
+function CoastStory.gateQuadrantSolid(block, dx, dy)
+    local pattern = GATE_SOLID[block]
+    if not pattern then
+        return block ~= OPEN_FLOOR
+    end
+    return pattern[dy * 2 + dx + 1] == true
+end
+
+function CoastStory.switchLines()
+    return {
+        prompt = { "A secret switch!", "Press it?" },
+        pressed = { "Who wouldn't?" },
+        declined = { "Not quite yet!" },
+    }
+end
+
+function CoastStory.mansionDoors(map, on)
+    local floor = MANSION[map]
+    if not floor then
+        return nil
+    end
+    local blocks = {}
+    for _, entry in ipairs(floor.doors) do
+        local block = on and entry.on or entry.off
+        blocks[#blocks + 1] = { x = entry.x, y = entry.y, block = block, solid = block ~= OPEN_FLOOR }
+    end
+    return blocks
+end
+
+-- A surfing step off a foot-tile $14 edge is a real connection. Walking
+-- still stops on that solid cell. Both banks have to be the same water.
+function CoastStory.surfEdge(surfing, origin, arrival, outside)
+    if surfing ~= true or outside ~= true or type(origin) ~= "table" or type(arrival) ~= "table" then
+        return false
+    end
+    local function water(cell)
+        return cell.water_candidate == true and cell.foot_tile == 0x14
+    end
+    return water(origin) and water(arrival)
+end
+
+-- scripts/CinnabarGym.asm and data/trainers/parties.asm at af519899.
+-- BlaineData is the $FF party. Money is the class base times the last
+-- mon's level (pic_pointers_money.asm). A wrong quiz answer sends text
+-- id = question + 2, and winning that battle opens gate (text id - 2).
+local GYM_MAP <const> = "pokered:CINNABAR_GYM"
+local GYM_CONTENT <const> = "coastGym"
+
+local function species(level, name)
+    return { level = level, species = name }
+end
+
+local GYM_ROSTER <const> = {
+    {
+        index = 1, name = "BLAINE", sprite = "SPRITE_MIDDLE_AGED_MAN",
+        class_source = "OPP_BLAINE", roster = 1, base = 99, x = 3, y = 3, leader = true,
+        party = { species(42, "growlithe"), species(40, "ponyta"), species(42, "rapidash"), species(47, "arcanine") },
+    },
+    {
+        index = 2, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 9, base = 25, x = 17, y = 2,
+        before = "_CinnabarGymSuperNerd1BattleText",
+        won = "_CinnabarGymSuperNerd1EndBattleText",
+        after = "_CinnabarGymSuperNerd1AfterBattleText",
+        party = { species(36, "vulpix"), species(36, "vulpix"), species(36, "ninetales") },
+    },
+    {
+        index = 3, name = "BURGLAR", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_BURGLAR", roster = 4, base = 90, x = 17, y = 8,
+        before = "_CinnabarGymSuperNerd2BattleText",
+        won = "_CinnabarGymSuperNerd2EndBattleText",
+        after = "_CinnabarGymSuperNerd2AfterBattleText",
+        party = { species(36, "growlithe"), species(36, "vulpix"), species(36, "ninetales") },
+    },
+    {
+        index = 4, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 10, base = 25, x = 11, y = 4,
+        before = "_CinnabarGymSuperNerd3BattleText",
+        won = "_CinnabarGymSuperNerd3EndBattleText",
+        after = "_CinnabarGymSuperNerd3AfterBattleText",
+        party = { species(34, "ponyta"), species(34, "charmander"), species(34, "vulpix"), species(34, "growlithe") },
+    },
+    {
+        index = 5, name = "BURGLAR", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_BURGLAR", roster = 5, base = 90, x = 11, y = 8,
+        before = "_CinnabarGymSuperNerd4BattleText",
+        won = "_CinnabarGymSuperNerd4EndBattleText",
+        after = "_CinnabarGymSuperNerd4AfterBattleText",
+        party = { species(41, "ponyta") },
+    },
+    {
+        index = 6, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 11, base = 25, x = 11, y = 14,
+        before = "_CinnabarGymSuperNerd5BattleText",
+        won = "_CinnabarGymSuperNerd5EndBattleText",
+        after = "_CinnabarGymSuperNerd5AfterBattleText",
+        party = { species(41, "rapidash") },
+    },
+    {
+        index = 7, name = "BURGLAR", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_BURGLAR", roster = 6, base = 90, x = 3, y = 14,
+        before = "_CinnabarGymSuperNerd6BattleText",
+        won = "_CinnabarGymSuperNerd6EndBattleText",
+        after = "_CinnabarGymSuperNerd6AfterBattleText",
+        party = { species(37, "vulpix"), species(37, "growlithe") },
+    },
+    {
+        index = 8, name = "SUPER NERD", sprite = "SPRITE_SUPER_NERD",
+        class_source = "OPP_SUPER_NERD", roster = 12, base = 25, x = 3, y = 8,
+        before = "_CinnabarGymSuperNerd7BattleText",
+        won = "_CinnabarGymSuperNerd7EndBattleText",
+        after = "_CinnabarGymSuperNerd7AfterBattleText",
+        party = { species(37, "growlithe"), species(37, "vulpix") },
+    },
+}
+
+local function gymId(index)
+    return GYM_MAP .. ":objects:" .. tostring(index)
+end
+
+local function copyParty(party)
+    local out = {}
+    for index, mon in ipairs(party) do
+        out[index] = { level = mon.level, species = mon.species }
+    end
+    return out
+end
+
+function CoastStory.gymRoster()
+    local rows = {}
+    for _, row in ipairs(GYM_ROSTER) do
+        local copyRow = {
+            index = row.index, id = gymId(row.index), name = row.name, sprite = row.sprite,
+            class_source = row.class_source, roster = row.roster, base = row.base,
+            x = row.x, y = row.y, leader = row.leader == true,
+            party = copyParty(row.party), payout = row.base * row.party[#row.party].level,
+        }
+        if not row.leader then
+            copyRow.flag = "EVENT_BEAT_CINNABAR_GYM_TRAINER_" .. tostring(row.index - 2)
+            copyRow.gate = "EVENT_CINNABAR_GYM_GATE" .. tostring(row.index - 2) .. "_UNLOCKED"
+            copyRow.before = row.before
+            copyRow.won = row.won
+            copyRow.after = row.after
+        end
+        rows[#rows + 1] = copyRow
+    end
+    return rows
+end
+
+function CoastStory.gymTrainers()
+    local trainers = {}
+    for _, row in ipairs(CoastStory.gymRoster()) do
+        trainers[row.id] = {
+            id = row.id, map_id = GYM_MAP, name = row.name, sprite_source = row.sprite,
+            payout = row.payout, sight_range_cells = 0, talk_only = true,
+            party = copyParty(row.party), class_source = row.class_source,
+            roster_id = row.roster, source_flag = row.flag, x = row.x, y = row.y,
+        }
+    end
+    return trainers
+end
+
+-- data/maps/CinnabarPokecenter.asm nurse. The checkpoint is the island
+-- door south of the Center, so a later blackout stays on Cinnabar.
+function CoastStory.centerHeal()
+    return {
+        kind = "program", content = GYM_CONTENT,
+        steps = {
+            {
+                op = "heal", id = "CinnabarPokecenter",
+                nurse_id = "pokered:CINNABAR_POKECENTER:objects:1",
+                welcome = "_PokemonCenterWelcomeText",
+                prompt = "_ShallWeHealYourPokemonText",
+                before = "_NeedYourPokemonText",
+                after = "_PokemonFightingFitText",
+                farewell = "_PokemonCenterFarewellText",
+                checkpoint = { zone_id = "pokered:CINNABAR_ISLAND", x = 11, y = 12, facing = "down" },
+            },
+        },
+    }
+end
+
+function CoastStory.gymEvents()
+    local events = {}
+    local beaten = {}
+    local trainers = {}
+    for _, row in ipairs(CoastStory.gymRoster()) do
+        if row.leader then
+            events[row.id] = {
+                kind = "trainer", content = GYM_CONTENT,
+                before = { "_CinnabarGymBlainePreBattleText" },
+                won = { "_CinnabarGymBlaineReceivedVolcanoBadgeText" },
+                after = { "_CinnabarGymBlainePostBattleAdviceText" },
+                reward = {
+                    before = { "_CinnabarGymBlaineVolcanoBadgeInfoText" },
+                    flag = "EVENT_GOT_TM38",
+                    full = { "_CinnabarGymBlaineTM38NoRoomText" },
+                    full_status = "bag-full",
+                    item = "tm38",
+                    success = {
+                        "_CinnabarGymBlaineReceivedTM38Text",
+                        "_CinnabarGymBlaineTM38ExplanationText",
+                    },
+                },
+            }
+        else
+            beaten[row.flag] = true
+            trainers[row.id] = true
+            events[row.id] = {
+                kind = "trainer", content = GYM_CONTENT,
+                before = { row.before }, won = { row.won }, after = { row.after },
+                victory = {
+                    flags = { [row.flag] = true, [row.gate] = true },
+                    guard_flags = { row.flag, row.gate },
+                },
+            }
+        end
+    end
+    local leader = events[gymId(1)]
+    local flags = { BADGE_VOLCANO = true, EVENT_BEAT_BLAINE = true }
+    for flag in pairs(beaten) do
+        flags[flag] = true
+    end
+    leader.victory = {
+        flags = flags,
+        guard_flags = { "EVENT_BEAT_BLAINE", "BADGE_VOLCANO" },
+        trainers = trainers,
+    }
+    events["pokered:CINNABAR_POKECENTER:objects:1"] = CoastStory.centerHeal()
+    -- Mansion medicine. Both are still on the floor in the seq 118 save.
+    events["pokered:POKEMON_MANSION_3F:objects:3"] = {
+        kind = "pickup", content = GYM_CONTENT, item = "maxPotion",
+        flag = "PICKUP:pokered:POKEMON_MANSION_3F:objects:3",
+        full = { "_NoMoreRoomForItemText" }, success = { "_FoundItemText" },
+    }
+    events["pokered:POKEMON_MANSION_B1F:objects:4"] = {
+        kind = "pickup", content = GYM_CONTENT, item = "fullRestore",
+        flag = "PICKUP:pokered:POKEMON_MANSION_B1F:objects:4",
+        full = { "_NoMoreRoomForItemText" }, success = { "_FoundItemText" },
+    }
+    events[gymId(9)] = {
+        kind = "cases", content = GYM_CONTENT,
+        cases = {
+            { when = { flags = { EVENT_BEAT_BLAINE = true } },
+              ["then"] = { kind = "program", steps = {
+                  { op = "dialog", labels = { "_CinnabarGymGymGuideBeatBlaineText" } },
+              } } },
+        },
+        otherwise = { kind = "program", steps = {
+            { op = "dialog", labels = { "_CinnabarGymGymGuideChampInMakingText" } },
+        } },
+    }
+    return events
+end
+
+function CoastStory.scriptFlags(map)
+    if map == "pokered:SEAFOAM_ISLANDS_1F" then
+        return { set = { EVENT_IN_SEAFOAM_ISLANDS = true } }
+    end
+    if map == "pokered:CINNABAR_ISLAND" then
+        return { clear = { EVENT_MANSION_SWITCH_ON = true, EVENT_LAB_STILL_REVIVING_FOSSIL = true } }
     end
 end

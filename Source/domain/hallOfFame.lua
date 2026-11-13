@@ -11,8 +11,16 @@ local function member(value)
     local name <const> = value.name
     assert(type(species) == "string" and species:match("^[A-Za-z][A-Za-z0-9]*$") ~= nil and #species <= 16,
         "invalid hall of fame species")
-    assert(type(name) == "string" and #name >= 1 and #name <= 10 and name:find("[^ -~]") == nil,
-        "invalid hall of fame name")
+    -- wNameBuffer is NAME_LENGTH (11) bytes. The visible nickname is 1 to 10
+    -- glyphs: printable ASCII, plus × ($f1), ♂ ($ef), and ♀ ($f5).
+    assert(type(name) == "string" and utf8.len(name) ~= nil, "invalid hall of fame name")
+    local nameCount = 0
+    for _, code in utf8.codes(name) do
+        assert((code >= 32 and code <= 126) or code == 0x00D7 or code == 0x2642 or code == 0x2640,
+            "invalid hall of fame name")
+        nameCount = nameCount + 1
+    end
+    assert(nameCount >= 1 and nameCount <= 10, "invalid hall of fame name")
     assert(Party._integer(value.level, 1, 100), "invalid hall of fame level")
     for key in pairs(value) do
         assert(key == "species" or key == "level" or key == "name", "unknown hall of fame member field")

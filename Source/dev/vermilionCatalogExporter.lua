@@ -9,6 +9,7 @@ local shipFrames <const> = {0, 4, 124, 130, 137, 138, 258, 770, 1153, 1154, 1156
 local grassSourceFrames <const> = {0, 7, 8, 15, 16, 23, 24, 31}
 local prepared
 local registered
+local pinnedActors
 
 local function keys(source)
     local result = {}
@@ -28,11 +29,13 @@ function VermilionCatalogExporter.maps()
 end
 
 function VermilionCatalogExporter.actors()
+    if pinnedActors then return pinnedActors end
     local result = {}
     local previous = SourceMaps.record("data/sourceSlice/sprites.json").sprites
     for source, strip in pairs(SourceMaps.record(root .. "sprites.json").sprites) do
         result[source] = {owner = previous[source] and "cerulean" or "vermilion", strip = strip}
     end
+    pinnedActors = result
     return result
 end
 
@@ -64,8 +67,8 @@ function VermilionCatalogExporter.poses()
     return result
 end
 
-function VermilionCatalogExporter.hiddenEvents(name)
-    return shared.hiddenEvents(name, root .. "scripts.json")
+function VermilionCatalogExporter.hiddenEvents(name, descriptor)
+    return shared.hiddenEvents(name, root .. "scripts.json", descriptor)
 end
 
 -- Counts derive from the pinned package's definitions. Shared families are
@@ -93,11 +96,13 @@ function VermilionCatalogExporter.inventory()
     end
     for _, name in ipairs(VermilionCatalogExporter.maps()) do
         result.map_count = result.map_count + 1
-        local descriptor <const> = SourceMaps.descriptor(name)
+        local frame = SourceMaps.descriptor(name)
+        local width, height = frame.width, frame.height
+        if GameBootstrap then GameBootstrap.yieldIfDue() end
         for _, kind in ipairs(kinds) do
             local viewport <const> = kind == "viewport"
             add(result.images, "vermilion-" .. name .. "-" .. kind,
-                viewport and 400 or descriptor.width * 32, viewport and 240 or descriptor.height * 32,
+                viewport and 400 or width * 32, viewport and 240 or height * 32,
                 viewport and "map-viewport" or kind == "events" and "events-warps-connections" or kind)
         end
     end
@@ -110,6 +115,17 @@ function VermilionCatalogExporter.inventory()
     for _, key in ipairs(keys(VermilionCatalogExporter.tiles())) do
         result.tile_count = result.tile_count + 1
         asset(result.images, "tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
+    end
+    -- Map sizes and tile keys are copied out. The shared catalogue is about
+    -- 1.7 MiB, and the strip/pose rows plus their detached copy do not fit
+    -- beside it.
+    local provider = WorldDeltas.definitionProvider and WorldDeltas.definitionProvider()
+    if provider and provider.releaseCatalogue and SourceMaps._releaseSharedCompact then
+        provider:releaseCatalogue()
+        SourceMaps._releaseSharedCompact()
+        collectgarbage("collect")
+        local file = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+        if file then file:write("vermilion-catalogue-released\t" .. tostring(collectgarbage("count")) .. "\n"); file:close() end
     end
     local actors <const> = VermilionCatalogExporter.actors()
     for _, source in ipairs(keys(actors)) do
@@ -161,6 +177,15 @@ function VermilionCatalogExporter.inventory()
     end
     table.sort(result.images, function(a, b) return a.path < b.path end)
     table.sort(result.shared_images, function(a, b) return a.path < b.path end)
+    pinnedActors = nil
+    collectgarbage("collect")
+    local before = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+    if before then before:write("vermilion-before-reload\t" .. tostring(collectgarbage("count")) .. "\n"); before:close() end
+    if provider and provider.retargetCatalogue and SourceMaps._sharedCompact then
+        provider:retargetCatalogue(SourceMaps._sharedCompact())
+    end
+    local after = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+    if after then after:write("vermilion-after-reload\t" .. tostring(collectgarbage("count")) .. "\n"); after:close() end
     return result
 end
 
@@ -169,9 +194,41 @@ function VermilionCatalogExporter.writer(sink)
         VermilionCatalogExporter.warm()
     end
     assert(prepared, "Vermilion art must be warmed before catalog writing")
+    local actors = VermilionCatalogExporter.actors()
+    local poses = VermilionCatalogExporter.poses()
+    -- inventory() walks every map beside the declaration list and does not
+    -- fit a second time. Shared rows are the unowned strips and poses.
+    local sharedImages = {}
+    local function addShared(name, width, height, category, mask)
+        sharedImages[#sharedImages + 1] = {path = name .. ".png", width = width, height = height,
+            category = category, mask = mask or false}
+    end
+    local function assetShared(name, width, height, category)
+        addShared(name, width, height, category)
+        addShared(name .. "__mask", width, height, category, true)
+        for _, background in ipairs({"white", "black", "texture"}) do
+            addShared(name .. "__" .. background, width, height, category .. "-background")
+        end
+    end
+    for _, source in ipairs(keys(actors)) do
+        local entry = actors[source]
+        if entry.owner ~= "vermilion" then
+            local strip = entry.strip
+            assetShared(entry.owner .. "-strip-" .. source, strip.size[1] * 2, strip.size[2] * 2, "source-strip")
+            for _, index in ipairs(keys(strip.frames)) do
+                assetShared(entry.owner .. "-frame-" .. source .. "-" .. index, 32, 32, "source-frame")
+            end
+        end
+    end
+    for _, pose in ipairs(poses) do
+        if pose.owner ~= "vermilion" then
+            assetShared(pose.name, 32, 32, pose.owner .. "-character")
+        end
+    end
+    table.sort(sharedImages, function(a, b) return a.path < b.path end)
     local report = {schema = 1, source_revision = "af519899719f0754965776faac0e836a3b906e6d",
-        maps = {}, tiles = {}, strips = {}, characters = VermilionCatalogExporter.poses(),
-        shared_images = VermilionCatalogExporter.inventory().shared_images, ship = {}, cut = {},
+        maps = {}, tiles = {}, strips = {}, characters = poses,
+        shared_images = sharedImages, ship = {}, cut = {},
         grass = {source_hz = 60, native_hz = 30, source_position_count = 32,
             native_update_count = 16, source_samples = {}, native_samples = {},
             leaf_source = "gfx/battle/move_anim_1.png", leaf_tile = 6,
@@ -189,7 +246,6 @@ function VermilionCatalogExporter.writer(sink)
     for _, name in ipairs(VermilionCatalogExporter.maps()) do
         report.maps[#report.maps + 1] = shared.mapImages(name, sink, "vermilion", VermilionCatalogExporter.hiddenEvents)
     end
-    local actors <const> = VermilionCatalogExporter.actors()
     for _, source in ipairs(keys(actors)) do
         local entry <const> = actors[source]
         local strip <const> = entry.strip

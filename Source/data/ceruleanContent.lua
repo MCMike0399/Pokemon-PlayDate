@@ -163,8 +163,63 @@ function CeruleanContent.signs()
     return catalog("events", "signs")
 end
 
+-- zEndgame and zRemainder keep their own event owners, so they are not content
+-- packages. Their pokered strips still have to install. A second copy of a
+-- strip already in the content cache is ignored; two catalogs must agree.
+local EXTRA_SPRITE_CATALOGS <const> = {
+    "data/zEndgame/sprites.json",
+    "data/zRemainder/sprites.json",
+}
+local extraSprites
+
+local function sameValue(left, right)
+    if type(left) ~= type(right) then
+        return false
+    end
+    if type(left) ~= "table" then
+        return left == right
+    end
+    for key, value in pairs(left) do
+        if not sameValue(value, right[key]) then
+            return false
+        end
+    end
+    for key in pairs(right) do
+        if left[key] == nil then
+            return false
+        end
+    end
+    return true
+end
+
+local function loadExtraSprites()
+    if extraSprites then
+        return extraSprites
+    end
+    local found = {}
+    for _, path in ipairs(EXTRA_SPRITE_CATALOGS) do
+        local data = assert(json.decodeFile(path), "imported sprite catalog missing")
+        assert(data.schema == 1 and data.source_revision == "af519899719f0754965776faac0e836a3b906e6d",
+            "unverified imported sprite catalog")
+        for name, strip in pairs(data.sprites) do
+            if not immutableDigest("sprites", "sprites", name) then
+                local previous = found[name]
+                assert(not previous or sameValue(previous, strip), "conflicting imported sprite strip")
+                found[name] = previous or strip
+            end
+            yieldIfDue()
+        end
+    end
+    extraSprites = found
+    return found
+end
+
 local function spriteRecord(source)
-    return assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite: " .. tostring(source))
+    local digest = immutableDigest("sprites", "sprites", source)
+    if digest then
+        return assert(SourceEvents._contentRecord(digest), "missing Blue source sprite: " .. tostring(source))
+    end
+    return assert(loadExtraSprites()[source], "missing Blue source sprite: " .. tostring(source))
 end
 
 function CeruleanContent.sprite(source)
@@ -179,7 +234,8 @@ function CeruleanContent._spritePoseMetadata(source)
 end
 
 function CeruleanContent.key(source)
-    assert(immutableDigest("sprites", "sprites", source), "unknown Blue source actor")
+    local known = immutableDigest("sprites", "sprites", source) or loadExtraSprites()[source]
+    assert(known, "unknown Blue source actor")
     return "cerulean_" .. source:lower()
 end
 
@@ -192,7 +248,7 @@ function CeruleanContent.poseImage(source, pose, facing)
     if source == "SPRITE_BLUE" and pose == "stand" then
         return assert(SpriteFactory.npc.rival[facing], "protected BLUE pose missing")
     end
-    local strip = assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite")
+    local strip = spriteRecord(source)
     local direction = strip.fixed and "down" or facing == "right" and "left" or facing
     local index = (pose == "stand" and strip.standing or strip.walking)[direction]
     local grid = assert(strip.frames[tostring(index)], "missing original actor frame")
@@ -236,7 +292,7 @@ function CeruleanContent.installArt(definition)
     end
     for source, key in pairs(selected) do
         if not rendered[key] then
-            local strip = immutableLookup("sprites", "sprites", source)
+            local strip = CeruleanContent.sprite(source)
             local images = {}
             for direction in pairs(strip.standing) do
                 images[direction] = CeruleanContent.poseImage(source, "stand", direction)
@@ -253,12 +309,19 @@ end
 function CeruleanContent.stepImage(source, facing, tick)
     local pose = CeruleanContent.poseAtTick(tick)
     local key = CeruleanContent.key(source)
-    local standing = assert(SpriteFactory.npc[key], "source actor art not installed")
+    local standing = SpriteFactory.npc[key]
+    if not standing then
+        CeruleanContent.installArt({
+            source_revision = "af519899719f0754965776faac0e836a3b906e6d",
+            events = {objects = {{sprite = source}}},
+        })
+        standing = assert(SpriteFactory.npc[key], "source actor art not installed")
+    end
     if pose == "stand" then
         return assert(standing[facing], "source actor has no standing pose")
     end
     if not walks[source] then
-        local strip = immutableLookup("sprites", "sprites", source)
+        local strip = spriteRecord(source)
         local images, alternate = {}, {}
         for direction in pairs(strip.walking) do
             images[direction] = CeruleanContent.poseImage(source, "walk", direction)

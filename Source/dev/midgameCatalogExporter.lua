@@ -53,25 +53,25 @@ local function collectActors()
         stripsByPackage[package] = SourceMaps.record("data/" .. package .. "/sprites.json").sprites
     end
     local resolved = {}
-    -- Include only actors actually used by the active new maps.
-    -- The same 12 MiB startup collection as GameBootstrap.checkpoint, without
-    -- copying a definition per object. One yield check per map is enough.
-    if collectgarbage("count") >= 12 * 1024 then
-        collectgarbage("collect")
-    end
+    -- Decode one map at a time. The old 12 MiB gate skipped the collection
+    -- when the live set sat just under it, and the next map's JSON then died
+    -- with "not enough memory".
+    collectgarbage("collect")
     for _, name in ipairs(MidgameCatalogExporter.maps()) do
         local package <const> = packageFor(name)
         local strips <const> = stripsByPackage[package]
         -- Read sprite ids from the decoded map and drop it. SourceMaps.definition
         -- copies grids, collision, and tile rows, and those copies held the
         -- title on "Preparing adventure...".
-        local decoded <const> = SourceMaps.record(SourceMaps.entry(name).path)
+        local decoded = SourceMaps.record(SourceMaps.entry(name).path)
         local objects <const> = type(decoded.events) == "table" and decoded.events.objects or nil
         assert(type(objects) == "table", "source map objects missing")
         local sprites = {}
         for index, event in ipairs(objects) do
             sprites[index] = event.sprite
         end
+        decoded = nil
+        collectgarbage("collect")
         for _, source in ipairs(sprites) do
             local strip <const> = assert(strips[source], "active map source strip missing")
             local production = resolved[source]
@@ -135,6 +135,15 @@ function MidgameCatalogExporter.poses()
 end
 
 function MidgameCatalogExporter.inventory()
+    local function mark(label)
+        local file = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
+        if file then file:write(label .. "\t" .. tostring(collectgarbage("count")) .. "\n"); file:close() end
+    end
+    mark("midgame-enter")
+    -- Decode actor strips before the map rows exist. Doing it afterwards stacks
+    -- the JSON spike on the image list and crosses the pool.
+    preparedActors = collectActors()
+    mark("midgame-actors")
     local result = {images={}, map_count=0, tile_count=0, actor_strip_count=0,
         source_frame_count=0, directional_pose_count=0, reused_actor_strip_count=0}
     local function add(stem, width, height, category, mask)
@@ -150,21 +159,7 @@ function MidgameCatalogExporter.inventory()
             end
         end
     end
-    for _, name in ipairs(MidgameCatalogExporter.maps()) do
-        result.map_count = result.map_count + 1
-        local map <const> = SourceMaps.descriptor(name)
-        for _, kind in ipairs(kinds) do
-            local viewport <const> = kind == "viewport"
-            add("midgame-" .. name .. "-" .. kind,
-                viewport and 400 or map.width * 32, viewport and 240 or map.height * 32,
-                viewport and "map-viewport" or kind == "events" and "events-warps-connections" or kind)
-        end
-    end
-    for _, key in ipairs(keys(MidgameCatalogExporter.tiles())) do
-        result.tile_count = result.tile_count + 1
-        asset("tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
-    end
-    for source, entry in pairs(MidgameCatalogExporter.actors()) do
+    for source, entry in pairs(preparedActors) do
         if entry.owner == "midgame" then
             result.actor_strip_count = result.actor_strip_count + 1
             asset("midgame-strip-" .. source, entry.strip.size[1] * 2, entry.strip.size[2] * 2, "source-strip", true)
@@ -179,6 +174,24 @@ function MidgameCatalogExporter.inventory()
     for _, pose in ipairs(MidgameCatalogExporter.poses()) do
         result.directional_pose_count = result.directional_pose_count + 1
         asset(pose.name, 32, 32, "midgame-character", true)
+    end
+    preparedActors = nil
+    collectgarbage("collect")
+    for _, name in ipairs(MidgameCatalogExporter.maps()) do
+        result.map_count = result.map_count + 1
+        local frame = SourceMaps.descriptor(name)
+        local width, height = frame.width, frame.height
+        if GameBootstrap then GameBootstrap.yieldIfDue() end
+        for _, kind in ipairs(kinds) do
+            local viewport <const> = kind == "viewport"
+            add("midgame-" .. name .. "-" .. kind,
+                viewport and 400 or width * 32, viewport and 240 or height * 32,
+                viewport and "map-viewport" or kind == "events" and "events-warps-connections" or kind)
+        end
+    end
+    for _, key in ipairs(keys(MidgameCatalogExporter.tiles())) do
+        result.tile_count = result.tile_count + 1
+        asset("tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
     end
     if SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
         asset("midgame-unidentified-ghost", 96, 96, "midgame-battle-art", true)
@@ -208,7 +221,7 @@ function MidgameCatalogExporter.writer(sink)
         local tile <const> = SourceMaps.tile(key)
         local stem <const> = "tile_imported_" .. VisualCatalog.stableName(key)
         sink.asset(stem, TileRegistry.renderImportedGrid(tile.grid, TileFactory.renderGrid), "imported-tile", false)
-        report.tiles[#report.tiles + 1] = {stable_key=key, path=stem .. ".png", terrain=tile.terrain}
+        report.tiles[#report.tiles + 1] = {stable_key=key, path=stem .. ".png"}
     end
     for _, name in ipairs(MidgameCatalogExporter.maps()) do
         local package <const> = packageFor(name)

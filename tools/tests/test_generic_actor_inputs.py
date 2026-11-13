@@ -12,9 +12,13 @@ class GenericActorInputTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.fixture = json.loads((ROOT / 'Source/dev/genericActorFixture.json').read_text())
-        cls.records = json.loads((ROOT / 'Source/dev/sourceMapFixture.json').read_text())
-        cls.raw = cls.records[cls.fixture['record']]
-        cls.entry = cls.records['data/sourceMaps.json']['maps'][cls.raw['name']]
+        patch = json.loads((ROOT / 'Source/dev/sourceMapFixture.json').read_text())
+        live = json.loads((ROOT / 'Source/data/sourceMaps.json').read_text())
+        maps = dict(live['maps'])
+        maps.update(patch['manifest'])
+        cls.records = {'data/sourceMaps.json': {'maps': maps, 'source_revision': patch['source_revision']}}
+        cls.raw = patch['extensions'][cls.fixture['record']]
+        cls.entry = maps[cls.raw['name']]
 
     def test_fixture_extends_manifest_without_editing_regional_inventory(self):
         live = json.loads((ROOT / 'Source/data/sourceMaps.json').read_text())

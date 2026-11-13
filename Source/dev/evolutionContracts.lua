@@ -49,7 +49,7 @@ function EvolutionContracts.run()
         local ok,why=pcall(fn);report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(why) or nil}
         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
     end
-    test("Pinned original graph has52level16stone4trade edges, same growth and real art",function()
+    test("Pinned graph has52level20stone4trade edges, same growth and real art",function()
         local count,methods={level=0,stone=0,trade=0},0
         for species,rules in pairs(EvolutionData.rules) do
             methods=methods+1;assert(pokemonData[species],species)
@@ -59,7 +59,22 @@ function EvolutionContracts.run()
                 assert(gfx.image.new(PokemonArt.path(rule.to,"front")),"missing original art "..rule.to)
             end
         end
-        eq(methods,151);eq(count.level,52);eq(count.stone,16);eq(count.trade,4)
+        eq(methods,151);eq(count.level,52);eq(count.stone,20);eq(count.trade,4)
+        -- The 16 Gen5 stones stay. LINK CABLE adds one stone edge on each trade species.
+        local cable={kadabra="alakazam",machoke="machamp",graveler="golem",haunter="gengar"}
+        for species,rules in pairs(EvolutionData.rules) do
+            local found=0
+            for _,rule in ipairs(rules) do
+                if rule.item=="linkCable" then
+                    found=found+1
+                    eq(rule.trigger,"stone");eq(rule.method,8);eq(rule.to,cable[species],species)
+                end
+            end
+            eq(found,cable[species] and 1 or 0,species.." cable edges")
+        end
+        for species,target in pairs(cable) do
+            eq(EvolutionData.rules[species][2].trigger,"trade");eq(EvolutionData.rules[species][2].to,target)
+        end
         eq(EvolutionData.rules.bulbasaur[1].minimum,16);eq(EvolutionData.rules.kadabra[1].to,"alakazam")
         eq(#EvolutionData.rules.golbat,0);eq(#EvolutionData.rules.onix,0);eq(#EvolutionData.rules.eevee,3)
     end)
@@ -77,7 +92,7 @@ function EvolutionContracts.run()
             end end
         end
     end)
-    test("All16 original stone rules consume one with no replacement identity",function()
+    test("All20 stone rules, including the four LINK CABLE edges, consume one with no replacement identity",function()
         for species,rules in pairs(EvolutionData.rules) do for _,rule in ipairs(rules) do if rule.trigger=="stone" then
             local mon=Pokemon(species,5);local game=gameWith(mon);local bag=game.session:inventory();assert(bag:add(rule.item,2))
             local request=assert(Evolution.prepare(game.session,mon,{kind="stone",item=rule.item}));assert(Evolution.complete(request))

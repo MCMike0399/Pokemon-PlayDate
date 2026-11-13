@@ -18,6 +18,9 @@ local function fillBag(bag)
     eq(#bag:toData().slots,Inventory.CAPACITY)
 end
 local function scene(fn)
+    -- The previous Route 2 view is already unreferenced. Collect it before
+    -- this scene copies the screen and builds the next tilemap.
+    collectgarbage("collect")
     local oldRegistry,oldList,oldZone = zoneRegistry,zoneList,currentZone
     local oldStory,oldRNG,oldOwner = Story.currentContext(),RulesRNG.toData(),GameSession.activeRNGSession()
     local oldWorld = WorldDeltas.export()
@@ -96,7 +99,9 @@ local function scene(fn)
     for key in pairs(SpriteFactory.npc) do if not sets[key] then SpriteFactory.npc[key]=nil end end
     for key,value in pairs(sets) do SpriteFactory.npc[key]=value end
     gfx.setDrawOffset(0,0);screen:draw(0,0);gfx.setDrawOffset(ox,oy)
+    screen = nil
     eq(gfx.sprite.spriteCount(),count);eq(WorldTiles:maxID(),ids)
+    collectgarbage("collect")
     if not ok then error(problem,0) end
 end
 local function open(g,party,mon,key)
@@ -296,7 +301,7 @@ function FieldMoveContracts.run()
         end)
     end)
     test("Darkness input requires the pinned source map, offset and owner epoch",function()
-        local input={zone_id="pokered:ROCK_TUNNEL_1F",source_revision=FieldMoves.data().source_revision,offset=6,epoch=1}
+        local input={zone_id="pokered:ROCK_TUNNEL_1F",source_revision=FieldMoves.sourceRevision(),offset=6,epoch=1}
         assert(FieldMoves.validDarknessInput(input.zone_id,input))
         eq(FieldMoves.validDarknessInput("pokered:ROUTE_2",input),false)
         input.offset=0;eq(FieldMoves.validDarknessInput(input.zone_id,input),false)

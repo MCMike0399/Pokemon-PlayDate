@@ -508,6 +508,9 @@ function ContactAbilityContracts.run()
         local b = fresh()
         own(b.player, { "scratch" })
         RulesRNG.seed(11)
+        -- pokered does not print the damage total. The waypoint flag pauses
+        -- after the HP commit and before afterHit, while the receipt is live.
+        b.debugDamageNumbers = true
         b:runScript(function()
             return b:resolveTurn({
                 side = "player",
@@ -533,6 +536,7 @@ function ContactAbilityContracts.run()
         local b = fresh()
         own(b.player, { "scratch" })
         RulesRNG.seed(2)
+        b.debugDamageNumbers = true
         b:runScript(function()
             return b:resolveTurn({
                 side = "player",
