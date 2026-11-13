@@ -1,5 +1,153 @@
 # Full-game execution ledger
 
+## 2026-11-13 Empty-box encode collection, gates, and the queued handoffs
+
+`main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added. `Source/dev/sessionFixture.lua` was not edited. Daycare still fails on Miguel's fixture: `legacy session cannot contain a hall of fame record` at `daycareContracts.lua:383` and `:409`.
+
+`9fb424d6` skips the PC encode collection when a box is empty. Occupied boxes still collect on even indexes. The Vermilion journey pin matches that storage hash. `21cfc01f` nests the coverage snapshot for that tree. No row was relabeled. Four unscored edits are stashed, not committed: the terrain-atlas collect in `Source/world/tileRegistry.lua`, the source-map scope collect, the Cerulean inventory switch to `sharedDefinition`, and the Vermilion catalog step collection.
+
+A clean harness boot, evidence `/tmp/pokemon-boot-final`, reached `title.visible` at sequence 46, 1089 ms, and `initialize.ready` at sequence 377, 10680 ms. Sampled peak 12820.637 KiB. `tools/measure_boot_budget.py` printed BUDGET PASS.
+
+`python3 -m unittest discover -s tools/tests` ran 1368 tests in 158.072 seconds: 6 failures, 6 errors, 11 skipped. `tools/build.py --output /tmp/PokemonPoC.pdx --stage /tmp/prod-stage-lane-e-final` exited 1 with `transform dependency changed: domain/party.lua`. The Kanto pin also differs for `game/sourceEvents.lua`, `data/ceruleanContent.lua`, `world/sourceMaps.lua`, and `domain/party.lua`. Neither provenance file was hand-edited.
+
+The device suites below are one fresh Simulator each, on `21cfc01f`. 109 passed. 20 did not. `source-events` and `vermilion-gifts` never left `running` (command timed out; the gifts Simulator died before a score). `vermilion-catalog` was OOM-killed during startup (`exit 143`) and has no child score.
+
+| suite | result | passed | failed | heap KiB | session |
+| --- | --- | --- | --- | --- | --- |
+| learnsets | pass | 14 | 0 | 13021.038 | `22cb5e45216349cdafc17d5eaaf756d1` |
+| collections | pass | 9 | 0 | 12599.067 | `ce605743fab54bf49ce3e546aed58a4f` |
+| learning | pass | 12 | 0 | 12595.652 | `7145fa7b8c524f419d4f89bff163c4f5` |
+| persistence | fail | 25 | 1 | 12759.912 | `5aeb7e328a8b4a13be86e468fdd5603c` |
+| combat | pass | 34 | 0 | 12736.329 | `137ccc2b746f42c5bcf4a92419346ddd` |
+| rng-persistence | pass | 14 | 0 | 12587.212 | `7bf64205df65434e8ea5a653e0981302` |
+| world | fail | 15 | 1 | 12886.805 | `db6d456686d843b4b3053d28bd4a48a8` |
+| growth | pass | 14 | 0 | 13000.827 | `2a03cbfa6c2b415b8ac74e27956ee65b` |
+| items | pass | 25 | 0 | 12629.344 | `e705c57cefe14279a61c1e31beb6cb30` |
+| session | pass | 11 | 0 | 12623.536 | `85a62d871c324d66b97d86052ee61802` |
+| capture | pass | 16 | 0 | 12659.575 | `9df5e34f2835416ca1a59d1b7d6f1604` |
+| viridian-slice | fail | 12 | 2 | 12849.564 | `f6e00d5fbc374956a1296c26b53f0d91` |
+| session-bridge | pass | 9 | 0 | 12613.633 | `2e32be70e94448e29e168d559702155d` |
+| party-battle | pass | 27 | 0 | 13055.112 | `9dd56d94973a4ac99c958117ce08cce2` |
+| shop | pass | 12 | 0 | 12590.295 | `a1521c553ab54dc3848017d8b1b117cb` |
+| capture-animation | fail | 12 | 1 | 12588.005 | `371cc803a30c456b8f555d7f91190f7e` |
+| traversal | pass | 11 | 0 | 12934.505 | `ef5486b161564f4cb65d2a16f80a0c6c` |
+| event-ui | pass | 22 | 0 | 12979.794 | `a87bde817bd049ad9a08c8b7a9f097ad` |
+| event-catalog | pass | 2 | 0 | 13119.946 | `ee43e7f8cc07420b81ddd6815d4dc969` |
+| pokedex | pass | 10 | 0 | 12744.767 | `f5f8a933689f463d8293e87bc2f97715` |
+| early-combat | pass | 23 | 0 | 12699.342 | `eb502e1372254541ab3a69da822c8987` |
+| runtime-art | pass | 3 | 0 | 13338.900 | `629f32f39953420f9d27ac98d959d897` |
+| pc-ui | pass | 17 | 0 | 12704.769 | `01655e14b9ed439aba38b687db9d3b36` |
+| evolution | pass | 27 | 0 | 12865.645 | `932c34b2f5e344bf8ed3be31e0d1827d` |
+| healing-composition | pass | 6 | 0 | 13070.552 | `bbb3f55007db4b2cbcd6df2d396d1669` |
+| trainerContracts | pass | 10 | 0 | 12733.574 | `255d61f8321e4157b6f2f8ff4b1b426f` |
+| pewterProviderContracts | fail | 7 | 4 | 12945.145 | `1b0cf08349de4ca08765734c2f3f45b3` |
+| pewterInstallContracts | fail | 0 | 1 | 12796.099 | `c243d289ea0a4a5586597c54238c1295` |
+| eventReceiptContracts | pass | 1 | 0 | 12781.475 | `0b78e83c8290493d95e20d5c03111a26` |
+| battleLearningContracts | pass | 21 | 0 | 12628.607 | `3c21b811251e442f8a241e79fd65011e` |
+| battleLearningEvolutionContracts | pass | 2 | 0 | 12619.436 | `a819093ff05e4c8e8b0d474c26696ed1` |
+| battle-items | pass | 9 | 0 | 12638.939 | `e7bc76268b764e838725bd613cfa3acc` |
+| native-condition-witness | pass | 2 | 0 | 12598.892 | `f4b807e6879242f5bd4179463b18e4a4` |
+| condition-checkpoints-v1 | pass | 8 | 0 | 12602.846 | `c3e98418fe6a459b89bc675d6fb4a1f8` |
+| battle-rewards-v1 | pass | 27 | 0 | 12695.625 | `8e4beb71c7494e65a06fca7ee925bb63` |
+| individual-stats-v1 | pass | 17 | 0 | 13050.125 | `de4d04df474c46b8a8f4e3780e5527b0` |
+| specimenContracts | pass | 21 | 0 | 13048.389 | `9f2458518bda44339097bfe99114881e` |
+| specimenTrainerContracts | pass | 4 | 0 | 12600.861 | `70e7568042a947069960412a0ddcb74f` |
+| specimen-ownership | pass | 8 | 0 | 12591.618 | `1f1639d581e14591b586005fd680cf63` |
+| strength-boulder | pass | 1 | 0 | 12668.856 | `0369f9b29af94741ad835106a9b85cba` |
+| npcMotionContracts | pass | 15 | 0 | 12966.864 | `74847cb8f8d44d81bc87a82b137d055e` |
+| npcMotionLegacyContracts | pass | 3 | 0 | 12789.031 | `d2c8bf1ab5fd4e7cab4d047c0cc9e88b` |
+| worldViewRollbackContracts | pass | 1 | 0 | 12598.457 | `4472b14fc7d24c7ba0cdad496f21d316` |
+| held-items | pass | 25 | 0 | 12651.893 | `739e8c1521df4199a5ba2ed2370212da` |
+| held-lifecycle | pass | 2 | 0 | 12606.029 | `2d0c7deebb8e483b98dce3c3ecce9f6c` |
+| early-abilities | pass | 46 | 0 | 13042.886 | `6789a8df21f04ea0aa5f9a71f3160e48` |
+| ability-compatibility | pass | 12 | 0 | 13021.664 | `f6f2ae875b2840a5b48e701cce2ff7a7` |
+| brock-mechanics | pass | 19 | 0 | 13052.837 | `0e98d4363a364020bbe81a592e5f1da4` |
+| brock-move-batch01 | pass | 36 | 0 | 12702.153 | `a8e4964f66be4cf49533c803e8408f8f` |
+| brock-move-batch01-errata | pass | 1 | 0 | 12605.756 | `784f668f63ab4996afac61208ac84776` |
+| bide | pass | 29 | 0 | 13032.159 | `3395734d57c64b3298966077e8d20ca3` |
+| specimen-sex-light-ball | pass | 20 | 0 | 12968.482 | `55b8cc971804417c94f5fb160670fbac` |
+| teaching | pass | 16 | 0 | 12654.323 | `2b023d75fa404a3580058233d2a09db5` |
+| bide-teaching | pass | 1 | 0 | 12613.685 | `d5cebe42725247e195f4b02f21d19b8e` |
+| brock-field-items | fail | 5 | 3 | 13061.138 | `498954ba6c734bb9b5fd975379602b28` |
+| sex-abilities | pass | 30 | 0 | 12696.326 | `69746310f91d4193952bec0c3d414c7f` |
+| own-tempo | pass | 6 | 0 | 12598.942 | `ca59d0ce146d4ba7ab41fb9c5aae4f88` |
+| charge-lock | pass | 31 | 0 | 12669.775 | `f707014f5f2d4aa6badf52d1e7c99f72` |
+| hm-battle | pass | 25 | 0 | 12669.942 | `0313bccbaf02442da8dfcb24b2016d38` |
+| charge-own-tempo | pass | 1 | 0 | 12612.081 | `c6e4efbae2cc4070a984cec7ed53901e` |
+| basepower-order | pass | 8 | 0 | 12641.753 | `55de159d8a6e421c9db5c9669b24bb8f` |
+| rain | pass | 27 | 0 | 12673.576 | `5f05769bc8a24336b4c6931f40819cf8` |
+| worry-seed | pass | 22 | 0 | 12785.868 | `377df6805a1f450db8112ad1872c21b3` |
+| brock-integration | pass | 1 | 0 | 12599.811 | `149af78562d8433193284a5349abfff9` |
+| protect | pass | 33 | 0 | 13031.655 | `38ad2b6ce27f44c59efb53a91045a13a` |
+| sides | pass | 25 | 0 | 12689.550 | `14ce855e951e4354b784fa6f3231d352` |
+| stage-reset | pass | 9 | 0 | 12652.924 | `4b20ce9a12d949108c40eeb4b2ec8f71` |
+| earned-b-moves | pass | 33 | 0 | 12657.764 | `2a887bfc86984cdcb7fd6b05c5f4ace7` |
+| self-ko-moves | pass | 15 | 0 | 12662.012 | `34e1347a8a76449da64c5c3e5b736a87` |
+| substitute-seams | pass | 8 | 0 | 12606.893 | `5e7b105139b44fcd9de45302834fc010` |
+| substitute | pass | 24 | 0 | 12676.456 | `4bdf899cdf2047faa697b82c1cc7fd65` |
+| roost | pass | 25 | 0 | 12666.828 | `e66986b51942412fa7760564eacd2ee7` |
+| roost-predicates | pass | 4 | 0 | 12593.011 | `0464bf05a6234e42bafe7b6f1da7d18e` |
+| poison-fang | pass | 12 | 0 | 12669.229 | `06fc75205cd04bdf9be59707125f0423` |
+| secondaries | pass | 15 | 0 | 13022.165 | `c13893c53a0e44f984fe5239fe6340f3` |
+| title-recovery-probe | pass | 8 | 0 | 12700.731 | `8742b0c35ef244b7afccf8bedfe201b0` |
+| title-recovery | pass | 20 | 0 | 12591.524 | `7c9229dc526040878afc0bb350474138` |
+| title-archive-safety | pass | 2 | 0 | 12584.120 | `54672b6c34144c7b963bf8b65e4772e0` |
+| cerulean-catalog | fail | 101 | 116 | 12792.577 | `d4526ca38e7147febb8302e8566800cd` |
+| comprehensive-catalog | fail | 3 | 4 | 12814.125 | `0b0f9f48fcf44eaab6e3a7285b4be495` |
+| catalog-motion | pass | 2 | 0 | 12655.525 | `f6f55f631f804df5b72f4f5d70450ba5` |
+| catalog-ability | pass | 1 | 0 | 12591.478 | `b9c5fbdc67e14e04ab1e0c9243810b28` |
+| world-presentation | pass | 5 | 0 | 12755.754 | `440ae42fc59a42ac8e8fcf88b8b67737` |
+| home-lead | pass | 11 | 0 | 12667.970 | `83dccd5dca45492da890d3909f375618` |
+| red-pc-items | pass | 18 | 0 | 12755.562 | `5c6400a3f476403cb7ccaf5ca36ab41e` |
+| field-encounters | pass | 18 | 0 | 12807.879 | `cc09cce46ef046fa972f806c3e83bd9f` |
+| reward-fault-guards | pass | 1 | 0 | 12594.784 | `ee77f53829b042538463c4e92df37291` |
+| weather-reward-witness | pass | 1 | 0 | 12582.609 | `0c909d2efe4a43cb8b225723dc6b600e` |
+| whirlwind | pass | 27 | 0 | 12699.308 | `dd2c9d3f3263441d822488bbfb6aa1f8` |
+| move-failure | fail | 14 | 1 | 12757.028 | `e5d684cdfbd740498280bc3768f74d7a` |
+| source-maps | fail | 8 | 15 | 13287.829 | `ad03f5e861cb48d8a70b32a3bcb8a703` |
+| source-events | timeout |  |  | 12581.565 | `668dbef2bce040bdb7c8b604e2c2b3cf` |
+| source-text | pass | 42 | 0 | 12639.891 | `f646245add8f47d68393a24cbebc4023` |
+| scripted-npc | pass | 6 | 0 | 12814.001 | `fe7c7876be3e420fa38577e8e6ebd7fa` |
+| generic-actors | pass | 8 | 0 | 12845.923 | `bb85ef0157da48469c35a2fc6ec12236` |
+| source-map-activation | pass | 9 | 0 | 12587.048 | `fbf0e9023a934560855042a952b44727` |
+| cerulean-content | fail | 108 | 1 | 12769.980 | `566a8b1f524342cda95005ec482ad57a` |
+| cerulean-story | pass | 11 | 0 | 12820.638 | `2766f5af64f1470d9fa8515de60b4db1` |
+| cerulean-scenes | pass | 13 | 0 | 12809.262 | `88dac069d2d24e4bb99c9f996305c7af` |
+| cerulean-routes | pass | 20 | 0 | 12906.912 | `ff4c49df350d47c2bc9e9fb280aff9ed` |
+| tutorial-escort | pass | 17 | 0 | 12922.022 | `c10d7aea37ca449e843c182fbc6d426b` |
+| kanto-scenes | pass | 7 | 0 | 12845.777 | `d9e018f27d7a4caf86fa732feda4dfec` |
+| kanto-services | pass | 22 | 0 | 12813.625 | `dec87bbb30a746a3b6a90ac0591e0fd2` |
+| common-abilities | pass | 16 | 0 | 12609.004 | `14684d977f774eb79623b988f30b127a` |
+| cerulean-ambient-dialogue | fail | 26 | 2 | 12746.395 | `a427bff37e5e407391565ab0a2b48fc4` |
+| entry-abilities | pass | 29 | 0 | 12668.318 | `dada1f744d424c4cbc14a82c7187d4cd` |
+| contact-abilities | pass | 25 | 0 | 12679.290 | `850db06f157440dda1c1fe21a768b982` |
+| field-moves | pass | 16 | 0 | 13247.950 | `9be54d9c9e674782b3c9e77d6124c434` |
+| field-world | fail | 13 | 1 | 13335.553 | `b40387c596d0453bb9cdc2e1f7a5654a` |
+| vermilion-gifts | timeout |  |  | 12582.175 | `b933572571c7441a81078932efcbdbeb` |
+| vermilion-story | pass | 26 | 0 | 12871.182 | `8e45eb90c3274c0c994f9b997a5110f5` |
+| daycare | fail | 18 | 2 | 13037.219 | `5190734b3448421c9e59350f9ba026dc` |
+| vermilion-preparation | pass | 113 | 0 | 12642.871 | `2e0d390f0dde4ba482163deb49e80fb2` |
+| vermilion-ship | pass | 11 | 0 | 12798.396 | `54bcad6245fb4ee3803b33733ac6feff` |
+| field-acquisition | pass | 15 | 0 | 12793.582 | `93839592a73a4e46b6216a099cd9bf73` |
+| vermilion-abilities | pass | 39 | 0 | 12694.000 | `90eec4c4c74f406d85f54d71ff2119a3` |
+| vermilion-catalog | crash |  |  |  | `` |
+| cave-encounters | pass | 8 | 0 | 12882.006 | `31d6da7dd3ab4434887648053dd138fc` |
+| pickup | pass | 42 | 0 | 12705.778 | `8d33585b3f3c4df79bbc2e8c6ad743a5` |
+| grass-cut | pass | 15 | 0 | 13208.352 | `c3ef005abfc141acb085a3ef4776bc46` |
+| vermilion-ambient | pass | 48 | 0 | 12645.064 | `de99269856584bc18277fd9ad146fbdc` |
+| battle-presentation | pass | 23 | 0 | 12684.152 | `d0c9a340a4e3477da47d2ddb97ef37da` |
+| approved-qol | pass | 4 | 0 | 12687.368 | `29f7189ecbcb4d7b8030f9b55b037ffd` |
+| npc-trades | fail | 43 | 6 | 13405.627 | `becf7ccc8a1c4d04a13c48058fe0a553` |
+| saffron-guards | pass | 91 | 0 | 12856.096 | `54d976134b414ddfa0ea896a0a04f81f` |
+| field-travel | fail | 2 | 1 | 13154.867 | `25fa67eb052040e3ace38ece475d01d8` |
+| source-encounters | pass | 4 | 0 | 12886.377 | `053d4bc6e80d4072b13ff2c735917c67` |
+| field-gear | pass | 2 | 0 | 12593.635 | `925d5f1611e34fb6a1c6c1f68ca6fe05` |
+| celadon-services | pass | 6 | 0 | 12867.719 | `b6b1d44340de4438835da7d2305fd1f2` |
+
+Queued, not applied. Lane B `cursor/lane-b-south-loop` `c87e503d` adds `tools/notes/lane-e-x-items.patch` and `tools/tests/test_lane_e_x_items.py`. X Accuracy, X Attack, X Defend, X Speed, and X Special are still `effect='unsupported'`. Also queued from that branch: `tools/notes/lane-e-learn-pages.patch`, `tools/notes/lane-e-trainer-lease.patch`, and `tools/notes/lane-e-battle-message.patch`, plus the three ownership-break commits `5c27a3f8` (Route 22 rival start in `ceruleanRoutes.lua`), `4e1f7fc6` (release the scripted walk in `eventState.lua`), and `4a42e55b` (cave encounter contract). Audit `5c27a3f8` against `scripts/Route22.asm` and `4a42e55b` against `TryDoWildEncounter` before applying them.
+
+YellowBot did not push `main`. These three fast-forward `bf92c4fc` and are ready to pull later, not now. Lane F `cursor/lane-f-audio` `01d20480`: its audio edits leave the coverage-matrix source fingerprint stale, which must be regenerated through its generator, and `pdc` compile fails in that environment. Lane G `cursor/lane-g-front-end` `18c11ded`. Lane H `cursor/lane-h-postgame` `7b1f1925`.
+
 ## 2026-11-13 Cycling Road gate, and the Route 20 rock
 
 Lane I `ab75c2ea` `tools/notes/lane-e-bicycle-road.patch` stopped a door that would land on a forced Cycling Road cell, then returned to explore with no guard text. The crash is `OverworldState:enter` asserting `bicycle-required` from `FieldWorld.entryTravel`. The door now asks `FieldCycling.enter` before the fade. A forced Route 16 cell `(17, 10)` or `(17, 11)`, or a forced Route 18 cell `(33, 8)` or `(33, 9)`, with no Bicycle, stays on the gate. Route 16 shows `Excuse me! Wait up please!` and `No pedestrians are allowed on CYCLING ROAD!` (`text/Route16Gate1F.asm`). Route 18 shows `Excuse me!` and `You need a BICYCLE for CYCLING ROAD!` (`text/Route18Gate1F.asm`). The dialog then steps once in the gate's `return_direction`, which is `right` on both gates (`scripts/Route16Gate1F.asm`, `scripts/Route18Gate1F.asm`). `FieldCycling.returnDirection` reads that field. The arrival assert is unchanged for every other entry. `field-gear` session `a2e54e38fecb45619b3507ee60a7869b` passed 2, failed 0, heap 12593.599 KiB. The parent command passed 22 and failed 0.
