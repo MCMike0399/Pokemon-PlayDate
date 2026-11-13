@@ -1092,6 +1092,25 @@ class CharmanderRun(BrockJourney):
                     return True
             return base_advance(stop_phase)
         self.advance_event = advance_event
+        # The mart elevator is a floor menu. Its static warp points at 1F, but
+        # the door stays closed until a floor is chosen. Stairs are the exit.
+        base_portals = self.portals
+        stairs = {
+            "CELADON_MART_1F": {1, 2, 3, 4, 5},
+            "CELADON_MART_2F": {1, 2},
+            "CELADON_MART_3F": {1, 2},
+            "CELADON_MART_4F": {1, 2},
+            "CELADON_MART_5F": {1, 2},
+            "CELADON_MART_ROOF": {1},
+        }
+        def portals(model):
+            source = getattr(model, "source_data", None) or {}
+            allowed = stairs.get(source.get("source_map_constant"))
+            for point, kind, detail in base_portals(model):
+                if allowed is not None and kind == "warp" and detail["source_index"] not in allowed:
+                    continue
+                yield point, kind, detail
+        self.portals = portals
         self._post_rainbow = True
 
     def _fight_story(self, trainer_id):
