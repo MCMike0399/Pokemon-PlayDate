@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "9fb424d61da8618b1279484ba3973ede49c94de7",
+    "source_sha256": "f9a028e4288f53e431cc002429b1578c825244512abe9f8c2a1b4011bf1e50e5",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after empty PC boxes skip the encode collection. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 6610fb450aab35c51b36cf59c9d4db4008172b8130931e94ebc91ed320152bbf.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "b22400e47a8cf101be4b763d01960a7748999614",
     "source_sha256": "6610fb450aab35c51b36cf59c9d4db4008172b8130931e94ebc91ed320152bbf",
     "policy_date": "2026-11-13",
@@ -1379,6 +1390,7 @@
         }
       }
     }
+  }
   }
   }
   }
