@@ -40,12 +40,32 @@ local function construct(name)
     return zone
 end
 
+local function manifestEntry(records, name)
+    local entry = records.manifest[name]
+    if not entry then
+        entry = SourceMaps.entry(name)
+        records.manifest[name] = entry
+    end
+    return entry
+end
+
+local function compactFields(records, name)
+    local fields = records.compact[name]
+    if not fields then
+        fields = {}
+        records.compact[name] = fields
+    end
+    return fields
+end
+
 local function blockSchool(records)
-    local manifest = records["data/sourceMaps.json"].maps
-    local city = records["data/sourceMapCache/compact.json"].maps.ViridianCity
+    local city = SourceMaps.descriptor("ViridianCity")
     local event = city.warps[3]
-    manifest.ViridianCity.blocked_events = { event.id }
-    city.blocked[tostring(event.y * city.width + event.x + 1)] = event.id
+    manifestEntry(records, "ViridianCity").blocked_events = { event.id }
+    local blocked = {}
+    for cell, id in pairs(city.blocked) do blocked[cell] = id end
+    blocked[tostring(event.y * city.width + event.x + 1)] = event.id
+    compactFields(records, "ViridianCity").blocked = blocked
     return event.id
 end
 
@@ -113,7 +133,7 @@ function SourceMapActivationContracts.run()
         local records = fixture()
         -- Keep the ordinary cache open to prove the explicit target declaration
         -- itself is enforced, rather than relying only on the collision cache.
-        records["data/sourceMaps.json"].maps.ViridianCity.blocked_events = { "pokered:VIRIDIAN_CITY:warps:3" }
+        manifestEntry(records, "ViridianCity").blocked_events = { "pokered:VIRIDIAN_CITY:warps:3" }
         scope(records, function()
             local room = SourceMaps.padded("ViridianSchoolHouse")
             assert(SourceMaps.warpSpec("ViridianSchoolHouse", room.events.warps[1]).status == "blocked")
@@ -122,14 +142,13 @@ function SourceMapActivationContracts.run()
 
     test("horizontal connection blockers are directional and honored on either side", function()
         local records = fixture()
-        local maps = records["data/sourceMapCache/compact.json"].maps
-        maps.ViridianCity.blocked_connections = { "west:ROUTE_22" }
+        compactFields(records, "ViridianCity").blocked_connections = { "west:ROUTE_22" }
         scope(records, function()
             assert(SourceMaps.connection("ViridianCity", 0, 16, "left") == nil)
             assert(SourceMaps.connection("Route22", 39, 8, "right"), "directed source gate changed the reverse edge")
         end)
         records = fixture()
-        records["data/sourceMapCache/compact.json"].maps.Route22.blocked_connections = { "east:VIRIDIAN_CITY" }
+        compactFields(records, "Route22").blocked_connections = { "east:VIRIDIAN_CITY" }
         scope(records, function()
             assert(SourceMaps.connection("Route22", 39, 8, "right") == nil)
             assert(SourceMaps.connection("ViridianCity", 0, 16, "left"))
@@ -138,7 +157,7 @@ function SourceMapActivationContracts.run()
 
     test("vertical source gate is enforced while the original opposite direction stays valid", function()
         local records = fixture()
-        records["data/sourceMapCache/compact.json"].maps.ViridianCity.blocked_connections = { "north:ROUTE_2" }
+        compactFields(records, "ViridianCity").blocked_connections = { "north:ROUTE_2" }
         scope(records, function()
             assert(SourceMaps.connection("ViridianCity", 20, 0, "up") == nil)
             local reverse = assert(SourceMaps.connection("Route2", 10, 71, "down"))

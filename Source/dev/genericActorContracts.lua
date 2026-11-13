@@ -24,7 +24,8 @@ local function scene(fn)
             SourceEvents._withSources(function()
                 local records = assert(json.decodeFile("dev/sourceMapFixture.json"))
                 local fixture = assert(json.decodeFile("dev/genericActorFixture.json"))
-                local d = records[fixture.record]
+                assert(records.schema == 2, "source map fixture overlay required")
+                local d = records.extensions[fixture.record]
                 for i, input in ipairs(fixture.objects) do
                     for key, value in pairs(input) do d.events.objects[i][key] = value end
                 end

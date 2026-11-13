@@ -329,12 +329,12 @@ class GeneratedSourceCacheTests(unittest.TestCase):
 class SourceMapExtensionTests(unittest.TestCase):
     def test_sdk_fixture_is_reproducible_from_pinned_extra_maps_without_regional_metadata(self):
         import os
-        from tools.source_map_fixture import records
+        from tools.source_map_fixture import records, disk_patch
         from tools.generate_source_map_cache import canonical
         reference = os.environ.get('POKERED_REFERENCE_DIR')
         self.assertTrue(reference, 'source the project environment before host checks')
         fixture = records(reference)
-        self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(fixture))
+        self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(disk_patch(fixture)))
         compact = fixture['data/sourceMapCache/compact.json']
         installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
         self.assertEqual(set(compact['maps']), set(installed))

@@ -50,6 +50,9 @@ function CeruleanContentContracts.run()
                     same(SourceMaps.tile(cell.key).grid, grid.grid)
                     assert(cell.terrain.foot_tile == grid.terrain.foot_tile)
                 end
+                -- Large projections copy one grid per cell. Drop those copies
+                -- before the next row so the pool keeps the resident atlas.
+                if y % 4 == 3 then collectgarbage("collect") end
             end
             for _, event in ipairs(raw.events.objects) do
                 local strip = CeruleanContent.sprite(event.sprite)
@@ -166,7 +169,7 @@ function CeruleanContentContracts.run()
     test("source bank payout and RAM names remain literal valid UTF-8", function()
         local ram = { player = "RÉD", rival = "BLÜE", wAmountMoneyWon = 175 }
         local pages = EventText.pagesFrom({ "_MoneyForWinningText" }, CeruleanContent.text, ram)
-        assert(#pages == 1 and pages[1].text == "RÉD got ¥175 for winning!")
+        assert(#pages == 1 and pages[1].text == "RÉD got ¥175\nfor winning!")
         assert(utf8.len(pages[1].text))
         assert(SourceText.expand("<PLAYER> / <RIVAL>", ram) == "RÉD / BLÜE")
         for _, symbol in ipairs({ "wPlayerName", "wRivalName" }) do
@@ -182,8 +185,8 @@ function CeruleanContentContracts.run()
         local pages = EventText.pagesFrom({ "_ViridianCityOldManSleepyPrivatePropertyText" },
             function(label) return texts[label] end)
         assert(#pages == 2)
-        assert(pages[1].text == "You can't go through here!")
-        assert(pages[2].text == "This is private property!")
+        assert(pages[1].text == "You can't go\nthrough here!")
+        assert(pages[2].text == "This is private\nproperty!")
     end)
     test("source renderer still rejects unknown controls and invalid UTF-8 RAM", function()
         local function resolve()

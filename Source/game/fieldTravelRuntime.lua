@@ -98,6 +98,13 @@ function FieldTravelRuntime.fly(game, expected, plan)
         assert(key, "Fly destination not installed")
         target = assert(WorldDeltas.ensureZone(key))
         target:assertEnterable()
+        -- The departing view stays referenced for rollback. Pin the destination
+        -- so the inactive release can drop every other cached city first.
+        local provider = WorldDeltas.definitionProvider()
+        local unpin = provider and provider.owns and provider:owns(target) and provider:pin(target)
+        WorldDeltas.releaseInactiveZones()
+        collectgarbage("collect")
+        if unpin then unpin() end
         -- Same-city Fly must also stage a replacement view without disposing it.
         if target == previous.zone then
             target:detachView(previous.view)

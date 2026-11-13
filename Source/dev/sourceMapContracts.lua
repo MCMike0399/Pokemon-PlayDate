@@ -626,7 +626,11 @@ function SourceMapContracts.run()
                     if field == "blocked" and original.id == "pokered:PEWTER_CITY" then
                         expected = GameSession._copy(expected)
                         for cell, id in pairs(expected) do
-                            if id == "pokered:PEWTER_CITY:warps:1" or id == "pokered:PEWTER_CITY:warps:2" then
+                            -- Museum doors, the Nidoran house, and the speech
+                            -- house now bind installed maps.
+                            if id == "pokered:PEWTER_CITY:warps:1" or id == "pokered:PEWTER_CITY:warps:2"
+                                or id == "pokered:PEWTER_CITY:warps:4"
+                                or id == "pokered:PEWTER_CITY:warps:6" then
                                 expected[cell] = nil
                             end
                         end
