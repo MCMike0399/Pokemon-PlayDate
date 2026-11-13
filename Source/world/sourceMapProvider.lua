@@ -35,6 +35,10 @@ end
 -- Shared construction only: no provider registration, cache ownership or pinning.
 -- Profiles supply bespoke bindings; the manifest supplies identity and defaults.
 function SourceMaps.createZone(name, adapter, registry, overrides, desired)
+    -- The previous zone's sprites and decoded rows are already unreferenced.
+    -- Incremental GC has not always finished before the next city, so the
+    -- floor stays about 500 KiB above main and the zone build crosses the pool.
+    collectgarbage("collect")
     local entry = SourceMaps.entry(name)
     if BootTrace then
         BootTrace.mark("map." .. name .. ".definition.begin")
@@ -75,6 +79,9 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
         ensureKeys(registry, desired.tiles)
         zone:applyDeltas(desired)
     end
+    -- The padded definition and the zone stay referenced. A minor step drops
+    -- the decode temporaries before the caller builds dialogue on top.
+    collectgarbage("step", 1000)
     return zone
 end
 

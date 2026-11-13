@@ -17,11 +17,15 @@ function EventState.redrawSprites()
 end
 function EventState.observe(game,id,options)
     local bag=game.session:inventory();local items,canAdd={},{}
-    for _,id in ipairs(SourceEvents.itemIDs()) do
-        items[id]=bag:quantity(id)
-        local candidate=assert(Inventory.fromData(ItemData.definitions,bag:toData()))
-        canAdd[id]=candidate:add(id,1)==true
+    -- One live bag check per id. Building a throwaway inventory for every
+    -- source item kept a full catalog walk alive until the next map collection.
+    for _,itemID in ipairs(SourceEvents.itemIDs()) do
+        items[itemID]=bag:quantity(itemID)
+        canAdd[itemID]=bag:canAdd(itemID,1)==true
     end
+    -- The id walk builds short-lived records. Drop them before the caller
+    -- decodes dialogue, or the first talk on a fresh map crosses the pool.
+    collectgarbage("step", 400)
     return {intro=game.session:getIntro().stage,flags=game.session:flags().quest,trainers=game.session:flags().trainers,items=items,can_add=canAdd,
         mode=options and options.mode or "talk"}
 end
@@ -587,6 +591,10 @@ function EventState:startTrainer(step)
     end
 end
 function EventState:trainerReady()
+    -- The route walk is still live here. A minor step frees it before the
+    -- rival page is copied. Branch 2 of the Cerulean rival otherwise runs
+    -- out of memory inside that copy.
+    collectgarbage("step", 200)
     self:source(self.trainerStep.before,function()
         local party,reason=self.game.trainers:launch(self.trainerToken)
         if not party then self:fail(reason);return end

@@ -36,11 +36,43 @@ local priorities <const> = {
     tink = 3,
 }
 
+local function liveScoreNames()
+    local names = {}
+    for _, entry in pairs(layers) do
+        if type(entry) == "table" and type(entry.name) == "string" and entry.name:sub(1, 4) ~= "cry:" then
+            names[entry.name] = true
+        end
+    end
+    return names
+end
+
+-- file.run builds the note tables on first play and KantoScores keeps them.
+-- A map bed is hundreds of KiB. Main kept every score in one import. Head
+-- loads them while zones are built, and the old beds were still live at the
+-- next map, which is the out-of-memory on the cerulean and vermilion suites.
+-- Drop every score the synth is not playing before the next file.run.
+local function releaseIdleScores(keep)
+    if type(KantoScores) ~= "table" then
+        return
+    end
+    local live = liveScoreNames()
+    if keep then
+        live[keep] = true
+    end
+    for name in pairs(KantoScores) do
+        if not live[name] then
+            KantoScores[name] = nil
+        end
+    end
+    collectgarbage("collect")
+end
+
 local function ensureScore(name)
     if KantoScores and KantoScores[name] then
         return KantoScores[name]
     end
     KantoScores = KantoScores or {}
+    releaseIdleScores(name)
     -- import() is only legal while a pdz is loading, and pdc 3.1.2 treats a
     -- literal "audio/score/" prefix as a file request. file.run loads the
     -- compiled score pdz the first time that score plays.
@@ -243,6 +275,9 @@ function KantoSynth.music(name, keepJingle)
     if not keepJingle then
         layers.jingle = nil
     end
+    -- Drop the old bed before ensureScore so its note tables can be collected
+    -- before the next score is built.
+    layers.music = nil
     layers.music = name and layer(name, sound.getCurrentTime()) or nil
     KantoSynth.update()
 end
