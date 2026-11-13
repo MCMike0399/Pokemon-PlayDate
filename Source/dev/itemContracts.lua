@@ -46,7 +46,7 @@ xSpeed xSpecial coinCase oaksParcel itemfinder silphScope pokeFlute liftKey expA
 superRod ppUp ether maxEther elixir maxElixir hm01 hm02 hm03 hm04 hm05 tm01 tm02 tm03 tm04 tm05 tm06
 tm07 tm08 tm09 tm10 tm11 tm12 tm13 tm14 tm15 tm16 tm17 tm18 tm19 tm20 tm21 tm22 tm23 tm24 tm25 tm26
 tm27 tm28 tm29 tm30 tm31 tm32 tm33 tm34 tm35 tm36 tm37 tm38 tm39 tm40 tm41 tm42 tm43 tm44 tm45 tm46
-tm47 tm48 tm49 tm50 lightBall
+tm47 tm48 tm49 tm50 lightBall linkCable
 ]]):gmatch("%S+") do
             assert(legacy[id] == nil, "duplicate legacy item " .. id)
             local item <const> = assert(ItemData.definitions[id], "missing legacy item " .. id)
@@ -54,8 +54,19 @@ tm47 tm48 tm49 tm50 lightBall
             count = count + 1
             if item.numericId ~= nil then blue = blue + 1 end
         end
-        equal(blue, 124)
-        equal(count, 125)
+        equal(blue, 125)
+        equal(count, 126)
+        -- Item 251, the first id after TM_SUBSTITUTE. Not a mart item.
+        local cable <const> = ItemData.definitions.linkCable
+        equal(cable.symbol, "LINK_CABLE")
+        equal(cable.numericId, 251)
+        equal(cable.name, "LINK CABLE")
+        equal(cable.price, 0)
+        equal(cable.sellPrice, 0)
+        equal(cable.keyItem, false)
+        equal(cable.category, "evolution")
+        equal(cable.effect, "evolution")
+        equal(ItemData.bySymbol.LINK_CABLE, "linkCable")
         local additions <const> = {
             sunStone={80,80,2100,"SUN_STONE"}, heartScale={93,93,100,"HEART_SCALE"},
             kingsRock={221,198,100,"KINGS_ROCK"}, ironBall={278,255,200,"IRON_BALL"},

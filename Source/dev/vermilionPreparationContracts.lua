@@ -64,9 +64,10 @@ function VermilionPreparationContracts.run()
         end
     end
     test("SDK reads literal UTF-8 payout and non-underscore recipe boundaries", function()
+        -- data/text/text_2.asm puts <LINE> before "for winning!".
         local pages = EventText.pagesFrom({"_MoneyForWinningText"}, text,
             {player="RÉD", wAmountMoneyWon=175})
-        assert(pages[1].text == "RÉD got ¥175 for winning!")
+        assert(pages[1].text == "RÉD got ¥175\nfor winning!")
         assert(#EventText.pagesFrom({"SSAnneKitchenCook7SalmonDuSaladText"}, text) > 0)
     end)
     test("standard Center has shared fourteen by eight healing geometry", function()
