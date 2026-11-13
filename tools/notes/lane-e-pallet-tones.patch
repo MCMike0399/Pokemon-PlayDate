@@ -1,18 +1,83 @@
+diff --git a/Source/world/overworld.lua b/Source/world/overworld.lua
+index 3ca6a69f..0dbbd609 100644
+--- a/Source/world/overworld.lua
++++ b/Source/world/overworld.lua
+@@ -65,10 +65,17 @@ function WorldView:init(zone, options)
+     end
+     self.tilemap:setTiles(tileIDs, zone.width)
+     self.sprite = gfx.sprite.new()
+-    self.sprite:setTilemap(self.tilemap)
+     self.sprite:setCenter(0, 0)
+     self.sprite:moveTo(0, 0)
+     self.sprite:setZIndex(-1)
++    if zone.stableID == "pokered:PALLET_TOWN" then
++        -- One image per tile key cannot vary by cell. The sprite image is the
++        -- tilemap with grass quadrants painted per cell. Tile ids stay put,
++        -- and roofs, doors, walls and rooms are not repainted.
++        self:_composePalletField()
++    else
++        self.sprite:setTilemap(self.tilemap)
++    end
+     zone:attachView(self)
+     if self.attached then
+         self.sprite:add()
+@@ -127,6 +134,7 @@ function WorldView:applyTiles(plan)
+         end
+         self.images, self.imageCount = oldImages, oldCount
+         self.tilemap:setImageTable(oldImages)
++        self:_composePalletField()
+         self.sprite:markDirty()
+     end
+     local ok, problem = pcall(function()
+@@ -137,6 +145,7 @@ function WorldView:applyTiles(plan)
+         for _, change in ipairs(plan) do
+             self.tilemap:setTileAtPosition(change.x + 1, change.y + 1, change.id)
+         end
++        self:_composePalletField()
+         self.sprite:markDirty()
+     end)
+     if not ok then
+@@ -152,9 +161,23 @@ function WorldView:render()
+     gfx.setDrawOffset(0, 0)
+     gfx.setImageDrawMode(gfx.kDrawModeCopy)
+     self.tilemap:draw(0, 0)
++    self.zone.registry:paintPalletField(self)
+     gfx.popContext()
+     return image
+ end
++function WorldView:_composePalletField()
++    if self.zone.stableID ~= "pokered:PALLET_TOWN" then return end
++    local image = gfx.image.new(self.zone.width * TILE_SIZE, self.zone.height * TILE_SIZE, gfx.kColorWhite)
++    local ox, oy = gfx.getDrawOffset()
++    gfx.pushContext(image)
++    gfx.setDrawOffset(0, 0)
++    gfx.setImageDrawMode(gfx.kDrawModeCopy)
++    self.tilemap:draw(0, 0)
++    self.zone.registry:paintPalletField(self)
++    gfx.popContext()
++    gfx.setDrawOffset(ox, oy)
++    self.sprite:setImage(image)
++end
+ function WorldView:dispose()
+     if self.disposed then return end
+     self.sprite:remove()
 diff --git a/Source/world/tileRegistry.lua b/Source/world/tileRegistry.lua
-index 4aacca68..e8f1cef3 100644
+index 4aacca68..afbb7074 100644
 --- a/Source/world/tileRegistry.lua
 +++ b/Source/world/tileRegistry.lua
-@@ -153,6 +153,81 @@ local function compiledTerrainImage(rows, policy, renderer, sourceKey)
+@@ -153,6 +153,99 @@ local function compiledTerrainImage(rows, policy, renderer, sourceKey)
      return image:copy()
  end
  
-+-- Pallet mockup C. Tiles $23, $39 and $2C share one diagonal grass field.
-+-- The open center of town, including this comparison window, is the
-+-- 192-black-pixel cell (18.8%). A lighter 78-pixel variant of the same
-+-- stroke sits on the town border; one tile override cannot select both.
-+-- 1-bits in PALLET_GROUND are black. This is not Shade.LIGHT and not
-+-- importedTonePatterns. Other quadrants keep the approved Bayer shades.
-+local PALLET_GROUND <const> = {
++-- Pallet Town grass. Mockup C uses two diagonal strokes, chosen per cell:
++-- the open-center stroke (192 black pixels, 18.8%) and the border stroke
++-- (78 black pixels, 7.6%). PALLET_CENTER_ROW bit (19 - x) is the center
++-- stroke for that map cell, taken from mockup C. 1-bits in the stroke
++-- words are black. $39 draws its source tuft on top of the stroke. $2C
++-- keeps a lighter source-mask lawn stipple, except on a center-stroke
++-- cell, where the quadrant uses that stroke. Roofs, doors, walls and
++-- rooms are not in this set. This is not a global shade.
++local PALLET_CENTER <const> = {
 +    0x888A888A, 0x44444444, 0x20222022, 0x00000000,
 +    0x80A880A8, 0x40444044, 0x22A222A2, 0x00000000,
 +    0x8A888A88, 0x44444444, 0x220A220A, 0x00000000,
@@ -21,6 +86,21 @@ index 4aacca68..e8f1cef3 100644
 +    0x80A880A8, 0x40444044, 0x22A222A2, 0x00000000,
 +    0x8A888A88, 0x44444444, 0x220A220A, 0x00000000,
 +    0x08280828, 0x04040404, 0x2AA22AA2, 0x00000000,
++}
++local PALLET_BORDER <const> = {
++    0x88800000, 0x44400000, 0x22200880, 0x00000000,
++    0x08800222, 0x04400000, 0x00000022, 0x00000000,
++    0x00088000, 0x00044000, 0x22022200, 0x00000000,
++    0x88802200, 0x44400000, 0x20000200, 0x00000000,
++    0x00008888, 0x00004444, 0x88002220, 0x00000000,
++    0x22200000, 0x00000000, 0x08800880, 0x00000000,
++    0x00000088, 0x00000044, 0x02220000, 0x00000000,
++    0x08880222, 0x04440000, 0x00800022, 0x00000000,
++}
++local PALLET_CENTER_ROW <const> = {
++    0x00600, 0x00000, 0x00000, 0x00000, 0x00000, 0x00000,
++    0x04040, 0x07FC0, 0x03FE0, 0x02020, 0x02020, 0x02020,
++    0x03FE0, 0x00000, 0x00000, 0x00000, 0x00000, 0x00000,
 +}
 +local PALLET_TONE <const> = { ["23"] = true, ["2c"] = true, ["39"] = true }
 +local function palletQuadrants(sourceKey)
@@ -35,63 +115,91 @@ index 4aacca68..e8f1cef3 100644
 +    if #quads ~= 4 or not any then return nil end
 +    return quads
 +end
-+local function renderPalletTone(rows, quads, policy)
++local function palletCenterCell(x, y)
++    local row = PALLET_CENTER_ROW[y + 1]
++    if row == nil or x < 0 or x > 19 then return false end
++    return (row >> (19 - x)) & 1 == 1
++end
++local function blitStroke(stamp, qx, qy, destX, destY)
 +    local gfx <const> = playdate.graphics
-+    local image = gfx.image.new(32, 32, gfx.kColorWhite)
-+    gfx.pushContext(image)
-+    for index, id in ipairs(quads) do
-+        local col0 = (index - 1) % 2 * 8
-+        local row0 = (index - 1) // 2 * 8
-+        if PALLET_TONE[id] then
-+            local qx = (index - 1) % 2
-+            local qy = (index - 1) // 2
-+            gfx.setColor(gfx.kColorBlack)
-+            for y = 0, 15 do
-+                local bits <const> = PALLET_GROUND[qy * 16 + y + 1]
-+                for x = 0, 15 do
-+                    if (bits >> (31 - (qx * 16 + x))) & 1 == 1 then
-+                        gfx.drawPixel(qx * 16 + x, qy * 16 + y)
-+                    end
-+                end
-+            end
-+        else
-+            for y = 1, 8 do
-+                local row = rows[row0 + y]
-+                local x = 1
-+                while x <= 8 do
-+                    local shade = row:sub(col0 + x, col0 + x)
-+                    local last = x
-+                    while last < 8 and row:sub(col0 + last + 1, col0 + last + 1) == shade do
-+                        last = last + 1
-+                    end
-+                    if shade ~= "." then
-+                        if shade == "#" then
-+                            gfx.setColor(gfx.kColorBlack)
-+                        else
-+                            gfx.setPattern(shade == "1" and policy.light or policy.dark, 0, 0)
-+                        end
-+                        gfx.fillRect((col0 + x - 1) * 2, (row0 + y - 1) * 2, (last - x + 1) * 2, 2)
-+                    end
-+                    x = last + 1
-+                end
++    gfx.setColor(gfx.kColorWhite)
++    gfx.fillRect(destX, destY, 16, 16)
++    gfx.setColor(gfx.kColorBlack)
++    for y = 0, 15 do
++        local bits <const> = stamp[qy * 16 + y + 1]
++        for x = 0, 15 do
++            if (bits >> (31 - (qx * 16 + x))) & 1 == 1 then
++                gfx.drawPixel(destX + x, destY + y)
 +            end
 +        end
 +    end
-+    Shade.reset()
-+    gfx.popContext()
-+    return image
++end
++local function blitTuft(grid, qx, qy, destX, destY)
++    local gfx <const> = playdate.graphics
++    gfx.setColor(gfx.kColorBlack)
++    for sy = 0, 7 do
++        local row = grid[qy * 8 + sy + 1]
++        for sx = 0, 7 do
++            if row:sub(qx * 8 + sx + 1, qx * 8 + sx + 1) == "1" then
++                gfx.drawPixel(destX + sx * 2, destY + sy * 2)
++            end
++        end
++    end
++end
++-- One black pixel in each source "1" cell. 140 pixels, 13.7%: lighter than
++-- the open-center stroke, and the lawn texture around Oak's Lab.
++local function blitLawnStipple(grid, qx, qy, destX, destY)
++    local gfx <const> = playdate.graphics
++    gfx.setColor(gfx.kColorWhite)
++    gfx.fillRect(destX, destY, 16, 16)
++    gfx.setColor(gfx.kColorBlack)
++    for sy = 0, 7 do
++        local row = grid[qy * 8 + sy + 1]
++        for sx = 0, 7 do
++            if row:sub(qx * 8 + sx + 1, qx * 8 + sx + 1) == "1" then
++                gfx.drawPixel(destX + sx * 2 + 1, destY + sy * 2)
++            end
++        end
++    end
 +end
  local tonePolicy
  function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
      if tonePolicy == nil then
-@@ -171,6 +246,10 @@ function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
-             assert(type(value) == "number" and value % 1 == 0 and value >= 0 and value <= 255, "invalid tone byte")
-         end
-     end
-+    local quads = palletQuadrants(sourceKey)
-+    if quads then
-+        return renderPalletTone(rows, quads, policy)
+@@ -308,6 +401,37 @@ function TileRegistry:renderImported(value, renderer)
+     return store.images[id]
+ end
+ 
++function TileRegistry:paintPalletField(view)
++    local zone = view.zone
++    if zone.stableID ~= "pokered:PALLET_TOWN" then return false end
++    for y = 0, zone.height - 1 do
++        for x = 0, zone.width - 1 do
++            local id = view:tileAt(x, y)
++            local quads = palletQuadrants(self:key(id))
++            if quads then
++                local grid = self:entry(id).grid
++                local center = palletCenterCell(x, y)
++                local stamp = center and PALLET_CENTER or PALLET_BORDER
++                for index, tid in ipairs(quads) do
++                    if PALLET_TONE[tid] then
++                        local qx = (index - 1) % 2
++                        local qy = (index - 1) // 2
++                        local destX = x * 32 + qx * 16
++                        local destY = y * 32 + qy * 16
++                        if tid == "2c" and not center then
++                            blitLawnStipple(grid, qx, qy, destX, destY)
++                        else
++                            blitStroke(stamp, qx, qy, destX, destY)
++                            if tid == "39" then blitTuft(grid, qx, qy, destX, destY) end
++                        end
++                    end
++                end
++            end
++        end
 +    end
-     local gfx <const> = playdate.graphics
-     local ok, compiled = pcall(compiledTerrainImage, rows, policy, renderer, sourceKey)
-     if ok and compiled then
++    return true
++end
++
+ WorldTiles = TileRegistry()
+ 
+ -- Runtime installation rollback only. Validation/codec never needs this seam.
