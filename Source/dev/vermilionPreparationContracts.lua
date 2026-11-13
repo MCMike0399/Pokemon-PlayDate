@@ -64,10 +64,12 @@ function VermilionPreparationContracts.run()
         end
     end
     test("SDK reads literal UTF-8 payout and non-underscore recipe boundaries", function()
-        -- data/text/text_2.asm puts <LINE> before "for winning!".
+        -- data/text/text_2.asm _MoneyForWinningText. <PLAYER> is the saved
+        -- name. The default is RED. The yen sign is charmap $f0, and
+        -- <LINE> puts "for winning!" on the second row.
         local pages = EventText.pagesFrom({"_MoneyForWinningText"}, text,
-            {player="RÉD", wAmountMoneyWon=175})
-        assert(pages[1].text == "RÉD got ¥175\nfor winning!")
+            {player="RED", wAmountMoneyWon=175})
+        assert(pages[1].text == "RED got ¥175\nfor winning!")
         assert(#EventText.pagesFrom({"SSAnneKitchenCook7SalmonDuSaladText"}, text) > 0)
     end)
     test("standard Center has shared fourteen by eight healing geometry", function()

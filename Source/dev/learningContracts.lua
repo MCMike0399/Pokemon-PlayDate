@@ -95,11 +95,11 @@ function LearningContracts.run()
         equal(state.phase, "message"); equal(p.moves[2], "dragonRage")
         equal(p.pp.growl, nil); equal(p.pp.dragonRage, moveData.dragonRage.maxPP)
         equal(p.pp.scratch, scratchPP); equal(#p:getPendingMoveChoices(), 0)
-        -- MESSAGE_BOX is two rows of 18. The two sentences stay intact
-        -- across that wrap; a third sentence would still fail this check.
-        local spoken = table.concat(state.dialog.lines, " "):gsub("%s+", " ")
-        assert(spoken:find(p.name .. " forgot " .. moveData.growl.name .. ".", 1, true), spoken)
-        assert(spoken:find(p.name .. " learned " .. moveData.dragonRage.name .. "!", 1, true), spoken)
+        -- data/text/text_4.asm _ForgotAndText and _LearnedMove1Text.
+        -- Each `line` is the second row. The forgotten move ends with "!".
+        equal(#state.dialog.lines, 2, "forgot/learned pages")
+        equal(state.dialog.lines[1], p.name .. " forgot\n" .. moveData.growl.name .. "!")
+        equal(state.dialog.lines[2], p.name .. " learned\n" .. moveData.dragonRage.name .. "!")
         messageComplete(state); equal(game.machine:getCurrent(), "world")
     end)
 

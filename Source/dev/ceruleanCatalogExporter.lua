@@ -180,7 +180,8 @@ function CeruleanCatalogExporter.inventory()
         asset("tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
     end
     for _, name in ipairs(mapNames) do
-        local width, height = SourceMaps.frameSize(name)
+        local frame = SourceMaps.descriptor(name)
+        local width, height = frame.width, frame.height
         if GameBootstrap then GameBootstrap.yieldIfDue() end
         for _, kind in ipairs(mapKinds) do
             local viewport = kind == "viewport"

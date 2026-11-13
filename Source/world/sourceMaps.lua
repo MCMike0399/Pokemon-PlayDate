@@ -4,7 +4,6 @@ SourceMaps = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local manifest
 local compact, tileGrids
-local separateCaches = false
 local recordOverrides
 local runtimeDefinitions
 local validatedCells <const> = setmetatable({}, { __mode = "k" })
@@ -111,25 +110,9 @@ end
 
 -- Generated descriptors contain no art grids or full map definitions. This
 -- inventory remains cheap during provider installation and save validation.
-function SourceMaps._separateCatalogueCaches(enabled)
-    separateCaches = enabled == true
-end
-
 local function compactData()
-    -- Tile grids and the compact catalogue are each about a megabyte.
-    -- The catalog draw keeps only the one it is using.
-    if separateCaches and tileGrids and tileGrids[1] then
-        tileGrids = nil
-        collectgarbage("collect")
-        local released = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
-        if released then released:write("grids-released\t" .. tostring(collectgarbage("count")) .. "\n"); released:close() end
-    end
     if not compact then
         local data = SourceMaps.record("data/sourceMapCache/compact.json")
-        if separateCaches then
-            local decoded = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
-            if decoded then decoded:write("compact-decoded\t" .. tostring(collectgarbage("count")) .. "\n"); decoded:close() end
-        end
         if not (ShippedDataPolicy and ShippedDataPolicy.maps() and not recordOverrides) then
             for name, descriptor in pairs(data.maps) do
                 local entry = assert(catalogue()[name], "generated map outside source manifest")
@@ -145,10 +128,6 @@ local function compactData()
             end
         end
         compact = data
-        if separateCaches then
-            local loaded = playdate.file.open("catalog-mark.txt", playdate.file.kFileAppend)
-            if loaded then loaded:write("compact-loaded\t" .. tostring(collectgarbage("count")) .. "\n"); loaded:close() end
-        end
     end
     return compact
 end
@@ -174,14 +153,6 @@ end
 
 -- Internal provider input only. Consumers must treat this validated catalogue
 -- as read-only; public compact/descriptor/tile getters still return copies.
-function SourceMaps._releaseSharedCompact()
-    compact, tileGrids = nil, nil
-end
-
-function SourceMaps._releaseTileGrids()
-    tileGrids = nil
-end
-
 function SourceMaps._sharedCompact()
     return compactData()
 end
@@ -203,24 +174,13 @@ end
 
 local function grids()
     if not tileGrids then
-        -- The catalog draw holds the grids on purpose until the map pass
-        -- releases them. Ordinary play keeps the weak cache.
-        tileGrids = separateCaches and {} or setmetatable({}, {__mode = "v"})
+        tileGrids = setmetatable({}, {__mode = "v"})
     end
     local value = tileGrids[1]
     if not value then
-        local expectedHash
-        if separateCaches then
-            expectedHash = compactData().manifest_sha256
-            compact = nil
-            collectgarbage("collect")
-        end
         local data = SourceMaps.record("data/sourceMapCache/tile-grids.json")
-        local actualHash = separateCaches and expectedHash or compactData().manifest_sha256
-        assert(data.manifest_sha256 == actualHash, "generated source cache revisions differ")
+        assert(data.manifest_sha256 == compactData().manifest_sha256, "generated source cache revisions differ")
         value = data.tiles
-        data = nil
-        if not tileGrids then tileGrids = separateCaches and {} or setmetatable({}, {__mode = "v"}) end
         tileGrids[1] = value
     end
     return value
@@ -612,14 +572,6 @@ end
 
 function SourceMaps.descriptor(name)
     return copy(assert(compactData().maps[name], "unknown source map"))
-end
-
--- Width, height and padding without copying tile rows. Catalog inventory
--- only needs the frame size; a full descriptor copy retains every row table
--- until the next collection and the 16 MiB pool is already full.
-function SourceMaps.frameSize(name)
-    local descriptor = assert(compactData().maps[name], "unknown source map")
-    return descriptor.width, descriptor.height, descriptor.padding or 0
 end
 
 function SourceMaps.cell(name, x, y)

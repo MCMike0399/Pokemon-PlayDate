@@ -4,7 +4,7 @@ Contracts = {}
 local suites = {}
 
 -- A bounded checkpoint survives a native SDK stall before the final reply.
-function Contracts.progress(suite, name, status)
+function Contracts.progress(suite, name, status, counts)
     if not HarnessBuild or not HarnessBuild.enabled then return end
     -- playdate.file.open allocates from the same pool as Lua. Once the heap
     -- is near 13.9 MiB the open sits in poll until the request times out
@@ -16,9 +16,15 @@ function Contracts.progress(suite, name, status)
     else
         collectgarbage("collect")
     end
+    local row = {suite=suite,name=name,status=status,
+        time_ms=playdate.getCurrentTimeMilliseconds(),heap_kib=collectgarbage("count")}
+    if type(counts) == "table" then
+        row.ok = counts.ok == true
+        row.passed = counts.passed
+        row.failed = counts.failed
+    end
     local file = assert(playdate.file.open("contract-progress.tmp", playdate.file.kFileWrite))
-    file:write(json.encode({suite=suite,name=name,status=status,
-        time_ms=playdate.getCurrentTimeMilliseconds(),heap_kib=collectgarbage("count")}))
+    file:write(json.encode(row))
     file:close()
     assert(playdate.file.rename("contract-progress.tmp","contract-progress.json"))
 end
@@ -421,7 +427,13 @@ function Contracts.run(only)
         report.suites[#report.suites + 1] = executed
         Contracts.progress(suite.name,nil,"running")
         local ok, child = pcall(suite.run)
-        Contracts.progress(suite.name,nil,"returned")
+        -- Counts ride on the checkpoint that already fits. The later scored
+        -- open can sit in poll once the heap is near 13.9 MiB.
+        local early = nil
+        if ok and type(child) == "table" then
+            early = {ok = child.ok == true, passed = child.passed, failed = child.failed}
+        end
+        Contracts.progress(suite.name, nil, "returned", early)
         if not ok then
             test(suite.name .. ": execution", function() error(child) end)
         elseif type(child) ~= "table" or type(child.tests) ~= "table" or #child.tests == 0 then
@@ -441,6 +453,9 @@ function Contracts.run(only)
                 test(suite.name .. ": report", function() error("inconsistent contract totals") end)
             end
         end
+        -- The score is on disk before the result snapshot. A stalled reply
+        -- still leaves passed/failed for the timeout to record.
+        Contracts.progress(suite.name, nil, "scored", executed)
         child = nil
     end
     RulesRNG.restore(savedRNG)

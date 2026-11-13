@@ -179,7 +179,8 @@ function MidgameCatalogExporter.inventory()
     collectgarbage("collect")
     for _, name in ipairs(MidgameCatalogExporter.maps()) do
         result.map_count = result.map_count + 1
-        local width, height = SourceMaps.frameSize(name)
+        local frame = SourceMaps.descriptor(name)
+        local width, height = frame.width, frame.height
         if GameBootstrap then GameBootstrap.yieldIfDue() end
         for _, kind in ipairs(kinds) do
             local viewport <const> = kind == "viewport"

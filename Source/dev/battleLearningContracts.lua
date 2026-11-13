@@ -124,10 +124,10 @@ local function declineByButtons(game, learning, seen)
     game.machine:handleInput()
     eq(learning.phase, "message")
     eq(learning.messageKind, "declined")
-    -- The 18-column box wraps after "did". Both words and the move name stay.
-    local text = table.concat(learning.dialog.lines, " "):gsub("%s+", " ")
-    assert(text:find("did not learn", 1, true), text)
-    assert(text:find(moveData[move].name, 1, true), text)
+    -- data/text/text_4.asm _DidNotLearnText: name, then "did not learn",
+    -- then `cont` scrolls that row up and prints the move.
+    eq(learning.dialog.lines[1], learning.pokemon.name .. "\ndid not learn")
+    eq(learning.dialog.lines[2], "did not learn\n" .. moveData[move].name .. "!")
     eq(#learning.pokemon:getPendingMoveChoices(), before - 1)
     for _, choice in ipairs(learning.pokemon:getPendingMoveChoices()) do
         eq(choice.id == id, false, "declined choice still pending")

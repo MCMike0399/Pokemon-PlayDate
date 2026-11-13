@@ -1,5 +1,532 @@
 # Full-game execution ledger
 
+## 2026-11-13 Contract audit, the source-map pin, and the memory table
+
+`main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added. The coverage snapshot was not rewritten. The post-FF patches are not applied.
+
+### The eleven contracts
+
+Each diff below is `61c79264` through the working tree. The parent of the page-matching commit is the left side. A contract moves only toward `af519899` or a decision already in the fidelity ledger.
+
+`RÉD` is the literal `player="RÉD"` Miguel wrote in `760a58e3` ("Prepare pinned Vermilion content…") inside "SDK reads literal UTF-8 payout…". `EventText` prints `ram.player`. The default player name is RED. Nothing in the game rewrites RED to RÉD. The fixture now passes RED. The yen and the line break stay, because those are the source.
+
+- `learning`. The game was printing a period and one concatenated sentence. `data/text/text_4.asm:142` `_ForgotAndText` ends the forgotten move with `!` (`text "!"` at line 150). `_LearnedMove1Text` at line 84 is the name, ` learned`, then `line` and the move. `LearningState` now emits those two pages. The contract requires `CHARMANDER forgot\nGROWL!` and `CHARMANDER learned\nDRAGON RAGE!`. Rerun session `c798e468323641279a9a9c918c2f601d`: 12 passed, 0 failed.
+- `items`. LINK CABLE is the Miguel-approved deviation in the fidelity ledger (BlueBot chat, 2026-11-12 9:43 AM CST). `constants/item_constants.asm:210` is `add_tm SUBSTITUTE ; $FA` (250). Item 251 is the next id. Price 0, evolution item, not in a mart. The legacy list includes `linkCable`. Blue items are 125 and the total is 126. The game item was already that decision. The contract was counting the list from before the cable existed.
+- `session`. `constants/text_constants.asm:1` is `DEF PLAYER_NAME_LENGTH EQU 8`, the buffer including the terminator, so seven glyphs fit. ASH is a legal name. The malformed candidate is `ABCDEFGH`.
+- `event-ui`. `text/Route1.asm:16` is `<PLAYER> got` and line 18 is the item and `!`, so the page is `RED got\nPOTION!`. `text/OaksLab.asm:99` is `<PLAYER> delivered` and line 100 is `OAK's PARCEL.`. The parcel check joins whitespace and requires those words. `releaseContractZones` drops `contract_` zones between Oak sides so the fourth BLUE face is not the pool. That release does not change the text.
+- `pokedex`. `constants/charmap.asm:185` is `charmap "♀", $f5`. `NIDORAN♀` round-trips. The name codec still rejects `é` (`charmap.asm:153`, `$ba`) and an 11-glyph name. That rejection is the lane G codec decision: printable ASCII plus `×`, `♂`, and `♀`. `NIDORANé` encodes as nil. The contract stopped treating the female glyph as illegal.
+- `battleLearningContracts`. `data/text/text_4.asm:104` `_DidNotLearnText` is the name, `line "did not learn"`, then `cont` and the move and `!`. The game now emits those two pages. The 10-frame hold is `MESSAGE_MIN_FRAMES` / `home/joypad2.asm` `WaitForTextScrollButtonPress`. Rerun session `912f89c92b1e45d0b246803fbee61494`: 21 passed, 0 failed.
+- `title-recovery-probe`. `engine/movie/intro.asm:311` `PlayShootingStar` waits 180 frames on the copyright with `DelayFrames`, and line 323 waits 64 on the black bars. Those waits ignore A. `AnimateShootingStar` and the fight call `CheckForUserInterruption` (`home/overworld.asm:2394`), which returns carry on A or Start. The probe now lets the intro finish before it reads the menu. Confirmed New Game lands on `oak` when that state is registered.
+- `home-lead`. `text/RedsHouse1F.asm:1` `_RedsHouse1FMomWakeUpText` and line 18 `_RedsHouse1FMomLookingGreatText` are the words. `HomeRest` already joins `line` and `cont` into those sentences. `#` expands to `POKE` (`sourceText.lua:4`, the reviewed short-dialogue policy), so the rest line says POKEMON. The check now requires `All boys leave home some day. It said so on TV.`, `PROF.OAK, next door, is looking for you.`, and `MOM: Oh good! You and your POKEMON are looking great! Take care now!`.
+- `source-text`. The sentence is a fixture, not a pokered label. `SourceText.number` already required `text_decimal` to pad 7 as `  7`. `data/text_boxes.asm:10` is `MESSAGE_BOX` from tile (0, 12) to (19, 17); the interior is two rows of 18. `Dialog` wraps at the space, so the page is `Count:   7\nPOKéMON.`. The é in that fixture is the charmap spelling of `#` (`constants/charmap.asm:16`, `$54` is `POKé`). It is the fixture text, and it is not the player name.
+- `vermilion-preparation`. `data/text/text_2.asm:868` `_MoneyForWinningText` is `<PLAYER> got ¥`, `text_bcd` with `LEADING_ZEROES | LEFT_ALIGN` (175 stays `175`), then `line "for winning!"`. The page is `RED got ¥175\nfor winning!`. Rerun session `8c8e09d4ff584f92bcd63f0849423773`: 113 passed, 0 failed.
+- `saffron-guards`. `text/SaffronGates.asm:1` fills two rows, and each `cont` scrolls the second row up and waits, so each `cont` is its own page. Thirsty is three pages, the drink speech is fifteen, and the thanks page is `Hi, thanks for\nthe cool drinks!`.
+
+```diff
+diff --git a/Source/dev/battleLearningContracts.lua b/Source/dev/battleLearningContracts.lua
+index e2351bfd..d9f9abb0 100644
+--- a/Source/dev/battleLearningContracts.lua
++++ b/Source/dev/battleLearningContracts.lua
+@@ -69,15 +69,34 @@ end
+ -- that move. The confirmation text is _AbandonLearningText ("Abandon learning"
+ -- plus the move name and "?"), not a later-generation "Stop learning" line.
+ local function dismissLearningMessage(game, learning)
+-    for _ = 1, 6 do
++    -- A finishes the typewriter. The complete page then stays up for 10
++    -- frames, which is MESSAGE_MIN_FRAMES / WaitForTextScrollButtonPress,
++    -- before a later A can turn it. Each wrapped page has to clear that hold.
++    for _ = 1, 8 do
++        if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
++            return
++        end
+         eq(game.machine:getCurrent(), "learning")
+         eq(learning.phase, "message")
+         Autopilot.beginFrame()
+         Autopilot.step({"press", "a"}, game)
+         game.machine:handleInput()
++        for _ = 1, 12 do
++            if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
++                return
++            end
++            Autopilot.beginFrame()
++            game.machine:handleInput()
++        end
+         if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+             return
+         end
++        Autopilot.beginFrame()
++        Autopilot.step({"press", "a"}, game)
++        game.machine:handleInput()
++    end
++    if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
++        return
+     end
+     error("learning message did not end")
+ end
+@@ -105,9 +124,10 @@ local function declineByButtons(game, learning, seen)
+     game.machine:handleInput()
+     eq(learning.phase, "message")
+     eq(learning.messageKind, "declined")
+-    local text = table.concat(learning.dialog.lines, "\n")
+-    assert(text:find("did not learn", 1, true), text)
+-    assert(text:find(moveData[move].name, 1, true), text)
++    -- data/text/text_4.asm _DidNotLearnText: name, then "did not learn",
++    -- then `cont` scrolls that row up and prints the move.
++    eq(learning.dialog.lines[1], learning.pokemon.name .. "\ndid not learn")
++    eq(learning.dialog.lines[2], "did not learn\n" .. moveData[move].name .. "!")
+     eq(#learning.pokemon:getPendingMoveChoices(), before - 1)
+     for _, choice in ipairs(learning.pokemon:getPendingMoveChoices()) do
+         eq(choice.id == id, false, "declined choice still pending")
+diff --git a/Source/dev/eventContracts.lua b/Source/dev/eventContracts.lua
+index 24aaf690..322bd105 100644
+--- a/Source/dev/eventContracts.lua
++++ b/Source/dev/eventContracts.lua
+@@ -19,6 +19,11 @@ local function fingerprint(game)
+     local rng=RulesRNG.toData();out[#out+1]=rng.state;out[#out+1]=rng.rolls
+     return table.concat(out,"|")
+ end
++local function releaseContractZones()
++    for key,zone in pairs(zoneRegistry) do
++        if type(key)=="string" and key:sub(1,9)=="contract_" and zone~=currentZone then zoneRegistry[key]=nil end
++    end
++end
+ local function setup(name,x,y)
+     SliceSprites.install() -- real, idempotent production installation before map binding
+     local policy={sliceZones={}}
+@@ -63,6 +68,7 @@ local function renderedAfterManualStep(sprite,step,draw,clock,offsetY)
+         states[#states+1]={sprite=item,visible=item:isVisible(),enabled=item:updatesEnabled()}
+         item:setVisible(false);item:setUpdatesEnabled(false)
+     end
++    releaseContractZones();collectgarbage("collect")
+     local paper=gfx.image.new(400,240,gfx.kColorWhite);local background=gfx.sprite.new(paper)
+     background:setCenter(0,0);background:setIgnoresDrawOffset(true);background:setZIndex(-32768);background:moveTo(0,0);background:add()
+     local calls=0;local sentinel=gfx.sprite.new();sentinel:setSize(1,1);sentinel:setVisible(false)
+@@ -101,14 +107,20 @@ function EventContracts.run()
+         for key,value in pairs(spriteSets) do SpriteFactory.npc[key]=value end
+         zoneRegistry,currentZone=registry,zone;gfx.setDrawOffset(ox,oy)
+         gfx.sprite.addDirtyRect(0,0,400,240);EventState.redrawSprites()
++        games={}
++        releaseContractZones()
++        collectgarbage("collect")
+         report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(problem) or nil}
+         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
+     end
+     test("Source paragraphs expand only declared names/items and identify gated receipts",function()
+         local pages=EventText.pages({"_Route1Youngster1GotPotionText"});eq(#pages,1)
+-        eq(pages[1].text,"RED got POTION!");eq(pages[1].receipt,true)
++        -- text/Route1.asm puts <LINE> between "<PLAYER> got" and the item name.
++        eq(pages[1].text,"RED got\nPOTION!");eq(pages[1].receipt,true)
+         local delivered=EventText.pages({"_OaksLabOak1DeliverParcelText"});eq(delivered[#delivered].receipt,true)
+-        assert(delivered[#delivered].text:find("RED delivered OAK's PARCEL",1,true))
++        -- text/OaksLab.asm breaks "<PLAYER> delivered" and "OAK's PARCEL." across <LINE>.
++        local flat=delivered[#delivered].text:gsub("%s+"," ")
++        assert(flat:find("RED delivered OAK's PARCEL",1,true),delivered[#delivered].text)
+         eq(pcall(EventText.pages,{"_UnknownMadeUpText"}),false)
+     end)
+     test("Pinned BLUE stride keeps protected standing hair phase and restores graphics offset",function()
+@@ -177,6 +189,10 @@ function EventContracts.run()
+     end)
+     test("Adapted BLUE speech faces actual RED from every Oak interaction side",function()
+         for _,position in ipairs({{5,4},{4,3},{6,3},{5,2}}) do
++            -- Each side is its own lab. Drop the previous one before the next
++            -- slice install so four fresh registries do not share the pool.
++            if games[#games] then games[#games]=nil end
++            releaseContractZones();collectgarbage("collect")
+             local game,event=setup("oaks_lab",position[1],position[2])
+             local oak=NPC(5,3,"OAK",{},nil,"oak","down");oak.def={source_event_id="contract:oak"};game.npcManager:addNPC(oak)
+             assert(game.session:inventory():add("oaksParcel",1));assert(game.session:setQuestFlag("EVENT_GOT_OAKS_PARCEL",true))
+diff --git a/Source/dev/homeLeadContracts.lua b/Source/dev/homeLeadContracts.lua
+index 31ea459b..a152e01c 100644
+--- a/Source/dev/homeLeadContracts.lua
++++ b/Source/dev/homeLeadContracts.lua
+@@ -1,6 +1,9 @@
+ HomeLeadContracts={}
+ local gfx=playdate.graphics
+ local function eq(a,b)assert(a==b,"expected "..tostring(b)..", got "..tostring(a))end
++local function spoken(g)
++    return table.concat(g.machine:get("dialog").dialog.lines," "):gsub("%s+"," ")
++end
+ local function same(a,b)
+     if type(a)~=type(b)then return false end;if type(a)~="table"then return a==b end
+     for k,v in pairs(a)do if not same(v,b[k])then return false end end
+@@ -120,7 +123,9 @@ function HomeLeadContracts.run()
+         scene("home",function(g)
+             local mon=g:getPlayerPokemon();mon.hp=1;assert(g.session:setIntro({stage="pre_oak"}))
+             assert(HomeRest.tryInteract(g));eq(g.machine:getCurrent(),"dialog")
+-            assert(g.machine:get("dialog").dialog.lines[1]:find("All boys leave",1,true))
++            local wake=spoken(g)
++            assert(wake:find("All boys leave home some day. It said so on TV.",1,true),wake)
++            assert(wake:find("PROF.OAK, next door, is looking for you.",1,true),wake)
+             closeDialog(g);eq(g.machine:getCurrent(),"overworld");eq(mon.hp,1)
+         end)
+     end)
+@@ -134,7 +139,8 @@ function HomeLeadContracts.run()
+             rest:update();eq(rest.phase,"white");eq(first.hp,first.maxHP);eq(first.status,nil);eq(reserve.hp,reserve.maxHP);assert(reserve.pp[reserve.moves[1]]>0)
+             local tick=rest.tick;g.machine:get("overworld"):flushPendingPresentation();g.machine:draw();write("home-mom-white");rest:draw();rest:draw();eq(rest.tick,tick)
+             for i=1,24 do rest:update()end;eq(g.machine:getCurrent(),"dialog")
+-            assert(g.machine:get("dialog").dialog.lines[1]:find("looking great",1,true));closeDialog(g)
++            local rested=spoken(g)
++            assert(rested:find("MOM: Oh good! You and your POKEMON are looking great! Take care now!",1,true),rested);closeDialog(g)
+             eq(g.machine:getCurrent(),"overworld");eq(g.session:party():active(),reserve)
+             assert(same(cp,g.session:checkpoint()));assert(same(flags,g.session:flags()));eq(g.session:inventory():money(),money)
+             assert(same(rules,RulesRNG.toData()));assert(same(world,g.session:worldRngData()))
+diff --git a/Source/dev/itemContracts.lua b/Source/dev/itemContracts.lua
+index f863d851..88861fe6 100644
+--- a/Source/dev/itemContracts.lua
++++ b/Source/dev/itemContracts.lua
+@@ -46,7 +46,7 @@ xSpeed xSpecial coinCase oaksParcel itemfinder silphScope pokeFlute liftKey expA
+ superRod ppUp ether maxEther elixir maxElixir hm01 hm02 hm03 hm04 hm05 tm01 tm02 tm03 tm04 tm05 tm06
+ tm07 tm08 tm09 tm10 tm11 tm12 tm13 tm14 tm15 tm16 tm17 tm18 tm19 tm20 tm21 tm22 tm23 tm24 tm25 tm26
+ tm27 tm28 tm29 tm30 tm31 tm32 tm33 tm34 tm35 tm36 tm37 tm38 tm39 tm40 tm41 tm42 tm43 tm44 tm45 tm46
+-tm47 tm48 tm49 tm50 lightBall
++tm47 tm48 tm49 tm50 lightBall linkCable
+ ]]):gmatch("%S+") do
+             assert(legacy[id] == nil, "duplicate legacy item " .. id)
+             local item <const> = assert(ItemData.definitions[id], "missing legacy item " .. id)
+@@ -54,8 +54,19 @@ tm47 tm48 tm49 tm50 lightBall
+             count = count + 1
+             if item.numericId ~= nil then blue = blue + 1 end
+         end
+-        equal(blue, 124)
+-        equal(count, 125)
++        equal(blue, 125)
++        equal(count, 126)
++        -- Item 251, the first id after TM_SUBSTITUTE. Not a mart item.
++        local cable <const> = ItemData.definitions.linkCable
++        equal(cable.symbol, "LINK_CABLE")
++        equal(cable.numericId, 251)
++        equal(cable.name, "LINK CABLE")
++        equal(cable.price, 0)
++        equal(cable.sellPrice, 0)
++        equal(cable.keyItem, false)
++        equal(cable.category, "evolution")
++        equal(cable.effect, "evolution")
++        equal(ItemData.bySymbol.LINK_CABLE, "linkCable")
+         local additions <const> = {
+             sunStone={80,80,2100,"SUN_STONE"}, heartScale={93,93,100,"HEART_SCALE"},
+             kingsRock={221,198,100,"KINGS_ROCK"}, ironBall={278,255,200,"IRON_BALL"},
+diff --git a/Source/dev/learningContracts.lua b/Source/dev/learningContracts.lua
+index 15c2829d..137b686e 100644
+--- a/Source/dev/learningContracts.lua
++++ b/Source/dev/learningContracts.lua
+@@ -95,7 +95,11 @@ function LearningContracts.run()
+         equal(state.phase, "message"); equal(p.moves[2], "dragonRage")
+         equal(p.pp.growl, nil); equal(p.pp.dragonRage, moveData.dragonRage.maxPP)
+         equal(p.pp.scratch, scratchPP); equal(#p:getPendingMoveChoices(), 0)
+-        equal(#state.dialog.lines, 2, "forgot/learned narration")
++        -- data/text/text_4.asm _ForgotAndText and _LearnedMove1Text.
++        -- Each `line` is the second row. The forgotten move ends with "!".
++        equal(#state.dialog.lines, 2, "forgot/learned pages")
++        equal(state.dialog.lines[1], p.name .. " forgot\n" .. moveData.growl.name .. "!")
++        equal(state.dialog.lines[2], p.name .. " learned\n" .. moveData.dragonRage.name .. "!")
+         messageComplete(state); equal(game.machine:getCurrent(), "world")
+     end)
+ 
+diff --git a/Source/dev/pokedexContracts.lua b/Source/dev/pokedexContracts.lua
+index aa3b4fc8..e283774e 100644
+--- a/Source/dev/pokedexContracts.lua
++++ b/Source/dev/pokedexContracts.lua
+@@ -65,10 +65,11 @@ function PokedexContracts.run()
+         eq(g.session:pokedex().owned.bulbasaur,true);eq(g.session:pokedex().seen.mew,nil);s:back();s:back()
+     end)
+     test("Codec preserves saved nicknames and legacy ASCII names without guessed migration",function()
+-        for _,name in ipairs({"MY MIME","MR","FARFETCHD"}) do
++        -- constants/charmap.asm allows ♀. The codec stores that glyph, it does not rewrite it to "F".
++        for _,name in ipairs({"MY MIME","MR","FARFETCHD","NIDORAN♀"}) do
+             local mon=Pokemon("mr",5);mon.name=name;local record=assert(PokemonCodec.encode(mon));local copy=assert(PokemonCodec.decode(record));eq(copy.name,name)
+         end
+-        local mon=Pokemon("mr",5);mon.name="NIDORAN♀";eq(PokemonCodec.encode(mon),nil)
++        local mon=Pokemon("mr",5);mon.name="NIDORANé";eq(PokemonCodec.encode(mon),nil)
+         mon.name="ELEVENCHARS";eq(PokemonCodec.encode(mon),nil)
+     end)
+     test("Existing starter names, moves and species stats are unchanged",function()
+diff --git a/Source/dev/saffronGuardContracts.lua b/Source/dev/saffronGuardContracts.lua
+index 08bc760f..b50b4622 100644
+--- a/Source/dev/saffronGuardContracts.lua
++++ b/Source/dev/saffronGuardContracts.lua
+@@ -57,18 +57,43 @@ function SaffronGuardContracts.run()
+     end
+     local definitions <const> = SaffronGuards.definitions()
+     local flag <const> = definitions.flag
++    local function pageText(pages)
++        local lines <const> = {}
++        for index, page in ipairs(pages) do lines[index] = page.text end
++        return lines
++    end
++    local function samePages(actual, expected)
++        eq(#actual, #expected)
++        for index, text in ipairs(expected) do eq(actual[index], text) end
++    end
+     test("guard-exact-source-paragraphs", function()
+-        local pages <const> = EventText.pagesFrom(definitions.thirsty, SaffronGuards.text)
+-        eq(#pages, 2)
+-        eq(pages[1].text, "I'm on guard duty. Gee, I'm thirsty, though!")
+-        eq(pages[2].text, "Oh wait there, the road's closed.")
+-        local accepted <const> = EventText.pagesFrom(definitions.accepted, SaffronGuards.text)
+-        eq(#accepted, 2)
+-        eq(accepted[1].text, "Whoa, boy! I'm parched! ... Huh? I can have this drink? Gee, thanks!")
+-        eq(accepted[2].text, "... Glug glug... ... Gulp... If you want to go to SAFFRON CITY... ... You can go on through. I'll share this with the other guards!")
+-        local completed <const> = EventText.pagesFrom(definitions.completed, SaffronGuards.text)
+-        eq(#completed, 1)
+-        eq(completed[1].text, "Hi, thanks for the cool drinks!")
++        -- text/SaffronGates.asm. text and line fill the two rows. cont scrolls
++        -- the second row up and waits, so each cont is its own page.
++        samePages(pageText(EventText.pagesFrom(definitions.thirsty, SaffronGuards.text)), {
++            "I'm on guard duty.\nGee, I'm thirsty,",
++            "Gee, I'm thirsty,\nthough!",
++            "Oh wait there,\nthe road's closed.",
++        })
++        samePages(pageText(EventText.pagesFrom(definitions.accepted, SaffronGuards.text)), {
++            "Whoa, boy!\nI'm parched!",
++            "I'm parched!\n...",
++            "...\nHuh? I can have",
++            "Huh? I can have\nthis drink?",
++            "this drink?\nGee, thanks!",
++            "...\nGlug glug...",
++            "Glug glug...\n...",
++            "...\nGulp...",
++            "Gulp...\nIf you want to go",
++            "If you want to go\nto SAFFRON CITY...",
++            "to SAFFRON CITY...\n...",
++            "...\nYou can go on",
++            "You can go on\nthrough. I'll",
++            "through. I'll\nshare this with",
++            "share this with\nthe other guards!",
++        })
++        samePages(pageText(EventText.pagesFrom(definitions.completed, SaffronGuards.text)), {
++            "Hi, thanks for\nthe cool drinks!",
++        })
+     end)
+     for id, guard in pairs(definitions.guards) do
+         if guard.active then
+diff --git a/Source/dev/sessionContracts.lua b/Source/dev/sessionContracts.lua
+index efaae66c..32856d38 100644
+--- a/Source/dev/sessionContracts.lua
++++ b/Source/dev/sessionContracts.lua
+@@ -108,7 +108,9 @@ function SessionContracts.run()
+         local changes={
+             function(d) d.version=SessionCodec.VERSION+1 end,
+             function(d) d.pokemonEncoding="unknown" end,
+-            function(d) d.title.playerName="ASH" end,
++            -- PLAYER_NAME_LENGTH is 8 including the terminator, so 7 glyphs fit.
++            -- ASH is a legal name. Eight glyphs are still rejected.
++            function(d) d.title.playerName="ABCDEFGH" end,
+             function(d) d.intro.rivalStarter="bulbasaur" end,
+             function(d) d.questFlags.bad=1 end,
+             function(d) d.trainerFlags["bad key"]=true end,
+diff --git a/Source/dev/sourceTextContracts.lua b/Source/dev/sourceTextContracts.lua
+index 43c155fd..1d86ec0c 100644
+--- a/Source/dev/sourceTextContracts.lua
++++ b/Source/dev/sourceTextContracts.lua
+@@ -81,8 +81,10 @@ function SourceTextContracts.run()
+         equal(pages[1].receipt, true); equal(pages[1].source, "test.asm")
+         equal(pages[2].text, "Found POKé BALL."); equal(pages[2].receipt, false)
+         equal(SourceText.number("text_decimal hCount, 1, 3", {hCount = 7}), "  7")
++        -- MESSAGE_BOX is two rows of 18. The padded count stays; the name wraps.
+         local padded = Dialog(); padded:show({"Count:   7 POKéMON."})
+-        equal(padded.lines[1], "Count:   7 POKéMON.")
++        equal(#padded.lines, 1)
++        equal(padded.lines[1], "Count:   7\nPOKéMON.")
+         equal(SourceText.number("text_bcd hMoney, 3 | LEADING_ZEROES | LEFT_ALIGN", {hMoney = 0}), "0")
+         rejects(function() EventText.pagesFrom({"money"}, resolve) end)
+         rejects(function() SourceText.number("text_decimal hCount, 1, 3", {hCount = 256}) end)
+diff --git a/Source/dev/titleRecoveryProbe.lua b/Source/dev/titleRecoveryProbe.lua
+index 6a9885e8..92bbd2ba 100644
+--- a/Source/dev/titleRecoveryProbe.lua
++++ b/Source/dev/titleRecoveryProbe.lua
+@@ -36,14 +36,35 @@ function TitleRecoveryProbe.run()
+   for key,value in pairs(bytes)do assert(fs.write(prefix.."."..key..".json",value))end
+   g.machine:change("title");return g,g.machine:get("title"),prefix,bytes
+  end
++ -- pret/pokered intro.asm: copyright and the black bars ignore A, the star
++ -- skips to the fight, and A during the fight finishes it. Inspection runs
++ -- after that, then the title screen opens the menu.
++ local function openTitle(title)
++  local guard=0
++  while title.phase=="intro" do
++   guard=guard+1
++   assert(guard<400,"intro did not finish")
++   local scene=IntroMovie.current(title.intro)
++   local skip=scene and (scene.input=="next" or scene.input=="finish")
++   IntroMovie.advance(title.intro, skip and true or false)
++   if title.intro.done then
++    title.introDone=true
++    title.phase="preparing"
++    if title.startupReady then title:refresh() end
++   end
++  end
++  assert(title.metadata,"title inspection did not publish metadata")
++  if title.phase=="title" then title:openMainMenu() end
++  assert(title.phase=="menu" and type(title.menu.onSelect)=="function","title menu was not opened")
++ end
+  test("NO at actual Title confirmation preserves session and all corrupt bytes",function(games)
+-  local g,title,prefix,bytes=setup(games);local old=g.session;eq(title.metadata.reason,"corrupt");eq(title.candidate,nil)
++  local g,title,prefix,bytes=setup(games);openTitle(title);local old=g.session;eq(title.metadata.reason,"corrupt");eq(title.candidate,nil)
+   title:choose("new");eq(title.phase,"confirm-new");title.menu.onSelect(1);eq(g.session,old);eq(g.machine:getCurrent(),"title")
+   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
+  end)
+  test("Confirmed New Game can Save after all old artifacts are corrupt",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2)
+-  eq(g.machine:getCurrent(),"dialog","new adventure reached opening")
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2)
++  eq(g.machine:getCurrent(),g.machine:get("oak") and "oak" or "dialog","new adventure reached opening")
+   g.machine:pop();eq(g.machine:getCurrent(),"overworld")
+   local payload,why=g:captureSession();assert(payload,"test did not reach valid settled save boundary: "..tostring(why))
+   local ok,metadata=g.saves:save()
+@@ -59,14 +80,14 @@ function TitleRecoveryProbe.run()
+   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
+  end)
+  test("session replacement invalidates an earlier explicit Title request",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   assert(g:beginNewSession(RulesRNG.snapshot().seed))
+   local ok,why=g.saves:save();eq(ok,false);eq(why.reason,"replacement-session-changed")
+   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
+   eq(fs.read(g.saves.store:_archivePaths(1).manifest),nil)
+  end)
+  test("Title request stale after confirmation cannot refresh its observed bytes",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   assert(fs.write(prefix..".b.json","newly discovered bytes"))
+   local ok,why=g.saves:save();eq(ok,false);eq(why.reason,"stale-replacement")
+   ok,why=g.saves:save();eq(ok,false);eq(why.reason,"stale-replacement")
+@@ -74,7 +95,7 @@ function TitleRecoveryProbe.run()
+   eq(fs.read(g.saves.store:_archivePaths(1).manifest),nil)
+  end)
+  test("failed archival attempt cannot fall through to ordinary save on retry",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   local actual=g.saves.store._fs
+   g.saves.store._fs={read=actual.read,rename=actual.rename,write=function(path,data)
+    if path==g.saves.store:_archivePaths(1).a then return false,"injected archive failure"end
+@@ -90,7 +111,7 @@ function TitleRecoveryProbe.run()
+   local old=assert(SessionCodec.encode(g.session,{root="overworld",overworld="explore",settled=true}))
+   local bytes={}
+   for index,key in ipairs({"a","b","candidate"})do bytes[key]=assert(g.saves.store:_envelope(old,index));assert(fs.write(prefix.."."..key..".json",bytes[key]))end
+-  title:refresh();title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  openTitle(title);title:refresh();openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   g.machine:register("pc",PCState(g));g.machine:push("pc");local pc=g.machine:get("pc")
+   local ok,metadata=g.saves:changeBoxFromPC(pc,2,pc.epoch);assert(ok,metadata.reason);eq(metadata.archived,true)
+   eq(g.session:storage():activeBox(),2);eq(g.saves._replacement,nil)
+@@ -98,7 +119,7 @@ function TitleRecoveryProbe.run()
+   local restored=assert(g.saves:inspect());eq(restored:storage():activeBox(),2)
+  end)
+  test("failed confirmed PC save rolls box back without bypassing archive on retry",function(games)
+-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
++  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+   g.machine:register("pc",PCState(g));g.machine:push("pc");local pc=g.machine:get("pc");local previous=g.session:storage():activeBox()
+   local actual=g.saves.store._fs
+   g.saves.store._fs={read=actual.read,rename=actual.rename,write=function(path,data)
+diff --git a/Source/dev/vermilionPreparationContracts.lua b/Source/dev/vermilionPreparationContracts.lua
+index 46f97393..b049e9fe 100644
+--- a/Source/dev/vermilionPreparationContracts.lua
++++ b/Source/dev/vermilionPreparationContracts.lua
+@@ -64,9 +64,12 @@ function VermilionPreparationContracts.run()
+         end
+     end
+     test("SDK reads literal UTF-8 payout and non-underscore recipe boundaries", function()
++        -- data/text/text_2.asm _MoneyForWinningText. <PLAYER> is the saved
++        -- name. The default is RED. The yen sign is charmap $f0, and
++        -- <LINE> puts "for winning!" on the second row.
+         local pages = EventText.pagesFrom({"_MoneyForWinningText"}, text,
+-            {player="RÉD", wAmountMoneyWon=175})
+-        assert(pages[1].text == "RÉD got ¥175 for winning!")
++            {player="RED", wAmountMoneyWon=175})
++        assert(pages[1].text == "RED got ¥175\nfor winning!")
+         assert(#EventText.pagesFrom({"SSAnneKitchenCook7SalmonDuSaladText"}, text) > 0)
+     end)
+     test("standard Center has shared fourteen by eight healing geometry", function()
+diff --git a/Source/game/learningState.lua b/Source/game/learningState.lua
+index b872e99c..af4a82d1 100644
+--- a/Source/game/learningState.lua
++++ b/Source/game/learningState.lua
+@@ -125,7 +125,7 @@ function LearningState:nextChoice()
+             local result=self:resolveChoice("learn")
+             self.results[#self.results+1]=result
+             self:message({result.kind=="failed" and "That machine could not be used."
+-                or self.pokemon.name.." learned "..moveData[self.pendingMove].name.."!"},result.kind)
++                or self.pokemon.name.." learned\n"..moveData[self.pendingMove].name.."!"},result.kind)
+         else self:showAsk() end
+         return
+     end
+@@ -141,8 +141,9 @@ function LearningState:nextChoice()
+             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
+         elseif #self.pokemon.moves < 4 then
+             self.results[#self.results + 1] = self.pokemon:resolveMoveChoice(choice.id, "learn")
+-            -- data/text/text_4.asm _LearnedMove1Text, printed by PrintLearnedMove.
+-            self:message({self.pokemon.name .. " learned " .. moveData[choice.move].name .. "!"}, "learned")
++            -- data/text/text_4.asm _LearnedMove1Text: the name and " learned"
++            -- fill the first row, and `line` puts the move and "!" on the second.
++            self:message({self.pokemon.name .. " learned\n" .. moveData[choice.move].name .. "!"}, "learned")
+             return
+         else
+             self:showAsk()
+@@ -185,7 +186,11 @@ function LearningState:showStopConfirmation()
+         if index == 2 then self:showAsk(); return end
+         local result = self:resolveChoice("decline")
+         self.results[#self.results + 1] = result
+-        self:message({self.pokemon.name .. " did not learn " .. moveData[self.pendingMove].name .. "!"}, "declined")
++        -- data/text/text_4.asm _DidNotLearnText. The name is the first row,
++        -- `line` prints "did not learn", and `cont` scrolls that row up
++        -- before the move name and "!".
++        self:message({self.pokemon.name .. "\ndid not learn",
++            "did not learn\n" .. moveData[self.pendingMove].name .. "!"}, "declined")
+     end), self:guard(function() self:showAsk() end))
+ end
+ 
+@@ -226,8 +231,9 @@ function LearningState:showConfirmation()
+         local result = self:resolveChoice("learn", self.slot)
+         self.results[#self.results + 1] = result
+         if result.kind=="failed" then self:message({"That machine could not be used."},"failed");return end
+-        self:message({self.pokemon.name .. " forgot " .. moveData[result.forgotten].name .. ".",
+-            self.pokemon.name .. " learned " .. moveData[result.move].name .. "!"}, "learned")
++        -- _ForgotAndText ends the move with "!". _LearnedMove1Text is the next page.
++        self:message({self.pokemon.name .. " forgot\n" .. moveData[result.forgotten].name .. "!",
++            self.pokemon.name .. " learned\n" .. moveData[result.move].name .. "!"}, "learned")
+     end), self:guard(function() self:showReplacement(self.slot) end))
+ end
+ 
+```
+
+### `world/sourceMaps.lua` and pin `05629c3f`
+
+The pin in `tools/references/content-transforms-149/provenance.json` is `05629c3f9bd752ab774d5623fd9c10aa094b3748b03ecdcb69036d74ee5c8666`, set in `d2d05ed8`. Three commits after that pin changed the file: `193ede89`, `57c2edb0`, and `c9c15b73`. The delta is catalog pool code: separate caches, catalog-mark writes, compact and tile-grid release, a strong tile-grid cache, and `frameSize`. It is not source-derived map data. `bf92c4fc` already has the pinned bytes. The file is restored to that pin. The hash matches. The four catalog exporters take width and height from `SourceMaps.descriptor` because the pinned file has no `frameSize`.
+
+`python3 -m unittest discover -s tools/tests` then ran 1368 tests in 160.623 seconds: 1 failure, 11 skipped. The failure is `test_coverage_matrix.CurrentMatrixTests.test_complete_source_indices_without_completion_promotion`: `matrix stale: Source fingerprint differs; regenerate/review, never relabel evidence`. The sourceMaps pin errors are gone. The snapshot was not regenerated and no row was relabeled. `tools/build.py --output /tmp/PokemonPoC-pin.pdx --stage /tmp/prod-stage-pin` exited 0.
+
+### The memory table
+
+Each suite had its own Simulator, the pool at 16645684, and the 14000 KiB budget. The eleven out-of-memory suites were rerun on a clean worktree of `bf92c4fc` (`/tmp/wt-main`). Evidence is `shard-oom-main`. Head's earlier run is `shard-rest`. `cerulean-routes`, `field-moves`, and `field-travel` were rerun with a 140 second timeout that returns a result. Head evidence is `shard-audit` and `shard-recount`. Main evidence for those three is `shard-main3`. A returned or scored `contract-progress.json` is copied to `contract-score.json` when the reply stalls, and the child totals are written on the returned checkpoint.
+
+| Suite | `bf92c4fc` | Head | Class |
+| --- | --- | --- | --- |
+| `source-maps` | not enough memory | not enough memory | already red |
+| `generic-actors` | not enough memory | not enough memory | already red |
+| `source-map-activation` | not enough memory | not enough memory | already red |
+| `cerulean-scenes` | passed, session `1e5e25a74dee4c088b433845ae67872f` | `ceruleanSceneContracts.lua:75` not enough memory, session `8f2c56d7a6d545dab0ef9c86c7230702` | new |
+| `kanto-services` | `kantoServicesContracts.lua:118` not enough memory | same | already red |
+| `cerulean-ambient-dialogue` | not enough memory, first boundary byte 99 | not enough memory, also byte 60 | already red |
+| `field-world` | not enough memory | not enough memory | already red |
+| `vermilion-gifts` | not enough memory | not enough memory | already red |
+| `vermilion-story` | passed, session `105de9caa1f745bbb37ef3162c114265` | `vermilionStoryFixture.lua:61` not enough memory, session `b19f5a611c0142dea332b69145289d9e` | new |
+| `vermilion-catalog` | not enough memory, then `overworld.lua:150` malloc | same | already red |
+| `vermilion-ambient` | passed, session `383b0eec5c6e4ade98d4af0bdbe2cf3f` | `kantoServicesContracts.lua:118` not enough memory, session `a2c896790b364857b1ff9871a0b8e0d3` | new |
+| `cerulean-routes` | passed, session `7289fe9e4a554431920352d64547cd02` | 5 passed, 15 failed, session `a053e014b6a842b2a156cb4b2e65ee16`. `CeruleanRoutes.text` asks `EndgameStory.text` after `CeruleanContent.text` errors. The reported labels are in `sourceSlice/dialogue.json` on both trees and are absent from `endgame/story.json` | new |
+| `field-moves` | not enough memory, session `44e80819270646d69aa5b7fc217c3f1e`, heap 13680.508 KiB | 1 passed, 15 failed, not enough memory, session `a02e931241684d4caf6c3d83042aecc2`, heap 13484.852 KiB | already red |
+| `field-travel` | Fly, `fieldTravelContracts.lua:89` not enough memory, session `d38e00bda6884bb492992b5891e80432` | 0 passed, 3 failed (Surf, the expired-Surf inflate, and Fly), session `ce148561a66644a9b5d47ee044f4a6f3`, heap 13169.583 KiB | already red |
+
+Eight of the eleven were already red on `bf92c4fc` with the same not-enough-memory failure. Three are new on head: `cerulean-scenes`, `vermilion-story`, and `vermilion-ambient`. `cerulean-routes` also passes on `bf92c4fc` and fails on head. `field-moves` and `field-travel` were already red. None of these three sat in poll until the timeout. The scored rows are the result.
+
+These six still fail on both sides. They stay recorded for Miguel. That decision is pending:
+
+- `source-events`: extra field `wNameBuffer` on the Viridian Forest and Route 2 plans.
+- `kanto-scenes`: `data/ceruleanContent.lua:256` source actor art not installed. Head also reports `missing endgame text: _CeruleanCityRivalPreBattleText`.
+- `contact-abilities`: `contactAbilityContracts.lua:522` and `:546`, both assertion failed.
+- `daycare`: legacy session cannot contain a hall of fame record.
+- `npc-trades`: `encode-failed` on the full party and 240 PC slots.
+- `cerulean-content`: `data/ceruleanContent.lua:241` nil `strip`.
+
+
 ## 2026-11-12 The remaining shards finished, and eleven contract pages now match the box
 
 The eight suites that failed on this branch and passed on `bf92c4fc` now pass, and so do three more from the forty that had not been started. Each contract still described the previous flattened paragraph, a name the charmap accepts, or a slice the pool could not keep. `MallocPoolSize` stayed 16645684. The 14000 KiB budget was not lowered. No skip or expected-failure marker was added. `main` stays `bf92c4fc`.
