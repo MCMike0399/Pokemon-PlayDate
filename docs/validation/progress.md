@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-13 Cycling Road gate, and the Route 20 rock
+
+Lane I `ab75c2ea` `tools/notes/lane-e-bicycle-road.patch` stopped a door that would land on a forced Cycling Road cell, then returned to explore with no guard text. The crash is `OverworldState:enter` asserting `bicycle-required` from `FieldWorld.entryTravel`. The door now asks `FieldCycling.enter` before the fade. A forced Route 16 cell `(17, 10)` or `(17, 11)`, or a forced Route 18 cell `(33, 8)` or `(33, 9)`, with no Bicycle, stays on the gate. Route 16 shows `Excuse me! Wait up please!` and `No pedestrians are allowed on CYCLING ROAD!` (`text/Route16Gate1F.asm`). Route 18 shows `Excuse me!` and `You need a BICYCLE for CYCLING ROAD!` (`text/Route18Gate1F.asm`). The dialog then steps once in the gate's `return_direction`, which is `right` on both gates (`scripts/Route16Gate1F.asm`, `scripts/Route18Gate1F.asm`). `FieldCycling.returnDirection` reads that field. The arrival assert is unchanged for every other entry. `field-gear` session `a2e54e38fecb45619b3507ee60a7869b` passed 2, failed 0, heap 12593.599 KiB. The parent command passed 22 and failed 0.
+
+Lane I `ab75c2ea` `tools/notes/lane-e-route20-seam.patch` is not applied. `maps/Route20.blk` at `af519899` is 50 by 9. Block row 7 is water `$43` except the west shore `$2E` at column 0 and block `$18` at column 31. Block `$18` in `gfx/blocksets/overworld.bst` has left quadrants `$2A $2B / $3A $3B` and right quadrants of water `$14`. Foot `$3A` is absent from `Overworld_Coll` and is not the surf tile `$14` (`home/overworld.asm` keeps surfing only on `$14`). Cells `(62, 14)` and `(62, 15)` are those left quadrants. The imported tile is the decoder's tile for that block, not a bad write. Block rows 1 through 4 at column 31 are `$43`, so the channel goes north of the rock. Replacing those two cells with water would open a path the blk does not have. No map JSON was hand-edited.
+
 ## 2026-11-13 Actor strips, the pickup buffer, and the fixture blame
 
 `main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added.

@@ -14,6 +14,19 @@ import "game/fieldGestures"
 -- input is routed to the overlay only.
 
 local gfx <const> = playdate.graphics
+local BICYCLE_STEP <const> = {up = {0, -1}, down = {0, 1}, left = {-1, 0}, right = {1, 0}}
+-- scripts/Route16Gate1F.asm and scripts/Route18Gate1F.asm. The gate shows
+-- the wait line, then the refusal, and walks the player back off the road.
+local BICYCLE_GATE_TEXT <const> = {
+    ROUTE_16_GATE_1F = {
+        "Excuse me! Wait up please!",
+        "No pedestrians are allowed on CYCLING ROAD!",
+    },
+    ROUTE_18_GATE_1F = {
+        "Excuse me!",
+        "You need a BICYCLE for CYCLING ROAD!",
+    },
+}
 
 -- ============================================================
 -- EXPLORE substate
@@ -382,6 +395,53 @@ function DoorWarpSubstate:init(owner)
     self.owner = owner
 end
 
+-- A gate door that lands on a forced Cycling Road cell without a Bicycle
+-- never starts the fade. pokered stops on the gate, shows the guard text,
+-- and walks one step back. Raising "bicycle-required" from the arrival
+-- assert skipped that script.
+function DoorWarpSubstate:refuseBicycle(door)
+    if not FieldCycling or not door or door.connection then
+        return false
+    end
+    local game = self.owner.game
+    local provider = WorldDeltas.definitionProvider()
+    local descriptor = provider and provider:hasKey(door.to) and provider:descriptor(door.to)
+    local map = descriptor and descriptor.source_map_constant
+    local tileset = descriptor and descriptor.tileset and descriptor.tileset.constant
+    if not map or not tileset then
+        return false
+    end
+    local plan, failure = FieldCycling.enter(game.session:fieldTravelData(),
+        game.session:questFlag(FieldCycling.FLAG),
+        game.session:inventory():quantity("bicycle") == 1,
+        map, tileset, door.toX - (descriptor.padding or 0), door.toY, "map")
+    if plan or failure ~= "bicycle-required" then
+        return false
+    end
+    local here = provider:hasKey(currentZone.stableID) and provider:descriptor(currentZone.stableID)
+    local gateMap = here and here.source_map_constant
+    local player = game.player
+    player.stepJustFinished = false
+    player.pendingEdgeDoor = nil
+    player.pendingConnection = nil
+    player.lastTraversalBlock = {kind = "bicycle-gate", id = gateMap or map}
+    self.machine:change("explore")
+    local lines = BICYCLE_GATE_TEXT[gateMap] or BICYCLE_GATE_TEXT.ROUTE_16_GATE_1F
+    local direction = gateMap and FieldCycling.returnDirection(gateMap)
+    local step = BICYCLE_STEP[direction]
+    if not step then
+        local away = {left = "right", right = "left", up = "down", down = "up"}
+        step = BICYCLE_STEP[away[player.facing] or "right"]
+    end
+    self.owner.machine:push("dialog", lines, function()
+        local mover = game.player
+        if mover and not mover.isMoving then
+            mover:tryMove(step[1], step[2])
+        end
+    end)
+    return true
+end
+
 function DoorWarpSubstate:enter(door)
     if SafariRuntime and not SafariRuntime.allowDoor(self.owner.game, door) then
         self.owner.game.player.stepJustFinished = false
@@ -410,6 +470,9 @@ function DoorWarpSubstate:enter(door)
         self.owner.game.player.pendingEdgeDoor=nil
         self.owner.game.player.pendingConnection=nil
         self.machine:change("explore")
+        return
+    end
+    if self:refuseBicycle(door) then
         return
     end
     self.timer = 0
