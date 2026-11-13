@@ -1165,6 +1165,10 @@ class CharmanderRun(BrockJourney):
         def advance_event(stop_phase=None):
             if self.state.get("root") in {"safariBattle", "safariPassage"}:
                 return midgame.MidgameJourney.advance_event(self, stop_phase)
+            if self.state.get("root") == "fieldTravel":
+                return midgame.MidgameJourney.advance_travel(self)
+            if self.state.get("root") == "fieldGear":
+                return midgame.MidgameJourney.advance_event(self, stop_phase)
             phase = lookup(self.state, "event.phase")
             if (self.state.get("root") == "event"
                     and lookup(self.state, "event.menu.active") is True):
@@ -2214,6 +2218,8 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("self._east_to_fuchsia()", blaine)
         east = source.split("def _east_to_fuchsia", 1)[1].split("def _toward_koga", 1)[0]
         self.assertIn("Route8Gate", east)
+        advance = source.split("def advance_event", 1)[1].split("def portals", 1)[0]
+        self.assertIn("advance_travel", advance)
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
