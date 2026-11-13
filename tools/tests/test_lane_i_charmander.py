@@ -1099,6 +1099,13 @@ class CharmanderRun(BrockJourney):
                 if target and number == len(route["steps"]) - 1:
                     self.require(zone_id=self.zone(target))
                 elif self.position() != arrived:
+                    block = (self.state.get("player") or {}).get("lastTraversalBlock") or {}
+                    # A defeated trainer can remain on the next scripted cell.
+                    # Walk around to the script's last cell instead of that tile.
+                    if block.get("kind") == "npc":
+                        final = route["steps"][-1]["to"]
+                        self.navigate((final[0] + padding, final[1]))
+                        break
                     raise ProtocolError("fixed source script step failed: " + label + ":" + str(step))
             self.refresh_world()
         self.fixed_leg = fixed_leg
