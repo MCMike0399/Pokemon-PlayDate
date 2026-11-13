@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "3d6c1698b5e88734149b5fa1e6fdd04505343e24",
+    "source_sha256": "0d40a76344bd7aec6641a27c9fa3f19e48606421fe9b64fa93d38b1303360afb",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Cerulean journey projection was regenerated for the event observation change. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 1705ef64a390a759c79a17be196770bd3e71c80915d3682df6f7092e4b940a73.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "d8f852318d811a1751021f3a44d7522a3a4c6c4a",
     "source_sha256": "1705ef64a390a759c79a17be196770bd3e71c80915d3682df6f7092e4b940a73",
     "policy_date": "2026-11-13",
@@ -1280,6 +1291,7 @@
         }
       }
     }
+  }
   }
   },
   "accepted_milestone_rows": [],
