@@ -1075,6 +1075,9 @@ class CharmanderRun(BrockJourney):
             "celadon_service",
             "return_from_fuchsia_to_route12", "return_from_route12_to_lavender",
             "route_c_guard", "route_c_silph", "route_c_sabrina", "complete_at_center",
+            "safari_observation", "safari_journey", "prepared_safari_route",
+            "advance_safari_battle", "teach", "use_field", "ensure_surf_user",
+            "retrieve_hm_user",
         ):
             setattr(self, name, getattr(midgame.MidgameJourney, name).__get__(self, type(self)))
         base_fixed_warp = self.fixed_warp
@@ -1159,6 +1162,8 @@ class CharmanderRun(BrockJourney):
         self.project_warp = project_warp
         base_advance = self.advance_event
         def advance_event(stop_phase=None):
+            if self.state.get("root") in {"safariBattle", "safariPassage"}:
+                return midgame.MidgameJourney.advance_event(self, stop_phase)
             phase = lookup(self.state, "event.phase")
             if (self.state.get("root") == "event"
                     and lookup(self.state, "event.menu.active") is True):
@@ -1410,18 +1415,38 @@ class CharmanderRun(BrockJourney):
                 self.summary.setdefault("silph_boundaries", []).append(text)
         else:
             raise ProtocolError("Silph save boundary repeated")
-        for _attempt in range(3):
-            try:
-                self.route_c_sabrina()
-                break
-            except NaturalBlackout:
-                if _attempt == 2:
-                    raise
-                self.summary.setdefault("sabrina_blackouts", []).append(self.state.get("zone_id"))
-                self._arrange_lead("starter")
-        else:
-            raise ProtocolError("Sabrina blackout retry exhausted")
+        marsh = (self.flag("BADGE_MARSH") and self.flag("EVENT_GOT_TM46") and self.quantity("tm46") >= 1)
+        if not marsh:
+            for _attempt in range(3):
+                try:
+                    self.route_c_sabrina()
+                    break
+                except NaturalBlackout:
+                    if _attempt == 2:
+                        raise
+                    self.summary.setdefault("sabrina_blackouts", []).append(self.state.get("zone_id"))
+                    self._arrange_lead("starter")
+            else:
+                raise ProtocolError("Sabrina blackout retry exhausted")
         self.summary.update(acceptance="Marsh Badge earned", natural=True, forbidden_shortcuts=False)
+        self._toward_blaine()
+
+    def _toward_blaine(self):
+        """Escape Rope, then the Safari Zone for HM03 and Surf."""
+        self.summary["acceptance"] = "walking toward the Volcano Badge"
+        self._pin_map_shops("SaffronMart")
+        self.config["content_scope"] = "lane-i"
+        if self.quantity("escapeRope") < 1:
+            clerk = self.zone("SaffronMart") + ":objects:1"
+            shop = self.vermilion["shops"][clerk]
+            price = shop["prices"]["escapeRope"]
+            if "escapeRope" not in shop.get("stock", ()) or type(price) is not int or price <= 0:
+                raise ProtocolError("Saffron Mart does not sell an Escape Rope")
+            self.travel(self.zone("SaffronMart"))
+            self.buy_item(clerk, "escapeRope", 1, price)
+        if self.quantity("escapeRope") < 1:
+            raise ProtocolError("Escape Rope was not bought")
+        self.safari_journey()
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
