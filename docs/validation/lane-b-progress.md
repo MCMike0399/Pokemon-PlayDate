@@ -1367,13 +1367,16 @@ Pidgeotto is 28 and 78/78. Money is 1309. `hyperPotion` is 3. The grind
 moves to the Power Plant and heals at the Rock Tunnel Center. Full
 Restores and Revives stay an Indigo lobby purchase.
 
-Sequence 217 is the healed continue on Route 10 `(11, 20)` facing
+Sequence 218 is the healed continue on Route 10 `(11, 20)` facing
 down, sha256
-`18b425ab223e56d76d755bdc537bca124cf0d12359cb4b8d67c3498b2efb47e7`
-(`seq217-adventure.a.json`). Venusaur is 55 and 173/173. Pidgeotto is
+`7240a3b471499ef445de042d511ca28be13dd27192b649352051e508866022fe`
+(`seq218-adventure.b.json`). Venusaur is 55 and 173/173. Pidgeotto is
 31 and 86/86. Money is 1404. `hyperPotion` is 3. One blackout on an
 earlier plant exit halved the wallet from 2809 to 1404. Venusaur leads
-the Power Plant and uses Razor Leaf there.
+the Power Plant and uses Razor Leaf there. The grind leaves for the
+Rock Tunnel Center while Venusaur is still above the faint line, and
+that walk runs from wild battles. The Route 22 rival waits until
+Venusaur is about 58.
 
 `20261112T232531Z-power-plant.mp4` at 0:05–0:16 is the forced-switch
 menu. The prompt is "Choose a POKEMON!" and the cursor alternates
