@@ -1077,6 +1077,28 @@ class CharmanderRun(BrockJourney):
             "route_c_guard", "route_c_silph", "route_c_sabrina", "complete_at_center",
         ):
             setattr(self, name, getattr(midgame.MidgameJourney, name).__get__(self, type(self)))
+        base_fixed_warp = self.fixed_warp
+        def fixed_warp(index, approach=None):
+            # A facility teleporter on the bottom row is an edge door. Stepping
+            # onto it does not leave. Walk down from the pad.
+            event = next((e for e in self.model().events["warps"] if e["source_index"] == index), None)
+            try:
+                return base_fixed_warp(index, approach)
+            except ProtocolError as error:
+                text = str(error)
+                if event is None or "expected player." not in text:
+                    raise
+                pad = self.model().padding
+                on_pad = self.position() in {(event["x"], event["y"]), (event["x"] + pad, event["y"])}
+                bottom = event["y"] in {self.model().height - 1, self.model().height - 1 - pad}
+                if not on_pad or not bottom:
+                    raise
+                target, position = self.warp_projection(event)
+                self.send("press down", "wait 15")
+                self.drain()
+                self.require(zone_id=target, **{"player.x": position[0], "player.y": position[1]})
+                self.refresh_world()
+        self.fixed_warp = fixed_warp
         self.visit_event = vermilion.VermilionJourney.visit_event.__get__(self, type(self))
         self.event_map = vermilion.VermilionJourney.event_map.__get__(self, type(self))
         self.collection_owner = vermilion.VermilionJourney.collection_owner.__get__(self, type(self))
@@ -2110,7 +2132,9 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:CELADON_GYM:objects:1"), "badge-rainbow")
         self.assertEqual(key_fight("source", "pokered:FUCHSIA_GYM:objects:1"), "badge-soul")
         self.assertEqual(key_fight("source", "pokered:SAFFRON_GYM:objects:1"), "badge-marsh")
-        self.assertIn('self.config.setdefault("packet", "lane-i")', Path(__file__).read_text(encoding="utf-8"))
+        source = Path(__file__).read_text(encoding="utf-8")
+        self.assertIn('self.config.setdefault("packet", "lane-i")', source)
+        self.assertIn("press down", source.split("def fixed_warp", 1)[1].split("def key_door", 1)[0])
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)

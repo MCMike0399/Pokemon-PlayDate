@@ -1,0 +1,15 @@
+diff --git a/Source/world/sourceBindings.lua b/Source/world/sourceBindings.lua
+--- a/Source/world/sourceBindings.lua
++++ b/Source/world/sourceBindings.lua
+@@ -117,9 +117,10 @@ function SourceBindings.prepare(d, specs, options)
+                 assert(spec[field] == verified[field], "warp differs from pinned source projection")
+             end
+             local interior = d.tileset.constant ~= "OVERWORLD" and d.tileset.constant ~= "FOREST"
++            local same_room = event.destination.kind == "map" and event.destination.map == d.source_map_constant
+             doors[#doors + 1] = { x = event.x, y = event.y, to = spec.to, toX = spec.toX, toY = spec.toY,
+                 facing = spec.facing, preserveFacing = spec.preserveFacing, source_event_id = event.id,
+-                edge = (viridian or interior) and event.y == height - 1 and "down" or nil }
++                edge = (viridian or interior) and event.y == height - 1 and not same_room and "down" or nil }
+         end
+     end
+     for _, event in ipairs(d.events.background_events) do
