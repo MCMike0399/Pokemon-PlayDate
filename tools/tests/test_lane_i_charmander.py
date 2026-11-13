@@ -1304,12 +1304,22 @@ class CharmanderRun(BrockJourney):
         self.training_mode = None
         self._arrange_lead("starter")
         self.route_c_guard()
-        for _boundary in range(6):
+        from tools.harness.brock_journey import NaturalBlackout
+        blackouts = 0
+        for _boundary in range(8):
             if "silph-rival-lapras-giovanni-president" in self.completed_steps:
                 break
             try:
                 self.route_c_silph()
                 break
+            except NaturalBlackout:
+                # Giovanni follows the rival with no center. A wipe already
+                # restored the party at the Saffron checkpoint. Re-enter healed.
+                blackouts += 1
+                if blackouts > 2:
+                    raise
+                self.summary.setdefault("silph_blackouts", []).append(self.state.get("zone_id"))
+                self._arrange_lead("starter")
             except ProtocolError as error:
                 text = str(error)
                 if "Save boundary" not in text:
