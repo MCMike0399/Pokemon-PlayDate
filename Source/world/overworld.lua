@@ -155,6 +155,27 @@ function WorldView:render()
     gfx.popContext()
     return image
 end
+-- One cell, not the whole city. image.new of a 40x36 map is about 180 KiB
+-- and returns "out of memory" once the 16 MiB pool is holding the tilemap.
+-- The tilemap is a grid of these images, so the cell is that tile.
+function WorldView:renderCell(x, y)
+    assert(not self.disposed, "world view disposed")
+    assert(type(x) == "number" and type(y) == "number" and x % 1 == 0 and y % 1 == 0
+        and x >= 0 and y >= 0 and x < self.zone.width and y < self.zone.height,
+        "world view cell is outside the map")
+    local image = self.cellScratch
+    if not image then
+        image = gfx.image.new(TILE_SIZE, TILE_SIZE, gfx.kColorWhite)
+        self.cellScratch = image
+    end
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.clear(gfx.kColorWhite)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    self.images:getImage(self.zone.tiles[y + 1][x + 1]):draw(0, 0)
+    gfx.popContext()
+    return image
+end
 function WorldView:dispose()
     if self.disposed then return end
     self.sprite:remove()
@@ -164,6 +185,7 @@ function WorldView:dispose()
     self.sprite = nil
     self.tilemap = nil
     self.images = nil
+    self.cellScratch = nil
     self.disposed = true
 end
 function setupOverworld()

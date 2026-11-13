@@ -6,6 +6,29 @@
 
 Daycare's Route 6 connection, Pewter escort, and Daycare scene no longer run out of memory. The destination view releases the previous unpinned city and its tilemap, then collects, before it allocates the next tilemap. `createZone` finishes that collection before the caller builds the view. Session `8736e940903e45ef984124f59f367a36` passed 18, failed 2, heap 13019.575 KiB, 29905 ms. Both failures are `domain/sessionCodec.lua:136`, `legacy session cannot contain a hall of fame record`, at `daycareContracts.lua:383` and `:409`. `SessionFixture.forVersion` for versions below 4 clears `fieldTravel`, `safari`, and `coins` only. The codec comment says Hall of Fame arrived after the private v4 saves and older versions cannot contain the field. pokered keeps `wHallOfFame` in WRAM and saves it from `scripts/HallOfFame.asm`; that SRAM image is not this project's versioned document. The assertion stays, and the fixture stays. `MallocPoolSize` stayed 16645684.
 
+The red suites on that city-release commit, then the two follow-up runs. `main` was not fast-forwarded.
+
+| suite | result | passed | failed | heap KiB | session |
+| --- | --- | --- | --- | --- | --- |
+| daycare | fail | 18 | 2 | 13019.575 | `8736e940903e45ef984124f59f367a36` |
+| cerulean-ambient-dialogue | pass | 28 | 0 | 12727.687 | `5ebe580a993d43e78f7e4000d95a143e` |
+| contact-abilities | pass | 25 | 0 | 12661.733 | `eb63df13ab25498b8d6ab36301585091` |
+| vermilion-catalog | fail | 34 | 5 | 12746.829 | `87f3e6e717df49a1aa76e3efc5a4b87c` |
+| cerulean-content | fail | 97 | 12 | 12515.850 | `120bf8d29933466d94b9e491550981cc` |
+| field-moves | fail | 12 | 4 | 13878.766 | `45acb8412aed4ca0a809e3bbc3f890f3` |
+| field-travel | fail | 2 | 1 | 13056.145 | `a8d01177204a459599a2bbe0efd4d61c` |
+| field-world | fail | 11 | 3 | 13318.380 | `f324e5167bc744ac9462e48bb3e42404` |
+| generic-actors | fail | 0 | 8 | 12708.597 | `a441ccc7e270482e9cfc7e7dc3a35451` |
+| kanto-scenes | fail | 6 | 1 | 12821.700 | `e5a07a1955c041ce81fcc5314934e1ce` |
+| kanto-services | fail | 21 | 1 | 12790.702 | `8c55c0a229314e9c853c4d31508e5567` |
+| npc-trades | fail | 43 | 6 | 12931.741 | `240a5f1528fc4f19b188e7072e6be286` |
+| source-events | fail | 57 | 7 | 12527.085 | `d5a897e20e704ee998b317b93a8a8225` |
+| source-map-activation | fail | 2 | 7 | 12565.794 | `0f0d947f6a4846f29dfe335b730a2a66` |
+| source-maps | fail | 9 | 14 | 13104.600 | `6e9726798d6149dea8cb304be14e55cc` |
+| vermilion-gifts | timeout |  |  | 12563.218 | `1a80ab5de4944ff98bc430343456ffd6` |
+
+Contact-abilities is the rerun after the damage-number waypoint. Vermilion-catalog is the rerun after cell sampling; it was 25 passed and 14 failed before that, and the full-map `malloc` is gone. The other rows are the city-release tree. Daycare's two failures are the hall-of-fame assertion. `kanto-scenes` fails at `ceruleanContent.lua:256` because the actor art is not installed. `generic-actors` also reports `missing Blue source sprite: SPRITE_DAISY`. `source-events` reports an extra `wNameBuffer` on Viridian Forest and Route 2. `field-travel` failed with `pd_readcompressed inflate failed, out of memory`. Vermilion-gifts timed out after the simulator died and left no score. `MallocPoolSize` stayed 16645684.
+
 The four suites that were new failures on this head now pass. Idle map scores are released before the next score loads, the next zone is collected before it is built, and an event observation checks the live bag instead of copying an inventory per item. `vermilion-story` session `6130e414b13a4aafa014bbee66352018` passed 26, failed 0, heap 12849.506 KiB. `cerulean-scenes` session `4fffe252a6924fe286ef899dc7cbafd9` passed 13, failed 0, heap 12788.418 KiB. `vermilion-ambient` session `9f57afdaca8349709abf300aead84d41` passed 48, failed 0, heap 12624.634 KiB. `cerulean-routes` session `4490a2f052de4a77bcc180e003d74e34` passed 20, failed 0, heap 12886.170 KiB. `MallocPoolSize` stayed 16645684. `python3 -m unittest discover -s tools/tests` ran 1368 tests in 169.122 seconds: OK, 11 skipped. `tools/build.py --output /tmp/PokemonPoC-mem2.pdx --stage /tmp/prod-stage-mem2` exited 0. A clean Simulator boot, evidence `boot-mem`, shows `title.visible` sequence 46 at 1262 ms and `initialize.ready` sequence 363 at 10322 ms. Peak 12792.699 KiB. The 14000 KiB budget passed. The Cerulean and Vermilion journey projections were regenerated with their generators after `eventState.lua` changed the Cerulean digest. The coverage snapshot was nested for those Source fingerprints. No row was relabeled.
 
 ### The eleven contracts
