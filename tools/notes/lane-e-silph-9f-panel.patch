@@ -1,0 +1,26 @@
+diff --git a/Source/data/silphStory/scenes.json b/Source/data/silphStory/scenes.json
+index 5808dae4..efa709f6 100644
+--- a/Source/data/silphStory/scenes.json
++++ b/Source/data/silphStory/scenes.json
+@@ -380,8 +380,8 @@
+         {
+           "closed_block": 84,
+           "closed_keys": [
+-            "pokered:FACILITY:cell:08-08-18-18",
+-            "pokered:FACILITY:cell:08-08-18-18",
++            "pokered:FACILITY:cell:01-01-01-01",
++            "pokered:FACILITY:cell:01-01-01-01",
+             "pokered:FACILITY:cell:01-01-01-01",
+             "pokered:FACILITY:cell:01-01-01-01"
+           ],
+@@ -401,8 +401,8 @@
+         {
+           "closed_block": 84,
+           "closed_keys": [
+-            "pokered:FACILITY:cell:08-08-18-18",
+-            "pokered:FACILITY:cell:08-08-18-18",
++            "pokered:FACILITY:cell:01-01-01-01",
++            "pokered:FACILITY:cell:01-01-01-01",
+             "pokered:FACILITY:cell:01-01-01-01",
+             "pokered:FACILITY:cell:01-01-01-01"
+           ],

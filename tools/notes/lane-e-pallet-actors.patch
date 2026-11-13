@@ -1,0 +1,82 @@
+diff --git a/Source/data/ceruleanContent.lua b/Source/data/ceruleanContent.lua
+index ceda73bd..4d9f25bd 100644
+--- a/Source/data/ceruleanContent.lua
++++ b/Source/data/ceruleanContent.lua
+@@ -163,8 +163,38 @@ function CeruleanContent.signs()
+     return catalog("events", "signs")
+ end
+ 
++-- Pallet and Oak's Lab have no content-cache strip (install dies on a nil
++-- standing table). Red's house and Blue's house have no digest at all
++-- (unknown actor). These nine strips are read from the pinned zRemainder
++-- catalog only when the immutable lookup misses. Catalog hits still win.
++-- Elite Four, Colosseum and Trade Center actors are not included.
++local PALLET_ACTORS <const> = {
++    SPRITE_OAK = true, SPRITE_BLUE = true, SPRITE_SCIENTIST = true,
++    SPRITE_MOM = true, SPRITE_DAISY = true, SPRITE_GIRL = true,
++    SPRITE_FISHER = true, SPRITE_POKEDEX = true, SPRITE_POKE_BALL = true,
++}
++local palletSprites
++local function palletStrip(source)
++    if not PALLET_ACTORS[source] then return nil end
++    if not palletSprites then
++        local data = assert(json.decodeFile("data/zRemainder/sprites.json"), "missing Pallet sprite catalog")
++        assert(data.schema == 1 and data.source_revision == "af519899719f0754965776faac0e836a3b906e6d",
++            "unverified Pallet sprite catalog")
++        palletSprites = assert(data.sprites, "Pallet sprite catalog has no strips")
++    end
++    local strip = palletSprites[source]
++    if type(strip) ~= "table" then return nil end
++    if type(strip.walking) ~= "table" or next(strip.walking) == nil then
++        strip = copy(strip)
++        strip.walking = copy(strip.standing)
++        palletSprites[source] = strip
++    end
++    return strip
++end
+ local function spriteRecord(source)
+-    return assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite: " .. tostring(source))
++    local found = immutableLookup("sprites", "sprites", source)
++    if found then return found end
++    return assert(palletStrip(source), "missing Blue source sprite: " .. tostring(source))
+ end
+ 
+ function CeruleanContent.sprite(source)
+@@ -179,7 +209,9 @@ function CeruleanContent._spritePoseMetadata(source)
+ end
+ 
+ function CeruleanContent.key(source)
+-    assert(immutableDigest("sprites", "sprites", source), "unknown Blue source actor")
++    if not immutableDigest("sprites", "sprites", source) and not palletStrip(source) then
++        error("unknown Blue source actor")
++    end
+     return "cerulean_" .. source:lower()
+ end
+ 
+@@ -192,7 +224,7 @@ function CeruleanContent.poseImage(source, pose, facing)
+     if source == "SPRITE_BLUE" and pose == "stand" then
+         return assert(SpriteFactory.npc.rival[facing], "protected BLUE pose missing")
+     end
+-    local strip = assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite")
++    local strip = spriteRecord(source)
+     local direction = strip.fixed and "down" or facing == "right" and "left" or facing
+     local index = (pose == "stand" and strip.standing or strip.walking)[direction]
+     local grid = assert(strip.frames[tostring(index)], "missing original actor frame")
+@@ -236,7 +268,7 @@ function CeruleanContent.installArt(definition)
+     end
+     for source, key in pairs(selected) do
+         if not rendered[key] then
+-            local strip = immutableLookup("sprites", "sprites", source)
++            local strip = spriteRecord(source)
+             local images = {}
+             for direction in pairs(strip.standing) do
+                 images[direction] = CeruleanContent.poseImage(source, "stand", direction)
+@@ -258,7 +290,7 @@ function CeruleanContent.stepImage(source, facing, tick)
+         return assert(standing[facing], "source actor has no standing pose")
+     end
+     if not walks[source] then
+-        local strip = immutableLookup("sprites", "sprites", source)
++        local strip = spriteRecord(source)
+         local images, alternate = {}, {}
+         for direction in pairs(strip.walking) do
+             images[direction] = CeruleanContent.poseImage(source, "walk", direction)

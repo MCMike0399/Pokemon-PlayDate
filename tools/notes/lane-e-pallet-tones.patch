@@ -1,0 +1,85 @@
+diff --git a/Source/world/tileRegistry.lua b/Source/world/tileRegistry.lua
+index 4aacca68..b844c58e 100644
+--- a/Source/world/tileRegistry.lua
++++ b/Source/world/tileRegistry.lua
+@@ -153,6 +153,69 @@ local function compiledTerrainImage(rows, policy, renderer, sourceKey)
+     return image:copy()
+ end
+ 
++-- Pallet mockup C, per source tile. Open ground (tile $23) is a light patchy
++-- grass. Tile $39 tufts stay faint. The lab lawn (tile $2C) keeps that tile's
++-- stipple. These patterns are not Shade.LIGHT and not importedTonePatterns.
++-- 1-bits are white. $23 is a 15.6% patchy fill. $2C keeps one dark pixel
++-- in every source cell so its stipple survives. $39 keeps only the middle
++-- row of each tuft, so those marks stay faint.
++local PALLET_TONE <const> = {
++    ["23"] = {0x9F, 0xFF, 0xF3, 0xFF, 0xE7, 0x7F, 0xBF, 0xDD},
++    ["2c"] = {0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF},
++    ["39"] = {0xFF, 0xFF, 0xFF, 0xFF, 0xAA, 0xFF, 0xFF, 0xFF},
++}
++local function palletQuadrants(sourceKey)
++    if type(sourceKey) ~= "string" then return nil end
++    local body = sourceKey:match("^pokered:OVERWORLD:cell:([%da-f]+%-[%da-f]+%-[%da-f]+%-[%da-f]+)$")
++    if not body then return nil end
++    local quads, any = {}, false
++    for id in body:gmatch("[%da-f][%da-f]") do
++        quads[#quads + 1] = id
++        if PALLET_TONE[id] then any = true end
++    end
++    if #quads ~= 4 or not any then return nil end
++    return quads
++end
++local function renderPalletTone(rows, quads, policy)
++    local gfx <const> = playdate.graphics
++    local image = gfx.image.new(32, 32, gfx.kColorWhite)
++    gfx.pushContext(image)
++    for index, id in ipairs(quads) do
++        local col0 = (index - 1) % 2 * 8
++        local row0 = (index - 1) // 2 * 8
++        local pattern = PALLET_TONE[id]
++        if id == "23" then
++            gfx.setPattern(pattern, 0, 0)
++            gfx.fillRect(col0 * 2, row0 * 2, 16, 16)
++        else
++            for y = 1, 8 do
++                local row = rows[row0 + y]
++                local x = 1
++                while x <= 8 do
++                    local shade = row:sub(col0 + x, col0 + x)
++                    local last = x
++                    while last < 8 and row:sub(col0 + last + 1, col0 + last + 1) == shade do
++                        last = last + 1
++                    end
++                    if shade ~= "." then
++                        if shade == "#" then
++                            gfx.setColor(gfx.kColorBlack)
++                        elseif shade == "1" and pattern then
++                            gfx.setPattern(pattern, 0, 0)
++                        else
++                            gfx.setPattern(shade == "1" and policy.light or policy.dark, 0, 0)
++                        end
++                        gfx.fillRect((col0 + x - 1) * 2, (row0 + y - 1) * 2, (last - x + 1) * 2, 2)
++                    end
++                    x = last + 1
++                end
++            end
++        end
++    end
++    Shade.reset()
++    gfx.popContext()
++    return image
++end
+ local tonePolicy
+ function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
+     if tonePolicy == nil then
+@@ -171,6 +234,10 @@ function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
+             assert(type(value) == "number" and value % 1 == 0 and value >= 0 and value <= 255, "invalid tone byte")
+         end
+     end
++    local quads = palletQuadrants(sourceKey)
++    if quads then
++        return renderPalletTone(rows, quads, policy)
++    end
+     local gfx <const> = playdate.graphics
+     local ok, compiled = pcall(compiledTerrainImage, rows, policy, renderer, sourceKey)
+     if ok and compiled then
