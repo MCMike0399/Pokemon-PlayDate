@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "25d3739e08104fce01a1814b2a48c63f08989677",
+    "source_sha256": "776a0895d47c37c8c8f3b62ecc9991bc47316c0b064d7799ad7612fffa17b8a7",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after contact receipts stay visible and catalog cells are sampled one tile at a time. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 64dac2f750b802a99e916d00b06aa490d8142ae52c069ae23a7d3effe33b1659.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "f036d38c17d5a2db4ca5d47d09c38369d29a6a22",
     "source_sha256": "64dac2f750b802a99e916d00b06aa490d8142ae52c069ae23a7d3effe33b1659",
     "policy_date": "2026-11-13",
@@ -1324,6 +1335,7 @@
         }
       }
     }
+  }
   }
   }
   }
