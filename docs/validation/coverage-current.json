@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "5666ef536252da905435d42acf7147ddecd62222",
+    "source_sha256": "b73cc628754a0b60e5868f6d5aa93206f0a9023a75b77c812d8f4537da3a8651",
+    "policy_date": "2026-11-13",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after pickup text fills only the name buffer it reads. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 aed0f0a1537e8adf4523df4cecd248bc1c849222f7e8694d6cf92d7eb8b9fcd8.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "de2450e28ec5ca861f03004f03c01be4a64d1573",
     "source_sha256": "aed0f0a1537e8adf4523df4cecd248bc1c849222f7e8694d6cf92d7eb8b9fcd8",
     "policy_date": "2026-11-13",
@@ -1357,6 +1368,7 @@
         }
       }
     }
+  }
   }
   }
   }
