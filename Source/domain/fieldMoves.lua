@@ -29,6 +29,7 @@ local function readPart(name)
 end
 local function readData()
     if not combined[1] then
+        collectgarbage("collect")
         local value = assert(json.decodeFile("data/fieldMoves.json"))
         assert(value.schema == 1 and value.source_revision == revision, "unverified field move data")
         combined[1] = value
@@ -63,6 +64,11 @@ function FieldMoves.prepareMap(id)
 end
 function FieldMoves.data()
     return copy(readData())
+end
+function FieldMoves.sourceRevision()
+    -- validDarknessInput compares this constant. Decoding fieldMoves.json
+    -- (every map) just to read the same scalar does not fit beside a city view.
+    return revision
 end
 function FieldMoves._mapData(id)
     return readMap(id)
