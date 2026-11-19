@@ -2445,10 +2445,12 @@ class CharmanderRun(BrockJourney):
         self.summary["acceptance"] = "walking toward the Route 22 rival"
         self._arrange_lead("starter")
         # Giovanni arms the second fight. The first rival was never battled,
-        # so the trigger tiles no-op. BLUE at (25, 5) is the real challenge.
-        rival = "pokered:ROUTE_22:objects:2"
+        # so the trigger tiles no-op. BLUE walks east along y=5; stand above
+        # him so that walk is clear, then talk.
         self.travel(self.zone("Route22"))
-        self.interact(source_id=rival)
+        self.navigate((25, 4))
+        self.face("down")
+        self.send("press a", "wait 8")
         self.drain()
         if not self.flag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE"):
             raise ProtocolError("Route 22 rival did not start: " + self._map_name() + " " + str(self.position()))
