@@ -2077,6 +2077,8 @@ class CharmanderRun(BrockJourney):
         self.face("up")
         before = self.flag("EVENT_MANSION_SWITCH_ON")
         self.send("press a")
+        if self.state.get("root") == "overworld":
+            self.send("wait 12")
         self.drain()
         if self.flag("EVENT_MANSION_SWITCH_ON") == before:
             raise ProtocolError("mansion switch did not toggle at " + str(stand))
@@ -2131,6 +2133,8 @@ class CharmanderRun(BrockJourney):
         self._quiz_answer = answer
         self._quiz_armed = False
         self.send("press a")
+        if self.state.get("root") == "overworld":
+            self.send("wait 12")
         self.drain()
         if not self.flag(flag):
             raise ProtocolError("Cinnabar quiz did not open " + flag)
