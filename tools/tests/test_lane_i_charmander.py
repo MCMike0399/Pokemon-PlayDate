@@ -1553,6 +1553,8 @@ class CharmanderRun(BrockJourney):
     def _cross_edge(self, direction):
         """Walk onto the nearest passable header edge and take that connection."""
         from tools.harness.cerulean_journey import connection_projection
+        # A cut tree stays open in the save. The planner starts from the authored wall.
+        self.apply_world_observation(self.observe("vermilion-world"))
         model = self.model()
         if direction == "down":
             points = [(x, model.height - 1) for x in range(model.width)]
@@ -1611,6 +1613,9 @@ class CharmanderRun(BrockJourney):
                 self.warp(self.zone("CeruleanCity"))
                 continue
             if "CERULEAN" in zone:
+                self.apply_world_observation(self.observe("vermilion-world"))
+                if self.model().collision[28][19]:
+                    self._cut_tree("CeruleanCity", (19, 28))
                 self._cross_edge("down")
                 continue
             if self._on("Route5Gate"):
