@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Shift question, Red's back, and the Route 22 lease
+
+pret/pokered prints `_TrainerAboutToUseText` and then `TWO_OPTION_MENU`. The announcement is its own page. The question is `Will <PLAYER>` / `change #MON?` in the GB font beside YES/NO. Red's back sprite stays on the player platform until the first send-out. The second Route 22 rival walks and then battles in one event. The walk lease is released before `TrainerEvents` claims the actor, so the script no longer stops at `source-actor-already-claimed`. Source-event parity did not touch that lease. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Source-event parity finishes inside the budget
 
 The parity sweep keeps one observation per event and fills every discovered item on every flag bit and variant. `itemIDs` records tables it has already walked, so a shared descriptor is not visited twice. The device suite scored 84/0 in 81s. Main's seven `wNameBuffer` parity failures are cleared, and no main-passing test failed. `MallocPoolSize` stays 16645684.

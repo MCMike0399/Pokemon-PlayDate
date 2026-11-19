@@ -504,7 +504,9 @@ function BattlePresentationContracts.run()
             return battle:finishRound()
         end)
         settle(battle, scene, true)
-        local prompt = "BLUE is about to use GYARADOS!\nWill RED change POKéMON?"
+        -- The announcement is the previous page. This page is the question
+        -- beside YES/NO. pokered breaks before "change #MON?".
+        local prompt = "Will RED\nchange POKéMON?"
         equal(battle.message, prompt)
         equal(scene.shiftMenu.options[1], "YES")
         equal(scene.shiftMenu.options[2], "NO")
@@ -513,28 +515,25 @@ function BattlePresentationContracts.run()
         gfx.pushContext(image)
         scene:drawBattleField()
         gfx.popContext()
-        equal(scene.textCache["shift-prompt"].text, prompt)
-        local font = gfx.getSystemFont()
-        local page = SourceTextFont.paginate(prompt, font, 276)[1]
-        equal(page, prompt)
-        local glyph = gfx.image.new(16, 16, gfx.kColorWhite)
+        local glyph = gfx.image.new(TitleIdle.COL, TitleIdle.ROW, gfx.kColorWhite)
         gfx.pushContext(glyph)
         gfx.setDrawOffset(0, 0)
-        SourceTextFont.draw("é", 0, 0, font)
+        GbFont.drawChar("é", 0, 0)
         gfx.popContext()
         local blacks, anchorX, anchorY = 0, nil, nil
-        for gy = 0, 15 do
-            for gx = 0, 15 do
+        for gy = 0, TitleIdle.ROW - 1 do
+            for gx = 0, TitleIdle.COL - 1 do
                 if glyph:sample(gx, gy) == gfx.kColorBlack then
                     blacks = blacks + 1
                     if not anchorX then anchorX, anchorY = gx, gy end
                 end
             end
         end
-        assert(blacks > 20, "pokered é glyph has ink")
+        assert(blacks > 4, "pokered é glyph has ink")
         local function patternAt(ox, oy)
-            for gy = 0, 15 do
-                for gx = 0, 15 do
+            for gy = 0, TitleIdle.ROW - 1 do
+                for gx = 0, TitleIdle.COL - 1 do
+                    if ox + gx < 0 or oy + gy < 0 or ox + gx >= 400 or oy + gy >= 240 then return false end
                     if glyph:sample(gx, gy) ~= image:sample(ox + gx, oy + gy) then
                         return false
                     end
@@ -542,11 +541,10 @@ function BattlePresentationContracts.run()
             end
             return true
         end
-        -- The system font has no é (charmap $ba). The prompt must contain
-        -- the pinned font.png glyph, not a missing-glyph box.
+        -- GbFont draws charmap $ba. The question must contain that glyph.
         local found = false
-        for y = 188, 224 do
-            for x = 14, 270 do
+        for y = 160, 230 do
+            for x = 0, 360 do
                 if image:sample(x, y) == gfx.kColorBlack
                     and patternAt(x - anchorX, y - anchorY) then
                     found = true

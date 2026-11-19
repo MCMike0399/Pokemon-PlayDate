@@ -530,6 +530,14 @@ function BattleScene:drawBattleField()
     if self.playerShown and not self:isFaintSlide("player")
         and not (flashHide and self.battle.attackerSide == "enemy") then
         self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
+    elseif not self.playerIntroDone then
+        -- pokered draws Red's back on the player platform until the first
+        -- send-out. The platform was empty through "wants to battle!".
+        local sendingPlayer = self.activePresentation and self.activePresentation.kind == "sendout"
+            and self.activePresentation.details and self.activePresentation.details.side == "player"
+        if not sendingPlayer then
+            self:drawPlayerBack()
+        end
     end
 
     -- Draw platforms on top of resting sprites. A faint slide is drawn after
@@ -653,7 +661,11 @@ function BattleScene:drawBattleField()
 
     if self.battle.shiftChoice then
         -- pokered _TrainerAboutToUseText plus the YES/NO box (TWO_OPTION_MENU).
-        self:_wrapped("shift-prompt", self.battle.message or "", 276, 44).image:draw(14, boxY + 8)
+        -- The question stays in the GB font, beside the menu, not in the
+        -- system font after the typewriter.
+        if self.messageDialog.lines and self.messageDialog.lines[1] then
+            self.messageDialog:draw(true)
+        end
         self.shiftMenu:draw(300, boxY + 4, 92, 52)
     -- pret/pokered af519899 finishes the HP bar before the command list.
     -- updateVitals has already run on the resume that applies the damage
@@ -955,6 +967,9 @@ function BattleScene:updateVisualEvent(request)
         self.trainerVisible = false
     elseif request.kind == "sendout" then
         self[request.details.side .. "Shown"] = request.details.pokemon
+        if request.details.side == "player" then
+            self.playerIntroDone = true
+        end
     elseif request.kind == "recall" or request.kind == "faint" then
         self[request.details.side .. "Shown"] = nil
     end
@@ -1037,6 +1052,16 @@ function BattleScene:drawLevelStats()
     for index, row in ipairs(BattleScene.levelStatLines(box)) do
         gfx.drawText(string.format("%-8s%3d", row.label, row.value), x + 10, y + 8 + (index - 1) * 22)
     end
+end
+
+function BattleScene:drawPlayerBack()
+    if self.playerBackImage == nil then
+        self.playerBackImage = gfx.image.new("images/player/red-pic-back") or false
+    end
+    if not self.playerBackImage then return end
+    local _, h = self.playerBackImage:getSize()
+    -- The player platform's top edge is y 150. Stand Red on it.
+    self.playerBackImage:draw(40, 150 - h)
 end
 
 function BattleScene:drawTrainer()
