@@ -1693,8 +1693,11 @@ function Battle:_registerFaints(lastFaintedSide)
         if not pokemon:isAlive() and not self.faintAnnounced[side] then
             self.faintAnnounced[side] = true
             changed=true
-            self:say(pokemon.name .. " fainted!")
+            -- present() does not start the slide until isVitalsBlocking() is false,
+            -- which is the bar reaching the authoritative HP. The line is
+            -- printed only after the drain and the slide.
             self:present("faint", {side = side, pokemon = pokemon})
+            self:say(pokemon.name .. " fainted!")
         end
     end
     return lastFaintedSide,changed
