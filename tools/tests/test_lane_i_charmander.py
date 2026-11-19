@@ -2384,8 +2384,13 @@ class CharmanderRun(BrockJourney):
         if self.flag("BADGE_EARTH"):
             if self._on("ViridianGym"):
                 self._leave_viridian_gym()
-            self.heal_here("ViridianPokecenter")
-            self.save()
+            # A save already on the league road must not walk back to Viridian.
+            if not any(token in (self._map_name() or "") for token in (
+                    "ROUTE_22", "ROUTE_23", "VICTORY_ROAD", "INDIGO_PLATEAU",
+                    "LORELEIS_ROOM", "BRUNOS_ROOM", "AGATHAS_ROOM", "LANCES_ROOM",
+                    "CHAMPIONS_ROOM", "HALL_OF_FAME")):
+                self.heal_here("ViridianPokecenter")
+                self.save()
             self.summary.update(acceptance="Earth Badge earned", natural=True, forbidden_shortcuts=False)
             self._toward_league()
             return
@@ -2443,6 +2448,7 @@ class CharmanderRun(BrockJourney):
         """The second rival stands on Route 22. The badge gates are the next road."""
         if self.flag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE"):
             self.summary.update(acceptance="Route 22 rival defeated", natural=True, forbidden_shortcuts=False)
+            self._climb_route23()
             return
         self.summary["acceptance"] = "walking toward the Route 22 rival"
         self._arrange_lead("starter")
@@ -2466,6 +2472,80 @@ class CharmanderRun(BrockJourney):
         self.heal_here("ViridianPokecenter")
         self.save()
         self.summary.update(acceptance="Route 22 rival defeated", natural=True, forbidden_shortcuts=False)
+        self._climb_route23()
+
+    def _cell_kind(self, x, y):
+        """Land is ordinary collision. Route 23 water uses the surf foot tile."""
+        model = self.model()
+        if not model.inside((x, y)):
+            return None
+        if model.collision[y][x] == 0:
+            return "land"
+        if model.feet[y][x] == 0x14:
+            return "water"
+        return None
+
+    def _follow_route(self, goals):
+        """Walk land and surf the gaps. Replan after every step, guard, and wild flee."""
+        from collections import deque
+        goals = set(goals)
+        for _ in range(800):
+            if not self._on("Route23"):
+                return
+            if self.position() in goals:
+                return
+            model = self.model()
+            start = self.position()
+            blocked = set(self.occupied()) | set(model.warps)
+            blocked -= goals
+            blocked.discard(start)
+            queue, prev = deque([start]), {start: None}
+            found = None
+            while queue:
+                x, y = queue.popleft()
+                for dx, dy, name in ((0, -1, "up"), (0, 1, "down"), (1, 0, "right"), (-1, 0, "left")):
+                    nxt = (x + dx, y + dy)
+                    if nxt in prev or nxt in blocked or self._cell_kind(*nxt) is None:
+                        continue
+                    prev[nxt] = ((x, y), name)
+                    queue.append(nxt)
+                    if nxt in goals:
+                        found = nxt
+                        queue.clear()
+                        break
+            if found is None:
+                raise ProtocolError("no Route 23 path from " + str(start))
+            step_name, nxt = None, found
+            while prev[nxt] is not None:
+                parent, step_name = prev[nxt]
+                landing, nxt = nxt, parent
+            here, there = self._cell_kind(*start), self._cell_kind(*landing)
+            before = self.position()
+            if here == "land" and there == "water":
+                self.face(step_name)
+                if (self.observe("midgame-state").get("fieldTravel") or {}).get("mode") != "surfing":
+                    index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+                    self.use_field(index, "surf")
+                self._surf_press(step_name, 1)
+            elif here == "water":
+                self._surf_press(step_name, 1)
+            elif not self._step(step_name):
+                raise ProtocolError("Route 23 step stayed at " + str(before))
+        else:
+            raise ProtocolError("Route 23 walk exceeded its step bound at " + str(self.position()))
+
+    def _climb_route23(self):
+        """Badge gates, then the south door of Victory Road. Save on the mat."""
+        self.summary["acceptance"] = "walking Route 23 toward Victory Road"
+        self._arrange_lead("starter")
+        if not self._on("Route23"):
+            self.travel(self.zone("Route23"))
+        # (4, 31) is the 1F door. Stand on the tile south of it.
+        self._follow_route({(4, 32)})
+        if not self._on("Route23") or self.position() != (4, 32):
+            raise ProtocolError("Victory Road entrance missed: " + self._map_name() + " " + str(self.position()))
+        self.save()
+        self.summary.update(acceptance="Victory Road entrance", natural=True, forbidden_shortcuts=False)
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
