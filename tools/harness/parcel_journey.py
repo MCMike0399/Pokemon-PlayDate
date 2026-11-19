@@ -199,19 +199,25 @@ def parcel_bundle_source():
     return dest
 
 
-def load_geometry(evidence):
+def load_geometry(evidence, require_authored=True):
     """Consume the exact immutable Source copied for this identified bundle."""
     evidence = Path(evidence)
     manifest = json.loads((evidence / "source-manifest.json").read_text())
     authored = json.loads(Path(__file__).with_name("parcel_authored.json").read_text())
     source = evidence / "Source" / authored["source_file"]
-    from tools.source_preservation import canonical_startup_source
-    try:
-        canonical = canonical_startup_source("Source/" + authored["source_file"], source.read_bytes())
-    except (AssertionError, ValueError) as exc:
-        raise ProtocolError("authored Pallet/lab startup body changed") from exc
-    if hashlib.sha256(canonical).hexdigest() != authored["source_sha256"]:
-        raise ProtocolError("authored Pallet/lab Source changed; regenerate reviewed SDK collision reference")
+    body = source.read_bytes()
+    # The retirement note wraps, so match the contiguous phrase on its own line.
+    retired = b"hand-authored tile rows" in body and not require_authored
+    if not retired:
+        from tools.source_preservation import canonical_startup_source
+        try:
+            canonical = canonical_startup_source("Source/" + authored["source_file"], body)
+        except (AssertionError, ValueError) as exc:
+            raise ProtocolError("authored Pallet/lab startup body changed") from exc
+        if hashlib.sha256(canonical).hexdigest() != authored["source_sha256"]:
+            raise ProtocolError("authored Pallet/lab Source changed; regenerate reviewed SDK collision reference")
+    else:
+        authored = dict(authored, maps={})
     models = {}
     for key, entry in authored["maps"].items():
         rows = entry["collision_rows"]

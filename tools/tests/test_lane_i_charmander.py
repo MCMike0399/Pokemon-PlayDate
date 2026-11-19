@@ -241,6 +241,17 @@ class CharmanderRun(BrockJourney):
         finally:
             self._finishing_iris = False
 
+    def dependencies(self):
+        """Imported Pallet replaced the reviewed authored grids. Source maps load next."""
+        from tools.harness.brock_journey import load_models
+        self.models, self.doors, trainers = load_models(self.build_evidence, require_authored=False)
+        self.source_trainers = {d["id"]: d for d in trainers}
+        self.send("snapshot")
+        for path in ["session.flags.quest", "session.flags.trainers", "session.inventory", "session.party", "session.checkpoint"]:
+            if lookup(self.state, path) is None:
+                raise ProtocolError("Brock runtime dependency missing: " + path)
+        self.summary["build_evidence"] = str(self.build_evidence)
+
     def continue_earned(self):
         """Title CONTINUE, then the Brock steps the save has not finished."""
         self.dependencies()

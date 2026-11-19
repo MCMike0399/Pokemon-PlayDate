@@ -180,8 +180,8 @@ class SourceGeometry(Geometry):
         raise ProtocolError(f'no source-valid Brock path in {self.name}: {origin}->{sorted(goals)}')
 
 
-def load_models(build):
-    build=Path(build);models=load_geometry(build);manifest=json.loads((build/'source-manifest.json').read_text())
+def load_models(build, require_authored=True):
+    build=Path(build);models=load_geometry(build, require_authored=require_authored);manifest=json.loads((build/'source-manifest.json').read_text())
     def read(relative):
         path=build/'Source'/relative
         if hashlib.sha256(path.read_bytes()).hexdigest()!=manifest.get(relative):raise ProtocolError('compiled source data hash mismatch: '+relative)
