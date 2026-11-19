@@ -251,6 +251,20 @@ local function generateBaseImages()
     return tiles
 end
 
+-- One tile image, without an imagetable. Catalog cell probes sample this.
+-- An imagetable for every isolated map is the allocation that fragments the
+-- pool before the last houses are built.
+function TileFactory.image(registry, id)
+    if not baseImages then
+        baseImages = generateBaseImages()
+    end
+    if id <= NUM_TILE_TYPES then
+        return baseImages:getImage(id)
+    end
+    assert(registry, "imported tile image requires its registry")
+    return registry:renderImported(id, TileFactory.renderGrid)
+end
+
 function TileFactory.generateAll(registry)
     if not baseImages then
         baseImages = generateBaseImages()
