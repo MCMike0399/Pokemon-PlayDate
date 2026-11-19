@@ -1587,3 +1587,15 @@ sha256
 `bb29844f2c9395d8a0e5464f3fe9b8b72fe9ece8264111920e68400b271b06e1`.
 Venusaur is 61 with 180 HP. Bellsprout is 24, Pidgeotto is 35,
 Drowzee is 24, Sandshrew is 14, and Poliwag is 15. Money is 2391.
+
+## Pallet fly id blocks the same save
+
+Lane E's tip `310e0d36` is merged. `pokered:VICTORY_ROAD_2F:objects:13`
+is no longer in `VISIBILITY`, so the Route 23 toggle does not hide the
+puzzle boulder. The title menu still will not continue sequence 577.
+`fieldTravel.visited` contains `pallet_town`, and the fly table now
+allows only `pokered:PALLET_TOWN`. `FieldTravel.normalize` reports
+`unknown or duplicate Fly city`, both slots are corrupt, and the menu
+is NEW GAME / OPTION. The save was not rewritten. The alias is
+`tools/notes/lane-e-pallet-fly-alias.patch` with
+`tools/tests/test_lane_e_pallet_fly_alias.py`. It is not applied.
