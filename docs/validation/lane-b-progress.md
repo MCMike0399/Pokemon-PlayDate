@@ -1766,3 +1766,12 @@ The party is full: Venusaur L62 194/194, Bellsprout L24 58/58,
 Pidgeotto L35 96/96, Drowzee L24 69/69, Sandshrew L14 41/41, Poliwag
 L24 53/53. Money is still 298. Training walks Pidgeotto to Route 23
 grass. The HP-drain patch stays unapplied for lane E.
+
+## Pidgeot is level 36
+
+Route 23 Ditto XP evolved Pidgeotto. It fainted afterward and the nurse
+healed it again. Sequence 703 is Viridian City `(23, 26)` facing down,
+sha256 `83af5269cb16e2253b809ec096767bb3c57ee9c17e1e3c4b445ed50cc13d84da`.
+Pidgeot is L36 at 113/113 with 40513 XP. Venusaur is 194/194. Money is
+still 298. The walk back to the Route 23 grass is underway. Two backups
+are not yet level 40, and Lorelei has not been fought again.
