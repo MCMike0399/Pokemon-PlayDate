@@ -1524,4 +1524,11 @@ Poké Center `(23, 26)`, sha256
 `4cfb6d1a355ae022a58ae22f76504bb2646ed603c23f3a3d1d70b284abb81c1c`.
 Venusaur is 60 with 188 HP. Bellsprout is 24. Pidgeotto is 35.
 Drowzee is 24, Sandshrew is 14, and Poliwag is 10. Hyper Potions are
-spent. Play is on Route 23 toward Victory Road.
+spent. The Center heal walked onto Route 23 and into Victory Road.
+
+Sequence 440 is inside Victory Road 1F `(2, 10)` facing up, sha256
+`b675427c30db9f05e4d2dda6c6a61d0f531662526d4fa8279ac6ef48ae7e3cf2`.
+Strength is on. The boulder that started at `(2, 10)` now sits at
+`(2, 9)`, and a further push north does not move it. The lobby path
+goes through that cell, so the walk stops there. The 1F switch is
+`(17, 13)` and is not set.
