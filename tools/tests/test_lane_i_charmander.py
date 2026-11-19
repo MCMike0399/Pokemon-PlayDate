@@ -1777,7 +1777,7 @@ class CharmanderRun(BrockJourney):
         return "east"
 
     def _cross_seafoam(self):
-        """The faithful rock splits Route 20. The stairs join the two shores."""
+        """The faithful rock splits Route 20. Surfing B3F joins the two shores."""
         if self._on("Route20") and self._route20_side() == "east":
             self._surf_follow([(62, y) for y in range(2, 6)])
             if self.position()[0] == 62:
@@ -1800,23 +1800,40 @@ class CharmanderRun(BrockJourney):
             self._surf_off("left")
 
     def _seafoam_stairs(self):
+        """The east door meets the west door by surfing B3F. The B4F drop stays closed."""
         stairs = (
             ("SeafoamIslands1F", 5, "SeafoamIslandsB1F"),
-            ("SeafoamIslandsB1F", 1, "SeafoamIslandsB2F"),
+            ("SeafoamIslandsB1F", 3, "SeafoamIslandsB2F"),
             ("SeafoamIslandsB2F", 2, "SeafoamIslandsB3F"),
-            ("SeafoamIslandsB3F", 2, "SeafoamIslandsB4F"),
-            ("SeafoamIslandsB4F", 4, "SeafoamIslandsB3F"),
-            ("SeafoamIslandsB3F", 4, "SeafoamIslandsB2F"),
-            ("SeafoamIslandsB2F", 6, "SeafoamIslandsB1F"),
-            ("SeafoamIslandsB1F", 5, "SeafoamIslands1F"),
         )
         for source, index, target in stairs:
             if not self._on(source):
                 raise ProtocolError("Seafoam stairs expected " + source + " and found " + self._map_name())
             self.warp(self.zone(target), self.zone(source) + ":warps:" + str(index))
+        if not self._on("SeafoamIslandsB3F"):
+            raise ProtocolError("Seafoam stairs missed the channel: " + self._map_name())
+        self._surf_b3_channel()
+        self.warp(self.zone("SeafoamIslandsB2F"), self.zone("SeafoamIslandsB3F") + ":warps:5")
+        self.warp(self.zone("SeafoamIslandsB1F"), self.zone("SeafoamIslandsB2F") + ":warps:6")
+        self.warp(self.zone("SeafoamIslands1F"), self.zone("SeafoamIslandsB1F") + ":warps:5")
         if not self._on("SeafoamIslands1F") or self.position()[0] < 20:
             raise ProtocolError("Seafoam stairs missed the west shore: " + self._map_name() + " " + str(self.position()))
         self.warp(self.zone("Route20"), self.zone("SeafoamIslands1F") + ":warps:3")
+
+    def _surf_b3_channel(self):
+        """B3F's east stair is across cavern water. Foot $14 stays solid until Surf."""
+        self.navigate((15, 7))
+        self.face("down")
+        index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+        self.use_field(index, "surf")
+        if self.position() == (15, 7):
+            self._surf_press("down", 1)
+        if self.position() != (15, 8):
+            raise ProtocolError("B3F channel did not take Surf: " + str(self.position()))
+        self._surf_follow([(23, 10)])
+        self._surf_press("up", 1)
+        if self.position() != (23, 9):
+            raise ProtocolError("B3F channel did not reach the east bank: " + str(self.position()))
 
     def _surf_press(self, direction, count):
         for _ in range(count):
