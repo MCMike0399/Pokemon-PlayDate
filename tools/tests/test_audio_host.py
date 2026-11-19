@@ -319,7 +319,7 @@ class ObserverGapTests(unittest.TestCase):
     def test_ball_poof_plays_on_absorb_and_breakout(self):
         calls = observe('ball-poof')
         sfx = [call[1] for call in calls if call[0] == 'sfx']
-        self.assertEqual(sfx, ['ball_poof', 'ball_poof'])
+        self.assertEqual(sfx, ['ball_toss', 'ball_poof', 'ball_poof'])
 
     def test_teleport_spins_follow_the_pad_and_the_escape_rope(self):
         calls = observe('teleport')
@@ -336,6 +336,37 @@ class ObserverGapTests(unittest.TestCase):
         self.assertNotIn('sound_cry_dewgong', audio)
         nidorina = [call for call in observe('nidorina') if call[0] == 'cry']
         self.assertEqual(nidorina, [('cry', 'nidorina')])
+
+    def test_fly_plays_on_the_way_out_and_on_arrival(self):
+        calls = observe('fly')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['fly', 'fly'])
+
+    def test_a_blocked_step_plays_collision_once_while_it_is_sounding(self):
+        calls = observe('collision')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['collision'])
+
+    def test_running_plays_sfx_run_once(self):
+        calls = observe('run')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['run'])
+
+    def test_pound_plays_its_move_row(self):
+        calls = observe('pound')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['move_pound'])
+
+    def test_the_ss_anne_horn_follows_the_ship_cue_list(self):
+        calls = observe('ship-horn')
+        self.assertIn(('music', 'nil'), calls)
+        self.assertIn(('music', 'surfing'), calls)
+        self.assertEqual([call for call in calls if call == ('sfx', 'anne_horn')], [('sfx', 'anne_horn')])
+
+    def test_a_party_reorder_plays_swap(self):
+        calls = observe('party-swap')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['swap'])
         pidgeot = [call for call in observe('pidgeot') if call[0] == 'cry']
         self.assertEqual(pidgeot, [('cry', 'pidgeot')])
 

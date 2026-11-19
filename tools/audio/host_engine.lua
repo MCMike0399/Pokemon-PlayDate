@@ -452,6 +452,64 @@ local function observe(kind)
         currentZone = {stableID = "pokered:SAFFRON_CITY"}
         KantoAudio.updateGame(game)
         KantoAudio.updateGame(game)
+    elseif kind == "fly" then
+        local travel = {name = "fieldTravel", key = "fly", phase = "announce"}
+        local game = gameWith({{name = "overworld"}, travel})
+        currentZone = {stableID = "pokered:PALLET_TOWN"}
+        KantoAudio.updateGame(game)
+        travel.phase = "fade"
+        KantoAudio.updateGame(game)
+        game.lastFieldTravel = {key = "fly", kind = "complete"}
+        travel.phase = "closed"
+        KantoAudio.updateGame(game)
+    elseif kind == "collision" then
+        local player = {}
+        local game = gameWith({{name = "overworld"}})
+        game.player = player
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+        player.lastTraversalBlock = {kind = "terrain", id = "wall"}
+        KantoAudio.updateGame(game)
+        player.lastTraversalBlock = {kind = "terrain", id = "wall-again"}
+        KantoAudio.updateGame(game)
+    elseif kind == "run" then
+        local battle = {
+            enemy = {hp = 10, maxHP = 10, species = "rattata"},
+            player = {hp = 10, maxHP = 10, species = "pikachu", level = 5},
+        }
+        local game = gameWith({{name = "battle", battle = battle}})
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+        battle.outcome = "run"
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "pound" then
+        local battle = {
+            enemy = {hp = 20, maxHP = 20, species = "rattata"},
+            player = {hp = 20, maxHP = 20, species = "pikachu", level = 5},
+            currentMoveKey = "pound",
+        }
+        local game = gameWith({{name = "battle", battle = battle}})
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+    elseif kind == "ship-horn" then
+        local ship = {cues = {
+            {symbol = "SFX_STOP_ALL_MUSIC"},
+            {symbol = "MUSIC_SURFING"},
+            {symbol = "SFX_SS_ANNE_HORN"},
+        }}
+        local event = {name = "event", vermilionShip = ship}
+        local game = gameWith({{name = "overworld"}, event})
+        currentZone = {stableID = "pokered:PALLET_TOWN"}
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "party-swap" then
+        local party = {name = "party", phase = "swap"}
+        local game = gameWith({{name = "overworld"}, party})
+        currentZone = {stableID = "pokered:PALLET_TOWN"}
+        KantoAudio.updateGame(game)
+        party.phase = "list"
+        KantoAudio.updateGame(game)
     elseif kind == "ceremony" then
         local event = {name = "event", phase = "hall-photo"}
         local game = gameWith({{name = "overworld"}, event})

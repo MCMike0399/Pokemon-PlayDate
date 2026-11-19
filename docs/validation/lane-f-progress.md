@@ -151,9 +151,13 @@ Text cries, from `home/text.asm` `TextCommand_SOUND`. `sound_cry_dewgong` is unu
 | `nidorina` | `TX_SOUND_CRY_NIDORINA`, between oak speech text 2A and 2B. The opening dialog's "For some people," line, while the title is still up. |
 | `pidgeot` | `sound_cry_pidgeot` after `_SaffronCityPidgeotText`. A Saffron line that starts with `PIDGEOT:`. |
 
+The full constant sweep is `docs/validation/lane-f-coverage.md`. Of the constants pokered defines, 181 are played, 3 are in the unapplied lane-E patch, and 20 are still missing. `SFX_59` and `SFX_BATTLE_16` are unused and are not in those counts.
+
+This pass plays `SFX_FLY` on the field-Fly fade and again on arrival, `SFX_BALL_TOSS` when a capture throw starts, `SFX_RUN` once when the outcome is a run, `SFX_COLLISION` on a new blocked step, `SFX_SS_ANNE_HORN` from the ship's cue list (which also stops the bed and starts `MUSIC_SURFING`), and `SFX_SWAP` when the party menu leaves the swap phase. Every `data/moves/sfx.asm` row plays from `battle.currentMoveKey` through `Source/audio/moveSfx.lua`. Agility, Kinesis, Transform, and Dizzy Punch still use the pitched faint-fall scores.
+
 Still missing:
 
-- Hall of Fame cries and the flute, spinner, and denied cues still need the lane E import. `tools/notes/lane-e-audio-gaps.patch` is unapplied. The coverage-matrix fingerprint is `tools/notes/lane-e-coverage-fingerprint.patch` (`5883c3284cd79f46882ed9f91ec660faa5b3516c9b3821f664a447bf209951e7`). This lane does not rewrite that snapshot.
+- Hall of Fame cries and the flute, spinner, and denied cues still need the lane E import. `tools/notes/lane-e-audio-gaps.patch` is unapplied. The coverage-matrix fingerprint is `tools/notes/lane-e-coverage-fingerprint.patch` (`4f3418170437e69713da081c9bf86ebf3fa214f57575eb61e9638eff755f168a`). This lane does not rewrite that snapshot.
 - Field Dig and field Teleport are not a ported command, so they do not set `lastFieldItem`. The escape rope uses their pokered sound sequence.
-- `SFX_FLY` is the fly animation. It was not part of this gap list.
-- The fight intro is still not drawn. The star and the lunge are only the sounds, on the title clock.
+- The fight intro is still not drawn. The star and the lunge are only the sounds, on the title clock. `MUSIC_INTRO_BATTLE`, `SFX_INTRO_HIP`, `SFX_INTRO_HOP`, and `SFX_INTRO_RAISE` stay silent with it.
+- The other missing constants have no visible field: museum guy, Jigglypuff's song, bag heal sounds, the dex rating and new dex page, poison ticks, the trade machine, shrink, switch, museum and daycare purchase, save, the Safari PA, and the three slot-machine sounds. The list and the pokered sites are in the coverage doc.

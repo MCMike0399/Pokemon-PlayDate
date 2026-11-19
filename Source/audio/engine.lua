@@ -41,6 +41,12 @@ local priorities <const> = {
     teleport_exit_2 = 3,
     teleport_enter_2 = 3,
     ball_poof = 2,
+    ball_toss = 2,
+    run = 2,
+    collision = 2,
+    swap = 2,
+    fly = 3,
+    anne_horn = 3,
     menu = 3,
     start_menu = 3,
     go_inside = 3,
@@ -325,6 +331,18 @@ function KantoSynth.scoreTicks(name)
     return ensureScore(name).ticks
 end
 
+-- Move rows share priority 2. Their names are move_<key>, not cue names.
+local function sfxPriority(name)
+    local known = priorities[name]
+    if known then
+        return known
+    end
+    if type(name) == "string" and name:sub(1, 5) == "move_" then
+        return 2
+    end
+    return nil
+end
+
 function KantoSynth.sfx(name)
     init()
     local now = sound.getCurrentTime()
@@ -333,8 +351,9 @@ function KantoSynth.sfx(name)
     if name == "heal" then
         layers.jingle = layer(name, now)
     else
-        local priority = assert(priorities[name], "unknown Kanto SFX")
-        if layers.sfx and priorities[layers.sfx.name] < priority then
+        local priority = assert(sfxPriority(name), "unknown Kanto SFX")
+        local playing = layers.sfx and sfxPriority(layers.sfx.name)
+        if playing and playing < priority then
             return false
         end
         layers.sfx = layer(name, now)

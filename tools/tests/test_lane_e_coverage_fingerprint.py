@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CREDITS_AUDIO_FINGERPRINT = '5883c3284cd79f46882ed9f91ec660faa5b3516c9b3821f664a447bf209951e7'
+CREDITS_AUDIO_FINGERPRINT = '4f3418170437e69713da081c9bf86ebf3fa214f57575eb61e9638eff755f168a'
 
 
 class LaneECoverageFingerprintTests(unittest.TestCase):

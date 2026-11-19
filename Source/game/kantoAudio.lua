@@ -40,14 +40,6 @@ local ROUTE22_LEAGUE_LINE <const> = "That loosened me"
 -- home/text.asm TextCommand_SOUND. Dewgong's byte is unused, so it is not played.
 local NIDORINA_LINE <const> = "For some people,"
 local PIDGEOT_LINE <const> = "PIDGEOT:"
--- GetMoveSound pitch/tempo rows in data/moves/sfx.asm. The unpitched fall
--- stays the trainer faint. These play when the move animation starts.
-local PITCHED_FALL <const> = {
-    agility = "faint_fall_agility",
-    kinesis = "faint_fall_kinesis",
-    transform = "faint_fall_transform",
-    dizzyPunch = "faint_fall_dizzy_punch",
-}
 
 local function battleInfo(battle, zone)
     return {
@@ -254,6 +246,13 @@ local function enqueueSFX(name, frames)
     observer.sfxQueue[#observer.sfxQueue + 1] = {name = name, frames = frames}
 end
 
+local function moveScore(key)
+    if not KantoMoveSfx then
+        import "audio/moveSfx"
+    end
+    return KantoMoveSfx[key]
+end
+
 local function playSequence(names)
     KantoAudio.playSFX(names[1])
     local wait = sfxFrames(names[1])
@@ -439,6 +438,18 @@ function KantoAudio.updateGame(game)
             observer.travel = lastTravel
             KantoAudio.setTraversal(lastTravel.mode)
         end
+        -- EnterMapAnim and LeaveMapAnim each play SFX_FLY when BIT_USED_FLY is set.
+        local fieldTravel = game.machine:get("fieldTravel")
+        local flyPhase = fieldTravel and fieldTravel.key == "fly" and fieldTravel.phase or nil
+        if flyPhase == "fade" and observer.flyPhase ~= "fade" then
+            KantoAudio.playSFX("fly")
+        end
+        observer.flyPhase = flyPhase
+        if lastTravel and lastTravel ~= observer.flyReceipt and lastTravel.key == "fly"
+            and lastTravel.kind == "complete" then
+            observer.flyReceipt = lastTravel
+            KantoAudio.playSFX("fly")
+        end
         local lastGear = game.lastFieldGear
         if lastGear and lastGear ~= observer.gear and lastGear.kind == "bicycle" then
             observer.gear = lastGear
@@ -465,6 +476,7 @@ function KantoAudio.updateGame(game)
             observer.enemyShown = nil
             observer.moveKey = nil
             observer.capturePhase = nil
+            observer.ran = nil
             observer.victory = nil
             observer.caught = nil
             observer.level = nil
@@ -523,20 +535,24 @@ function KantoAudio.updateGame(game)
             elseif battle.outcome == "caught" and not observer.caught then
                 observer.caught = true
                 KantoAudio.playCue("caught")
+            elseif battle.outcome == "run" and not observer.ran then
+                -- EnemyRan and the successful player escape both play SFX_RUN.
+                observer.ran = true
+                KantoAudio.playSFX("run")
             end
 
             local moveKey = battle.currentMoveKey
+            local moveCue = nil
             if moveKey ~= observer.moveKey then
                 observer.moveKey = moveKey
-                local pitched = moveKey and PITCHED_FALL[moveKey]
-                if pitched then
-                    KantoAudio.playSFX(pitched)
-                end
+                moveCue = moveKey and moveScore(moveKey)
             end
 
             -- FaintEnemyPokemon (core.asm) waits out SFX_FAINT_FALL, then
             -- plays SFX_FAINT_THUD. A wild win skips the fall and plays the
             -- victory bed instead. The player's own faint is the thud alone.
+            -- GetMoveSound plays the move's row first. When the damage lands
+            -- in the same update, the hit or fall follows that row.
             if observer.pendingThud then
                 observer.pendingThud = observer.pendingThud - 1
                 if observer.pendingThud <= 0 then
@@ -545,13 +561,28 @@ function KantoAudio.updateGame(game)
                 end
             end
             if enemyFaint and not info.wild then
-                KantoAudio.playSFX("faint_fall")
-                observer.pendingThud = math.max(1, math.ceil(KantoSynth.scoreTicks("faint_fall") * tickSeconds * 30))
+                if moveCue then
+                    playSequence({moveCue, "faint_fall"})
+                    observer.pendingThud = sfxFrames(moveCue) + sfxFrames("faint_fall")
+                else
+                    KantoAudio.playSFX("faint_fall")
+                    observer.pendingThud = sfxFrames("faint_fall")
+                end
             elseif faint then
                 observer.pendingThud = nil
-                KantoAudio.playSFX("faint")
+                if moveCue then
+                    playSequence({moveCue, "faint"})
+                else
+                    KantoAudio.playSFX("faint")
+                end
             elseif hit then
-                KantoAudio.playSFX("hit")
+                if moveCue then
+                    playSequence({moveCue, "hit"})
+                else
+                    KantoAudio.playSFX("hit")
+                end
+            elseif moveCue then
+                KantoAudio.playSFX(moveCue)
             end
             noteCries(battle, battleState)
             -- DoPoofSpecialEffects plays SFX_BALL_POOF when the poof subanim
@@ -562,7 +593,10 @@ function KantoAudio.updateGame(game)
             local capturePhase = capture and capture.phase
             if capturePhase ~= observer.capturePhase then
                 observer.capturePhase = capturePhase
-                if capturePhase == "absorb" or capturePhase == "breakout" then
+                if capturePhase == "throw" then
+                    -- DoBallTossSpecialEffects plays this at the start of the toss.
+                    KantoAudio.playSFX("ball_toss")
+                elseif capturePhase == "absorb" or capturePhase == "breakout" then
                     KantoAudio.playSFX("ball_poof")
                 end
             end
@@ -751,7 +785,54 @@ function KantoAudio.updateGame(game)
             KantoAudio.playSFX("boulder")
         end
 
+        local party = game.machine:get("party")
+        local partyPhase = party and party.phase
+        if observer.partyPhase == "swap" and partyPhase == "list" then
+            -- start_sub_menus.asm plays SFX_SWAP when the roster order changes.
+            -- Cancel uses the same visible phase change.
+            KantoAudio.playSFX("swap")
+        end
+        observer.partyPhase = partyPhase
+
+        local ship
+        for _, state in ipairs(stack) do
+            if state.vermilionShip and state.vermilionShip.cues then
+                ship = state.vermilionShip
+            end
+        end
+        if ship then
+            local seen = observer.shipCues or 0
+            for index = seen + 1, #ship.cues do
+                local symbol = ship.cues[index].symbol
+                if symbol == "SFX_SS_ANNE_HORN" then
+                    KantoAudio.playSFX("anne_horn")
+                elseif symbol == "SFX_STOP_ALL_MUSIC" then
+                    KantoSynth.music(nil)
+                elseif symbol == "MUSIC_SURFING" then
+                    KantoAudio.playCue("surf")
+                end
+            end
+            observer.shipCues = #ship.cues
+        end
+
         local player = game.player
+        if observer.collisionCooldown then
+            observer.collisionCooldown = observer.collisionCooldown - 1
+            if observer.collisionCooldown <= 0 then
+                observer.collisionCooldown = nil
+            end
+        end
+        local block = player and player.lastTraversalBlock
+        -- home/overworld.asm plays SFX_COLLISION on a blocked step, and skips
+        -- a restart while that sound is still the current one.
+        if block and block ~= observer.block and not observer.collisionCooldown
+            and (block.kind == "terrain" or block.kind == "npc") then
+            observer.block = block
+            KantoAudio.playSFX("collision")
+            observer.collisionCooldown = sfxFrames("collision")
+        elseif block then
+            observer.block = block
+        end
         if player and player.isJumping and not observer.jumping then
             KantoAudio.playSFX("ledge")
         end
