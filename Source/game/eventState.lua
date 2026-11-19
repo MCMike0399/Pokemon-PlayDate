@@ -50,6 +50,14 @@ function EventState:dialog(pages,callback,receipt)
     for _, page in ipairs(pages) do
         lines[#lines + 1] = {text = page.text, ending = page.ending}
     end
+    if pages[1].label == "_OaksLabOak1HowIsYourPokedexComingText" then
+        local owned = 0
+        local dex = self.session and self.session:pokedex()
+        for _, flag in pairs(dex and dex.owned or {}) do
+            if flag then owned = owned + 1 end
+        end
+        self.game.lastDexRating = {owned = owned}
+    end
     self.phase,self.waiting=receipt and "receipt" or "dialog",pages[1].label
     self.machine:push("dialog",lines,self:guard(callback))
 end

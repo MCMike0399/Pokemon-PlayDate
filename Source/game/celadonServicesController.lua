@@ -322,6 +322,7 @@ local function elevator(state)
         menu(state, { "1F", "2F", "3F", "4F", "5F" }, function(index)
             local accepted, reason = CeladonServices.selectFloor(state.session, index)
             if accepted then
+                state.game.lastElevator = {place = "celadon", floor = index}
                 state:finish()
             else
                 state:fail(reason)

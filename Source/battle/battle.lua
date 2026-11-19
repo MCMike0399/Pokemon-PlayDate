@@ -931,6 +931,7 @@ function Battle:throwBall(ballId)
         assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
     end
     if result.caught then
+        if newDex then self.dexPageAdded = self.enemy.species end
         self.enemy:resetStages()
         self:clearHitPresentation()
         if not self.sourceEncounter then

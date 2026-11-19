@@ -45,6 +45,22 @@ function ExploreSubstate:enter()
     self.owner.game.player.running = false
 end
 
+-- poison.asm damages every fourth completed step. This only records that
+-- the step happened; it does not change HP.
+local function noteFieldPoison(game)
+    game.fieldSteps = (game.fieldSteps or 0) + 1
+    if game.fieldSteps % 4 ~= 0 then return end
+    local party = game.session and game.session:party()
+    if not party then return end
+    for index = 1, party:count() do
+        local mon = party:get(index)
+        if mon and mon.hp > 0 and (mon.status == "poison" or mon.status == "badPoison") then
+            game.lastFieldPoison = {step = game.fieldSteps}
+            return
+        end
+    end
+end
+
 function ExploreSubstate:exit()
     self.owner.game.player.running = false
 end
@@ -96,6 +112,7 @@ function ExploreSubstate:update()
         self.owner:_presentedWorld()
         if not player.fieldStep and player.stepJustFinished then
             game.session:daycareStep()
+            noteFieldPoison(game)
         if SafariRuntime then
             SafariRuntime.completedStep(game)
         end
@@ -184,6 +201,7 @@ function ExploreSubstate:update()
     gfx.sprite.update()
     if wasMoving and not player.isMoving and player.stepJustFinished then
         game.session:daycareStep()
+        noteFieldPoison(game)
         if SafariRuntime then
             SafariRuntime.completedStep(game)
         end

@@ -29,6 +29,7 @@ function PauseState:enter()
                 self.machine:pop() -- Capture only the settled overworld.
                 local ok, metadata = self.game.saves:save()
                 self.lastSave = {ok = ok, reason = metadata and metadata.reason}
+                self.game.lastSave = self.lastSave
                 local lines
                 if ok then
                     lines={Story.playerName(self.game) .. " saved the game!"}
