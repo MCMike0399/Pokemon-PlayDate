@@ -1838,24 +1838,21 @@ class CharmanderRun(BrockJourney):
             self._surf_off("left")
 
     def _seafoam_stairs(self):
-        """The east door meets the west door by surfing B3F. The B4F drop stays closed."""
-        stairs = (
-            ("SeafoamIslands1F", 5, "SeafoamIslandsB1F"),
-            ("SeafoamIslandsB1F", 3, "SeafoamIslandsB2F"),
-            ("SeafoamIslandsB2F", 2, "SeafoamIslandsB3F"),
-        )
-        for source, index, target in stairs:
-            if not self._on(source):
-                raise ProtocolError("Seafoam stairs expected " + source + " and found " + self._map_name())
-            self.warp(self.zone(target), self.zone(source) + ":warps:" + str(index))
-        if not self._on("SeafoamIslandsB3F"):
-            raise ProtocolError("Seafoam stairs missed the channel: " + self._map_name())
-        self._surf_b3_channel()
-        self.warp(self.zone("SeafoamIslandsB2F"), self.zone("SeafoamIslandsB3F") + ":warps:5")
-        self.warp(self.zone("SeafoamIslandsB1F"), self.zone("SeafoamIslandsB2F") + ":warps:6")
-        self.warp(self.zone("SeafoamIslands1F"), self.zone("SeafoamIslandsB1F") + ":warps:5")
+        """Both B3F boulders stop the current. Surf then climbs out the west door."""
+        if not self._on("SeafoamIslands1F"):
+            raise ProtocolError("Seafoam stairs expected 1F and found " + self._map_name())
+        if self.flag("EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE") and self.flag("EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE"):
+            for source, index, target in (
+                ("SeafoamIslands1F", 5, "SeafoamIslandsB1F"),
+                ("SeafoamIslandsB1F", 3, "SeafoamIslandsB2F"),
+                ("SeafoamIslandsB2F", 2, "SeafoamIslandsB3F"),
+            ):
+                self.warp(self.zone(target), self.zone(source) + ":warps:" + str(index))
+        else:
+            self._drop_seafoam_boulders()
+        self._surf_calm_channel()
         if not self._on("SeafoamIslands1F") or self.position()[0] < 20:
-            raise ProtocolError("Seafoam stairs missed the west shore: " + self._map_name() + " " + str(self.position()))
+            raise ProtocolError("Seafoam channel missed the west shore: " + self._map_name() + " " + str(self.position()))
         self.warp(self.zone("Route20"), self.zone("SeafoamIslands1F") + ":warps:3")
 
     def _record_screen(self, label, seconds=30):
@@ -1869,21 +1866,112 @@ class CharmanderRun(BrockJourney):
         if start(label, seconds=seconds):
             self._screen_clip = label
 
-    def _surf_b3_channel(self):
-        """Cross B3F on the south bank. (15, 8) is the fast current until both boulders drop."""
-        self._record_screen("seafoam-crossing", 25)
-        self.navigate((18, 12))
-        self.face("up")
+    def _use_strength(self):
+        travel = self.observe("midgame-state").get("fieldTravel") or {}
+        if travel.get("strength") is True:
+            return
+        index = next(i for i, mon in enumerate(self.party(), 1) if "strength" in mon["moves"])
+        self.use_field(index, "strength")
+
+    def _step(self, direction):
+        before = self.position()
+        self.send("press " + direction, "wait 10")
+        self.drain()
+        return self.position() != before
+
+    def _shove(self, direction):
+        """The first press arms the boulder. The second moves it. The player stays put."""
+        before = self.position()
+        self.send("press " + direction, "wait 8")
+        self.drain()
+        if self.position() != before:
+            raise ProtocolError("boulder arm walked from " + str(before))
+        self.send("press " + direction, "wait 12")
+        self.drain()
+        if self.position() != before:
+            raise ProtocolError("boulder push walked from " + str(before))
+
+    def _shove_line(self, direction, count):
+        """Each push leaves the player one tile behind, so the next one steps up first."""
+        for index in range(count):
+            if index and not self._step(direction):
+                raise ProtocolError("could not follow the boulder " + direction + " from " + str(self.position()))
+            self._shove(direction)
+
+    def _require_flag(self, name):
+        for _ in range(6):
+            if self.flag(name):
+                return
+            self.send("wait 8")
+            self.drain()
+        raise ProtocolError("Seafoam boulder did not fall: " + name)
+
+    def _drop_seafoam_boulders(self):
+        """Push each boulder into its own hole. (15, 8) stays a current until both B3F flags are set."""
+        self._use_strength()
+        self.navigate((19, 10))
+        self._shove("left")
+        self.navigate((17, 11))
+        self._shove_line("up", 4)
+        self._require_flag("EVENT_SEAFOAM1_BOULDER1_DOWN_HOLE")
+        self.navigate((23, 8))
+        self.navigate((27, 7))
+        self._shove_line("left", 2)
+        self.navigate((24, 8))
+        self._shove("up")
+        self._require_flag("EVENT_SEAFOAM1_BOULDER2_DOWN_HOLE")
+        self.warp(self.zone("SeafoamIslandsB1F"), self.zone("SeafoamIslands1F") + ":warps:5")
+        self._use_strength()
+        self.navigate((16, 6))
+        self._shove("right")
+        self._require_flag("EVENT_SEAFOAM2_BOULDER1_DOWN_HOLE")
+        self.warp(self.zone("SeafoamIslandsB2F"), self.zone("SeafoamIslandsB1F") + ":warps:1")
+        self._use_strength()
+        self.navigate((17, 6))
+        self._shove("right")
+        self._require_flag("EVENT_SEAFOAM3_BOULDER1_DOWN_HOLE")
+        self.warp(self.zone("SeafoamIslandsB1F"), self.zone("SeafoamIslandsB2F") + ":warps:1")
+        self.warp(self.zone("SeafoamIslands1F"), self.zone("SeafoamIslandsB1F") + ":warps:2")
+        # (23, 8) to the stair is the same length through the hole. Stay on x=25.
+        self.navigate((23, 8))
+        self.navigate((25, 8))
+        self.warp(self.zone("SeafoamIslandsB1F"), self.zone("SeafoamIslands1F") + ":warps:6")
+        self._use_strength()
+        self.navigate((21, 6))
+        self._shove("right")
+        self._require_flag("EVENT_SEAFOAM2_BOULDER2_DOWN_HOLE")
+        if not self._step("right") or not self._step("right"):
+            raise ProtocolError("could not step into the B1F hole from " + str(self.position()))
+        if not self._on("SeafoamIslandsB2F"):
+            raise ProtocolError("B1F hole missed B2F: " + self._map_name() + " " + str(self.position()))
+        self._use_strength()
+        self.navigate((24, 6))
+        self._shove("left")
+        self._require_flag("EVENT_SEAFOAM3_BOULDER2_DOWN_HOLE")
+        self.warp(self.zone("SeafoamIslandsB3F"), self.zone("SeafoamIslandsB2F") + ":warps:5")
+        self.warp(self.zone("SeafoamIslandsB4F"), self.zone("SeafoamIslandsB3F") + ":warps:3")
+        self.warp(self.zone("SeafoamIslandsB3F"), self.zone("SeafoamIslandsB4F") + ":warps:3")
+
+    def _surf_calm_channel(self):
+        """(15, 8) is ordinary water once both boulders are down. (23, 9) is the west shore."""
+        if not self._on("SeafoamIslandsB3F"):
+            raise ProtocolError("calm channel expected B3F and found " + self._map_name())
+        self.navigate((15, 7))
+        self._record_screen("seafoam-crossing", 30)
         index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
         self.use_field(index, "surf")
-        if self.position() == (18, 12):
-            self._surf_press("up", 1)
-        if self.position() != (18, 11):
-            raise ProtocolError("B3F channel did not take Surf: " + str(self.position()))
+        if self.position() == (15, 7):
+            self._surf_press("down", 1)
+        if not self._on("SeafoamIslandsB3F") or self.position() != (15, 8):
+            raise ProtocolError("B3F channel did not take Surf: " + self._map_name() + " " + str(self.position()))
         self._surf_follow([(23, 10)])
         self._surf_press("up", 1)
         if self.position() != (23, 9):
-            raise ProtocolError("B3F channel did not reach the east bank: " + str(self.position()))
+            raise ProtocolError("B3F channel did not reach the west shore: " + str(self.position()))
+        # Stepping onto (25, 14) is the stair. warp() arms that transition.
+        self.warp(self.zone("SeafoamIslandsB2F"), self.zone("SeafoamIslandsB3F") + ":warps:5")
+        self.warp(self.zone("SeafoamIslandsB1F"), self.zone("SeafoamIslandsB2F") + ":warps:6")
+        self.warp(self.zone("SeafoamIslands1F"), self.zone("SeafoamIslandsB1F") + ":warps:5")
 
     def _surf_press(self, direction, count):
         for _ in range(count):
