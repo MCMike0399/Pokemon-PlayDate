@@ -1696,3 +1696,36 @@ champion row is built without `champ.class_source`, so
 The Route 22 rival row drops `rival.class_source` the same way. The
 handoff is `tools/notes/lane-e-trainer-pic.patch` with
 `tools/tests/test_lane_e_trainer_pic.py`. It is not applied.
+
+## Lorelei blackout saved
+
+The intentional loss wrote sequence 638 at Viridian City `(23, 26)`
+facing down, sha256
+`07ae3618c40e71afe8548c423148945a9e2c883c025be62f3473caca03d1b536`.
+Money is 298. Venusaur is 62 at 194/194. The checkpoint is still that
+Viridian tile. Plan (a) was not retried.
+
+The next boots walked back into Victory Road before the stocked check,
+and Strength looked at party slot 5 after Sandshrew had been moved to
+the front, so the boulder menu never opened. Sequence 646 is that cave
+tile, Victory Road 1F `(2, 11)` facing up, sha256
+`017983a6a21c9ad2ac105c71b358cec8c266f6470bfbc82dd903eb64d1ad7100`.
+Sandshrew is 0/41. Bellsprout is 24, Pidgeotto is 35, Drowzee is 24,
+and Poliwag is 24. The driver now leaves for the Viridian Center
+before any Elite Four door, then trains Pidgeotto on Route 23
+Sandshrew and Spearow. Lorelei stays closed until a Revive, a Hyper
+Potion or Full Restore, and two backups at level 40 are in hand.
+
+The cave exit saved as sequence 648, Route 23 `(4, 32)` facing down,
+sha256
+`215d13c0f0c87b2b9ccbf75fe906aa7871e947114e367a72fdd2427925c5b1ed`.
+Venusaur is in front at 194/194. Sandshrew is still fainted. That is
+the continue point. The live session is surfing south to the Viridian
+Center, then to the grass.
+
+Lane E's portraits, battle font, and Lance hallway walk are merged
+from `cursor/lane-e-integration` at `40f6464d` (source `fc390b9f`).
+Live rows keep `OPP_LORELEI`, `OPP_BRUNO`, `OPP_AGATHA`, `OPP_LANCE`,
+`OPP_RIVAL3`, and `OPP_RIVAL2`. The battle intro stays on the GB font
+through the last page. Lance's walk is in this branch already and is
+still unused until after Agatha.
