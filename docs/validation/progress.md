@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Lab, Daisy, and the queued move after a faint
+
+`oaks_lab` and `pokered:OAKS_LAB` both run the parcel scene. `blues_house` and `pokered:BLUES_HOUSE` both reach Daisy, who stands at (6, 4). A replacement faint no longer drops the rest of the queue: the living actor spends PP, a fainted target reports no target, then residuals and the forced switch run. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Pallet Fly alias
 
 Saves written before the cutover keep `pallet_town` in `fieldTravel.visited`. Fly's table allows only `pokered:PALLET_TOWN`, so `FieldTravel.normalize` rejected the save and the title offered no CONTINUE. Normalize now rewrites that saved id onto the existing Pallet slot at (5, 6). It does not add a Fly row, and Fly still refuses the authored id. `MallocPoolSize` stays 16645684.
