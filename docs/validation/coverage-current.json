@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "70861e89990ba8861c2d76f38c6ad4fce5ce6fa6",
+    "source_sha256": "b3eeef31c29cc342a1c92391565b031c719927d91fb21289475c9f12ef279baa",
+    "policy_date": "2026-11-19",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after source-event parity reuses one observation per event. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 48d75425d19f971b63febbdc60d62dc11c951800e86e85025ddb98745d358145.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "61e4cf46d931b70531e2405b1338674a95ebd789",
     "source_sha256": "48d75425d19f971b63febbdc60d62dc11c951800e86e85025ddb98745d358145",
     "policy_date": "2026-11-19",
@@ -1540,6 +1551,7 @@
   
   }
   }}
+  }
   }
   }
   }
