@@ -551,7 +551,7 @@ function CeladonServicesController.draw(state)
     gfx.fillRect(196, 4, 200, 44)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawRect(196, 4, 200, 44)
-    gfx.drawText("MONEY  ¥" .. state.session:inventory():money(), 204, 8)
+    GbFont.drawMoneyLine("MONEY  ¥" .. state.session:inventory():money(), 204, 8)
     if type(state.session.coins) == "function" then
         gfx.drawText("COIN   " .. state.session:coins(), 204, 27)
     end

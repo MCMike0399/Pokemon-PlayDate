@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Earth Badge prize keeps the yen
+
+Giovanni's payout text is stored as UTF-8 `<PLAYER> got ¥@`. Charmap yen is `$f0`, tile 112, and `TitleIdle.glyph` maps it. `SourceText.expand` accepts that text, so the reward event can save the Earth Badge. The Victory Road POKéMANIAC name is UTF-8 as well. Mart prices, the daycare and bicycle money windows, the vending money line, the bicycle and drink menu prices, and the Hall of Fame money row draw that figure through `GbFont`. The PC storage screens do not draw a balance. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Lance hallway is simulated joypad
 
 WalkToLance_RLEList starts at (24, 16). Its second step, (24, 14), is solid, and so is most of the rest of the list. The entrance plan now sets `simulated` when the room has that walk list, which is Lance. CollisionCheckOnLand skips those cells. Lorelei, Bruno and Agatha still use `walk_in` and an ordinary move plan. `MallocPoolSize` stays 16645684.

@@ -1547,7 +1547,11 @@ function EndgameStory.drawPhoto(gfx, state)
     end
     for _, row in ipairs(EndgameStory.hallRows(photo)) do
         local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
-        gfx.drawText(row.text, px, py)
+        if row.text:find("¥", 1, true) then
+            GbFont.drawMoneyLine(row.text, px, py)
+        else
+            gfx.drawText(row.text, px, py)
+        end
     end
     if photo.kind == "player" then
         local pages <const> = EndgameStory.playerHallPages(photo.stats)

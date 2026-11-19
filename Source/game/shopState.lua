@@ -174,7 +174,7 @@ function ShopState:draw()
     gfx.setImageDrawMode(gfx.kDrawModeCopy);gfx.setFont(gfx.getSystemFont());gfx.setLineWidth(1)
     box(4,4,392,232)
     gfx.drawText("POKE MART"..(self.phase~="mode" and (self.trade=="buy" and " - BUY" or " - SELL") or ""),16,14)
-    right("$"..self:inventory():money(),382,14)
+    GbFont.drawMoneyRight("¥"..self:inventory():money(),382,14)
     if self.phase=="mode" then
         gfx.drawTextInRect("Hi there!\nMay I help you?",20,64,216,52)
         self.menu:draw(248,52,132,80)
@@ -188,7 +188,8 @@ function ShopState:draw()
             local row=rows[i];local item=ItemData.definitions[row.id];local y=52+(i-first)*20
             gfx.drawText((i==selected and "> " or "  ")..item.name,20,y)
             local price=self.trade=="buy" and item.price or item.sellPrice
-            right(self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "$"..price or "--")) or "$"..price,366,y)
+            local amount=self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "¥"..price or "--")) or "¥"..price
+            if amount:find("¥",1,true) then GbFont.drawMoneyRight(amount,366,y) else right(amount,366,y) end
         end
         if first>1 then gfx.drawText("^",376,46) end
         if first+5<#rows then gfx.drawText("v",376,162) end
@@ -198,11 +199,15 @@ function ShopState:draw()
     else
         local item=ItemData.definitions[self.item];local price=self:price()
         gfx.drawText(item.name,20,54);right("IN BAG x"..self:inventory():quantity(self.item),380,54)
-        gfx.drawText("EACH",20,84);right("$"..price,380,84)
+        gfx.drawText("EACH",20,84);GbFont.drawMoneyRight("¥"..price,380,84)
         gfx.drawText("QUANTITY",20,116);right("x"..self.quantity,380,116)
-        gfx.drawText("TOTAL",20,146);right("$"..(price*self.quantity),380,146)
+        gfx.drawText("TOTAL",20,146);GbFont.drawMoneyRight("¥"..(price*self.quantity),380,146)
         if self.phase=="confirm" then
-            gfx.drawText(self.trade=="buy" and "That will be\n$"..(price*self.quantity)..". OK?" or "I can pay you\n$"..(price*self.quantity).." for that.",20,182)
+            local prompt=self.trade=="buy" and "That will be\n¥"..(price*self.quantity)..". OK?" or "I can pay you\n¥"..(price*self.quantity).." for that."
+            local line=0
+            for row in (prompt.."\n"):gmatch("(.-)\n") do
+                GbFont.drawMoneyLine(row,20,182+line*18);line=line+1
+            end
             self.menu:draw(244,172,140,56)
         else
             gfx.drawText("UP/DOWN: 1   LEFT/RIGHT: 10",20,182)
