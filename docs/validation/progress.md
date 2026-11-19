@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 HP bar finishes before the command list
+
+pret/pokered animates the HP bar inside the move and only then returns to the battle menu. `updateVitals` can return command on the same resume that applies the damage, so FIGHT was painted on the pre-damage number. The command list now waits until `isVitalsBlocking` is false. Input already ignored A during the drain. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Viridian nurse text cue
 
 Pressing A on the Pokémon Center nurse left `EventState` on top while A was still just-pressed. `textAdvance` indexed `top.dialog`, which is the `EventState:dialog` method, and died before YES. The cue now reads that field only when it is a Dialog table, so a real text box still plays the text sound. `MallocPoolSize` stays 16645684.

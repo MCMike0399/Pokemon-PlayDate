@@ -1,0 +1,14 @@
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -655,7 +655,10 @@
+         -- pokered _TrainerAboutToUseText plus the YES/NO box (TWO_OPTION_MENU).
+         self:_wrapped("shift-prompt", self.battle.message or "", 276, 44).image:draw(14, boxY + 8)
+         self.shiftMenu:draw(300, boxY + 4, 92, 52)
+-    elseif self.battle:isAwaitingCommand() then
++    -- pret/pokered af519899 finishes the HP bar before the command list.
++    -- updateVitals has already run on the resume that applies the damage
++    -- and returns command, so this frame would paint FIGHT on the old HP.
++    elseif self.battle:isAwaitingCommand() and not self:isVitalsBlocking() then
+         -- Draw text area on left
+         self:_text("what-will", "What will", gfx.getSystemFont()).image:draw(14, boxY + 10)
+         local name = self.battle.player.name
