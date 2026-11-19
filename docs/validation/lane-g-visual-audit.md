@@ -1,6 +1,16 @@
 # Lane G overworld visual audit
 
-Report only. No `Source/` file was edited. The pictures and the ranked write-up are in [artifacts/lane-g/visual-audit/](../../artifacts/lane-g/visual-audit/AUDIT.md).
+Report only. No `Source/` file was edited for the original pass. The pictures and the ranked write-up are in [artifacts/lane-g/visual-audit/](../../artifacts/lane-g/visual-audit/AUDIT.md).
+
+## Status on 2026-11-19
+
+Checked `origin/main` at `bf92c4fc` and `origin/cursor/lane-e-integration` at `40bf4112`. Neither tip has applied `lane-e-pallet-cutover`, `lane-e-pallet-actors`, or `lane-e-pallet-tones` (`paintPalletField` / `PALLET_CENTER` are absent, and `maps.lua` still registers the authored `pallet_town`). The three patches still apply cleanly on this branch. No Simulator frames were captured for r20.
+
+- **Authored Pallet** (`pallet_town`, `oaks_lab`, `reds_house`, `reds_house_2f`, `blues_house`): still open. Waiting on Lane E to apply the cutover, actor, and mockup-C tone patches.
+- **Gym hatch / `Shade.LIGHT`:** held for Miguel's Celadon pick. Not touched.
+- **Silph Co. 9F panel:** the locked card-key doors at blocks `(9, 2)` and `(9, 5)`, not a stray floor graphic. `lane-e-silph-9f-panel` only records that. Lane E has not applied it.
+- **Twelve actor warp crashes:** fixed on Lane E. `CeruleanContent` there loads `data/zEndgame/sprites.json` and `data/zRemainder/sprites.json`. Those catalogs have standing and walking strips for Agatha, Bruno, Lance, Lorelei, Red, and the Pallet actors. This branch's `lane-e-pallet-actors` patch stays the nine Pallet strips and does not repeat that loader.
+- **Rock Tunnel B1F:** a direct outside warp still raises `unsupported Rock Tunnel outside entry`. That reject is the pinned policy in `FieldWorld.transitionOffset` and `Source/dev/fieldWorldContracts.lua`. The legal entry is the stair from 1F, which keeps the dark offset. No patch.
 
 ## What was compared
 
