@@ -1759,14 +1759,64 @@ class CharmanderRun(BrockJourney):
                 self._surf_off("left")
             if not self._on("Route20"):
                 raise ProtocolError("Route 19 Surf did not enter Route 20: " + self._map_name() + " " + str(self.position()))
-        if self._on("Route20"):
-            self._surf_follow(self._surf_goals(range(4, 14)))
-            self._surf_off("left")
+        if "SEAFOAM" in self._map_name() or self._on("Route20"):
+            self._cross_seafoam()
         if not self._on("CinnabarIsland"):
             raise ProtocolError("Route 20 Surf did not reach Cinnabar: " + self._map_name() + " " + str(self.position()))
         x, y = self.position()
         if self.model().collision[y][x] != 0:
             raise ProtocolError("Cinnabar arrival is still water: " + str(self.position()))
+
+    def _route20_side(self):
+        x, y = self.position()
+        foot = self.model().feet[y][x]
+        if self.model().collision[y][x] == 0 and 56 <= x <= 61 and y >= 9:
+            return "west-land"
+        if x < 62 and foot in self._SURF_FEET:
+            return "west-water"
+        return "east"
+
+    def _cross_seafoam(self):
+        """The faithful rock splits Route 20. The stairs join the two shores."""
+        if self._on("Route20") and self._route20_side() == "east":
+            self._surf_follow([(62, y) for y in range(2, 6)])
+            if self.position()[0] == 62:
+                self._surf_off("left")
+            x, y = self.position()
+            if self.model().collision[y][x] != 0:
+                raise ProtocolError("Seafoam shore did not accept the dismount: " + str(self.position()))
+            self.warp(self.zone("SeafoamIslands1F"), self.zone("Route20") + ":warps:1")
+        if "SEAFOAM" in self._map_name():
+            self._seafoam_stairs()
+        if self._on("Route20") and self._route20_side() == "west-land":
+            self.navigate((58, 11))
+            self.face("down")
+            index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+            self.use_field(index, "surf")
+            if self.position() == (58, 11):
+                self._surf_press("down", 1)
+        if self._on("Route20") and self._route20_side() == "west-water":
+            self._surf_follow(self._surf_goals(range(4, 14)))
+            self._surf_off("left")
+
+    def _seafoam_stairs(self):
+        stairs = (
+            ("SeafoamIslands1F", 5, "SeafoamIslandsB1F"),
+            ("SeafoamIslandsB1F", 1, "SeafoamIslandsB2F"),
+            ("SeafoamIslandsB2F", 2, "SeafoamIslandsB3F"),
+            ("SeafoamIslandsB3F", 2, "SeafoamIslandsB4F"),
+            ("SeafoamIslandsB4F", 4, "SeafoamIslandsB3F"),
+            ("SeafoamIslandsB3F", 4, "SeafoamIslandsB2F"),
+            ("SeafoamIslandsB2F", 6, "SeafoamIslandsB1F"),
+            ("SeafoamIslandsB1F", 5, "SeafoamIslands1F"),
+        )
+        for source, index, target in stairs:
+            if not self._on(source):
+                raise ProtocolError("Seafoam stairs expected " + source + " and found " + self._map_name())
+            self.warp(self.zone(target), self.zone(source) + ":warps:" + str(index))
+        if not self._on("SeafoamIslands1F") or self.position()[0] < 20:
+            raise ProtocolError("Seafoam stairs missed the west shore: " + self._map_name() + " " + str(self.position()))
+        self.warp(self.zone("Route20"), self.zone("SeafoamIslands1F") + ":warps:3")
 
     def _surf_press(self, direction, count):
         for _ in range(count):
