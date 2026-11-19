@@ -1554,3 +1554,36 @@ then the forced switch. The handoff is
 `tools/tests/recoil_ko_host.lua`. It is not applied. The live host
 still prints `CHARIZARD used WING ATTACK!`. The patched host skips
 that line, stays on `forcedSwitch`, and does not spend Wing Attack PP.
+
+## Victory Road stops on a hidden boulder
+
+The 1F switch at `(17, 13)` was set with Strength. Entering 2F clears
+`EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH`, which matches `applyRoom`.
+The 2F west switch was set the same way: the boulder from `(4, 14)`
+now sits on `(1, 16)`, and `EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1`
+is true. A blackout on 3F sent the party to the Viridian checkpoint
+and cut the money from 4782 to 2391. The walk back set the 1F switch
+again and the 2F west switch again.
+
+The east 2F switch at `(9, 16)` needs the boulder that pokered places
+at `(23, 16)` (`TEXT_VICTORYROAD2F_BOULDER3`, objects:13). That object
+is always in the pokered object table. This port hides it while
+`TOGGLE_VICTORY_ROAD_2F_BOULDER` is true, and entering Route 23 sets
+that toggle. The boulder never spawned. The other two 2F boulders
+cannot reach `(9, 16)`.
+
+With that gate closed, the lobby route walks through the 3F boulder
+homes, including `(13, 12)` and `(24, 10)`. The player is standing at
+3F `(13, 11)` facing down, with the `(13, 12)` boulder in the
+corridor. That boulder can be pushed one tile south, onto the same
+corridor, and no farther. Opening both 2F gates leaves a lobby route
+that goes around those boulders. The handoff is
+`tools/notes/lane-e-victory-boulder.patch` with
+`tools/tests/test_lane_e_victory_boulder.py`. It is not applied.
+`Source/` is unchanged.
+
+Continue from sequence 577, Victory Road 3F `(13, 11)` facing down,
+sha256
+`bb29844f2c9395d8a0e5464f3fe9b8b72fe9ece8264111920e68400b271b06e1`.
+Venusaur is 61 with 180 HP. Bellsprout is 24, Pidgeotto is 35,
+Drowzee is 24, Sandshrew is 14, and Poliwag is 15. Money is 2391.

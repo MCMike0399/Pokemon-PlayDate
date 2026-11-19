@@ -1,0 +1,11 @@
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -27,7 +27,6 @@ local VISIBILITY <const> = {
+ local VISIBILITY <const> = {
+     ["pokered:VIRIDIAN_GYM:objects:1"] = {{group = "quest", id = GIOVANNI_HIDE, equals = false}},
+     [MOLTRES] = {{group = "quest", id = "EVENT_BEAT_MOLTRES", equals = false}},
+-    ["pokered:VICTORY_ROAD_2F:objects:13"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_2F_BOULDER", equals = false}},
+     ["pokered:VICTORY_ROAD_3F:objects:10"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_3F_BOULDER", equals = false}},
+     ["pokered:CHAMPIONS_ROOM:objects:2"] = {{group = "quest", id = OAK_SHOW, equals = true}},
+ }
