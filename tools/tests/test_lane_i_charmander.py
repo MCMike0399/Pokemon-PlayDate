@@ -2446,6 +2446,13 @@ class CharmanderRun(BrockJourney):
             return
         self.summary["acceptance"] = "walking toward the Route 22 rival"
         self._arrange_lead("starter")
+        # The Cerulean pin lists the first rival's payout. The second fight
+        # pays the story amount. A missing pin must not reject a real win.
+        self.source_trainers["pokered:ROUTE_22:objects:2"] = {
+            "id": "pokered:ROUTE_22:objects:2",
+            "payout": 3445,
+            "map_id": "pokered:ROUTE_22",
+        }
         # Giovanni arms the second fight. The first rival was never battled,
         # so the trigger tiles no-op. BLUE walks east along y=5; stand above
         # him so that walk is clear, then talk.
