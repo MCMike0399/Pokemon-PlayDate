@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "377736648a80e4877e226b208ae708762979eff2",
+    "source_sha256": "cdc34b7ac073cc357b2e2848bb12c9010ccbca5ee6d62fb6800d23214d858ef6",
+    "policy_date": "2026-11-19",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Earth Badge prize keeps the yen glyph. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 349a986ebf54b0f195f39b3afa1cb0ca1693ab2c3f176092d116efeef171ac3d.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "67ded151766d7260057974ebd8f53b397b1f4ebf",
     "source_sha256": "349a986ebf54b0f195f39b3afa1cb0ca1693ab2c3f176092d116efeef171ac3d",
     "policy_date": "2026-11-19",
@@ -1485,6 +1496,7 @@
   
   }
   }}
+  }
   },
   "accepted_milestone_rows": [],
   "schedule": {
