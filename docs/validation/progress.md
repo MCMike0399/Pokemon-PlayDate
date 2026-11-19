@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Pallet zone keys
+
+`reds_house_2f`, `reds_house`, `blues_house`, `oaks_lab`, and `pallet_town` are registered again from the padded pokered collision. New Game stands in `reds_house_2f` and heals at `pallet_town` (5, 6). Fly still uses `pokered:PALLET_TOWN`. Pallet (9, 0) and Red's house (5, 5) stay open because the Route 1 seam and MOM face those cells. Device smokes: session 31/0, session-bridge 29/0, home-lead 31/0, shop 32/0.
+
 ## 2026-11-19 Victory Road 2F puzzle boulder
 
 `TOGGLE_VICTORY_ROAD_2F_BOULDER` no longer hides `pokered:VICTORY_ROAD_2F:objects:13`. Pokered places that boulder at (23, 16), and it is the one that can reach the switch at (9, 16). Entering Route 23 still sets the toggle. The 3F hole boulder stays hidden on `TOGGLE_VICTORY_ROAD_3F_BOULDER`.
