@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-19 Tip gates, faint order, recoil skip, and audio receipts
+
+`main` stays `bf92c4fc`. The 129-suite gate of `9e0cf508` has 42 suites red that `bf92c4fc` passed, mostly `unknown world location zone` after the Pallet cutover. `dcb8cb7f`, the first commit after main, already adds npc-trades failures main did not have, so no later ancestor was fast-forwarded.
+
+`79bebd32` prints the faint line after the HP drain and the slide. `23cb9e31` cancels the queued move after a first-mover recoil KO. `da8f2d80` records the main-path audio receipts. The coverage snapshot was regenerated with `tools/harness/run.py` `fingerprint` and the previous snapshot was nested. No row was relabeled.
+
 ## 2026-11-19 Pallet cutover and Seafoam surf path
 
 `main` stays `bf92c4fc`. It was not fast-forwarded. The device comparison of `453f2daa` against that main still has head-only reds: `pewterInstall`, `move-failure`, `pewterProvider`, `brock-field-items`, `cerulean-catalog`, `comprehensive-catalog`, `source-maps`, and `npc-trades`, plus unscored timeouts in `source-events`, `vermilion-catalog`, and `field-travel`. `event-catalog` was a ready-handshake flake; the retry passed 22/0. No ancestor after `bf92c4fc` has a clean comparison. `MallocPoolSize` stays 16645684.
