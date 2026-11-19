@@ -430,6 +430,27 @@ local function poll(game)
     if not ok then finish(game, "error", tostring(problem)) end
 end
 
+local scoreReplyGuarded = false
+local function keepMissingScores()
+    if scoreReplyGuarded or not KantoSynth or not playdate.file or not playdate.file.run then return end
+    scoreReplyGuarded = true
+    local run = playdate.file.run
+    playdate.file.run = function(path, ...)
+        if type(path) == "string" and path:sub(1, 12) == "audio/score/"
+            and not (KantoScores and KantoScores[path:sub(13)]) then
+            return
+        end
+        return run(path, ...)
+    end
+    local music = KantoSynth.music
+    KantoSynth.music = function(name, keepJingle)
+        if name and not (KantoScores and KantoScores[name]) then
+            return
+        end
+        return music(name, keepJingle)
+    end
+end
+
 function Harness.beforeFrame(game)
     tick = tick + 1
     HarnessCapture.tick, HarnessCapture.phase = tick - 1, "previous-completed-frame"
@@ -495,6 +516,13 @@ function Harness.beforeFrame(game)
         end
     end)
     if not ok then failure = tostring(problem); complete = true end
+    local finished = commands and commands[index]
+    if finished and finished.contracts then
+        -- The suite dropped the title score to fit. The frame that publishes
+        -- the reply would file.run it into a fragmented pool and the result
+        -- would never be written. Leave a missing score unloaded.
+        keepMissingScores()
+    end
 end
 
 function Harness.afterFrame(game, runtimeError)
@@ -503,6 +531,27 @@ function Harness.afterFrame(game, runtimeError)
         -- Preserve the first game failure. A partially completed transition
         -- must not execute again and overwrite it with secondary errors.
         playdate.update = function() end
+        local command = commands and commands[index]
+        if request and complete and command and command.contracts then
+            -- The suite already returned its report. A later compressed read
+            -- must not replace that report with an empty runtime error.
+            entries[#entries + 1] = {
+                command = index, op = command.op, tick = tick, status = "error",
+                outcome = "ok", messages = {}, contracts = command.contracts,
+            }
+            local published = pcall(function()
+                publish("result.json", {
+                    id = request.id, status = "error", error = failure or runtimeError,
+                    results = entries, snapshot = {},
+                })
+            end)
+            if published then
+                request, commands, complete, failure = nil, nil, false, nil
+                entries = {}
+                return
+            end
+            entries[#entries] = nil
+        end
         publish("runtime-error.json", { error = runtimeError, snapshot = HarnessDiagnostics.snapshot(game) })
         if request then finish(game, "error", runtimeError) end
         return
