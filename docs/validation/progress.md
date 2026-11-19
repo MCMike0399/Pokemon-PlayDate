@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 NPC trades publish the same failure main already has
+
+The Route 11 gate drops the resident title score before its scene. That score is not the city bitmap, which stays loaded. The 240-slot encode runs after the other trade cases, so those sessions are allocated before its 246 Pokémon exist. The harness writes the scored contract report before the failure capture. Device suite `npc-trades`: 68 passed / 1 failed, the same single name main `bf92c4fc` fails (`full party all 240 PC slots, source append order and survivor active identity`). `pewterProviderContracts` on this tip: 29 passed / 2 failed, the same two names main already had. No new failure name. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Source-map provider lookup fits beside the live Zone
 
 The provider check was the remaining source-maps name main passes. A scope now drops its two retained runtime definitions before the next scope, and a new tile key is read from the catalogue prefix instead of decoding all 944 grids beside the Zone. The device suite scored 35 passed / 8 failed against main's 30/13. Every remaining failure is one main already had, and five of main's failure names cleared. `MallocPoolSize` stays 16645684.

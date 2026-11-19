@@ -25,6 +25,7 @@ class CeruleanReplyTests(unittest.TestCase):
         before = text.split("function Harness.beforeFrame", 1)[1].split(
             "function Harness.afterFrame", 1)[0]
         self.assertLess(before.index("finished.contracts"), before.index("keepMissingScores()"))
+        self.assertLess(before.index("keepMissingScores()"), before.index('publish("result.json"'))
 
     def test_a_scored_report_is_published_before_a_runtime_error(self):
         text = HARNESS.read_text()
@@ -35,6 +36,13 @@ class CeruleanReplyTests(unittest.TestCase):
         self.assertLess(contracts, result)
         self.assertLess(result, runtime)
         self.assertIn("results = entries", error)
+
+    def test_a_failed_contract_report_is_published_before_the_failure_capture(self):
+        text = HARNESS.read_text()
+        reply = text.split("if failure and command.contracts then", 1)[1].split(
+            "entries[#entries + 1]", 1)[0]
+        self.assertLess(reply.index('publish("result.json"'), reply.index("return"))
+        self.assertNotIn("HarnessCapture.write", reply)
 
 
 if __name__ == "__main__":

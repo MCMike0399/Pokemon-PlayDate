@@ -6,6 +6,7 @@ if not playdate.isSimulator or not HarnessBuild.enabled then return end
 
 local config = HarnessBuild
 local tick, request, commands, index, started, complete, failure = 0, nil, nil, 1, 0, false, nil
+local contractResultPublished = false
 local entries, seen = {}, {}
 local transitions = {}
 local watched = setmetatable({}, { __mode = "k" })
@@ -522,11 +523,28 @@ function Harness.beforeFrame(game)
         -- the reply would file.run it into a fragmented pool and the result
         -- would never be written. Leave a missing score unloaded.
         keepMissingScores()
+        -- Publish before the rest of this frame. The failure capture and the
+        -- trace snapshot run after beforeFrame and can stall until timeout.
+        if failure and request then
+            publish("result.json", {
+                id = request.id, status = "error", error = failure, snapshot = {},
+                results = {{ command = index, op = finished.op, tick = tick, status = "error",
+                    outcome = "ok", messages = {}, contracts = finished.contracts }},
+            })
+            contractResultPublished = true
+            playdate.update = function() end
+            request, commands, complete, failure = nil, nil, false, nil
+            entries = {}
+        end
     end
 end
 
 function Harness.afterFrame(game, runtimeError)
     HarnessCapture.tick, HarnessCapture.phase = tick, runtimeError and "partial-error" or "completed"
+    if contractResultPublished then
+        playdate.update = function() end
+        return
+    end
     if runtimeError then
         -- Preserve the first game failure. A partially completed transition
         -- must not execute again and overwrite it with secondary errors.
@@ -595,6 +613,20 @@ function Harness.afterFrame(game, runtimeError)
         if outcome ~= (command.expect or "ok") then failure = "unexpected outcome: " .. outcome end
         if command.op == "shot" then
             HarnessCapture.write(command.args[1])
+        end
+        if failure and command.contracts then
+            -- The report is already scored. A failure capture and a second
+            -- full snapshot are the allocations that stall the reply until
+            -- the host times out, so the names never reach result.json.
+            publish("result.json", {
+                id = request.id, status = "error", error = failure, snapshot = {},
+                results = {{ command = index, op = command.op, tick = tick, status = "error",
+                    outcome = outcome, messages = messages, contracts = command.contracts }},
+            })
+            playdate.update = function() end
+            request, commands, complete, failure = nil, nil, false, nil
+            entries = {}
+            return
         end
         entries[#entries + 1] = { command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
             outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts, observation = command.observation }
