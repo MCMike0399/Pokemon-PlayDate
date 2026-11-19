@@ -284,7 +284,7 @@ function BattleScriptPhase:handleInput()
     end
 end
 
--- ended: terminal message ("You won the battle!" / "You blacked out...");
+-- ended: terminal message (victory, or the pokered blackout page);
 -- A hands control back to whoever owns the battle via the battleEnd signal
 Class("BattleEndedPhase"):extends(State)
 
@@ -1765,7 +1765,17 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
         return "victory"
     end
     if not playerTeamAlive then
-        self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
+        -- pret/pokered text/text_2.asm _PlayerBlackedOutText2. OaksLab is the
+        -- one loss that prints the rival's line and does not black out.
+        local intro = self.session and self.session:getIntro()
+        if intro and intro.stage == "rival_fight" then
+            self.message = "You lost the battle!"
+        else
+            local title = self.session and self.session:title()
+            local playerName = title and title.playerName or "RED"
+            self.message = playerName .. " is out of\nuseable POKéMON!\n\n"
+                .. playerName .. " blacked\nout!"
+        end
         return "defeat"
     end
     return "replacement"
