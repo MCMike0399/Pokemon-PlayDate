@@ -2181,6 +2181,16 @@ class CharmanderRun(BrockJourney):
         self.heal_here("CinnabarPokecenter")
         self.save()
         self._arrange_lead("starter")
+        if self._on("CinnabarPokecenter"):
+            # The center door is the last outdoor map. Step out; do not project it as Viridian.
+            self.navigate((3, 6))
+            self.send("press down", "wait 15")
+            self.drain()
+            if self._on("CinnabarPokecenter"):
+                self.send("press down", "wait 15")
+                self.drain()
+        if not self._on("CinnabarIsland"):
+            raise ProtocolError("Cinnabar Center did not open onto the island: " + self._map_name() + " " + str(self.position()))
         self.warp(self.zone("CinnabarGym"), "pokered:CINNABAR_ISLAND:warps:2")
         for stand, answer, number in (
             ((15, 8), "yes", 1), ((10, 2), "no", 2), ((9, 8), "no", 3),
