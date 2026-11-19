@@ -132,3 +132,83 @@ function GbFont.drawTight(text, x, y)
         cursor = cursor + 16
     end
 end
+
+-- A money figure is spaces, the charmap yen, and digits. Charmap $f0 is
+-- tile 112. Words stay on the current font so the existing boxes still fit,
+-- and the yen plus the digits after it use the source tile.
+local YEN <const> = utf8.codepoint("¥")
+
+function GbFont.isMoneyFigure(text)
+    if text == "" then return true end
+    for _, code in utf8.codes(text) do
+        if code ~= 32 and code ~= YEN and (code < 48 or code > 57) then
+            return false
+        end
+    end
+    return true
+end
+
+local function moneyRuns(text)
+    local runs = {}
+    local codes = {utf8.codepoint(text, 1, -1)}
+    local index = 1
+    while index <= #codes do
+        if codes[index] == YEN then
+            local run = "¥"
+            index = index + 1
+            while index <= #codes and codes[index] >= 48 and codes[index] <= 57 do
+                run = run .. string.char(codes[index])
+                index = index + 1
+            end
+            runs[#runs + 1] = {kind = "figure", text = run}
+        else
+            local chunk = utf8.char(codes[index])
+            index = index + 1
+            while index <= #codes and codes[index] ~= YEN do
+                chunk = chunk .. utf8.char(codes[index])
+                index = index + 1
+            end
+            runs[#runs + 1] = {kind = "text", text = chunk}
+        end
+    end
+    return runs
+end
+
+function GbFont.measureMoneyLine(text)
+    if GbFont.isMoneyFigure(text) then
+        return 16 * (utf8.len(text) or 0), 16
+    end
+    local width, height = 0, 16
+    for _, run in ipairs(moneyRuns(text)) do
+        if run.kind == "figure" then
+            width = width + 16 * utf8.len(run.text)
+        else
+            local runWidth, runHeight = gfx.getTextSize(run.text)
+            width = width + runWidth
+            if runHeight > height then height = runHeight end
+        end
+    end
+    return width, height
+end
+
+function GbFont.drawMoneyLine(text, x, y)
+    if GbFont.isMoneyFigure(text) then
+        GbFont.drawTight(text, x, y)
+        return
+    end
+    local cursor = x
+    for _, run in ipairs(moneyRuns(text)) do
+        if run.kind == "figure" then
+            GbFont.drawTight(run.text, cursor, y)
+            cursor = cursor + 16 * utf8.len(run.text)
+        else
+            gfx.drawText(run.text, cursor, y)
+            cursor = cursor + gfx.getTextSize(run.text)
+        end
+    end
+end
+
+function GbFont.drawMoneyRight(text, rightX, y)
+    local width = GbFont.measureMoneyLine(text)
+    GbFont.drawMoneyLine(text, rightX - width, y)
+end

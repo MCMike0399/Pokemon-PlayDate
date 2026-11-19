@@ -1,4 +1,4 @@
--- Recoil KO where the user moves first. The foe's queued move must not run.
+-- Recoil KO where the user moves first. The living foe still uses the queued move.
 local ROOT = assert(arg[1], "repo path required")
 local BATTLE_OVERRIDE = arg[2]
 local SOURCE = ROOT .. "/Source/"

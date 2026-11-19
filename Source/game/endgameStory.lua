@@ -838,7 +838,13 @@ function EndgameStory.plan(id, observation)
                     {op = "dialog", labels = {room.dont_run_text}},
                     {op = "move", direction = "up", count = 1}}}
             end
-            return {status = "ready", steps = approachWalk(room, pending.x)}
+            local steps <const> = approachWalk(room, pending.x)
+            if room.walk then
+                -- WalkToLance_RLEList is simulated joypad. The corridor
+                -- cells stay solid, and CollisionCheckOnLand skips them.
+                return {status = "ready", simulated = true, steps = steps}
+            end
+            return {status = "ready", steps = steps}
         end
     end
     local gate <const> = data.route22_gate
@@ -1204,6 +1210,7 @@ end
 
 local function trainerRow(row)
     return {id = row.id, map_id = row.map_id, name = row.name, sprite_source = row.sprite_source,
+        class_source = row.class_source,
         sight_range_cells = row.sight or 0, talk_only = true, party = copy(row.party), payout = row.payout}
 end
 
@@ -1541,7 +1548,11 @@ function EndgameStory.drawPhoto(gfx, state)
     end
     for _, row in ipairs(EndgameStory.hallRows(photo)) do
         local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
-        gfx.drawText(row.text, px, py)
+        if row.text:find("¥", 1, true) then
+            GbFont.drawMoneyLine(row.text, px, py)
+        else
+            gfx.drawText(row.text, px, py)
+        end
     end
     if photo.kind == "player" then
         local pages <const> = EndgameStory.playerHallPages(photo.stats)
@@ -1760,11 +1771,13 @@ function EndgameStory.install()
     local charmander <const> = rival.parties_by_player_starter.charmander
     trainers[rival.id] = {id = rival.id, map_id = rival.map_id, name = "BLUE",
         sprite_source = rival.sprite_source, sight_range_cells = 0, talk_only = true,
+        class_source = rival.class_source,
         party = copy(charmander.party), payout = charmander.payout,
         rival_parties = copy(rival.parties_by_player_starter)}
     local champ <const> = data.champion
     local champParty <const> = champ.parties_by_player_starter.charmander
     addTrainer({id = champ.id, map_id = champ.map_id, name = "BLUE", sprite_source = champ.sprite_source,
+        class_source = champ.class_source,
         sight = 0, party = champParty.party, payout = champParty.payout},
         {kind = "bespoke", content = CONTENT, before = copy(champ.before), won = copy(champ.won),
             after = copy(champ.after), lost = copy(champ.lost),

@@ -1,5 +1,21 @@
 # Full-game execution ledger
 
+## 2026-11-19 Elite Four pictures and the battle intro font
+
+Lorelei, Bruno, Agatha, and Lance keep `OPP_LORELEI`, `OPP_BRUNO`, `OPP_AGATHA`, and `OPP_LANCE`. The Champion keeps `OPP_RIVAL3` and the Route 22 rematch keeps `OPP_RIVAL2`. Those classes reach the trainer row, so the intro loads `images/title/trainers/<class>`. A finished battle line stays in the GB font: `advance` steps past the last page, and the settled draw uses that page. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Earth Badge prize keeps the yen
+
+Giovanni's payout text is stored as UTF-8 `<PLAYER> got ¥@`. Charmap yen is `$f0`, tile 112, and `TitleIdle.glyph` maps it. `SourceText.expand` accepts that text, so the reward event can save the Earth Badge. The Victory Road POKéMANIAC name is UTF-8 as well. Mart prices, the daycare and bicycle money windows, the vending money line, the bicycle and drink menu prices, and the Hall of Fame money row draw that figure through `GbFont`. The PC storage screens do not draw a balance. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Lance hallway is simulated joypad
+
+WalkToLance_RLEList starts at (24, 16). Its second step, (24, 14), is solid, and so is most of the rest of the list. The entrance plan now sets `simulated` when the room has that walk list, which is Lance. CollisionCheckOnLand skips those cells. Lorelei, Bruno and Agatha still use `walk_in` and an ordinary move plan. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Lab, Daisy, and the queued move after a faint
+
+`oaks_lab` and `pokered:OAKS_LAB` both run the parcel scene. `blues_house` and `pokered:BLUES_HOUSE` both reach Daisy, who stands at (6, 4). A replacement faint no longer drops the rest of the queue: the living actor spends PP, a fainted target reports no target, then residuals and the forced switch run. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Pallet Fly alias
 
 Saves written before the cutover keep `pallet_town` in `fieldTravel.visited`. Fly's table allows only `pokered:PALLET_TOWN`, so `FieldTravel.normalize` rejected the save and the title offered no CONTINUE. Normalize now rewrites that saved id onto the existing Pallet slot at (5, 6). It does not add a Fly row, and Fly still refuses the authored id. `MallocPoolSize` stays 16645684.

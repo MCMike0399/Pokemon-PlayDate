@@ -156,7 +156,9 @@ function KantoWorld.tryInteract(game)
         end
         id = npc and npc.def and npc.def.source_event_id
     end
-    if not id and npc and npc.name=="OAK" and currentZone.stableID=="pokered:OAKS_LAB" and game.session:getIntro().stage=="done" then
+    if not id and npc and npc.name=="OAK"
+        and (currentZone.stableID=="pokered:OAKS_LAB" or currentZone.stableID=="oaks_lab")
+        and game.session:getIntro().stage=="done" then
         id="pokered:OAKS_LAB:script:parcel-handoff"
     end
     if not id and currentZone:isSliceReady() and inside(currentZone,fx,fy) then

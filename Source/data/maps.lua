@@ -88,6 +88,10 @@ local function registerPalletZones()
     zone("blues_house", "BluesHouse", "Blue's House", 2, 13, true, { x = 5, y = 6, facing = "up" }, {
         { x = 4, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 6, facing = "down" },
         { x = 5, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 6, facing = "down" },
+    }, {
+        -- The town-map scene stands at (6, 5) facing this cell. Source object 2
+        -- is also Daisy at (6, 4) before the house is padded.
+        { gridX = 6, gridY = 4, name = "Daisy", sprite = "daisy", dialog = { "DAISY: Hi! My brother is out at Grandpa's lab." } },
     })
     zone("oaks_lab", "OaksLab", "Oak's Lab", 1, 13, true, { x = 6, y = 10, facing = "up" }, {
         { x = 5, y = 11, edge = "down", to = "pallet_town", toX = 12, toY = 12, facing = "down" },

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""A first-mover recoil KO cancels the opponent's queued move."""
+"""A first-mover recoil KO still lets the living foe use the queued move.
+
+The fainted user is announced, then the foe spends PP and finds no target.
+The round ends in the forced switch. A replacement does not drop the queue."""
 
 import os
 import shutil
@@ -23,7 +26,7 @@ def lua_binary():
 
 
 class RecoilKoTests(unittest.TestCase):
-    def test_recoil_ko_skips_the_queued_move_and_keeps_its_pp(self):
+    def test_recoil_ko_spends_the_queued_move_against_no_target(self):
         completed = subprocess.run(
             [lua_binary(), str(HOST), str(ROOT)],
             check=False, capture_output=True, text=True)
@@ -31,12 +34,13 @@ class RecoilKoTests(unittest.TestCase):
         text = completed.stdout
         self.assertIn("VENUSAUR fainted!", text)
         self.assertIn("damaged by recoil!", text)
-        self.assertNotIn("CHARIZARD used WING ATTACK!", text)
+        self.assertLess(text.index("VENUSAUR fainted!"), text.index("CHARIZARD used WING ATTACK!"))
+        self.assertIn("But there was no target!", text)
         self.assertIn("phase forcedSwitch", text)
         self.assertIn("userhp 0", text)
         wing_before = next(line for line in text.splitlines() if line.startswith("wingpp-before "))
         wing_after = next(line for line in text.splitlines() if line.startswith("wingpp "))
-        self.assertEqual(wing_before.split()[1], wing_after.split()[1])
+        self.assertEqual(int(wing_before.split()[1]) - 1, int(wing_after.split()[1]))
 
 
 if __name__ == "__main__":
