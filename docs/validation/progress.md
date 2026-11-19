@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Source-event parity finishes inside the budget
+
+The parity sweep keeps one observation per event and fills every discovered item on every flag bit and variant. `itemIDs` records tables it has already walked, so a shared descriptor is not visited twice. The device suite scored 84/0 in 81s. Main's seven `wNameBuffer` parity failures are cleared, and no main-passing test failed. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 HP bar finishes before the command list
 
 pret/pokered animates the HP bar inside the move and only then returns to the battle menu. `updateVitals` can return command on the same resume that applies the damage, so FIGHT was painted on the pre-damage number. The command list now waits until `isVitalsBlocking` is false. Input already ignored A during the drain. `MallocPoolSize` stays 16645684.

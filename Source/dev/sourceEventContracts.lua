@@ -34,16 +34,25 @@ function SourceEventContracts.run()
             assert(baseline.has(id))
             local flags = {"EVENT_GOT_POTION_SAMPLE","EVENT_GOT_OAKS_PARCEL","EVENT_OAK_GOT_PARCEL","EVENT_GOT_POKEDEX","EVENT_GOT_TM34"}
             if descriptor.kind == "pickup" then flags[#flags + 1] = descriptor.flag end
+            -- One observation for every flag bit and variant. Rebuilding it
+            -- copied every discovered item twice per case. The mutation check
+            -- still deep-copies this table, and every item stays filled.
+            local state = observation(itemIDs)
             for bits=0,(1 << #flags)-1 do
                 for variant=0,15 do
-                    local state = observation(itemIDs)
                     for index, flag in ipairs(flags) do state.flags[flag] = (bits & (1 << (index-1))) ~= 0 end
                     for item in pairs(state.items) do
                         state.items[item] = variant & 1
                         state.can_add[item] = (variant & 2) ~= 0
                     end
                     state.trainers[id] = (variant & 4) ~= 0
-                    if (variant & 8) ~= 0 then state.receipt = {id=id,won=true,payout=1386} end
+                    if (variant & 8) ~= 0 then
+                        local receipt = state.receipt or {id=id,won=true,payout=1386}
+                        receipt.id, receipt.won, receipt.payout = id, true, 1386
+                        state.receipt = receipt
+                    else
+                        state.receipt = nil
+                    end
                     state.mode = variant % 2 == 0 and "talk" or "sight"
                     local untouched = GameSession._copy(state)
                     local oldOK, oldPlan = pcall(baseline.plan,id,state)
