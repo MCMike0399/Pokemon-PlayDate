@@ -6,6 +6,9 @@ Pokémon. finishRound said the whole _TrainerAboutToUseText first, so the
 YES/NO box existed only after that page was dismissed, and the scene
 drew the prompt with the system font. The question is its own page and
 the menu is on that page.
+
+pret/pokered text_2.asm breaks the question before "change #MON?".
+The GB box is 18 columns, so that line break keeps the é on screen.
 """
 
 import unittest
@@ -22,7 +25,7 @@ class ShiftPromptTests(unittest.TestCase):
         self.assertIn(
             'self:say(self.trainerName .. " is about to use " .. incoming.name .. "!")',
             finish)
-        self.assertIn('text = "Will " .. playerName .. " change POKéMON?"', finish)
+        self.assertIn('text = "Will " .. playerName .. "\\nchange POKéMON?"', finish)
         self.assertNotIn(
             'self:say(self.trainerName .. " is about to use " .. incoming.name\n',
             finish)

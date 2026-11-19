@@ -250,7 +250,14 @@ function BattleScriptPhase:advance()
         self.waiting = true
         self.messageTimer = 0
     elseif kind == "shift" then
-        self.battle.shiftChoice = {incoming = value}
+        local incoming = value
+        if type(value) == "table" and value.text then
+            incoming = value.incoming
+            self.battle.message = value.text
+            self.messageSerial = (self.messageSerial or 0) + 1
+            self.messageTimer = 0
+        end
+        self.battle.shiftChoice = {incoming = incoming}
         self.waiting = false
     elseif kind == "learning" then
         assert(value and value:is("Pokemon") and #value:getPendingMoveChoices() > 0, "invalid learning yield")
@@ -1789,9 +1796,15 @@ function Battle:finishRound()
                 -- battle text draws that source glyph.
                 local title = self.session and self.session:title()
                 local playerName = title and title.playerName or "RED"
-                self:say(self.trainerName .. " is about to use " .. incoming.name
-                    .. "!\nWill " .. playerName .. " change POKéMON?")
-                coroutine.yield("shift", incoming)
+                -- "about to use" is its own page. pokered then prints
+                -- "Will <PLAYER>" / "change #MON?" with TWO_OPTION_MENU.
+                -- One say() of both typed the question with no menu, and B
+                -- sent the foe out.
+                self:say(self.trainerName .. " is about to use " .. incoming.name .. "!")
+                coroutine.yield("shift", {
+                    incoming = incoming,
+                    text = "Will " .. playerName .. "\nchange POKéMON?",
+                })
                 local selected = self.shiftSelected
                 self.shiftSelected = nil
                 if selected then

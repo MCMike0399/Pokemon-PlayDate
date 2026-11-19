@@ -3,7 +3,7 @@
 
 The Giovanni intro drew his picture and an empty player platform.
 images/player/red-pic-back.png is the back sprite. It stays up through
-"wants to battle!" and leaves when Charizard's send-out finishes.
+"wants to battle!" and leaves when the player's send-out finishes.
 """
 
 import unittest

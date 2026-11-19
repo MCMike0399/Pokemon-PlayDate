@@ -235,7 +235,9 @@ function Dialog:draw(settled)
     -- Text is placed at bccoord 1, 14. The second row is hlcoord 1, 16.
     -- constants/charmap.asm puts ▼ at $ee, and PromptText writes it at 18, 16.
     GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
-    local shown = self.isActive and string.sub(line, 1, self.charIndex) or line
+    -- settled means the page is complete. The shift question uses that so
+    -- YES/NO shares the screen with the whole line, not the typewriter prefix.
+    local shown = (self.isActive and not settled) and string.sub(line, 1, self.charIndex) or line
     local row1, row2 = shown, nil
     local newline = shown:find("\n", 1, true)
     if newline then

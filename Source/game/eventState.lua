@@ -586,6 +586,11 @@ function EventState:startTrainer(step)
     local npc
     for _,actor in ipairs(self.game.npcManager.npcs) do if actor.def and actor.def.source_event_id==step.id then npc=actor;break end end
     if not npc then self:fail("absent-source-trainer");return end
+    -- A scripted walk holds the actor lease. TrainerEvents claims that same
+    -- actor, and claimScript rejects a second owner. The Route 22 rival walks
+    -- and then starts the battle in one event, so the walk lease is released
+    -- first, the same handoff the other story controllers already make.
+    self:cancelNPCMove()
     local token,reason=self.game.trainers:prepare(npc,step.mode,self)
     if not token then self:fail(reason);return end
     self.trainerToken,self.trainerNPC,self.trainerStep=token,npc,step;self.trainerLaunching=false
