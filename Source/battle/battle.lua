@@ -1024,7 +1024,11 @@ function Battle:resolveRound(turns)
     self.effects:beginRound(turns)
     for _, turn in ipairs(turns) do
         local outcome = self:resolveTurn(turn)
-        if outcome and outcome ~= "replacement" then return outcome end
+        -- A recoil or Struggle KO returns "replacement" while the bench can
+        -- still fight. Gen V does not run the later queued move against that
+        -- empty platform. Residuals still resolve, then the forced switch.
+        if outcome == "replacement" then return self:finishRound() end
+        if outcome then return outcome end
     end
     return self:finishRound()
 end

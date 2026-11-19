@@ -1,0 +1,20 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1016,7 +1016,15 @@ function Battle:resolveRound(turns)
+     self.effects:beginRound(turns)
+     for _, turn in ipairs(turns) do
+         local outcome = self:resolveTurn(turn)
+-        if outcome and outcome ~= "replacement" then return outcome end
++        -- Recoil, Struggle, and confusion self-hits faint the actor after
++        -- that action resolved. handleFaint returns "replacement" while the
++        -- bench can still fight. The later queued action still has a living
++        -- user, so the attacker check does not skip it, and performMove
++        -- announces and presents before moveHasTarget. Gen V does not run a
++        -- queued move whose target has already fainted. Residuals still go,
++        -- then the forced switch.
++        if outcome == "replacement" then return self:finishRound() end
++        if outcome then return outcome end
+     end
+     return self:finishRound()
+ end
