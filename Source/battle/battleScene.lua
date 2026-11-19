@@ -415,6 +415,9 @@ end
 
 function BattleScene:draw()
     if self.captureClosed then return end
+    -- Enter sets the intro line before this frame's update. Syncing here
+    -- opens the GB text instead of painting that line with the system font.
+    self:syncMessage()
     -- A dialog pushed over the battle applies the overworld camera when it
     -- finishes drawing. This field is screen space, so draw it from the origin
     -- or the player's sprite and HUD slide off the top.
@@ -671,9 +674,10 @@ function BattleScene:drawBattleField()
         -- Word-wrapped inside the frame so long messages never escape
         if self.messageDialog.isActive then
             self.messageDialog:draw()
-        else
-            local message = self.battle.message or ""
-            self:_wrapped("battle-message", message, 374, 44).image:draw(14, boxY + 10)
+        elseif self.battle.message and self.battle.message ~= "" then
+            -- A dismisses the typewriter and leaves battle.message set through
+            -- the trainer exit and the send-out. Keep that page in the GB font.
+            self.messageDialog:draw(true)
         end
     end
     end

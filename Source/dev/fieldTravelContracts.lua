@@ -11,6 +11,8 @@ local function cell(water)
 end
 
 local function runtimeScene(fn)
+    -- Boot leaves the pool too fragmented for the first city inflate.
+    collectgarbage("collect")
     local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
     local oldStory = Story.currentContext()
     local oldOwner, oldRNG = GameSession.activeRNGSession(), RulesRNG.toData()

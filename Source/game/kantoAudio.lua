@@ -176,10 +176,10 @@ local function textAdvance(top, menu)
     if top.name == "dialog" then
         return true
     end
-    -- Event and learning states expose dialog() as a method. Only a
-    -- presentation object can be active.
-    local spoken = top.dialog
-    if type(spoken) == "table" and spoken.isActive then
+    -- EventState:dialog is the page method. Indexing it as a Dialog
+    -- crashes the nurse before YES, while A is still just-pressed.
+    local dialog = top.dialog
+    if type(dialog) == "table" and dialog.isActive then
         return true
     end
     local scene = top.scene

@@ -188,8 +188,11 @@ function VisualCatalog.runExporter(name,consume,prepared)
         local sink={}
         function sink.save(stem,image,category,mask)
             local path=stem..".png"
-            local declared=assert(allowed[path],"undeclared exporter path: "..path)
+            -- A saved path is removed from the declaration list so the final
+            -- pass can report anything never written. A second save must still
+            -- be the duplicate, which is why that check comes first.
             assert(not seen[path],"duplicate exporter path: "..path)
+            local declared=assert(allowed[path],"undeclared exporter path: "..path)
             local w,h=image:getSize()
             assert(w==declared.width and h==declared.height and category==declared.category and (mask or false)==declared.mask,"exporter dimensions/metadata mismatch: "..path)
             seen[path]=true;consume(stem,image,category,mask);allowed[path]=nil
