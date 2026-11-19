@@ -147,6 +147,8 @@ def key_fight(name, trainer_id):
         return "badge-volcano"
     if trainer == "pokered:VIRIDIAN_GYM:objects:1":
         return "badge-earth"
+    if trainer == "pokered:ROUTE_22:objects:2":
+        return "rival-2"
     return None
 
 
@@ -2331,6 +2333,38 @@ class CharmanderRun(BrockJourney):
             self.send("wait 12")
         self._settle_gym()
 
+    def _leave_viridian_gym(self):
+        """Retrace the corridor. The tile east of (10, 2) is a right-arrow."""
+        if self.position() != (3, 1):
+            raise ProtocolError("Earth Badge exit did not start at Giovanni: " + str(self.position()))
+        for direction, count, landing in (
+            ("right", 1, (4, 1)),
+            ("down", 3, (4, 4)),
+            ("right", 3, (7, 4)),
+            ("up", 2, (7, 2)),
+            ("right", 3, (10, 2)),
+            ("down", 3, (10, 5)),
+            ("right", 1, (11, 5)),
+            ("right", 1, (12, 5)),
+            ("up", 1, (12, 4)),
+            ("right", 3, (15, 4)),
+            ("down", 2, (15, 6)),
+            ("down", 1, (15, 7)),
+            ("left", 2, (13, 7)),
+            ("down", 2, (13, 9)),
+            ("right", 1, (14, 9)),
+            ("down", 7, (14, 16)),
+            ("right", 2, (16, 16)),
+        ):
+            self._gym_presses(direction, count, landing)
+        self.send("press down", "wait 15")
+        self.drain()
+        if self._on("ViridianGym"):
+            self.send("press down", "wait 15")
+            self.drain()
+        if self._on("ViridianGym"):
+            raise ProtocolError("Viridian Gym door did not return to the city: " + str(self.position()))
+
     def _toward_giovanni(self):
         from tools.harness.brock_journey import NaturalBlackout
         for _ in range(3):
@@ -2346,9 +2380,12 @@ class CharmanderRun(BrockJourney):
         self.summary["acceptance"] = "walking toward the Earth Badge"
         self._arrange_lead("starter")
         if self.flag("BADGE_EARTH"):
+            if self._on("ViridianGym"):
+                self._leave_viridian_gym()
             self.heal_here("ViridianPokecenter")
             self.save()
             self.summary.update(acceptance="Earth Badge earned", natural=True, forbidden_shortcuts=False)
+            self._toward_league()
             return
         zone = self._map_name()
         if "CINNABAR" in zone or "MANSION" in zone:
@@ -2393,9 +2430,27 @@ class CharmanderRun(BrockJourney):
             self._walk_viridian_gym()
         if not self.flag("BADGE_EARTH"):
             raise ProtocolError("Giovanni did not award the Earth Badge: " + self._map_name() + " " + str(self.position()))
+        if self._on("ViridianGym"):
+            self._leave_viridian_gym()
         self.heal_here("ViridianPokecenter")
         self.save()
         self.summary.update(acceptance="Earth Badge earned", natural=True, forbidden_shortcuts=False)
+        self._toward_league()
+
+    def _toward_league(self):
+        """The second rival stands on Route 22. The badge gates are the next road."""
+        if self.flag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE"):
+            self.summary.update(acceptance="Route 22 rival defeated", natural=True, forbidden_shortcuts=False)
+            return
+        self.summary["acceptance"] = "walking toward the Route 22 rival"
+        self._arrange_lead("starter")
+        self.travel(self.zone("Route22"), {(29, 4), (29, 5)})
+        self.drain()
+        if not self.flag("EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE"):
+            raise ProtocolError("Route 22 rival did not start: " + self._map_name() + " " + str(self.position()))
+        self.heal_here("ViridianPokecenter")
+        self.save()
+        self.summary.update(acceptance="Route 22 rival defeated", natural=True, forbidden_shortcuts=False)
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
@@ -3121,6 +3176,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("advance_travel", advance)
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         self.assertEqual(key_fight("source", "pokered:VIRIDIAN_GYM:objects:1"), "badge-earth")
+        self.assertEqual(key_fight("source", "pokered:ROUTE_22:objects:2"), "rival-2")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
@@ -3353,6 +3409,8 @@ class FightRecorder:
             # line is the frame that has to show the yen.
             if label == "badge-earth":
                 seconds = "180"
+            elif label == "rival-2":
+                seconds = "150"
             elif str(label).startswith("badge-"):
                 seconds = "90"
             else:
