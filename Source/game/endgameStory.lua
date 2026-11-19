@@ -27,7 +27,10 @@ local INDIGO_RESET <const> = {
 local VISIBILITY <const> = {
     ["pokered:VIRIDIAN_GYM:objects:1"] = {{group = "quest", id = GIOVANNI_HIDE, equals = false}},
     [MOLTRES] = {{group = "quest", id = "EVENT_BEAT_MOLTRES", equals = false}},
-    ["pokered:VICTORY_ROAD_2F:objects:13"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_2F_BOULDER", equals = false}},
+    -- Pokered always places the 2F puzzle boulder (objects:13) at (23, 16).
+    -- Route 23 sets TOGGLE_VICTORY_ROAD_2F_BOULDER on the way in, so hiding
+    -- objects:13 on that flag removed the only boulder that can reach the
+    -- switch at (9, 16). The 3F hole boulder stays on its own toggle.
     ["pokered:VICTORY_ROAD_3F:objects:10"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_3F_BOULDER", equals = false}},
     ["pokered:CHAMPIONS_ROOM:objects:2"] = {{group = "quest", id = OAK_SHOW, equals = true}},
 }
