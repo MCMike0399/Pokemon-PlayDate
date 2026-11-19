@@ -1200,7 +1200,20 @@ class CharmanderRun(BrockJourney):
         self.project_warp = project_warp
         base_advance = self.advance_event
         def advance_event(stop_phase=None):
-            if self.state.get("root") in {"safariBattle", "safariPassage"}:
+            root = self.state.get("root")
+            if root == "coastSwitch":
+                # The statue menu opens on YES. That toggles the mansion doors.
+                self.send("press a")
+                return True
+            if root == "coastQuiz":
+                if getattr(self, "_quiz_answer", "yes") == "no" and not getattr(self, "_quiz_armed", False):
+                    self._quiz_armed = True
+                    self.send("press down")
+                    return True
+                self._quiz_armed = False
+                self.send("press a")
+                return True
+            if root in {"safariBattle", "safariPassage"}:
                 return midgame.MidgameJourney.advance_event(self, stop_phase)
             if self.state.get("root") == "fieldTravel":
                 return midgame.MidgameJourney.advance_travel(self)
@@ -2016,24 +2029,136 @@ class CharmanderRun(BrockJourney):
         if self.model().collision[y][x] != 0:
             raise ProtocolError("Cinnabar Surf did not reach land: " + str(self.position()))
 
+    _MANSION_DOORS = {
+        "PokemonMansion1F": ((12, 6, 0x0e, 0x2d), (8, 3, 0x2d, 0x0e), (10, 8, 0x2d, 0x0e), (13, 13, 0x2d, 0x0e)),
+        "PokemonMansion2F": ((4, 2, 0x0e, 0x5f), (9, 4, 0x54, 0x0e), (3, 11, 0x5f, 0x0e)),
+        "PokemonMansion3F": ((7, 2, 0x0e, 0x5f), (7, 5, 0x5f, 0x0e)),
+        "PokemonMansionB1F": ((13, 8, 0x0e, 0x2d), (6, 11, 0x0e, 0x5f), (4, 3, 0x5f, 0x0e), (8, 8, 0x54, 0x0e)),
+    }
+    _GATE_SOLID = {
+        0x0e: (False, False, False, False),
+        0x2d: (False, False, True, True),
+        0x5f: (False, True, False, True),
+        0x54: (True, True, False, False),
+    }
+    _GYM_GATES = (
+        (1, 9, 3, 0x54), (2, 6, 3, 0x54), (3, 6, 6, 0x54),
+        (4, 3, 8, 0x5f), (5, 2, 6, 0x54), (6, 2, 3, 0x54),
+    )
+
+    def _paint_gates(self, doors):
+        """Replace each 2x2 gate. A closed door also opens the quadrants the block leaves empty."""
+        model = self.model()
+        if not hasattr(model, "_gate_base"):
+            model._gate_base = [row[:] for row in model.collision]
+        for y, row in enumerate(model.collision):
+            row[:] = model._gate_base[y]
+        for bx, by, block in doors:
+            pattern = self._GATE_SOLID[block]
+            for dy in (0, 1):
+                for dx in (0, 1):
+                    model.collision[by * 2 + dy][bx * 2 + dx] = 1 if pattern[dy * 2 + dx] else 0
+        return model
+
+    def _apply_mansion_gates(self):
+        floor = next((name for name in self._MANSION_DOORS if self._on(name)), None)
+        if floor is None:
+            return
+        on = self.flag("EVENT_MANSION_SWITCH_ON")
+        doors = tuple((bx, by, onb if on else off) for bx, by, off, onb in self._MANSION_DOORS[floor])
+        model = self._paint_gates(doors)
+        if floor == "PokemonMansion3F":
+            for x, y in ((16, 14), (17, 14), (19, 14)):
+                model.collision[y][x] = 1
+
+    def _press_mansion_switch(self, stand):
+        self._apply_mansion_gates()
+        self.navigate(stand)
+        self.face("up")
+        before = self.flag("EVENT_MANSION_SWITCH_ON")
+        self.send("press a")
+        self.drain()
+        if self.flag("EVENT_MANSION_SWITCH_ON") == before:
+            raise ProtocolError("mansion switch did not toggle at " + str(stand))
+        self._apply_mansion_gates()
+
+    def _collect_secret_key(self):
+        """3F's switch opens the hole. The basement switches then open the key room."""
+        if not self._on("PokemonMansion1F"):
+            if not self._on("CinnabarIsland"):
+                self.warp(self.zone("CinnabarIsland"))
+            self.warp(self.zone("PokemonMansion1F"), "pokered:CINNABAR_ISLAND:warps:1")
+        self._apply_mansion_gates()
+        self.warp(self.zone("PokemonMansion2F"), self.zone("PokemonMansion1F") + ":warps:5")
+        self._apply_mansion_gates()
+        # 2F's east stair is the next cell. Step through it and come straight back.
+        self.warp(self.zone("PokemonMansion3F"), self.zone("PokemonMansion2F") + ":warps:2")
+        self._apply_mansion_gates()
+        self.warp(self.zone("PokemonMansion2F"), self.zone("PokemonMansion3F") + ":warps:1")
+        self._apply_mansion_gates()
+        self.warp(self.zone("PokemonMansion3F"), self.zone("PokemonMansion2F") + ":warps:4")
+        self._apply_mansion_gates()
+        self._press_mansion_switch((10, 6))
+        self.navigate((16, 13))
+        self.send("press down", "wait 15")
+        self.drain()
+        if not self._on("PokemonMansion1F"):
+            raise ProtocolError("mansion hole missed 1F: " + self._map_name() + " " + str(self.position()))
+        self._apply_mansion_gates()
+        self.warp(self.zone("PokemonMansionB1F"), self.zone("PokemonMansion1F") + ":warps:6")
+        self._apply_mansion_gates()
+        self._press_mansion_switch((18, 26))
+        self._press_mansion_switch((20, 4))
+        self.interact(source_id="pokered:POKEMON_MANSION_B1F:objects:8")
+        if self.quantity("secretKey") < 1:
+            raise ProtocolError("secret key was not picked up")
+
+    def _apply_cinnabar_gates(self):
+        if not self._on("CinnabarGym"):
+            return
+        doors = tuple(
+            (bx, by, 0x0e if self.flag("EVENT_CINNABAR_GYM_GATE" + str(index) + "_UNLOCKED") else closed)
+            for index, bx, by, closed in self._GYM_GATES
+        )
+        self._paint_gates(doors)
+
+    def _answer_quiz(self, stand, answer, flag):
+        if self.flag(flag):
+            return
+        self._apply_cinnabar_gates()
+        self.navigate(stand)
+        self.face("up")
+        self._quiz_answer = answer
+        self._quiz_armed = False
+        self.send("press a")
+        self.drain()
+        if not self.flag(flag):
+            raise ProtocolError("Cinnabar quiz did not open " + flag)
+        self._apply_cinnabar_gates()
+
     def _mansion_and_blaine(self):
         if self.flag("BADGE_VOLCANO"):
             self._toward_giovanni()
             return
         if len(self.inventory()["slots"]) > 15:
             self.store_unused_items("CinnabarPokecenter")
+        if "MANSION" not in self._map_name() and "GYM" not in self._map_name():
+            if not self._on("CinnabarIsland"):
+                self.warp(self.zone("CinnabarIsland"))
+            self.heal_here("CinnabarPokecenter")
+            self.save()
         if self.quantity("secretKey") < 1 and not self.flag("PICKUP:pokered:POKEMON_MANSION_B1F:objects:8"):
-            if not self._on("PokemonMansionB1F"):
-                if not self._on("PokemonMansion1F"):
-                    if not self._on("CinnabarIsland"):
-                        self.warp(self.zone("CinnabarIsland"))
-                    self.warp(self.zone("PokemonMansion1F"), "pokered:CINNABAR_ISLAND:warps:1")
-                self.warp(self.zone("PokemonMansionB1F"), "pokered:POKEMON_MANSION_1F:warps:6")
-            self.pickup("pokered:POKEMON_MANSION_B1F:objects:8", "secretKey")
+            self._collect_secret_key()
         self.heal_here("CinnabarPokecenter")
         self.save()
         self._arrange_lead("starter")
         self.warp(self.zone("CinnabarGym"), "pokered:CINNABAR_ISLAND:warps:2")
+        for stand, answer, number in (
+            ((15, 8), "yes", 1), ((10, 2), "no", 2), ((9, 8), "no", 3),
+            ((9, 14), "no", 4), ((1, 14), "yes", 5), ((1, 8), "no", 6),
+        ):
+            self._answer_quiz(stand, answer, "EVENT_CINNABAR_GYM_GATE" + str(number) + "_UNLOCKED")
+        self._apply_cinnabar_gates()
         self._fight_story("pokered:CINNABAR_GYM:objects:1")
         if not self.flag("BADGE_VOLCANO"):
             raise ProtocolError("Blaine did not award the Volcano Badge")
