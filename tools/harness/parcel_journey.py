@@ -207,7 +207,10 @@ def load_geometry(evidence, require_authored=True):
     source = evidence / "Source" / authored["source_file"]
     body = source.read_bytes()
     # The retirement note wraps, so match the contiguous phrase on its own line.
-    retired = b"hand-authored tile rows" in body and not require_authored
+    # Lane E then registered the same keys from padded pokered collision.
+    # A continued campaign does not rebuild that reviewed collision reference.
+    retired = not require_authored and (
+        b"hand-authored tile rows" in body or b"registerPalletZones" in body)
     if not retired:
         from tools.source_preservation import canonical_startup_source
         try:
