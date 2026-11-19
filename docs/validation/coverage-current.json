@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "a2c1a5607afb918ee4730a25d1c38c82fa48d909",
+    "source_sha256": "a79132ba87bf99f31c4f77cfa923a098260ae6a0f34eed273f9041a5f119ba79",
+    "policy_date": "2026-11-19",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the npc-trade score publishes with the 240-slot case last. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 65514f74f4f3b31b5f17ad28305988e653d8bd6c668b4e70f45de942eaadf35f.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "6095a99adf04a72a0ca8a0f3f18eda3e085ebee6",
     "source_sha256": "65514f74f4f3b31b5f17ad28305988e653d8bd6c668b4e70f45de942eaadf35f",
     "policy_date": "2026-11-19",
@@ -1595,6 +1606,7 @@
   
   }
   }}
+  }
   }
   }
   }
