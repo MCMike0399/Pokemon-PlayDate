@@ -450,10 +450,12 @@ end
 -- Discover inventory observations from descriptors rather than a regional list.
 function SourceEvents.itemIDs()
     local found = {}
+    local seen = {}
     local function visit(value)
-        if type(value) ~= "table" then
+        if type(value) ~= "table" or seen[value] then
             return
         end
+        seen[value] = true
         if value.item then
             found[value.item] = true
         end
