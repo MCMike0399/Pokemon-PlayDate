@@ -3416,7 +3416,7 @@ class FightRecorder:
             if label == "badge-earth":
                 seconds = "180"
             elif label == "rival-2":
-                seconds = "150"
+                seconds = "90"
             elif str(label).startswith("badge-"):
                 seconds = "90"
             else:
