@@ -1485,3 +1485,18 @@ dismissed. The handoff is `tools/notes/lane-e-faint-order.patch`
 with `tools/tests/test_lane_e_faint_order.py`. It presents the slide
 first, which waits for the drain and `SlideDownFaintedMonPic`, then
 prints the line. It is not applied.
+
+The later Route 22 clips are the same bug on a long tween.
+`20261119T145127Z` prints `DROWZEE fainted!` with the confirm arrow
+at 46/69 and at 26/69. `145428Z` prints it at 53/69 and prints
+`POLIWAG fainted!` at 20/28. `153952Z` prints `SANDSHREW fainted!`
+at 32/41 and `POLIWAG fainted!` at 24/28. The sprites are standing.
+`updateVitals` steps `maxHP/30`, so 180 of a 200 HP bar is still
+about 47 after the 20-frame slide. The line has to wait until that
+bar is 0. Bellsprout's faint line in `153952Z` comes after 0/58
+only because `It's super effective!` occupied the box for the whole
+drain. The partial strings in those clips (`VENUSAUR is damaged by
+rec`, `CHARIZARD used`, `PIDGEOTTO used QUICK`, `It's s`, `BEL`) are
+the typewriter. The next frames finish `recoil!`, `WING ATTACK!`,
+`FLAME BURST!`, `SLASH!`, `It's super effective!`, and
+`BELLSPROUT fainted!`, and the arrow is up before the next page.
