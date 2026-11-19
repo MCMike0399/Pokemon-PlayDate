@@ -1,8 +1,14 @@
 # Open questions
 
-This note is the lane E handoff at `52650bc2`. It records decisions that are still open, the checks that were red on that commit, and the branches and patches that have not been pulled. Nothing in this file changes the game.
+Miguel answered the two questions below on 2026-11-19. `main` is still `bf92c4fc` because `453f2daa` has device failures that commit did not have. The branch is `18d404ec`: the daycare fixture, the imported Pallet cutover, and the Seafoam surf crossing are on `cursor/lane-e-integration`. This file does not change the game.
 
-## Decisions waiting on Miguel
+## Answered 2026-11-19
+
+Daycare: `SessionFixture.forVersion` drops `hallOfFame` and `playTime` below version 4. The codec assertions at `sessionCodec.lua:131-136` stay as they are. That edit is `e79651f4`.
+
+Main: fast-forward when the only failures are ones `bf92c4fc` already had. Prove it with the same gates on both trees. `453f2daa` did not meet that bar, so main did not move.
+
+## Recorded questions
 
 ### (a) The daycare fixture
 

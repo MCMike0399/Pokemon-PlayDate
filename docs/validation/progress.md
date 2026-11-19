@@ -1,5 +1,11 @@
 # Full-game execution ledger
 
+## 2026-11-19 Pallet cutover and Seafoam surf path
+
+`main` stays `bf92c4fc`. It was not fast-forwarded. The device comparison of `453f2daa` against that main still has head-only reds: `pewterInstall`, `move-failure`, `pewterProvider`, `brock-field-items`, `cerulean-catalog`, `comprehensive-catalog`, `source-maps`, and `npc-trades`, plus unscored timeouts in `source-events`, `vermilion-catalog`, and `field-travel`. `event-catalog` was a ready-handshake flake; the retry passed 22/0. No ancestor after `bf92c4fc` has a clean comparison. `MallocPoolSize` stays 16645684.
+
+`cursor/lane-e-integration` is `18d404ec`. `e79651f4` leaves `hallOfFame` and `playTime` out of pre-v4 session fixtures. `c00b14ea` replaces authored Pallet with `pokered:PALLET_TOWN` and points Fly at that source map, including the Route 21 south connection. `18d404ec` records the Seafoam crossing: Route 20 (48, 5) to (58, 9) by surfing cavern foot `$14`. `tools/tests/test_lane_e_seafoam_shores.py` passes with the boulders in place and with them ignored.
+
 ## 2026-11-13 Empty-box encode collection, gates, and the queued handoffs
 
 `main` stays `bf92c4fc`. `MallocPoolSize` stays 16645684. The 14000 KiB boot budget was not lowered. No skip or expected-failure marker was added. `Source/dev/sessionFixture.lua` was not edited. Daycare still fails on Miguel's fixture: `legacy session cannot contain a hall of fame record` at `daycareContracts.lua:383` and `:409`.
