@@ -107,6 +107,15 @@ function SourceActors.stepImage(source, facing, tick, profile)
     return content(profile or "pewter").stepImage(source, facing, tick)
 end
 
+local PALLET_NAMES <const> = {
+    TEXT_OAKSLAB_RIVAL = "BLUE",
+    TEXT_OAKSLAB_OAK1 = "OAK",
+    TEXT_OAKSLAB_OAK2 = "OAK",
+    TEXT_PALLETTOWN_OAK = "OAK",
+    TEXT_REDSHOUSE1F_MOM = "MOM",
+    TEXT_BLUESHOUSE_DAISY_SITTING = "Daisy",
+    TEXT_BLUESHOUSE_DAISY_WALKING = "Daisy",
+}
 function SourceActors.objectDefinition(d, event, spec, options)
     local profile = SourceMaps.entry(d.name).profile
     local resolver = content(profile)
@@ -122,7 +131,7 @@ function SourceActors.objectDefinition(d, event, spec, options)
         end
         return visibility
     end
-    local def = { gridX=event.x, gridY=event.y, name=trainer and trainer.name or event.text_id,
+    local def = { gridX=event.x, gridY=event.y, name=PALLET_NAMES[event.text_id] or trainer and trainer.name or event.text_id,
         sprite=key, source_event_id=event.id, source_sprite=event.sprite,
         source_boulder=SourceActors.isBoulderEvent(event),
         source_movement={kind=event.movement, range=event.range_or_facing},

@@ -117,7 +117,7 @@ function EventState:enter(id,options)
     self.hasFailureText=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
     if plan.scene=="oak-pokedex" then
-        assert(currentZone==zoneRegistry.oaks_lab,"Oak parcel scene requires protected authored lab")
+        assert(currentZone and currentZone.stableID=="pokered:OAKS_LAB","Oak parcel scene requires the imported lab")
         self.oak=assert(self.game.npcManager:findByName("OAK"),"Oak actor missing")
         self.oldOakFacing=self.oak.facing
         local aisle=self:oakAisle()

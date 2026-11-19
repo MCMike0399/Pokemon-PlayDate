@@ -64,6 +64,27 @@ function KantoWorld.connection(game,zone,x,y,direction)
         local door,handled,reason=PewterWorld.connection(game,zone,x,y,direction)
         if handled then return door,reason end
     end
+    if zone.stableID=="pokered:PALLET_TOWN" then
+        if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil end
+        if not game or not game.session or game.session:getIntro().stage~="done" then return nil,"intro-gate" end
+        local value=SourceMaps.connection("PalletTown",x,y,direction)
+        if not value then return nil,"unimplemented-connection:"..zone.stableID..":"..direction end
+        local target=zoneRegistry[value.to]
+        local provider=WorldDeltas.definitionProvider()
+        if provider and provider:hasKey(value.to) then
+            local descriptor=provider:descriptor(value.to)
+            local valid=pcall(provider.resolveLocation, provider,
+                {zone_id=descriptor.id, x=value.x, y=value.y, facing=value.facing},
+                provider:export(), game.sessionLocationPolicy)
+            if not valid then return nil,"blocked-connection-arrival" end
+            target=provider:ensure(value.to)
+        end
+        if not target or not inside(target,value.x,value.y) or target.collision[value.y+1][value.x+1]~=0 then return nil,"blocked-connection-arrival" end
+        for _,npc in ipairs(target.npcDefs) do
+            if npc.gridX==value.x and npc.gridY==value.y and (not npc.appearsIf or npc.appearsIf()) then return nil,"occupied-connection-arrival" end
+        end
+        return {to=value.to,toX=value.x,toY=value.y,facing=value.facing,connection=true,source=value.source}
+    end
     local name=byID[zone.stableID] or (zone.stableID=="pallet_town" and "pallet_town")
     if not name then return nil end
     if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil end
@@ -127,7 +148,7 @@ function KantoWorld.tryInteract(game)
         end
         id = npc and npc.def and npc.def.source_event_id
     end
-    if not id and npc and npc.name=="OAK" and currentZone.stableID=="oaks_lab" and game.session:getIntro().stage=="done" then
+    if not id and npc and npc.name=="OAK" and currentZone.stableID=="pokered:OAKS_LAB" and game.session:getIntro().stage=="done" then
         id="pokered:OAKS_LAB:script:parcel-handoff"
     end
     if not id and currentZone:isSliceReady() and inside(currentZone,fx,fy) then

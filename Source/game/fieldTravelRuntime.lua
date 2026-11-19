@@ -92,9 +92,6 @@ function FieldTravelRuntime.fly(game, expected, plan)
         local world = FieldWorld.reloadWorld(expected.world, {expected.position.zone_id})
         undoWorld = WorldDeltas.apply(world)
         local key = WorldDeltas.zoneKey(plan.location.zone_id)
-        if plan.location.zone_id == "pallet_town" then
-            key = "pallet_town"
-        end
         assert(key, "Fly destination not installed")
         target = assert(WorldDeltas.ensureZone(key))
         target:assertEnterable()
