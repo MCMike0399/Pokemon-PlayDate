@@ -1729,3 +1729,17 @@ Live rows keep `OPP_LORELEI`, `OPP_BRUNO`, `OPP_AGATHA`, `OPP_LANCE`,
 `OPP_RIVAL3`, and `OPP_RIVAL2`. The battle intro stays on the GB font
 through the last page. Lance's walk is in this branch already and is
 still unused until after Agatha.
+
+## Viridian nurse audio crash
+
+The Center walk saved sequence 656 at Viridian Pokémon Center `(3, 7)`
+facing up, sha256
+`52695f845e2f528058c2a48ff83499b0b4efcb05a731c606a89dc5ba410b45d6`.
+Sandshrew is still fainted. Talking to the nurse crashes three times
+at `kantoAudio.lua:179`: `attempt to index a function value (field
+'dialog')`. `EventState:dialog` is the method that opens the welcome
+text. After A, that event is the top state for a frame before YES, and
+`textAdvance` reads `top.dialog.isActive`. The party is not healed.
+The handoff is `tools/notes/lane-e-nurse-audio.patch` with
+`tools/tests/test_lane_e_nurse_audio.py`. It is not applied. Training
+and the Elite Four stay stopped on this crash.
