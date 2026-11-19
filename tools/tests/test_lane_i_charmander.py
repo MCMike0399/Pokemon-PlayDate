@@ -252,10 +252,27 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("Brock runtime dependency missing: " + path)
         self.summary["build_evidence"] = str(self.build_evidence)
 
+    def _open_continued_menu(self):
+        """The title picture waits for A. The menu does not open by itself."""
+        self.send({"op": "await", "path": "root", "equals": "title", "frames": 1200})
+        for _ in range(12):
+            phase = lookup(self.state, "title.phase")
+            if phase == "menu":
+                self.send("wait 24")
+                return
+            if phase in {"title", "intro"}:
+                self.send("press a", "wait 15")
+            else:
+                self.send("wait 15")
+        phase = lookup(self.state, "title.phase")
+        if phase != "menu":
+            raise ProtocolError("title did not open the menu: " + str(phase))
+        self.send("wait 24")
+
     def continue_earned(self):
         """Title CONTINUE, then the Brock steps the save has not finished."""
         self.dependencies()
-        self.send({"op": "await", "path": "title.phase", "equals": "menu", "frames": 1200})
+        self._open_continued_menu()
         options = sequence(lookup(self.state, "title.menu.options"), "title options")
         if options.count("CONTINUE") != 1:
             raise ProtocolError("earned save did not offer CONTINUE")
