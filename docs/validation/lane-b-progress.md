@@ -1755,3 +1755,14 @@ hit and returns command, so that list can cover the pre-damage HP.
 The handoff is `tools/notes/lane-e-hp-drain-menu.patch` with
 `tools/tests/test_lane_e_hp_drain_menu.py`. It is not applied. The
 nurse crash is still the stop.
+
+## Viridian nurse healed
+
+Lane E's guard is merged from `6b47f549` (`28c679c2`). Continue from
+sequence 656 reached the nurse, chose YES, and saved sequence 657 at
+Viridian City `(23, 26)` facing down, sha256
+`e0c723649a1a22258508b14fe752a64a54e667241f0bc1e663784ac40f9921b5`.
+The party is full: Venusaur L62 194/194, Bellsprout L24 58/58,
+Pidgeotto L35 96/96, Drowzee L24 69/69, Sandshrew L14 41/41, Poliwag
+L24 53/53. Money is still 298. Training walks Pidgeotto to Route 23
+grass. The HP-drain patch stays unapplied for lane E.
