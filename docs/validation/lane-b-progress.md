@@ -1743,3 +1743,15 @@ text. After A, that event is the top state for a frame before YES, and
 The handoff is `tools/notes/lane-e-nurse-audio.patch` with
 `tools/tests/test_lane_e_nurse_audio.py`. It is not applied. Training
 and the Elite Four stay stopped on this crash.
+
+## HP bar and the command list
+
+`20261119T212421Z-elite-lorelei.mp4` shows Aurora Beam's bar at 153/191
+on the sixth drain frame and at 119/191 while "It's super effective!"
+is still up. FIGHT is drawn after that line. `drawBattleField` still
+paints the command list whenever the phase is already command.
+`updateVitals` has already run on the resume that applies a neutral
+hit and returns command, so that list can cover the pre-damage HP.
+The handoff is `tools/notes/lane-e-hp-drain-menu.patch` with
+`tools/tests/test_lane_e_hp_drain_menu.py`. It is not applied. The
+nurse crash is still the stop.
