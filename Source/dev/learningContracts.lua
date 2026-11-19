@@ -95,7 +95,11 @@ function LearningContracts.run()
         equal(state.phase, "message"); equal(p.moves[2], "dragonRage")
         equal(p.pp.growl, nil); equal(p.pp.dragonRage, moveData.dragonRage.maxPP)
         equal(p.pp.scratch, scratchPP); equal(#p:getPendingMoveChoices(), 0)
-        equal(#state.dialog.lines, 2, "forgot/learned narration")
+        -- data/text/text_4.asm _ForgotAndText and _LearnedMove1Text.
+        -- Each `line` is the second row. The forgotten move ends with "!".
+        equal(#state.dialog.lines, 2, "forgot/learned pages")
+        equal(state.dialog.lines[1], p.name .. " forgot\n" .. moveData.growl.name .. "!")
+        equal(state.dialog.lines[2], p.name .. " learned\n" .. moveData.dragonRage.name .. "!")
         messageComplete(state); equal(game.machine:getCurrent(), "world")
     end)
 

@@ -57,18 +57,43 @@ function SaffronGuardContracts.run()
     end
     local definitions <const> = SaffronGuards.definitions()
     local flag <const> = definitions.flag
+    local function pageText(pages)
+        local lines <const> = {}
+        for index, page in ipairs(pages) do lines[index] = page.text end
+        return lines
+    end
+    local function samePages(actual, expected)
+        eq(#actual, #expected)
+        for index, text in ipairs(expected) do eq(actual[index], text) end
+    end
     test("guard-exact-source-paragraphs", function()
-        local pages <const> = EventText.pagesFrom(definitions.thirsty, SaffronGuards.text)
-        eq(#pages, 2)
-        eq(pages[1].text, "I'm on guard duty. Gee, I'm thirsty, though!")
-        eq(pages[2].text, "Oh wait there, the road's closed.")
-        local accepted <const> = EventText.pagesFrom(definitions.accepted, SaffronGuards.text)
-        eq(#accepted, 2)
-        eq(accepted[1].text, "Whoa, boy! I'm parched! ... Huh? I can have this drink? Gee, thanks!")
-        eq(accepted[2].text, "... Glug glug... ... Gulp... If you want to go to SAFFRON CITY... ... You can go on through. I'll share this with the other guards!")
-        local completed <const> = EventText.pagesFrom(definitions.completed, SaffronGuards.text)
-        eq(#completed, 1)
-        eq(completed[1].text, "Hi, thanks for the cool drinks!")
+        -- text/SaffronGates.asm. text and line fill the two rows. cont scrolls
+        -- the second row up and waits, so each cont is its own page.
+        samePages(pageText(EventText.pagesFrom(definitions.thirsty, SaffronGuards.text)), {
+            "I'm on guard duty.\nGee, I'm thirsty,",
+            "Gee, I'm thirsty,\nthough!",
+            "Oh wait there,\nthe road's closed.",
+        })
+        samePages(pageText(EventText.pagesFrom(definitions.accepted, SaffronGuards.text)), {
+            "Whoa, boy!\nI'm parched!",
+            "I'm parched!\n...",
+            "...\nHuh? I can have",
+            "Huh? I can have\nthis drink?",
+            "this drink?\nGee, thanks!",
+            "...\nGlug glug...",
+            "Glug glug...\n...",
+            "...\nGulp...",
+            "Gulp...\nIf you want to go",
+            "If you want to go\nto SAFFRON CITY...",
+            "to SAFFRON CITY...\n...",
+            "...\nYou can go on",
+            "You can go on\nthrough. I'll",
+            "through. I'll\nshare this with",
+            "share this with\nthe other guards!",
+        })
+        samePages(pageText(EventText.pagesFrom(definitions.completed, SaffronGuards.text)), {
+            "Hi, thanks for\nthe cool drinks!",
+        })
     end)
     for id, guard in pairs(definitions.guards) do
         if guard.active then

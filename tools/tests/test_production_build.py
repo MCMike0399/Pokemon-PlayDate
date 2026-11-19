@@ -112,6 +112,7 @@ class ProductionBuildTests(unittest.TestCase):
         additions_before = {
             'world/zone': ['game/waterEncounters'],
             'game/titleState': ['game/titleIdle'],
+            'game/debugState': ['game/kantoAudio'],
             'game/eventState': ['game/creditsPlayer'],
             'game/rocketHideoutStory': [
                 'game/towerStory', 'game/snorlaxStory', 'game/towerStoryController'],

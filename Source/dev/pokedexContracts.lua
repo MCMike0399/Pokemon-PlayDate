@@ -65,10 +65,11 @@ function PokedexContracts.run()
         eq(g.session:pokedex().owned.bulbasaur,true);eq(g.session:pokedex().seen.mew,nil);s:back();s:back()
     end)
     test("Codec preserves saved nicknames and legacy ASCII names without guessed migration",function()
-        for _,name in ipairs({"MY MIME","MR","FARFETCHD"}) do
+        -- constants/charmap.asm allows ♀. The codec stores that glyph, it does not rewrite it to "F".
+        for _,name in ipairs({"MY MIME","MR","FARFETCHD","NIDORAN♀"}) do
             local mon=Pokemon("mr",5);mon.name=name;local record=assert(PokemonCodec.encode(mon));local copy=assert(PokemonCodec.decode(record));eq(copy.name,name)
         end
-        local mon=Pokemon("mr",5);mon.name="NIDORAN♀";eq(PokemonCodec.encode(mon),nil)
+        local mon=Pokemon("mr",5);mon.name="NIDORANé";eq(PokemonCodec.encode(mon),nil)
         mon.name="ELEVENCHARS";eq(PokemonCodec.encode(mon),nil)
     end)
     test("Existing starter names, moves and species stats are unchanged",function()

@@ -27,7 +27,10 @@ local INDIGO_RESET <const> = {
 local VISIBILITY <const> = {
     ["pokered:VIRIDIAN_GYM:objects:1"] = {{group = "quest", id = GIOVANNI_HIDE, equals = false}},
     [MOLTRES] = {{group = "quest", id = "EVENT_BEAT_MOLTRES", equals = false}},
-    ["pokered:VICTORY_ROAD_2F:objects:13"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_2F_BOULDER", equals = false}},
+    -- Pokered always places the 2F puzzle boulder (objects:13) at (23, 16).
+    -- Route 23 sets TOGGLE_VICTORY_ROAD_2F_BOULDER on the way in, so hiding
+    -- objects:13 on that flag removed the only boulder that can reach the
+    -- switch at (9, 16). The 3F hole boulder stays on its own toggle.
     ["pokered:VICTORY_ROAD_3F:objects:10"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_3F_BOULDER", equals = false}},
     ["pokered:CHAMPIONS_ROOM:objects:2"] = {{group = "quest", id = OAK_SHOW, equals = true}},
 }
@@ -1329,6 +1332,9 @@ function EndgameStory.beginPhotos(state, advance)
     state.photo = {index = 1, clock = 0, stage = "preamble"}
     state.phase = "hall-photo"
     state.waiting = "hall-of-fame"
+    -- pokered engine/movie/hall_of_fame.asm AnimateHallOfFame plays
+    -- MUSIC_HALL_OF_FAME before the party photo loop.
+    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("hall_of_fame") end
 end
 
 function EndgameStory.updatePhotos(state)
@@ -1360,7 +1366,13 @@ function EndgameStory.updatePhotos(state)
             end
         end
         if entry and entry.cry then
-            EndgameStory.playCry(entry.cry)
+            -- pokered HoFDisplayMonInfo ends in PlayCry once the name,
+            -- level, and types are on screen.
+            if KantoAudio and KantoAudio.playCry then
+                KantoAudio.playCry(entry.cry)
+            else
+                EndgameStory.playCry(entry.cry)
+            end
         end
     elseif photo.stage == "show" and state.plan.photos[photo.index]
         and state.plan.photos[photo.index].kind == "player" and photo.clock > 120 then
@@ -1617,12 +1629,22 @@ function EndgameStory.interceptAdvance(state, advance)
         return false
     end
     if step.audio and step.audio.name then
-        EndgameStory.playCue(step.audio.name)
+        -- Route 22's gate uses SFX_DENIED. Arrow-tile scripts use
+        -- SFX_ARROW_TILES. Both are installed Kanto cues.
+        if KantoAudio and KantoAudio.playCue and (step.audio.name == "denied" or step.audio.name == "arrow_tiles") then
+            KantoAudio.playCue(step.audio.name)
+        else
+            EndgameStory.playCue(step.audio.name)
+        end
     end
     if state.plan.spin and step.op == "move" and not state.spinStarted then
         state.spinStarted = true
         if state.plan.audio then
-            EndgameStory.playCue(state.plan.audio.name)
+            if KantoAudio and KantoAudio.playCue then
+                KantoAudio.playCue(state.plan.audio.name)
+            else
+                EndgameStory.playCue(state.plan.audio.name)
+            end
         end
     end
     if step.op == "credits" and state.plan.photos and not state.photosDone then

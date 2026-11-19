@@ -374,7 +374,18 @@ def verify_request_outputs(commands, result, output):
             verify_png(output / 'frames' / name, 400 if op in ('shot', 'record') else None, 240)
     if result.get('catalog'):
         catalog = dict(result['catalog'], image_root='frames')
-        for image in catalog.get('images', []):
+        images = catalog.get('images', [])
+        # The simulator keeps the manifest in chunks of at most 4096 rows.
+        # One Lua array cannot grow past 8192 slots in the shipping pool.
+        if images and isinstance(images[0], list):
+            flat = []
+            for chunk in images:
+                if not isinstance(chunk, list):
+                    raise ProtocolError('catalog image chunk is not a list')
+                flat.extend(chunk)
+            catalog['images'] = flat
+            images = flat
+        for image in images:
             image_path = Path(image['path'])
             if image_path.is_absolute() or '..' in image_path.parts or not (output / 'frames' / image_path).is_file():
                 raise ProtocolError(f'missing/invalid catalog output: {image_path}')

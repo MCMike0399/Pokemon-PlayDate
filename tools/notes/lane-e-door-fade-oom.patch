@@ -1,0 +1,28 @@
+diff --git a/Source/game/overworldState.lua b/Source/game/overworldState.lua
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -330,6 +330,12 @@ end
+ Class("DoorWarpSubstate"):extends(State)
+ 
+ local DOOR_FADE_FRAMES <const> = 12
++-- These rows are image:drawFaded's Bayer8x8 result on SDK 3.1.2 for alpha
++-- 0.875 and 0.5. drawFaded mallocs a temporary bitmap and returns
++-- "out of memory" when the 16 MiB pool can still hold the door's one
++-- working-image copy. The stencil draws the same pixels and does not allocate.
++local DOOR_FADE_7_8 <const> = {0xFF, 0xDD, 0xFF, 0x77, 0xFF, 0xDD, 0xFF, 0x77}
++local DOOR_FADE_1_2 <const> = {0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55}
+ 
+ local function drawDoorFade(image, frame)
+     -- Fade the settled source frame, never a partially built destination.
+@@ -342,8 +348,9 @@ local function drawDoorFade(image, frame)
+     gfx.clear(gfx.kColorBlack)
+     local t = frame / DOOR_FADE_FRAMES
+     if t < 2 / 3 then
+-        local alpha = t < 1 / 3 and 0.875 or 0.5
+-        image:drawFaded(0, 0, alpha, gfx.image.kDitherTypeBayer8x8)
++        gfx.setStencilPattern(t < 1 / 3 and DOOR_FADE_7_8 or DOOR_FADE_1_2, 0, 0)
++        image:draw(0, 0)
++        gfx.clearStencil()
+     end
+     gfx.popContext()
+ end

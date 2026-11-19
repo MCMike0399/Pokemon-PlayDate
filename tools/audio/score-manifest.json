@@ -1,8 +1,16 @@
 {
+  "adapted": {
+    "menu": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
+    "start_menu": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
+    "text": "two source pitches, gates 3+5 ticks; native 30FPS chirp"
+  },
+  "approximations": {
+    "mansion": "joint channel loop is tick 1788480; shipped loop is channel 1 period 9315"
+  },
   "checkpoint": {
-    "manifest_sha256": "47e295dd5e39d2894e39e6dccbd13b148525a9712478202a424201c4220294b4",
-    "maps": 65,
-    "routed_maps": 65,
+    "manifest_sha256": "3f0d8683db4159837af759523baa166168f269db89865cce0067ff1b205e0389",
+    "maps": 222,
+    "routed_maps": 222,
     "unavailable": {}
   },
   "inputs_sha256": {
@@ -409,11 +417,23 @@
     "macros/scripts/audio.asm": "97ad54fdcda5fc9390ee94a524e7f4824b3d74d6e69818be1e9f3581195a919b",
     "ram/wram.asm": "00683cd430a9ef30794d2aeaee51f3a5440e4bb14dca13e9f9cb5fa88f130e34"
   },
+  "lazy_scores": true,
   "map_routes": {
+    "pokered:AGATHAS_ROOM": "tower",
     "pokered:BIKE_SHOP": "cities2",
     "pokered:BILLS_HOUSE": "cities2",
     "pokered:BLUES_HOUSE": "pallet",
+    "pokered:BRUNOS_ROOM": "dungeon1",
+    "pokered:CELADON_CHIEF_HOUSE": "celadon",
+    "pokered:CELADON_CITY": "celadon",
+    "pokered:CELADON_DINER": "celadon",
     "pokered:CELADON_GYM": "gym",
+    "pokered:CELADON_HOTEL": "celadon",
+    "pokered:CELADON_MANSION_1F": "celadon",
+    "pokered:CELADON_MANSION_2F": "celadon",
+    "pokered:CELADON_MANSION_3F": "celadon",
+    "pokered:CELADON_MANSION_ROOF": "celadon",
+    "pokered:CELADON_MANSION_ROOF_HOUSE": "celadon",
     "pokered:CELADON_MART_1F": "pokecenter",
     "pokered:CELADON_MART_2F": "pokecenter",
     "pokered:CELADON_MART_3F": "pokecenter",
@@ -422,46 +442,122 @@
     "pokered:CELADON_MART_ELEVATOR": "pokecenter",
     "pokered:CELADON_MART_ROOF": "pokecenter",
     "pokered:CELADON_POKECENTER": "pokecenter",
+    "pokered:CERULEAN_BADGE_HOUSE": "cities1",
+    "pokered:CERULEAN_CAVE_1F": "dungeon1",
+    "pokered:CERULEAN_CAVE_2F": "dungeon1",
+    "pokered:CERULEAN_CAVE_B1F": "dungeon1",
     "pokered:CERULEAN_CITY": "cities2",
     "pokered:CERULEAN_GYM": "gym",
     "pokered:CERULEAN_MART": "pokecenter",
     "pokered:CERULEAN_POKECENTER": "pokecenter",
+    "pokered:CERULEAN_TRADE_HOUSE": "cities2",
     "pokered:CERULEAN_TRASHED_HOUSE": "cities2",
+    "pokered:CERULEAN_TRASHED_HOUSE_COPY": "dungeon3",
+    "pokered:CHAMPIONS_ROOM": "indigo",
     "pokered:CINNABAR_GYM": "gym",
+    "pokered:CINNABAR_ISLAND": "cinnabar",
+    "pokered:CINNABAR_LAB": "cinnabar",
+    "pokered:CINNABAR_LAB_FOSSIL_ROOM": "cinnabar",
+    "pokered:CINNABAR_LAB_METRONOME_ROOM": "cinnabar",
+    "pokered:CINNABAR_LAB_TRADE_ROOM": "cinnabar",
     "pokered:CINNABAR_MART": "pokecenter",
+    "pokered:CINNABAR_MART_COPY": "cinnabar",
     "pokered:CINNABAR_POKECENTER": "pokecenter",
+    "pokered:COLOSSEUM": "celadon",
+    "pokered:COPYCATS_HOUSE_1F": "cities1",
+    "pokered:COPYCATS_HOUSE_2F": "cities1",
     "pokered:DAYCARE": "cities1",
     "pokered:DIGLETTS_CAVE": "dungeon2",
     "pokered:DIGLETTS_CAVE_ROUTE_11": "dungeon2",
     "pokered:DIGLETTS_CAVE_ROUTE_2": "dungeon2",
+    "pokered:FIGHTING_DOJO": "cities1",
+    "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE": "cities2",
+    "pokered:FUCHSIA_CITY": "cities2",
+    "pokered:FUCHSIA_GOOD_ROD_HOUSE": "cities2",
     "pokered:FUCHSIA_GYM": "gym",
     "pokered:FUCHSIA_MART": "pokecenter",
+    "pokered:FUCHSIA_MEETING_ROOM": "cities2",
     "pokered:FUCHSIA_POKECENTER": "pokecenter",
+    "pokered:GAME_CORNER": "game_corner",
+    "pokered:GAME_CORNER_PRIZE_ROOM": "celadon",
     "pokered:HALL_OF_FAME": "pallet",
+    "pokered:INDIGO_PLATEAU": "indigo",
+    "pokered:INDIGO_PLATEAU_LOBBY": "indigo",
+    "pokered:LANCES_ROOM": "indigo",
+    "pokered:LAVENDER_CUBONE_HOUSE": "lavender",
     "pokered:LAVENDER_MART": "pokecenter",
     "pokered:LAVENDER_POKECENTER": "pokecenter",
+    "pokered:LAVENDER_TOWN": "lavender",
     "pokered:LORELEIS_ROOM": "gym",
+    "pokered:MR_FUJIS_HOUSE": "lavender",
+    "pokered:MR_PSYCHICS_HOUSE": "cities1",
     "pokered:MT_MOON_1F": "dungeon3",
     "pokered:MT_MOON_B1F": "dungeon3",
     "pokered:MT_MOON_B2F": "dungeon3",
     "pokered:MT_MOON_POKECENTER": "pokecenter",
     "pokered:MUSEUM_1F": "cities1",
     "pokered:MUSEUM_2F": "cities1",
+    "pokered:NAME_RATERS_HOUSE": "cities2",
+    "pokered:OAKS_LAB": "oaks_lab",
     "pokered:PALLET_TOWN": "pallet",
     "pokered:PEWTER_CITY": "cities1",
     "pokered:PEWTER_GYM": "gym",
     "pokered:PEWTER_MART": "pokecenter",
+    "pokered:PEWTER_NIDORAN_HOUSE": "cities1",
     "pokered:PEWTER_POKECENTER": "pokecenter",
+    "pokered:PEWTER_SPEECH_HOUSE": "cities1",
     "pokered:POKEMON_FAN_CLUB": "vermilion",
+    "pokered:POKEMON_MANSION_1F": "mansion",
+    "pokered:POKEMON_MANSION_2F": "mansion",
+    "pokered:POKEMON_MANSION_3F": "mansion",
+    "pokered:POKEMON_MANSION_B1F": "mansion",
+    "pokered:POKEMON_TOWER_1F": "tower",
+    "pokered:POKEMON_TOWER_2F": "tower",
+    "pokered:POKEMON_TOWER_3F": "tower",
+    "pokered:POKEMON_TOWER_4F": "tower",
+    "pokered:POKEMON_TOWER_5F": "tower",
+    "pokered:POKEMON_TOWER_6F": "tower",
+    "pokered:POKEMON_TOWER_7F": "tower",
+    "pokered:POWER_PLANT": "dungeon1",
     "pokered:REDS_HOUSE_1F": "pallet",
     "pokered:REDS_HOUSE_2F": "pallet",
+    "pokered:ROCKET_HIDEOUT_B1F": "dungeon1",
+    "pokered:ROCKET_HIDEOUT_B2F": "dungeon1",
+    "pokered:ROCKET_HIDEOUT_B3F": "dungeon1",
+    "pokered:ROCKET_HIDEOUT_B4F": "dungeon1",
+    "pokered:ROCKET_HIDEOUT_ELEVATOR": "dungeon1",
+    "pokered:ROCK_TUNNEL_1F": "dungeon3",
+    "pokered:ROCK_TUNNEL_B1F": "dungeon3",
     "pokered:ROCK_TUNNEL_POKECENTER": "pokecenter",
     "pokered:ROUTE_1": "route1",
+    "pokered:ROUTE_10": "routes3",
     "pokered:ROUTE_11": "routes4",
     "pokered:ROUTE_11_GATE_1F": "vermilion",
     "pokered:ROUTE_11_GATE_2F": "vermilion",
+    "pokered:ROUTE_12": "routes4",
+    "pokered:ROUTE_12_GATE_1F": "cities1",
+    "pokered:ROUTE_12_GATE_2F": "cities1",
+    "pokered:ROUTE_12_SUPER_ROD_HOUSE": "celadon",
+    "pokered:ROUTE_13": "routes4",
+    "pokered:ROUTE_14": "routes4",
+    "pokered:ROUTE_15": "routes4",
+    "pokered:ROUTE_15_GATE_1F": "cities1",
+    "pokered:ROUTE_15_GATE_2F": "cities1",
+    "pokered:ROUTE_16": "routes3",
+    "pokered:ROUTE_16_FLY_HOUSE": "celadon",
+    "pokered:ROUTE_16_GATE_1F": "cities1",
+    "pokered:ROUTE_16_GATE_2F": "cities1",
+    "pokered:ROUTE_17": "routes3",
+    "pokered:ROUTE_18": "routes3",
+    "pokered:ROUTE_18_GATE_1F": "cities1",
+    "pokered:ROUTE_18_GATE_2F": "cities1",
+    "pokered:ROUTE_19": "routes3",
     "pokered:ROUTE_2": "route1",
+    "pokered:ROUTE_20": "routes3",
+    "pokered:ROUTE_21": "routes3",
     "pokered:ROUTE_22": "routes3",
+    "pokered:ROUTE_22_GATE": "dungeon2",
+    "pokered:ROUTE_23": "indigo",
     "pokered:ROUTE_24": "routes2",
     "pokered:ROUTE_25": "routes2",
     "pokered:ROUTE_2_GATE": "cities1",
@@ -472,9 +568,43 @@
     "pokered:ROUTE_5_GATE": "cities1",
     "pokered:ROUTE_6": "routes3",
     "pokered:ROUTE_6_GATE": "cities1",
+    "pokered:ROUTE_7": "routes3",
+    "pokered:ROUTE_7_GATE": "cities1",
+    "pokered:ROUTE_8": "routes3",
+    "pokered:ROUTE_8_GATE": "cities1",
+    "pokered:ROUTE_9": "routes3",
+    "pokered:SAFARI_ZONE_CENTER": "safari",
+    "pokered:SAFARI_ZONE_CENTER_REST_HOUSE": "safari",
+    "pokered:SAFARI_ZONE_EAST": "safari",
+    "pokered:SAFARI_ZONE_EAST_REST_HOUSE": "safari",
+    "pokered:SAFARI_ZONE_GATE": "cities2",
+    "pokered:SAFARI_ZONE_NORTH": "safari",
+    "pokered:SAFARI_ZONE_NORTH_REST_HOUSE": "safari",
+    "pokered:SAFARI_ZONE_SECRET_HOUSE": "safari",
+    "pokered:SAFARI_ZONE_WEST": "safari",
+    "pokered:SAFARI_ZONE_WEST_REST_HOUSE": "safari",
+    "pokered:SAFFRON_CITY": "cities1",
     "pokered:SAFFRON_GYM": "gym",
     "pokered:SAFFRON_MART": "pokecenter",
+    "pokered:SAFFRON_PIDGEY_HOUSE": "cities1",
     "pokered:SAFFRON_POKECENTER": "pokecenter",
+    "pokered:SEAFOAM_ISLANDS_1F": "dungeon2",
+    "pokered:SEAFOAM_ISLANDS_B1F": "dungeon2",
+    "pokered:SEAFOAM_ISLANDS_B2F": "dungeon2",
+    "pokered:SEAFOAM_ISLANDS_B3F": "dungeon2",
+    "pokered:SEAFOAM_ISLANDS_B4F": "dungeon2",
+    "pokered:SILPH_CO_10F": "silph",
+    "pokered:SILPH_CO_11F": "silph",
+    "pokered:SILPH_CO_1F": "silph",
+    "pokered:SILPH_CO_2F": "silph",
+    "pokered:SILPH_CO_3F": "silph",
+    "pokered:SILPH_CO_4F": "silph",
+    "pokered:SILPH_CO_5F": "silph",
+    "pokered:SILPH_CO_6F": "silph",
+    "pokered:SILPH_CO_7F": "silph",
+    "pokered:SILPH_CO_8F": "silph",
+    "pokered:SILPH_CO_9F": "silph",
+    "pokered:SILPH_CO_ELEVATOR": "silph",
     "pokered:SS_ANNE_1F": "anne",
     "pokered:SS_ANNE_1F_ROOMS": "anne",
     "pokered:SS_ANNE_2F": "anne",
@@ -485,16 +615,37 @@
     "pokered:SS_ANNE_BOW": "anne",
     "pokered:SS_ANNE_CAPTAINS_ROOM": "anne",
     "pokered:SS_ANNE_KITCHEN": "anne",
+    "pokered:TRADE_CENTER": "celadon",
     "pokered:UNDERGROUND_PATH_NORTH_SOUTH": "route1",
     "pokered:UNDERGROUND_PATH_ROUTE_5": "cities1",
     "pokered:UNDERGROUND_PATH_ROUTE_6": "cities1",
     "pokered:UNDERGROUND_PATH_ROUTE_6_COPY": "vermilion",
+    "pokered:UNDERGROUND_PATH_ROUTE_7": "cities1",
+    "pokered:UNDERGROUND_PATH_ROUTE_7_COPY": "celadon",
+    "pokered:UNDERGROUND_PATH_ROUTE_8": "cities1",
     "pokered:UNDERGROUND_PATH_WEST_EAST": "route1",
+    "pokered:UNUSED_MAP_0B": "cities1",
+    "pokered:UNUSED_MAP_69": "dungeon2",
+    "pokered:UNUSED_MAP_6A": "dungeon2",
     "pokered:UNUSED_MAP_6B": "anne",
+    "pokered:UNUSED_MAP_6D": "tower",
+    "pokered:UNUSED_MAP_6E": "dungeon1",
+    "pokered:UNUSED_MAP_6F": "silph",
+    "pokered:UNUSED_MAP_70": "silph",
     "pokered:UNUSED_MAP_72": "anne",
     "pokered:UNUSED_MAP_73": "anne",
     "pokered:UNUSED_MAP_74": "anne",
     "pokered:UNUSED_MAP_75": "anne",
+    "pokered:UNUSED_MAP_CC": "dungeon1",
+    "pokered:UNUSED_MAP_CD": "dungeon1",
+    "pokered:UNUSED_MAP_CE": "dungeon1",
+    "pokered:UNUSED_MAP_E7": "cinnabar",
+    "pokered:UNUSED_MAP_ED": "silph",
+    "pokered:UNUSED_MAP_EE": "silph",
+    "pokered:UNUSED_MAP_F1": "silph",
+    "pokered:UNUSED_MAP_F2": "silph",
+    "pokered:UNUSED_MAP_F3": "silph",
+    "pokered:UNUSED_MAP_F4": "silph",
     "pokered:VERMILION_CITY": "vermilion",
     "pokered:VERMILION_DOCK": "anne",
     "pokered:VERMILION_GYM": "gym",
@@ -503,134 +654,489 @@
     "pokered:VERMILION_PIDGEY_HOUSE": "vermilion",
     "pokered:VERMILION_POKECENTER": "pokecenter",
     "pokered:VERMILION_TRADE_HOUSE": "vermilion",
+    "pokered:VICTORY_ROAD_1F": "dungeon3",
+    "pokered:VICTORY_ROAD_2F": "dungeon3",
+    "pokered:VICTORY_ROAD_3F": "dungeon3",
     "pokered:VIRIDIAN_CITY": "cities1",
     "pokered:VIRIDIAN_FOREST": "dungeon2",
     "pokered:VIRIDIAN_FOREST_NORTH_GATE": "cities1",
     "pokered:VIRIDIAN_FOREST_SOUTH_GATE": "cities1",
     "pokered:VIRIDIAN_GYM": "gym",
     "pokered:VIRIDIAN_MART": "pokecenter",
-    "pokered:VIRIDIAN_POKECENTER": "pokecenter"
+    "pokered:VIRIDIAN_NICKNAME_HOUSE": "cities1",
+    "pokered:VIRIDIAN_POKECENTER": "pokecenter",
+    "pokered:VIRIDIAN_SCHOOL_HOUSE": "cities1",
+    "pokered:WARDENS_HOUSE": "cities2"
   },
   "menu_adaptation": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
   "revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "schema": 2,
-  "score_sha256": "2d3b3329af02c655539f52d6e5349e677ba11c1f03afe0bf295881cd498f0298",
+  "schema": 3,
+  "score_sha256": "1b3df3c0eac743023529676ee7f25039626545ecf2897d2fdd5823979b0cf3b7",
   "scores": {
     "alarm": {
+      "adapted": false,
       "asset": "audio2:low-health",
       "loop": 0,
       "notes": 2,
       "ticks": 31
     },
     "anne": {
+      "adapted": false,
       "asset": "audio1:Music_SSAnne",
       "loop": 169,
       "notes": 271,
       "ticks": 2089
     },
+    "arrow_tiles": {
+      "adapted": false,
+      "asset": "audio1:SFX_Arrow_Tiles_1",
+      "loop": null,
+      "notes": 1,
+      "ticks": 17
+    },
+    "bicycle": {
+      "adapted": false,
+      "asset": "audio3:Music_BikeRiding",
+      "loop": 28,
+      "notes": 522,
+      "ticks": 2080
+    },
+    "boulder": {
+      "adapted": false,
+      "asset": "audio1:SFX_Push_Boulder_1",
+      "loop": null,
+      "notes": 7,
+      "ticks": 60
+    },
+    "caught": {
+      "adapted": false,
+      "asset": "audio2:SFX_Caught_Mon",
+      "loop": null,
+      "notes": 30,
+      "ticks": 145
+    },
+    "celadon": {
+      "adapted": false,
+      "asset": "audio1:Music_Celadon",
+      "loop": 109,
+      "notes": 304,
+      "ticks": 1837
+    },
+    "cinnabar": {
+      "adapted": false,
+      "asset": "audio1:Music_Cinnabar",
+      "loop": 28,
+      "notes": 208,
+      "ticks": 1324
+    },
     "cities1": {
+      "adapted": false,
       "asset": "audio1:Music_Cities1",
       "loop": 1,
       "notes": 610,
       "ticks": 3457
     },
     "cities2": {
+      "adapted": false,
       "asset": "audio1:Music_Cities2",
       "loop": 223,
       "notes": 306,
       "ticks": 1999
     },
+    "credits": {
+      "adapted": false,
+      "asset": "audio3:Music_Credits",
+      "loop": null,
+      "notes": 802,
+      "ticks": 5881
+    },
+    "cut": {
+      "adapted": false,
+      "asset": "audio1:SFX_Cut_1",
+      "loop": null,
+      "notes": 5,
+      "ticks": 30
+    },
+    "defeated_gym": {
+      "adapted": false,
+      "asset": "audio2:Music_DefeatedGymLeader",
+      "loop": 169,
+      "notes": 416,
+      "ticks": 2185
+    },
+    "defeated_trainer": {
+      "adapted": false,
+      "asset": "audio2:Music_DefeatedTrainer",
+      "loop": 85,
+      "notes": 160,
+      "ticks": 757
+    },
+    "defeated_wild": {
+      "adapted": false,
+      "asset": "audio2:Music_DefeatedWildMon",
+      "loop": 85,
+      "notes": 163,
+      "ticks": 757
+    },
+    "denied": {
+      "adapted": false,
+      "asset": "audio1:SFX_Denied_1",
+      "loop": null,
+      "notes": 4,
+      "ticks": 29
+    },
+    "dungeon1": {
+      "adapted": false,
+      "asset": "audio3:Music_Dungeon1",
+      "loop": 109,
+      "notes": 787,
+      "ticks": 4105
+    },
     "dungeon2": {
+      "adapted": false,
       "asset": "audio3:Music_Dungeon2",
       "loop": 1,
       "notes": 744,
       "ticks": 6049
     },
     "dungeon3": {
+      "adapted": false,
       "asset": "audio3:Music_Dungeon3",
       "loop": 4972,
       "notes": 1090,
       "ticks": 9955
     },
     "faint": {
+      "adapted": false,
       "asset": "audio2:SFX_Faint_Thud",
       "loop": null,
       "notes": 4,
       "ticks": 31
     },
+    "final": {
+      "adapted": false,
+      "asset": "audio2:Music_FinalBattle",
+      "loop": 841,
+      "notes": 937,
+      "ticks": 4453
+    },
+    "flute": {
+      "adapted": false,
+      "asset": "audio1:SFX_Pokeflute",
+      "loop": null,
+      "notes": 13,
+      "ticks": 577
+    },
+    "game_corner": {
+      "adapted": false,
+      "asset": "audio3:Music_GameCorner",
+      "loop": 181,
+      "notes": 432,
+      "ticks": 2341
+    },
+    "go_inside": {
+      "adapted": false,
+      "asset": "audio1:SFX_Go_Inside_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 20
+    },
+    "go_outside": {
+      "adapted": false,
+      "asset": "audio1:SFX_Go_Outside_1",
+      "loop": null,
+      "notes": 5,
+      "ticks": 40
+    },
     "gym": {
+      "adapted": false,
       "asset": "audio1:Music_Gym",
       "loop": 208,
       "notes": 343,
       "ticks": 1864
     },
+    "gym_leader": {
+      "adapted": false,
+      "asset": "audio2:Music_GymLeaderBattle",
+      "loop": 2360,
+      "notes": 1272,
+      "ticks": 5012
+    },
+    "hall_of_fame": {
+      "adapted": false,
+      "asset": "audio3:Music_HallOfFame",
+      "loop": 337,
+      "notes": 263,
+      "ticks": 1681
+    },
     "heal": {
+      "adapted": false,
       "asset": "audio1:Music_PkmnHealed",
       "loop": null,
       "notes": 15,
       "ticks": 136
     },
+    "healing_machine": {
+      "adapted": false,
+      "asset": "audio1:SFX_Healing_Machine_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 11
+    },
     "hit": {
+      "adapted": false,
       "asset": "audio2:SFX_Damage",
       "loop": null,
       "notes": 3,
       "ticks": 23
     },
+    "indigo": {
+      "adapted": false,
+      "asset": "audio1:Music_IndigoPlateau",
+      "loop": 199,
+      "notes": 392,
+      "ticks": 1783
+    },
+    "item": {
+      "adapted": false,
+      "asset": "audio1:SFX_Get_Item1_1",
+      "loop": null,
+      "notes": 12,
+      "ticks": 73
+    },
+    "item2": {
+      "adapted": false,
+      "asset": "audio1:SFX_Get_Item2_1",
+      "loop": null,
+      "notes": 30,
+      "ticks": 181
+    },
+    "key_item": {
+      "adapted": false,
+      "asset": "audio1:SFX_Get_Key_Item_1",
+      "loop": null,
+      "notes": 25,
+      "ticks": 121
+    },
+    "lavender": {
+      "adapted": false,
+      "asset": "audio1:Music_Lavender",
+      "loop": 457,
+      "notes": 1990,
+      "ticks": 18697
+    },
+    "ledge": {
+      "adapted": false,
+      "asset": "audio1:SFX_Ledge_1",
+      "loop": null,
+      "notes": 1,
+      "ticks": 17
+    },
+    "level_up": {
+      "adapted": false,
+      "asset": "audio2:SFX_Level_Up",
+      "loop": null,
+      "notes": 24,
+      "ticks": 133
+    },
+    "mansion": {
+      "adapted": false,
+      "asset": "audio3:Music_CinnabarMansion",
+      "loop": 0,
+      "notes": 1933,
+      "ticks": 9315
+    },
+    "meet_evil": {
+      "adapted": false,
+      "asset": "audio3:Music_MeetEvilTrainer",
+      "loop": 70,
+      "notes": 63,
+      "ticks": 442
+    },
+    "meet_female": {
+      "adapted": false,
+      "asset": "audio3:Music_MeetFemaleTrainer",
+      "loop": 82,
+      "notes": 71,
+      "ticks": 454
+    },
+    "meet_male": {
+      "adapted": false,
+      "asset": "audio3:Music_MeetMaleTrainer",
+      "loop": 169,
+      "notes": 84,
+      "ticks": 505
+    },
+    "meet_oak": {
+      "adapted": false,
+      "asset": "audio1:Music_MeetProfOak",
+      "loop": 1009,
+      "notes": 322,
+      "ticks": 1681
+    },
+    "meet_rival": {
+      "adapted": false,
+      "asset": "audio1:Music_MeetRival",
+      "loop": 179,
+      "notes": 198,
+      "ticks": 1019
+    },
     "menu": {
+      "adapted": true,
       "asset": "audio2:SFX_Press_AB_2",
       "loop": null,
       "notes": 2,
       "ticks": 8
     },
+    "oaks_lab": {
+      "adapted": false,
+      "asset": "audio3:Music_OaksLab",
+      "loop": 53,
+      "notes": 280,
+      "ticks": 1733
+    },
     "pallet": {
+      "adapted": false,
       "asset": "audio1:Music_PalletTown",
       "loop": 1081,
       "notes": 357,
       "ticks": 3001
     },
+    "pc_enter": {
+      "adapted": false,
+      "asset": "audio1:SFX_Enter_PC_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 22
+    },
+    "pc_off": {
+      "adapted": false,
+      "asset": "audio1:SFX_Turn_Off_PC_1",
+      "loop": null,
+      "notes": 3,
+      "ticks": 18
+    },
+    "pc_on": {
+      "adapted": false,
+      "asset": "audio1:SFX_Turn_On_PC_1",
+      "loop": null,
+      "notes": 9,
+      "ticks": 70
+    },
+    "pc_withdraw": {
+      "adapted": false,
+      "asset": "audio1:SFX_Withdraw_Deposit_1",
+      "loop": null,
+      "notes": 4,
+      "ticks": 32
+    },
     "pokecenter": {
+      "adapted": false,
       "asset": "audio1:Music_Pokecenter",
       "loop": 1,
       "notes": 315,
       "ticks": 1729
     },
     "route1": {
+      "adapted": false,
       "asset": "audio1:Music_Routes1",
       "loop": 29,
       "notes": 326,
       "ticks": 1397
     },
     "routes2": {
+      "adapted": false,
       "asset": "audio1:Music_Routes2",
       "loop": 1,
       "notes": 265,
       "ticks": 1141
     },
     "routes3": {
+      "adapted": false,
       "asset": "audio1:Music_Routes3",
       "loop": 292,
       "notes": 373,
       "ticks": 1624
     },
     "routes4": {
+      "adapted": false,
       "asset": "audio1:Music_Routes4",
       "loop": 223,
       "notes": 483,
       "ticks": 1999
     },
+    "safari": {
+      "adapted": false,
+      "asset": "audio1:Music_SafariZone",
+      "loop": 50,
+      "notes": 59,
+      "ticks": 446
+    },
+    "silph": {
+      "adapted": false,
+      "asset": "audio3:Music_SilphCo",
+      "loop": 571,
+      "notes": 623,
+      "ticks": 4078
+    },
+    "start_menu": {
+      "adapted": true,
+      "asset": "audio1:SFX_Start_Menu_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 8
+    },
+    "surfing": {
+      "adapted": false,
+      "asset": "audio3:Music_Surfing",
+      "loop": 196,
+      "notes": 253,
+      "ticks": 1636
+    },
+    "text": {
+      "adapted": true,
+      "asset": "audio1:SFX_Press_AB_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 8
+    },
+    "tink": {
+      "adapted": false,
+      "asset": "audio1:SFX_Tink_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 15
+    },
+    "title": {
+      "adapted": false,
+      "asset": "audio3:Music_TitleScreen",
+      "loop": 244,
+      "notes": 550,
+      "ticks": 2836
+    },
+    "tower": {
+      "adapted": false,
+      "asset": "audio3:Music_PokemonTower",
+      "loop": 115,
+      "notes": 231,
+      "ticks": 3763
+    },
     "trainer": {
+      "adapted": false,
       "asset": "audio2:Music_TrainerBattle",
       "loop": 841,
       "notes": 1224,
       "ticks": 5797
     },
     "vermilion": {
+      "adapted": false,
       "asset": "audio1:Music_Vermilion",
       "loop": 1,
       "notes": 380,
       "ticks": 1405
     },
     "wild": {
+      "adapted": false,
       "asset": "audio2:Music_WildBattle",
       "loop": 937,
       "notes": 684,
@@ -640,11 +1146,11 @@
   "target": "Playdate synth adaptation",
   "tools_sha256": {
     "tools/audio/catalog.py": "52f6d57d510d88130eb4e1d2791c14464769ef2af428b35362dfe9c5256991b2",
-    "tools/audio/scores.py": "f5f006a5d6454dcab5981e5584cd75e625f0dc962939c3195927fb0f0125f9bd",
+    "tools/audio/scores.py": "759fa22b06de836d72dd5da086e8a52f3b2002bd787896369c4a889c298c4433",
     "tools/audio/source.py": "73ce33da16d31bbd0bfede9ea54176092ffe60ee399cd7a33a7545aef83c60b5",
     "tools/audio/trace.py": "68649d309ab655ba3717c6df8bd104fb6cf3dec88bded79d300da1a20f2723a1"
   },
-  "total_notes": 7797,
+  "total_notes": 21297,
   "waveforms": {
     "audio1-wave0": {
       "path": "Source/audio/waves/audio1-wave0.wav",
@@ -670,11 +1176,35 @@
       "samples": 32,
       "sha256": "677b0486fc8e516203910b593416d2a2b9623e601b0effcf4271cc45fba731a5"
     },
+    "audio1-wave4": {
+      "path": "Source/audio/waves/audio1-wave4.wav",
+      "ram_hex": "012345678acdeef77feedca876543210",
+      "samples": 32,
+      "sha256": "c2b7315b8eaad1a75dc1c6a31c3708f8fb41e14e2f44ecfc41c61e562c48ed36"
+    },
+    "audio1-wave5": {
+      "path": "Source/audio/waves/audio1-wave5.wav",
+      "ram_hex": "21e23328e122ffea1014dc10e3415173",
+      "samples": 32,
+      "sha256": "af173f414596f05225cf8fa9adc5dadcdd8f9f282508b23dc36540aff2ffffe4"
+    },
+    "audio2-wave0": {
+      "path": "Source/audio/waves/audio2-wave0.wav",
+      "ram_hex": "02468acefffeeddccba9876544332211",
+      "samples": 32,
+      "sha256": "1b88907633fa6ff0d92ae46e7ad76424e93708c2f6fd76947a750d59240e5c2e"
+    },
     "audio2-wave1": {
       "path": "Source/audio/waves/audio2-wave1.wav",
       "ram_hex": "02468aceeffffeeeddcba98765432211",
       "samples": 32,
       "sha256": "36b843247c294d9a36f2230c13b8ff56eb7e0a7c201f0b3d017633573cf99633"
+    },
+    "audio2-wave3": {
+      "path": "Source/audio/waves/audio2-wave3.wav",
+      "ram_hex": "02468acdeffedeffeedcba9876543210",
+      "samples": 32,
+      "sha256": "677b0486fc8e516203910b593416d2a2b9623e601b0effcf4271cc45fba731a5"
     },
     "audio2-wave4": {
       "path": "Source/audio/waves/audio2-wave4.wav",
@@ -688,11 +1218,29 @@
       "samples": 32,
       "sha256": "1b88907633fa6ff0d92ae46e7ad76424e93708c2f6fd76947a750d59240e5c2e"
     },
+    "audio3-wave1": {
+      "path": "Source/audio/waves/audio3-wave1.wav",
+      "ram_hex": "02468aceeffffeeeddcba98765432211",
+      "samples": 32,
+      "sha256": "36b843247c294d9a36f2230c13b8ff56eb7e0a7c201f0b3d017633573cf99633"
+    },
+    "audio3-wave2": {
+      "path": "Source/audio/waves/audio3-wave2.wav",
+      "ram_hex": "1369bdeeeeffffeddeffffeeeedb9631",
+      "samples": 32,
+      "sha256": "15d5ffbb92cff3d18a8129cd6f07fc115612e3130cac95d10ad1e993ff750a21"
+    },
     "audio3-wave3": {
       "path": "Source/audio/waves/audio3-wave3.wav",
       "ram_hex": "02468acdeffedeffeedcba9876543210",
       "samples": 32,
       "sha256": "677b0486fc8e516203910b593416d2a2b9623e601b0effcf4271cc45fba731a5"
+    },
+    "audio3-wave5": {
+      "path": "Source/audio/waves/audio3-wave5.wav",
+      "ram_hex": "21e23328e122ff22f72422f73424f744",
+      "samples": 32,
+      "sha256": "cd6897ffc2a0e90fb80d6a7b6ef4543076248403f14c5ab0b27ad5641ce1016d"
     }
   }
 }

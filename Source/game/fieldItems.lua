@@ -157,7 +157,7 @@ function FieldItems.confirmEscape(bag)
     return true
 end
 function FieldItems.tryDaisy(game)
-    if currentZone.stableID~="blues_house"then return false end
+    if currentZone.stableID~="pokered:BLUES_HOUSE"then return false end
     local x,y=game.player:getFacingTile();local npc=game.npcManager:getNPCAt(x,y)
     if not npc or npc.name~="Daisy"then return false end
     if game.machine:getCurrent()~="overworld"or game.machine:depth()~=1 or game.player.isMoving then return true end
@@ -166,7 +166,7 @@ function FieldItems.tryDaisy(game)
     if session:questFlag("EVENT_GOT_TOWN_MAP")then game.machine:push("dialog",{"Use the TOWN MAP to find out where you are."});return true end
     if not session:questFlag("EVENT_GOT_POKEDEX")then game.machine:push("dialog",{"Hi RED! BLUE is out at Grandpa's lab."});return true end
     game.machine:push("dialog",{"Grandpa asked you to run an errand? Here, this will help you!"},function()
-        if game.session~=session or currentZone.stableID~="blues_house"or game.machine:getCurrent()~="overworld"or game.machine:depth()~=1
+        if game.session~=session or currentZone.stableID~="pokered:BLUES_HOUSE"or game.machine:getCurrent()~="overworld"or game.machine:depth()~=1
             or game.npcManager:getNPCAt(x,y)~=npc then return false,"stale-selection"end
         local ok,reason=session:transact({flags={EVENT_GOT_POKEDEX=true,EVENT_GOT_TOWN_MAP=false},items={townMap=0}},
             {flags={EVENT_GOT_TOWN_MAP=true},items={{op="add",id="townMap",quantity=1}}})

@@ -63,6 +63,7 @@ function RocketHideoutStoryController.advance(state)
                     end
                     local ok, reason = RocketHideoutStory.selectFloor(state.session, entries[index].floor)
                     if ok then
+                        state.game.lastElevator = {place = "hideout", floor = entries[index].floor}
                         state:finish()
                     else
                         state:fail(reason)

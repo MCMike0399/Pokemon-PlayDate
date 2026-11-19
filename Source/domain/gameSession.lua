@@ -173,7 +173,7 @@ function GameSession:init(deps,options)
     local checkpoint=location(deps,options.checkpoint or start,payload)
     local stream=RulesRNG.new(options.seed or 1)
     state[self]={daycare=Daycare.empty(),deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
-        intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
+        intro={stage="pre_oak"},playerName="RED",rivalName="BLUE",questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
         fieldWorld = {version = 1, mapPalOffset = 0},
         fieldTravel = FieldTravel.empty(),
         safari = SafariGame.empty(),
@@ -201,7 +201,33 @@ function GameSession:party() return state[self].party end
 function GameSession:storage() return state[self].storage end
 function GameSession:inventory() return state[self].inventory end
 function GameSession:activePokemon() return self:party():active() end
-function GameSession:title() return {playerName="RED",rivalName="BLUE"} end
+function GameSession:title()
+    local current=state[self]
+    return {playerName=current.playerName or "RED",rivalName=current.rivalName or "BLUE"}
+end
+-- constants/charmap.asm allows printable ASCII plus × ($f1), ♂ ($ef), and ♀ ($f5).
+-- constants/text_constants.asm PLAYER_NAME_LENGTH is 8, including the terminator.
+local function personName(name)
+    if type(name)~="string" or utf8.len(name)==nil then return false end
+    local count=0
+    for _,code in utf8.codes(name) do
+        if not ((code>=32 and code<=126) or code==0x00D7 or code==0x2642 or code==0x2640) then
+            return false
+        end
+        count=count+1
+    end
+    return count>=1 and count<=7
+end
+function GameSession:setPlayerName(name)
+    if not personName(name) then return false,"invalid-player-name" end
+    state[self].playerName=name
+    return true
+end
+function GameSession:setRivalName(name)
+    if not personName(name) then return false,"invalid-rival-name" end
+    state[self].rivalName=name
+    return true
+end
 function GameSession:getIntro() return copy(state[self].intro) end
 -- Stage and travel mode are read every explore frame. The full copies stay
 -- available for callers that detach and edit the record.
@@ -295,7 +321,7 @@ function GameSession:purchaseGiftPokemon(offer, expectedMoney)
     current.currentActors = WorldMotionData.empty()
     RulesRNG.restore(prepared.rng)
     return true, {destination=prepared.destination, index=index, box=prepared.box,
-        specimen=prepared.receipt}
+        specimen=prepared.receipt, mon=prepared.mon}
 end
 function GameSession:pokedex() return copy(state[self].dex) end
 function GameSession:dexFlags(species)

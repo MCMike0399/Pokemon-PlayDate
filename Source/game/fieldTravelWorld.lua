@@ -69,15 +69,6 @@ function FieldTravelWorld.outside(zoneID)
 end
 
 function FieldTravelWorld.flyArrival(entry, world, options)
-    if entry.id == "pallet_town" then
-        -- Authored Pallet's existing reviewed home/checkpoint cell is (5,6).
-        local position = {zone_id = "pallet_town", x = entry.x, y = entry.y, facing = "down"}
-        local ok, result = pcall(WorldDeltas.resolveLocation, position, world, options)
-        if ok then
-            return result
-        end
-        return nil, "pallet-fly-arrival-unavailable"
-    end
     local provider = WorldDeltas.definitionProvider()
     if not provider or not provider:hasID(entry.id) then
         return nil, "fly-map-not-installed"

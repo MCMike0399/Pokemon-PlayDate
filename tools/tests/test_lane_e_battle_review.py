@@ -16,7 +16,10 @@ the port's id 429 is the B2W2 move, and the name and type stay together.
 The same clips replace a battle line while it is still typing. A mashed
 A finishes the line and confirms it on the next frame, so the box shows
 a prefix and the next say takes its place. The patch makes the finished
-line stay up. It is not applied here.
+line stay up. pokered home/print_text.asm PrintLetterDelay only shortens the
+per-letter wait while A is held, and home/joypad2.asm
+WaitForTextScrollButtonPress then requires a new press. The battle script
+already waits MESSAGE_MIN_FRAMES (10) before that press can turn the page.
 """
 
 import re
@@ -196,7 +199,6 @@ print(steel)
         self.assertIn('type = "steel"', mirror.group(1))
         self.assertIn('type = "normal"', edge.group(1))
 
-    @unittest.expectedFailure
     def test_mashed_a_holds_the_finished_battle_line(self):
         probe = Path('/tmp/lane_e_battle_message_probe.lua')
         probe.write_text(PROBE)
@@ -206,23 +208,12 @@ print(steel)
         full = int(completed.stdout.strip())
         self.assertGreaterEqual(full, 10)
 
-    def test_the_message_patch_applies_and_holds_the_line(self):
+    def test_the_message_patch_is_already_applied(self):
         check = subprocess.run(
             ['git', 'apply', '--check', str(PATCH)], cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(check.returncode, 0, check.stderr)
-        self.assertNotIn('pageShown', DIALOG.read_text())
-        output = Path('/tmp/lane-e-dialog-patched.lua')
-        applied = subprocess.run(
-            ['patch', '-o', str(output), str(DIALOG), str(PATCH)],
-            capture_output=True, text=True)
-        self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
-        probe = Path('/tmp/lane_e_battle_message_probe.lua')
-        probe.write_text(PROBE)
-        completed = subprocess.run(
-            ['lua5.4', str(probe), str(output)], cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertGreaterEqual(int(completed.stdout.strip()), 10)
-        self.assertNotIn('pageShown', DIALOG.read_text())
+        self.assertNotEqual(check.returncode, 0, check.stderr)
+        self.assertIn('pageShown', DIALOG.read_text())
+        self.assertIn('MESSAGE_MIN_FRAMES <const> = 10', (ROOT / 'Source/battle/battle.lua').read_text())
 
 
 if __name__ == '__main__':

@@ -66,10 +66,22 @@ def lua(value):
     if isinstance(value,int):return str(value)
     if isinstance(value,list):return '{'+', '.join(lua(v) for v in value)+'}'
     return '{'+', '.join(key+' = '+lua(v) for key,v in value.items())+'}'
+# Miguel-approved deviation. The Gen5 trade rule stays; the stone is an extra edge.
+CABLE_STONES={
+    'kadabra':'{to = "alakazam", targetDex = 65, method = 8, trigger = "stone", item = "linkCable"}, ',
+    'machoke':'{to = "machamp", targetDex = 68, method = 8, trigger = "stone", item = "linkCable"}, ',
+    'graveler':'{to = "golem", targetDex = 76, method = 8, trigger = "stone", item = "linkCable"}, ',
+    'haunter':'{to = "gengar", targetDex = 94, method = 8, trigger = "stone", item = "linkCable"}, ',
+}
 def render(rules):
     lines=['-- Generated actual Gen5 graph, original151 endpoints; tools/references/evolution.json.','EvolutionData = {schema=1, rules={']
     lines += ['    '+species+' = '+lua(values)+',' for species,values in rules.items()]
-    return '\n'.join(lines+['}}',''])
+    text='\n'.join(lines+['}}',''])
+    for species, prefix in CABLE_STONES.items():
+        needle='    '+species+' = {'
+        if needle in text:
+            text=text.replace(needle, needle+prefix, 1)
+    return text
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--cache',type=Path,required=True);p.add_argument('--fetch',action='store_true');p.add_argument('--output',type=Path,required=True);p.add_argument('--check',action='store_true');args=p.parse_args(argv)
     try:

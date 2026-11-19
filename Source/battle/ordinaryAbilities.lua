@@ -38,8 +38,10 @@ function OrdinaryAbilities:attackStat(source, move, value)
 end
 
 function OrdinaryAbilities:speed(mon, value)
-    if self.effects:weatherId() == "raindance"
-        and self.effects:livingAbility(mon, 33) then
+    local weather = self.effects:weatherId()
+    -- Swift Swim in rain, Chlorophyll in sun. Both are a straight double.
+    if (weather == "raindance" and self.effects:livingAbility(mon, 33))
+        or (weather == "sunnyday" and self.effects:livingAbility(mon, 34)) then
         return value * 2
     end
     return value
@@ -64,6 +66,18 @@ function OrdinaryAbilities:absorb(source, target, move)
         -- Commit before narration yields; repeated hits never stack the boost.
         self.flashFire[target] = true
         effects.battle:say(target.name .. " absorbed the fire with Flash Fire!")
+        return true
+    end
+    -- Lightning Rod: Electric immunity plus one Special Attack stage.
+    -- A stage already at +6 still absorbs the move and says so.
+    if move.type == "electric" and ability == 31 then
+        local stages = target.statStages
+        if stages.spa < 6 then
+            stages.spa = stages.spa + 1
+            effects.battle:say(target.name .. "'s Lightning Rod raised its SP. ATK!")
+        else
+            effects.battle:say(target.name .. "'s Lightning Rod made the attack useless!")
+        end
         return true
     end
     return false

@@ -247,8 +247,22 @@ local function pickup(d, state, id)
         plan.steps[1] = dialog(d.full)
     else
         plan.expected, plan.changes = reward(d.item, d.flag, state)
+        -- home/give.asm GiveItem copies the name to wStringBuffer for
+        -- _FoundItemText. engine/events/hidden_items.asm GetItemName writes
+        -- wNameBuffer before _FoundHiddenItemText. Fill only the buffer that
+        -- text reads.
         local itemName = assert(ItemData.definitions[d.item]).name
-        plan.ram = { wStringBuffer = itemName, wNameBuffer = itemName }
+        plan.ram = {}
+        for _, label in ipairs(d.success) do
+            if label == "_FoundItemText" then
+                plan.ram.wStringBuffer = itemName
+            elseif label == "_FoundHiddenItemText" then
+                plan.ram.wNameBuffer = itemName
+            end
+        end
+        if plan.ram.wStringBuffer == nil and plan.ram.wNameBuffer == nil then
+            plan.ram.wStringBuffer = itemName
+        end
         plan.steps[1] = dialog(d.success, "receipt")
         plan.failure_labels, plan.pickup = copy(d.full), id
     end

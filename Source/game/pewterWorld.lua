@@ -87,7 +87,11 @@ function PewterWorld.connection(game, zone, x, y, direction)
     local descriptor = SourceMaps.descriptor(name)
     -- Authored Pallet retains its reviewed coordinate adapter in KantoSlice.
     for _, c in ipairs(descriptor.connections) do
-        if c.target_map == "PALLET_TOWN" and direction == "down" then return nil, false end
+        -- Route 1's south connection is Pallet (data/maps/headers/Route1.asm).
+        -- Route 21 also links north to Pallet and south to Cinnabar
+        -- (data/maps/headers/Route21.asm). A downward step there is the
+        -- Cinnabar surf, not the authored Pallet adapter.
+        if c.direction == "south" and c.target_map == "PALLET_TOWN" and direction == "down" then return nil, false end
     end
     if not game or not game.session or game.session:getIntro().stage ~= "done" then
         return nil, true, "intro-gate"

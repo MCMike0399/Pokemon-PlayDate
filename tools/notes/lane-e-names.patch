@@ -1,0 +1,106 @@
+diff --git a/Source/domain/gameSession.lua b/Source/domain/gameSession.lua
+--- a/Source/domain/gameSession.lua
++++ b/Source/domain/gameSession.lua
+@@ -173,7 +173,7 @@
+     local checkpoint=location(deps,options.checkpoint or start,payload)
+     local stream=RulesRNG.new(options.seed or 1)
+     state[self]={daycare=Daycare.empty(),deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
+-        intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
++        intro={stage="pre_oak"},playerName="RED",rivalName="BLUE",questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
+         fieldWorld = {version = 1, mapPalOffset = 0},
+         fieldTravel = FieldTravel.empty(),
+         safari = SafariGame.empty(),
+@@ -201,7 +201,23 @@
+ function GameSession:storage() return state[self].storage end
+ function GameSession:inventory() return state[self].inventory end
+ function GameSession:activePokemon() return self:party():active() end
+-function GameSession:title() return {playerName="RED",rivalName="BLUE"} end
++function GameSession:title()
++    local current=state[self]
++    return {playerName=current.playerName or "RED",rivalName=current.rivalName or "BLUE"}
++end
++local function personName(name)
++    return type(name)=="string" and #name>=1 and #name<=7 and not name:find("[^ -~]",1)
++end
++function GameSession:setPlayerName(name)
++    if not personName(name) then return false,"invalid-player-name" end
++    state[self].playerName=name
++    return true
++end
++function GameSession:setRivalName(name)
++    if not personName(name) then return false,"invalid-rival-name" end
++    state[self].rivalName=name
++    return true
++end
+ function GameSession:getIntro() return copy(state[self].intro) end
+ -- Stage and travel mode are read every explore frame. The full copies stay
+ -- available for callers that detach and edit the record.
+@@ -295,7 +311,7 @@
+     current.currentActors = WorldMotionData.empty()
+     RulesRNG.restore(prepared.rng)
+     return true, {destination=prepared.destination, index=index, box=prepared.box,
+-        specimen=prepared.receipt}
++        specimen=prepared.receipt, mon=prepared.mon}
+ end
+ function GameSession:pokedex() return copy(state[self].dex) end
+ function GameSession:dexFlags(species)
+diff --git a/Source/domain/sessionCodec.lua b/Source/domain/sessionCodec.lua
+--- a/Source/domain/sessionCodec.lua
++++ b/Source/domain/sessionCodec.lua
+@@ -66,7 +66,12 @@
+         location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true,safari=true,coins=true,hallOfFame=true,playTime=true})
+     assert((data.version==1 or data.version==2 or data.version==3 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
+     object(data.title,{playerName=true,rivalName=true})
+-    assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
++    local function personName(value)
++        assert(type(value)=="string" and #value>=1 and #value<=7 and not value:find("[^ -~]",1),"invalid player/rival title")
++        return value
++    end
++    local playerName=personName(data.title.playerName)
++    local rivalName=personName(data.title.rivalName)
+     local intro=introFromWire(data.intro)
+     assert(safeStages[intro.stage],"transient intro stage cannot be saved")
+     local quests=GameSession._flags(data.questFlags,4096)
+@@ -173,7 +178,8 @@
+     local itemStorage=ItemStorage.normalize(deps.itemDefinitions,stored)
+     ItemStorage.checkUnique(deps.itemDefinitions,data.inventory,itemStorage)
+     return {daycare=daycare,itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
+-        location=location,checkpoint=savedCheckpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel,safari=safari,coins=coins,hallOfFame=hall,playTime=playTime}
++        location=location,checkpoint=savedCheckpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel,safari=safari,coins=coins,hallOfFame=hall,playTime=playTime,
++        playerName=playerName,rivalName=rivalName}
+ end
+ function SessionCodec.encode(session,gate)
+     SessionCodec.relieveHeap()
+@@ -188,7 +194,7 @@
+             return pokemonToWire(mon)
+         end
+         local data={version=SessionCodec.VERSION,pokemonEncoding=SessionCodec.POKEMON_ENCODING,
+-            coins=session:coins(),safari=session:safariData(),hallOfFame=session:hallOfFame(),playTime=session:playTime(),fieldTravel=session:fieldTravelData(),fieldWorld=session:fieldWorldData(),title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
++            coins=session:coins(),safari=session:safariData(),hallOfFame=session:hallOfFame(),playTime=session:playTime(),fieldTravel=session:fieldTravelData(),fieldWorld=session:fieldWorldData(),title={playerName=session:title().playerName,rivalName=session:title().rivalName},intro=introToWire(current.intro),
+             questFlags=copy(current.questFlags),trainerFlags=copy(current.trainerFlags),pokedex=copy(current.dex),
+             location=copy(current.location),checkpoint=copy(current.checkpoint),world=copy(current.world),rng=session:rngData(),
+             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
+@@ -319,7 +325,8 @@
+         local inventory=assert(Inventory.fromData(prepared.deps.itemDefinitions,prepared.data.inventory))
+         local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,itemStorage=assert(ItemStorage.fromData(prepared.deps.itemDefinitions,prepared.itemStorage)),intro=prepared.intro,
+             questFlags=prepared.questFlags,trainerFlags=prepared.trainerFlags,dex=prepared.dex,world=prepared.world,
+-            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld,fieldTravel=prepared.fieldTravel,safari=prepared.safari,coins=prepared.coins,hallOfFame=prepared.hallOfFame,playTime=prepared.playTime})
++            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld,fieldTravel=prepared.fieldTravel,safari=prepared.safari,coins=prepared.coins,hallOfFame=prepared.hallOfFame,playTime=prepared.playTime,
++            playerName=prepared.playerName,rivalName=prepared.rivalName})
+         GameSession._state(session).daycare = Daycare.restore(session, prepared.daycare, function(value)
+             return pokemonFromWire(value, true)
+         end)
+diff --git a/Source/game/sourceText.lua b/Source/game/sourceText.lua
+--- a/Source/game/sourceText.lua
++++ b/Source/game/sourceText.lua
+@@ -23,8 +23,8 @@
+             local finish = assert(text:find(">", index, true), "unterminated source token")
+             local token = text:sub(index, finish)
+             local value = expansions[token]
+-            if token == "<PLAYER>" then value = values.player or "RED"
+-            elseif token == "<RIVAL>" then value = values.rival or "BLUE"
++            if token == "<PLAYER>" then value = values.player or (Story and Story.playerName and Story.playerName()) or "RED"
++            elseif token == "<RIVAL>" then value = values.rival or (Story and Story.rivalName and Story.rivalName()) or "BLUE"
+             elseif token == "<TARGET>" then value = assert(values.target, "source TARGET text required")
+             elseif token == "<USER>" then value = assert(values.user, "source USER text required")
+             elseif token:match("^<BOLD_[A-ILMPSV]>$") then value = token:sub(7, 7)

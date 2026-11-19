@@ -36,14 +36,35 @@ function TitleRecoveryProbe.run()
   for key,value in pairs(bytes)do assert(fs.write(prefix.."."..key..".json",value))end
   g.machine:change("title");return g,g.machine:get("title"),prefix,bytes
  end
+ -- pret/pokered intro.asm: copyright and the black bars ignore A, the star
+ -- skips to the fight, and A during the fight finishes it. Inspection runs
+ -- after that, then the title screen opens the menu.
+ local function openTitle(title)
+  local guard=0
+  while title.phase=="intro" do
+   guard=guard+1
+   assert(guard<400,"intro did not finish")
+   local scene=IntroMovie.current(title.intro)
+   local skip=scene and (scene.input=="next" or scene.input=="finish")
+   IntroMovie.advance(title.intro, skip and true or false)
+   if title.intro.done then
+    title.introDone=true
+    title.phase="preparing"
+    if title.startupReady then title:refresh() end
+   end
+  end
+  assert(title.metadata,"title inspection did not publish metadata")
+  if title.phase=="title" then title:openMainMenu() end
+  assert(title.phase=="menu" and type(title.menu.onSelect)=="function","title menu was not opened")
+ end
  test("NO at actual Title confirmation preserves session and all corrupt bytes",function(games)
-  local g,title,prefix,bytes=setup(games);local old=g.session;eq(title.metadata.reason,"corrupt");eq(title.candidate,nil)
+  local g,title,prefix,bytes=setup(games);openTitle(title);local old=g.session;eq(title.metadata.reason,"corrupt");eq(title.candidate,nil)
   title:choose("new");eq(title.phase,"confirm-new");title.menu.onSelect(1);eq(g.session,old);eq(g.machine:getCurrent(),"title")
   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
  end)
  test("Confirmed New Game can Save after all old artifacts are corrupt",function(games)
-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2)
-  eq(g.machine:getCurrent(),"dialog","new adventure reached opening")
+  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2)
+  eq(g.machine:getCurrent(),g.machine:get("oak") and "oak" or "dialog","new adventure reached opening")
   g.machine:pop();eq(g.machine:getCurrent(),"overworld")
   local payload,why=g:captureSession();assert(payload,"test did not reach valid settled save boundary: "..tostring(why))
   local ok,metadata=g.saves:save()
@@ -59,14 +80,14 @@ function TitleRecoveryProbe.run()
   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
  end)
  test("session replacement invalidates an earlier explicit Title request",function(games)
-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
   assert(g:beginNewSession(RulesRNG.snapshot().seed))
   local ok,why=g.saves:save();eq(ok,false);eq(why.reason,"replacement-session-changed")
   for key,value in pairs(bytes)do eq(fs.read(prefix.."."..key..".json"),value)end
   eq(fs.read(g.saves.store:_archivePaths(1).manifest),nil)
  end)
  test("Title request stale after confirmation cannot refresh its observed bytes",function(games)
-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
   assert(fs.write(prefix..".b.json","newly discovered bytes"))
   local ok,why=g.saves:save();eq(ok,false);eq(why.reason,"stale-replacement")
   ok,why=g.saves:save();eq(ok,false);eq(why.reason,"stale-replacement")
@@ -74,7 +95,7 @@ function TitleRecoveryProbe.run()
   eq(fs.read(g.saves.store:_archivePaths(1).manifest),nil)
  end)
  test("failed archival attempt cannot fall through to ordinary save on retry",function(games)
-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
   local actual=g.saves.store._fs
   g.saves.store._fs={read=actual.read,rename=actual.rename,write=function(path,data)
    if path==g.saves.store:_archivePaths(1).a then return false,"injected archive failure"end
@@ -90,7 +111,7 @@ function TitleRecoveryProbe.run()
   local old=assert(SessionCodec.encode(g.session,{root="overworld",overworld="explore",settled=true}))
   local bytes={}
   for index,key in ipairs({"a","b","candidate"})do bytes[key]=assert(g.saves.store:_envelope(old,index));assert(fs.write(prefix.."."..key..".json",bytes[key]))end
-  title:refresh();title:choose("new");title.menu.onSelect(2);g.machine:pop()
+  openTitle(title);title:refresh();openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
   g.machine:register("pc",PCState(g));g.machine:push("pc");local pc=g.machine:get("pc")
   local ok,metadata=g.saves:changeBoxFromPC(pc,2,pc.epoch);assert(ok,metadata.reason);eq(metadata.archived,true)
   eq(g.session:storage():activeBox(),2);eq(g.saves._replacement,nil)
@@ -98,7 +119,7 @@ function TitleRecoveryProbe.run()
   local restored=assert(g.saves:inspect());eq(restored:storage():activeBox(),2)
  end)
  test("failed confirmed PC save rolls box back without bypassing archive on retry",function(games)
-  local g,title,prefix,bytes=setup(games);title:choose("new");title.menu.onSelect(2);g.machine:pop()
+  local g,title,prefix,bytes=setup(games);openTitle(title);title:choose("new");title.menu.onSelect(2);g.machine:pop()
   g.machine:register("pc",PCState(g));g.machine:push("pc");local pc=g.machine:get("pc");local previous=g.session:storage():activeBox()
   local actual=g.saves.store._fs
   g.saves.store._fs={read=actual.read,rename=actual.rename,write=function(path,data)
