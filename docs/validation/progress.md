@@ -1,5 +1,13 @@
 # Full-game execution ledger
 
+## 2026-11-19 Blackout page and Red's battle back
+
+pret/pokered `_PlayerBlackedOutText2` is the loss page except the lab rival. The page is `<PLAYER> is out of` / `useable #MON!` then `<PLAYER> blacked` / `out!`. Route 22's second rival returns to the default script on `LOST_BATTLE`, so a blackout does not resume his victory line after the checkpoint warp. `redb.png` is 32×32. It is drawn in the same 80px slot as a Pokémon back, feet on y 150. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Cerulean catalog publishes its score
+
+Map reads that do not fit unload the title score. The reply frame used to inflate `audio/score/title` into the fragmented pool, so the finished report never reached `result.json`. A missing score stays unloaded for that reply. If a compressed read still fails after the contracts are scored, the harness publishes that report instead of an empty runtime error. Cell probes sample `TileFactory.image` rather than building an imagetable per map. Device suite `cerulean-catalog` session evidence `/tmp/gates-mem/cerulean-reply2`: 237 tests, 193 passed, 44 failed. All 44 names are ones main `bf92c4fc` already failed (102). Fifty-eight of those names cleared. No new failure name. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Shift question, Red's back, and the Route 22 lease
 
 pret/pokered prints `_TrainerAboutToUseText` and then `TWO_OPTION_MENU`. The announcement is its own page. The question is `Will <PLAYER>` / `change #MON?` in the GB font beside YES/NO. Red's back sprite stays on the player platform until the first send-out. The second Route 22 rival walks and then battles in one event. The walk lease is released before `TrainerEvents` claims the actor, so the script no longer stops at `source-actor-already-claimed`. Source-event parity did not touch that lease. `MallocPoolSize` stays 16645684.

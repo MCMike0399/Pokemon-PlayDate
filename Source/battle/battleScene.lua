@@ -1059,9 +1059,25 @@ function BattleScene:drawPlayerBack()
         self.playerBackImage = gfx.image.new("images/player/red-pic-back") or false
     end
     if not self.playerBackImage then return end
-    local _, h = self.playerBackImage:getSize()
-    -- The player platform's top edge is y 150. Stand Red on it.
-    self.playerBackImage:draw(40, 150 - h)
+    -- redb.png is 32x32, the same pixels as an overworld frame. The player's
+    -- battle slot is the 80px box used for back sprites, feet on y 150.
+    local size = 80
+    local iw, ih = self.playerBackImage:getSize()
+    local scale = math.min(size / iw, size / ih)
+    local sw = math.max(1, math.floor(iw * scale))
+    local sh = math.max(1, math.floor(ih * scale))
+    if self.playerBackScale ~= scale then
+        local image = gfx.image.new(sw, sh)
+        gfx.pushContext(image)
+            gfx.setDrawOffset(0, 0)
+            self.playerBackImage:drawScaled(0, 0, scale)
+        gfx.popContext()
+        self.playerBackScaled = image
+        self.playerBackScale = scale
+    end
+    local x = 55 + math.floor((size - sw) / 2)
+    local y = 70 + size - sh
+    self.playerBackScaled:draw(x, y)
 end
 
 function BattleScene:drawTrainer()
