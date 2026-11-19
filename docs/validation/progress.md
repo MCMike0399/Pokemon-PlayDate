@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Viridian nurse text cue
+
+Pressing A on the Pokémon Center nurse left `EventState` on top while A was still just-pressed. `textAdvance` indexed `top.dialog`, which is the `EventState:dialog` method, and died before YES. The cue now reads that field only when it is a Dialog table, so a real text box still plays the text sound. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Proven memory cuts
 
 Residual events are inserted directly. The catalog writer reports a duplicate path before an undeclared one. Magnitude drops each finished battle. Field travel collects before the first city inflate and retries a large catalogue read after releasing bitmaps and scores. The Vermilion catalog samples cells instead of a full city bitmap. Device probes against `bf92c4fc`: vermilion-abilities 59/0, comprehensive-catalog 24/3, move-failure 35/0, field-travel 22/1, vermilion-catalog 52/7. Every failure name is one main already had. `MallocPoolSize` stays 16645684.

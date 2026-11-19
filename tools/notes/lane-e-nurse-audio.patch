@@ -1,0 +1,14 @@
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -176,7 +176,10 @@
+     if top.name == "dialog" then
+         return true
+     end
+-    if top.dialog and top.dialog.isActive then
++    -- EventState:dialog is the page method. Indexing it as a Dialog
++    -- crashes the nurse before YES, while A is still just-pressed.
++    local dialog = top.dialog
++    if type(dialog) == "table" and dialog.isActive then
+         return true
+     end
+     local scene = top.scene
