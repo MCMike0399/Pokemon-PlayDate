@@ -303,7 +303,7 @@ function Story.check(game, overworldState)
     if not (player and player.stepJustFinished) then return false end
 
     -- Oak stops you at the Route 1 grass strip and escorts you to the lab
-    if stage == "pre_oak" and zoneIs(PALLET_ID)
+    if stage == "pre_oak" and (zoneIs(PALLET_ID) or zoneIs("pallet_town"))
        and player.gridY <= 2 then
         game.machine:push("dialog", OAK_STOP, function()
             update(game,{stage="lab_greet"})

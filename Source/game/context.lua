@@ -2,23 +2,21 @@
 import "game/coastStory"
 Class("GameContext")
 local TRANSITION_LOG_MAX <const> = 12
--- New Game spawns in the imported bedroom and heals at Red's door.
--- GameContext is built before KantoWorld.install, so that first inactive
--- session cannot name an imported map yet. It stays on test_zone until
--- beginNewSession, which runs after the provider exists.
-local BEDROOM <const> = {zone_id="pokered:REDS_HOUSE_2F",x=5,y=3,facing="up"}
-local HEAL <const> = {zone_id="pokered:PALLET_TOWN",x=5,y=6,facing="down"}
+-- New Game stands in Red's room and heals outside his door. Those registry
+-- keys are the padded pokered maps. test_zone remains the fallback until
+-- AuthoredMaps has registered them.
+local BEDROOM <const> = {zone_id="reds_house_2f",x=5,y=3,facing="up"}
+local HEAL <const> = {zone_id="pallet_town",x=5,y=6,facing="down"}
 local BOOT <const> = {zone_id="test_zone",x=6,y=7,facing="down"}
-local function importedSession()
-    local provider = WorldDeltas.definitionProvider()
-    return provider and provider:hasID(BEDROOM.zone_id) and provider:hasID(HEAL.zone_id)
+local function palletReady()
+    return zoneRegistry.reds_house_2f ~= nil and zoneRegistry.pallet_town ~= nil
 end
 local function startLocation()
-    if importedSession() then return BEDROOM end
+    if palletReady() then return BEDROOM end
     return BOOT
 end
 local function healLocation()
-    if importedSession() then return HEAL end
+    if palletReady() then return HEAL end
     return BOOT
 end
 local function zoneKey(stableID)

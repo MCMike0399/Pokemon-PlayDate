@@ -29,16 +29,86 @@ NUM_TILE_TYPES = 37
 AuthoredMaps = {}
 local initialized = false
 
+-- Padded source collision, drawn with the existing floor/wall tiles.
+-- Two cells stay open because the campaign already stands on them:
+-- Pallet (9, 0) is the Route 1 seam, and Red's house (5, 5) faces MOM.
+local function registerPalletZones()
+    local function grid(file, pad, width)
+        local data = assert(json.decodeFile("data/zRemainder/" .. file .. ".json"), file)
+        local rows = assert(data.collision, file)
+        local raw = #rows[1]
+        local right = width - raw - pad
+        assert(right >= 0, file)
+        local cells = {}
+        for y, row in ipairs(rows) do
+            local line = {}
+            for _ = 1, pad do line[#line + 1] = 1 end
+            for x = 1, raw do line[#line + 1] = row[x] end
+            for _ = 1, right do line[#line + 1] = 1 end
+            cells[y] = line
+        end
+        return cells
+    end
+    local function rows(cells, openCode, blockedCode)
+        local lines = {}
+        for _, line in ipairs(cells) do
+            local parts = {}
+            for x = 1, #line do parts[x] = line[x] == 0 and openCode or blockedCode end
+            lines[#lines + 1] = table.concat(parts, " ")
+        end
+        return lines
+    end
+    local function open(cells, x, y)
+        cells[y + 1][x + 1] = 0
+    end
+    local function zone(key, file, name, pad, width, indoor, spawn, doors, npcs)
+        local cells = grid(file, pad, width)
+        if key == "pallet_town" then open(cells, 9, 0) end
+        if key == "reds_house" then open(cells, 5, 5) end
+        registerZone(key, Zone({
+            name = name,
+            id = key,
+            spawn = spawn,
+            tileRows = rows(cells, indoor and "Fo" or "Pa", indoor and "IW" or "Wa"),
+            doors = doors,
+            npcs = npcs,
+        }))
+        GameBootstrap.yieldIfDue()
+    end
+    zone("reds_house_2f", "RedsHouse2F", "Red's Room", 2, 13, true, { x = 5, y = 3, facing = "up" }, {
+        { x = 9, y = 1, to = "reds_house", toX = 9, toY = 1, facing = "down" },
+    })
+    zone("reds_house", "RedsHouse1F", "Red's House 1F", 2, 13, true, { x = 3, y = 7, facing = "up" }, {
+        { x = 4, y = 7, edge = "down", to = "pallet_town", toX = 5, toY = 6, facing = "down" },
+        { x = 5, y = 7, edge = "down", to = "pallet_town", toX = 5, toY = 6, facing = "down" },
+        { x = 9, y = 1, to = "reds_house_2f", toX = 9, toY = 1, facing = "up" },
+    }, {
+        { gridX = 5, gridY = 4, name = "MOM", sprite = "mom", dialog = { "MOM: Take care out there, honey!" } },
+    })
+    zone("blues_house", "BluesHouse", "Blue's House", 2, 13, true, { x = 5, y = 6, facing = "up" }, {
+        { x = 4, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 6, facing = "down" },
+        { x = 5, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 6, facing = "down" },
+    })
+    zone("oaks_lab", "OaksLab", "Oak's Lab", 1, 13, true, { x = 6, y = 10, facing = "up" }, {
+        { x = 5, y = 11, edge = "down", to = "pallet_town", toX = 12, toY = 12, facing = "down" },
+        { x = 6, y = 11, edge = "down", to = "pallet_town", toX = 12, toY = 12, facing = "down" },
+    })
+    zone("pallet_town", "PalletTown", "Pallet Town", 0, 20, false, { x = 5, y = 6, facing = "down" }, {
+        { x = 5, y = 5, to = "reds_house", toX = 5, toY = 6, facing = "up" },
+        { x = 13, y = 5, to = "blues_house", toX = 5, toY = 6, facing = "up" },
+        { x = 12, y = 11, to = "oaks_lab", toX = 6, toY = 10, facing = "up" },
+    })
+end
+
 -- Called once by the root initialization coroutine before content or context.
 function AuthoredMaps.initialize()
     if initialized then
         return
     end
 
-    -- Pallet Town, Oak's Lab, Red's house and Blue's house are the imported
-    -- kanto_* maps (kanto_pallet_town, kanto_oaks_lab, kanto_reds_house_1f,
-    -- kanto_reds_house_2f, kanto_blues_house). Their hand-authored tile rows
-    -- are retired. New Game starts in pokered:REDS_HOUSE_2F.
+    -- Pallet and its houses use the padded pokered collision. The registry
+    -- keys are the ones sessions already store. Fly still names pokered:PALLET_TOWN.
+    registerPalletZones()
 
     -- ============================================================
     -- TEST ZONE (original PoC map, 20x15)
