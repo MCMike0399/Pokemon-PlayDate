@@ -1,0 +1,18 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index a6001154..f8ea67b5 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1672,8 +1672,12 @@ function Battle:_registerFaints(lastFaintedSide)
+         if not pokemon:isAlive() and not self.faintAnnounced[side] then
+             self.faintAnnounced[side] = true
+             changed=true
+-            self:say(pokemon.name .. " fainted!")
++            -- say() puts the line up while updateVitals is still stepping
++            -- the HP bar, and the slide waits behind that message.
++            -- present("faint") holds for the drain and SlideDownFaintedMonPic,
++            -- then the fainted line is printed.
+             self:present("faint", {side = side, pokemon = pokemon})
++            self:say(pokemon.name .. " fainted!")
+         end
+     end
+     return lastFaintedSide,changed

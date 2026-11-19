@@ -1467,3 +1467,21 @@ a bought X Speed does not raise Speed. One stage is 3/2. The handoff
 is `tools/notes/lane-e-x-items.patch` with
 `tools/tests/test_lane_e_x_items.py`. It is not applied. Guard Spec.
 and Dire Hit are not a single stage and stay unsupported.
+
+## Faint line before the slide
+
+`20261119T144452Z-route22-rival.mp4` at about 8 seconds shows
+`DROWZEE fainted!` while the bar reads 60/69 and the sprite is
+standing. Near 15 seconds `SANDSHREW fainted!` is up at 5/41 with
+Sandshrew still on its feet. The `144824Z` retake shows
+`POLIWAG fainted!` at 12/28 with the sprite still on the platform.
+Later frames of the same line reach 0 HP and start the slide, so the
+text is queued with the drain instead of after it.
+
+`Battle:_registerFaints` calls `say` and then `present("faint")`.
+`say` parks the script on the message while `updateVitals` is still
+stepping the bar, and the slide does not start until that message is
+dismissed. The handoff is `tools/notes/lane-e-faint-order.patch`
+with `tools/tests/test_lane_e_faint_order.py`. It presents the slide
+first, which waits for the drain and `SlideDownFaintedMonPic`, then
+prints the line. It is not applied.
