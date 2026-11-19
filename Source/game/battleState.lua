@@ -143,6 +143,10 @@ function BattleState:finish(won, kind)
         end
         if not receipt then return end
         if not receipt.won then
+            -- pokered Route22Rival2AfterBattleScript returns to the default
+            -- script on LOST_BATTLE. The blackout page already ended the
+            -- fight, so the rival's victory line must not resume on the map.
+            if blackout then return end
             local descriptor = SourceEvents.descriptor(receipt.id)
             if descriptor and descriptor.lost then
                 local lines = {}
