@@ -2634,9 +2634,10 @@ class CharmanderRun(BrockJourney):
             # steps are the searched path. Stop on (2, 1), beside the stair.
             self._play_groups((
                 ("walk", "down", 1), ("walk", "left", 1), ("walk", "down", 2),
-                ("walk", "left", 7), ("walk", "up", 2), ("walk", "left", 2),
-                ("walk", "up", 4), ("walk", "left", 4), ("walk", "up", 5),
-                ("walk", "left", 1), ("walk", "up", 2),
+                ("walk", "left", 7), ("walk", "up", 2), ("walk", "right", 2),
+                ("walk", "up", 6), ("walk", "left", 4), ("walk", "down", 2),
+                ("walk", "left", 4), ("walk", "up", 5), ("walk", "left", 1),
+                ("walk", "up", 2),
             ))
             if self.position() != (2, 1):
                 raise ProtocolError("Victory Road 1F stairs missed: " + str(self.position()))
