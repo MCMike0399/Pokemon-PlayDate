@@ -1529,6 +1529,28 @@ spent. The Center heal walked onto Route 23 and into Victory Road.
 Sequence 440 is inside Victory Road 1F `(2, 10)` facing up, sha256
 `b675427c30db9f05e4d2dda6c6a61d0f531662526d4fa8279ac6ef48ae7e3cf2`.
 Strength is on. The boulder that started at `(2, 10)` now sits at
-`(2, 9)`, and a further push north does not move it. The lobby path
-goes through that cell, so the walk stops there. The 1F switch is
-`(17, 13)` and is not set.
+`(2, 9)`, and a further push north does not move it. `(2, 8)` is a
+wall, and the player cannot stand west or north of that boulder.
+Pokered's only 1F boulder script is `CheckBoulderCoords` for
+`(17, 13)`, which sets `EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH` and
+opens block `(4, 6)`. That 2x2 is the way around the stuck boulder
+to the `(1, 1)` stairs. Boulder 1 at `(5, 15)` can be pushed there.
+The stand for the push off the bottom row is the exit mat `(9, 17)`,
+which is an edge door and only leaves when you walk down.
+
+## Recoil KO still runs the next move
+
+`20261119T162301Z-route22-rival.mp4` at 0:15-0:19 shows Venusaur
+moving first, using Double-Edge, and fainting from recoil. Charizard's
+queued Wing Attack still runs, and the hit plays on the empty player
+platform. `Battle:resolveRound` treats `handleFaint`'s `"replacement"`
+as permission to run the next queued action. The foe is still alive,
+so the attacker check does not skip it, and `performMove` announces
+and presents the move before `moveHasTarget`. Gen V does not run a
+queued move whose target has already fainted. Residuals still resolve,
+then the forced switch. The handoff is
+`tools/notes/lane-e-recoil-ko.patch` with
+`tools/tests/test_lane_e_recoil_ko.py` and
+`tools/tests/recoil_ko_host.lua`. It is not applied. The live host
+still prints `CHARIZARD used WING ATTACK!`. The patched host skips
+that line, stays on `forcedSwitch`, and does not spend Wing Attack PP.
