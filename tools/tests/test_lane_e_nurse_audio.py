@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""A on the Viridian nurse crashes before the YES menu.
+"""A on the Viridian nurse must not index EventState:dialog.
 
-EventState:dialog is the method that pushes the welcome pages. The
-pokecenter heal leaves that event on top for the frame after A closes
-the text. textAdvance then reads top.dialog.isActive. The field is a
-function, so the runtime errors at kantoAudio.lua and the party is
-never healed. Dialog states still store a Dialog table and should keep
-the text cue.
+EventState:dialog is the method that pushes the welcome pages. Pokered's
+Pokémon Center nurse (script_pokecenter_nurse) shows that text, then YES/NO.
+The heal leaves the event on top for the frame A is still just-pressed, both
+when the talk starts and when the text box closes. textAdvance used to read
+top.dialog.isActive. The field is a function, so the runtime died at
+kantoAudio.lua and the party was never healed. A real Dialog table still
+plays the text cue.
 """
 
 import subprocess
@@ -25,34 +26,23 @@ class NurseAudioTests(unittest.TestCase):
         self.assertIn("function EventState:dialog(pages,callback,receipt)", text)
         self.assertIn("function EventState:heal(step)", text)
         self.assertIn('self.menu:show({"YES","NO"},selected', text)
+        self.assertIn('self.machine:push("dialog",lines,self:guard(callback))', text)
 
-    def test_live_text_advance_indexes_the_dialog_field(self):
-        advance = AUDIO.read_text().split("local function textAdvance(top, menu)", 1)[1]
-        advance = advance.split("local function noteCries", 1)[0]
-        self.assertIn("if top.dialog and top.dialog.isActive then", advance)
-        self.assertNotIn('type(dialog) == "table"', advance)
-
-    @unittest.expectedFailure
     def test_text_advance_ignores_a_dialog_method(self):
         advance = AUDIO.read_text().split("local function textAdvance(top, menu)", 1)[1]
         advance = advance.split("local function noteCries", 1)[0]
+        self.assertIn('top.name == "dialog"', advance)
         self.assertIn('type(dialog) == "table" and dialog.isActive', advance)
         self.assertNotIn("if top.dialog and top.dialog.isActive then", advance)
+        self.assertIn("scene.messageDialog and scene.messageDialog.isActive", advance)
 
-    def test_patch_guards_the_dialog_field(self):
+    def test_the_handoff_patch_is_the_landed_guard(self):
         check = subprocess.run(
-            ["git", "apply", "--check", str(PATCH)], cwd=ROOT,
+            ["git", "apply", "--reverse", "--check", str(PATCH)], cwd=ROOT,
             capture_output=True, text=True)
         self.assertEqual(check.returncode, 0, check.stderr)
-        output = Path("/tmp/lane-e-nurse-audio.lua")
-        applied = subprocess.run(
-            ["patch", "-o", str(output), str(AUDIO), str(PATCH)],
-            capture_output=True, text=True)
-        self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
-        advance = output.read_text().split("local function textAdvance(top, menu)", 1)[1]
-        advance = advance.split("local function noteCries", 1)[0]
-        self.assertIn('type(dialog) == "table" and dialog.isActive', advance)
-        self.assertNotIn("if top.dialog and top.dialog.isActive then", advance)
+        note = PATCH.read_text()
+        self.assertIn('type(dialog) == "table" and dialog.isActive', note)
 
 
 if __name__ == "__main__":
