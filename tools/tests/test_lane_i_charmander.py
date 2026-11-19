@@ -2303,20 +2303,20 @@ class CharmanderRun(BrockJourney):
         """Stay off the arrow tiles. Two sight lines are the real door into Giovanni's room."""
         if self.position() != (16, 17):
             raise ProtocolError("Viridian Gym door landed at " + str(self.position()))
+        # The guide stands on (16, 15). The column beside him reaches the two sight lines.
         for direction, count, landing in (
-            ("up", 5, (16, 12)),
-            ("left", 2, (14, 12)),
-            ("up", 3, (14, 9)),
+            ("up", 1, (16, 16)),
+            ("left", 2, (14, 16)),
+            ("up", 7, (14, 9)),
             ("left", 1, (13, 9)),
             ("up", 2, (13, 7)),
             ("right", 2, (15, 7)),
             ("up", 1, (15, 6)),
-            ("right", 1, (16, 6)),
-            ("up", 1, (16, 5)),
-            ("up", 1, (16, 4)),
-            ("left", 4, (12, 4)),
+            ("up", 2, (15, 4)),
+            ("left", 3, (12, 4)),
             ("down", 1, (12, 5)),
-            ("left", 2, (10, 5)),
+            ("left", 1, (11, 5)),
+            ("left", 1, (10, 5)),
             ("up", 3, (10, 2)),
             ("left", 3, (7, 2)),
             ("down", 2, (7, 4)),
