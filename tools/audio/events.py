@@ -17,7 +17,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tools.audio.catalog import Catalog
-from tools.audio.scores import ALT_SCORES, ASSETS, map_routes
+from tools.audio.scores import ALT_SCORES, ASSETS, PITCHED, map_routes
 from tools.audio.source import AudioError, Source
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -87,6 +87,22 @@ CUES = (
     ('meet_rival_slow', 'meet_rival_slow', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateTempo'),
     # Route22 rival2 exit: alternate start on ch1-3, then the slower ch1 entry.
     ('meet_rival_league', 'meet_rival_league', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateStartAndTempo'),
+    # Music_RivalAlternateStart. Tempo 112, then the normal MeetRival loop.
+    # Oak's lab exits, the first Route 22 battle, Cerulean, the tower, SS Anne, Silph.
+    ('meet_rival_start', 'meet_rival_start', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateStart'),
+    # GetMoveSound copies these sfx.asm bytes onto SFX_FAINT_FALL.
+    ('faint_fall_agility', 'faint_fall_agility', 'sfx', 'data/moves/sfx.asm', 'AGILITY'),
+    ('faint_fall_kinesis', 'faint_fall_kinesis', 'sfx', 'data/moves/sfx.asm', 'KINESIS'),
+    ('faint_fall_transform', 'faint_fall_transform', 'sfx', 'data/moves/sfx.asm', 'TRANSFORM'),
+    ('faint_fall_dizzy_punch', 'faint_fall_dizzy_punch', 'sfx', 'data/moves/sfx.asm', 'DIZZY_PUNCH'),
+    # PlayIntro, before the title. The port has no fight-intro state.
+    ('shooting_star', 'shooting_star', 'sfx', 'engine/movie/splash.asm', 'SFX_SHOOTING_STAR'),
+    ('intro_lunge', 'intro_lunge', 'sfx', 'engine/movie/intro.asm', 'SFX_INTRO_LUNGE'),
+    ('teleport_exit_1', 'teleport_exit_1', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_EXIT_1'),
+    ('teleport_enter_1', 'teleport_enter_1', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_ENTER_1'),
+    ('teleport_exit_2', 'teleport_exit_2', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_EXIT_2'),
+    ('teleport_enter_2', 'teleport_enter_2', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_ENTER_2'),
+    ('ball_poof', 'ball_poof', 'sfx', 'engine/battle/animations.asm', 'SFX_BALL_POOF'),
     ('go_inside', 'go_inside', 'sfx', 'home/overworld.asm', 'SFX_GO_INSIDE'),
     ('go_outside', 'go_outside', 'sfx', 'home/overworld.asm', 'SFX_GO_OUTSIDE'),
     ('ledge', 'ledge', 'sfx', 'engine/overworld/ledges.asm', 'SFX_LEDGE'),
@@ -281,7 +297,7 @@ def build(source_path):
     female = _list_until_end(source, 'data/trainers/encounter_types.asm', 'FemaleTrainerList::')
     cues = {}
     for name, score, kind, path, token in CUES:
-        if score not in ASSETS and score not in ALT_SCORES:
+        if score not in ASSETS and score not in ALT_SCORES and score not in PITCHED:
             raise AudioError(f'cue {name} uses unknown score {score}')
         cues[name] = {
             'score': score,

@@ -228,8 +228,12 @@ class HostRendererTests(unittest.TestCase):
 class ObserverGapTests(unittest.TestCase):
     def test_title_clock_plays_crash_whoosh_music_and_the_attract_cry(self):
         calls = observe('title')
+        self.assertIn(('sfx', 'shooting_star'), calls)
+        self.assertIn(('sfx', 'intro_lunge'), calls)
         self.assertIn(('sfx', 'intro_crash'), calls)
         self.assertIn(('sfx', 'intro_whoosh'), calls)
+        self.assertLess(calls.index(('sfx', 'shooting_star')), calls.index(('sfx', 'intro_lunge')))
+        self.assertLess(calls.index(('sfx', 'intro_lunge')), calls.index(('sfx', 'intro_crash')))
         self.assertLess(calls.index(('sfx', 'intro_crash')), calls.index(('sfx', 'intro_whoosh')))
         self.assertLess(calls.index(('sfx', 'intro_whoosh')), calls.index(('music', 'title')))
         self.assertLess(calls.index(('music', 'title')), calls.index(('cry', 'squirtle')))
@@ -297,6 +301,43 @@ class ObserverGapTests(unittest.TestCase):
         # songs.asm gives the hall the Pallet bed. AnimateHallOfFame replaces
         # it, and HallOfFamePC then starts the credits.
         self.assertEqual(music, [('music', 'pallet'), ('music', 'hall_of_fame'), ('music', 'credits')])
+
+    def test_earlier_rival_exits_use_the_alternate_start(self):
+        calls = observe('rival-exits')
+        starts = [call for call in calls if call == ('music', 'meet_rival_start')]
+        # Eight exits. The lab greet is a longer Gramps line and must not count.
+        self.assertEqual(len(starts), 8)
+
+    def test_pitched_faint_fall_follows_the_move(self):
+        calls = observe('pitched-fall')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, [
+            'faint_fall_agility', 'faint_fall_kinesis',
+            'faint_fall_transform', 'faint_fall_dizzy_punch',
+        ])
+
+    def test_ball_poof_plays_on_absorb_and_breakout(self):
+        calls = observe('ball-poof')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['ball_poof', 'ball_poof'])
+
+    def test_teleport_spins_follow_the_pad_and_the_escape_rope(self):
+        calls = observe('teleport')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx[:2], ['go_inside', 'go_outside'])
+        self.assertEqual(sfx[2:], [
+            'teleport_exit_1', 'teleport_enter_1', 'teleport_enter_2',
+            'teleport_exit_2', 'teleport_exit_1', 'teleport_enter_1', 'teleport_enter_2',
+        ])
+
+    def test_oak_speech_cries_nidorina_and_saffron_cries_pidgeot(self):
+        audio = (ROOT / 'Source/game/kantoAudio.lua').read_text()
+        self.assertNotIn('dewgong', audio)
+        self.assertNotIn('sound_cry_dewgong', audio)
+        nidorina = [call for call in observe('nidorina') if call[0] == 'cry']
+        self.assertEqual(nidorina, [('cry', 'nidorina')])
+        pidgeot = [call for call in observe('pidgeot') if call[0] == 'cry']
+        self.assertEqual(pidgeot, [('cry', 'pidgeot')])
 
 
 if __name__ == '__main__':

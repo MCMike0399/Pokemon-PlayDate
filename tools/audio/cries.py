@@ -123,10 +123,11 @@ def generate(source):
             lines.append(f'    [{json.dumps(key)}] = {lua},')
         lines.append('}')
     # Select the same source family as the currently playing music.
-    from tools.audio.scores import ALT_SCORES, ASSETS
+    from tools.audio.scores import ALT_SCORES, ASSETS, PITCHED
     lines.append('KantoCryMusicBanks = {')
     lines += [f'    {name} = {catalog.headers[asset]["family"]},' for name, asset in ASSETS.items()]
     lines += [f'    {name} = {catalog.headers[asset]["family"]},' for name, (asset, _entries, _cited) in ALT_SCORES.items()]
+    lines += [f'    {name} = {catalog.headers[asset]["family"]},' for name, (asset, _pitch, _tempo) in PITCHED.items()]
     lines.append('}\n')
     payload = '\n'.join(lines).encode()
     manifest = {'schema': 1, 'revision': REVISION, 'species': species,

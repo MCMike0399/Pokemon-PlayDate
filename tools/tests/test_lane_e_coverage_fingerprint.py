@@ -1,4 +1,4 @@
-"""The coverage snapshot still names the tree from before the credits-path audio.
+"""The coverage snapshot still names the tree from before this lane's audio.
 
 expectedFailure until lane E applies tools/notes/lane-e-coverage-fingerprint.patch.
 Do not relabel the matrix from this lane.
@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CREDITS_AUDIO_FINGERPRINT = 'ff2514c59e73f50bccb2693a8d61b292be493ebaf5c4ae44e607c428a54de668'
+CREDITS_AUDIO_FINGERPRINT = '5883c3284cd79f46882ed9f91ec660faa5b3516c9b3821f664a447bf209951e7'
 
 
 class LaneECoverageFingerprintTests(unittest.TestCase):

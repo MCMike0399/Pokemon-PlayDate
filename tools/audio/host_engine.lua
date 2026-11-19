@@ -357,6 +357,101 @@ local function observe(kind)
         KantoAudio.updateGame(game)
         enemy.hp = 0
         KantoAudio.updateGame(game)
+    elseif kind == "rival-exits" then
+        local pages = {lines = {""}, currentLine = 1, isActive = true}
+        local dialog = {name = "dialog", dialog = pages}
+        local game = gameWith({{name = "overworld"}, dialog})
+        local cases = {
+            {"pokered:OAKS_LAB", "RED! Gramps! Smell you later!"},
+            {"Oak's Lab", "BLUE: Gramps!"},
+            {"pokered:OAKS_LAB", "BLUE: Alright Gramps! Leave it all to me!"},
+            {"pokered:ROUTE_22", "I heard POKEMON LEAGUE has many"},
+            {"pokered:CERULEAN_CITY", "BLUE: I went to BILL's"},
+            {"pokered:POKEMON_TOWER_2F", "How's your POKEDEX coming, pal?"},
+            {"pokered:SS_ANNE_2F", "BLUE: I heard there was a CUT master"},
+            {"pokered:SILPH_CO_7F", "RED, well good luck to you!"},
+            {"pokered:OAKS_LAB", "BLUE: Gramps! I'm fed up with waiting!"},
+        }
+        for _, row in ipairs(cases) do
+            currentZone = {stableID = row[1], name = row[1]}
+            pages.lines[1] = row[2]
+            KantoAudio.updateGame(game)
+        end
+    elseif kind == "pitched-fall" then
+        local battle = {
+            trainerName = "BLUE",
+            enemy = {hp = 20, maxHP = 20, species = "abra"},
+            player = {hp = 20, maxHP = 20, species = "rattata", level = 5},
+        }
+        local game = gameWith({{name = "battle", battle = battle}})
+        currentZone = {stableID = "pokered:ROUTE_22"}
+        for _, key in ipairs({"agility", "kinesis", "transform", "dizzyPunch"}) do
+            battle.currentMoveKey = nil
+            KantoAudio.updateGame(game)
+            battle.currentMoveKey = key
+            KantoAudio.updateGame(game)
+        end
+    elseif kind == "ball-poof" then
+        local capture = {phase = "throw"}
+        local battle = {
+            enemy = {hp = 10, maxHP = 10, species = "pidgey"},
+            player = {hp = 10, maxHP = 10, species = "pikachu", level = 5},
+        }
+        local game = gameWith({{name = "battle", battle = battle, scene = {captureAnimation = capture}}})
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+        capture.phase = "absorb"
+        KantoAudio.updateGame(game)
+        capture.phase = "drop"
+        KantoAudio.updateGame(game)
+        capture.phase = "breakout"
+        KantoAudio.updateGame(game)
+    elseif kind == "teleport" then
+        local warp = {name = "doorWarp", door = {connection = true}}
+        local sub = {
+            current = "doorWarp",
+            getCurrent = function(self) return self.current end,
+            get = function(self, name)
+                if name == self.current then return warp end
+            end,
+        }
+        local overworld = {name = "overworld", sub = sub}
+        local game = gameWith({overworld})
+        currentZone = {stableID = "pokered:PALLET_TOWN"}
+        KantoAudio.updateGame(game)
+        warp.door = {edge = "down"}
+        KantoAudio.updateGame(game)
+        warp.door = {preserveFacing = true}
+        for _ = 1, 180 do
+            KantoAudio.updateGame(game)
+        end
+        game.lastFieldItem = {kind = "escape-rope"}
+        for _ = 1, 180 do
+            KantoAudio.updateGame(game)
+        end
+    elseif kind == "nidorina" then
+        local title = {name = "title", phase = "menu"}
+        local pages = {
+            lines = {
+                "This world is inhabited by creatures called POKEMON!",
+                "For some people, POKEMON are pets. Others use them for fights.",
+            },
+            currentLine = 1,
+            isActive = true,
+        }
+        local dialog = {name = "dialog", dialog = pages}
+        local game = gameWith({title, dialog})
+        currentZone = nil
+        KantoAudio.updateGame(game)
+        pages.currentLine = 2
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "pidgeot" then
+        local dialog = {name = "dialog", lines = {"PIDGEOT: Bi bibii!"}}
+        local game = gameWith({{name = "overworld"}, dialog})
+        currentZone = {stableID = "pokered:SAFFRON_CITY"}
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
     elseif kind == "ceremony" then
         local event = {name = "event", phase = "hall-photo"}
         local game = gameWith({{name = "overworld"}, event})

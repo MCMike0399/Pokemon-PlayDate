@@ -12,8 +12,10 @@ local traversal = nil
 local observer = {}
 local tickSeconds <const> = 70224 / 4194304
 -- Observer updates stand in for GB frames. The port does not bounce the logo
--- or play the fight intro, so this clock is the title.asm sequence, which is
--- where both sounds and the attract cry actually are.
+-- or draw the fight intro. The title clock is still the title.asm sequence.
+-- PlayIntro's shooting star and nidorino lunge have no movie state, so those
+-- two sounds sit on this clock before the crash, on frames that title.asm
+-- does not already use.
 -- Crash: title.asm plays SFX_INTRO_CRASH when the scroll amount becomes -3,
 -- after DelayFrame counts 16+4. intro.asm:88 uses the same score for the
 -- Gengar slash; that movie is not a visible state here.
@@ -22,6 +24,8 @@ local tickSeconds <const> = 70224 / 4194304
 -- in intro.asm. The traced whoosh lasts 34 ticks. The 28-frame version scroll
 -- and Delay3 finish while it is still playing, and WaitForSoundToFinish holds
 -- Music_TitleScreen until those 34 ticks end.
+local TITLE_STAR_FRAME <const> = 1
+local TITLE_LUNGE_FRAME <const> = 10
 local TITLE_CRASH_FRAME <const> = 20
 local TITLE_WHOOSH_FRAME <const> = 68
 local TITLE_MUSIC_FRAME <const> = 102
@@ -33,6 +37,17 @@ local OAK_ARRIVAL_PREFIX <const> = "OAK:"
 local ROUTE22_RIVAL <const> = "pokered:ROUTE_22:objects:2"
 -- First page of _Route22RivalAfterBattleText2. The exit music starts after it.
 local ROUTE22_LEAGUE_LINE <const> = "That loosened me"
+-- home/text.asm TextCommand_SOUND. Dewgong's byte is unused, so it is not played.
+local NIDORINA_LINE <const> = "For some people,"
+local PIDGEOT_LINE <const> = "PIDGEOT:"
+-- GetMoveSound pitch/tempo rows in data/moves/sfx.asm. The unpitched fall
+-- stays the trainer faint. These play when the move animation starts.
+local PITCHED_FALL <const> = {
+    agility = "faint_fall_agility",
+    kinesis = "faint_fall_kinesis",
+    transform = "faint_fall_transform",
+    dizzyPunch = "faint_fall_dizzy_punch",
+}
 
 local function battleInfo(battle, zone)
     return {
@@ -230,6 +245,103 @@ local function noteCries(battle, battleState)
     end
 end
 
+local function sfxFrames(name)
+    return math.max(1, math.ceil(KantoSynth.scoreTicks(name) * tickSeconds * 30))
+end
+
+local function enqueueSFX(name, frames)
+    observer.sfxQueue = observer.sfxQueue or {}
+    observer.sfxQueue[#observer.sfxQueue + 1] = {name = name, frames = frames}
+end
+
+local function playSequence(names)
+    KantoAudio.playSFX(names[1])
+    local wait = sfxFrames(names[1])
+    for index = 2, #names do
+        enqueueSFX(names[index], wait)
+        wait = sfxFrames(names[index])
+    end
+end
+
+local function pumpSFX()
+    local queue = observer.sfxQueue
+    local head = queue and queue[1]
+    if not head then
+        return
+    end
+    head.frames = head.frames - 1
+    if head.frames <= 0 then
+        table.remove(queue, 1)
+        KantoAudio.playSFX(head.name)
+    end
+end
+
+local function sameZone(id, authoredName)
+    local zone = currentZone
+    if not zone then
+        return false
+    end
+    local stable = zone.stableID
+    if stable == id or KantoEvents.aliases[stable] == id then
+        return true
+    end
+    return authoredName ~= nil and (stable == authoredName or zone.name == authoredName)
+end
+
+-- Production dialog keeps pages on dialog.lines. Host stubs use top.lines.
+local function dialogLine(top)
+    if not top or top.name ~= "dialog" then
+        return nil
+    end
+    local dialog = top.dialog
+    local lines = dialog and dialog.lines or top.lines
+    if not lines then
+        return nil
+    end
+    local index = dialog and dialog.lines and (dialog.currentLine or 1) or 1
+    local line = lines[index]
+    if type(line) == "table" then
+        line = line.text
+    end
+    if type(line) ~= "string" then
+        return nil
+    end
+    return line
+end
+
+-- alternate_tempo.asm Music_RivalAlternateStart, after each earlier exit.
+local function noteRivalExit(line)
+    if type(line) ~= "string" then
+        return
+    end
+    local function once(flag)
+        if observer[flag] then
+            return
+        end
+        observer[flag] = true
+        KantoAudio.playCue("meet_rival_start")
+    end
+    if sameZone("pokered:OAKS_LAB", "Oak's Lab") then
+        if line:find("Smell you later!", 1, true) then
+            once("rivalLabExit")
+        elseif line:match("^%S+: Gramps!$") then
+            once("rivalGramps")
+        elseif line:find("Leave it", 1, true) then
+            once("rivalDex")
+        end
+    elseif sameZone("pokered:ROUTE_22") and line:find("I heard", 1, true) then
+        once("rivalRoute22")
+    elseif sameZone("pokered:CERULEAN_CITY") and line:find("BILL", 1, true) then
+        once("rivalCerulean")
+    elseif sameZone("pokered:POKEMON_TOWER_2F") and line:find("How's your", 1, true) then
+        once("rivalTower")
+    elseif sameZone("pokered:SS_ANNE_2F") and line:find("CUT", 1, true) then
+        once("rivalAnne")
+    elseif sameZone("pokered:SILPH_CO_7F") and line:find("good luck", 1, true) then
+        once("rivalSilph")
+    end
+end
+
 function KantoAudio.updateGame(game)
     local stack = game and game.machine and game.machine.stack
     local root = stack and stack[1]
@@ -268,10 +380,18 @@ function KantoAudio.updateGame(game)
         end
         local phase = root.phase
         local topIsTitle = top and top.name == "title"
+        pumpSFX()
         if topIsTitle and (phase == "preparing" or phase == "menu") then
             observer.titleFrames = (observer.titleFrames or 0) + 1
             local frame = observer.titleFrames
-            if frame == TITLE_CRASH_FRAME then
+            -- PlayShootingStar (splash.asm) and the nidorino lunge (intro.asm)
+            -- run before PrepareTitleScreen. Frames 1 and 10 are free before
+            -- the crash at 20, so the title.asm clock is left where it was.
+            if frame == TITLE_STAR_FRAME then
+                KantoAudio.playSFX("shooting_star")
+            elseif frame == TITLE_LUNGE_FRAME then
+                KantoAudio.playSFX("intro_lunge")
+            elseif frame == TITLE_CRASH_FRAME then
                 KantoAudio.playSFX("intro_crash")
             elseif frame == TITLE_WHOOSH_FRAME then
                 KantoAudio.playSFX("intro_whoosh")
@@ -279,6 +399,12 @@ function KantoAudio.updateGame(game)
                 observer.titleMusic = true
                 KantoSynth.music("title")
             end
+        end
+        -- TextCommand_SOUND TX_SOUND_CRY_NIDORINA, between oak speech 2A and 2B.
+        local opening = dialogLine(top)
+        if opening and opening:sub(1, #NIDORINA_LINE) == NIDORINA_LINE and not observer.nidorina then
+            observer.nidorina = true
+            KantoAudio.playCry("nidorina")
         end
         if root.idle and root.idle.species then
             observer.titleSpecies = root.idle.species
@@ -307,6 +433,7 @@ function KantoAudio.updateGame(game)
             observer.zone = zone
         end
 
+        pumpSFX()
         local lastTravel = game.lastFieldTravel
         if lastTravel and lastTravel ~= observer.travel and lastTravel.mode then
             observer.travel = lastTravel
@@ -336,6 +463,8 @@ function KantoAudio.updateGame(game)
             observer.introCry = nil
             observer.playerShown = nil
             observer.enemyShown = nil
+            observer.moveKey = nil
+            observer.capturePhase = nil
             observer.victory = nil
             observer.caught = nil
             observer.level = nil
@@ -396,6 +525,15 @@ function KantoAudio.updateGame(game)
                 KantoAudio.playCue("caught")
             end
 
+            local moveKey = battle.currentMoveKey
+            if moveKey ~= observer.moveKey then
+                observer.moveKey = moveKey
+                local pitched = moveKey and PITCHED_FALL[moveKey]
+                if pitched then
+                    KantoAudio.playSFX(pitched)
+                end
+            end
+
             -- FaintEnemyPokemon (core.asm) waits out SFX_FAINT_FALL, then
             -- plays SFX_FAINT_THUD. A wild win skips the fall and plays the
             -- victory bed instead. The player's own faint is the thud alone.
@@ -416,6 +554,18 @@ function KantoAudio.updateGame(game)
                 KantoAudio.playSFX("hit")
             end
             noteCries(battle, battleState)
+            -- DoPoofSpecialEffects plays SFX_BALL_POOF when the poof subanim
+            -- counter is 5. The capture scene uses that poof for absorb and
+            -- for a failed breakout.
+            local scene = battleState.scene
+            local capture = scene and scene.captureAnimation
+            local capturePhase = capture and capture.phase
+            if capturePhase ~= observer.capturePhase then
+                observer.capturePhase = capturePhase
+                if capturePhase == "absorb" or capturePhase == "breakout" then
+                    KantoAudio.playSFX("ball_poof")
+                end
+            end
         end
 
         local healing
@@ -493,11 +643,8 @@ function KantoAudio.updateGame(game)
             end
         end
 
-        if top and top.name == "dialog" and top.lines then
-            local line = top.lines[1]
-            if type(line) == "table" then
-                line = line.text
-            end
+        local line = dialogLine(top)
+        if line then
             local zoneId = currentZone and currentZone.stableID
             local pallet = zoneId == "pokered:PALLET_TOWN"
                 or KantoEvents.aliases[zoneId] == "pokered:PALLET_TOWN"
@@ -509,17 +656,24 @@ function KantoAudio.updateGame(game)
             -- tempo 232; the other channels stay on the Cities1 header.
             local champions = zoneId == "pokered:CHAMPIONS_ROOM"
                 or KantoEvents.aliases[zoneId] == "pokered:CHAMPIONS_ROOM"
-            if champions and type(line) == "string" and line:sub(1, #OAK_ARRIVAL_PREFIX) == OAK_ARRIVAL_PREFIX
+            if champions and line:sub(1, #OAK_ARRIVAL_PREFIX) == OAK_ARRIVAL_PREFIX
                 and not observer.oakArrival then
                 observer.oakArrival = true
                 KantoAudio.playCue("cities1_oak")
             end
             local route22 = zoneId == "pokered:ROUTE_22"
                 or KantoEvents.aliases[zoneId] == "pokered:ROUTE_22"
-            if route22 and type(line) == "string" and line:sub(1, #ROUTE22_LEAGUE_LINE) == ROUTE22_LEAGUE_LINE
+            if route22 and line:sub(1, #ROUTE22_LEAGUE_LINE) == ROUTE22_LEAGUE_LINE
                 and not observer.route22League then
                 observer.route22League = true
                 KantoAudio.playCue("meet_rival_league")
+            end
+            noteRivalExit(line)
+            -- TextCommand_SOUND TX_SOUND_CRY_PIDGEOT after the Saffron line.
+            if sameZone("pokered:SAFFRON_CITY") and line:sub(1, #PIDGEOT_LINE) == PIDGEOT_LINE
+                and not observer.pidgeot then
+                observer.pidgeot = true
+                KantoAudio.playCry("pidgeot")
             end
         end
 
@@ -557,7 +711,16 @@ function KantoAudio.updateGame(game)
         local door = warp and sub:getCurrent() == "doorWarp" and warp.door
         if door and door ~= observer.door then
             observer.door = door
-            KantoAudio.playSFX(door.connection and "go_inside" or "go_outside")
+            -- A resolved source warp whose arrival is not a door tile sets
+            -- preserveFacing. That is the visible stand-in for a warp pad:
+            -- LeaveMapAnim plays EXIT_1, and EnterMapAnim then plays ENTER_1
+            -- and ENTER_2. Door tiles and map connections stay go inside/outside.
+            -- Holes are silent on the way out; the hole bit is not on the door.
+            if door.preserveFacing and not door.connection then
+                playSequence({"teleport_exit_1", "teleport_enter_1", "teleport_enter_2"})
+            else
+                KantoAudio.playSFX(door.connection and "go_inside" or "go_outside")
+            end
         end
 
         local move = game.machine:get("fieldMove")
@@ -568,6 +731,18 @@ function KantoAudio.updateGame(game)
         end
         observer.cut = move
         observer.cutPhase = move and move.phase
+
+        -- ItemUseEscapeRope, Dig, and field Teleport set BIT_ESCAPE_WARP and
+        -- BIT_FLY_WARP. Leave plays EXIT_2 then EXIT_1. Arrival plays ENTER_1
+        -- then ENTER_2. Only the escape rope sets lastFieldItem today.
+        local fieldItem = game.lastFieldItem
+        if fieldItem and fieldItem ~= observer.fieldItem and fieldItem.kind == "escape-rope"
+            and fieldItem.ok ~= false then
+            observer.fieldItem = fieldItem
+            playSequence({
+                "teleport_exit_2", "teleport_exit_1", "teleport_enter_1", "teleport_enter_2",
+            })
+        end
 
         local travel = game.machine:get("fieldTravel")
         if travel and travel.key == "push" and travel.phase == "push" and travel.boulder

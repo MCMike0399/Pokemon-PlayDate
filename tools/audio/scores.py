@@ -65,6 +65,14 @@ ASSETS = {
     'arrow_tiles': 'audio1:SFX_Arrow_Tiles_1', 'denied': 'audio1:SFX_Denied_1',
     'flute': 'audio1:SFX_Pokeflute', 'tink': 'audio1:SFX_Tink_1',
     'intro_crash': 'audio3:SFX_Intro_Crash', 'intro_whoosh': 'audio3:SFX_Intro_Whoosh',
+    # Fight intro, before PrepareTitleScreen. splash.asm and intro.asm.
+    'intro_lunge': 'audio3:SFX_Intro_Lunge', 'shooting_star': 'audio3:SFX_Shooting_Star',
+    # Overworld warp-pad and escape-rope spins. Not the Teleport move's SFX_BATTLE_33.
+    'teleport_exit_1': 'audio1:SFX_Teleport_Exit1_1',
+    'teleport_enter_1': 'audio1:SFX_Teleport_Enter1_1',
+    'teleport_exit_2': 'audio1:SFX_Teleport_Exit2_1',
+    'teleport_enter_2': 'audio1:SFX_Teleport_Enter2_1',
+    'ball_poof': 'audio2:SFX_Ball_Poof',
     **CHECKPOINT_THEMES,
 }
 # Press-AB chirps whose source gates are shorter than one 30FPS frame.
@@ -92,6 +100,26 @@ ALT_SCORES = {
         },
         'Music_MeetRival_Ch1_AlternateStartAndTempo',
     ),
+    # Music_RivalAlternateStart. Tempo 112 on the alternate start, then the
+    # normal MeetRival main loop. Earlier rival exits, not the league one.
+    'meet_rival_start': (
+        'audio1:Music_MeetRival',
+        {
+            1: 'Music_MeetRival_Ch1_AlternateStart',
+            2: 'Music_MeetRival_Ch2_AlternateStart',
+            3: 'Music_MeetRival_Ch3_AlternateStart',
+        },
+        'Music_MeetRival_Ch1_AlternateStart',
+    ),
+}
+# GetMoveSound copies the move table's pitch and tempo onto SFX_Faint_Fall.
+# audio/engine.asm adds the pitch to the frequency low byte and uses
+# tempo_modifier+128 as the SFX tempo (trace.wave_frequency / trace.timed).
+PITCHED = {
+    'faint_fall_agility': ('audio2:SFX_Faint_Fall', 0x20, 0xc0),
+    'faint_fall_kinesis': ('audio2:SFX_Faint_Fall', 0x18, 0x20),
+    'faint_fall_transform': ('audio2:SFX_Faint_Fall', 0xff, 0xff),
+    'faint_fall_dizzy_punch': ('audio2:SFX_Faint_Fall', 0xff, 0x04),
 }
 # A joint label loop longer than this becomes one part per channel.
 # Cinnabar Mansion's channel periods meet again at tick 1788480.
@@ -452,6 +480,9 @@ def _score_summary(score):
         ]
     if score.get('retarget'):
         summary['retarget'] = score['retarget']
+    if score.get('pitch') is not None:
+        summary['pitch'] = score['pitch']
+        summary['tempo'] = score['tempo']
     return summary
 
 
@@ -491,6 +522,11 @@ def emit_score(name, score):
     ]
     if score.get('retarget'):
         lines.append('-- channel entry ' + score['retarget'])
+    if score.get('pitch') is not None:
+        lines.append(
+            f'-- pitch modifier {score["pitch"]} tempo modifier {score["tempo"]}'
+        )
+        lines.append('-- GetMoveSound writes wFrequencyModifier and wTempoModifier')
     if score.get('adapted'):
         lines.append('-- adapted: gates lengthened so a 30FPS observer cannot drop the chirp')
     if score.get('loop_basis') == 'parts':
@@ -528,7 +564,7 @@ def _trace_retarget(catalog, asset, entries, label_pcs, loop_pcs, cited):
     return score
 
 
-def _trace_score(catalog, asset, label_pcs, loop_pcs):
+def _trace_score(catalog, asset, label_pcs, loop_pcs, pitch=None, tempo=None):
     header = catalog.headers[asset]
     scopes = {channel['entry'] for channel in header['channels']}
     if header['kind'] == 'music':
@@ -549,7 +585,10 @@ def _trace_score(catalog, asset, label_pcs, loop_pcs):
             raise AudioError(f'{asset}: register repeat was not reached')
         return trace, dict(asset=asset, **resolved)
     trace = ScoreTrace(catalog, header['family'])
-    trace.load(asset)
+    if pitch is None:
+        trace.load(asset)
+    else:
+        trace.load(asset, pitch, tempo)
     result = trace.run()
     if result['status'] == 'bound':
         raise AudioError(f'{asset}: adapted score did not close within default bound')
@@ -570,6 +609,12 @@ def generate(source):
         waves.update(trace.waves)
     for name, (asset, entries, cited) in ALT_SCORES.items():
         scores[name] = _trace_retarget(catalog, asset, entries, label_pcs, loop_pcs, cited)
+    for name, (asset, pitch, tempo) in PITCHED.items():
+        trace, score = _trace_score(catalog, asset, label_pcs, loop_pcs, pitch, tempo)
+        score['pitch'] = pitch
+        score['tempo'] = tempo
+        scores[name] = score
+        waves.update(trace.waves)
     routes = map_routes(catalog)
     active = checkpoint_maps()
     source_songs = {'pokered:'+row['map']: row['asset'] for row in catalog.maps}

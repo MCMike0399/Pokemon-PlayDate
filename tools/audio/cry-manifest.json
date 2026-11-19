@@ -192,7 +192,7 @@
     ]
   },
   "checked_combinations": 453,
-  "data_sha256": "733a6cdec170896a6fcafd839c9fb9c5ee48f433d1dd75bed357aec3025e124d",
+  "data_sha256": "5492e1f549c523e283c5e19c7be15192ee02d8dbdb908aa2c7bd7b42e13a10f1",
   "headers": {
     "audio1:SFX_Cry00_1": 1,
     "audio1:SFX_Cry01_1": 2,
@@ -5344,8 +5344,8 @@
   },
   "tools_sha256": {
     "tools/audio/catalog.py": "52f6d57d510d88130eb4e1d2791c14464769ef2af428b35362dfe9c5256991b2",
-    "tools/audio/cries.py": "603cf5674036374220e5baedd7401b91002bf7a929ef47cbd76e64af98cb9afb",
-    "tools/audio/scores.py": "fda7e9fb6adc4bb27e6a0296cba90b9d901eec1f1bf6946d872673f624237448",
+    "tools/audio/cries.py": "eeb06bb451aef90394c0aad38c1cafdeec9c368dc1ba4a0ba14a771890b4c8ee",
+    "tools/audio/scores.py": "58c39aff4306141fbbace76d0f37a1bb7a4082456331306033f470fb7eef9e8b",
     "tools/audio/source.py": "73ce33da16d31bbd0bfede9ea54176092ffe60ee399cd7a33a7545aef83c60b5",
     "tools/audio/trace.py": "eae8e251d5f3390cd3bff279e1f69884877439b8f96c5c495c9672839a7693bd"
   },

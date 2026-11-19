@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tools.audio.catalog import Catalog
 from tools.audio.events import build
-from tools.audio.scores import ALT_SCORES, ASSETS, LabelTrace, ScoreTrace, _sound_loop_targets, checkpoint_maps
+from tools.audio.scores import ALT_SCORES, ASSETS, PITCHED, LabelTrace, ScoreTrace, _sound_loop_targets, checkpoint_maps
 from tools.audio.source import Source
 from tools.measure_boot_budget import LUA_PEAK_BUDGET_KIB, POOL_BYTES
 
@@ -141,7 +141,7 @@ class AudioEventTests(unittest.TestCase):
             rows = self.source.read(path).splitlines()
             self.assertIn(cue['token'], rows[int(line) - 1])
             self.assertEqual(self.probe['cue:' + name], cue['score'] + ':' + cue['kind'])
-            self.assertIn(cue['score'], set(ASSETS) | set(ALT_SCORES))
+            self.assertIn(cue['score'], set(ASSETS) | set(ALT_SCORES) | set(PITCHED))
 
     def test_score_loops_match_source_traces(self):
         import json
@@ -160,6 +160,9 @@ class AudioEventTests(unittest.TestCase):
             shown = 'nil' if row['loop'] is None else str(row['loop'])
             self.assertIn(f'loop={shown}', header)
             if name in adapted or name in approximated or name == 'alarm':
+                continue
+            # Pitched falls are the same header traced with GetMoveSound's bytes.
+            if row.get('pitch') is not None:
                 continue
             if row.get('loop_basis') in ('label', 'joint'):
                 continue
@@ -249,6 +252,7 @@ class AudioEventTests(unittest.TestCase):
             'cities1_oak': ('Music_Cities1_Ch1_AlternateTempo', 'cities1'),
             'meet_rival_slow': ('Music_MeetRival_Ch1_AlternateTempo', 'meet_rival'),
             'meet_rival_league': ('Music_MeetRival_Ch1_AlternateStartAndTempo', 'meet_rival'),
+            'meet_rival_start': ('Music_MeetRival_Ch1_AlternateStart', 'meet_rival'),
         }
         for name, (entry, base) in expected.items():
             text = (ROOT / f'Source/audio/score/{name}.lua').read_text()
@@ -258,6 +262,20 @@ class AudioEventTests(unittest.TestCase):
         fall = (ROOT / 'Source/audio/score/faint_fall.lua').read_text()
         self.assertIn('audio2:SFX_Faint_Fall', fall)
         self.assertIn('loop=nil', fall)
+        pitched = {
+            'faint_fall_agility': (32, 192),
+            'faint_fall_kinesis': (24, 32),
+            'faint_fall_transform': (255, 255),
+            'faint_fall_dizzy_punch': (255, 4),
+        }
+        for name, (pitch, tempo) in pitched.items():
+            text = (ROOT / f'Source/audio/score/{name}.lua').read_text()
+            self.assertIn(f'-- pitch modifier {pitch} tempo modifier {tempo}', text)
+            self.assertIn('GetMoveSound writes wFrequencyModifier and wTempoModifier', text)
+            row = manifest['scores'][name]
+            self.assertEqual(row['pitch'], pitch)
+            self.assertEqual(row['tempo'], tempo)
+            self.assertNotEqual(row['ticks'], manifest['scores']['faint_fall']['ticks'])
 
 
 class AudioBootTests(unittest.TestCase):

@@ -131,11 +131,29 @@ New scores, traced with the channel pointers from `audio/alternate_tempo.asm`:
 | `cities1_oak` | `Music_Cities1AlternateTempo`. Channel 1 is tempo 232 into `Music_Cities1_Ch1.body`; the other channels stay on the Cities1 header. Oak's arrival in the champion room. |
 | `meet_rival_slow` | `Music_RivalAlternateTempo`. Channel 1 is tempo 100. The second Route 22 rival, while that object walks in. |
 | `meet_rival_league` | `Music_RivalAlternateStartAndTempo`. Channels 1–3 use the alternate start, and channel 1 then uses the slower start. The "That loosened me up!" page after that rival. |
+| `meet_rival_start` | `Music_RivalAlternateStart` (`audio/alternate_tempo.asm`). Channels 1–3 use the alternate start at tempo 112, then the normal MeetRival loop. The visible exit line in Oak's Lab ("Smell you later!", the exact "Gramps!" arrival, and "Leave it"), the first Route 22 battle ("I heard"), Cerulean ("BILL"), Pokémon Tower 2F ("How's your"), SS Anne 2F ("CUT"), and Silph Co 7F ("good luck"). Pokered starts the song as the rival walks out, after the text; the port starts it when that line is on screen. |
+| `faint_fall_agility` | `SFX_FAINT_FALL` with pitch `$20` and tempo `$c0` (`data/moves/sfx.asm` AGILITY). `GetMoveSound` writes those bytes before the animation. |
+| `faint_fall_kinesis` | Same header, pitch `$18`, tempo `$20`. |
+| `faint_fall_transform` | Same header, pitch `$ff`, tempo `$ff`. |
+| `faint_fall_dizzy_punch` | Same header, pitch `$ff`, tempo `$04`. |
+| `shooting_star` | `SFX_SHOOTING_STAR` (`engine/movie/splash.asm`, from `PlayShootingStar`). The fight intro is not a drawn state, so this plays on title-clock frame 1, before the crash at frame 20. |
+| `intro_lunge` | `SFX_INTRO_LUNGE` (`engine/movie/intro.asm`, the nidorino lunge). Title-clock frame 10, still before the crash. |
+| `teleport_exit_1` | `SFX_TELEPORT_EXIT_1`. Warp-pad leave (`LeaveMapAnim` while standing on a pad). A source warp with `preserveFacing` and no `connection` is the visible stand-in. |
+| `teleport_enter_1` | `SFX_TELEPORT_ENTER_1`. The arrival spin after that leave, and after an escape. |
+| `teleport_exit_2` | `SFX_TELEPORT_EXIT_2`. Escape-rope leave, before `EXIT_1`. Dig and the field Teleport move set the same bits in pokered; the port only records the escape rope on `lastFieldItem`. |
+| `teleport_enter_2` | `SFX_TELEPORT_ENTER_2`. Follows enter 1. A dungeon warp in pokered skips it; that bit is not on the door, so the port plays it. |
+| `ball_poof` | `SFX_BALL_POOF` (`DoPoofSpecialEffects` when the poof counter is 5). Capture `absorb` and a failed `breakout`. |
 
-Still missing, and not given a hook here:
+Text cries, from `home/text.asm` `TextCommand_SOUND`. `sound_cry_dewgong` is unused and is not played.
 
-- `Music_RivalAlternateStart` on the earlier rival exits (Oak's lab, the first Route 22 battle, Cerulean, the Pokémon Tower, SS Anne, Silph). Those scripts are not a visible phase on this credits path.
-- Move-pitched uses of `SFX_FAINT_FALL` (Agility, Kinesis, Transform, Dizzy Punch). The score is the unpitched header.
-- `SFX_INTRO_LUNGE`, `SFX_SHOOTING_STAR`, teleport enter/exit, and `SFX_BALL_POOF`.
-- Text cries `sound_cry_nidorina`, `sound_cry_pidgeot`, and the unused `sound_cry_dewgong`.
-- Hall of Fame cries and the flute, spinner, and denied cues still need the lane E import. `tools/notes/lane-e-audio-gaps.patch` is unapplied. The coverage-matrix fingerprint is `tools/notes/lane-e-coverage-fingerprint.patch` (`ff2514c59e73f50bccb2693a8d61b292be493ebaf5c4ae44e607c428a54de668`). This lane does not rewrite that snapshot.
+| Cry | When |
+| --- | --- |
+| `nidorina` | `TX_SOUND_CRY_NIDORINA`, between oak speech text 2A and 2B. The opening dialog's "For some people," line, while the title is still up. |
+| `pidgeot` | `sound_cry_pidgeot` after `_SaffronCityPidgeotText`. A Saffron line that starts with `PIDGEOT:`. |
+
+Still missing:
+
+- Hall of Fame cries and the flute, spinner, and denied cues still need the lane E import. `tools/notes/lane-e-audio-gaps.patch` is unapplied. The coverage-matrix fingerprint is `tools/notes/lane-e-coverage-fingerprint.patch` (`5883c3284cd79f46882ed9f91ec660faa5b3516c9b3821f664a447bf209951e7`). This lane does not rewrite that snapshot.
+- Field Dig and field Teleport are not a ported command, so they do not set `lastFieldItem`. The escape rope uses their pokered sound sequence.
+- `SFX_FLY` is the fly animation. It was not part of this gap list.
+- The fight intro is still not drawn. The star and the lunge are only the sounds, on the title clock.
