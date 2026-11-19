@@ -1646,7 +1646,8 @@ class CharmanderRun(BrockJourney):
                 self.warp(self.zone("LavenderTown"))
                 continue
             if "LAVENDER" in zone and "ROUTE" not in zone:
-                self._cross_edge("down")
+                self.source_waypoint(9, 17)
+                self.cross("down", self.zone("Route12"), (9, 0))
                 continue
             if self._on("Route12Gate1F"):
                 self.warp(self.zone("Route12"), self.zone("Route12Gate1F") + ":warps:3")
@@ -1655,13 +1656,19 @@ class CharmanderRun(BrockJourney):
                 if self.position()[1] < 21:
                     self.warp(self.zone("Route12Gate1F"), self.zone("Route12") + ":warps:1")
                     self.warp(self.zone("Route12"), self.zone("Route12Gate1F") + ":warps:3")
-                self._cross_edge("down")
+                self.source_waypoint(11, 107)
+                self.cross("down", self.zone("Route13"), (51, 0))
                 continue
             if self._on("Route13"):
-                self._cross_edge("left")
+                # The north door lands on Route 14 y=6, and that trainer blocks the road.
+                self.source_waypoint(0, 10)
+                self.cross("left", self.zone("Route14"), (19, 10))
                 continue
             if self._on("Route14"):
-                self._cross_edge("left")
+                if self.position()[1] < 10:
+                    self._cross_edge("right")
+                    continue
+                self.finish_eastern_road_to_fuchsia()
                 continue
             if self._on("Route15Gate1F"):
                 self.warp(self.zone("Route15"), self.zone("Route15Gate1F") + ":warps:2")
@@ -1670,7 +1677,8 @@ class CharmanderRun(BrockJourney):
                 if self.position()[0] > 10:
                     self.warp(self.zone("Route15Gate1F"), self.zone("Route15") + ":warps:4")
                     self.warp(self.zone("Route15"), self.zone("Route15Gate1F") + ":warps:2")
-                self._cross_edge("left")
+                self.source_waypoint(0, 8)
+                self.cross("left", self.zone("FuchsiaCity"), (39, 16))
                 continue
             raise ProtocolError("no coast return from " + zone + " " + str(self.position()))
         raise ProtocolError("coast return did not reach Fuchsia: " + self._map_name())
