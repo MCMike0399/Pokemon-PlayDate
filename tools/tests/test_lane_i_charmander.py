@@ -2643,10 +2643,16 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("Victory Road 1F stairs missed: " + str(self.position()))
             self.save()
             self.summary.update(acceptance="Victory Road 1F switch", natural=True, forbidden_shortcuts=False)
-        if self.position() == (2, 1) and self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH"):
-            self.face("left")
-            self.send("press left", "wait 15")
-            self.drain()
+        if self.position() in {(2, 1), (1, 1)} and self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH"):
+            # The stair tile is open, so the press walks onto the warp.
+            for _ in range(2):
+                if not self._on("VictoryRoad1F"):
+                    break
+                self.send("press left", "wait 15")
+                self.drain()
+            if self._on("VictoryRoad2F"):
+                self.save()
+                self.summary.update(acceptance="Victory Road 2F", natural=True, forbidden_shortcuts=False)
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
