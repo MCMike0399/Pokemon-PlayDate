@@ -1500,3 +1500,28 @@ rec`, `CHARIZARD used`, `PIDGEOTTO used QUICK`, `It's s`, `BEL`) are
 the typewriter. The next frames finish `recoil!`, `WING ATTACK!`,
 `FLAME BURST!`, `SLASH!`, `It's super effective!`, and
 `BELLSPROUT fainted!`, and the arrow is up before the next page.
+
+## Route 22 rival 2
+
+The fight was real input from the Viridian Center, Razor Leaf restored
+to 25, two Hyper Potions in the bag. Sequence 426 is the win on
+Route 22 `(29, 5)` facing down, sha256
+`718866c42a3de3c67e2f1d93f1bf73aed0362df107b5fcdbecb42cb084a2b9cc`
+(`seq426-adventure.a.json`). `EVENT_BEAT_ROUTE22_RIVAL_2ND_BATTLE` is
+set. Prize money took the bag from 1337 to 4782. The clip is
+`/opt/cursor/artifacts/lane-b/20261119T162301Z-route22-rival.mp4`.
+It shows `CHARIZARD fainted!`, Pidgeotto gaining 5968 EXP and growing
+to 35, then BLUE's overworld `What!?`.
+
+Venusaur level 60 used Double-Edge. Rhyhorn took Razor Leaf.
+Bellsprout was sent in on the Gyarados prompt and fainted before
+Sleep Powder (that PP is still 15). The Charizard prompt confirmed
+Venusaur, who was already out, so the powder never reached Charizard
+either. One Hyper Potion brought Venusaur back to 188. Two
+Double-Edges left Charizard at 81, Venusaur fainted, and Pidgeotto
+finished it. The healed continue is sequence 429 outside Viridian
+Poké Center `(23, 26)`, sha256
+`4cfb6d1a355ae022a58ae22f76504bb2646ed603c23f3a3d1d70b284abb81c1c`.
+Venusaur is 60 with 188 HP. Bellsprout is 24. Pidgeotto is 35.
+Drowzee is 24, Sandshrew is 14, and Poliwag is 10. Hyper Potions are
+spent. Play is on Route 23 toward Victory Road.
