@@ -1537,8 +1537,11 @@ class CharmanderRun(BrockJourney):
             self._surf_from_pallet()
             self._mansion_and_blaine()
             return
-        self._walk_to_pallet()
-        self._surf_from_pallet()
+        if "ROUTE_19" in zone or "ROUTE_20" in zone:
+            self._surf_coast()
+            self._mansion_and_blaine()
+            return
+        self._coast_to_cinnabar()
         self._mansion_and_blaine()
 
     def _map_name(self):
@@ -1581,74 +1584,176 @@ class CharmanderRun(BrockJourney):
         zone, dest = self.project(direction)
         self.cross(direction, zone, dest)
 
-    def _walk_to_pallet(self):
-        zone = self._map_name()
-        if any(token in zone for token in ("FUCHSIA", "ROUTE_15", "ROUTE_14", "ROUTE_13")):
-            if "FUCHSIA" in zone and len(self.inventory()["slots"]) > 15:
-                self.store_unused_items("FuchsiaPokecenter")
-            self.return_from_fuchsia_to_route12()
-        if self._on("Route12"):
-            self.return_from_route12_to_lavender()
-        if self._on("LavenderTown") or "LAVENDER" in self._map_name() and "ROUTE" not in self._map_name():
-            if self._on("LavenderPokecenter"):
+    def _coast_to_cinnabar(self):
+        """Route 4's west ledge blocks Mt. Moon. Surf Route 19 onto Route 20."""
+        self._return_to_fuchsia_shore()
+        self._surf_coast()
+
+    def _return_to_fuchsia_shore(self):
+        for _ in range(24):
+            zone = self._map_name()
+            if "ROUTE_19" in zone or "ROUTE_20" in zone or "CINNABAR" in zone:
+                return
+            if "FUCHSIA_CITY" in zone:
+                self.heal_here("FuchsiaPokecenter")
+                self.save()
+                self.warp(self.zone("FuchsiaCity"))
+                self.navigate((23, 35))
+                self.cross("down", self.zone("Route19"), (13, 0))
+                return
+            if "FUCHSIA" in zone:
+                self.warp(self.zone("FuchsiaCity"))
+                continue
+            if "ROUTE_4" in zone:
+                self._cross_edge("right")
+                continue
+            if "CERULEAN_POKECENTER" in zone:
+                self.warp(self.zone("CeruleanCity"))
+                continue
+            if "CERULEAN" in zone:
+                self._cross_edge("down")
+                continue
+            if self._on("Route5Gate"):
+                self.warp(self.zone("Route5"), self.zone("Route5Gate") + ":warps:1")
+                continue
+            if self._on("Route5"):
+                if self.position()[1] <= 30:
+                    self.warp(self.zone("Route5Gate"), self.zone("Route5") + ":warps:1")
+                    self.warp(self.zone("Route5"), self.zone("Route5Gate") + ":warps:1")
+                self._cross_edge("down")
+                continue
+            if "SAFFRON_POKECENTER" in zone or "SAFFRON_MART" in zone:
+                self.warp(self.zone("SaffronCity"))
+                continue
+            if "SAFFRON" in zone:
+                self._cross_edge("right")
+                continue
+            if self._on("Route8Gate"):
+                self.warp(self.zone("Route8"), self.zone("Route8Gate") + ":warps:3")
+                continue
+            if self._on("Route8"):
+                if self.position()[0] < 8:
+                    self.warp(self.zone("Route8Gate"), self.zone("Route8") + ":warps:1")
+                    self.warp(self.zone("Route8"), self.zone("Route8Gate") + ":warps:3")
+                self._cross_edge("right")
+                continue
+            if "LAVENDER_POKECENTER" in zone:
                 self.warp(self.zone("LavenderTown"))
-            self.heal_here("LavenderPokecenter")
-            self.save()
-            self.warp(self.zone("LavenderTown"))
-            self._cross_edge("left")
-        if self._on("Route8"):
-            if self.position()[0] > 8:
-                self.warp(self.zone("Route8Gate"), "pokered:ROUTE_8:warps:3")
-                self.warp(self.zone("Route8"), "pokered:ROUTE_8_GATE:warps:1")
-            self._cross_edge("left")
-        if self._on("SaffronCity") or "SAFFRON" in self._map_name():
-            self.heal_here("SaffronPokecenter")
-            self.save()
-            self.warp(self.zone("SaffronCity"))
-            self._cross_edge("up")
-        if self._on("Route5"):
-            if self.position()[1] > 30:
-                self.warp(self.zone("Route5Gate"), "pokered:ROUTE_5:warps:3")
-                self.warp(self.zone("Route5"), "pokered:ROUTE_5_GATE:warps:4")
-            self._cross_edge("up")
-        if self._on("CeruleanCity"):
-            self.heal_here("CeruleanPokecenter")
-            self.save()
-            self.warp(self.zone("CeruleanCity"))
-            self._cross_edge("left")
-        if any(token in self._map_name() for token in ("ROUTE_4", "ROUTE_3", "MT_MOON", "CERULEAN", "PEWTER")):
-            if "PEWTER" not in self._map_name():
-                self.travel(self.zone("PewterCity"))
-            self.heal_here("PewterPokecenter")
-            self.save()
-            self.warp(self.zone("PewterCity"))
-            self._cross_edge("down")
-        if self._on("Route2") and self.position()[1] < 40:
-            self.warp(self.zone("ViridianForestNorthGate"), "pokered:ROUTE_2:warps:2")
-        if self._on("ViridianForestNorthGate"):
-            self.warp(self.zone("ViridianForest"), "pokered:VIRIDIAN_FOREST_NORTH_GATE:warps:3")
-        if self._on("ViridianForest"):
-            self.navigate((16, 46))
-            self.warp(self.zone("ViridianForestSouthGate"), "pokered:VIRIDIAN_FOREST:warps:4")
-        if self._on("ViridianForestSouthGate"):
-            self.warp(self.zone("Route2"), "pokered:VIRIDIAN_FOREST_SOUTH_GATE:warps:3")
-        if self._on("Route2"):
-            self._cross_edge("down")
-        if self._on("ViridianCity") or "VIRIDIAN_CITY" in self._map_name() or "VIRIDIAN_POKECENTER" in self._map_name():
-            self.heal_here("ViridianPokecenter")
-            self.save()
-            self.warp(self.zone("ViridianCity"))
-            self.navigate((20, 35))
-            self.cross("down", self.zone("Route1"), (10, 0))
-        if self._on("Route1"):
-            # Source Route 1 lands on imported Pallet. The authored seam is not the runtime arrival.
-            self.navigate((10, 35))
-            self.send("press down", "wait 12")
-            self.drain()
-        zone = self._map_name()
-        if "PALLET" not in zone and zone != "pallet_town":
-            raise ProtocolError("legal walk did not reach Pallet: " + zone + " " + str(self.position()))
-        self.save()
+                continue
+            if "LAVENDER" in zone and "ROUTE" not in zone:
+                self._cross_edge("down")
+                continue
+            if self._on("Route12Gate1F"):
+                self.warp(self.zone("Route12"), self.zone("Route12Gate1F") + ":warps:3")
+                continue
+            if self._on("Route12"):
+                if self.position()[1] < 21:
+                    self.warp(self.zone("Route12Gate1F"), self.zone("Route12") + ":warps:1")
+                    self.warp(self.zone("Route12"), self.zone("Route12Gate1F") + ":warps:3")
+                self._cross_edge("down")
+                continue
+            if self._on("Route13"):
+                self._cross_edge("left")
+                continue
+            if self._on("Route14"):
+                self._cross_edge("left")
+                continue
+            if self._on("Route15Gate1F"):
+                self.warp(self.zone("Route15"), self.zone("Route15Gate1F") + ":warps:2")
+                continue
+            if self._on("Route15"):
+                if self.position()[0] > 10:
+                    self.warp(self.zone("Route15Gate1F"), self.zone("Route15") + ":warps:4")
+                    self.warp(self.zone("Route15"), self.zone("Route15Gate1F") + ":warps:2")
+                self._cross_edge("left")
+                continue
+            raise ProtocolError("no coast return from " + zone + " " + str(self.position()))
+        raise ProtocolError("coast return did not reach Fuchsia: " + self._map_name())
+
+    _SURF_FEET = {0x14, 0x32, 0x48}
+
+    def _surf_goals(self, ys):
+        model = self.model()
+        return [(0, y) for y in ys if model.feet[y][0] in self._SURF_FEET]
+
+    def _surf_follow(self, goals):
+        from collections import deque
+        goals = set(goals)
+        for _ in range(8):
+            if self._on("CinnabarIsland"):
+                return
+            model = self.model()
+            start = self.position()
+            if start in goals:
+                return
+            blocked = set(self.occupied())
+            queue, prev = deque([start]), {start: None}
+            found = None
+            while queue:
+                x, y = queue.popleft()
+                for dx, dy, name in ((1, 0, "right"), (-1, 0, "left"), (0, 1, "down"), (0, -1, "up")):
+                    nxt = (x + dx, y + dy)
+                    if nxt in prev or nxt[0] < 0 or nxt[1] < 0 or nxt[0] >= model.width or nxt[1] >= model.height:
+                        continue
+                    if model.feet[nxt[1]][nxt[0]] not in self._SURF_FEET or nxt in blocked:
+                        continue
+                    prev[nxt] = ((x, y), name)
+                    if nxt in goals:
+                        found = nxt
+                        queue.clear()
+                        break
+                    queue.append(nxt)
+            if found is None:
+                raise ProtocolError("no surf route on " + self._map_name() + " from " + str(start))
+            steps, cur = [], found
+            while prev[cur] is not None:
+                parent, name = prev[cur]
+                steps.append(name)
+                cur = parent
+            steps.reverse()
+            moved = False
+            for name in steps:
+                before, zone = self.position(), self._map_name()
+                step = {"right": (1, 0), "left": (-1, 0), "down": (0, 1), "up": (0, -1)}[name]
+                self._surf_press(name, 1)
+                if self._map_name() != zone or self._on("CinnabarIsland"):
+                    return
+                if self.position() != before:
+                    moved = True
+                if self.position() != (before[0] + step[0], before[1] + step[1]):
+                    break
+            else:
+                return
+            if not moved:
+                raise ProtocolError("surf step did not move from " + str(start) + " on " + self._map_name())
+        raise ProtocolError("surf route did not settle on " + self._map_name() + " " + str(self.position()))
+
+    def _surf_off(self, direction):
+        self.send("press " + direction, "wait 12")
+        self.drain()
+
+    def _surf_coast(self):
+        if self._on("Route19"):
+            if self.model().collision[self.position()[1]][self.position()[0]] == 0:
+                self.navigate((13, 9))
+                self.face("down")
+                index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+                self.use_field(index, "surf")
+                if self.model().collision[self.position()[1]][self.position()[0]] == 0:
+                    self._surf_press("down", 1)
+            self._surf_follow(self._surf_goals(range(40, 53)))
+            if not self._on("Route20"):
+                self._surf_off("left")
+            if not self._on("Route20"):
+                raise ProtocolError("Route 19 Surf did not enter Route 20: " + self._map_name() + " " + str(self.position()))
+        if self._on("Route20"):
+            self._surf_follow(self._surf_goals(range(4, 14)))
+            self._surf_off("left")
+        if not self._on("CinnabarIsland"):
+            raise ProtocolError("Route 20 Surf did not reach Cinnabar: " + self._map_name() + " " + str(self.position()))
+        x, y = self.position()
+        if self.model().collision[y][x] != 0:
+            raise ProtocolError("Cinnabar arrival is still water: " + str(self.position()))
 
     def _surf_press(self, direction, count):
         for _ in range(count):
