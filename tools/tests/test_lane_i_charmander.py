@@ -281,13 +281,18 @@ class CharmanderRun(BrockJourney):
         if options.count("CONTINUE") != 1:
             raise ProtocolError("earned save did not offer CONTINUE")
         self.select("title.menu.selected", options.index("CONTINUE") + 1)
-        self.send("press a", "wait 8")
-        for _ in range(40):
+        self.send("press a", "wait 40")
+        # CONTINUE opens the save card. A is ignored until CONTINUE_DELAY elapses.
+        self.send("press a", "wait 12")
+        for _ in range(80):
             if self.state.get("root") in {"overworld", "dialog", "event"}:
                 break
-            self.send("wait 8")
+            phase = lookup(self.state, "title.phase")
+            if phase == "message":
+                raise ProtocolError("continue was refused")
+            self.send("wait 12")
         else:
-            raise ProtocolError("continue did not leave the title")
+            raise ProtocolError("continue did not leave the title: " + str(lookup(self.state, "title.phase")))
         self.drain()
         if not self.flag("EVENT_GOT_POKEDEX"):
             raise ProtocolError("continued save has not received the Pokedex")
@@ -1798,6 +1803,7 @@ class CharmanderRun(BrockJourney):
         x, y = self.position()
         if self.model().collision[y][x] != 0:
             raise ProtocolError("Cinnabar arrival is still water: " + str(self.position()))
+        self._record_screen("cinnabar-arrival", 20)
 
     def _route20_side(self):
         x, y = self.position()
@@ -1852,15 +1858,27 @@ class CharmanderRun(BrockJourney):
             raise ProtocolError("Seafoam stairs missed the west shore: " + self._map_name() + " " + str(self.position()))
         self.warp(self.zone("Route20"), self.zone("SeafoamIslands1F") + ":warps:3")
 
+    def _record_screen(self, label, seconds=30):
+        """One LCD crop. The grab is the panel only, with the pointer hidden."""
+        if getattr(self, "_screen_clip", None) == label:
+            return
+        recorder = getattr(self, "clip_recorder", None)
+        start = getattr(recorder, "start", None)
+        if not start:
+            return
+        if start(label, seconds=seconds):
+            self._screen_clip = label
+
     def _surf_b3_channel(self):
-        """B3F's east stair is across cavern water. Foot $14 stays solid until Surf."""
-        self.navigate((15, 7))
-        self.face("down")
+        """Cross B3F on the south bank. (15, 8) is the fast current until both boulders drop."""
+        self._record_screen("seafoam-crossing", 25)
+        self.navigate((18, 12))
+        self.face("up")
         index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
         self.use_field(index, "surf")
-        if self.position() == (15, 7):
-            self._surf_press("down", 1)
-        if self.position() != (15, 8):
+        if self.position() == (18, 12):
+            self._surf_press("up", 1)
+        if self.position() != (18, 11):
             raise ProtocolError("B3F channel did not take Surf: " + str(self.position()))
         self._surf_follow([(23, 10)])
         self._surf_press("up", 1)
@@ -2917,7 +2935,7 @@ class FightRecorder:
             time.sleep(0.25)
         return None
 
-    def start(self, label):
+    def start(self, label, seconds=None):
         if self.origin is None:
             return None
         window = _window() or self.origin
@@ -2932,8 +2950,10 @@ class FightRecorder:
         if path.exists():
             path = self.directory / f"{label}-{len(self.procs) + 1}.mp4"
         # Badge clips are 90 seconds so the one-second page holds still fit
-        # after the fight. Other clips stay at 60.
-        seconds = "90" if str(label).startswith("badge-") else "60"
+        # after the fight. Other clips stay at 60 unless a milestone asks shorter.
+        if seconds is None:
+            seconds = "90" if str(label).startswith("badge-") else "60"
+        seconds = str(seconds)
         proc = subprocess.Popen(
             lcd_clip_command(display, origin_x, origin_y, seconds, path),
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

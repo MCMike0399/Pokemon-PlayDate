@@ -270,7 +270,9 @@ def source_models(source):
     digest = source.manifest["data/sourceMaps.json"]
     if compact["manifest_sha256"] != digest or set(compact["maps"]) != set(manifest["maps"]):
         raise ProtocolError("runtime map cache differs from active source manifest")
-    models = load_geometry(source.build)
+    # Imported Pallet retires the authored grids. The hash still runs when
+    # those rows are the startup body.
+    models = load_geometry(source.build, require_authored=False)
     for name, entry in manifest["maps"].items():
         raw = source.read(entry["path"])
         desc = compact["maps"][name]

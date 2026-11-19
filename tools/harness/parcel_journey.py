@@ -346,9 +346,13 @@ class ParcelJourney(Journey):
         if self.state.get("root") == "overworld":
             self.await_value("root", "pause", frames=8)
         options = sequence(lookup(self.state, "pause.menu.options"), "pause.menu.options")
-        if any(not isinstance(option, str) for option in options) or options.count(name) != 1:
+        label = name
+        # The field list spells the party entry with the source accent.
+        if name == "POKEMON" and options.count(name) != 1 and options.count("POKéMON") == 1:
+            label = "POKéMON"
+        if any(not isinstance(option, str) for option in options) or options.count(label) != 1:
             raise ProtocolError("pause menu requires exactly one option: " + name)
-        self.select("pause.selected", options.index(name) + 1)
+        self.select("pause.selected", options.index(label) + 1)
 
     def inventory(self):
         return lookup(self.state, "session.inventory")

@@ -1,0 +1,50 @@
+--- a/Source/ui/dialog.lua	2026-11-19 16:42:36.220261278 +0000
++++ b/Source/ui/dialog.lua	2026-11-19 17:59:04.661834963 +0000
+@@ -253,3 +253,27 @@
+     end
+     gfx.setDrawOffset(ox, oy)
+ end
++
++-- A confirmed battle page stays on screen while the send-out ball plays.
++-- Dialog:draw returns once the page is dismissed, and the battle scene was
++-- repainting that same line with drawRect and the system font. This paints
++-- the finished page through TextBoxBorder and the pixel font without
++-- reopening the typewriter or accepting another confirm.
++function Dialog:drawSettled(text)
++    local savedActive = self.isActive
++    local savedLines = self.lines
++    local savedCurrent = self.currentLine
++    local savedIndex = self.charIndex
++    local savedArrows = self.arrows
++    self.isActive = true
++    self.lines = { text or "" }
++    self.currentLine = 1
++    self.charIndex = #(text or "")
++    self.arrows = { false }
++    self:draw()
++    self.isActive = savedActive
++    self.lines = savedLines
++    self.currentLine = savedCurrent
++    self.charIndex = savedIndex
++    self.arrows = savedArrows
++end
+--- a/Source/battle/battleScene.lua	2026-11-19 16:42:36.160260571 +0000
++++ b/Source/battle/battleScene.lua	2026-11-19 17:59:04.661834963 +0000
+@@ -668,12 +668,14 @@
+         if #self:mainOptions()==4 then self.mainMenu:draw(204, boxY + 4, 192, 52)
+         else self.mainMenu:draw(300, boxY + 4, 96, 52) end
+     else
+-        -- Word-wrapped inside the frame so long messages never escape
++        -- The confirmed page stays in TextBoxBorder through send-out.
++        -- The drawRect box and the system font are the command menu.
++        -- Repainting this line that way left the y=170 field rule above
++        -- a shorter box (seafoam-crossing, both Seel send-outs).
+         if self.messageDialog.isActive then
+             self.messageDialog:draw()
+         else
+-            local message = self.battle.message or ""
+-            self:_wrapped("battle-message", message, 374, 44).image:draw(14, boxY + 10)
++            self.messageDialog:drawSettled(self.battle.message or "")
+         end
+     end
+     end

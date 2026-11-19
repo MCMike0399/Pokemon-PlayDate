@@ -1,0 +1,126 @@
+diff --git a/Source/domain/fieldTravel.lua b/Source/domain/fieldTravel.lua
+index e0800b77..9ecd9fc1 100644
+--- a/Source/domain/fieldTravel.lua
++++ b/Source/domain/fieldTravel.lua
+@@ -32,10 +32,20 @@ function FieldTravel.normalize(value)
+     for _, entry in ipairs(data().fly) do
+         allowed[entry.id] = true
+     end
++    -- Saves from before the Pallet cutover stored the authored key.
++    local aliases <const> = { pallet_town = "pokered:PALLET_TOWN" }
++    local rewritten = {}
+     for _, id in ipairs(value.visited) do
+-        assert(allowed[id] and not seen[id], "unknown or duplicate Fly city")
+-        seen[id] = true
++        local city = aliases[id] or id
++        if not seen[city] then
++            assert(allowed[city], "unknown or duplicate Fly city")
++            seen[city] = true
++            rewritten[#rewritten + 1] = city
++        elseif aliases[id] == nil then
++            assert(false, "unknown or duplicate Fly city")
++        end
+     end
++    result.visited = rewritten
+     table.sort(result.visited)
+     return result
+ end
+diff --git a/Source/domain/gameSession.lua b/Source/domain/gameSession.lua
+index 7825c5b6..0c3cf6ab 100644
+--- a/Source/domain/gameSession.lua
++++ b/Source/domain/gameSession.lua
+@@ -148,6 +148,7 @@ local function dependencies(deps)
+     assert(type(deps)=="table" and type(deps.validateWorld)=="function" and type(deps.resolveLocation)=="function","pure world/location dependencies required")
+     assert(deps.validateActors==nil or type(deps.validateActors)=="function","pure actor validator required")
+     assert(deps.hiddenActors==nil or type(deps.hiddenActors)=="function","pure actor visibility proof required")
++    assert(deps.settledActors==nil or type(deps.settledActors)=="function","pure actor settle proof required")
+     assert(deps.resolvePlayerLocation == nil or type(deps.resolvePlayerLocation) == "function",
+         "pure player location validator required")
+     local definitions = projectItems(assert(deps.itemDefinitions, "item definitions required"))
+@@ -158,6 +159,7 @@ local function dependencies(deps)
+         resolveLocation = deps.resolveLocation,
+         validateActors = deps.validateActors,
+         hiddenActors = deps.hiddenActors,
++        settledActors = deps.settledActors,
+         resolvePlayerLocation = deps.resolvePlayerLocation or deps.resolveLocation
+     }
+ end
+@@ -604,7 +606,11 @@ function GameSession._validateActors(deps,payload,candidateWorld,position,candid
+         local dropped={}
+         for id,record in pairs(kept) do
+             assert(saved[id],"actor validator added an unknown actor: "..id)
+-            assert(sameValue(saved[id],record),"actor validator changed a surviving actor: "..id)
++            if not sameValue(saved[id],record) then
++                assert(type(deps.settledActors)=="function","actor rewrite requires an independent settle proof")
++                local proof=deps.settledActors(copy(saved[id]),copy(candidateWorld),copy(position))
++                assert(type(proof)=="table" and sameValue(proof,record),"actor rewrite is not the source object tile: "..id)
++            end
+         end
+         for id in pairs(saved) do
+             if not kept[id] then dropped[#dropped+1]=id end
+diff --git a/Source/game/context.lua b/Source/game/context.lua
+index 0c529ba5..8786393c 100644
+--- a/Source/game/context.lua
++++ b/Source/game/context.lua
+@@ -53,7 +53,7 @@ end
+ function GameContext:getSessionDependencies()
+     assert(ItemData and ItemData.definitions,"production item definitions required")
+     return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
+-        hiddenActors=SourceActors.hidden,
++        hiddenActors=SourceActors.hidden,settledActors=SourceActors.settled,
+         resolvePlayerLocation=function(location, world, travel)
+             return FieldTravelWorld.resolvePlayerLocation(location, world, self.sessionLocationPolicy, travel)
+         end,
+diff --git a/Source/world/sourceActors.lua b/Source/world/sourceActors.lua
+index c4e5848b..e085992c 100644
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -36,6 +36,23 @@ function SourceActors.wanders(movement, facing, boulder, trainer, item)
+     local turnsInPlace = movement=="STAY" and not fixedFacing
+     return (movement=="WALK" or turnsInPlace) and not boulder and not trainer and not item
+ end
++-- Fixed-facing STAY used to be saved as a random delay. The only legal
++-- replacement is the object_event tile. A random actor, or a static pose,
++-- cannot be rewritten.
++function SourceActors.settled(saved, world, location)
++    assert(type(saved)=="table" and type(saved.id)=="string", "saved actor required")
++    assert(saved.phase=="delay" or saved.phase=="ready" or saved.phase=="moving",
++        "static actor was rewritten: "..saved.id)
++    assert(type(location)=="table", "candidate location required")
++    local descriptor=assert(SourceActors.describe(location.zone_id, world), "actor descriptor required for settle proof")
++    local spec
++    for _, candidate in ipairs(descriptor.actors) do
++        if candidate.id==saved.id then spec=candidate break end
++    end
++    assert(spec, "unknown stable source actor ID: "..saved.id)
++    assert(not spec.random, "random actor cannot leave its saved pose: "..saved.id)
++    return WorldMotionData.initial(spec)
++end
+ -- Independent proof used by the session retention boundary. It re-resolves the
+ -- candidate descriptor and flags and rejects both unknown and still-visible
+ -- actors, so a custom validator cannot claim an arbitrary removal.
+diff --git a/Source/world/zone.lua b/Source/world/zone.lua
+index fdc0a305..859d4960 100644
+--- a/Source/world/zone.lua
++++ b/Source/world/zone.lua
+@@ -818,7 +818,19 @@ local function prepareWorld(payload, purpose)
+     for _, value in ipairs(payload.zones) do
+         assert(type(value) == "table", "world delta zone required")
+         local zone = indexed[value.zone_id]
+-        if not zone and definitionProvider and definitionProvider:hasID(value.zone_id) then
++        local retiredAuthored = value.zone_id == "oaks_lab" or value.zone_id == "pallet_town"
++            or value.zone_id == "reds_house" or value.zone_id == "reds_house_2f"
++            or value.zone_id == "blues_house"
++        if not zone and retiredAuthored then
++            -- Keep the record so session retention still sees every saved key.
++            -- Nothing applies it: the imported town replaced these zones.
++            local kept = {}
++            for _, tile in ipairs(value.tiles) do
++                kept[#kept + 1] = { x = tile.x, y = tile.y, key = tile.key }
++            end
++            normalized[#normalized + 1] = { schema = value.schema, zone_id = value.zone_id,
++                definition_revision = value.definition_revision, tile_count = #kept, tiles = kept }
++        elseif not zone and definitionProvider and definitionProvider:hasID(value.zone_id) then
+             provided[#provided+1]=value
+         else
+         assert(zone and not occupied[zone], "unknown/duplicate world delta zone")

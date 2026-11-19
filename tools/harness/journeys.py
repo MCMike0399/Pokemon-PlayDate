@@ -93,8 +93,10 @@ class Journey:
                 return
             previous = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
             ready = self.state["dialog"].get("ready")
-            if ready and self._clip_page_hold():
-                self.send("wait 30")
+            # A finished line stays up for 10 frames before A can turn the page.
+            # A clip holds it longer so the text can be read.
+            if ready:
+                self.send("wait 30" if self._clip_page_hold() else "wait 12")
                 if self.state.get("root") != "dialog":
                     return
                 if (self.state["dialog"].get("instance"), self.state["dialog"].get("line")) != previous:
