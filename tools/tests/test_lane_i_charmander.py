@@ -2587,12 +2587,15 @@ class CharmanderRun(BrockJourney):
                     raise ProtocolError("Victory Road step stayed at " + str(self.position()))
 
     def _enter_victory_road(self):
-        if not self._on("Route23") or self.position() != (4, 32):
+        if not self._on("Route23") or self.position() not in {(4, 32), (4, 31)}:
             return
-        # The first press turns. The second steps onto the 1F door.
-        self.face("up")
-        self.send("press up", "wait 15")
-        self.drain()
+        # The tile ahead is open, so the press walks onto the door. A second
+        # press leaves through it if the first step only landed on the mat.
+        for _ in range(2):
+            if not self._on("Route23"):
+                break
+            self.send("press up", "wait 15")
+            self.drain()
         if not self._on("VictoryRoad1F"):
             raise ProtocolError("Victory Road door did not open: " + self._map_name() + " " + str(self.position()))
 
