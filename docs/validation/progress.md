@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Victory Road 2F puzzle boulder
+
+`TOGGLE_VICTORY_ROAD_2F_BOULDER` no longer hides `pokered:VICTORY_ROAD_2F:objects:13`. Pokered places that boulder at (23, 16), and it is the one that can reach the switch at (9, 16). Entering Route 23 still sets the toggle. The 3F hole boulder stays hidden on `TOGGLE_VICTORY_ROAD_3F_BOULDER`.
+
 ## 2026-11-19 Tip gates, faint order, recoil skip, and audio receipts
 
 `main` stays `bf92c4fc`. The 129-suite gate of `9e0cf508` has 42 suites red that `bf92c4fc` passed, mostly `unknown world location zone` after the Pallet cutover. `dcb8cb7f`, the first commit after main, already adds npc-trades failures main did not have, so no later ancestor was fast-forwarded.
