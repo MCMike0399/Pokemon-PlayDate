@@ -1599,3 +1599,38 @@ allows only `pokered:PALLET_TOWN`. `FieldTravel.normalize` reports
 is NEW GAME / OPTION. The save was not rewritten. The alias is
 `tools/notes/lane-e-pallet-fly-alias.patch` with
 `tools/tests/test_lane_e_pallet_fly_alias.py`. It is not applied.
+
+## Lorelei faints the full-HP lead
+
+Lane E's alias is merged at `61d7a0f5` (`2e808332` inside `42b12431`).
+CONTINUE on sequence 577 opened Victory Road 3F `(13, 11)` facing
+down. No save was rewritten. The 2F boulder at `(23, 16)` was pushed
+onto `(9, 16)`, the 1F switch was set again on the return, and the
+walk reached the Indigo lobby and Lorelei's room.
+
+The lobby nurse is behind the counter at `(7, 6)`, which is already
+`terrain.counter`. Standing on `(7, 7)` and facing up is the talk.
+The earlier walk tried to stand on the counter tile, so the heal never
+started. Money is 597. The bag has one Full Heal and no potion that
+restores HP, and the Indigo clerk's Revive is 1500.
+
+Lorelei was fought from that room at Venusaur 61, 191/191, Razor Leaf
+25. Dewgong and Cloyster faint to Razor Leaf. Slowbro then knocks
+Venusaur out. The unsaved battle had him at level 62, 0/194, Razor
+Leaf 20, after five Razor Leaves. The published save is still the
+pre-fight room. Another loss would black out to Viridian and cut 597
+in half, so the attempt was stopped there.
+
+Lance's scripted walk is the next engine block once this fight can be
+won. `WalkToLance_RLEList` is simulated joypad and its second step,
+`(24, 14)`, is solid. The entrance plan does not set `plan.simulated`,
+so `EventState:startMove` fails with `blocked-scripted-move`. The
+handoff is `tools/notes/lane-e-lance-walk.patch` with
+`tools/tests/test_lane_e_lance_walk.py`. It is not applied.
+
+Continue from sequence 637, Lorelei's room `(5, 5)` facing up, sha256
+`7904c5407cfa0f64810cc6c70befcfed8fbba535905eeef7d63b9c42c99bfc48`.
+Venusaur is 61 at 191/191. Bellsprout is 24, Pidgeotto is 35, Drowzee
+is 24, Sandshrew is 14, and Poliwag is 24. Money is 597. The fight
+clips are `20261119T203842Z-elite-lorelei.mp4` and
+`20261119T204111Z-elite-lorelei.mp4` under `/opt/cursor/artifacts/lane-b/`.
