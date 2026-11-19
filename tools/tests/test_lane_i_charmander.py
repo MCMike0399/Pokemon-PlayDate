@@ -145,6 +145,8 @@ def key_fight(name, trainer_id):
         return "badge-marsh"
     if trainer == "pokered:CINNABAR_GYM:objects:1" or label.startswith("blaine"):
         return "badge-volcano"
+    if trainer == "pokered:VIRIDIAN_GYM:objects:1":
+        return "badge-earth"
     return None
 
 
@@ -2157,6 +2159,17 @@ class CharmanderRun(BrockJourney):
             "pokered:CINNABAR_GYM:objects:" + str(index): payout
             for index, payout in enumerate((4653, 900, 3240, 850, 3690, 1025, 3330, 925), start=1)
         }
+        payouts.update({
+            "pokered:VIRIDIAN_GYM:objects:1": 4950,
+            "pokered:VIRIDIAN_GYM:objects:2": 1365,
+            "pokered:VIRIDIAN_GYM:objects:3": 1000,
+            "pokered:VIRIDIAN_GYM:objects:4": 1720,
+            "pokered:VIRIDIAN_GYM:objects:5": 1075,
+            "pokered:VIRIDIAN_GYM:objects:6": 1505,
+            "pokered:VIRIDIAN_GYM:objects:7": 950,
+            "pokered:VIRIDIAN_GYM:objects:8": 1560,
+            "pokered:VIRIDIAN_GYM:objects:9": 1365,
+        })
         base = self.battle
 
         def battle(name, strategy="attack", expected=None):
@@ -2231,7 +2244,104 @@ class CharmanderRun(BrockJourney):
         self.summary.update(acceptance="Volcano Badge earned", natural=True, forbidden_shortcuts=False)
         self._toward_giovanni()
 
+    def _surf_route21_north(self):
+        """The south channel is column 3 until the jog at row 23, then column 6 into Pallet."""
+        stalls = 0
+        for _ in range(120):
+            if not self._on("Route21"):
+                return
+            x, y = self.position()
+            if y > 23 and x != 3:
+                direction = "left" if x > 3 else "right"
+            elif y > 23 or x == 6:
+                direction = "up"
+            else:
+                direction = "left" if x > 6 else "right"
+            before = self.position()
+            self._surf_press(direction, 1)
+            if self._on("Route21") and self.position() == before:
+                stalls += 1
+                if stalls > 6:
+                    raise ProtocolError("Route 21 surf stalled at " + str(self.position()))
+            else:
+                stalls = 0
+        if self._on("Route21"):
+            raise ProtocolError("Route 21 surf did not reach Pallet: " + str(self.position()))
+
+    def _settle_gym(self):
+        for _ in range(160):
+            root = self.state.get("root")
+            if root == "battle":
+                if lookup(self.state, "battle.trainerName"):
+                    self.battle("viridian-gym")
+                else:
+                    self.flee()
+                continue
+            if root == "dialog":
+                self.dialog()
+                continue
+            if root == "learning":
+                self.learning()
+                continue
+            if root == "evolution":
+                self.evolution()
+                continue
+            if (root == "overworld" and self.state.get("overworld") in (None, "explore")
+                    and lookup(self.state, "player.settled") is True):
+                return
+            self.send("wait 3")
+        raise ProtocolError("Viridian Gym input did not settle: " + str(self.state.get("root")))
+
+    def _gym_presses(self, direction, count, landing):
+        for _ in range(count):
+            self.send("press " + direction, "wait 10")
+            self._settle_gym()
+        if self.position() != landing or not self._on("ViridianGym"):
+            raise ProtocolError("Viridian Gym path missed " + str(landing) + " at " + str(self.position()))
+
+    def _walk_viridian_gym(self):
+        """Stay off the arrow tiles. Two sight lines are the real door into Giovanni's room."""
+        if self.position() != (16, 17):
+            raise ProtocolError("Viridian Gym door landed at " + str(self.position()))
+        for direction, count, landing in (
+            ("up", 5, (16, 12)),
+            ("left", 2, (14, 12)),
+            ("up", 3, (14, 9)),
+            ("left", 1, (13, 9)),
+            ("up", 2, (13, 7)),
+            ("right", 2, (15, 7)),
+            ("up", 1, (15, 6)),
+            ("right", 1, (16, 6)),
+            ("up", 1, (16, 5)),
+            ("up", 1, (16, 4)),
+            ("left", 4, (12, 4)),
+            ("down", 1, (12, 5)),
+            ("left", 2, (10, 5)),
+            ("up", 3, (10, 2)),
+            ("left", 3, (7, 2)),
+            ("down", 2, (7, 4)),
+            ("left", 3, (4, 4)),
+            ("up", 3, (4, 1)),
+            ("left", 1, (3, 1)),
+        ):
+            self._gym_presses(direction, count, landing)
+        self.face("left")
+        self.send("press a")
+        if self.state.get("root") == "overworld":
+            self.send("wait 12")
+        self._settle_gym()
+
     def _toward_giovanni(self):
+        from tools.harness.brock_journey import NaturalBlackout
+        for _ in range(3):
+            try:
+                self._giovanni_once()
+                return
+            except NaturalBlackout:
+                self._arrange_lead("starter")
+        raise ProtocolError("Giovanni walk blacked out")
+
+    def _giovanni_once(self):
         """Surf back up Route 21. Viridian Gym opens once Earth is the missing badge."""
         self.summary["acceptance"] = "walking toward the Earth Badge"
         self._arrange_lead("starter")
@@ -2263,11 +2373,7 @@ class CharmanderRun(BrockJourney):
                 self.send("press up", "wait 10")
                 self.drain()
         if self._on("Route21"):
-            if self.position() != (3, 89):
-                self._surf_press("up", max(0, self.position()[1] - 23))
-            if self.position()[0] < 6:
-                self._surf_press("right", 6 - self.position()[0])
-            self._surf_press("up", 30)
+            self._surf_route21_north()
         if "PALLET" in self._map_name() or self._map_name() == "pallet_town":
             x, y = self.position()
             if self.model().collision[y][x] != 0:
@@ -2281,9 +2387,10 @@ class CharmanderRun(BrockJourney):
         if "VIRIDIAN" in self._map_name() and "FOREST" not in self._map_name():
             self.heal_here("ViridianPokecenter")
             self.save()
+            self._pin_gym_payouts()
             self.warp(self.zone("ViridianCity"))
             self.warp(self.zone("ViridianGym"), "pokered:VIRIDIAN_CITY:warps:5")
-            self._fight_story("pokered:VIRIDIAN_GYM:objects:1")
+            self._walk_viridian_gym()
         if not self.flag("BADGE_EARTH"):
             raise ProtocolError("Giovanni did not award the Earth Badge: " + self._map_name() + " " + str(self.position()))
         self.heal_here("ViridianPokecenter")
@@ -3013,6 +3120,7 @@ class CharmanderTitleTests(unittest.TestCase):
         advance = source.split("def advance_event", 1)[1].split("def portals", 1)[0]
         self.assertIn("advance_travel", advance)
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
+        self.assertEqual(key_fight("source", "pokered:VIRIDIAN_GYM:objects:1"), "badge-earth")
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
