@@ -1,12 +1,11 @@
-"""Seafoam's two Route 20 doors do not meet.
+"""Route 20's two Seafoam doors meet by surfing the cave.
 
-pret/pokered crosses Route 20 through Seafoam Islands. The east door is
-Route 20 (48, 5). The west door is Route 20 (58, 9), and the water beside
-that door reaches Cinnabar. The cave stairs do not join those doors. Water
-tile pairs block the walk, and removing every boulder still leaves the west
-door out of reach. The boulder scripts are gaps in
-Source/data/zCoast/scripts.json. This test fails until a real stair or
-current path connects the doors. No source patch is applied here.
+pret/pokered af519899 enters at Route 20 (48, 5), which is SeafoamIslands1F
+warp 1, and leaves at Route 20 (58, 9), which is warp 3. Cavern water is
+foot $14. data/tilesets/collision_tile_ids.asm leaves that tile out of
+Cavern_Coll, so the stored grid is solid, and FieldTravel.surfStep still
+crosses it. Tile-pair collisions stay closed. The east exits are LAST_MAP,
+so the walk counts them even though they have no interior destination.
 """
 
 import json
@@ -23,6 +22,8 @@ FLOORS = [
     "SeafoamIslandsB3F",
     "SeafoamIslandsB4F",
 ]
+# fieldTravel.lua surfSurface: cavern water plus the two non-port shore feet.
+SURF_FEET = {0x14, 0x32, 0x48}
 
 
 def _connected(ignore_boulders):
@@ -34,6 +35,14 @@ def _connected(ignore_boulders):
         pairs = data["directional_rules"]["forbidden_tile_pairs"]
         feet = [
             [data["grids"][identity - 1]["terrain"]["foot_tile"] for identity in row]
+            for row in data["tile_ids"]
+        ]
+        surf = [
+            [
+                data["grids"][identity - 1]["terrain"]["water_candidate"]
+                and data["grids"][identity - 1]["terrain"]["foot_tile"] in SURF_FEET
+                for identity in row
+            ]
             for row in data["tile_ids"]
         ]
         boulders = set()
@@ -55,7 +64,7 @@ def _connected(ignore_boulders):
         doors = {warp["xy"] for warp in warps}
 
         def reaches(start, goal, boulders=boulders, feet=feet, collision=collision,
-                    width=width, height=height, doors=doors, pairs=pairs):
+                    width=width, height=height, doors=doors, pairs=pairs, surf=surf):
             if start == goal:
                 return True
             queue, seen = deque([start]), {start}
@@ -65,7 +74,8 @@ def _connected(ignore_boulders):
                     nxt = (x + dx, y + dy)
                     if nxt in seen or not (0 <= nxt[0] < width and 0 <= nxt[1] < height):
                         continue
-                    if collision[nxt[1]][nxt[0]] or nxt in boulders:
+                    solid = collision[nxt[1]][nxt[0]] and not surf[nxt[1]][nxt[0]]
+                    if solid or nxt in boulders:
                         continue
                     if nxt in doors and nxt != goal:
                         continue
@@ -90,11 +100,13 @@ def _connected(ignore_boulders):
         warps, reaches = maps[name]
         here = next(warp for warp in warps if warp["i"] == index)
         if name == "SeafoamIslands1F" and index in (3, 4):
-            return True
+            # objects/SeafoamIslands1F.asm warps 3 and 4 are LAST_MAP, 2.
+            return here["index"] == 2
         for other in warps:
             key = (name, other["i"])
-            if key in seen or not other["map"]:
+            if key in seen:
                 continue
+            # LAST_MAP exits have no interior map. They are still the Route 20 doors.
             if reaches(here["xy"], other["xy"]):
                 seen.add(key)
                 queue.append(key)
@@ -107,6 +119,14 @@ def _connected(ignore_boulders):
 
 
 class SeafoamShoreTests(unittest.TestCase):
+    def test_route_20_doors_match_the_cave_exits(self):
+        route = json.loads((COAST / "Route20.json").read_text())
+        warps = route["events"]["warps"]
+        self.assertEqual((warps[0]["x"], warps[0]["y"], warps[0]["destination"]["warp_index"]), (48, 5, 1))
+        self.assertEqual((warps[1]["x"], warps[1]["y"], warps[1]["destination"]["warp_index"]), (58, 9, 3))
+        self.assertEqual(warps[0]["destination"]["map"], "SEAFOAM_ISLANDS_1F")
+        self.assertEqual(warps[1]["destination"]["map"], "SEAFOAM_ISLANDS_1F")
+
     def test_east_door_reaches_the_west_door(self):
         self.assertTrue(
             _connected(False),

@@ -68,11 +68,7 @@ class ScoreTests(unittest.TestCase):
         source_routes = {'pokered:' + row['map']: row['asset'] for row in self.catalog.maps}
         for map_id, name in routes.items():
             self.assertEqual(ASSETS[name], source_routes[map_id])
-        for map_id, asset in source_routes.items():
-            selected = asset in ASSETS.values()
-            if asset in CHECKPOINT_THEMES.values():
-                selected = selected and map_id in checkpoint_maps()
-            self.assertEqual(map_id in routes, selected)
+        self.assertEqual(set(routes), set(source_routes))
 
     def test_wave_notes_keep_bank_local_ram_and_source_pitch(self):
         for asset in ASSETS.values():

@@ -908,6 +908,9 @@ function Battle:throwBall(ballId)
     local context={pokemon=self.enemy,wild=true}
     local dex=self.session:pokedex()
     local caughtCount=0;for _,owned in pairs(dex.owned) do if owned then caughtCount=caughtCount+1 end end
+    -- ItemUseBall tests wPokedexOwned before it sets the flag. Recruit below
+    -- marks the species owned, so the "new dex data" choice is recorded now.
+    local newDex=dex.owned[self.enemy.species]~=true
     local parameters,problem=Capture.parameters(context,ballId,caughtCount)
     if not parameters then return false,problem end
     local storage=self.session:storage()
@@ -936,6 +939,7 @@ function Battle:throwBall(ballId)
             result.destination=destination
         end
         self.caughtPokemon=self.enemy
+        self.caughtNewDex=newDex
     end
     self.effects:beginRound()
     self.captureResult=result
@@ -946,6 +950,10 @@ function Battle:throwBall(ballId)
         if result.caught then
             self:say("Gotcha! " .. self.enemy.name .. " was caught!")
             self.message=self.enemy.name .. " was caught!"
+            -- engine/pokemon/add_mon.asm _AddPartyMon calls AskName after the
+            -- caught line and, when the species was new, after ShowPokedexData.
+            self.pendingNickname={mon=self.enemy, speciesName=self.enemy.name}
+            self.nicknameReady=true
             return "caught" -- Catching grants no XP in Gen V.
         end
         if result.source_blocked then
@@ -1158,6 +1166,12 @@ function Battle:resolveTurn(turn)
         if not key or not attacker:usePP(key) then
             self:say(attacker.name .. " has no PP left for that move!")
             return interrupted()
+        end
+        -- Pressure on the living target spends one extra PP when any remains.
+        -- The move still resolves after the first point. Struggle has no PP.
+        if key ~= "struggle" and self:targetsFoe(turn.move)
+            and self.effects:livingAbility(self.defender, 46) then
+            attacker:usePP(key)
         end
     end
     -- Committed action: PP and the interrupt gates have already passed.
@@ -1413,6 +1427,13 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
        and opponentTargets[move.targetId or 10]
        and (self:typeMatchup(move.type,defender)==0
             or self.effects:groundImmune(attacker, defender, move)) then
+        -- Lightning Rod still draws Electric moves that Ground would ignore.
+        if move.type=="electric" and self.effects:livingAbility(defender,31) then
+            self.effects:absorbsMove(attacker,defender,move)
+            resetFury()
+            self.conditions:moveFinished(move,false)
+            return nil
+        end
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         resetFury()
         self:say("It doesn't affect " .. defender.name .. "...")

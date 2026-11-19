@@ -115,6 +115,13 @@ function WorldMotionData.normalize(payload,descriptor,location,flags)
         local spec=assert(specs[value.id],"unknown stable source actor ID")
         assert(not seen[value.id],"duplicate source actor")
         seen[value.id]=true
+        -- A STAY actor used to be stored random, so NPCMotion wrote delay.
+        -- CanWalkOntoTile never updates MAPX/MAPY for $FF. Publish that
+        -- record on the object_event tile instead of keeping a wandered cell.
+        if not spec.random and type(value)=="table"
+            and (value.phase=="delay" or value.phase=="ready" or value.phase=="moving") then
+            value=WorldMotionData.initial(spec)
+        end
         intrinsic(value,spec,descriptor)
         if WorldMotionData.visible(spec,flags)then
             placed(value,spec,descriptor,reserve)

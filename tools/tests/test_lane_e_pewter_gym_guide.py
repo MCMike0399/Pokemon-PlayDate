@@ -47,6 +47,35 @@ class PewterGymGuideTest(unittest.TestCase):
         opaque = sum(1 for pixel in image.getdata() if pixel[3])
         self.assertGreater(opaque, 32)
 
+    def test_other_stay_actors_spawn_off_the_origin_screen(self):
+        # NPC:init calls setImage before OverworldState snaps the camera.
+        # NPCMotion:tick calls setImage again only for random walkers, and
+        # that call is still before camera:apply. A STAY actor never moves,
+        # so any sprite whose top is outside the 400 by 240 origin screen
+        # keeps the same missed dirty rect as the Pewter guide.
+        off = []
+        for path in (ROOT / "Source/data").rglob("*.json"):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            events = data.get("events") if isinstance(data, dict) else None
+            objects = events.get("objects") if isinstance(events, dict) else None
+            if not isinstance(objects, list):
+                continue
+            for obj in objects:
+                if not isinstance(obj, dict) or obj.get("movement") != "STAY":
+                    continue
+                x, y = obj.get("x"), obj.get("y")
+                if not isinstance(x, int) or not isinstance(y, int):
+                    continue
+                if y * 32 - 8 >= 240 or x * 32 >= 400:
+                    off.append((path.name, obj.get("sprite")))
+        self.assertIn(("PewterGym.json", "SPRITE_GYM_GUIDE"), off)
+        self.assertIn(("CeruleanGym.json", "SPRITE_GYM_GUIDE"), off)
+        self.assertIn(("ViridianGym.json", "SPRITE_GYM_GUIDE"), off)
+        self.assertGreater(len(off), 1)
+
     def test_enter_redraws_stay_actors_after_the_camera_snap(self):
         source = ENTER.read_text(encoding="utf-8")
         patch = PATCH.read_text(encoding="utf-8")
@@ -62,6 +91,7 @@ class PewterGymGuideTest(unittest.TestCase):
             "Apply tools/notes/lane-e-pewter-gym-guide.patch",
         )
         self.assertLess(enter.index("game.camera:apply()"), enter.index("npc:markDirty()"))
+        self.assertIn("for _, npc in ipairs(game.npcManager.npcs)", enter[snap:dirty])
 
 
 if __name__ == "__main__":

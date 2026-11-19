@@ -4,7 +4,7 @@
   "fly": [
     {
       "name": "PalletTown",
-      "id": "pallet_town",
+      "id": "pokered:PALLET_TOWN",
       "source_map": "PALLET_TOWN",
       "x": 5,
       "y": 6

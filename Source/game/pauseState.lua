@@ -1,3 +1,4 @@
+import "game/gbFont"
 local gfx <const> = playdate.graphics
 Class("PauseState"):extends(State)
 
@@ -8,18 +9,20 @@ end
 
 function PauseState:enter()
     self.phase = "menu"
-    local options = {"POKEMON", "ITEM", "RED", "SAVE", "OPTIONS", "CLOSE"}
-    if self.game.session:questFlag("EVENT_GOT_POKEDEX") then table.insert(options, 1, "POKEDEX") end
+    local hasDex = self.game.session:questFlag("EVENT_GOT_POKEDEX")
+    local playerName = Story.playerName(self.game)
+    -- draw_start_menu.asm DrawStartMenu / home/start_menu.asm DisplayStartMenu
+    local options = TitleIdle.startMenu(hasDex, playerName)
     self.menu:show(options, function(index)
-        local selected = options[index]
-        if selected == "POKEDEX" or selected == "POKEMON" or selected == "ITEM" then
+        local action = TitleIdle.startAction(hasDex, index)
+        if action == "pokedex" or action == "pokemon" or action == "item" then
             self.machine:pop()
-            self.machine:push(({POKEDEX="pokedex", POKEMON="party", ITEM="bag"})[selected])
-        elseif selected == "OPTIONS" then
+            self.machine:push(({pokedex="pokedex", pokemon="party", item="bag"})[action])
+        elseif action == "option" then
             self.machine:push("options")
-        elseif selected == "RED" then
+        elseif action == "trainer" then
             self.phase = "trainer"
-        elseif selected == "SAVE" then
+        elseif action == "save" then
             self.phase = "save"
             self.menu:show({"YES", "NO"}, function(choice)
                 if choice == 2 then self:enter(); return end
@@ -28,7 +31,7 @@ function PauseState:enter()
                 self.lastSave = {ok = ok, reason = metadata and metadata.reason}
                 local lines
                 if ok then
-                    lines={"RED saved the game!"}
+                    lines={Story.playerName(self.game) .. " saved the game!"}
                     if metadata and metadata.archived then lines[#lines+1]="Previous save files were kept as a backup." end
                 else
                     lines={"Save failed. Your adventure is still in memory.","Restart to review available save recovery."}
@@ -60,7 +63,14 @@ function PauseState:draw()
     local x, y = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
     if self.phase == "menu" then
-        self.menu:draw(208, 8, 184, 16 + #self.menu.options * 20)
+        local hasDex = self.game.session:questFlag("EVENT_GOT_POKEDEX")
+        GbFont.drawBox(TitleIdle.startMenuBox(hasDex))
+        for index, cell in ipairs(TitleIdle.startMenuCells(self.menu.options)) do
+            if index == self.menu.selectedIndex then
+                GbFont.drawChar(TitleIdle.CURSOR, 11, cell.row)
+            end
+            GbFont.drawString(cell.label, 12, cell.row)
+        end
     else
         gfx.setColor(gfx.kColorWhite); gfx.fillRect(16, 24, 368, 192)
         gfx.setColor(gfx.kColorBlack); gfx.drawRect(16, 24, 368, 192)
@@ -68,11 +78,19 @@ function PauseState:draw()
             gfx.drawText("Would you like to SAVE the game?", 28, 40)
             self.menu:draw(200, 112, 172, 60)
         else
-            gfx.drawText("NAME  RED", 32, 42)
-            gfx.drawText("MONEY  $" .. self.game.session:inventory():money(), 32, 72)
-            local count = 0
-            for _ in pairs(self.game.session:pokedex().owned) do count = count + 1 end
-            gfx.drawText("POKEMON OWNED  " .. count, 32, 102)
+            -- start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
+            -- DrawBadges is tile art this screen does not have, so the
+            -- badge count is the text stand-in for that box.
+            local session = self.game.session
+            local clock = session:playTime()
+            local flags = {}
+            for _, id in ipairs(TitleIdle.BADGE_FLAGS) do
+                flags[id] = session:questFlag(id) == true
+            end
+            gfx.drawText("NAME/" .. Story.playerName(self.game), 32, 42)
+            gfx.drawText("MONEY/$" .. session:inventory():money(), 32, 72)
+            gfx.drawText("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 32, 102)
+            gfx.drawText("BADGES  " .. TitleIdle.countFlags(flags), 32, 132)
             gfx.drawText("A / B: Back", 32, 178)
         end
     end

@@ -343,6 +343,10 @@ local function perform(session, revival, step)
     elseif op == "box" then
         local ok, reason = session:storage():selectBox(step.index)
         result = {ok = ok and true or false, status = ok and "box-selected" or reason}
+    elseif op == "moon" then
+        result = FossilRevival.moonChoice(step.flags)
+    elseif op == "byte" then
+        result = {ok = true, status = "stored", value = FossilRevival.storedItem(session)}
     elseif op == "continue" then
         local loaded, bytes = continueSession(session)
         if not loaded then

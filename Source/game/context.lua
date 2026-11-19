@@ -2,7 +2,25 @@
 import "game/coastStory"
 Class("GameContext")
 local TRANSITION_LOG_MAX <const> = 12
-local function startLocation() return {zone_id="reds_house_2f",x=5,y=3,facing="up"} end
+-- New Game spawns in the imported bedroom and heals at Red's door.
+-- GameContext is built before KantoWorld.install, so that first inactive
+-- session cannot name an imported map yet. It stays on test_zone until
+-- beginNewSession, which runs after the provider exists.
+local BEDROOM <const> = {zone_id="pokered:REDS_HOUSE_2F",x=5,y=3,facing="up"}
+local HEAL <const> = {zone_id="pokered:PALLET_TOWN",x=5,y=6,facing="down"}
+local BOOT <const> = {zone_id="test_zone",x=6,y=7,facing="down"}
+local function importedSession()
+    local provider = WorldDeltas.definitionProvider()
+    return provider and provider:hasID(BEDROOM.zone_id) and provider:hasID(HEAL.zone_id)
+end
+local function startLocation()
+    if importedSession() then return BEDROOM end
+    return BOOT
+end
+local function healLocation()
+    if importedSession() then return HEAL end
+    return BOOT
+end
 local function zoneKey(stableID)
     for key,zone in pairs(zoneRegistry) do if zone.stableID==stableID then return key end end
     local provided=WorldDeltas.zoneKey(stableID)
@@ -10,7 +28,7 @@ local function zoneKey(stableID)
     error("unknown stable session zone: "..tostring(stableID))
 end
 local function newModel(context,seed)
-    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint={zone_id="pallet_town",x=5,y=6,facing="down"},seed=seed or 1})
+    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint=healLocation(),seed=seed or 1})
     assert(session:inventory():credit(3000)) -- pinned Blue InitPlayerData START_MONEY.
     -- OakSpeech places one Potion in the item PC, not in the bag. This freshly
     -- constructed model has not been published; loading never calls newModel.

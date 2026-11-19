@@ -189,6 +189,7 @@ function BattleState:update()
     local battle = self.battle
     battle:update()
     if self.battle ~= battle then return end
+    self:openPendingNickname()
     if self.scene then self.scene:update() end
     self:openPendingLearning()
     self:openSelection()
@@ -203,6 +204,39 @@ end
 
 function BattleState:draw()
     if self.scene then self.scene:draw() end
+end
+
+-- engine/items/item_effects.asm ItemUseBall shows the new dex page when
+-- wPokedexOwned was clear, returns to the battle, then engine/pokemon/add_mon.asm
+-- _AddPartyMon calls AskName. NamingState is registered by TitleState.
+-- There is no extra pause between the dex page and the nickname question.
+function BattleState:openPendingNickname()
+    local battle = self.battle
+    local pending = battle and battle.pendingNickname
+    if not pending or not battle.nicknameReady or self.nicknameOpen then return end
+    if not (Story and Story.promptNickname) then return end
+    if battle.caughtNewDex then
+        if self.dexShown then return end
+        self.dexShown = true
+        local species = pending.mon.species
+        local name = pending.speciesName or pending.mon.name
+        self.machine:push("dialog", Story.dialogLines(Story.caughtDexPages(name)), function()
+            self.machine:push("pokedex", {
+                sourceSpecies = species,
+                onComplete = function()
+                    battle.caughtNewDex = nil
+                    self.dexShown = nil
+                end,
+            })
+        end)
+        return
+    end
+    self.nicknameOpen = true
+    Story.promptNickname(self.game, pending.mon, pending.speciesName, function()
+        battle.pendingNickname = nil
+        battle.nicknameReady = nil
+        self.nicknameOpen = nil
+    end)
 end
 
 -- Present the real learning overlay without returning/replacing this battle.

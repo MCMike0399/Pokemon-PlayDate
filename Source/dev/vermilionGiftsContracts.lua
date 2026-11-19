@@ -40,6 +40,7 @@ local function owned(s,count)
             assert(s:storage():selectBox(s:storage():activeBox() + 1))
         end
         assert(s:recruit(Pokemon(ids[i], 5)))
+        if i % 8 == 0 then collectgarbage("collect") end
     end
     -- More seen than owned. Duplicate specimens do not increase this count.
     for i=count+1,math.min(count+10,#ids) do assert(s:markSeen(ids[i])) end

@@ -14,6 +14,19 @@ import "game/fieldGestures"
 -- input is routed to the overlay only.
 
 local gfx <const> = playdate.graphics
+local BICYCLE_STEP <const> = {up = {0, -1}, down = {0, 1}, left = {-1, 0}, right = {1, 0}}
+-- scripts/Route16Gate1F.asm and scripts/Route18Gate1F.asm. The gate shows
+-- the wait line, then the refusal, and walks the player back off the road.
+local BICYCLE_GATE_TEXT <const> = {
+    ROUTE_16_GATE_1F = {
+        "Excuse me! Wait up please!",
+        "No pedestrians are allowed on CYCLING ROAD!",
+    },
+    ROUTE_18_GATE_1F = {
+        "Excuse me!",
+        "You need a BICYCLE for CYCLING ROAD!",
+    },
+}
 
 -- ============================================================
 -- EXPLORE substate
@@ -86,6 +99,15 @@ function ExploreSubstate:update()
         if SafariRuntime then
             SafariRuntime.completedStep(game)
         end
+            -- pret/pokered af519899 data/maps/objects/SeafoamIslandsB3F.asm
+            -- warp_event 20, 17 and 21, 17 land on SEAFOAM_ISLANDS_B4F.
+            -- A surf step finishes in this branch. The door check after
+            -- the return never ran, so those water stairs could not be taken.
+            local door = currentZone:getDoorAt(player.gridX, player.gridY)
+            if door then
+                self.machine:change("doorWarp", door)
+                return
+            end
         end
         return
     end
@@ -187,6 +209,19 @@ function ExploreSubstate:interact()
         local battleData = npc:getBattleData()
         if battleData and not npc:hasInteracted() and game.session:party():firstUsable() then
             local session=game.session
+            if KantoAudio and KantoAudio.trainerJingle then
+                local id = npc.trainerID
+                local definition = game.trainers and game.trainers:definition(id)
+                local class = BattleState.trainerClassFor(id, definition)
+                -- PlayTrainerMusic is silent for rivals. Those scripts play
+                -- MUSIC_MEET_RIVAL (scripts/OaksLab.asm and the other sites
+                -- listed in Source/audio/events.lua).
+                local score = KantoAudio.trainerJingle(class, nil)
+                if not score and (class == "OPP_RIVAL1" or class == "OPP_RIVAL2" or class == "OPP_RIVAL3") then
+                    score = "meet_rival"
+                end
+                if score then KantoAudio.playJingle(score) end
+            end
             rootMachine:push("dialog", lines, function()
                 if game.session ~= session or rootMachine:current() ~= self.owner
                     or not Specimen.isActiveSession(session) or not session:party():firstUsable() then
@@ -330,6 +365,12 @@ end
 Class("DoorWarpSubstate"):extends(State)
 
 local DOOR_FADE_FRAMES <const> = 12
+-- These rows are image:drawFaded's Bayer8x8 result on SDK 3.1.2 for alpha
+-- 0.875 and 0.5. drawFaded mallocs a temporary bitmap and returns
+-- "out of memory" when the 16 MiB pool can still hold the door's one
+-- working-image copy. The stencil draws the same pixels and does not allocate.
+local DOOR_FADE_7_8 <const> = {0xFF, 0xDD, 0xFF, 0x77, 0xFF, 0xDD, 0xFF, 0x77}
+local DOOR_FADE_1_2 <const> = {0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55}
 
 local function drawDoorFade(image, frame)
     -- Fade the settled source frame, never a partially built destination.
@@ -342,8 +383,9 @@ local function drawDoorFade(image, frame)
     gfx.clear(gfx.kColorBlack)
     local t = frame / DOOR_FADE_FRAMES
     if t < 2 / 3 then
-        local alpha = t < 1 / 3 and 0.875 or 0.5
-        image:drawFaded(0, 0, alpha, gfx.image.kDitherTypeBayer8x8)
+        gfx.setStencilPattern(t < 1 / 3 and DOOR_FADE_7_8 or DOOR_FADE_1_2, 0, 0)
+        image:draw(0, 0)
+        gfx.clearStencil()
     end
     gfx.popContext()
 end
@@ -351,6 +393,53 @@ end
 function DoorWarpSubstate:init(owner)
     DoorWarpSubstate.super.init(self, "doorWarp")
     self.owner = owner
+end
+
+-- A gate door that lands on a forced Cycling Road cell without a Bicycle
+-- never starts the fade. pokered stops on the gate, shows the guard text,
+-- and walks one step back. Raising "bicycle-required" from the arrival
+-- assert skipped that script.
+function DoorWarpSubstate:refuseBicycle(door)
+    if not FieldCycling or not door or door.connection then
+        return false
+    end
+    local game = self.owner.game
+    local provider = WorldDeltas.definitionProvider()
+    local descriptor = provider and provider:hasKey(door.to) and provider:descriptor(door.to)
+    local map = descriptor and descriptor.source_map_constant
+    local tileset = descriptor and descriptor.tileset and descriptor.tileset.constant
+    if not map or not tileset then
+        return false
+    end
+    local plan, failure = FieldCycling.enter(game.session:fieldTravelData(),
+        game.session:questFlag(FieldCycling.FLAG),
+        game.session:inventory():quantity("bicycle") == 1,
+        map, tileset, door.toX - (descriptor.padding or 0), door.toY, "map")
+    if plan or failure ~= "bicycle-required" then
+        return false
+    end
+    local here = provider:hasKey(currentZone.stableID) and provider:descriptor(currentZone.stableID)
+    local gateMap = here and here.source_map_constant
+    local player = game.player
+    player.stepJustFinished = false
+    player.pendingEdgeDoor = nil
+    player.pendingConnection = nil
+    player.lastTraversalBlock = {kind = "bicycle-gate", id = gateMap or map}
+    self.machine:change("explore")
+    local lines = BICYCLE_GATE_TEXT[gateMap] or BICYCLE_GATE_TEXT.ROUTE_16_GATE_1F
+    local direction = gateMap and FieldCycling.returnDirection(gateMap)
+    local step = BICYCLE_STEP[direction]
+    if not step then
+        local away = {left = "right", right = "left", up = "down", down = "up"}
+        step = BICYCLE_STEP[away[player.facing] or "right"]
+    end
+    self.owner.machine:push("dialog", lines, function()
+        local mover = game.player
+        if mover and not mover.isMoving then
+            mover:tryMove(step[1], step[2])
+        end
+    end)
+    return true
 end
 
 function DoorWarpSubstate:enter(door)
@@ -381,6 +470,9 @@ function DoorWarpSubstate:enter(door)
         self.owner.game.player.pendingEdgeDoor=nil
         self.owner.game.player.pendingConnection=nil
         self.machine:change("explore")
+        return
+    end
+    if self:refuseBicycle(door) then
         return
     end
     self.timer = 0
@@ -549,6 +641,21 @@ function OverworldState:enter(opts)
     local px, py = game.player:getPixelCenter()
     local mw, mh = getMapPixelSize()
     game.camera:snapTo(px, py, mw, mh)
+    -- Spawn calls setImage before this snap, while the draw offset is still
+    -- the previous map. A STAY actor never calls setImage again. The Pewter
+    -- Gym guide (pokered object x=7 y=10, sprite top at world y=312) is below
+    -- the 240px screen at offset 0, so that first dirty rect never lands on
+    -- the LCD. NPCMotion:tick refreshes random walkers only, and that
+    -- setImage is still before camera:apply, so every other STAY actor
+    -- below or right of the origin screen has the same miss. The loop is
+    -- the whole npc list. Apply the snapped offset, then mark them dirty.
+    game.camera:apply()
+    for _, npc in ipairs(game.npcManager.npcs) do
+        if npc.images and npc.facing and npc.images[npc.facing] then
+            npc:setImage(npc.images[npc.facing])
+        end
+        if npc.markDirty then npc:markDirty() end
+    end
     -- Pokered fills the overworld buffer with the map's border block before
     -- placing a short room. Undersized imported maps (the Silph elevator is
     -- 13x4) have no vertical void rows, so the uncovered screen must be that
@@ -567,6 +674,9 @@ function OverworldState:enter(opts)
     if not retainedVisit and not (opts and opts.fieldRestore) then
         local travel, cyclingForced = FieldWorld.entryTravel(game,
             {zone_id=currentZone.stableID, x=pos.x, y=pos.y}, WorldDeltas.export(), "continue")
+        if KantoAudio and KantoAudio.setTraversal then
+            KantoAudio.setTraversal(travel and travel.mode)
+        end
         assert(travel, cyclingForced)
         assert(game.session:captureTraversal({world = WorldDeltas.export(), cyclingForced=cyclingForced,
             location = {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},

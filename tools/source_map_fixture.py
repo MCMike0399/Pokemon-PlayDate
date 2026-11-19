@@ -53,3 +53,39 @@ def records(reference_root):
             result['data/sourceMapCache/' + name] = json.loads(content)
     result['data/sourceMaps.json'] = manifest
     return result
+
+
+def disk_patch(full):
+    """SDK fixture overlay. Unchanged maps and tile rows stay in the live cache."""
+    live_manifest = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
+    live_compact = json.loads((ROOT / 'Source/data/sourceMapCache/compact.json').read_bytes())
+    live_grids = json.loads((ROOT / 'Source/data/sourceMapCache/tile-grids.json').read_bytes())
+    fixture_compact = full['data/sourceMapCache/compact.json']
+    fixture_grids = full['data/sourceMapCache/tile-grids.json']
+    if fixture_compact['tiles'] != live_compact['tiles']:
+        raise ValueError('fixture tile catalogue differs from the live cache')
+    if fixture_compact['door_tiles'] != live_compact['door_tiles']:
+        raise ValueError('fixture door tiles differ from the live cache')
+    # The live atlas may gain tiles the extension witness never places.
+    # Every tile the witness does name must still be the live grid.
+    for key, grid in fixture_grids['tiles'].items():
+        if live_grids['tiles'].get(key) != grid:
+            raise ValueError('fixture tile grid differs from the live cache: ' + key)
+    manifest = {}
+    for name, entry in full['data/sourceMaps.json']['maps'].items():
+        if entry != live_manifest['maps'][name]:
+            manifest[name] = entry
+    compact = {}
+    for name, descriptor in fixture_compact['maps'].items():
+        live = live_compact['maps'][name]
+        fields = {key: value for key, value in descriptor.items() if value != live[key]}
+        if fields:
+            compact[name] = fields
+    extensions = {path: value for path, value in full.items() if path.startswith('dev/')}
+    return {
+        'schema': 2,
+        'source_revision': full['data/sourceMaps.json']['source_revision'],
+        'manifest': manifest,
+        'compact': compact,
+        'extensions': extensions,
+    }

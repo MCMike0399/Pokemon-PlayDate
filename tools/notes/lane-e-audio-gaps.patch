@@ -1,0 +1,66 @@
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -1329,6 +1329,7 @@
+     state.photo = {index = 1, clock = 0, stage = "preamble"}
+     state.phase = "hall-photo"
+     state.waiting = "hall-of-fame"
++    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("hall_of_fame") end
+ end
+
+ function EndgameStory.updatePhotos(state)
+@@ -1360,7 +1361,11 @@
+             end
+         end
+         if entry and entry.cry then
+-            EndgameStory.playCry(entry.cry)
++            if KantoAudio and KantoAudio.playCry then
++                KantoAudio.playCry(entry.cry)
++            else
++                EndgameStory.playCry(entry.cry)
++            end
+         end
+     elseif photo.stage == "show" and state.plan.photos[photo.index]
+         and state.plan.photos[photo.index].kind == "player" and photo.clock > 120 then
+@@ -1617,12 +1622,20 @@
+         return false
+     end
+     if step.audio and step.audio.name then
+-        EndgameStory.playCue(step.audio.name)
++        if KantoAudio and KantoAudio.playCue and (step.audio.name == "denied" or step.audio.name == "arrow_tiles") then
++            KantoAudio.playCue(step.audio.name)
++        else
++            EndgameStory.playCue(step.audio.name)
++        end
+     end
+     if state.plan.spin and step.op == "move" and not state.spinStarted then
+         state.spinStarted = true
+         if state.plan.audio then
+-            EndgameStory.playCue(state.plan.audio.name)
++            if KantoAudio and KantoAudio.playCue then
++                KantoAudio.playCue(state.plan.audio.name)
++            else
++                EndgameStory.playCue(state.plan.audio.name)
++            end
+         end
+     end
+     if step.op == "credits" and state.plan.photos and not state.photosDone then
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -88,6 +88,7 @@
+         -- owner. The facing cycle is the part the player sprite can show.
+         self.audioGaps[#self.audioGaps + 1] = {cue = "SFX_ARROW_TILES", owner = "SourceAudio",
+             wait_for_completion = false}
++        if KantoAudio and KantoAudio.playSFX then KantoAudio.playSFX("arrow_tiles") end
+     end
+     -- Interaction facing is transient for STAY actors as well as wanderers.
+     -- NPCMotion retains the completed source pose; execution never changes it
+--- a/Source/game/snorlaxStory.lua
++++ b/Source/game/snorlaxStory.lua
+@@ -75,6 +75,7 @@
+     return record and copy(record) or nil
+ end
+ function SnorlaxStory.useFlute(bag)
++    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("flute") end
+     local game <const> = bag.game
+     local machine <const> = game.machine
+     local world <const> = machine:get("overworld")

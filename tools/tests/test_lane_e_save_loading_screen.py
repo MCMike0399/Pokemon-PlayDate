@@ -22,7 +22,7 @@ PATCH = ROOT / "tools/notes/lane-e-save-loading-screen.patch"
 
 
 def save_function(source, name, nxt):
-    body = source.split(f"function {name}()", 1)[1]
+    body = source.split(f"function {name}", 1)[1]
     return body.split(f"function {nxt}", 1)[0]
 
 
