@@ -67,6 +67,16 @@ local function releaseIdleScores(keep)
     collectgarbage("collect")
 end
 
+function KantoSynth.unloadAll()
+    layers.music, layers.jingle, layers.sfx = nil, nil, nil
+    if type(KantoScores) == "table" then
+        for name in pairs(KantoScores) do
+            KantoScores[name] = nil
+        end
+    end
+    collectgarbage("collect")
+end
+
 local function ensureScore(name)
     if KantoScores and KantoScores[name] then
         return KantoScores[name]

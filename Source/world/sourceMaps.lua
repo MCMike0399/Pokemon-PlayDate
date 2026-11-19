@@ -4,6 +4,7 @@ SourceMaps = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local manifest
 local compact, tileGrids
+local separateCaches = false
 local recordOverrides
 local runtimeDefinitions
 local validatedCells <const> = setmetatable({}, { __mode = "k" })
@@ -75,14 +76,48 @@ local function catalogue()
     return manifest
 end
 
-function SourceMaps.record(path)
-    local data
+local function releaseWorldBitmaps()
+    if WorldView and WorldView.animationImages then
+        WorldView.animationImages = nil
+    end
+    if getOverworldView then
+        local view = getOverworldView()
+        if view and view.releaseBitmaps then
+            view:releaseBitmaps()
+        end
+    end
+    collectgarbage("collect")
+end
+
+local function readRecord(path)
     if recordOverrides and recordOverrides[path] then
-        data = copy(recordOverrides[path])
+        return copy(recordOverrides[path])
     elseif ShippedDataPolicy and ShippedDataPolicy.maps() then
-        data = ShippedDataPolicy.readBundleJSON(path)
-    else
-        data = json.decodeFile(path)
+        return ShippedDataPolicy.readBundleJSON(path)
+    end
+    return json.decodeFile(path)
+end
+
+function SourceMaps.record(path)
+    -- The compact catalogue and the tile grids are the large inflates.
+    -- A city tilemap sitting in the pool can leave no contiguous hole for
+    -- them, so drop those bitmaps once and read again.
+    local large = type(path) == "string" and (path:find("sourceMapCache/compact.json", 1, true)
+        or path:find("sourceMapCache/tile-grids.json", 1, true))
+    if large or collectgarbage("count") > 13 * 1024 then
+        collectgarbage("collect")
+    end
+    local ok, data = pcall(readRecord, path)
+    if not ok and large and type(data) == "string"
+        and (data:find("out of memory", 1, true) or data:find("not enough memory", 1, true)) then
+        releaseWorldBitmaps()
+        if KantoSynth and KantoSynth.unloadAll then
+            KantoSynth.unloadAll()
+        end
+        ok, data = pcall(readRecord, path)
+    end
+    if not ok then
+        error(data, 0)
     end
     assert(data, "missing pinned source record: " .. path)
     assert(data.schema == 1 and data.source_revision == revision, "unverified source record: " .. path)
@@ -110,7 +145,24 @@ end
 
 -- Generated descriptors contain no art grids or full map definitions. This
 -- inventory remains cheap during provider installation and save validation.
+-- The catalog draw keeps only one of the two megabyte catalogues.
+function SourceMaps._separateCatalogueCaches(enabled)
+    separateCaches = enabled == true
+end
+
+function SourceMaps._releaseSharedCompact()
+    compact, tileGrids = nil, nil
+end
+
+function SourceMaps._releaseTileGrids()
+    tileGrids = nil
+end
+
 local function compactData()
+    if separateCaches and tileGrids and tileGrids[1] then
+        tileGrids = nil
+        collectgarbage("collect")
+    end
     if not compact then
         local data = SourceMaps.record("data/sourceMapCache/compact.json")
         if not (ShippedDataPolicy and ShippedDataPolicy.maps() and not recordOverrides) then
@@ -174,16 +226,36 @@ end
 
 local function grids()
     if not tileGrids then
-        tileGrids = setmetatable({}, {__mode = "v"})
+        -- Catalog drawing holds the grids until the map pass releases them.
+        -- Ordinary play keeps the weak cache.
+        tileGrids = separateCaches and {} or setmetatable({}, {__mode = "v"})
     end
     local value = tileGrids[1]
     if not value then
+        local expectedHash
+        if separateCaches then
+            expectedHash = compactData().manifest_sha256
+            compact = nil
+            collectgarbage("collect")
+        end
         local data = SourceMaps.record("data/sourceMapCache/tile-grids.json")
-        assert(data.manifest_sha256 == compactData().manifest_sha256, "generated source cache revisions differ")
+        local actualHash = separateCaches and expectedHash or compactData().manifest_sha256
+        assert(data.manifest_sha256 == actualHash, "generated source cache revisions differ")
         value = data.tiles
+        data = nil
+        if not tileGrids then
+            tileGrids = separateCaches and {} or setmetatable({}, {__mode = "v"})
+        end
         tileGrids[1] = value
     end
     return value
+end
+
+-- The weak grid cache is collected between catalog maps and then inflated
+-- again for every cell. Pin it for one map sweep, then release.
+function SourceMaps._pinTileGrids()
+    local value = grids()
+    tileGrids = { value }
 end
 
 function SourceMaps.tile(key)
