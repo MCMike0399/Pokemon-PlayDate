@@ -1,0 +1,40 @@
+diff --git a/Source/game/trainerEvents.lua b/Source/game/trainerEvents.lua
+index 05eba9e3..78d7cadd 100644
+--- a/Source/game/trainerEvents.lua
++++ b/Source/game/trainerEvents.lua
+@@ -144,9 +144,14 @@ function TrainerEvents:prepare(npc,mode,scriptOwner)
+     local name = SourceMaps.nameForID(d.map_id)
+     if name and SourceMaps.entry(name).profile == "source" then
+         local motion = game.npcManager.motion
+-        local lease, problem = motion:claimScript(npc, scriptOwner)
+-        if not lease then tokens[token] = nil; return nil, problem end
+-        tokens[token].motion, tokens[token].lease = motion, lease
++        -- Route 22 walks the rival, then starts the trainer step. That walk
++        -- already holds the lease. A second claim fails, and storing the
++        -- event's lease here would let launch() release it early.
++        if not motion:scriptHeldBy(npc, scriptOwner) then
++            local lease, problem = motion:claimScript(npc, scriptOwner)
++            if not lease then tokens[token] = nil; return nil, problem end
++            tokens[token].motion, tokens[token].lease = motion, lease
++        end
+     else
+         npc:faceTowards(game.player.gridX,game.player.gridY)
+     end
+diff --git a/Source/world/npcMotion.lua b/Source/world/npcMotion.lua
+index ab563a74..3fb5d5c1 100644
+--- a/Source/world/npcMotion.lua
++++ b/Source/world/npcMotion.lua
+@@ -197,6 +197,13 @@ local function scriptCurrent(s, lease)
+ end
+ -- Read-only ownership check for a paired player script intent. Do not probe
+ -- validity by advancing a cell or reapplying a pose.
++function NPCMotion:scriptHeldBy(npc, owner)
++    local s = stores[self]
++    local actor = s.byNPC[npc]
++    local lease = actor and actor.script
++    if not lease or lease.owner ~= owner then return false end
++    return scriptCurrent(s, lease) == true
++end
+ function NPCMotion:isScriptOwner(token, owner)
+     local s = stores[self]
+     local actor, lease = scriptLease(s, token)

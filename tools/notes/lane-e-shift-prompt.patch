@@ -37,7 +37,7 @@
 --- a/Source/battle/battleScene.lua
 +++ b/Source/battle/battleScene.lua
 @@ -653,7 +653,11 @@ function BattleScene:drawBattleField()
- 
+
      if self.battle.shiftChoice then
          -- pokered _TrainerAboutToUseText plus the YES/NO box (TWO_OPTION_MENU).
 -        self:_wrapped("shift-prompt", self.battle.message or "", 276, 44).image:draw(14, boxY + 8)
@@ -47,5 +47,6 @@
 +            self.messageDialog:draw(true)
 +        end
          self.shiftMenu:draw(300, boxY + 4, 92, 52)
-     elseif self.battle:isAwaitingCommand() then
-         -- Draw text area on left
+     -- pret/pokered af519899 finishes the HP bar before the command list.
+     -- updateVitals has already run on the resume that applies the damage
+
