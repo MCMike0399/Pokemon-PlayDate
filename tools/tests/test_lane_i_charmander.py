@@ -2538,14 +2538,111 @@ class CharmanderRun(BrockJourney):
         """Badge gates, then the south door of Victory Road. Save on the mat."""
         self.summary["acceptance"] = "walking Route 23 toward Victory Road"
         self._arrange_lead("starter")
-        if not self._on("Route23"):
-            self.travel(self.zone("Route23"))
-        # (4, 31) is the 1F door. Stand on the tile south of it.
-        self._follow_route({(4, 32)})
+        if "VICTORY_ROAD" in (self._map_name() or ""):
+            self._victory_road_1f()
+            return
+        # (4, 31) is the 1F door. A resume already standing south of it keeps
+        # the entrance save and steps through.
+        at_door = self._on("Route23") and self.position() == (4, 32)
+        if not at_door:
+            if not self._on("Route23"):
+                self.travel(self.zone("Route23"))
+            self._follow_route({(4, 32)})
+            if not self._on("Route23") or self.position() != (4, 32):
+                raise ProtocolError("Victory Road entrance missed: " + self._map_name() + " " + str(self.position()))
+            self.save()
+            self.summary.update(acceptance="Victory Road entrance", natural=True, forbidden_shortcuts=False)
+        self._enter_victory_road()
+        self._victory_road_1f()
+
+    def _pin_victory_trainers(self):
+        for trainer_id, payout, map_id in (
+            ("pokered:VICTORY_ROAD_1F:objects:1", 1540, "pokered:VICTORY_ROAD_1F"),
+            ("pokered:VICTORY_ROAD_1F:objects:2", 1470, "pokered:VICTORY_ROAD_1F"),
+            ("pokered:VICTORY_ROAD_2F:objects:1", 1075, "pokered:VICTORY_ROAD_2F"),
+            ("pokered:VICTORY_ROAD_2F:objects:2", 1435, "pokered:VICTORY_ROAD_2F"),
+            ("pokered:VICTORY_ROAD_2F:objects:3", 1760, "pokered:VICTORY_ROAD_2F"),
+            ("pokered:VICTORY_ROAD_2F:objects:4", 2000, "pokered:VICTORY_ROAD_2F"),
+            ("pokered:VICTORY_ROAD_2F:objects:5", 1680, "pokered:VICTORY_ROAD_2F"),
+            ("pokered:VICTORY_ROAD_3F:objects:1", 1505, "pokered:VICTORY_ROAD_3F"),
+            ("pokered:VICTORY_ROAD_3F:objects:2", 1505, "pokered:VICTORY_ROAD_3F"),
+            ("pokered:VICTORY_ROAD_3F:objects:3", 1505, "pokered:VICTORY_ROAD_3F"),
+            ("pokered:VICTORY_ROAD_3F:objects:4", 1505, "pokered:VICTORY_ROAD_3F"),
+        ):
+            self.source_trainers[trainer_id] = {"id": trainer_id, "payout": payout, "map_id": map_id}
+
+    def _play_groups(self, groups):
+        for kind, name, count in groups:
+            for _ in range(count):
+                if kind == "push":
+                    self._shove(name)
+                    continue
+                moved = False
+                for _attempt in range(3):
+                    if self._step(name):
+                        moved = True
+                        break
+                    self.drain()
+                if not moved:
+                    raise ProtocolError("Victory Road step stayed at " + str(self.position()))
+
+    def _enter_victory_road(self):
         if not self._on("Route23") or self.position() != (4, 32):
-            raise ProtocolError("Victory Road entrance missed: " + self._map_name() + " " + str(self.position()))
-        self.save()
-        self.summary.update(acceptance="Victory Road entrance", natural=True, forbidden_shortcuts=False)
+            return
+        # The first press turns. The second steps onto the 1F door.
+        self.face("up")
+        self.send("press up", "wait 15")
+        self.drain()
+        if not self._on("VictoryRoad1F"):
+            raise ProtocolError("Victory Road door did not open: " + self._map_name() + " " + str(self.position()))
+
+    def _victory_road_1f(self):
+        """Push the south boulder onto (17, 13), then stand beside the 2F stair."""
+        if not self._on("VictoryRoad1F"):
+            return
+        self._pin_victory_trainers()
+        if not self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH"):
+            self._use_strength()
+            if self.position() != (8, 16):
+                self.navigate((8, 16))
+            self._play_groups((
+                ("walk", "left", 4), ("walk", "up", 2), ("walk", "right", 1),
+                ("push", "down", 1), ("walk", "down", 1), ("walk", "left", 1), ("walk", "down", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "down", 1), ("walk", "right", 2),
+                ("push", "up", 1), ("walk", "up", 1),
+                ("push", "up", 1), ("walk", "up", 1), ("walk", "left", 1), ("walk", "up", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "down", 1), ("walk", "right", 2),
+                ("push", "up", 1), ("walk", "up", 1),
+                ("push", "up", 1), ("walk", "left", 2), ("walk", "up", 2), ("walk", "right", 1),
+                ("push", "right", 1), ("walk", "up", 1), ("walk", "right", 2),
+                ("push", "down", 1),
+            ))
+            self._require_flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH")
+            # The opened gate is not in the static collision model, so the
+            # steps are the searched path. Stop on (2, 1), beside the stair.
+            self._play_groups((
+                ("walk", "down", 1), ("walk", "left", 1), ("walk", "down", 2),
+                ("walk", "left", 7), ("walk", "up", 2), ("walk", "left", 2),
+                ("walk", "up", 4), ("walk", "left", 4), ("walk", "up", 5),
+                ("walk", "left", 1), ("walk", "up", 2),
+            ))
+            if self.position() != (2, 1):
+                raise ProtocolError("Victory Road 1F stairs missed: " + str(self.position()))
+            self.save()
+            self.summary.update(acceptance="Victory Road 1F switch", natural=True, forbidden_shortcuts=False)
+        if self.position() == (2, 1) and self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH"):
+            self.face("left")
+            self.send("press left", "wait 15")
+            self.drain()
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
