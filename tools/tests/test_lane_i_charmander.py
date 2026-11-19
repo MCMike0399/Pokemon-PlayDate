@@ -3349,7 +3349,14 @@ class FightRecorder:
         # Badge clips are 90 seconds so the one-second page holds still fit
         # after the fight. Other clips stay at 60 unless a milestone asks shorter.
         if seconds is None:
-            seconds = "90" if str(label).startswith("badge-") else "60"
+            # Giovanni's five Pokémon run past a 90-second page. The prize
+            # line is the frame that has to show the yen.
+            if label == "badge-earth":
+                seconds = "180"
+            elif str(label).startswith("badge-"):
+                seconds = "90"
+            else:
+                seconds = "60"
         seconds = str(seconds)
         proc = subprocess.Popen(
             lcd_clip_command(display, origin_x, origin_y, seconds, path),
