@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "6dcf09c3c3d431479d4944187e4a56fa2958ecd4",
+    "source_sha256": "d1868177ad6092fd5283b9769ea6a10956bf1fd0b076f346ad900380e0bd90e3",
+    "policy_date": "2026-11-19",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the parcel scene and Daisy accept the registered zone ids, and a replacement faint keeps the queued move. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 197d0ebeb1968879741babe4536e174cf9c3a4b8ca1dc1db24bffc78fb36a6b8.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "2e808332c9dc3aeab5b403b27a9dd44fb78683a1",
     "source_sha256": "197d0ebeb1968879741babe4536e174cf9c3a4b8ca1dc1db24bffc78fb36a6b8",
     "policy_date": "2026-11-19",
@@ -1461,6 +1472,7 @@
       }
     }
   
+  }
   }},
   "accepted_milestone_rows": [],
   "schedule": {
