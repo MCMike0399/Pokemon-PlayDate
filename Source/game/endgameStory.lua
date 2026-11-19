@@ -838,7 +838,13 @@ function EndgameStory.plan(id, observation)
                     {op = "dialog", labels = {room.dont_run_text}},
                     {op = "move", direction = "up", count = 1}}}
             end
-            return {status = "ready", steps = approachWalk(room, pending.x)}
+            local steps <const> = approachWalk(room, pending.x)
+            if room.walk then
+                -- WalkToLance_RLEList is simulated joypad. The corridor
+                -- cells stay solid, and CollisionCheckOnLand skips them.
+                return {status = "ready", simulated = true, steps = steps}
+            end
+            return {status = "ready", steps = steps}
         end
     end
     local gate <const> = data.route22_gate
