@@ -2112,8 +2112,33 @@ class CharmanderRun(BrockJourney):
         self._press_mansion_switch((18, 26))
         self._press_mansion_switch((20, 4))
         self.interact(source_id="pokered:POKEMON_MANSION_B1F:objects:8")
+        if self.state.get("root") != "overworld":
+            self.drain()
         if self.quantity("secretKey") < 1:
             raise ProtocolError("secret key was not picked up")
+        self._leave_mansion()
+
+    def _leave_mansion(self):
+        """The key switch closes the stair. The other switch reopens 1F's southeast door."""
+        if self._on("PokemonMansionB1F"):
+            if self.flag("EVENT_MANSION_SWITCH_ON"):
+                self._press_mansion_switch((20, 4))
+            self._press_mansion_switch((18, 26))
+            self._apply_mansion_gates()
+            self.warp(self.zone("PokemonMansion1F"), self.zone("PokemonMansionB1F") + ":warps:1")
+        if not self._on("CinnabarIsland"):
+            self._apply_mansion_gates()
+            # The scientist looks along y=17. The southeast door is the other way.
+            for x in range(17):
+                self.model().collision[17][x] = 1
+            self.navigate((26, 26))
+            self.send("press down", "wait 15")
+            self.drain()
+            if self._on("PokemonMansion1F") and self.position() == (26, 27):
+                self.send("press down", "wait 15")
+                self.drain()
+        if not self._on("CinnabarIsland"):
+            raise ProtocolError("mansion exit missed Cinnabar: " + self._map_name() + " " + str(self.position()))
 
     def _apply_cinnabar_gates(self):
         if not self._on("CinnabarGym"):
