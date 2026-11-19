@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "106686b55dab21a98a89bf17821f26726f970d11",
+    "source_sha256": "b416180b3d2c3ccb2b48544702ab0d3dea3d2e56324ea803eeccb4fb0bf5eaee",
+    "policy_date": "2026-11-19",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the shift question, Red's back sprite, and the Route 22 walk lease. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 b3eeef31c29cc342a1c92391565b031c719927d91fb21289475c9f12ef279baa.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "70861e89990ba8861c2d76f38c6ad4fce5ce6fa6",
     "source_sha256": "b3eeef31c29cc342a1c92391565b031c719927d91fb21289475c9f12ef279baa",
     "policy_date": "2026-11-19",
@@ -1551,6 +1562,7 @@
   
   }
   }}
+  }
   }
   }
   }
