@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Source-map provider lookup fits beside the live Zone
+
+The provider check was the remaining source-maps name main passes. A scope now drops its two retained runtime definitions before the next scope, and a new tile key is read from the catalogue prefix instead of decoding all 944 grids beside the Zone. The device suite scored 35 passed / 8 failed against main's 30/13. Every remaining failure is one main already had, and five of main's failure names cleared. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Blackout page and Red's battle back
 
 pret/pokered `_PlayerBlackedOutText2` is the loss page except the lab rival. The page is `<PLAYER> is out of` / `useable #MON!` then `<PLAYER> blacked` / `out!`. Route 22's second rival returns to the default script on `LOST_BATTLE`, so a blackout does not resume his victory line after the checkpoint warp. `redb.png` is 32×32. It is drawn in the same 80px slot as a Pokémon back, feet on y 150. `MallocPoolSize` stays 16645684.

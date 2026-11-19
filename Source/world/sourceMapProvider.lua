@@ -20,16 +20,12 @@ local function ensureKeys(registry, tiles)
     if #needed == 0 then
         return
     end
-    SourceMaps.withTiles(function(tileData)
-        local entries = {}
-        for _, key in ipairs(needed) do
-            entries[#entries + 1] = tileData(key)
-            if GameBootstrap then
-                GameBootstrap.yieldIfDue()
-            end
-        end
-        registry:registerBatch(entries)
-    end)
+    -- The full grid catalogue does not fit beside the Zone this key mutates.
+    local entries = SourceMaps.directTiles(needed)
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
+    registry:registerBatch(entries)
 end
 
 -- Shared construction only: no provider registration, cache ownership or pinning.

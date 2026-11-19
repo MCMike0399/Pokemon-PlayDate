@@ -35,6 +35,7 @@ local function scope(fn, factory)
     end)
     context.npcManager:clear()
     provider:disposeCache()
+    SourceMaps.releaseRetainedRuntime()
     zoneRegistry, zoneList, currentZone = oldRegistry, oldList, oldZone
     if GameSession.activeRNGSession() == context.session then context.session:deactivateRNG() end
     if oldOwner then oldOwner:activateRNG() else RulesRNG.restoreData(oldRng) end
