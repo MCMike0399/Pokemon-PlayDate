@@ -272,6 +272,99 @@ function SourceMaps.withTiles(callback)
     end)
 end
 
+-- One new key must not decode all 944 grids beside a live Zone. The full
+-- catalogue stays on the weak cache for callers that walk every tile.
+local function readSourcePrefix(path, limit)
+    local file
+    if ShippedDataPolicy and ShippedDataPolicy.maps() then
+        file = assert(ShippedDataPolicy.openBundle(path), "missing pinned source record: " .. path)
+    else
+        file = assert(playdate.file.open(path), "missing pinned source record: " .. path)
+    end
+    local text = file:read(limit)
+    file:close()
+    return text or ""
+end
+
+local function extractJSONObject(text, key)
+    local marker = '"' .. key .. '":'
+    local at = text:find(marker, 1, true)
+    assert(at, "unknown canonical source tile: " .. key)
+    local i = at + #marker
+    while text:sub(i, i):match("%s") do i = i + 1 end
+    assert(text:sub(i, i) == "{", "tile record is not an object: " .. key)
+    local depth, inString, escape = 0, false, false
+    for pos = i, #text do
+        local char = text:sub(pos, pos)
+        if inString then
+            if escape then escape = false
+            elseif char == "\\" then escape = true
+            elseif char == '"' then inString = false end
+        elseif char == '"' then inString = true
+        elseif char == "{" then depth = depth + 1
+        elseif char == "}" then
+            depth = depth - 1
+            if depth == 0 then
+                return assert(json.decode(text:sub(i, pos)))
+            end
+        end
+    end
+    error("truncated tile record: " .. key)
+end
+
+function SourceMaps.directTiles(keys)
+    assert(type(keys) == "table" and #keys > 0, "tile keys required")
+    if tileGrids and tileGrids[1] then
+        local data = tileGrids[1]
+        local entries = {}
+        for _, key in ipairs(keys) do
+            entries[#entries + 1] = copy(assert(data[key], "unknown canonical source tile: " .. tostring(key)))
+        end
+        return entries
+    end
+    collectgarbage("collect")
+    local path = "data/sourceMapCache/tile-grids.json"
+    -- The adapter tiles sit in the first kilobyte. A full 495 KiB read has no
+    -- contiguous hole beside the Zone, so only the prefix is decoded here.
+    local text = readSourcePrefix(path, 16384)
+    local headerEnd = text:find('"tiles":', 1, true)
+    local function fallback()
+        local data = grids()
+        local entries = {}
+        for _, key in ipairs(keys) do
+            entries[#entries + 1] = copy(assert(data[key], "unknown canonical source tile: " .. tostring(key)))
+        end
+        return entries
+    end
+    if not headerEnd then
+        return fallback()
+    end
+    local head = text:sub(1, headerEnd - 1):gsub(",%s*$", "") .. "}"
+    local header = json.decode(head)
+    if type(header) ~= "table" or header.schema ~= 1 or header.source_revision ~= revision
+        or header.manifest_sha256 ~= compactData().manifest_sha256 then
+        return fallback()
+    end
+    local entries = {}
+    for _, key in ipairs(keys) do
+        if type(key) ~= "string" or key:find('"', 1, true) or key:find("\\", 1, true) then
+            return fallback()
+        end
+        local at = text:find('"' .. key .. '":', 1, true)
+        if not at then
+            return fallback()
+        end
+        local ok, tile = pcall(extractJSONObject, text, key)
+        if not ok or type(tile) ~= "table" or tile.key ~= key then
+            return fallback()
+        end
+        entries[#entries + 1] = copy(tile)
+    end
+    text = nil
+    collectgarbage("collect")
+    return entries
+end
+
 -- Legacy warp binding needs target warp positions and arrival collision, not
 -- the target's source refs, terrain grids, objects, encounters or full layout.
 function SourceMaps.destination(name)
@@ -583,6 +676,16 @@ local function retainRuntime(name, definition)
     while #retainedRuntimeOrder > RETAINED_RUNTIME do
         retainedRuntime[table.remove(retainedRuntimeOrder, 1)] = nil
     end
+end
+-- A contract scope has already disposed its Zones. The two retained runtime
+-- definitions are still full maps. The next scope's Route 1 lookup does not
+-- fit beside them once the boot floor is above main.
+function SourceMaps.releaseRetainedRuntime()
+    for index = #retainedRuntimeOrder, 1, -1 do
+        retainedRuntime[retainedRuntimeOrder[index]] = nil
+        retainedRuntimeOrder[index] = nil
+    end
+    collectgarbage("collect")
 end
 function SourceMaps._runtimePadded(name)
     if runtimeDefinitions and runtimeDefinitions[name] then
