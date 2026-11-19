@@ -90,7 +90,15 @@ function KantoWorld.connection(game,zone,x,y,direction)
     if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil end
     if not game or not game.session or game.session:getIntro().stage~="done" then return nil,"intro-gate" end
     local ok,value=pcall(KantoSlice.connection,name,x,y,direction,"done")
-    if not ok then return nil,"unimplemented-connection:"..zone.stableID..":"..direction end
+    if not ok then
+        -- The north seam stays the Route 1 adaptation. South is the source
+        -- Route 21 connection on the same padded Pallet collision.
+        if zone.stableID == "pallet_town" and SourceMaps then
+            local south = SourceMaps.connection("PalletTown", x, y, direction)
+            if south then return south end
+        end
+        return nil,"unimplemented-connection:"..zone.stableID..":"..direction
+    end
     local target=zoneRegistry[value.to]
     -- The authored Pallet seam can be the first request for Route1. Validate
     -- unloaded durable deltas before constructing its actors/collision surface.
@@ -148,7 +156,9 @@ function KantoWorld.tryInteract(game)
         end
         id = npc and npc.def and npc.def.source_event_id
     end
-    if not id and npc and npc.name=="OAK" and currentZone.stableID=="pokered:OAKS_LAB" and game.session:getIntro().stage=="done" then
+    if not id and npc and npc.name=="OAK"
+        and (currentZone.stableID=="pokered:OAKS_LAB" or currentZone.stableID=="oaks_lab")
+        and game.session:getIntro().stage=="done" then
         id="pokered:OAKS_LAB:script:parcel-handoff"
     end
     if not id and currentZone:isSliceReady() and inside(currentZone,fx,fy) then

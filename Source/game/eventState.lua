@@ -50,6 +50,14 @@ function EventState:dialog(pages,callback,receipt)
     for _, page in ipairs(pages) do
         lines[#lines + 1] = {text = page.text, ending = page.ending}
     end
+    if pages[1].label == "_OaksLabOak1HowIsYourPokedexComingText" then
+        local owned = 0
+        local dex = self.session and self.session:pokedex()
+        for _, flag in pairs(dex and dex.owned or {}) do
+            if flag then owned = owned + 1 end
+        end
+        self.game.lastDexRating = {owned = owned}
+    end
     self.phase,self.waiting=receipt and "receipt" or "dialog",pages[1].label
     self.machine:push("dialog",lines,self:guard(callback))
 end
@@ -117,7 +125,9 @@ function EventState:enter(id,options)
     self.hasFailureText=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
     if plan.scene=="oak-pokedex" then
-        assert(currentZone and currentZone.stableID=="pokered:OAKS_LAB","Oak parcel scene requires the imported lab")
+        -- The session key oaks_lab and the imported pokered:OAKS_LAB are the same lab.
+        assert(currentZone and (currentZone.stableID=="pokered:OAKS_LAB" or currentZone.stableID=="oaks_lab"),
+            "Oak parcel scene requires the lab")
         self.oak=assert(self.game.npcManager:findByName("OAK"),"Oak actor missing")
         self.oldOakFacing=self.oak.facing
         local aisle=self:oakAisle()

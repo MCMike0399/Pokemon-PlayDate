@@ -103,16 +103,34 @@ function BattleMenu:draw(x, y, w, h)
         local glyph = glyphs[i]
         if not glyph or glyph.option ~= option or glyph.selected ~= selected then
             local label = (selected and "▶" or " ") .. option
-            local width, height = gfx.getTextSize(label)
-            local image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
-            gfx.pushContext(image)
-            gfx.setDrawOffset(0, 0)
-            gfx.clearClipRect()
-            gfx.clearStencil()
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            gfx.setFont(BattleMenu.font or gfx.getFont())
-            gfx.drawText(label, 0, 0)
-            gfx.popContext()
+            local width, height
+            local image
+            if option:find("¥", 1, true) then
+                local previousFont = gfx.getFont()
+                gfx.setFont(BattleMenu.font or previousFont)
+                width, height = GbFont.measureMoneyLine(label)
+                gfx.setFont(previousFont)
+                image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorWhite)
+                gfx.pushContext(image)
+                gfx.setDrawOffset(0, 0)
+                gfx.clearClipRect()
+                gfx.clearStencil()
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                gfx.setFont(BattleMenu.font or previousFont)
+                GbFont.drawMoneyLine(label, 0, 0)
+                gfx.popContext()
+            else
+                width, height = gfx.getTextSize(label)
+                image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
+                gfx.pushContext(image)
+                gfx.setDrawOffset(0, 0)
+                gfx.clearClipRect()
+                gfx.clearStencil()
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                gfx.setFont(BattleMenu.font or gfx.getFont())
+                gfx.drawText(label, 0, 0)
+                gfx.popContext()
+            end
             glyph = {option = option, selected = selected, image = image}
             glyphs[i] = glyph
         end

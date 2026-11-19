@@ -1,5 +1,35 @@
 # Full-game execution ledger
 
+## 2026-11-19 Earth Badge prize keeps the yen
+
+Giovanni's payout text is stored as UTF-8 `<PLAYER> got ¥@`. Charmap yen is `$f0`, tile 112, and `TitleIdle.glyph` maps it. `SourceText.expand` accepts that text, so the reward event can save the Earth Badge. The Victory Road POKéMANIAC name is UTF-8 as well. Mart prices, the daycare and bicycle money windows, the vending money line, the bicycle and drink menu prices, and the Hall of Fame money row draw that figure through `GbFont`. The PC storage screens do not draw a balance. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Lance hallway is simulated joypad
+
+WalkToLance_RLEList starts at (24, 16). Its second step, (24, 14), is solid, and so is most of the rest of the list. The entrance plan now sets `simulated` when the room has that walk list, which is Lance. CollisionCheckOnLand skips those cells. Lorelei, Bruno and Agatha still use `walk_in` and an ordinary move plan. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Lab, Daisy, and the queued move after a faint
+
+`oaks_lab` and `pokered:OAKS_LAB` both run the parcel scene. `blues_house` and `pokered:BLUES_HOUSE` both reach Daisy, who stands at (6, 4). A replacement faint no longer drops the rest of the queue: the living actor spends PP, a fainted target reports no target, then residuals and the forced switch run. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Pallet Fly alias
+
+Saves written before the cutover keep `pallet_town` in `fieldTravel.visited`. Fly's table allows only `pokered:PALLET_TOWN`, so `FieldTravel.normalize` rejected the save and the title offered no CONTINUE. Normalize now rewrites that saved id onto the existing Pallet slot at (5, 6). It does not add a Fly row, and Fly still refuses the authored id. `MallocPoolSize` stays 16645684.
+
+## 2026-11-19 Pallet zone keys
+
+`reds_house_2f`, `reds_house`, `blues_house`, `oaks_lab`, and `pallet_town` are registered again from the padded pokered collision. New Game stands in `reds_house_2f` and heals at `pallet_town` (5, 6). Fly still uses `pokered:PALLET_TOWN`. Pallet (9, 0) and Red's house (5, 5) stay open because the Route 1 seam and MOM face those cells. Device smokes: session 31/0, session-bridge 29/0, home-lead 31/0, shop 32/0.
+
+## 2026-11-19 Victory Road 2F puzzle boulder
+
+`TOGGLE_VICTORY_ROAD_2F_BOULDER` no longer hides `pokered:VICTORY_ROAD_2F:objects:13`. Pokered places that boulder at (23, 16), and it is the one that can reach the switch at (9, 16). Entering Route 23 still sets the toggle. The 3F hole boulder stays hidden on `TOGGLE_VICTORY_ROAD_3F_BOULDER`.
+
+## 2026-11-19 Tip gates, faint order, recoil skip, and audio receipts
+
+`main` stays `bf92c4fc`. The 129-suite gate of `9e0cf508` has 42 suites red that `bf92c4fc` passed, mostly `unknown world location zone` after the Pallet cutover. `dcb8cb7f`, the first commit after main, already adds npc-trades failures main did not have, so no later ancestor was fast-forwarded.
+
+`79bebd32` prints the faint line after the HP drain and the slide. `23cb9e31` cancels the queued move after a first-mover recoil KO. `da8f2d80` records the main-path audio receipts. The coverage snapshot was regenerated with `tools/harness/run.py` `fingerprint` and the previous snapshot was nested. No row was relabeled.
+
 ## 2026-11-19 Pallet cutover and Seafoam surf path
 
 `main` stays `bf92c4fc`. It was not fast-forwarded. The device comparison of `453f2daa` against that main still has head-only reds: `pewterInstall`, `move-failure`, `pewterProvider`, `brock-field-items`, `cerulean-catalog`, `comprehensive-catalog`, `source-maps`, and `npc-trades`, plus unscored timeouts in `source-events`, `vermilion-catalog`, and `field-travel`. `event-catalog` was a ready-handshake flake; the retry passed 22/0. No ancestor after `bf92c4fc` has a clean comparison. `MallocPoolSize` stays 16645684.

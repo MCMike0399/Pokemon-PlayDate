@@ -1,8 +1,9 @@
 """Imported Pallet Town is the town a new game walks, and Fly lands there.
 
-The authored tile rows are gone. New Game starts in pokered:REDS_HOUSE_2F,
-the heal checkpoint is the imported Pallet door, and that map's south
-connection is Route 21. Fly's visited entry uses the same source id.
+The hand-authored tile rows are gone. New Game starts in reds_house_2f
+and heals at pallet_town (5, 6); both zones are the padded pokered
+collision. The south connection is Route 21. Fly's visited entry keeps
+the source id pokered:PALLET_TOWN.
 """
 import json
 import unittest
@@ -90,10 +91,17 @@ class PalletCutoverTests(unittest.TestCase):
         context = (ROOT / "Source/game/context.lua").read_text()
         maps = (ROOT / "Source/data/maps.lua").read_text()
         story = (ROOT / "Source/game/story.lua").read_text()
-        self.assertIn('zone_id="pokered:REDS_HOUSE_2F",x=5,y=3,facing="up"', context)
-        self.assertIn('zone_id="pokered:PALLET_TOWN",x=5,y=6,facing="down"', context)
-        for key in ("pallet_town", "oaks_lab", "reds_house", "reds_house_2f", "blues_house"):
-            self.assertNotIn(f'registerZone("{key}"', maps)
+        self.assertIn('zone_id="reds_house_2f",x=5,y=3,facing="up"', context)
+        self.assertIn('zone_id="pallet_town",x=5,y=6,facing="down"', context)
+        for key, filename in (
+            ("reds_house_2f", "RedsHouse2F"),
+            ("reds_house", "RedsHouse1F"),
+            ("blues_house", "BluesHouse"),
+            ("oaks_lab", "OaksLab"),
+            ("pallet_town", "PalletTown"),
+        ):
+            self.assertIn(f'"{key}"', maps)
+            self.assertIn(filename, maps)
         self.assertIn('to = LAB_KEY, toX = 6, toY = 4', story)
         self.assertIn('{ x = 7, y = 3, species = "charmander" }', story)
         door_tiles, compact_maps = _door_tiles()

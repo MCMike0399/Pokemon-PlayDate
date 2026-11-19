@@ -118,7 +118,7 @@ function SessionContracts.run()
             function(d) d.pokedex.owned.missingno=true end,
             function(d) d.location.zone_id="unknown-zone" end,
             function(d) d.location.x=9999 end,
-            function(d) d.location={zone_id="reds_house_2f",x=5,y=2,facing="up"} end,
+            function(d) d.location={zone_id="reds_house_2f",x=5,y=4,facing="up"} end,
             function(d) d.checkpoint.facing="sideways" end,
             function(d) d.world.unsupportedPersistentField=true end,
             function(d) d.rng.state="2147483647" end,
@@ -143,7 +143,7 @@ function SessionContracts.run()
         local ok=session:setQuestFlag("bad key",true); eq(ok,false)
         ok=session:setTrainerDefeated("valid:key",1); eq(ok,false)
         ok=session:setIntro({stage="done",starter="charmander",rivalStarter="bulbasaur"}); eq(ok,false)
-        ok=session:setLocation({zone_id="reds_house_2f",x=5,y=2,facing="up"}); eq(ok,false)
+        ok=session:setLocation({zone_id="reds_house_2f",x=5,y=4,facing="up"}); eq(ok,false)
         assert(same(data(session),before))
         local zone=zoneRegistry.reds_house_2f
         local revision=zone:exportDeltas().definition_revision
@@ -151,13 +151,12 @@ function SessionContracts.run()
             tile_count=1,tiles={{x=5,y=3,key="base:3"}}}}}
         local world=WorldDeltas.export()
         ok=session:setWorld(solid); eq(ok,false); assert(same(data(session),before)); assert(same(WorldDeltas.export(),world))
-        local open=copy(solid); open.zones[1].tiles={{x=5,y=2,key="base:25"}}
+        local open=copy(solid); open.zones[1].tiles={{x=5,y=4,key="base:25"}}
         assert(session:setWorld(open))
-        assert(session:setLocation({zone_id="reds_house_2f",x=5,y=2,facing="up"}))
+        assert(session:setLocation({zone_id="reds_house_2f",x=5,y=4,facing="up"}))
         local encoded=data(session); local restored=decode(encoded)
-        eq(restored:location().y,2); assert(same(WorldDeltas.export(),world))
-        -- Removing that delta restores the initial solid TV; it cannot depend
-        -- on an unrelated live-world mutation to validate the saved position.
+        eq(restored:location().y,4); assert(same(WorldDeltas.export(),world))
+        -- Removing that delta restores the solid table on the imported floor.
         ok=restored:setWorld({schema=1,zones={},zone_count=0}); eq(ok,false)
     end)
     test("combined traversal snapshot can close old location and rejects partial invalid updates",function()

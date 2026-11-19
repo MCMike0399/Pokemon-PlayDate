@@ -6,7 +6,8 @@ Class("HomeRestState"):extends(State)
 function HomeRestState:init(game)HomeRestState.super.init(self,"homeRest");self.game=game;self.epoch=0 end
 function HomeRest.tryInteract(game)
     local p=game.player;local world=game.machine:get("overworld")
-    if not p or not currentZone or currentZone.stableID~="pokered:REDS_HOUSE_1F" or game.machine:current()~=world or game.machine:depth()~=1
+    if not p or not currentZone or (currentZone.stableID~="pokered:REDS_HOUSE_1F" and currentZone.stableID~="reds_house")
+        or game.machine:current()~=world or game.machine:depth()~=1
         or p.isMoving or p.isJumping or p.pendingEdgeDoor or p.pendingConnection then return false end
     local x,y=p:getFacingTile();local npc=game.npcManager:getNPCAt(x,y)
     if not npc or npc.name~="MOM"then return false end
@@ -15,7 +16,8 @@ function HomeRest.tryInteract(game)
 end
 function HomeRestState:valid()
     return self.active and self.game.session==self.session and currentZone==self.zone and self.game.player==self.player
-        and self.game.machine.stack[1]==self.game.machine:get("overworld") and self.zone and self.zone.stableID=="pokered:REDS_HOUSE_1F"
+        and self.game.machine.stack[1]==self.game.machine:get("overworld") and self.zone
+        and (self.zone.stableID=="pokered:REDS_HOUSE_1F" or self.zone.stableID=="reds_house")
 end
 function HomeRestState:say(lines,nextPhase)
     self.phase="dialog";local epoch=self.epoch

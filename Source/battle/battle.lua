@@ -931,6 +931,7 @@ function Battle:throwBall(ballId)
         assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
     end
     if result.caught then
+        if newDex then self.dexPageAdded = self.enemy.species end
         self.enemy:resetStages()
         self:clearHitPresentation()
         if not self.sourceEncounter then
@@ -1024,6 +1025,10 @@ function Battle:resolveRound(turns)
     self.effects:beginRound(turns)
     for _, turn in ipairs(turns) do
         local outcome = self:resolveTurn(turn)
+        -- replacement means a bench can still fight. The later queued move
+        -- still resolves: a fainted actor skips before PP, and a living actor
+        -- spends PP before a fainted target reports no target. Residuals and
+        -- the forced switch happen after the queue.
         if outcome and outcome ~= "replacement" then return outcome end
     end
     return self:finishRound()
@@ -1693,8 +1698,11 @@ function Battle:_registerFaints(lastFaintedSide)
         if not pokemon:isAlive() and not self.faintAnnounced[side] then
             self.faintAnnounced[side] = true
             changed=true
-            self:say(pokemon.name .. " fainted!")
+            -- present() does not start the slide until isVitalsBlocking() is false,
+            -- which is the bar reaching the authoritative HP. The line is
+            -- printed only after the drain and the slide.
             self:present("faint", {side = side, pokemon = pokemon})
+            self:say(pokemon.name .. " fainted!")
         end
     end
     return lastFaintedSide,changed

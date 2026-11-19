@@ -27,7 +27,10 @@ local INDIGO_RESET <const> = {
 local VISIBILITY <const> = {
     ["pokered:VIRIDIAN_GYM:objects:1"] = {{group = "quest", id = GIOVANNI_HIDE, equals = false}},
     [MOLTRES] = {{group = "quest", id = "EVENT_BEAT_MOLTRES", equals = false}},
-    ["pokered:VICTORY_ROAD_2F:objects:13"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_2F_BOULDER", equals = false}},
+    -- Pokered always places the 2F puzzle boulder (objects:13) at (23, 16).
+    -- Route 23 sets TOGGLE_VICTORY_ROAD_2F_BOULDER on the way in, so hiding
+    -- objects:13 on that flag removed the only boulder that can reach the
+    -- switch at (9, 16). The 3F hole boulder stays on its own toggle.
     ["pokered:VICTORY_ROAD_3F:objects:10"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_3F_BOULDER", equals = false}},
     ["pokered:CHAMPIONS_ROOM:objects:2"] = {{group = "quest", id = OAK_SHOW, equals = true}},
 }
@@ -835,7 +838,13 @@ function EndgameStory.plan(id, observation)
                     {op = "dialog", labels = {room.dont_run_text}},
                     {op = "move", direction = "up", count = 1}}}
             end
-            return {status = "ready", steps = approachWalk(room, pending.x)}
+            local steps <const> = approachWalk(room, pending.x)
+            if room.walk then
+                -- WalkToLance_RLEList is simulated joypad. The corridor
+                -- cells stay solid, and CollisionCheckOnLand skips them.
+                return {status = "ready", simulated = true, steps = steps}
+            end
+            return {status = "ready", steps = steps}
         end
     end
     local gate <const> = data.route22_gate
@@ -1538,7 +1547,11 @@ function EndgameStory.drawPhoto(gfx, state)
     end
     for _, row in ipairs(EndgameStory.hallRows(photo)) do
         local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
-        gfx.drawText(row.text, px, py)
+        if row.text:find("¥", 1, true) then
+            GbFont.drawMoneyLine(row.text, px, py)
+        else
+            gfx.drawText(row.text, px, py)
+        end
     end
     if photo.kind == "player" then
         local pages <const> = EndgameStory.playerHallPages(photo.stats)

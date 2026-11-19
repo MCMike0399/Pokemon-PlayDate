@@ -1,16 +1,5 @@
-diff --git a/Source/game/titleIdle.lua b/Source/game/titleIdle.lua
---- a/Source/game/titleIdle.lua
-+++ b/Source/game/titleIdle.lua
-@@ -371,7 +371,7 @@
-         ["-"] = 0xe3 - 0x80, ["."] = 0xe8 - 0x80,
-         ["'"] = 0xe0 - 0x80, ["?"] = 0xe6 - 0x80, ["!"] = 0xe7 - 0x80,
-         ["("] = 0x9a - 0x80, [")"] = 0x9b - 0x80,
--        ["♂"] = 0xef - 0x80, ["×"] = 0xf1 - 0x80,
-+        ["♂"] = 0xef - 0x80, ["¥"] = 0xf0 - 0x80, ["×"] = 0xf1 - 0x80,
-         ["/"] = 0xf3 - 0x80, [","] = 0xf4 - 0x80, ["♀"] = 0xf5 - 0x80,
-     }
-     if font[char] then return "font", font[char] end
 diff --git a/Source/data/endgame/play.json b/Source/data/endgame/play.json
+index 9c6de6b5..3d8cf906 100644
 --- a/Source/data/endgame/play.json
 +++ b/Source/data/endgame/play.json
 @@ -462,7 +462,7 @@
@@ -23,6 +12,7 @@ diff --git a/Source/data/endgame/play.json b/Source/data/endgame/play.json
          {
            "op": "control",
 diff --git a/Source/data/endgame/story.json b/Source/data/endgame/story.json
+index 5e2f0deb..cffef04d 100644
 --- a/Source/data/endgame/story.json
 +++ b/Source/data/endgame/story.json
 @@ -4543,7 +4543,7 @@
@@ -34,174 +24,250 @@ diff --git a/Source/data/endgame/story.json b/Source/data/endgame/story.json
          "party": [
            {
              "level": 40,
-diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
---- a/Source/game/pauseState.lua
-+++ b/Source/game/pauseState.lua
-@@ -88,7 +88,8 @@
-                 flags[id] = session:questFlag(id) == true
-             end
-             gfx.drawText("NAME/" .. Story.playerName(self.game), 32, 42)
--            gfx.drawText("MONEY/$" .. session:inventory():money(), 32, 72)
-+            -- TrainerInfo money is the yen tile, not a dollar sign.
-+            GbFont.drawTight("MONEY/¥" .. session:inventory():money(), 32, 72)
-             gfx.drawText("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 32, 102)
-             gfx.drawText("BADGES  " .. TitleIdle.countFlags(flags), 32, 132)
-             gfx.drawText("A / B: Back", 32, 178)
-diff --git a/Source/game/kantoServices.lua b/Source/game/kantoServices.lua
---- a/Source/game/kantoServices.lua
-+++ b/Source/game/kantoServices.lua
-@@ -218,7 +218,7 @@
-         gfx.setColor(gfx.kColorBlack)
-         gfx.drawRect(236, 4, 160, 46)
-         gfx.drawText("MONEY", 246, 8)
--        gfx.drawText("¥" .. self.session:inventory():money(), 246, 27)
-+        GbFont.drawTight("¥" .. self.session:inventory():money(), 246, 27)
-         gfx.popContext()
-     end
-     if self:valid() and self.phase == "service-choice" then
 diff --git a/Source/game/celadonServicesController.lua b/Source/game/celadonServicesController.lua
+index 3d32c7c3..533b7e14 100644
 --- a/Source/game/celadonServicesController.lua
 +++ b/Source/game/celadonServicesController.lua
-@@ -550,7 +550,7 @@
+@@ -551,7 +551,7 @@ function CeladonServicesController.draw(state)
      gfx.fillRect(196, 4, 200, 44)
      gfx.setColor(gfx.kColorBlack)
      gfx.drawRect(196, 4, 200, 44)
 -    gfx.drawText("MONEY  ¥" .. state.session:inventory():money(), 204, 8)
-+    GbFont.drawTight("MONEY  ¥" .. state.session:inventory():money(), 204, 8)
++    GbFont.drawMoneyLine("MONEY  ¥" .. state.session:inventory():money(), 204, 8)
      if type(state.session.coins) == "function" then
          gfx.drawText("COIN   " .. state.session:coins(), 204, 27)
      end
 diff --git a/Source/game/daycareState.lua b/Source/game/daycareState.lua
+index 440831a7..fac7cd44 100644
 --- a/Source/game/daycareState.lua
 +++ b/Source/game/daycareState.lua
-@@ -159,6 +159,6 @@
+@@ -159,6 +159,6 @@ function DaycareState:draw()
      gfx.setColor(gfx.kColorBlack)
      gfx.drawRect(236, 4, 160, 46)
      gfx.drawText("MONEY", 246, 8)
 -    gfx.drawText("¥" .. self.session:inventory():money(), 246, 27)
-+    GbFont.drawTight("¥" .. self.session:inventory():money(), 246, 27)
++    GbFont.drawMoneyLine("¥" .. self.session:inventory():money(), 246, 27)
      gfx.popContext()
  end
-diff --git a/Source/game/bagState.lua b/Source/game/bagState.lua
---- a/Source/game/bagState.lua
-+++ b/Source/game/bagState.lua
-@@ -408,7 +408,7 @@
-     gfx.clear(gfx.kColorWhite)
-     gfx.setColor(gfx.kColorBlack)
-     gfx.drawText(self.options and self.options.mode=="held" and ("GIVE: "..self.options.holder.name) or "ITEM", 12, 8)
--    gfx.drawText("$" .. self.game.session:inventory():money(), 286, 8)
-+    GbFont.drawTight("¥" .. self.game.session:inventory():money(), 286, 8)
-     local slots = self:visibleSlots()
-     local first = math.max(1, self.selected - 6)
-     if not self.options.mode then
-diff --git a/Source/game/shopState.lua b/Source/game/shopState.lua
---- a/Source/game/shopState.lua
-+++ b/Source/game/shopState.lua
-@@ -163,7 +163,13 @@
-     return {phase=self.phase,selected=self.selected,item=(row and row.id or self.item) or "none",quantity=self.quantity,result=result,
-         menu={selected=self.menu.selectedIndex,active=self.menu.isActive,options=options}}
- end
--local function right(text,x,y) local w=gfx.getTextSize(text);gfx.drawText(text,x-w,y) end
-+local function right(text,x,y)
-+    if text:find("¥", 1, true) then
-+        GbFont.drawTight(text, x - (utf8.len(text) or #text) * 16, y)
-+    else
-+        local w=gfx.getTextSize(text);gfx.drawText(text,x-w,y)
-+    end
-+end
- local function box(x,y,w,h)
-     gfx.setColor(gfx.kColorWhite);gfx.fillRect(x,y,w,h)
-     gfx.setColor(gfx.kColorBlack);gfx.drawRect(x,y,w,h)
-@@ -174,7 +180,7 @@
-     gfx.setImageDrawMode(gfx.kDrawModeCopy);gfx.setFont(gfx.getSystemFont());gfx.setLineWidth(1)
-     box(4,4,392,232)
-     gfx.drawText("POKE MART"..(self.phase~="mode" and (self.trade=="buy" and " - BUY" or " - SELL") or ""),16,14)
--    right("$"..self:inventory():money(),382,14)
-+    right("¥"..self:inventory():money(),382,14)
-     if self.phase=="mode" then
-         gfx.drawTextInRect("Hi there!\nMay I help you?",20,64,216,52)
-         self.menu:draw(248,52,132,80)
-@@ -188,7 +194,7 @@
-             local row=rows[i];local item=ItemData.definitions[row.id];local y=52+(i-first)*20
-             gfx.drawText((i==selected and "> " or "  ")..item.name,20,y)
-             local price=self.trade=="buy" and item.price or item.sellPrice
--            right(self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "$"..price or "--")) or "$"..price,366,y)
-+            right(self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "¥"..price or "--")) or "¥"..price,366,y)
-         end
-         if first>1 then gfx.drawText("^",376,46) end
-         if first+5<#rows then gfx.drawText("v",376,162) end
-@@ -198,11 +204,18 @@
-     else
-         local item=ItemData.definitions[self.item];local price=self:price()
-         gfx.drawText(item.name,20,54);right("IN BAG x"..self:inventory():quantity(self.item),380,54)
--        gfx.drawText("EACH",20,84);right("$"..price,380,84)
-+        gfx.drawText("EACH",20,84);right("¥"..price,380,84)
-         gfx.drawText("QUANTITY",20,116);right("x"..self.quantity,380,116)
--        gfx.drawText("TOTAL",20,146);right("$"..(price*self.quantity),380,146)
-+        gfx.drawText("TOTAL",20,146);right("¥"..(price*self.quantity),380,146)
-         if self.phase=="confirm" then
--            gfx.drawText(self.trade=="buy" and "That will be\n$"..(price*self.quantity)..". OK?" or "I can pay you\n$"..(price*self.quantity).." for that.",20,182)
-+            local amount = "¥"..(price*self.quantity)
-+            if self.trade=="buy" then
-+                GbFont.drawTight("That will be",20,182)
-+                GbFont.drawTight(amount..". OK?",20,198)
-+            else
-+                GbFont.drawTight("I can pay you",20,182)
-+                GbFont.drawTight(amount.." for that.",20,198)
-+            end
-             self.menu:draw(244,172,140,56)
-         else
-             gfx.drawText("UP/DOWN: 1   LEFT/RIGHT: 10",20,182)
-diff --git a/Source/ui/menu.lua b/Source/ui/menu.lua
---- a/Source/ui/menu.lua
-+++ b/Source/ui/menu.lua
-@@ -103,7 +103,11 @@
-         local glyph = glyphs[i]
-         if not glyph or glyph.option ~= option or glyph.selected ~= selected then
-             local label = (selected and "▶" or " ") .. option
-+            local yen = label:find("¥", 1, true)
-             local width, height = gfx.getTextSize(label)
-+            if yen then
-+                width, height = (utf8.len(label) or #label) * 16, 16
-+            end
-             local image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
-             gfx.pushContext(image)
-             gfx.setDrawOffset(0, 0)
-@@ -111,7 +115,7 @@
-             gfx.clearStencil()
-             gfx.setImageDrawMode(gfx.kDrawModeCopy)
-             gfx.setFont(BattleMenu.font or gfx.getFont())
--            gfx.drawText(label, 0, 0)
-+            if yen then GbFont.drawTight(label, 0, 0) else gfx.drawText(label, 0, 0) end
-             gfx.popContext()
-             glyph = {option = option, selected = selected, image = image}
-             glyphs[i] = glyph
 diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+index 9e04de07..f8c17249 100644
 --- a/Source/game/endgameStory.lua
 +++ b/Source/game/endgameStory.lua
-@@ -1538,7 +1538,7 @@
+@@ -1547,7 +1547,11 @@ function EndgameStory.drawPhoto(gfx, state)
      end
      for _, row in ipairs(EndgameStory.hallRows(photo)) do
          local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
 -        gfx.drawText(row.text, px, py)
-+        if row.text:find("¥", 1, true) then GbFont.drawTight(row.text, px, py) else gfx.drawText(row.text, px, py) end
++        if row.text:find("¥", 1, true) then
++            GbFont.drawMoneyLine(row.text, px, py)
++        else
++            gfx.drawText(row.text, px, py)
++        end
      end
      if photo.kind == "player" then
          local pages <const> = EndgameStory.playerHallPages(photo.stats)
-diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
---- a/Source/battle/battle.lua
-+++ b/Source/battle/battle.lua
-@@ -1746,6 +1746,13 @@
-     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
-     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
-     if won then
-+        local coins = self.payDayCoins or 0
-+        if coins > 0 then
-+            -- data/text/text_2.asm _PickedUpPayDayMoneyText. The scatter line
-+            -- already played on the hit. This page is the yen amount.
-+            local player = (Story and Story.playerName and Story.playerName()) or "RED"
-+            self:say(player .. " picked up\n¥" .. coins .. "!")
-+        end
-         self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
-         return "victory"
+diff --git a/Source/game/gbFont.lua b/Source/game/gbFont.lua
+index 33e7ea54..76198400 100644
+--- a/Source/game/gbFont.lua
++++ b/Source/game/gbFont.lua
+@@ -132,3 +132,83 @@ function GbFont.drawTight(text, x, y)
+         cursor = cursor + 16
      end
+ end
++
++-- A money figure is spaces, the charmap yen, and digits. Charmap $f0 is
++-- tile 112. Words stay on the current font so the existing boxes still fit,
++-- and the yen plus the digits after it use the source tile.
++local YEN <const> = utf8.codepoint("¥")
++
++function GbFont.isMoneyFigure(text)
++    if text == "" then return true end
++    for _, code in utf8.codes(text) do
++        if code ~= 32 and code ~= YEN and (code < 48 or code > 57) then
++            return false
++        end
++    end
++    return true
++end
++
++local function moneyRuns(text)
++    local runs = {}
++    local codes = {utf8.codepoint(text, 1, -1)}
++    local index = 1
++    while index <= #codes do
++        if codes[index] == YEN then
++            local run = "¥"
++            index = index + 1
++            while index <= #codes and codes[index] >= 48 and codes[index] <= 57 do
++                run = run .. string.char(codes[index])
++                index = index + 1
++            end
++            runs[#runs + 1] = {kind = "figure", text = run}
++        else
++            local chunk = utf8.char(codes[index])
++            index = index + 1
++            while index <= #codes and codes[index] ~= YEN do
++                chunk = chunk .. utf8.char(codes[index])
++                index = index + 1
++            end
++            runs[#runs + 1] = {kind = "text", text = chunk}
++        end
++    end
++    return runs
++end
++
++function GbFont.measureMoneyLine(text)
++    if GbFont.isMoneyFigure(text) then
++        return 16 * (utf8.len(text) or 0), 16
++    end
++    local width, height = 0, 16
++    for _, run in ipairs(moneyRuns(text)) do
++        if run.kind == "figure" then
++            width = width + 16 * utf8.len(run.text)
++        else
++            local runWidth, runHeight = gfx.getTextSize(run.text)
++            width = width + runWidth
++            if runHeight > height then height = runHeight end
++        end
++    end
++    return width, height
++end
++
++function GbFont.drawMoneyLine(text, x, y)
++    if GbFont.isMoneyFigure(text) then
++        GbFont.drawTight(text, x, y)
++        return
++    end
++    local cursor = x
++    for _, run in ipairs(moneyRuns(text)) do
++        if run.kind == "figure" then
++            GbFont.drawTight(run.text, cursor, y)
++            cursor = cursor + 16 * utf8.len(run.text)
++        else
++            gfx.drawText(run.text, cursor, y)
++            cursor = cursor + gfx.getTextSize(run.text)
++        end
++    end
++end
++
++function GbFont.drawMoneyRight(text, rightX, y)
++    local width = GbFont.measureMoneyLine(text)
++    GbFont.drawMoneyLine(text, rightX - width, y)
++end
+diff --git a/Source/game/kantoServices.lua b/Source/game/kantoServices.lua
+index 63f03bbe..80e765a0 100644
+--- a/Source/game/kantoServices.lua
++++ b/Source/game/kantoServices.lua
+@@ -218,7 +218,7 @@ function KantoServicesState:draw()
+         gfx.setColor(gfx.kColorBlack)
+         gfx.drawRect(236, 4, 160, 46)
+         gfx.drawText("MONEY", 246, 8)
+-        gfx.drawText("¥" .. self.session:inventory():money(), 246, 27)
++        GbFont.drawMoneyLine("¥" .. self.session:inventory():money(), 246, 27)
+         gfx.popContext()
+     end
+     if self:valid() and self.phase == "service-choice" then
+diff --git a/Source/game/shopState.lua b/Source/game/shopState.lua
+index 6d7438ab..fb6924c5 100644
+--- a/Source/game/shopState.lua
++++ b/Source/game/shopState.lua
+@@ -174,7 +174,7 @@ function ShopState:draw()
+     gfx.setImageDrawMode(gfx.kDrawModeCopy);gfx.setFont(gfx.getSystemFont());gfx.setLineWidth(1)
+     box(4,4,392,232)
+     gfx.drawText("POKE MART"..(self.phase~="mode" and (self.trade=="buy" and " - BUY" or " - SELL") or ""),16,14)
+-    right("$"..self:inventory():money(),382,14)
++    GbFont.drawMoneyRight("¥"..self:inventory():money(),382,14)
+     if self.phase=="mode" then
+         gfx.drawTextInRect("Hi there!\nMay I help you?",20,64,216,52)
+         self.menu:draw(248,52,132,80)
+@@ -188,7 +188,8 @@ function ShopState:draw()
+             local row=rows[i];local item=ItemData.definitions[row.id];local y=52+(i-first)*20
+             gfx.drawText((i==selected and "> " or "  ")..item.name,20,y)
+             local price=self.trade=="buy" and item.price or item.sellPrice
+-            right(self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "$"..price or "--")) or "$"..price,366,y)
++            local amount=self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "¥"..price or "--")) or "¥"..price
++            if amount:find("¥",1,true) then GbFont.drawMoneyRight(amount,366,y) else right(amount,366,y) end
+         end
+         if first>1 then gfx.drawText("^",376,46) end
+         if first+5<#rows then gfx.drawText("v",376,162) end
+@@ -198,11 +199,15 @@ function ShopState:draw()
+     else
+         local item=ItemData.definitions[self.item];local price=self:price()
+         gfx.drawText(item.name,20,54);right("IN BAG x"..self:inventory():quantity(self.item),380,54)
+-        gfx.drawText("EACH",20,84);right("$"..price,380,84)
++        gfx.drawText("EACH",20,84);GbFont.drawMoneyRight("¥"..price,380,84)
+         gfx.drawText("QUANTITY",20,116);right("x"..self.quantity,380,116)
+-        gfx.drawText("TOTAL",20,146);right("$"..(price*self.quantity),380,146)
++        gfx.drawText("TOTAL",20,146);GbFont.drawMoneyRight("¥"..(price*self.quantity),380,146)
+         if self.phase=="confirm" then
+-            gfx.drawText(self.trade=="buy" and "That will be\n$"..(price*self.quantity)..". OK?" or "I can pay you\n$"..(price*self.quantity).." for that.",20,182)
++            local prompt=self.trade=="buy" and "That will be\n¥"..(price*self.quantity)..". OK?" or "I can pay you\n¥"..(price*self.quantity).." for that."
++            local line=0
++            for row in (prompt.."\n"):gmatch("(.-)\n") do
++                GbFont.drawMoneyLine(row,20,182+line*18);line=line+1
++            end
+             self.menu:draw(244,172,140,56)
+         else
+             gfx.drawText("UP/DOWN: 1   LEFT/RIGHT: 10",20,182)
+diff --git a/Source/game/titleIdle.lua b/Source/game/titleIdle.lua
+index d217098f..8811ec0e 100644
+--- a/Source/game/titleIdle.lua
++++ b/Source/game/titleIdle.lua
+@@ -366,7 +366,7 @@ function TitleIdle.glyph(char)
+     if extra[char] then return "extra", extra[char] end
+     local font = {
+         ["▶"] = 0xed - 0x80, ["▷"] = 0xec - 0x80, ["▼"] = 0xee - 0x80,
+-        ["é"] = 0xba - 0x80, [":"] = 0x9c - 0x80,
++        ["é"] = 0xba - 0x80, ["¥"] = 0xf0 - 0x80, [":"] = 0x9c - 0x80,
+         [";"] = 0x9d - 0x80, ["["] = 0x9e - 0x80, ["]"] = 0x9f - 0x80,
+         ["-"] = 0xe3 - 0x80, ["."] = 0xe8 - 0x80,
+         ["'"] = 0xe0 - 0x80, ["?"] = 0xe6 - 0x80, ["!"] = 0xe7 - 0x80,
+diff --git a/Source/ui/menu.lua b/Source/ui/menu.lua
+index bb89ffb8..7236be42 100644
+--- a/Source/ui/menu.lua
++++ b/Source/ui/menu.lua
+@@ -103,16 +103,34 @@ function BattleMenu:draw(x, y, w, h)
+         local glyph = glyphs[i]
+         if not glyph or glyph.option ~= option or glyph.selected ~= selected then
+             local label = (selected and "▶" or " ") .. option
+-            local width, height = gfx.getTextSize(label)
+-            local image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
+-            gfx.pushContext(image)
+-            gfx.setDrawOffset(0, 0)
+-            gfx.clearClipRect()
+-            gfx.clearStencil()
+-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+-            gfx.setFont(BattleMenu.font or gfx.getFont())
+-            gfx.drawText(label, 0, 0)
+-            gfx.popContext()
++            local width, height
++            local image
++            if option:find("¥", 1, true) then
++                local previousFont = gfx.getFont()
++                gfx.setFont(BattleMenu.font or previousFont)
++                width, height = GbFont.measureMoneyLine(label)
++                gfx.setFont(previousFont)
++                image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorWhite)
++                gfx.pushContext(image)
++                gfx.setDrawOffset(0, 0)
++                gfx.clearClipRect()
++                gfx.clearStencil()
++                gfx.setImageDrawMode(gfx.kDrawModeCopy)
++                gfx.setFont(BattleMenu.font or previousFont)
++                GbFont.drawMoneyLine(label, 0, 0)
++                gfx.popContext()
++            else
++                width, height = gfx.getTextSize(label)
++                image = gfx.image.new(math.max(1, width), math.max(1, height), gfx.kColorClear)
++                gfx.pushContext(image)
++                gfx.setDrawOffset(0, 0)
++                gfx.clearClipRect()
++                gfx.clearStencil()
++                gfx.setImageDrawMode(gfx.kDrawModeCopy)
++                gfx.setFont(BattleMenu.font or gfx.getFont())
++                gfx.drawText(label, 0, 0)
++                gfx.popContext()
++            end
+             glyph = {option = option, selected = selected, image = image}
+             glyphs[i] = glyph
+         end
