@@ -284,7 +284,9 @@ def deviations():
             kind='gift', species='mew', level=5, flag='EVENT_GOT_MEW', price=0, once=True,
             requires_flag='TOGGLE_CERULEAN_CAVE_GUY', requires_hall_team=True,
             npc=dict(
-                id='postgame:CERULEAN_CAVE_1F:mew-gift', map='CeruleanCave1F',
+                id='postgame:CERULEAN_CAVE_1F:mew-gift',
+                dispatch_id='pokered:CERULEAN_CAVE_1F:script:mew-gift',
+                map='CeruleanCave1F',
                 zone_id='pokered:CERULEAN_CAVE_1F', x=23, y=16, sprite='SPRITE_SCIENTIST',
                 facing='right', talk=dict(x=24, y=16, facing='left')),
             deviation='Miguel-approved. Not a pokered wild slot or object. Level 5 matches the original event distribution. One per save.',

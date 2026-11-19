@@ -76,6 +76,8 @@ class PolicyGiftTests(unittest.TestCase):
         self.assertTrue(mew["once"])
         self.assertEqual(mew["flag"], "EVENT_GOT_MEW")
         self.assertEqual((self.npc["x"], self.npc["y"], self.npc["map"]), (23, 16, "CeruleanCave1F"))
+        self.assertEqual(self.npc["dispatch_id"], "pokered:CERULEAN_CAVE_1F:script:mew-gift")
+        self.assertEqual(self.npc["zone_id"], "pokered:CERULEAN_CAVE_1F")
         self.assertLessEqual(len(cable["name"]), 10)
         self.assertEqual(cable["name"], "LINK CABLE")
         self.assertEqual(cable["text"], "Use like a stone.")

@@ -5,7 +5,7 @@ PostgameStory = {}
 local CONTENT <const> = "postgame"
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local cached, playCached
-local eventsInstalled, planWrapped, hookRegistered, sceneWrapped, continueWrapped = false, false, false, false, false
+local eventsInstalled, planWrapped, hookRegistered, giftHookRegistered, sceneWrapped, continueWrapped = false, false, false, false, false, false
 local staticContractsRegistered = false
 local entering = false
 local continueDepth = 0
@@ -265,6 +265,20 @@ function PostgameStory.installEvents()
     SourceEventHandlers[giver.id] = function()
         return PostgameStory.giftPlan(giver.id)
     end
+    -- The map object keeps postgame:CERULEAN_CAVE_1F:mew-gift. registerEventSource
+    -- rejects that id, so A on the scientist would stop at "unimplemented source
+    -- event". The script id is the one the player actually starts.
+    local dispatchId <const> = giver.dispatch_id
+    if type(dispatchId) == "string" then
+        events[dispatchId] = {kind = "bespoke", content = CONTENT}
+        SourceEventHandlers[dispatchId] = function()
+            return PostgameStory.giftPlan(dispatchId)
+        end
+        if SourceEvents.registerWorldHooks and not giftHookRegistered then
+            SourceEvents.registerWorldHooks(dispatchId, {interact = PostgameStory.tryGift})
+            giftHookRegistered = true
+        end
+    end
     -- registerEventSource only accepts pokered object, background, hidden, and
     -- script ids, and it rejects ids the compiled catalog already owns.
     -- The Mew gift id is postgame:CERULEAN_CAVE_1F:mew-gift. Its handler stays
@@ -346,8 +360,33 @@ end
 
 function PostgameStory.giftPlan(id)
     local npc <const> = story().deviations.mew.npc
-    assert(id == npc.id, "gift plan id")
+    assert(id == npc.id or id == npc.dispatch_id, "gift plan id")
     return {status = "ready", scene = "postgame", scene_script = "gift", steps = {}}
+end
+
+-- KantoWorld.tryInteract asks world hooks before the actor id. The scientist
+-- sprite still carries the postgame id, which is not a registered source event.
+function PostgameStory.tryGift(game)
+    local npc <const> = story().deviations.mew.npc
+    local dispatchId <const> = npc.dispatch_id
+    if not currentZone or currentZone.stableID ~= npc.zone_id or type(dispatchId) ~= "string" then
+        return false
+    end
+    local player <const> = game and game.player
+    if not player or type(player.getFacingTile) ~= "function" then
+        return false
+    end
+    if player.isMoving or player.pendingEdgeDoor then
+        return false
+    end
+    local fx, fy = player:getFacingTile()
+    if fx ~= npc.x or fy ~= npc.y then
+        return false
+    end
+    if not (SourceEvents and SourceEvents.has and SourceEvents.has(dispatchId) and SourceEvents.dispatch) then
+        return false
+    end
+    return SourceEvents.dispatch(game, dispatchId)
 end
 
 function PostgameStory.giveMew(session)

@@ -20,6 +20,8 @@ Miguel-approved deviation. This revision has no Mew wild slot and no Mew object.
 
 Miguel's pick: make Mew obtainable, as a gift. After the Hall of Fame, a scientist at Cerulean Cave 1F `(23, 16)` gives Mew at level 5, the level of the original event distribution. One Mew per save, behind `EVENT_GOT_MEW`. The giver, the flag, and the lines live in `Source/data/postgame/` and `Source/game/postgameStory.lua`. The cave opens when the ceremony hides the guard, so the gift is not available before then.
 
+The scientist stands in the cave because that room is closed until the ceremony, which keeps both gifts out of the pre-credits game. The loaded map object keeps `postgame:CERULEAN_CAVE_1F:mew-gift`. `registerEventSource` rejects that id, so pressing A on the sprite used to stop as an unimplemented source event. Facing `(23, 16)` now starts `pokered:CERULEAN_CAVE_1F:script:mew-gift`, which is registered. The same talk offers Mew or a LINK CABLE.
+
 The giver is a real map object, or the cave shows nobody. `tools/notes/lane-e-mew-scientist.patch` appends that scientist to `Source/data/zRemainder/CeruleanCave1F.json` at `(23, 16)`, sprite `SPRITE_SCIENTIST`, facing right, id `postgame:CERULEAN_CAVE_1F:mew-gift`. That file's checksum is the runtime cache pin, and the manifest hash of those pins is in every cell-cache header. Lane E applied that patch at `a7347868` and regenerated the pins. This branch has those bytes from the merge of `5d4a2670`. The headless run stands on `(24, 16)`, facing the giver, and takes the gift.
 
 ## Trade evolutions

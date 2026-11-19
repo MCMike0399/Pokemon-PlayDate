@@ -394,6 +394,7 @@
       "kind": "gift",
       "level": 5,
       "npc": {
+        "dispatch_id": "pokered:CERULEAN_CAVE_1F:script:mew-gift",
         "facing": "right",
         "id": "postgame:CERULEAN_CAVE_1F:mew-gift",
         "map": "CeruleanCave1F",
