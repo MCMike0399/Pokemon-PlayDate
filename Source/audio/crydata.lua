@@ -547,6 +547,7 @@ KantoCryMusicBanks = {
     start_menu = 1,
     hit = 2,
     faint = 2,
+    faint_fall = 2,
     go_inside = 1,
     go_outside = 1,
     ledge = 1,
@@ -570,4 +571,7 @@ KantoCryMusicBanks = {
     routes4 = 1,
     dungeon2 = 3,
     dungeon3 = 3,
+    cities1_oak = 1,
+    meet_rival_slow = 1,
+    meet_rival_league = 1,
 }

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tools.audio.catalog import Catalog
 from tools.audio.events import build
-from tools.audio.scores import ASSETS, LabelTrace, ScoreTrace, _sound_loop_targets, checkpoint_maps
+from tools.audio.scores import ALT_SCORES, ASSETS, LabelTrace, ScoreTrace, _sound_loop_targets, checkpoint_maps
 from tools.audio.source import Source
 from tools.measure_boot_budget import LUA_PEAK_BUDGET_KIB, POOL_BYTES
 
@@ -67,6 +67,16 @@ class AudioEventTests(unittest.TestCase):
             'score:brock-nil': 'gym_leader', 'score:brock-zero': 'trainer',
             'score:giovanni-gym': 'gym_leader', 'score:giovanni-hideout': 'trainer',
             'score:giovanni-zero': 'trainer', 'score:youngster': 'trainer',
+            'score:lorelei': 'trainer', 'victory:lorelei': 'defeated_trainer',
+            'score:bruno': 'trainer', 'victory:bruno': 'defeated_trainer',
+            'score:agatha': 'trainer', 'victory:agatha': 'defeated_trainer',
+            'jingle:lorelei': 'meet_male',
+            'map:pokered:LORELEIS_ROOM': 'gym',
+            'map:pokered:BRUNOS_ROOM': 'dungeon1',
+            'map:pokered:AGATHAS_ROOM': 'tower',
+            'map:pokered:LANCES_ROOM': 'indigo',
+            'map:pokered:CHAMPIONS_ROOM': 'indigo',
+            'map:pokered:HALL_OF_FAME': 'pallet',
             'jingle:lass': 'meet_female', 'jingle:rocket': 'meet_evil',
             'jingle:youngster': 'meet_male', 'jingle:rival': 'nil',
             'jingle:brock': 'meet_male', 'jingle:gym': 'nil', 'jingle:empty': 'nil',
@@ -131,7 +141,7 @@ class AudioEventTests(unittest.TestCase):
             rows = self.source.read(path).splitlines()
             self.assertIn(cue['token'], rows[int(line) - 1])
             self.assertEqual(self.probe['cue:' + name], cue['score'] + ':' + cue['kind'])
-            self.assertIn(cue['score'], ASSETS)
+            self.assertIn(cue['score'], set(ASSETS) | set(ALT_SCORES))
 
     def test_score_loops_match_source_traces(self):
         import json
@@ -140,6 +150,8 @@ class AudioEventTests(unittest.TestCase):
         approximated = set(manifest['approximations'])
         self.assertEqual(approximated, set())
         for name, row in manifest['scores'].items():
+            if row.get('retarget'):
+                continue
             header = (ROOT / f'Source/audio/score/{name}.lua').read_text().split('notes=', 1)[0]
             self.assertIn(f'ticks={row["ticks"]}', header)
             if row.get('parts'):
@@ -170,6 +182,8 @@ class AudioEventTests(unittest.TestCase):
         manifest = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())
         label_pcs, loop_pcs = _sound_loop_targets(self.catalog)
         for name, row in manifest['scores'].items():
+            if row.get('retarget'):
+                continue
             basis = row.get('loop_basis')
             if basis not in ('label', 'joint', 'parts', 'state'):
                 continue
@@ -226,6 +240,24 @@ class AudioEventTests(unittest.TestCase):
             trace.load(asset)
             trace.run()
             self.assertLess(min(note[2] for note in trace.notes), 3)
+
+
+    def test_alternate_tempo_entries_are_separate_scores(self):
+        import json
+        manifest = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())
+        expected = {
+            'cities1_oak': ('Music_Cities1_Ch1_AlternateTempo', 'cities1'),
+            'meet_rival_slow': ('Music_MeetRival_Ch1_AlternateTempo', 'meet_rival'),
+            'meet_rival_league': ('Music_MeetRival_Ch1_AlternateStartAndTempo', 'meet_rival'),
+        }
+        for name, (entry, base) in expected.items():
+            text = (ROOT / f'Source/audio/score/{name}.lua').read_text()
+            self.assertIn('-- channel entry ' + entry, text)
+            self.assertEqual(manifest['scores'][name]['retarget'], entry)
+            self.assertNotEqual(manifest['scores'][name]['ticks'], manifest['scores'][base]['ticks'])
+        fall = (ROOT / 'Source/audio/score/faint_fall.lua').read_text()
+        self.assertIn('audio2:SFX_Faint_Fall', fall)
+        self.assertIn('loop=nil', fall)
 
 
 class AudioBootTests(unittest.TestCase):

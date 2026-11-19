@@ -55,6 +55,7 @@ ASSETS = {
     'menu': 'audio2:SFX_Press_AB_2', 'text': 'audio1:SFX_Press_AB_1',
     'start_menu': 'audio1:SFX_Start_Menu_1',
     'hit': 'audio2:SFX_Damage', 'faint': 'audio2:SFX_Faint_Thud',
+    'faint_fall': 'audio2:SFX_Faint_Fall',
     'go_inside': 'audio1:SFX_Go_Inside_1', 'go_outside': 'audio1:SFX_Go_Outside_1',
     'ledge': 'audio1:SFX_Ledge_1', 'cut': 'audio1:SFX_Cut_1',
     'boulder': 'audio1:SFX_Push_Boulder_1',
@@ -68,6 +69,30 @@ ASSETS = {
 }
 # Press-AB chirps whose source gates are shorter than one 30FPS frame.
 CHIRPS = {'menu', 'text', 'start_menu'}
+# audio/alternate_tempo.asm plays a normal header, then overwrites channel
+# pointers. These are not their own songs.asm rows, so they stay out of ASSETS
+# and out of the map-route inverse.
+ALT_SCORES = {
+    'cities1_oak': (
+        'audio1:Music_Cities1',
+        {1: 'Music_Cities1_Ch1_AlternateTempo'},
+        'Music_Cities1_Ch1_AlternateTempo',
+    ),
+    'meet_rival_slow': (
+        'audio1:Music_MeetRival',
+        {1: 'Music_MeetRival_Ch1_AlternateTempo'},
+        'Music_MeetRival_Ch1_AlternateTempo',
+    ),
+    'meet_rival_league': (
+        'audio1:Music_MeetRival',
+        {
+            1: 'Music_MeetRival_Ch1_AlternateStartAndTempo',
+            2: 'Music_MeetRival_Ch2_AlternateStart',
+            3: 'Music_MeetRival_Ch3_AlternateStart',
+        },
+        'Music_MeetRival_Ch1_AlternateStartAndTempo',
+    ),
+}
 # A joint label loop longer than this becomes one part per channel.
 # Cinnabar Mansion's channel periods meet again at tick 1788480.
 JOINT_LOOP_LIMIT = 20000
@@ -425,6 +450,8 @@ def _score_summary(score):
              'notes': len(part['notes'])}
             for part in score['parts']
         ]
+    if score.get('retarget'):
+        summary['retarget'] = score['retarget']
     return summary
 
 
@@ -462,6 +489,8 @@ def emit_score(name, score):
         '-- shape, when present: {p=attack period, s={current,target,step,fraction,decreasing}, v={delay,depth,rate,low,direction}}',
         '-- s is Audio1_InitPitchSlideVars; v is the Audio1 vibrato counters at note-on',
     ]
+    if score.get('retarget'):
+        lines.append('-- channel entry ' + score['retarget'])
     if score.get('adapted'):
         lines.append('-- adapted: gates lengthened so a 30FPS observer cannot drop the chirp')
     if score.get('loop_basis') == 'parts':
@@ -481,6 +510,22 @@ def emit_score(name, score):
         lines.append('}}')
     lines.append('')
     return '\n'.join(lines).encode()
+
+
+def _trace_retarget(catalog, asset, entries, label_pcs, loop_pcs, cited):
+    """Trace a header after alternate_tempo.asm overwrites channel pointers."""
+    header = catalog.headers[asset]
+    saved = header['channels']
+    header['channels'] = [dict(channel) for channel in saved]
+    for channel in header['channels']:
+        if channel['channel'] in entries:
+            channel['entry'] = entries[channel['channel']]
+    try:
+        _trace, score = _trace_score(catalog, asset, label_pcs, loop_pcs)
+    finally:
+        header['channels'] = saved
+    score['retarget'] = cited
+    return score
 
 
 def _trace_score(catalog, asset, label_pcs, loop_pcs):
@@ -523,6 +568,8 @@ def generate(source):
         trace, score = _trace_score(catalog, asset, label_pcs, loop_pcs)
         scores[name] = maybe_adapt(name, score)
         waves.update(trace.waves)
+    for name, (asset, entries, cited) in ALT_SCORES.items():
+        scores[name] = _trace_retarget(catalog, asset, entries, label_pcs, loop_pcs, cited)
     routes = map_routes(catalog)
     active = checkpoint_maps()
     source_songs = {'pokered:'+row['map']: row['asset'] for row in catalog.maps}

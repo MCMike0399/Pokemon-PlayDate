@@ -669,7 +669,7 @@
   "menu_adaptation": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
   "revision": "af519899719f0754965776faac0e836a3b906e6d",
   "schema": 3,
-  "score_sha256": "d4602aecf1c91836756624b9f6ec68b62c8a45b95bde9756e11d9088e0a5dbca",
+  "score_sha256": "0344e0d08e45849ddfb257d229ce8da95266d703513f219b4685736d0bcc2c89",
   "scores": {
     "alarm": {
       "adapted": false,
@@ -738,6 +738,15 @@
       "loop_basis": "label",
       "notes": 607,
       "ticks": 3456
+    },
+    "cities1_oak": {
+      "adapted": false,
+      "asset": "audio1:Music_Cities1",
+      "loop": 0,
+      "loop_basis": "state",
+      "notes": 607,
+      "retarget": "Music_Cities1_Ch1_AlternateTempo",
+      "ticks": 5568
     },
     "cities2": {
       "adapted": false,
@@ -822,6 +831,13 @@
       "loop": null,
       "notes": 4,
       "ticks": 31
+    },
+    "faint_fall": {
+      "adapted": false,
+      "asset": "audio2:SFX_Faint_Fall",
+      "loop": null,
+      "notes": 1,
+      "ticks": 17
     },
     "final": {
       "adapted": false,
@@ -1044,6 +1060,24 @@
       "notes": 197,
       "ticks": 1018
     },
+    "meet_rival_league": {
+      "adapted": false,
+      "asset": "audio1:Music_MeetRival",
+      "loop": 84,
+      "loop_basis": "state",
+      "notes": 173,
+      "retarget": "Music_MeetRival_Ch1_AlternateStartAndTempo",
+      "ticks": 834
+    },
+    "meet_rival_slow": {
+      "adapted": false,
+      "asset": "audio1:Music_MeetRival",
+      "loop": 159,
+      "loop_basis": "state",
+      "notes": 197,
+      "retarget": "Music_MeetRival_Ch1_AlternateTempo",
+      "ticks": 909
+    },
     "menu": {
       "adapted": true,
       "asset": "audio2:SFX_Press_AB_2",
@@ -1224,11 +1258,11 @@
   "target": "Playdate synth adaptation",
   "tools_sha256": {
     "tools/audio/catalog.py": "52f6d57d510d88130eb4e1d2791c14464769ef2af428b35362dfe9c5256991b2",
-    "tools/audio/scores.py": "bcadb9624ae8923c852326a9589237baceeaacf00a35d1598e467fee51466129",
+    "tools/audio/scores.py": "fda7e9fb6adc4bb27e6a0296cba90b9d901eec1f1bf6946d872673f624237448",
     "tools/audio/source.py": "73ce33da16d31bbd0bfede9ea54176092ffe60ee399cd7a33a7545aef83c60b5",
     "tools/audio/trace.py": "eae8e251d5f3390cd3bff279e1f69884877439b8f96c5c495c9672839a7693bd"
   },
-  "total_notes": 19581,
+  "total_notes": 20559,
   "waveforms": {
     "audio1-wave0": {
       "path": "Source/audio/waves/audio1-wave0.wav",

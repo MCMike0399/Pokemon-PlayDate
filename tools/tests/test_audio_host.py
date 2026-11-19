@@ -263,6 +263,41 @@ class ObserverGapTests(unittest.TestCase):
         calls = observe('meet-oak')
         self.assertEqual([call for call in calls if call == ('jingle', 'meet_oak')], [('jingle', 'meet_oak')])
 
+    def test_champion_oak_plays_the_slow_cities1_bed(self):
+        calls = observe('oak-arrival')
+        self.assertEqual(
+            [call for call in calls if call[0] == 'music'],
+            [('music', 'indigo'), ('music', 'cities1_oak')],
+        )
+
+    def test_route22_rival_uses_the_alternate_rival_beds(self):
+        walk = observe('route22-walk')
+        self.assertEqual(
+            [call for call in walk if call[0] == 'music'],
+            [('music', 'routes3'), ('music', 'meet_rival_slow')],
+        )
+        league = observe('route22-league')
+        self.assertEqual(
+            [call for call in league if call[0] == 'music'],
+            [('music', 'routes3'), ('music', 'meet_rival_league')],
+        )
+
+    def test_trainer_faint_plays_fall_then_thud(self):
+        calls = observe('faint-trainer')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx[0], 'faint_fall')
+        self.assertIn('faint', sfx[1:])
+        self.assertLess(sfx.index('faint_fall'), sfx.index('faint'))
+        wild = [call[1] for call in observe('faint-wild') if call[0] == 'sfx']
+        self.assertEqual(wild, ['faint'])
+
+    def test_hall_photo_and_credits_change_the_bed(self):
+        calls = observe('ceremony')
+        music = [call for call in calls if call[0] == 'music']
+        # songs.asm gives the hall the Pallet bed. AnimateHallOfFame replaces
+        # it, and HallOfFamePC then starts the credits.
+        self.assertEqual(music, [('music', 'pallet'), ('music', 'hall_of_fame'), ('music', 'credits')])
+
 
 if __name__ == '__main__':
     unittest.main()

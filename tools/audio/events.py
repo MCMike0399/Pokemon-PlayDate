@@ -17,7 +17,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tools.audio.catalog import Catalog
-from tools.audio.scores import ASSETS, map_routes
+from tools.audio.scores import ALT_SCORES, ASSETS, map_routes
 from tools.audio.source import AudioError, Source
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -79,6 +79,14 @@ CUES = (
     ('start_menu', 'start_menu', 'sfx', 'home/start_menu.asm', 'SFX_START_MENU'),
     ('hit', 'hit', 'sfx', 'engine/battle/animations.asm', 'SFX_DAMAGE'),
     ('faint', 'faint', 'sfx', 'engine/battle/core.asm', 'SFX_FAINT_THUD'),
+    # FaintEnemyPokemon waits for this, then plays the thud. Wild wins skip it.
+    ('faint_fall', 'faint_fall', 'sfx', 'engine/battle/core.asm', 'SFX_FAINT_FALL'),
+    # ChampionsRoomOakArrivesScript fades out, then Cities1 at tempo 232.
+    ('cities1_oak', 'cities1_oak', 'music', 'audio/alternate_tempo.asm', 'Music_Cities1AlternateTempo'),
+    # Route22SecondRivalBattleScript, while the rival walks in.
+    ('meet_rival_slow', 'meet_rival_slow', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateTempo'),
+    # Route22 rival2 exit: alternate start on ch1-3, then the slower ch1 entry.
+    ('meet_rival_league', 'meet_rival_league', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateStartAndTempo'),
     ('go_inside', 'go_inside', 'sfx', 'home/overworld.asm', 'SFX_GO_INSIDE'),
     ('go_outside', 'go_outside', 'sfx', 'home/overworld.asm', 'SFX_GO_OUTSIDE'),
     ('ledge', 'ledge', 'sfx', 'engine/overworld/ledges.asm', 'SFX_LEDGE'),
@@ -273,7 +281,7 @@ def build(source_path):
     female = _list_until_end(source, 'data/trainers/encounter_types.asm', 'FemaleTrainerList::')
     cues = {}
     for name, score, kind, path, token in CUES:
-        if score not in ASSETS:
+        if score not in ASSETS and score not in ALT_SCORES:
             raise AudioError(f'cue {name} uses unknown score {score}')
         cues[name] = {
             'score': score,

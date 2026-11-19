@@ -19,6 +19,7 @@ local serial = 0
 -- faint (1) therefore blocks menu (3); equal numbers replace.
 local priorities <const> = {
     faint = 1,
+    faint_fall = 1,
     flute = 1,
     hit = 2,
     arrow_tiles = 2,

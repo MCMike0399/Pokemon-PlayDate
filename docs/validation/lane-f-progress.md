@@ -118,3 +118,24 @@ These still need a lane E call site. They are one unapplied patch, `tools/notes/
 | Key-item fanfare | `SFX_GET_KEY_ITEM` (`sound_get_key_item`). |
 | Badge fanfare | `SFX_GET_KEY_ITEM`. Gym scripts write `sound_level_up`, an alias of `sound_get_item_1`; the fanfare that plays is the key-item score. |
 | Meet Oak | `MUSIC_MEET_PROF_OAK` (`scripts/PalletTown.asm`). |
+
+## Credits path, Nov 19
+
+Elite Four battle music was already the pokered choice: Lorelei, Bruno, and Agatha are trainer battles (`defeated_trainer` on a win), Lance is gym-leader battle music, and the champion (`OPP_RIVAL3`) is `Music_FinalBattle` with the gym-leader victory bed. Their room songs were already the `songs.asm` rows: Lorelei `Music_Gym`, Bruno `Music_Dungeon1`, Agatha `Music_PokemonTower`, Lance and the champion `Music_IndigoPlateau`. The Hall of Fame map bed is `Music_PalletTown`. `AnimateHallOfFame` replaces it with `Music_HallOfFame`, and `HallOfFamePC` then plays `Music_Credits`. The observer starts those two when it sees phase `hall-photo` and `credits`. Party cries are `EndgameStory.playCry` of each photo's species. The player photo and the credits roll have no cry. Pokered's dex-rating fanfare does not play during the Hall of Fame (`EVENT_HALL_OF_FAME_DEX_RATING` returns before `PlayPokedexRatingSfx`).
+
+New scores, traced with the channel pointers from `audio/alternate_tempo.asm`:
+
+| Cue | What it covers |
+| --- | --- |
+| `faint_fall` | `SFX_FAINT_FALL` (`audio2:SFX_Faint_Fall`). `FaintEnemyPokemon` plays it, waits, then `SFX_FAINT_THUD` (`engine/battle/core.asm`). Trainer and champion enemy faints, including the Elite Four. A wild win does not play it. |
+| `cities1_oak` | `Music_Cities1AlternateTempo`. Channel 1 is tempo 232 into `Music_Cities1_Ch1.body`; the other channels stay on the Cities1 header. Oak's arrival in the champion room. |
+| `meet_rival_slow` | `Music_RivalAlternateTempo`. Channel 1 is tempo 100. The second Route 22 rival, while that object walks in. |
+| `meet_rival_league` | `Music_RivalAlternateStartAndTempo`. Channels 1–3 use the alternate start, and channel 1 then uses the slower start. The "That loosened me up!" page after that rival. |
+
+Still missing, and not given a hook here:
+
+- `Music_RivalAlternateStart` on the earlier rival exits (Oak's lab, the first Route 22 battle, Cerulean, the Pokémon Tower, SS Anne, Silph). Those scripts are not a visible phase on this credits path.
+- Move-pitched uses of `SFX_FAINT_FALL` (Agility, Kinesis, Transform, Dizzy Punch). The score is the unpitched header.
+- `SFX_INTRO_LUNGE`, `SFX_SHOOTING_STAR`, teleport enter/exit, and `SFX_BALL_POOF`.
+- Text cries `sound_cry_nidorina`, `sound_cry_pidgeot`, and the unused `sound_cry_dewgong`.
+- Hall of Fame cries and the flute, spinner, and denied cues still need the lane E import. `tools/notes/lane-e-audio-gaps.patch` is unapplied. The coverage-matrix fingerprint is `tools/notes/lane-e-coverage-fingerprint.patch` (`ff2514c59e73f50bccb2693a8d61b292be493ebaf5c4ae44e607c428a54de668`). This lane does not rewrite that snapshot.

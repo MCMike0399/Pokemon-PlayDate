@@ -27,6 +27,12 @@ local TITLE_WHOOSH_FRAME <const> = 68
 local TITLE_MUSIC_FRAME <const> = 102
 -- Story.OAK_STOP's first line. Visible on the dialog; no intro getter.
 local MEET_OAK_LINE <const> = "OAK: Hey! Wait! Don't go out!"
+-- ChampionsRoomOakArrivesScript. The rendered line substitutes the player name.
+local OAK_ARRIVAL_PREFIX <const> = "OAK:"
+-- Route22SecondRivalBattleScript walks this object in on the slow rival bed.
+local ROUTE22_RIVAL <const> = "pokered:ROUTE_22:objects:2"
+-- First page of _Route22RivalAfterBattleText2. The exit music starts after it.
+local ROUTE22_LEAGUE_LINE <const> = "That loosened me"
 
 local function battleInfo(battle, zone)
     return {
@@ -348,6 +354,7 @@ function KantoAudio.updateGame(game)
             local hp = observer.hp
             local hit = false
             local faint = false
+            local enemyFaint = false
             for _, mon in ipairs({battle.player, battle.enemy}) do
                 if mon and type(mon.hp) == "number" then
                     local before = hp[mon]
@@ -355,6 +362,9 @@ function KantoAudio.updateGame(game)
                         hit = true
                         if mon.hp <= 0 then
                             faint = true
+                            if mon == battle.enemy then
+                                enemyFaint = true
+                            end
                         end
                     end
                     hp[mon] = mon.hp
@@ -386,7 +396,21 @@ function KantoAudio.updateGame(game)
                 KantoAudio.playCue("caught")
             end
 
-            if faint then
+            -- FaintEnemyPokemon (core.asm) waits out SFX_FAINT_FALL, then
+            -- plays SFX_FAINT_THUD. A wild win skips the fall and plays the
+            -- victory bed instead. The player's own faint is the thud alone.
+            if observer.pendingThud then
+                observer.pendingThud = observer.pendingThud - 1
+                if observer.pendingThud <= 0 then
+                    observer.pendingThud = nil
+                    KantoAudio.playSFX("faint")
+                end
+            end
+            if enemyFaint and not info.wild then
+                KantoAudio.playSFX("faint_fall")
+                observer.pendingThud = math.max(1, math.ceil(KantoSynth.scoreTicks("faint_fall") * tickSeconds * 30))
+            elseif faint then
+                observer.pendingThud = nil
                 KantoAudio.playSFX("faint")
             elseif hit then
                 KantoAudio.playSFX("hit")
@@ -469,7 +493,7 @@ function KantoAudio.updateGame(game)
             end
         end
 
-        if top and top.name == "dialog" and top.lines and not observer.meetOak then
+        if top and top.name == "dialog" and top.lines then
             local line = top.lines[1]
             if type(line) == "table" then
                 line = line.text
@@ -477,10 +501,32 @@ function KantoAudio.updateGame(game)
             local zoneId = currentZone and currentZone.stableID
             local pallet = zoneId == "pokered:PALLET_TOWN"
                 or KantoEvents.aliases[zoneId] == "pokered:PALLET_TOWN"
-            if pallet and line == MEET_OAK_LINE then
+            if not observer.meetOak and pallet and line == MEET_OAK_LINE then
                 observer.meetOak = true
                 KantoAudio.playJingle("meet_oak")
             end
+            -- alternate_tempo.asm Music_Cities1AlternateTempo. Channel 1 is
+            -- tempo 232; the other channels stay on the Cities1 header.
+            local champions = zoneId == "pokered:CHAMPIONS_ROOM"
+                or KantoEvents.aliases[zoneId] == "pokered:CHAMPIONS_ROOM"
+            if champions and type(line) == "string" and line:sub(1, #OAK_ARRIVAL_PREFIX) == OAK_ARRIVAL_PREFIX
+                and not observer.oakArrival then
+                observer.oakArrival = true
+                KantoAudio.playCue("cities1_oak")
+            end
+            local route22 = zoneId == "pokered:ROUTE_22"
+                or KantoEvents.aliases[zoneId] == "pokered:ROUTE_22"
+            if route22 and type(line) == "string" and line:sub(1, #ROUTE22_LEAGUE_LINE) == ROUTE22_LEAGUE_LINE
+                and not observer.route22League then
+                observer.route22League = true
+                KantoAudio.playCue("meet_rival_league")
+            end
+        end
+
+        -- Music_RivalAlternateTempo while the second Route 22 rival walks in.
+        if event and event.id == ROUTE22_RIVAL and event.phase == "move-npc" and not observer.route22Tempo then
+            observer.route22Tempo = true
+            KantoAudio.playCue("meet_rival_slow")
         end
 
         local pc = game.machine:get("pc")

@@ -319,6 +319,52 @@ local function observe(kind)
         currentZone = {stableID = "pallet_town"}
         KantoAudio.updateGame(game)
         KantoAudio.updateGame(game)
+    elseif kind == "oak-arrival" then
+        local dialog = {name = "dialog", lines = {"OAK: RED!"}}
+        local game = gameWith({{name = "overworld"}, dialog})
+        currentZone = {stableID = "pokered:CHAMPIONS_ROOM"}
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "route22-walk" then
+        local event = {name = "event", id = "pokered:ROUTE_22:objects:2", phase = "move-npc"}
+        local game = gameWith({{name = "overworld"}, event})
+        currentZone = {stableID = "pokered:ROUTE_22"}
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "route22-league" then
+        local dialog = {name = "dialog", lines = {"That loosened me up! I'm ready for"}}
+        local game = gameWith({{name = "overworld"}, dialog})
+        currentZone = {stableID = "pokered:ROUTE_22"}
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "faint-trainer" then
+        local enemy = {hp = 20, maxHP = 20, species = "dewgong"}
+        local player = {hp = 40, maxHP = 40, species = "bulbasaur", level = 50}
+        local battle = {trainerName = "LORELEI", trainerClass = "OPP_LORELEI", enemy = enemy, player = player}
+        local game = gameWith({{name = "battle", battle = battle}})
+        currentZone = {stableID = "pokered:LORELEIS_ROOM"}
+        KantoAudio.updateGame(game)
+        enemy.hp = 0
+        for _ = 1, 12 do
+            KantoAudio.updateGame(game)
+        end
+    elseif kind == "faint-wild" then
+        local enemy = {hp = 12, maxHP = 12, species = "rattata"}
+        local player = {hp = 20, maxHP = 20, species = "pikachu", level = 5}
+        local battle = {enemy = enemy, player = player}
+        local game = gameWith({{name = "battle", battle = battle}})
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+        enemy.hp = 0
+        KantoAudio.updateGame(game)
+    elseif kind == "ceremony" then
+        local event = {name = "event", phase = "hall-photo"}
+        local game = gameWith({{name = "overworld"}, event})
+        currentZone = {stableID = "pokered:HALL_OF_FAME"}
+        KantoAudio.updateGame(game)
+        event.phase = "credits"
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
     else
         error("unknown observe " .. tostring(kind))
     end
