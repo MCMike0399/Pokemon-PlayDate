@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Elite Four pictures and the battle intro font
+
+Lorelei, Bruno, Agatha, and Lance keep `OPP_LORELEI`, `OPP_BRUNO`, `OPP_AGATHA`, and `OPP_LANCE`. The Champion keeps `OPP_RIVAL3` and the Route 22 rematch keeps `OPP_RIVAL2`. Those classes reach the trainer row, so the intro loads `images/title/trainers/<class>`. A finished battle line stays in the GB font: `advance` steps past the last page, and the settled draw uses that page. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Earth Badge prize keeps the yen
 
 Giovanni's payout text is stored as UTF-8 `<PLAYER> got ¥@`. Charmap yen is `$f0`, tile 112, and `TitleIdle.glyph` maps it. `SourceText.expand` accepts that text, so the reward event can save the Earth Badge. The Victory Road POKéMANIAC name is UTF-8 as well. Mart prices, the daycare and bicycle money windows, the vending money line, the bicycle and drink menu prices, and the Hall of Fame money row draw that figure through `GbFont`. The PC storage screens do not draw a balance. `MallocPoolSize` stays 16645684.

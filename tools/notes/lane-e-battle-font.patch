@@ -1,0 +1,44 @@
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -415,6 +415,9 @@
+ 
+ function BattleScene:draw()
+     if self.captureClosed then return end
++    -- Enter sets the intro line before this frame's update. Syncing here
++    -- opens the GB text instead of painting that line with the system font.
++    self:syncMessage()
+     -- A dialog pushed over the battle applies the overworld camera when it
+     -- finishes drawing. This field is screen space, so draw it from the origin
+     -- or the player's sprite and HUD slide off the top.
+@@ -671,9 +674,10 @@
+         -- Word-wrapped inside the frame so long messages never escape
+         if self.messageDialog.isActive then
+             self.messageDialog:draw()
+-        else
+-            local message = self.battle.message or ""
+-            self:_wrapped("battle-message", message, 374, 44).image:draw(14, boxY + 10)
++        elseif self.messageDialog.lines and self.messageDialog.lines[self.messageDialog.currentLine] then
++            -- A dismisses the typewriter and leaves battle.message set through
++            -- the trainer exit and the send-out. Keep that page in the GB font.
++            self.messageDialog:draw(true)
+         end
+     end
+     end
+
+--- a/Source/ui/dialog.lua
++++ b/Source/ui/dialog.lua
+@@ -216,8 +216,12 @@
+     end
+ end
+ 
+-function Dialog:draw()
+-    if not self.isActive then return end
++function Dialog:draw(settled)
++    local line = self.lines[self.currentLine]
++    -- Battle narration keeps the finished page in this font. Callers that
++    -- omit settled still draw only while the typewriter is active.
++    if not self.isActive and not (settled and line and self.charIndex >= #line) then return end
++    if not line then return end
+     local ox, oy = gfx.getDrawOffset()
+     gfx.setDrawOffset(0, 0)
+     -- The 20 by 13 map ends at y 234. Cover the rest so a battle message bar

@@ -216,8 +216,15 @@ function Dialog:advance()
     end
 end
 
-function Dialog:draw()
-    if not self.isActive then return end
+function Dialog:draw(settled)
+    local line = self.lines[self.currentLine]
+    -- advance() steps past the last page and clears isActive. A settled
+    -- caller still wants that finished page, in this font, until the next line.
+    if not line and settled and not self.isActive and #self.lines > 0 then
+        line = self.lines[#self.lines]
+    end
+    if not self.isActive and not (settled and line) then return end
+    if not line then return end
     local ox, oy = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
     -- The 20 by 13 map ends at y 234. Cover the rest so a battle message bar
@@ -228,7 +235,7 @@ function Dialog:draw()
     -- Text is placed at bccoord 1, 14. The second row is hlcoord 1, 16.
     -- constants/charmap.asm puts ▼ at $ee, and PromptText writes it at 18, 16.
     GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
-    local shown = string.sub(self.lines[self.currentLine], 1, self.charIndex)
+    local shown = self.isActive and string.sub(line, 1, self.charIndex) or line
     local row1, row2 = shown, nil
     local newline = shown:find("\n", 1, true)
     if newline then
@@ -246,8 +253,7 @@ function Dialog:draw()
     end
     if row1 ~= "" then GbFont.drawString(clip(row1), 1, 14) end
     if row2 and row2 ~= "" then GbFont.drawString(clip(row2), 1, 16) end
-    local line = self.lines[self.currentLine]
-    if self.arrows[self.currentLine] and self.charIndex >= #line
+    if self.isActive and self.arrows[self.currentLine] and self.charIndex >= #line
         and math.floor(self.blinkTimer / 15) % 2 == 0 then
         GbFont.drawChar("▼", 18, 16)
     end
