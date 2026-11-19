@@ -176,7 +176,10 @@ local function textAdvance(top, menu)
     if top.name == "dialog" then
         return true
     end
-    if top.dialog and top.dialog.isActive then
+    -- Event and learning states expose dialog() as a method. Only a
+    -- presentation object can be active.
+    local spoken = top.dialog
+    if type(spoken) == "table" and spoken.isActive then
         return true
     end
     local scene = top.scene

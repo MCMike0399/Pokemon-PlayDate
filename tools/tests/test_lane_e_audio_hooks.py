@@ -33,6 +33,11 @@ class LaneEAudioHookTests(unittest.TestCase):
         self.assertIn('KantoAudio.playSFX("arrow_tiles")', event)
         self.assertEqual(flute.count('KantoAudio.playCue("flute")'), 1)
 
+    def test_text_advance_does_not_index_a_dialog_method(self):
+        audio = (ROOT / 'Source/game/kantoAudio.lua').read_text()
+        self.assertIn('type(spoken) == "table" and spoken.isActive', audio)
+        self.assertNotIn('top.dialog and top.dialog.isActive', audio)
+
 
 if __name__ == '__main__':
     unittest.main()
