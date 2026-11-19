@@ -2192,6 +2192,10 @@ class CharmanderRun(BrockJourney):
         if not self._on("CinnabarIsland"):
             raise ProtocolError("Cinnabar Center did not open onto the island: " + self._map_name() + " " + str(self.position()))
         self.warp(self.zone("CinnabarGym"), "pokered:CINNABAR_ISLAND:warps:2")
+        # Coast gym leaders are not in the early pinned trainer export. The
+        # payout is the class base times the last Pokémon's level.
+        for index, payout in enumerate((4653, 900, 3240, 850, 3690, 1025, 3330, 925), start=1):
+            self.source_trainers["pokered:CINNABAR_GYM:objects:" + str(index)] = {"payout": payout}
         for stand, answer, number in (
             ((15, 8), "yes", 1), ((10, 2), "no", 2), ((9, 8), "no", 3),
             ((9, 14), "no", 4), ((1, 14), "yes", 5), ((1, 8), "no", 6),
