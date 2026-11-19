@@ -2242,14 +2242,26 @@ class CharmanderRun(BrockJourney):
             return
         zone = self._map_name()
         if "CINNABAR" in zone or "MANSION" in zone:
-            if not self._on("CinnabarIsland"):
+            if self._on("CinnabarPokecenter"):
+                self.navigate((3, 6))
+                self.send("press down", "wait 15")
+                self.drain()
+                if self._on("CinnabarPokecenter"):
+                    self.send("press down", "wait 15")
+                    self.drain()
+            elif not self._on("CinnabarIsland"):
                 self.warp(self.zone("CinnabarIsland"))
             self.navigate((4, 4))
             self.face("left")
             index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
             if self.model().collision[self.position()[1]][self.position()[0]] == 0:
                 self.use_field(index, "surf")
-            self._surf_press("up", 6)
+            # Arrival surfing stops on Cinnabar. Leaving has to keep the button down.
+            for _ in range(8):
+                if not self._on("CinnabarIsland"):
+                    break
+                self.send("press up", "wait 10")
+                self.drain()
         if self._on("Route21"):
             if self.position() != (3, 89):
                 self._surf_press("up", max(0, self.position()[1] - 23))
