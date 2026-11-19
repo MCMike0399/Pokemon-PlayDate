@@ -2372,6 +2372,8 @@ class CharmanderRun(BrockJourney):
                 self._giovanni_once()
                 return
             except NaturalBlackout:
+                if self.state.get("root") == "dialog":
+                    self.dialog()
                 self._arrange_lead("starter")
         raise ProtocolError("Giovanni walk blacked out")
 
@@ -3036,6 +3038,21 @@ class CharmanderRun(BrockJourney):
         label = key_fight(name, trainer_id if trainer_battle else None)
         recorder = getattr(self, "record_fight", None)
         started = recorder(label) if recorder and label else None
+        import tools.harness.brock_journey as journey
+        original_choice = journey.choose_move
+
+        def pick(moves, level=None):
+            enemy = (self.state.get("battle") or {}).get("enemy") or {}
+            # Growlithe's Flash Fire absorbs Charizard's fire moves. The type
+            # chart still calls them not-very-effective, so the damage score
+            # would keep selecting Flamethrower.
+            if enemy.get("species") == "growlithe":
+                covered = [move for move in moves if move.get("type") != "fire"]
+                if covered:
+                    moves = covered
+            return original_choice(moves, level)
+
+        journey.choose_move = pick
         try:
             try:
                 result = super().battle(name, strategy, expected)
@@ -3047,6 +3064,7 @@ class CharmanderRun(BrockJourney):
                 CeruleanJourney.record_source_outcome(self, trainer_id)
             return result
         finally:
+            journey.choose_move = original_choice
             if started:
                 started()
 
