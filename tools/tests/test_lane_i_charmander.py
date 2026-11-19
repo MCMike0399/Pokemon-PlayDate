@@ -253,17 +253,21 @@ class CharmanderRun(BrockJourney):
         self.summary["build_evidence"] = str(self.build_evidence)
 
     def _open_continued_menu(self):
-        """The title picture waits for A. The menu does not open by itself."""
+        """Copyright ignores A. The star and the fight skip, then the picture needs A."""
         self.send({"op": "await", "path": "root", "equals": "title", "frames": 1200})
-        for _ in range(12):
+        if lookup(self.state, "title.phase") == "intro":
+            self.send("wait 260")
+            self.send("press a", "wait 8")
+            self.send("press a", "wait 20")
+        for _ in range(16):
             phase = lookup(self.state, "title.phase")
             if phase == "menu":
                 self.send("wait 24")
                 return
-            if phase in {"title", "intro"}:
-                self.send("press a", "wait 15")
+            if phase == "title":
+                self.send("press a", "wait 12")
             else:
-                self.send("wait 15")
+                self.send("wait 20")
         phase = lookup(self.state, "title.phase")
         if phase != "menu":
             raise ProtocolError("title did not open the menu: " + str(phase))
