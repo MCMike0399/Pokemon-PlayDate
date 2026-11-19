@@ -1537,7 +1537,7 @@ class CharmanderRun(BrockJourney):
             self._surf_from_pallet()
             self._mansion_and_blaine()
             return
-        if "ROUTE_19" in zone or "ROUTE_20" in zone:
+        if "ROUTE_19" in zone or "ROUTE_20" in zone or "SEAFOAM" in zone:
             self._surf_coast()
             self._mansion_and_blaine()
             return
