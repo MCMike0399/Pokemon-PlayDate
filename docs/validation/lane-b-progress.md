@@ -1634,3 +1634,65 @@ Venusaur is 61 at 191/191. Bellsprout is 24, Pidgeotto is 35, Drowzee
 is 24, Sandshrew is 14, and Poliwag is 24. Money is 597. The fight
 clips are `20261119T203842Z-elite-lorelei.mp4` and
 `20261119T204111Z-elite-lorelei.mp4` under `/opt/cursor/artifacts/lane-b/`.
+
+## Lorelei retry is not a real win
+
+Sequence 637 stays the continue point. Plan (a) does not win under
+Gen V damage and Lorelei's move scores (`trainerLayers.LORELEI` is
+`{1, 2, 3}`). The blackout is the next real-input step: let the loss
+save, then train on wild encounters around Victory Road, Route 23,
+and Viridian, earn money, and buy Revives plus Hyper Potions or Full
+Restores at the Indigo lobby before entering again. No save edits,
+no teleports, no gifted items.
+
+Venusaur is Sassy, 191 HP, Attack 123, Speed 133. His moves are
+Petal Dance, Take Down, Razor Leaf, and Double-Edge. Leech Seed and
+Sleep Powder are not in those four, and there is no move relearner.
+Razor Leaf into the Blue trainer IVs (16/18/16) is 92–110 versus
+Dewgong's 169, 48–56 versus Cloyster's 124, and 68–84 versus
+Slowbro's 175. He outspeeds all three (89, 87, and 46).
+
+Dewgong's last four moves are Sheer Cold, Take Down, Dive, and Aqua
+Tail. Sheer Cold is ice, so the super-effective layer prefers it, and
+it is a 30% OHKO. Cloyster's last four are Aurora Beam, Spike Cannon,
+Spikes, and Icicle Crash. Aurora Beam is 54–66 and Icicle Crash is
+90–108, both ice, so they tie for the preferred score. Venusaur needs
+three Razor Leaves, so Cloyster lands two hits. Two Icicle Crashes
+are 180–216 into 191 HP. The logged fight spent the HP bar before
+Slowbro. Slowbro's last four are Slack Off, Withdraw, Amnesia, and
+Psychic. Psychic is 43–52 into Venusaur. On turn 0 the setup layer
+prefers Withdraw or Amnesia. After that, Slack Off heals half.
+
+Bellsprout is level 24, 58 HP, Speed 25, with Sleep Powder at 75%.
+Slowbro's Psychic is 252 into that 58, and Slowbro is faster, so the
+powder only exists on a turn Slowbro does not attack. Drowzee is
+level 24, Speed 24, and his moves are Flash, Disable, Confusion, and
+Headbutt. He has no Hypnosis. Pidgeotto is level 35, Speed 62, so he
+does move before Slowbro, but Gust is 10–13 into 175 HP and Psychic
+is 115 into his 96. Poliwag knows Hypnosis and is Speed 52, and
+Psychic is 240 into his 53. The bag has one Full Heal and no HP
+item. Money is 597. Revive is 1500 and Full Restore is 3000.
+
+Lane E's Lance walk is on `cursor/lane-e-integration` at `ff780744`.
+Merge that tip before entering Lance's room. It is not needed for
+Lorelei, Bruno, or Agatha.
+
+`20261119T204111Z-elite-lorelei.mp4` is 400×240 at 25 fps. Frames
+through the iris show the GB text page and an empty enemy platform.
+About one second in, the same "LORELEI wants to battle!" line is
+still up and the box has switched to the system font: one
+proportional line, ink about 14px tall, while the GB page uses 20px
+tiles on two rows. That hold lasts through the trainer exit. It is
+the `_wrapped` fallback in `BattleScene:drawBattleField`. Enter also
+sets the line before `syncMessage`, so the first paint can take the
+same path. The handoff is `tools/notes/lane-e-battle-font.patch`
+with `tools/tests/test_lane_e_battle_font.py`. It is not applied.
+
+The empty platform is the missing class, not a missing sheet.
+`images/title/trainers/` already has LORELEI, BRUNO, AGATHA, LANCE,
+and RIVAL3. `trainerRow` does not copy `class_source`, and the
+champion row is built without `champ.class_source`, so
+`BattleState.trainerClassFor` returns nil and `drawTrainer` returns.
+The Route 22 rival row drops `rival.class_source` the same way. The
+handoff is `tools/notes/lane-e-trainer-pic.patch` with
+`tools/tests/test_lane_e_trainer_pic.py`. It is not applied.
