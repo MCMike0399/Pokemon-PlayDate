@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-19 Pallet Fly alias
+
+Saves written before the cutover keep `pallet_town` in `fieldTravel.visited`. Fly's table allows only `pokered:PALLET_TOWN`, so `FieldTravel.normalize` rejected the save and the title offered no CONTINUE. Normalize now rewrites that saved id onto the existing Pallet slot at (5, 6). It does not add a Fly row, and Fly still refuses the authored id. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-19 Pallet zone keys
 
 `reds_house_2f`, `reds_house`, `blues_house`, `oaks_lab`, and `pallet_town` are registered again from the padded pokered collision. New Game stands in `reds_house_2f` and heals at `pallet_town` (5, 6). Fly still uses `pokered:PALLET_TOWN`. Pallet (9, 0) and Red's house (5, 5) stay open because the Route 1 seam and MOM face those cells. Device smokes: session 31/0, session-bridge 29/0, home-lead 31/0, shop 32/0.

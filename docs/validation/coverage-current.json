@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "2e808332c9dc3aeab5b403b27a9dd44fb78683a1",
+    "source_sha256": "197d0ebeb1968879741babe4536e174cf9c3a4b8ca1dc1db24bffc78fb36a6b8",
+    "policy_date": "2026-11-19",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after authored pallet_town Fly visits alias to pokered:PALLET_TOWN on normalize. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 ed263157d488bfc8d945749f47817c8b8150bddd031b903fd554555f101776bb.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "3d3ef55260cfb638da42b1ac7c24848ebf774b97",
     "source_sha256": "ed263157d488bfc8d945749f47817c8b8150bddd031b903fd554555f101776bb",
     "policy_date": "2026-11-19",
@@ -1449,7 +1460,8 @@
         }
       }
     }
-  },
+  
+  }},
   "accepted_milestone_rows": [],
   "schedule": {
     "policy": "5.5a is accepted on main at 108 Simulator-route maps and hardware-safe; device latency targets remain unmet. B at 149 maps remains private. Its three earned journeys and actual restarts passed on frozen builds; long physical traversal/resource, latency and showcase gates remain. Preserve independent path, fidelity and mechanics layers.",

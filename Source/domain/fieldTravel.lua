@@ -32,7 +32,12 @@ function FieldTravel.normalize(value)
     for _, entry in ipairs(data().fly) do
         allowed[entry.id] = true
     end
-    for _, id in ipairs(value.visited) do
+    -- Sessions written before the Pallet cutover stored the authored id.
+    for index, id in ipairs(result.visited) do
+        if id == "pallet_town" then
+            id = "pokered:PALLET_TOWN"
+            result.visited[index] = id
+        end
         assert(allowed[id] and not seen[id], "unknown or duplicate Fly city")
         seen[id] = true
     end
