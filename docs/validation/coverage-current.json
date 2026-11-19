@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "6095a99adf04a72a0ca8a0f3f18eda3e085ebee6",
+    "source_sha256": "65514f74f4f3b31b5f17ad28305988e653d8bd6c668b4e70f45de942eaadf35f",
+    "policy_date": "2026-11-19",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the source-map provider lookup fits beside the live Zone. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f38acf8f6a4c2b2ebf77e35d53b568a092c9e44eb514d89fcbe7b87ef1d23b92.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "04a3ae4142b527a27a82e35e25de35c2faa37886",
     "source_sha256": "f38acf8f6a4c2b2ebf77e35d53b568a092c9e44eb514d89fcbe7b87ef1d23b92",
     "policy_date": "2026-11-19",
@@ -1584,6 +1595,7 @@
   
   }
   }}
+  }
   }
   }
   }
