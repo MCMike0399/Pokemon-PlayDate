@@ -504,11 +504,85 @@ local function observe(kind)
         KantoAudio.updateGame(game)
         KantoAudio.updateGame(game)
     elseif kind == "party-swap" then
-        local party = {name = "party", phase = "swap"}
+        local party = {name = "party", phase = "swap", swapFrom = 1}
         local game = gameWith({{name = "overworld"}, party})
         currentZone = {stableID = "pokered:PALLET_TOWN"}
         KantoAudio.updateGame(game)
         party.phase = "list"
+        party.swapFrom = nil
+        KantoAudio.updateGame(game)
+        party.swapReceipt = {from = 1, to = 2}
+        KantoAudio.updateGame(game)
+    elseif kind == "purchase" then
+        local shop = {name = "shop", phase = "browse", trade = "buy", result = nil}
+        local game = gameWith({{name = "overworld"}, shop})
+        currentZone = {stableID = "pokered:VIRIDIAN_MART"}
+        KantoAudio.updateGame(game)
+        shop.phase = "result"
+        shop.result = {ok = true, kind = "purchase"}
+        KantoAudio.updateGame(game)
+        shop.trade = "sell"
+        shop.result = {ok = true, kind = "sale"}
+        KantoAudio.updateGame(game)
+    elseif kind == "menu-save" then
+        local game = gameWith({{name = "overworld"}})
+        currentZone = {stableID = "pokered:PALLET_TOWN"}
+        KantoAudio.updateGame(game)
+        game.lastSave = {ok = true}
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "potion" then
+        local game = gameWith({{name = "overworld"}})
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+        game.lastItemUse = {effect = "heal", hpRestored = 20}
+        KantoAudio.updateGame(game)
+        game.lastItemUse = {effect = "cure", statusCured = "poison"}
+        KantoAudio.updateGame(game)
+        game.lastItemUse = {effect = "fullRestore", hpRestored = 5, statusCured = "burn"}
+        KantoAudio.updateGame(game)
+    elseif kind == "dex-page" then
+        local battle = {
+            enemy = {hp = 0, maxHP = 10, species = "pidgey"},
+            player = {hp = 10, maxHP = 10, species = "pikachu", level = 5},
+            outcome = "caught",
+            dexPageAdded = "pidgey",
+        }
+        local game = gameWith({{name = "battle", battle = battle}})
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+    elseif kind == "poison-tick" then
+        local game = gameWith({{name = "overworld"}})
+        currentZone = {stableID = "pokered:ROUTE_1"}
+        KantoAudio.updateGame(game)
+        game.lastFieldPoison = {step = 4}
+        KantoAudio.updateGame(game)
+        KantoAudio.updateGame(game)
+    elseif kind == "dex-rating" then
+        local game = gameWith({{name = "overworld"}})
+        currentZone = {stableID = "pokered:OAKS_LAB"}
+        KantoAudio.updateGame(game)
+        game.lastDexRating = {owned = 20}
+        KantoAudio.updateGame(game)
+    elseif kind == "switch-can" then
+        local event = {name = "event", phase = "dialog", waiting = "none"}
+        local game = gameWith({{name = "overworld"}, event})
+        currentZone = {stableID = "pokered:VERMILION_GYM"}
+        KantoAudio.updateGame(game)
+        event.waiting = "_VermilionGymTrashSuccessText1"
+        KantoAudio.updateGame(game)
+    elseif kind == "bill-shrink" then
+        local event = {name = "event", phase = "dialog", waiting = "_BillsHouseInitiatedText"}
+        local game = gameWith({{name = "overworld"}, event})
+        currentZone = {stableID = "pokered:BILLS_HOUSE"}
+        KantoAudio.updateGame(game)
+        event.phase = "story-machine"
+        event.waiting = "cell-separator"
+        KantoAudio.updateGame(game)
+    elseif kind == "safari-over" then
+        local passage = {name = "safariPassage", phase = "announcement"}
+        local game = gameWith({{name = "overworld"}, passage})
+        currentZone = {stableID = "pokered:SAFARI_ZONE_EAST"}
         KantoAudio.updateGame(game)
     elseif kind == "ceremony" then
         local event = {name = "event", phase = "hall-photo"}

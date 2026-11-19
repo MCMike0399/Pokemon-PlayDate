@@ -253,6 +253,100 @@ local function moveScore(key)
     return KantoMoveSfx[key]
 end
 
+local function ratingCue(owned)
+    -- audio/pokedex_rating_sfx.asm OwnedMonValues: 10, 40, 60, 90, 120, 150.
+    owned = owned or 0
+    if owned < 10 then return "denied" end
+    if owned < 40 then return "pokedex_rating" end
+    if owned < 60 then return "item" end
+    if owned < 90 then return "caught" end
+    if owned < 120 then return "level_up" end
+    if owned < 150 then return "key_item" end
+    return "item2"
+end
+
+local function playSafariPA()
+    -- SafariZoneGameOver and ShakeElevator stop the bed, then play this
+    -- announcement on the music channel until it finishes.
+    KantoSynth.music(nil)
+    KantoAudio.playSFX("safari_pa")
+end
+
+local function noteReceipts(game)
+    local shop = game.machine:get("shop")
+    local bought = shop and shop.phase == "result" and shop.trade == "buy" and shop.result
+    if bought and bought.ok and bought ~= observer.purchase then
+        observer.purchase = bought
+        KantoAudio.playSFX("purchase")
+    end
+
+    local pc = game.machine:get("pc")
+    local box = pc and pc.phase == "result" and pc.result
+    if box and box.ok and box.reason == "saved" and box ~= observer.boxSave then
+        observer.boxSave = box
+        KantoAudio.playSFX("save")
+    end
+    local saved = game.lastSave
+    if saved and saved.ok and saved ~= observer.menuSave then
+        observer.menuSave = saved
+        KantoAudio.playSFX("save")
+    end
+
+    local use = game.lastItemUse
+    if use and use ~= observer.itemUse then
+        observer.itemUse = use
+        if use.effect == "cure" then
+            KantoAudio.playSFX("heal_ailment")
+        elseif use.effect == "heal" or use.effect == "fullRestore" or use.effect == "revive" then
+            KantoAudio.playSFX("heal_hp")
+        end
+    end
+
+    local poison = game.lastFieldPoison
+    if poison and poison ~= observer.poison then
+        observer.poison = poison
+        KantoAudio.playSFX("poisoned")
+    end
+
+    local rating = game.lastDexRating
+    if rating and rating ~= observer.dexRating then
+        observer.dexRating = rating
+        KantoAudio.playCue(ratingCue(rating.owned))
+    end
+
+    local ride = game.lastElevator
+    if ride and ride ~= observer.elevator then
+        observer.elevator = ride
+        playSafariPA()
+    end
+
+    local event = game.machine:get("event")
+    local waiting = event and event.waiting
+    if waiting ~= observer.eventWaiting then
+        observer.eventWaiting = waiting
+        -- VermilionGymTrashSuccessText1, the Game Corner poster, and
+        -- BillsHouseInitiatedText each play SFX_SWITCH as that page starts.
+        if waiting == "_VermilionGymTrashSuccessText1"
+            or waiting == "_GameCornerPosterSwitchBehindPosterText"
+            or waiting == "_BillsHouseInitiatedText" then
+            KantoAudio.playSFX("switch")
+        end
+    end
+    local separator = event and event.phase == "story-machine" and waiting == "cell-separator"
+    if separator and not observer.billShrink then
+        observer.billShrink = true
+        KantoAudio.playSFX("shrink")
+    elseif not separator then
+        observer.billShrink = nil
+    end
+
+    local passage = game.machine:get("safariPassage")
+    if passage and passage.phase == "announcement" and observer.safariPA ~= passage then
+        observer.safariPA = passage
+        playSafariPA()
+    end
+end
+
 local function playSequence(names)
     KantoAudio.playSFX(names[1])
     local wait = sfxFrames(names[1])
@@ -535,7 +629,14 @@ function KantoAudio.updateGame(game)
             elseif battle.outcome == "caught" and not observer.caught then
                 observer.caught = true
                 KantoAudio.playCue("caught")
-            elseif battle.outcome == "run" and not observer.ran then
+            end
+            -- ItemUseBallText06 plays SFX_DEX_PAGE_ADDED when the caught
+            -- species was not already owned. throwBall sets dexPageAdded.
+            if battle.dexPageAdded and observer.dexPage ~= battle then
+                observer.dexPage = battle
+                KantoAudio.playSFX("dex_page")
+            end
+            if battle.outcome == "run" and not observer.ran then
                 -- EnemyRan and the successful player escape both play SFX_RUN.
                 observer.ran = true
                 KantoAudio.playSFX("run")
@@ -785,14 +886,16 @@ function KantoAudio.updateGame(game)
             KantoAudio.playSFX("boulder")
         end
 
+        -- SwitchPartyMon plays SFX_SWAP only after the two roster slots
+        -- exchange. Cancel returns to the list without swapReceipt.
         local party = game.machine:get("party")
-        local partyPhase = party and party.phase
-        if observer.partyPhase == "swap" and partyPhase == "list" then
-            -- start_sub_menus.asm plays SFX_SWAP when the roster order changes.
-            -- Cancel uses the same visible phase change.
+        noteReceipts(game)
+
+        local swapReceipt = party and party.swapReceipt
+        if swapReceipt and swapReceipt ~= observer.swapReceipt then
+            observer.swapReceipt = swapReceipt
             KantoAudio.playSFX("swap")
         end
-        observer.partyPhase = partyPhase
 
         local ship
         for _, state in ipairs(stack) do

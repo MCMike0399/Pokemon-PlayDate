@@ -4,7 +4,7 @@ Pokered `af519899719f0754965776faac0e836a3b906e6d`. Every `music_const` from `co
 
 `SFX_STOP_ALL_MUSIC` is `$ff`, not a `music_const`. The SS Anne cue list stops the bed when that command is posted.
 
-Counts, excluding the two unused IDs: **played 181**, **patched 3**, **missing 20**.
+Counts, excluding the two unused IDs: **played 185**, **patched 9**, **missing 10**.
 
 ## Missing
 
@@ -13,17 +13,7 @@ Counts, excluding the two unused IDs: **played 181**, **patched 3**, **missing 2
 | `MUSIC_MUSEUM_GUY` | scripts/PewterMuseum.asm and auto_movement.asm. The museum guy walk is not a ported event. |
 | `MUSIC_JIGGLYPUFF_SONG` | scripts/PewterPokecenter.asm. The Jigglypuff song event is not ported. |
 | `MUSIC_INTRO_BATTLE` | engine/movie/intro.asm fight intro. The title clock stops at the crash and whoosh; hip, hop and raise are the same unported scene. |
-| `SFX_HEAL_HP` | Bag medicine has no visible just-used receipt. Also the town-map cursor. |
-| `SFX_HEAL_AILMENT` | engine/items/item_effects.asm and the town-map cursor. No bag receipt. |
-| `SFX_POKEDEX_RATING` | audio/pokedex_rating_sfx.asm. Oak's dex rating is not a visible session field. The text opcode is unused. |
-| `SFX_POISONED` | engine/events/poison.asm. No visible poison-tick field. |
 | `SFX_TRADE_MACHINE` | Cable Club trade. The trade machine is not ported. |
-| `SFX_SHRINK` | Oak's speech and Bill's PC. No visible shrink receipt. |
-| `SFX_SWITCH` | Game Corner poster, Vermilion trash cans, and Bill. No visible switch receipt. |
-| `SFX_PURCHASE` | Museum ticket and the daycare, not the mart. Neither purchase has a receipt. |
-| `SFX_SAVE` | engine/menus/save.asm. GameSaves:save has no just-saved flag. |
-| `SFX_SAFARI_ZONE_PA` | The Safari PA and the elevator. Neither posts a cue the observer can see. |
-| `SFX_DEX_PAGE_ADDED` | engine/movie/oak_speech.asm and the dex page. No visible page-added flag. |
 | `SFX_INTRO_HIP` | Unported fight intro. Same scene as MUSIC_INTRO_BATTLE. |
 | `SFX_INTRO_HOP` | Unported fight intro. |
 | `SFX_INTRO_RAISE` | Unported fight intro. |
@@ -33,13 +23,19 @@ Counts, excluding the two unused IDs: **played 181**, **patched 3**, **missing 2
 
 ## Recorded in a lane-E patch
 
-The scores exist. The call sites are in `tools/notes/lane-e-audio-gaps.patch`, which is not applied. `test_lane_e_audio_hooks.py` expects that patch to fail until Lane E applies it.
+The scores exist. `tools/notes/lane-e-audio-gaps.patch` and `tools/notes/lane-e-audio-main-path.patch` are not applied. The matching tests are `expectedFailure` until Lane E applies them. The observer plays a main-path receipt as soon as the field exists.
 
 | Constant | Patch |
 | --- | --- |
 | `SFX_DENIED` | tools/notes/lane-e-audio-gaps.patch, eventState denied. |
 | `SFX_ARROW_TILES` | tools/notes/lane-e-audio-gaps.patch, eventState arrow tiles. |
 | `SFX_POKEFLUTE` | tools/notes/lane-e-audio-gaps.patch, Snorlax flute. |
+| `SFX_HEAL_HP` | tools/notes/lane-e-audio-main-path.patch. `game.lastItemUse` after a potion, revive, or full restore. |
+| `SFX_HEAL_AILMENT` | Same patch. `game.lastItemUse` after a status cure. |
+| `SFX_POKEDEX_RATING` | Same patch. `game.lastDexRating` when Oak's "How is your POKéDEX coming?" page opens. The owned count picks the band; 10–39 is this sound. |
+| `SFX_POISONED` | Same patch. `game.lastFieldPoison` every fourth completed step while a living party member is poisoned. |
+| `SFX_DEX_PAGE_ADDED` | Same patch. `battle.dexPageAdded` when the caught species was not already owned. |
+| `SFX_SWAP` | Same patch. `party.swapReceipt` only after two different slots exchange. Cancel does not set it. |
 
 Hall of Fame music is played by the observer when the photo phase starts, so `MUSIC_HALL_OF_FAME` is played. The same patch also calls it from `beginPhotos`.
 
@@ -167,7 +163,11 @@ Hall of Fame music is played by the observer when the photo phase starts, so `MU
 | `SFX_WITHDRAW_DEPOSIT` | Observer or map bed. |
 | `SFX_CUT` | Observer or map bed. |
 | `SFX_GO_INSIDE` | Observer or map bed. |
-| `SFX_SWAP` | Observer or map bed. |
+| `SFX_PURCHASE` | Mart buy result on the shop state. Poké Mart only; a sale does not play it. |
+| `SFX_SAVE` | PC box change result, and `game.lastSave` once the menu-save patch is applied. |
+| `SFX_SAFARI_ZONE_PA` | Safari game-over announcement. Elevator rides use `game.lastElevator` from the same patch. |
+| `SFX_SWITCH` | Vermilion trash success, the Game Corner poster, and Bill's initiated page. |
+| `SFX_SHRINK` | Bill's cell-separator phase. Oak's intro shrink is not a drawn scene. |
 | `SFX_COLLISION` | Observer or map bed. |
 | `SFX_GO_OUTSIDE` | Observer or map bed. |
 | `SFX_LEVEL_UP` | Observer or map bed. |
@@ -243,6 +243,15 @@ Hall of Fame music is played by the observer when the photo phase starts, so `MU
 - `SFX_RUN` plays once when a battle outcome is `run`.
 - `SFX_COLLISION` plays on a new terrain or NPC block, and waits out the sound before it can play again. Pokered skips a restart while `SFX_COLLISION` is the current sound.
 - `SFX_SS_ANNE_HORN` plays from `vermilionShip.cues`. The same list stops the bed on `SFX_STOP_ALL_MUSIC` and starts `MUSIC_SURFING`.
-- `SFX_SWAP` plays when the party menu leaves the swap phase for the list. Cancel uses that same visible change, so a cancelled reorder plays it too.
+- `SFX_SWAP` plays only from `party.swapReceipt`, which the lane-E patch sets after a real exchange. Leaving the swap phase on cancel does not play it.
+- `SFX_PURCHASE` plays when a shop result is a successful buy.
+- `SFX_SAVE` plays when a PC box change reports `saved`, and when `game.lastSave.ok` is set by the menu-save patch.
+- `SFX_HEAL_HP` and `SFX_HEAL_AILMENT` play from `game.lastItemUse`. Potions, revives, and full restores are the HP sound. Status cures are the ailment sound.
+- `SFX_DEX_PAGE_ADDED` plays when `battle.dexPageAdded` is set for a species that was not owned.
+- `SFX_POISONED` plays from `game.lastFieldPoison`.
+- `SFX_POKEDEX_RATING` plays from `game.lastDexRating` when the owned count is 10–39. The other bands use the denied, item, caught, level-up, and key-item cues.
+- `SFX_SWITCH` plays when the event page is the first Vermilion trash success, the Game Corner poster, or Bill's initiated text.
+- `SFX_SHRINK` plays when the event phase is the cell separator.
+- `SFX_SAFARI_ZONE_PA` stops the bed and plays on the Safari game-over announcement, and on `game.lastElevator`.
 - Every `data/moves/sfx.asm` row plays when `battle.currentMoveKey` changes. Agility, Kinesis, Transform, and Dizzy Punch reuse the pitched faint-fall scores. A hit, faint, or trainer fall that lands in the same update is queued behind the move row.
 

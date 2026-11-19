@@ -80,6 +80,16 @@ ASSETS = {
     'collision': 'audio1:SFX_Collision_1',
     'anne_horn': 'audio1:SFX_SS_Anne_Horn_1',
     'swap': 'audio1:SFX_Swap_1',
+    'heal_hp': 'audio1:SFX_Heal_HP_1',
+    'heal_ailment': 'audio1:SFX_Heal_Ailment_1',
+    'save': 'audio1:SFX_Save_1',
+    'purchase': 'audio1:SFX_Purchase_1',
+    'pokedex_rating': 'audio1:SFX_Pokedex_Rating_1',
+    'dex_page': 'audio2:SFX_Dex_Page_Added',
+    'poisoned': 'audio1:SFX_Poisoned_1',
+    'switch': 'audio1:SFX_Switch_1',
+    'shrink': 'audio1:SFX_Shrink_1',
+    'safari_pa': 'audio1:SFX_Safari_Zone_PA',
     **CHECKPOINT_THEMES,
 }
 # Press-AB chirps whose source gates are shorter than one 30FPS frame.

@@ -363,10 +363,55 @@ class ObserverGapTests(unittest.TestCase):
         self.assertIn(('music', 'surfing'), calls)
         self.assertEqual([call for call in calls if call == ('sfx', 'anne_horn')], [('sfx', 'anne_horn')])
 
-    def test_a_party_reorder_plays_swap(self):
+    def test_a_party_reorder_plays_swap_only_after_the_exchange(self):
         calls = observe('party-swap')
         sfx = [call[1] for call in calls if call[0] == 'sfx']
         self.assertEqual(sfx, ['swap'])
+
+    def test_a_mart_buy_plays_purchase_and_a_sale_does_not(self):
+        calls = observe('purchase')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['purchase'])
+
+    def test_a_successful_save_plays_once(self):
+        calls = observe('menu-save')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['save'])
+
+    def test_potions_revives_and_status_cures_use_the_item_sounds(self):
+        calls = observe('potion')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['heal_hp', 'heal_ailment', 'heal_hp'])
+
+    def test_a_new_dex_page_follows_the_catch(self):
+        calls = observe('dex-page')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['dex_page'])
+
+    def test_a_field_poison_tick_plays_once_per_receipt(self):
+        calls = observe('poison-tick')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['poisoned'])
+
+    def test_oaks_dex_rating_uses_the_owned_band(self):
+        calls = observe('dex-rating')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['pokedex_rating'])
+
+    def test_the_first_vermilion_trash_switch_plays(self):
+        calls = observe('switch-can')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['switch'])
+
+    def test_bills_separator_plays_switch_then_shrink(self):
+        calls = observe('bill-shrink')
+        sfx = [call[1] for call in calls if call[0] == 'sfx']
+        self.assertEqual(sfx, ['switch', 'shrink'])
+
+    def test_safari_game_over_stops_the_bed_and_plays_the_pa(self):
+        calls = observe('safari-over')
+        self.assertIn(('music', 'nil'), calls)
+        self.assertEqual([call for call in calls if call == ('sfx', 'safari_pa')], [('sfx', 'safari_pa')])
         pidgeot = [call for call in observe('pidgeot') if call[0] == 'cry']
         self.assertEqual(pidgeot, [('cry', 'pidgeot')])
 
