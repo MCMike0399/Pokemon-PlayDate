@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "51832ff4ab1095ed5bd0dd27964b4313d58a0197",
+    "source_sha256": "51492114fadd7348ae34dea7d35b2ead870dd821aa35295c3675fb5697dc4b6f",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the credits draw path loads on first use and stays out of the boot chunk. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 953f14a6eb7976c400c901d12ddc4c3ed2f4b0c556d211537422413f5f48d482.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "dc58ecf00ec66eeecf007ce276609aa184837679",
     "source_sha256": "953f14a6eb7976c400c901d12ddc4c3ed2f4b0c556d211537422413f5f48d482",
     "policy_date": "2026-11-20",
@@ -1881,6 +1892,7 @@
   
   }
   }}
+  }
   }
   }
   }
