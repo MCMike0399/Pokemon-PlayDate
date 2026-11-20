@@ -14,11 +14,12 @@ moves with it. This test fails until
 tools/notes/lane-e-exp-points-text.patch is applied.
 """
 
+import os
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-POKERED = Path("/tmp/pokered/data/text/text_2.asm")
+POKERED = Path(os.environ["POKERED_REFERENCE_DIR"]) / "data/text/text_2.asm"
 BATTLE = ROOT / "Source/battle/battle.lua"
 GROWTH = ROOT / "Source/dev/growthContracts.lua"
 HUD = ROOT / "tools/harness/reward_hud.py"

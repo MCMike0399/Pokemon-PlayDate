@@ -54,7 +54,7 @@ while(scanf("%d%d%d%d%d%d",&p.hpEV,&p.atkEV,&p.defEV,&p.speEV,&p.spaEV,&p.spdEV)
   ('full510',[255,255,0,0,0,0],[0,0,0,2,0,0],[255,255,0,0,0,0]),
   ('hp-quarter-crossing',[3,0,0,0,0,0],[1,0,0,0,0,0],[4,0,0,0,0,0])]
  wire='\n'.join(' '.join(map(str,old+amount))for _,old,amount,_ in vectors)+'\n'
- with tempfile.TemporaryDirectory(prefix='rewards-c-reference-',dir='/private/tmp')as t:
+ with tempfile.TemporaryDirectory(prefix='rewards-c-reference-')as t:
   source=Path(t)/'oracle.c';source.write_text(c);exe=Path(t)/'oracle';subprocess.run(['cc','-std=c99','-Wall','-Werror',str(source),'-o',str(exe)],check=True);rows=subprocess.check_output([str(exe)],input=wire.encode()).decode().splitlines()
  assert len(rows)==len(vectors)
  for (name,_,_,expected),actual in zip(vectors,rows):assert list(map(int,actual.split()))==expected,(name,actual,expected)
