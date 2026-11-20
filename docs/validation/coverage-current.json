@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "ab91045f47cc71835d4b7e9c8f0362f1cbc8656d",
+    "source_sha256": "9847c2a08339e414772248fee9b574979a587f91f16a8d4e8a6dd6b4e18b6e21",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after Bruno's Hitmonlee uses its pokered moves. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 e9b85a82d34759899b824bda89aa3aee2c7fc7eebe20324afa35e881bbd94940.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "937b9025855733721409c2e7a3188ad6c8575d59",
     "source_sha256": "e9b85a82d34759899b824bda89aa3aee2c7fc7eebe20324afa35e881bbd94940",
     "policy_date": "2026-11-20",
@@ -1683,6 +1694,7 @@
   
   }
   }}
+  }
   }
   }
   }
