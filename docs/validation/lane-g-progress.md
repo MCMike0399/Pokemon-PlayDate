@@ -199,6 +199,8 @@ Grass cells fully inside the frame, player cell excluded, are 13.4% black in the
 | `artifacts/lane-g/r21/pallet-c-wide.png` | `f4c008a8924e06664feb583b2ed90adf18ce1e66d7f993b687bfe5fe7c1eefd9` |
 | `artifacts/lane-g/r21/pallet-c-street-lab.png` | `59490303a1701a6dd791cb561d971ff229e3f178b8c95b828b123bd2ac7996fc` |
 
+BlueBot approved both r21 Pallet frames as mockup C. `celadon-gym.png` and `pewter-gym.png` stay approved from r20. No further visual capture until Lane E hands off a new tone or tile.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
