@@ -42,4 +42,10 @@ Fail, and only these are patched: Viridian trainer line of sight; trainer-card y
 
 `python3 -m unittest` on the five lane K modules: 18 tests, OK, 5 expected failures. Those five fail on the live tree and pass once the matching patch is applied to a temp tree.
 
-`python3 -m unittest discover -s tools/tests` does not complete on this VM. The first pokered-backed case, `test_audio_events.AudioBootTests.test_sfx_priorities_cover_every_sfx_cue`, raises `KeyError: POKERED_REFERENCE_DIR`. There is no pret/pokered checkout here, and there is no Playdate SDK. The suite delta from this branch is the 18 tests above. `Source/` is unchanged, so those tests do not move an existing assertion.
+The first full discover died on `KeyError: POKERED_REFERENCE_DIR`. The rerun set that variable, and `KANTO_REFERENCE`, to pret/pokered `af519899719f0754965776faac0e836a3b906e6d` at `/tmp/pokemon-host/pokered`. Counts: 1382 ran, 1302 passed, 13 failed, 51 errors, 11 skipped, 5 expected failures, 0 unexpected successes. Names are in `docs/validation/lane-k-suite-6e4bc90f.md`. There is still no Playdate SDK and no parcel bundle.
+
+## Round 2
+
+Champion win, Hall of Fame, credits, and Continue at Pallet `(5, 6)` facing down pass for Squirtle, Bulbasaur, and Charmander fixture parties (`tools/tests/test_lane_e_postgame_continue.py`). The thirteen historical debug-warp maps resolve their sprite strips. No new patch.
+
+Lane I `988d5ad5`: the message-queue advance-before-finish patch and the shift prompt are already on this tip. Possessive-space is not on origin. Waiting on I. `lane-e-text-advance.patch` is the nurse-audio guard already at `kantoAudio.lua:176`.
