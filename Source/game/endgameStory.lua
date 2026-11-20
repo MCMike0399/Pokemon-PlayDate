@@ -27,7 +27,10 @@ local INDIGO_RESET <const> = {
 local VISIBILITY <const> = {
     ["pokered:VIRIDIAN_GYM:objects:1"] = {{group = "quest", id = GIOVANNI_HIDE, equals = false}},
     [MOLTRES] = {{group = "quest", id = "EVENT_BEAT_MOLTRES", equals = false}},
-    ["pokered:VICTORY_ROAD_2F:objects:13"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_2F_BOULDER", equals = false}},
+    -- Pokered always places the 2F puzzle boulder (objects:13) at (23, 16).
+    -- Route 23 sets TOGGLE_VICTORY_ROAD_2F_BOULDER on the way in, so hiding
+    -- objects:13 on that flag removed the only boulder that can reach the
+    -- switch at (9, 16). The 3F hole boulder stays on its own toggle.
     ["pokered:VICTORY_ROAD_3F:objects:10"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_3F_BOULDER", equals = false}},
     ["pokered:CHAMPIONS_ROOM:objects:2"] = {{group = "quest", id = OAK_SHOW, equals = true}},
 }
@@ -835,7 +838,13 @@ function EndgameStory.plan(id, observation)
                     {op = "dialog", labels = {room.dont_run_text}},
                     {op = "move", direction = "up", count = 1}}}
             end
-            return {status = "ready", steps = approachWalk(room, pending.x)}
+            local steps <const> = approachWalk(room, pending.x)
+            if room.walk then
+                -- WalkToLance_RLEList is simulated joypad. The corridor
+                -- cells stay solid, and CollisionCheckOnLand skips them.
+                return {status = "ready", simulated = true, steps = steps}
+            end
+            return {status = "ready", steps = steps}
         end
     end
     local gate <const> = data.route22_gate
@@ -1201,7 +1210,11 @@ end
 
 local function trainerRow(row)
     return {id = row.id, map_id = row.map_id, name = row.name, sprite_source = row.sprite_source,
-        sight_range_cells = row.sight or 0, talk_only = true, party = copy(row.party), payout = row.payout}
+        class_source = row.class_source,
+        -- scripts/ViridianGym.asm trainers use sight (object movement). talk_only
+        -- rejects TrainerEvents sight, so a range of 0 stays talk-only (Giovanni,
+        -- the Elite Four) and a positive range keeps line of sight.
+        sight_range_cells = row.sight or 0, talk_only = (row.sight or 0) == 0, party = copy(row.party), payout = row.payout}
 end
 
 local function trainerEvent(row)
@@ -1329,6 +1342,9 @@ function EndgameStory.beginPhotos(state, advance)
     state.photo = {index = 1, clock = 0, stage = "preamble"}
     state.phase = "hall-photo"
     state.waiting = "hall-of-fame"
+    -- pokered engine/movie/hall_of_fame.asm AnimateHallOfFame plays
+    -- MUSIC_HALL_OF_FAME before the party photo loop.
+    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("hall_of_fame") end
 end
 
 function EndgameStory.updatePhotos(state)
@@ -1360,7 +1376,13 @@ function EndgameStory.updatePhotos(state)
             end
         end
         if entry and entry.cry then
-            EndgameStory.playCry(entry.cry)
+            -- pokered HoFDisplayMonInfo ends in PlayCry once the name,
+            -- level, and types are on screen.
+            if KantoAudio and KantoAudio.playCry then
+                KantoAudio.playCry(entry.cry)
+            else
+                EndgameStory.playCry(entry.cry)
+            end
         end
     elseif photo.stage == "show" and state.plan.photos[photo.index]
         and state.plan.photos[photo.index].kind == "player" and photo.clock > 120 then
@@ -1529,7 +1551,11 @@ function EndgameStory.drawPhoto(gfx, state)
     end
     for _, row in ipairs(EndgameStory.hallRows(photo)) do
         local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
-        gfx.drawText(row.text, px, py)
+        if row.text:find("¥", 1, true) then
+            GbFont.drawMoneyLine(row.text, px, py)
+        else
+            gfx.drawText(row.text, px, py)
+        end
     end
     if photo.kind == "player" then
         local pages <const> = EndgameStory.playerHallPages(photo.stats)
@@ -1617,12 +1643,22 @@ function EndgameStory.interceptAdvance(state, advance)
         return false
     end
     if step.audio and step.audio.name then
-        EndgameStory.playCue(step.audio.name)
+        -- Route 22's gate uses SFX_DENIED. Arrow-tile scripts use
+        -- SFX_ARROW_TILES. Both are installed Kanto cues.
+        if KantoAudio and KantoAudio.playCue and (step.audio.name == "denied" or step.audio.name == "arrow_tiles") then
+            KantoAudio.playCue(step.audio.name)
+        else
+            EndgameStory.playCue(step.audio.name)
+        end
     end
     if state.plan.spin and step.op == "move" and not state.spinStarted then
         state.spinStarted = true
         if state.plan.audio then
-            EndgameStory.playCue(state.plan.audio.name)
+            if KantoAudio and KantoAudio.playCue then
+                KantoAudio.playCue(state.plan.audio.name)
+            else
+                EndgameStory.playCue(state.plan.audio.name)
+            end
         end
     end
     if step.op == "credits" and state.plan.photos and not state.photosDone then
@@ -1738,11 +1774,13 @@ function EndgameStory.install()
     local charmander <const> = rival.parties_by_player_starter.charmander
     trainers[rival.id] = {id = rival.id, map_id = rival.map_id, name = "BLUE",
         sprite_source = rival.sprite_source, sight_range_cells = 0, talk_only = true,
+        class_source = rival.class_source,
         party = copy(charmander.party), payout = charmander.payout,
         rival_parties = copy(rival.parties_by_player_starter)}
     local champ <const> = data.champion
     local champParty <const> = champ.parties_by_player_starter.charmander
     addTrainer({id = champ.id, map_id = champ.map_id, name = "BLUE", sprite_source = champ.sprite_source,
+        class_source = champ.class_source,
         sight = 0, party = champParty.party, payout = champParty.payout},
         {kind = "bespoke", content = CONTENT, before = copy(champ.before), won = copy(champ.won),
             after = copy(champ.after), lost = copy(champ.lost),

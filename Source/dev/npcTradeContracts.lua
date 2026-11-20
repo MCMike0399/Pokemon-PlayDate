@@ -171,6 +171,7 @@ function NPCTradeContracts.run()
             report.failed = report.failed + 1
             report.ok = false
         end
+        collectgarbage("collect")
     end
     for _, offer in ipairs(offers()) do
         test(offer.nickname .. " exact object, normal traits, OTID draw order, healthy last-member", function()
@@ -285,6 +286,11 @@ function NPCTradeContracts.run()
     }
     for _, scene in ipairs(currentScenes) do
         test(scene.name .. " actual picker cancellation, stale reentry, species/item guards and successful trade", function()
+            -- The Route 11 gate is the scene main passes. The title score is
+            -- still resident here, and it is not the city bitmap.
+            if scene.name == "Route11Gate2F" and KantoSynth and KantoSynth.unloadAll then
+                KantoSynth.unloadAll()
+            end
             worldScene(scene.name, nil, function(g)
                 g.machine:register("event", NPCTradeState(g))
                 g.machine:register("party", PartyState(g))
@@ -483,31 +489,6 @@ function NPCTradeContracts.run()
             eq(s:questFlag(offer.flag), false)
         end)
     end
-    test("full party all 240 PC slots, source append order and survivor active identity", function()
-        local g, s, mon = fresh(offer)
-        for _ = 2, 6 do
-            assert(s:recruit(Pokemon("mew", 5)))
-        end
-        assert(s:party():switch(3))
-        local members <const> = s:party():members()
-        for box = 1, Storage.BOX_COUNT do
-            assert(s:storage():selectBox(box))
-            for _ = 1, Storage.BOX_CAPACITY do
-                assert(s:recruit(Pokemon("mew", 5)))
-            end
-        end
-        local storage <const> = wire(s).storage
-        local request <const> = prepare(g, offer, mon)
-        local ok, result = s:resolveNPCTrade(request, g)
-        assert(ok, result)
-        eq(s:party():count(), 6)
-        eq(s:party():active(), members[3])
-        for index = 1, 5 do
-            eq(s:party():get(index), members[index + 1])
-        end
-        eq(s:party():get(6), result.pokemon)
-        same(storage, wire(s).storage)
-    end)
     test("last usable outgoing uses healthy appended replacement", function()
         local g, s, mon = fresh(offer)
         local fainted <const> = Pokemon("mew", 5)
@@ -626,6 +607,34 @@ function NPCTradeContracts.run()
         for _, current in ipairs(list) do
             assert(reloaded:questFlag(current.flag))
         end
+    end)
+    -- This encode is the failure main already has. Running it after the other
+    -- cases keeps its 246 Pokémon off the sessions those cases allocate.
+    test("full party all 240 PC slots, source append order and survivor active identity", function()
+        local g, s, mon = fresh(offer)
+        for _ = 2, 6 do
+            assert(s:recruit(Pokemon("mew", 5)))
+        end
+        assert(s:party():switch(3))
+        local members <const> = s:party():members()
+        for box = 1, Storage.BOX_COUNT do
+            assert(s:storage():selectBox(box))
+            for n = 1, Storage.BOX_CAPACITY do
+                assert(s:recruit(Pokemon("mew", 5)))
+                if n % 10 == 0 then collectgarbage("collect") end
+            end
+        end
+        local storage <const> = wire(s).storage
+        local request <const> = prepare(g, offer, mon)
+        local ok, result = s:resolveNPCTrade(request, g)
+        assert(ok, result)
+        eq(s:party():count(), 6)
+        eq(s:party():active(), members[3])
+        for index = 1, 5 do
+            eq(s:party():get(index), members[index + 1])
+        end
+        eq(s:party():get(6), result.pokemon)
+        same(storage, wire(s).storage)
     end)
     local active <const> = GameSession.activeRNGSession()
     if active then

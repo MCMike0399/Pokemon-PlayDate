@@ -361,6 +361,11 @@ def decode_map(reference, name, *, linked_layout_tail=None, extra_blocks=()):
     blockset = reference.bytes(blockset_path)
     if not blockset or len(blockset) % 16: raise MapError('blockset requires complete 4x4 tile definitions')
     tiles = tile_grids(decode_png(reference.bytes(png_path)))
+    if settings[4] == 'TILEANIM_WATER_FLOWER':
+        # home/vcopy.asm:429-447 (UpdateMovingBgTiles .flower) overwrites vTileset tile $03
+        # with flower1/2/3 every 21 frames, so the static PNG $03 is never on screen.
+        # flower1 is the resting phase (2 of every 4 updates).
+        tiles[0x03] = tile_grids(decode_png(reference.bytes('gfx/tilesets/flower/flower1.png')))[0]
     allowed = set(collision_tiles(reference.text('data/tilesets/collision_tile_ids.asm'), tile_name))
     counters = [integer(value) for value in settings[:3] if integer(value) >= 0]
     grass = integer(settings[3])

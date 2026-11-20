@@ -1,20 +1,16 @@
-"""Route Pallet's five rooms onto the imported kanto maps.
+"""Imported Pallet Town is the town a new game walks, and Fly lands there.
 
-Lane E has not applied this yet. tools/notes/lane-e-pallet-cutover.patch
-retires the hand-authored tile rows and keeps a New Game walk: Red's
-bedroom, down the stairs, out the door, and into Oak's Lab.
+The hand-authored tile rows are gone. New Game starts in reds_house_2f
+and heals at pallet_town (5, 6); both zones are the padded pokered
+collision. The south connection is Route 21. Fly's visited entry keeps
+the source id pokered:PALLET_TOWN.
 """
 import json
-import shutil
-import subprocess
-import tempfile
 import unittest
 from collections import deque
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-PATCH = ROOT / "tools/notes/lane-e-pallet-cutover.patch"
-
 MAPS = {
     "RedsHouse2F": {"key": "kanto_reds_house_2f", "pad": 2, "width": 13, "tileset": "REDS_HOUSE_2"},
     "RedsHouse1F": {"key": "kanto_reds_house_1f", "pad": 2, "width": 13, "tileset": "REDS_HOUSE_1"},
@@ -23,13 +19,13 @@ MAPS = {
 }
 
 
-def _load(root, name):
-    return json.loads((root / "Source/data/zRemainder" / f"{name}.json").read_text())
+def _load(name):
+    return json.loads((ROOT / "Source/data/zRemainder" / f"{name}.json").read_text())
 
 
-def _surface(root, name):
+def _surface(name):
     spec = MAPS[name]
-    data = _load(root, name)
+    data = _load(name)
     rows = data["collision"]
     right = spec["width"] - len(rows[0]) - spec["pad"]
     grid = [[1] * spec["pad"] + row + [1] * right for row in rows]
@@ -37,14 +33,14 @@ def _surface(root, name):
     return grid, blocked, data
 
 
-def _door_tiles(root):
-    compact = json.loads((root / "Source/data/sourceMapCache/compact.json").read_text())
+def _door_tiles():
+    compact = json.loads((ROOT / "Source/data/sourceMapCache/compact.json").read_text())
     return compact["door_tiles"], compact["maps"]
 
 
-def _foot(root, name, x, y):
+def _foot(name, x, y):
     spec = MAPS[name]
-    data = _load(root, name)
+    data = _load(name)
     tile = data["tile_ids"][y][x - spec["pad"]]
     return data["grids"][tile - 1]["terrain"]["foot_tile"]
 
@@ -59,20 +55,20 @@ def _warps(compact_maps, name):
     return found
 
 
-def _landing(root, compact_maps, door_tiles, destination, warp_index):
+def _landing(compact_maps, door_tiles, destination, warp_index):
     record = compact_maps[destination]
     warp = record["warps"][warp_index - 1]
     x, y = warp["x"], warp["y"]
-    grid, _, _ = _surface(root, destination)
+    grid, _, _ = _surface(destination)
     tileset = record["tileset"]["constant"]
-    door = _foot(root, destination, x, y) in door_tiles.get(tileset, [])
+    door = _foot(destination, x, y) in door_tiles.get(tileset, [])
     if door and y + 1 < record["height"] and grid[y + 1][x] == 0:
         return x, y + 1
     return x, y
 
 
-def _reaches(root, name, start, goal):
-    grid, blocked, _ = _surface(root, name)
+def _reaches(name, start, goal):
+    grid, blocked, _ = _surface(name)
     height, width = len(grid), len(grid[0])
     pending = deque([start])
     seen = {start}
@@ -90,65 +86,54 @@ def _reaches(root, name, start, goal):
     return False
 
 
-def assert_new_game_walk(root):
-    context = (root / "Source/game/context.lua").read_text()
-    maps = (root / "Source/data/maps.lua").read_text()
-    story = (root / "Source/game/story.lua").read_text()
-    if 'zone_id="pokered:REDS_HOUSE_2F",x=5,y=3,facing="up"' not in context:
-        raise AssertionError("New Game does not spawn in the imported bedroom")
-    if 'zone_id="pokered:PALLET_TOWN",x=5,y=6,facing="down"' not in context:
-        raise AssertionError("checkpoint is not the imported Pallet door")
-    for key in ("pallet_town", "oaks_lab", "reds_house", "reds_house_2f", "blues_house"):
-        if f'registerZone("{key}"' in maps:
-            raise AssertionError(f"authored {key} is still registered")
-    if 'to = LAB_KEY, toX = 6, toY = 4' not in story:
-        raise AssertionError("Oak's escort does not enter the imported lab")
-    if "{ x = 7, y = 3, species = \"charmander\" }" not in story:
-        raise AssertionError("starter balls are not on the imported table")
-    door_tiles, compact_maps = _door_tiles(root)
-    start = (5, 3)
-    stairs = next(warp for warp in _warps(compact_maps, "RedsHouse2F") if not warp["edge"])
-    if not _reaches(root, "RedsHouse2F", start, (stairs["x"], stairs["y"])):
-        raise AssertionError("bedroom cannot reach the stairs")
-    downstairs = _landing(root, compact_maps, door_tiles, "RedsHouse1F", stairs["destination"]["warp_index"])
-    exits = [warp for warp in _warps(compact_maps, "RedsHouse1F") if warp["edge"] == "down"]
-    if not any(_reaches(root, "RedsHouse1F", downstairs, (warp["x"], warp["y"])) for warp in exits):
-        raise AssertionError("downstairs cannot reach the front door")
-    outside = _landing(root, compact_maps, door_tiles, "PalletTown", exits[0]["destination"]["warp_index"])
-    lab_door = next(warp for warp in _warps(compact_maps, "PalletTown")
-                    if warp["destination"].get("map") == "OAKS_LAB")
-    if not _reaches(root, "PalletTown", outside, (lab_door["x"], lab_door["y"])):
-        raise AssertionError("Pallet door cannot reach Oak's Lab")
-    lab = _landing(root, compact_maps, door_tiles, "OaksLab", lab_door["destination"]["warp_index"])
-    grid, _, _ = _surface(root, "OaksLab")
-    if grid[lab[1]][lab[0]] != 0:
-        raise AssertionError("Oak's Lab arrival is blocked")
-
-
-class LaneEPalletCutoverTests(unittest.TestCase):
-    def test_pallet_cutover_patch_applies(self):
-        completed = subprocess.run(
-            ["git", "apply", "--check", str(PATCH)],
-            cwd=ROOT, check=False, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stderr)
-        scratch = Path(tempfile.mkdtemp(prefix="lane-e-pallet-cutover-"))
-        try:
-            completed = subprocess.run(
-                ["git", "worktree", "add", "--detach", str(scratch), "HEAD"],
-                cwd=ROOT, check=False, capture_output=True, text=True)
-            self.assertEqual(completed.returncode, 0, completed.stderr)
-            completed = subprocess.run(
-                ["git", "apply", str(PATCH)],
-                cwd=scratch, check=False, capture_output=True, text=True)
-            self.assertEqual(completed.returncode, 0, completed.stderr)
-            assert_new_game_walk(scratch)
-        finally:
-            subprocess.run(["git", "worktree", "remove", "--force", str(scratch)], cwd=ROOT, check=False)
-            shutil.rmtree(scratch, ignore_errors=True)
-
-    @unittest.expectedFailure
+class PalletCutoverTests(unittest.TestCase):
     def test_new_game_walks_from_reds_room_into_oaks_lab(self):
-        assert_new_game_walk(ROOT)
+        context = (ROOT / "Source/game/context.lua").read_text()
+        maps = (ROOT / "Source/data/maps.lua").read_text()
+        story = (ROOT / "Source/game/story.lua").read_text()
+        self.assertIn('zone_id="reds_house_2f",x=5,y=3,facing="up"', context)
+        self.assertIn('zone_id="pallet_town",x=5,y=6,facing="down"', context)
+        for key, filename in (
+            ("reds_house_2f", "RedsHouse2F"),
+            ("reds_house", "RedsHouse1F"),
+            ("blues_house", "BluesHouse"),
+            ("oaks_lab", "OaksLab"),
+            ("pallet_town", "PalletTown"),
+        ):
+            self.assertIn(f'"{key}"', maps)
+            self.assertIn(filename, maps)
+        self.assertIn('to = LAB_KEY, toX = 6, toY = 4', story)
+        self.assertIn('{ x = 7, y = 3, species = "charmander" }', story)
+        door_tiles, compact_maps = _door_tiles()
+        stairs = next(warp for warp in _warps(compact_maps, "RedsHouse2F") if not warp["edge"])
+        self.assertTrue(_reaches("RedsHouse2F", (5, 3), (stairs["x"], stairs["y"])))
+        downstairs = _landing(compact_maps, door_tiles, "RedsHouse1F", stairs["destination"]["warp_index"])
+        exits = [warp for warp in _warps(compact_maps, "RedsHouse1F") if warp["edge"] == "down"]
+        self.assertTrue(any(_reaches("RedsHouse1F", downstairs, (warp["x"], warp["y"])) for warp in exits))
+        outside = _landing(compact_maps, door_tiles, "PalletTown", exits[0]["destination"]["warp_index"])
+        lab_door = next(warp for warp in _warps(compact_maps, "PalletTown")
+                        if warp["destination"].get("map") == "OAKS_LAB")
+        self.assertTrue(_reaches("PalletTown", outside, (lab_door["x"], lab_door["y"])))
+        lab = _landing(compact_maps, door_tiles, "OaksLab", lab_door["destination"]["warp_index"])
+        grid, _, _ = _surface("OaksLab")
+        self.assertEqual(grid[lab[1]][lab[0]], 0)
+
+    def test_south_exit_is_route_21_and_fly_uses_the_source_map(self):
+        compact = json.loads((ROOT / "Source/data/sourceMapCache/compact.json").read_text())
+        pallet = compact["maps"]["PalletTown"]
+        south = next(row for row in pallet["connections"] if row["direction"] == "south")
+        self.assertEqual(south["target_map"], "ROUTE_21")
+        self.assertEqual(pallet["id"], "pokered:PALLET_TOWN")
+        manifest = json.loads((ROOT / "Source/data/sourceMaps.json").read_text())
+        route = next(entry for entry in manifest["maps"].values() if entry["id"] == "pokered:ROUTE_21")
+        self.assertEqual(route["key"], "kanto_route_21")
+        fly = json.loads((ROOT / "Source/data/fieldTravel.json").read_text())["fly"]
+        entry = next(row for row in fly if row["name"] == "PalletTown")
+        self.assertEqual(entry["id"], "pokered:PALLET_TOWN")
+        self.assertEqual(entry["source_map"], "PALLET_TOWN")
+        self.assertEqual((entry["x"], entry["y"]), (5, 6))
+        runtime = (ROOT / "Source/game/fieldTravelRuntime.lua").read_text()
+        self.assertNotIn('zone_id == "pallet_town"', runtime)
 
 
 if __name__ == "__main__":

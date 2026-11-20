@@ -225,6 +225,12 @@ function PokemonCodec.encode(mon)
     snapshots[mon] = Party._primitive(data)
     return data
 end
+function PokemonCodec.releaseSnapshot(mon)
+    snapshots[mon] = nil
+end
+function PokemonCodec.releaseSnapshots()
+    for mon in pairs(snapshots) do snapshots[mon] = nil end
+end
 
 -- Internal read-only snapshot for repeated field freshness checks. Canonical
 -- definitions are immutable; changed Pokemon values still run the full codec.

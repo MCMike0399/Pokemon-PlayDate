@@ -54,7 +54,7 @@ end
 local function definition(self,id)
     local owner=owners[self]
     if id==LAB then
-        if owner.game.session:getIntro().stage~="rival_fight" or currentZone.stableID~="oaks_lab" then return nil end
+        if owner.game.session:getIntro().stage~="rival_fight" or not currentZone or currentZone.stableID~="pokered:OAKS_LAB" then return nil end
         return {id=LAB,payout=175,initial_lab=true,talk_only=true,party={{species=assert(owner.game.session:getIntro().rivalStarter),level=5}},name="BLUE"}
     end
     local d = owner.lookup(id)

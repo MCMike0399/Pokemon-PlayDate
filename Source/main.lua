@@ -88,6 +88,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/overworldState"
     import "game/dialogState"
     import "game/battleState"
+    import "game/kantoAudio"
     import "game/debugState"
     import "game/learningState"
     import "game/saves"
@@ -206,6 +207,8 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/safariPassage"
     import "game/safariPassageState"
     import "game/safariRuntime"
+    import "game/coastStory"
+    import "game/coastStoryWorld"
     BootTrace.mark("import.regionStories.end")
 
 
@@ -294,6 +297,13 @@ local bootAccepted, bootProblem = pcall(function()
             EndgameStory.install()
             BootTrace.mark("HideoutTowerContent.install.begin")
             HideoutTowerContent.install()
+            CoastStoryWorld.install()
+            -- postgameStory.lua boots with kantoScenes, before this controller
+            -- exists. The second pass registers Mewtwo's scene and the Hall of
+            -- Fame continue once HideoutTowerController.advance is in place.
+            if PostgameStory then
+                PostgameStory.ensureRuntime()
+            end
             CopycatService.install()
             BootTrace.mark("HideoutTowerContent.install.end")
             BootTrace.mark("MidgameServices.install.begin")
@@ -461,6 +471,7 @@ local bootAccepted, bootProblem = pcall(function()
 
             machine:update()
             machine:handleInput()
+            KantoAudio.updateGame(game)
             -- vblank TrackPlayTime. Counting starts on map entry and stops on the title.
             game.session:trackPlayTime()
             machine:get("overworld"):flushPendingPresentation()

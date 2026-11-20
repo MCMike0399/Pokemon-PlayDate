@@ -1,0 +1,406 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_CinnabarLabFossilRoomScientist1ComeAgainText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 76,
+          "text": "Aiyah! You come"
+        },
+        {
+          "op": "line",
+          "source_line": 77,
+          "text": "again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 78
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_CinnabarLabFossilRoomScientist1FossilIsBackToLifeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 27,
+          "text": "Where were you?"
+        },
+        {
+          "op": "para",
+          "source_line": 29,
+          "text": "Your fossil is"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "back to life!"
+        },
+        {
+          "op": "para",
+          "source_line": 32,
+          "text": "It was @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 33,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 34
+        },
+        {
+          "op": "line",
+          "source_line": 35,
+          "text": "like I think!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 36
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_CinnabarLabFossilRoomScientist1GoForAWalkText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 19,
+          "text": "I take a little"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "time!"
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "You go for walk a"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "little while!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 24
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_CinnabarLabFossilRoomScientist1GoForAWalkText2": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 68,
+          "text": "I take a little"
+        },
+        {
+          "op": "line",
+          "source_line": 69,
+          "text": "time!"
+        },
+        {
+          "op": "para",
+          "source_line": 71,
+          "text": "You go for walk a"
+        },
+        {
+          "op": "line",
+          "source_line": 72,
+          "text": "little while!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 73
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_CinnabarLabFossilRoomScientist1NoFossilsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 15,
+          "text": "No! Is too bad!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 16
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_CinnabarLabFossilRoomScientist1SeesFossilText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "Oh! That is"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 41,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 42,
+          "text": "!"
+        },
+        {
+          "op": "para",
+          "source_line": 44,
+          "text": "It is fossil of"
+        },
+        {
+          "op": "line",
+          "source_line": 45,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 46,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 47,
+          "text": ", a"
+        },
+        {
+          "op": "cont",
+          "source_line": 48,
+          "text": "#MON that is"
+        },
+        {
+          "op": "cont",
+          "source_line": 49,
+          "text": "already extinct!"
+        },
+        {
+          "op": "para",
+          "source_line": 51,
+          "text": "My Resurrection"
+        },
+        {
+          "op": "line",
+          "source_line": 52,
+          "text": "Machine will make"
+        },
+        {
+          "op": "cont",
+          "source_line": 53,
+          "text": "that #MON live"
+        },
+        {
+          "op": "cont",
+          "source_line": 54,
+          "text": "again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 55
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_CinnabarLabFossilRoomScientist1TakesFossilText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 58,
+          "text": "So! You hurry and"
+        },
+        {
+          "op": "line",
+          "source_line": 59,
+          "text": "give me that!"
+        },
+        {
+          "op": "para",
+          "source_line": 61,
+          "text": "<PLAYER> handed"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "over @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 63,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 64,
+          "text": "!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 65
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_CinnabarLabFossilRoomScientist1Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Hiya!"
+        },
+        {
+          "op": "para",
+          "source_line": 4,
+          "text": "I am important"
+        },
+        {
+          "op": "line",
+          "source_line": 5,
+          "text": "doctor!"
+        },
+        {
+          "op": "para",
+          "source_line": 7,
+          "text": "I study here rare"
+        },
+        {
+          "op": "line",
+          "source_line": 8,
+          "text": "#MON fossils!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "You! Have you a"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "fossil for me?"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 12
+        }
+      ],
+      "source": "text/CinnabarLabFossilRoom.asm"
+    },
+    "_FoundItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 61,
+          "text": "<PLAYER> found"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 63,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 64,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 65
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_MewtwoBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Mew!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 3
+        }
+      ],
+      "source": "text/CeruleanCaveB1F.asm"
+    },
+    "_NoMoreRoomForItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 68,
+          "text": "No more room for"
+        },
+        {
+          "op": "line",
+          "source_line": 69,
+          "text": "items!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 70
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_PowerPlantVoltorbBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Bzzzt!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 3
+        }
+      ],
+      "source": "text/PowerPlant.asm"
+    },
+    "_PowerPlantZapdosBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 6,
+          "text": "Gyaoo!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 7
+        }
+      ],
+      "source": "text/PowerPlant.asm"
+    }
+  }
+}

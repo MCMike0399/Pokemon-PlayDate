@@ -4,6 +4,7 @@ SourceMaps = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local manifest
 local compact, tileGrids
+local separateCaches = false
 local recordOverrides
 local runtimeDefinitions
 local validatedCells <const> = setmetatable({}, { __mode = "k" })
@@ -75,14 +76,48 @@ local function catalogue()
     return manifest
 end
 
-function SourceMaps.record(path)
-    local data
+local function releaseWorldBitmaps()
+    if WorldView and WorldView.animationImages then
+        WorldView.animationImages = nil
+    end
+    if getOverworldView then
+        local view = getOverworldView()
+        if view and view.releaseBitmaps then
+            view:releaseBitmaps()
+        end
+    end
+    collectgarbage("collect")
+end
+
+local function readRecord(path)
     if recordOverrides and recordOverrides[path] then
-        data = copy(recordOverrides[path])
+        return copy(recordOverrides[path])
     elseif ShippedDataPolicy and ShippedDataPolicy.maps() then
-        data = ShippedDataPolicy.readBundleJSON(path)
-    else
-        data = json.decodeFile(path)
+        return ShippedDataPolicy.readBundleJSON(path)
+    end
+    return json.decodeFile(path)
+end
+
+function SourceMaps.record(path)
+    -- The compact catalogue and the tile grids are the large inflates.
+    -- A city tilemap sitting in the pool can leave no contiguous hole for
+    -- them, so drop those bitmaps once and read again.
+    local large = type(path) == "string" and (path:find("sourceMapCache/compact.json", 1, true)
+        or path:find("sourceMapCache/tile-grids.json", 1, true))
+    if large or collectgarbage("count") > 13 * 1024 then
+        collectgarbage("collect")
+    end
+    local ok, data = pcall(readRecord, path)
+    if not ok and large and type(data) == "string"
+        and (data:find("out of memory", 1, true) or data:find("not enough memory", 1, true)) then
+        releaseWorldBitmaps()
+        if KantoSynth and KantoSynth.unloadAll then
+            KantoSynth.unloadAll()
+        end
+        ok, data = pcall(readRecord, path)
+    end
+    if not ok then
+        error(data, 0)
     end
     assert(data, "missing pinned source record: " .. path)
     assert(data.schema == 1 and data.source_revision == revision, "unverified source record: " .. path)
@@ -110,7 +145,24 @@ end
 
 -- Generated descriptors contain no art grids or full map definitions. This
 -- inventory remains cheap during provider installation and save validation.
+-- The catalog draw keeps only one of the two megabyte catalogues.
+function SourceMaps._separateCatalogueCaches(enabled)
+    separateCaches = enabled == true
+end
+
+function SourceMaps._releaseSharedCompact()
+    compact, tileGrids = nil, nil
+end
+
+function SourceMaps._releaseTileGrids()
+    tileGrids = nil
+end
+
 local function compactData()
+    if separateCaches and tileGrids and tileGrids[1] then
+        tileGrids = nil
+        collectgarbage("collect")
+    end
     if not compact then
         local data = SourceMaps.record("data/sourceMapCache/compact.json")
         if not (ShippedDataPolicy and ShippedDataPolicy.maps() and not recordOverrides) then
@@ -174,20 +226,43 @@ end
 
 local function grids()
     if not tileGrids then
-        tileGrids = setmetatable({}, {__mode = "v"})
+        -- Catalog drawing holds the grids until the map pass releases them.
+        -- Ordinary play keeps the weak cache.
+        tileGrids = separateCaches and {} or setmetatable({}, {__mode = "v"})
     end
     local value = tileGrids[1]
     if not value then
+        local expectedHash
+        if separateCaches then
+            expectedHash = compactData().manifest_sha256
+            compact = nil
+            collectgarbage("collect")
+        end
         local data = SourceMaps.record("data/sourceMapCache/tile-grids.json")
-        assert(data.manifest_sha256 == compactData().manifest_sha256, "generated source cache revisions differ")
+        local actualHash = separateCaches and expectedHash or compactData().manifest_sha256
+        assert(data.manifest_sha256 == actualHash, "generated source cache revisions differ")
         value = data.tiles
+        data = nil
+        if not tileGrids then
+            tileGrids = separateCaches and {} or setmetatable({}, {__mode = "v"})
+        end
         tileGrids[1] = value
     end
     return value
 end
 
+-- The weak grid cache is collected between catalog maps and then inflated
+-- again for every cell. Pin it for one map sweep, then release.
+function SourceMaps._pinTileGrids()
+    local value = grids()
+    tileGrids = { value }
+end
+
 function SourceMaps.tile(key)
     return copy(assert(grids()[key], "unknown canonical source tile: " .. tostring(key)))
+end
+function SourceMaps.sharedTile(key)
+    return assert(grids()[key], "unknown canonical source tile: " .. tostring(key))
 end
 
 function SourceMaps.withTiles(callback)
@@ -195,6 +270,99 @@ function SourceMaps.withTiles(callback)
     return callback(function(key)
         return copy(assert(data[key], "unknown canonical source tile: " .. tostring(key)))
     end)
+end
+
+-- One new key must not decode all 944 grids beside a live Zone. The full
+-- catalogue stays on the weak cache for callers that walk every tile.
+local function readSourcePrefix(path, limit)
+    local file
+    if ShippedDataPolicy and ShippedDataPolicy.maps() then
+        file = assert(ShippedDataPolicy.openBundle(path), "missing pinned source record: " .. path)
+    else
+        file = assert(playdate.file.open(path), "missing pinned source record: " .. path)
+    end
+    local text = file:read(limit)
+    file:close()
+    return text or ""
+end
+
+local function extractJSONObject(text, key)
+    local marker = '"' .. key .. '":'
+    local at = text:find(marker, 1, true)
+    assert(at, "unknown canonical source tile: " .. key)
+    local i = at + #marker
+    while text:sub(i, i):match("%s") do i = i + 1 end
+    assert(text:sub(i, i) == "{", "tile record is not an object: " .. key)
+    local depth, inString, escape = 0, false, false
+    for pos = i, #text do
+        local char = text:sub(pos, pos)
+        if inString then
+            if escape then escape = false
+            elseif char == "\\" then escape = true
+            elseif char == '"' then inString = false end
+        elseif char == '"' then inString = true
+        elseif char == "{" then depth = depth + 1
+        elseif char == "}" then
+            depth = depth - 1
+            if depth == 0 then
+                return assert(json.decode(text:sub(i, pos)))
+            end
+        end
+    end
+    error("truncated tile record: " .. key)
+end
+
+function SourceMaps.directTiles(keys)
+    assert(type(keys) == "table" and #keys > 0, "tile keys required")
+    if tileGrids and tileGrids[1] then
+        local data = tileGrids[1]
+        local entries = {}
+        for _, key in ipairs(keys) do
+            entries[#entries + 1] = copy(assert(data[key], "unknown canonical source tile: " .. tostring(key)))
+        end
+        return entries
+    end
+    collectgarbage("collect")
+    local path = "data/sourceMapCache/tile-grids.json"
+    -- The adapter tiles sit in the first kilobyte. A full 495 KiB read has no
+    -- contiguous hole beside the Zone, so only the prefix is decoded here.
+    local text = readSourcePrefix(path, 16384)
+    local headerEnd = text:find('"tiles":', 1, true)
+    local function fallback()
+        local data = grids()
+        local entries = {}
+        for _, key in ipairs(keys) do
+            entries[#entries + 1] = copy(assert(data[key], "unknown canonical source tile: " .. tostring(key)))
+        end
+        return entries
+    end
+    if not headerEnd then
+        return fallback()
+    end
+    local head = text:sub(1, headerEnd - 1):gsub(",%s*$", "") .. "}"
+    local header = json.decode(head)
+    if type(header) ~= "table" or header.schema ~= 1 or header.source_revision ~= revision
+        or header.manifest_sha256 ~= compactData().manifest_sha256 then
+        return fallback()
+    end
+    local entries = {}
+    for _, key in ipairs(keys) do
+        if type(key) ~= "string" or key:find('"', 1, true) or key:find("\\", 1, true) then
+            return fallback()
+        end
+        local at = text:find('"' .. key .. '":', 1, true)
+        if not at then
+            return fallback()
+        end
+        local ok, tile = pcall(extractJSONObject, text, key)
+        if not ok or type(tile) ~= "table" or tile.key ~= key then
+            return fallback()
+        end
+        entries[#entries + 1] = copy(tile)
+    end
+    text = nil
+    collectgarbage("collect")
+    return entries
 end
 
 -- Legacy warp binding needs target warp positions and arrival collision, not
@@ -229,6 +397,11 @@ end
 
 function SourceMaps.definition(name)
     return copy(rawDefinition(name))
+end
+-- The cached record. Projection tests read it in place; a second full copy of
+-- a city definition does not fit beside the resident catalogue.
+function SourceMaps.sharedDefinition(name)
+    return rawDefinition(name)
 end
 
 -- The generated byte planes are optional only for dimensions/palettes outside
@@ -504,6 +677,16 @@ local function retainRuntime(name, definition)
         retainedRuntime[table.remove(retainedRuntimeOrder, 1)] = nil
     end
 end
+-- A contract scope has already disposed its Zones. The two retained runtime
+-- definitions are still full maps. The next scope's Route 1 lookup does not
+-- fit beside them once the boot floor is above main.
+function SourceMaps.releaseRetainedRuntime()
+    for index = #retainedRuntimeOrder, 1, -1 do
+        retainedRuntime[retainedRuntimeOrder[index]] = nil
+        retainedRuntimeOrder[index] = nil
+    end
+    collectgarbage("collect")
+end
 function SourceMaps._runtimePadded(name)
     if runtimeDefinitions and runtimeDefinitions[name] then
         return runtimeDefinitions[name]
@@ -688,11 +871,29 @@ function SourceMaps.warpSpec(name, event)
     -- while surfing. CheckTilePassable's land list does not include it, so the
     -- stored collision is 1, but an original warp may still arrive there.
     -- water_candidate is that same water-tileset $14 tile. The walk state for
-    -- the arrival is surfing. Every other solid tile still fails closed.
+    -- the arrival is surfing.
+    -- LoadDestinationWarpPosition copies the destination warp coordinates with
+    -- no collision test. CollisionCheckOnLand tests the tile being entered, so
+    -- a warp may stand on the solid top of an exit block when a neighbor is
+    -- passable. Lorelei's north warps are gym block $24: foot $30 above foot
+    -- $11. Map load then replaces that block with $5 once the room is open.
+    -- A solid cell with no passable neighbor still fails closed.
     local arrived = SourceMaps.cell(target, x, y)
     local water = arrived.terrain.water_candidate == true and arrived.terrain.foot_tile == 0x14
+    local function openNeighbor()
+        local steps <const> = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } }
+        for _, step in ipairs(steps) do
+            local nx, ny = x + step[1], y + step[2]
+            if nx >= 0 and ny >= 0 and nx < d.width and ny < d.height
+                and not d.blocked[tostring(ny * d.width + nx + 1)]
+                and SourceMaps.cell(target, nx, ny).collision == 0 then
+                return true
+            end
+        end
+        return false
+    end
     assert(y < d.height and not d.blocked[tostring(y * d.width + x + 1)]
-        and (arrived.collision == 0 or water),
+        and (arrived.collision == 0 or water or (advance == 0 and openNeighbor())),
         "original warp arrival is blocked")
     local result
     if entry.profile == "viridian" then
@@ -737,12 +938,63 @@ end
 
 -- Scoped immutable-record adapter for SDK fixtures. Restores both record source
 -- and all caches even when a contract fails; never installs campaign locations.
+local function overlayRecords(records)
+    -- The extension witness changes two map identities. Borrow the resident
+    -- catalogue and share its tile rows instead of decoding a second full copy.
+    recordOverrides = nil
+    if not manifest then catalogue() end
+    if not compact then compactData() end
+    local maps = {}
+    for name, entry in pairs(manifest) do maps[name] = entry end
+    for name, entry in pairs(records.manifest) do maps[name] = entry end
+    local ids, keys = {}, {}
+    for name, entry in pairs(maps) do
+        assert(type(name) == "string" and not ids[entry.id] and not keys[entry.key], "duplicate source map identity")
+        assert(entry.profile == "viridian" or entry.profile == "pewter" or entry.profile == "source",
+            "unknown source binding profile")
+        ids[entry.id], keys[entry.key] = true, true
+    end
+    local descriptors = {}
+    for name, descriptor in pairs(compact.maps) do
+        local shared = {}
+        for key, value in pairs(descriptor) do shared[key] = value end
+        local blocked = {}
+        for key, value in pairs(descriptor.blocked) do blocked[key] = value end
+        shared.blocked = blocked
+        local fields = records.compact[name]
+        if fields then
+            for key, value in pairs(fields) do shared[key] = value end
+        end
+        local entry = assert(maps[name], "generated map outside source manifest")
+        for _, field in ipairs({ "id", "key", "width", "height", "padding", "source_sha256" }) do
+            assert(shared[field] == entry[field], "generated source descriptor differs from manifest")
+        end
+        descriptors[name] = shared
+    end
+    for name in pairs(maps) do
+        assert(descriptors[name], "generated source descriptor missing")
+    end
+    local overlay = {}
+    for key, value in pairs(compact) do overlay[key] = value end
+    overlay.maps = descriptors
+    local extensions = {}
+    for path, definition in pairs(records.extensions) do extensions[path] = definition end
+    return maps, overlay, extensions
+end
+
 function SourceMaps._withRecords(records, fn)
     local oldManifest, oldCompact, oldGrids, oldRaw, oldOverrides = manifest, compact, tileGrids, rawCache, recordOverrides
     local oldRuntime = runtimeDefinitions
     runtimeDefinitions = runtimeDefinitions and {} or nil
-    manifest, compact, tileGrids = nil, nil, nil
-    rawCache, recordOverrides = setmetatable({}, { __mode = "v" }), records
+    local overrides = records
+    if records.schema == 2 then
+        local maps, overlay, extensions = overlayRecords(records)
+        manifest, compact = maps, overlay
+        overrides = extensions
+    else
+        manifest, compact, tileGrids = nil, nil, nil
+    end
+    rawCache, recordOverrides = setmetatable({}, { __mode = "v" }), overrides
     local ok, result = pcall(fn)
     manifest, compact, tileGrids, rawCache, recordOverrides = oldManifest, oldCompact, oldGrids, oldRaw, oldOverrides
     runtimeDefinitions = oldRuntime

@@ -1,0 +1,22 @@
+--- a/Source/game/titleState.lua
++++ b/Source/game/titleState.lua
+@@ -196,6 +196,9 @@
+ end
+
+ function TitleState:update()
++    if KantoAudio and KantoAudio.playCue and self.phase ~= "closed" then
++        KantoAudio.playCue("title")
++    end
+     if self.phase == "menu" and self:isTop() then
+         TitleIdle.advance(self.idle, function(count) return math.random(count) end)
+     end
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -7,6 +7,7 @@
+ end
+
+ function PauseState:enter()
++    if KantoAudio and KantoAudio.playSFX then KantoAudio.playSFX("start_menu") end
+     self.phase = "menu"
+     local options = {"POKEMON", "ITEM", "RED", "SAVE", "OPTIONS", "CLOSE"}
+     if self.game.session:questFlag("EVENT_GOT_POKEDEX") then table.insert(options, 1, "POKEDEX") end

@@ -216,6 +216,7 @@ local function prepare(state)
                 end
                 local ok, reason = SilphStoryWorld.selectFloor(state.session, index)
                 if ok then
+                    state.game.lastElevator = {place = "silph", floor = index}
                     state:finish()
                 else
                     state:fail(reason)

@@ -1,0 +1,49 @@
+diff --git a/Source/ui/dialog.lua b/Source/ui/dialog.lua
+index 8050e61e..061c1335 100644
+--- a/Source/ui/dialog.lua
++++ b/Source/ui/dialog.lua
+@@ -158,8 +171,8 @@ function Dialog:handleInput()
+     -- before draw, so the box showed a prefix ("VENUSAUR is dam", "RED used
+     -- REVIVE") and the next say replaced it. Finish the line first. The
+     -- complete line has to be the one on screen for 10 frames, the same
+-    -- minimum the battle script already uses, before a later A or a hold
+-    -- that starts after that wait can turn the page. Golden-path auto-input
++    -- minimum the battle script already uses, before a later new A can turn
++    -- the page. A hold that is already down does not. Golden-path auto-input
+     -- presses A every frame; that press still cannot skip the wait.
+     if self.charIndex < #line then
+         self.holdFrames = 0
+@@ -180,9 +193,13 @@ function Dialog:handleInput()
+     if self.shownFrames < 10 then
+         return
+     end
+-    local held = playdate.buttonIsPressed(playdate.kButtonA)
+-    self.holdFrames = held and self.holdFrames + 1 or 0
+-    if playdate.buttonJustPressed(playdate.kButtonA) or self.holdFrames >= 12 then
++    -- pokered home/print_text.asm PrintLetterDelay only shortens the
++    -- per-letter wait while A is held. home/joypad2.asm
++    -- WaitForTextScrollButtonPress then requires hJoyPressed, a new edge.
++    -- A button that is still down after the last letter must not turn the
++    -- page: that is how the next queued say (EXP, a stat change, recoil)
++    -- replaced the line before it had been read.
++    if playdate.buttonJustPressed(playdate.kButtonA) then
+         self.holdFrames = 0
+         self.pageShown = false
+         self.shownFrames = 0
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 3197888f..2197fb8d 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -277,8 +277,11 @@ function BattleScriptPhase:update()
+ end
+ 
+ function BattleScriptPhase:handleInput()
++    -- The 10-frame floor is not the print. PrintLetterDelay may still be
++    -- revealing the line, and a held A is not WaitForTextScrollButtonPress.
++    -- Only a new A after that wait installs the next queued say.
+     if self.waiting and self.messageTimer > MESSAGE_MIN_FRAMES
+-       and (playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonIsPressed(playdate.kButtonA)) then
++       and playdate.buttonJustPressed(playdate.kButtonA) then
+         self.waiting = false
+         self:advance()
+     end

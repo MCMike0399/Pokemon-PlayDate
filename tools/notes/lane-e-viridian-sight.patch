@@ -1,0 +1,16 @@
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+index 05a5dee8..b39542dd 100644
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -1211,7 +1211,10 @@ end
+ local function trainerRow(row)
+     return {id = row.id, map_id = row.map_id, name = row.name, sprite_source = row.sprite_source,
+         class_source = row.class_source,
+-        sight_range_cells = row.sight or 0, talk_only = true, party = copy(row.party), payout = row.payout}
++        -- scripts/ViridianGym.asm trainers use sight (object movement). talk_only
++        -- rejects TrainerEvents sight, so a range of 0 stays talk-only (Giovanni,
++        -- the Elite Four) and a positive range keeps line of sight.
++        sight_range_cells = row.sight or 0, talk_only = (row.sight or 0) == 0, party = copy(row.party), payout = row.payout}
+ end
+ 
+ local function trainerEvent(row)

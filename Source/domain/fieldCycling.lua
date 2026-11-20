@@ -99,6 +99,14 @@ end
 
 -- Let SourceEvents/EventState own the guard dialogue and bounded return walk.
 -- This gives the existing owner the source stop/return path, not a new NPC loop.
+function FieldCycling.returnDirection(map)
+    for _, gate in ipairs(policy().gates) do
+        if gate.map == map then
+            return gate.return_direction
+        end
+    end
+end
+
 function FieldCycling.gate(map, sourceX, sourceY, hasBicycle)
     if hasBicycle then
         return nil

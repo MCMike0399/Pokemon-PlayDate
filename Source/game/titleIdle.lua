@@ -530,7 +530,26 @@ function TitleIdle.rectsOverlap(a, b)
     return a.x < b.x + b.w and b.x < a.x + a.w and a.y < b.y + b.h and b.y < a.y + a.h
 end
 
+-- pret/pokered af519899 constants/charmap.asm. These are one tile each.
+-- An ASCII apostrophe plus the letter is the stray gap in "CHARIZARD' s".
+TitleIdle.LIGATURES = {
+    ["'d"] = 0xbb - 0x80, ["'l"] = 0xbc - 0x80, ["'s"] = 0xbd - 0x80,
+    ["'t"] = 0xbe - 0x80, ["'v"] = 0xbf - 0x80,
+    ["'r"] = 0xe4 - 0x80, ["'m"] = 0xe5 - 0x80,
+}
+
+function TitleIdle.nextTile(text, index)
+    local pair = text:sub(index, index + 1)
+    local ligature = TitleIdle.LIGATURES[pair]
+    if ligature then return index + 2, "font", ligature end
+    local code = utf8.codepoint(text, index)
+    local nextIndex = utf8.offset(text, 2, index) or (#text + 1)
+    local sheet, glyph = TitleIdle.glyph(utf8.char(code))
+    return nextIndex, sheet, glyph
+end
+
 function TitleIdle.glyph(char)
+    if TitleIdle.LIGATURES[char] then return "font", TitleIdle.LIGATURES[char] end
     if char == "PK" then return "font", 0xe1 - 0x80 end
     if char == "MN" then return "font", 0xe2 - 0x80 end
     if char == "ED" then return "ed", 0 end
@@ -542,7 +561,7 @@ function TitleIdle.glyph(char)
     if extra[char] then return "extra", extra[char] end
     local font = {
         ["▶"] = 0xed - 0x80, ["▷"] = 0xec - 0x80, ["▼"] = 0xee - 0x80,
-        ["é"] = 0xba - 0x80, [":"] = 0x9c - 0x80,
+        ["é"] = 0xba - 0x80, ["¥"] = 0xf0 - 0x80, [":"] = 0x9c - 0x80,
         [";"] = 0x9d - 0x80, ["["] = 0x9e - 0x80, ["]"] = 0x9f - 0x80,
         ["-"] = 0xe3 - 0x80, ["."] = 0xe8 - 0x80,
         ["'"] = 0xe0 - 0x80, ["?"] = 0xe6 - 0x80, ["!"] = 0xe7 - 0x80,

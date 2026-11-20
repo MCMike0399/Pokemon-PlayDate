@@ -39,6 +39,8 @@ class LaneGFrontEndTests(unittest.TestCase):
             check=False, capture_output=True, text=True)
         self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
         self.assertIn("lane-g-host ok", completed.stdout)
+        title = (ROOT / "Source/game/titleState.lua").read_text()
+        self.assertIn("Story.playerName({session = session})", title)
 
     def test_existing_title_idle_host(self):
         completed = subprocess.run(

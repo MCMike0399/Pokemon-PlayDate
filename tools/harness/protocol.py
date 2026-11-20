@@ -274,7 +274,18 @@ class Client:
                 self._pending_id = None
                 raise ProtocolError('command timed out; cancellation acknowledged')
             time.sleep(.025)
-        raise ProtocolError('command timed out; cancellation unconfirmed; terminate owned runtime')
+        score = ''
+        path = self.data / 'contract-progress.json'
+        if path.exists():
+            try:
+                row = json.loads(path.read_text(encoding='utf-8'))
+            except (ValueError, OSError):
+                row = None
+            if isinstance(row, dict) and row.get('status') in ('scored', 'returned'):
+                atomic_json(self.evidence / 'contract-score.json', row)
+                score = (f"; contract {row.get('status')} ok={row.get('ok')} passed={row.get('passed')} "
+                         f"failed={row.get('failed')} heap_kib={row.get('heap_kib')}")
+        raise ProtocolError('command timed out; cancellation unconfirmed; terminate owned runtime' + score)
 
     def recover(self, timeout=5):
         """Confirm pending termination, then reset the actual runtime before reuse."""

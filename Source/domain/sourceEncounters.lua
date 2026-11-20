@@ -30,6 +30,50 @@ local definitions <const> = {
     ["pokered:VICTORY_ROAD_2F:objects:6"] = {zone_id = "pokered:VICTORY_ROAD_2F", species = "moltres", level = 50,
         flag = "EVENT_BEAT_MOLTRES", legendary = true,
         positions = {{11, 4}, {11, 6}, {10, 5}, {12, 5}}},
+    -- SeafoamIslandsB4F.asm object 3. Sight is 0, so the player talks from a
+    -- neighboring tile. EndTrainerBattle sets the flag unless the battle is lost.
+    ["pokered:SEAFOAM_ISLANDS_B4F:objects:3"] = {zone_id = "pokered:SEAFOAM_ISLANDS_B4F", species = "articuno", level = 50,
+        flag = "EVENT_BEAT_ARTICUNO", legendary = true,
+        positions = {{6, 2}, {5, 1}, {7, 1}, {6, 0}}},
+    -- CeruleanCaveB1F.asm object 1 is (27, 13), MEWTWO, 70, STAY, DOWN.
+    -- scripts/CeruleanCaveB1F.asm gives that trainer sight 0, so the player
+    -- talks from a neighboring tile. EndTrainerBattle sets the flag unless
+    -- the battle was lost.
+    ["pokered:CERULEAN_CAVE_B1F:objects:1"] = {zone_id = "pokered:CERULEAN_CAVE_B1F", species = "mewtwo", level = 70,
+        flag = "EVENT_BEAT_MEWTWO", legendary = true,
+        positions = {{27, 12}, {27, 14}, {26, 13}, {28, 13}}},
+    -- PowerPlant.asm objects 1-8 are the item-ball statics. Sight is 0.
+    -- Objects 1, 2, 3, 5, 6 and 8 are VOLTORB, 40. Objects 4 and 7 are
+    -- ELECTRODE, 43. The trainer headers still name every one VOLTORB_0-7.
+    -- Object 9 is ZAPDOS, 50, STAY, UP. EndTrainerBattle sets the flag
+    -- unless the battle was lost.
+    ["pokered:POWER_PLANT:objects:1"] = {zone_id = "pokered:POWER_PLANT", species = "voltorb", level = 40,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_0", legendary = true,
+        positions = {{9, 19}, {9, 21}, {8, 20}, {10, 20}}},
+    ["pokered:POWER_PLANT:objects:2"] = {zone_id = "pokered:POWER_PLANT", species = "voltorb", level = 40,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_1", legendary = true,
+        positions = {{32, 17}, {32, 19}, {31, 18}, {33, 18}}},
+    ["pokered:POWER_PLANT:objects:3"] = {zone_id = "pokered:POWER_PLANT", species = "voltorb", level = 40,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_2", legendary = true,
+        positions = {{21, 24}, {21, 26}, {20, 25}, {22, 25}}},
+    ["pokered:POWER_PLANT:objects:4"] = {zone_id = "pokered:POWER_PLANT", species = "electrode", level = 43,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_3", legendary = true,
+        positions = {{25, 17}, {25, 19}, {24, 18}, {26, 18}}},
+    ["pokered:POWER_PLANT:objects:5"] = {zone_id = "pokered:POWER_PLANT", species = "voltorb", level = 40,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_4", legendary = true,
+        positions = {{23, 33}, {23, 35}, {22, 34}, {24, 34}}},
+    ["pokered:POWER_PLANT:objects:6"] = {zone_id = "pokered:POWER_PLANT", species = "voltorb", level = 40,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_5", legendary = true,
+        positions = {{26, 27}, {26, 29}, {25, 28}, {27, 28}}},
+    ["pokered:POWER_PLANT:objects:7"] = {zone_id = "pokered:POWER_PLANT", species = "electrode", level = 43,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_6", legendary = true,
+        positions = {{21, 13}, {21, 15}, {20, 14}, {22, 14}}},
+    ["pokered:POWER_PLANT:objects:8"] = {zone_id = "pokered:POWER_PLANT", species = "voltorb", level = 40,
+        flag = "EVENT_BEAT_POWER_PLANT_VOLTORB_7", legendary = true,
+        positions = {{37, 31}, {37, 33}, {36, 32}, {38, 32}}},
+    ["pokered:POWER_PLANT:objects:9"] = {zone_id = "pokered:POWER_PLANT", species = "zapdos", level = 50,
+        flag = "EVENT_BEAT_ZAPDOS", legendary = true,
+        positions = {{4, 8}, {4, 10}, {3, 9}, {5, 9}}},
 }
 function SourceEncounters.positions(id)
     local definition <const> = definitions[id]

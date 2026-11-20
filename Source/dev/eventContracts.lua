@@ -19,6 +19,11 @@ local function fingerprint(game)
     local rng=RulesRNG.toData();out[#out+1]=rng.state;out[#out+1]=rng.rolls
     return table.concat(out,"|")
 end
+local function releaseContractZones()
+    for key,zone in pairs(zoneRegistry) do
+        if type(key)=="string" and key:sub(1,9)=="contract_" and zone~=currentZone then zoneRegistry[key]=nil end
+    end
+end
 local function setup(name,x,y)
     SliceSprites.install() -- real, idempotent production installation before map binding
     local policy={sliceZones={}}
@@ -63,6 +68,7 @@ local function renderedAfterManualStep(sprite,step,draw,clock,offsetY)
         states[#states+1]={sprite=item,visible=item:isVisible(),enabled=item:updatesEnabled()}
         item:setVisible(false);item:setUpdatesEnabled(false)
     end
+    releaseContractZones();collectgarbage("collect")
     local paper=gfx.image.new(400,240,gfx.kColorWhite);local background=gfx.sprite.new(paper)
     background:setCenter(0,0);background:setIgnoresDrawOffset(true);background:setZIndex(-32768);background:moveTo(0,0);background:add()
     local calls=0;local sentinel=gfx.sprite.new();sentinel:setSize(1,1);sentinel:setVisible(false)
@@ -101,14 +107,20 @@ function EventContracts.run()
         for key,value in pairs(spriteSets) do SpriteFactory.npc[key]=value end
         zoneRegistry,currentZone=registry,zone;gfx.setDrawOffset(ox,oy)
         gfx.sprite.addDirtyRect(0,0,400,240);EventState.redrawSprites()
+        games={}
+        releaseContractZones()
+        collectgarbage("collect")
         report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(problem) or nil}
         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
     end
     test("Source paragraphs expand only declared names/items and identify gated receipts",function()
         local pages=EventText.pages({"_Route1Youngster1GotPotionText"});eq(#pages,1)
-        eq(pages[1].text,"RED got POTION!");eq(pages[1].receipt,true)
+        -- text/Route1.asm puts <LINE> between "<PLAYER> got" and the item name.
+        eq(pages[1].text,"RED got\nPOTION!");eq(pages[1].receipt,true)
         local delivered=EventText.pages({"_OaksLabOak1DeliverParcelText"});eq(delivered[#delivered].receipt,true)
-        assert(delivered[#delivered].text:find("RED delivered OAK's PARCEL",1,true))
+        -- text/OaksLab.asm breaks "<PLAYER> delivered" and "OAK's PARCEL." across <LINE>.
+        local flat=delivered[#delivered].text:gsub("%s+"," ")
+        assert(flat:find("RED delivered OAK's PARCEL",1,true),delivered[#delivered].text)
         eq(pcall(EventText.pages,{"_UnknownMadeUpText"}),false)
     end)
     test("Pinned BLUE stride keeps protected standing hair phase and restores graphics offset",function()
@@ -177,6 +189,10 @@ function EventContracts.run()
     end)
     test("Adapted BLUE speech faces actual RED from every Oak interaction side",function()
         for _,position in ipairs({{5,4},{4,3},{6,3},{5,2}}) do
+            -- Each side is its own lab. Drop the previous one before the next
+            -- slice install so four fresh registries do not share the pool.
+            if games[#games] then games[#games]=nil end
+            releaseContractZones();collectgarbage("collect")
             local game,event=setup("oaks_lab",position[1],position[2])
             local oak=NPC(5,3,"OAK",{},nil,"oak","down");oak.def={source_event_id="contract:oak"};game.npcManager:addNPC(oak)
             assert(game.session:inventory():add("oaksParcel",1));assert(game.session:setQuestFlag("EVENT_GOT_OAKS_PARCEL",true))

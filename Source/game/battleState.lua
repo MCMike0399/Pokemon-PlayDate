@@ -143,6 +143,10 @@ function BattleState:finish(won, kind)
         end
         if not receipt then return end
         if not receipt.won then
+            -- pokered Route22Rival2AfterBattleScript returns to the default
+            -- script on LOST_BATTLE. The blackout page already ended the
+            -- fight, so the rival's victory line must not resume on the map.
+            if blackout then return end
             local descriptor = SourceEvents.descriptor(receipt.id)
             if descriptor and descriptor.lost then
                 local lines = {}
@@ -206,20 +210,15 @@ function BattleState:draw()
     if self.scene then self.scene:draw() end
 end
 
--- engine/items/item_effects.asm shows the new dex page, returns to the
--- battle, then engine/events/battle.asm AskName. NamingState is registered
--- by TitleState. The restored screen is held for a moment so the return is
--- visible before the nickname question covers the box.
+-- engine/items/item_effects.asm ItemUseBall shows the new dex page when
+-- wPokedexOwned was clear, returns to the battle, then engine/pokemon/add_mon.asm
+-- _AddPartyMon calls AskName. NamingState is registered by TitleState.
+-- There is no extra pause between the dex page and the nickname question.
 function BattleState:openPendingNickname()
     local battle = self.battle
     local pending = battle and battle.pendingNickname
     if not pending or not battle.nicknameReady or self.nicknameOpen then return end
     if not (Story and Story.promptNickname) then return end
-    if self.dexHold then
-        self.dexHold = self.dexHold - 1
-        if self.dexHold > 0 then return end
-        self.dexHold = nil
-    end
     if battle.caughtNewDex then
         if self.dexShown then return end
         self.dexShown = true
@@ -231,7 +230,6 @@ function BattleState:openPendingNickname()
                 onComplete = function()
                     battle.caughtNewDex = nil
                     self.dexShown = nil
-                    self.dexHold = 30
                 end,
             })
         end)

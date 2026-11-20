@@ -172,6 +172,10 @@ eq(typed.phase, "keyboard", "the nickname keyboard has no ask title")
 NamingScreen.press(typed, "a")
 eq(NamingScreen.text(typed), "A", "first letter")
 eq(typed.limit, 10, "nickname limit")
+local nickMon = {name = "SQUIRTLE"}
+eq(Story.storeNickname(nickMon, "BUBBLE\u{2642}"), true, "nickname keeps the male glyph")
+eq(nickMon.name, "BUBBLE\u{2642}", "stored nickname")
+eq(Story.storeNickname(nickMon, "12345678901"), false, "nickname stops at 10 glyphs")
 
 local session = {title = function() return {playerName = "RED", rivalName = "BLUE"} end}
 local game = {session = session}

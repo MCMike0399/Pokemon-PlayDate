@@ -159,6 +159,6 @@ function DaycareState:draw()
     gfx.setColor(gfx.kColorBlack)
     gfx.drawRect(236, 4, 160, 46)
     gfx.drawText("MONEY", 246, 8)
-    gfx.drawText("¥" .. self.session:inventory():money(), 246, 27)
+    GbFont.drawMoneyLine("¥" .. self.session:inventory():money(), 246, 27)
     gfx.popContext()
 end

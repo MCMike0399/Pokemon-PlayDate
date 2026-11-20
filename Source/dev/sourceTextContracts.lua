@@ -24,15 +24,15 @@ local function render(fn)
     return image
 end
 local function drawDialog(dialog) return render(function() dialog:draw() end) end
-local function pageBounds(dialog, font)
-    local advance = font:getHeight() + font:getLeading()
+local function pageBounds(dialog)
     for _, page in ipairs(dialog.lines) do
-        local y = 192
+        local rows = 0
         for row in (page .. "\n"):gmatch("(.-)\n") do
-            assert(SourceTextFont.width(row, font) <= 360, "horizontal clipping")
-            assert(y + font:getHeight() <= 234, "vertical clipping")
-            y = y + advance
+            rows = rows + 1
+            local count = utf8.len(row)
+            assert(count and count <= 18, "horizontal clipping")
         end
+        assert(rows <= 2, "vertical clipping")
     end
 end
 
@@ -76,12 +76,15 @@ function SourceTextContracts.run()
         }}
         local function resolve() return data end
         local pages = EventText.pagesFrom({"money"}, resolve, {wAmountMoneyWon = 1386, wStringBuffer = "POKé BALL"})
-        equal(#pages, 2); equal(pages[1].text, "RED got ¥1386 for winning!")
+        equal(#pages, 2); equal(pages[1].text, "RED got ¥1386\nfor winning!")
+        equal(pages[1].ending, "para"); equal(pages[2].ending, "done")
         equal(pages[1].receipt, true); equal(pages[1].source, "test.asm")
         equal(pages[2].text, "Found POKé BALL."); equal(pages[2].receipt, false)
         equal(SourceText.number("text_decimal hCount, 1, 3", {hCount = 7}), "  7")
+        -- MESSAGE_BOX is two rows of 18. The padded count stays; the name wraps.
         local padded = Dialog(); padded:show({"Count:   7 POKéMON."})
-        equal(padded.lines[1], "Count:   7 POKéMON.")
+        equal(#padded.lines, 1)
+        equal(padded.lines[1], "Count:   7\nPOKéMON.")
         equal(SourceText.number("text_bcd hMoney, 3 | LEADING_ZEROES | LEFT_ALIGN", {hMoney = 0}), "0")
         rejects(function() EventText.pagesFrom({"money"}, resolve) end)
         rejects(function() SourceText.number("text_decimal hCount, 1, 3", {hCount = 256}) end)
@@ -105,9 +108,9 @@ function SourceTextContracts.run()
                 local function make() return EventText.pagesFrom({label}, function() return record end, values) end
                 if supported then
                     for _, page in ipairs(make()) do
-                        local d = Dialog(); d:show({page.text .. " é"}) -- force measured path
-                        pageBounds(d, gfx.getFont())
-                        equal(compact(table.concat(d.lines, " ")), compact(page.text .. " é"))
+                        local d = Dialog(); d:show({page.text})
+                        pageBounds(d)
+                        equal(compact(table.concat(d.lines, " ")), compact(page.text))
                     end
                     count = count + 1
                 else rejects(make) end -- source branches/ASM remain explicit failures
@@ -185,7 +188,7 @@ function SourceTextContracts.run()
         local longWord = string.rep("é", 65)
         local text = paragraph .. "\fFinal paragraph.\n" .. longWord
         local d = Dialog(); d:show({text})
-        pageBounds(d, gfx.getFont())
+        pageBounds(d)
         local finalPage
         for i, page in ipairs(d.lines) do
             if page:find("Final", 1, true) then
@@ -202,16 +205,14 @@ function SourceTextContracts.run()
             for row in (d.lines[i] .. "\n"):gmatch("(.-)\n") do rows[#rows + 1] = row end
         end
         equal(rows[1], "Final paragraph.") -- explicit newline survives
-        assert(SourceTextFont.width(longWord, gfx.getFont()) > 360)
+        assert(utf8.len(longWord) > 18)
         assert(#rows > 2, "oversized word must wrap")
         -- Only the oversized word may split. Recover it without introducing
-        -- spaces, and require every nonfinal fragment to fill its whole row.
+        -- spaces, and require every nonfinal fragment to fill the 18-tile row.
         for i = 2, #rows do
             assert(utf8.len(rows[i]) and utf8.len(rows[i]) > 0, "empty or partial UTF-8 fragment")
             equal((rows[i]:gsub("é", "")), "")
-            if i < #rows then
-                assert(SourceTextFont.width(rows[i] .. "é", gfx.getFont()) > 360, "unnecessary word split")
-            end
+            if i < #rows then equal(utf8.len(rows[i]), 18) end
         end
         equal(table.concat(rows, "", 2), longWord)
         assert(#d.lines >= 4)
@@ -231,37 +232,52 @@ function SourceTextContracts.run()
         equal(d.isActive, false); equal(completed, 1)
     end)
 
-    test("Short ordinary dialog remains pixel identical to the original renderer", function()
-        for _, text in ipairs({"Hello, RED!", "RED learned EMBER!", "Choose a POKEMON.",
-            "OAK: Ah! CHARMANDER! This one is really energetic!"}) do
-            local d = Dialog(); d:show({text})
-            equal(#d.lines, 1); equal(d.legacy[1], true)
-            for _, index in ipairs({1, #text}) do
-                d.charIndex = index
-                local actual = drawDialog(d)
-                local expected = render(function()
-                    gfx.setColor(gfx.kColorBlack); gfx.fillRect(0, 180, 400, 60)
-                    gfx.setColor(gfx.kColorWhite); gfx.fillRect(4, 184, 392, 52)
-                    gfx.setColor(gfx.kColorBlack); gfx.drawRect(4, 184, 392, 52)
-                    gfx.drawTextInRect(text:sub(1, index), 14, 192, 372, 42)
-                    if index == #text then gfx.drawText("v", 380, 220) end
-                end)
-                for y = 0, 239 do for x = 0, 399 do equal(actual:sample(x, y), expected:sample(x, y)) end end
-            end
+    test("The message box is the two-line tile box with the prompt arrow", function()
+        local text = "Hello, hello!\nI am the official"
+        local d = Dialog(); d:show({{text = text, ending = "cont"}})
+        equal(#d.lines, 1); equal(d.lines[1], text)
+        d.charIndex = #text; d.blinkTimer = 0
+        local actual = drawDialog(d)
+        local expected = render(function()
+            GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
+            GbFont.drawString("Hello, hello!", 1, 14)
+            GbFont.drawString("I am the official", 1, 16)
+            GbFont.drawChar("▼", 18, 16)
+        end)
+        for y = 0, 239 do for x = 0, 399 do equal(actual:sample(x, y), expected:sample(x, y)) end end
+        d.charIndex = 5
+        local partial = drawDialog(d)
+        local partialExpected = render(function()
+            GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
+            GbFont.drawString(text:sub(1, 5), 1, 14)
+        end)
+        for y = 0, 239 do for x = 0, 399 do equal(partial:sample(x, y), partialExpected:sample(x, y)) end end
+        local function arrowInk(dialog)
+            dialog:advance()
+            local image = drawDialog(dialog)
+            local blacks = 0
+            for y = 16 * 13, 17 * 13 - 1 do for x = 18 * 20, 19 * 20 - 1 do
+                if image:sample(x, y) == gfx.kColorBlack then blacks = blacks + 1 end
+            end end
+            return blacks
         end
+        local prompt = Dialog(); prompt:show({{text = "Which POKEMON\nshould I look at?", ending = "prompt"}})
+        assert(arrowInk(prompt) > 20, "prompt places the arrow")
+        local paragraph = Dialog(); paragraph:show({{text = "That is a decent\nnickname!", ending = "para"}})
+        assert(arrowInk(paragraph) > 20, "para places the arrow")
+        local finished = Dialog(); finished:show({{text = "give a nickname\nto SQUIRTLE?", ending = "done"}})
+        equal(arrowInk(finished), 0)
     end)
 
-    test("Extended pages reserve a readable advance gutter and drawing does not advance state", function()
-        local d = Dialog(); d:show({"POKéMON ¥999999 ♂ ♀ …"})
+    test("The prompt arrow sits in the second line and drawing does not advance state", function()
+        local d = Dialog(); d:show({"POKéMON"})
         d:advance()
         local index = d.charIndex
         local image = drawDialog(d)
         equal(d.charIndex, index); equal(d.currentLine, 1)
-        for y = 0, 239 do for x = 0, 399 do
-            if y < 180 then equal(image:sample(x, y), gfx.kColorWhite) end
+        for y = 0, 155 do for x = 0, 399 do
+            equal(image:sample(x, y), gfx.kColorWhite)
         end end
-        equal(image:sample(383, 229), gfx.kColorBlack)
-        equal(image:sample(387, 229), gfx.kColorWhite)
         native(image, "source-text-symbols-complete")
     end)
     return report

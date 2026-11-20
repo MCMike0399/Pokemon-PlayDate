@@ -1,0 +1,51 @@
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -250,7 +250,14 @@ function BattleScriptPhase:advance()
+         self.waiting = true
+         self.messageTimer = 0
+     elseif kind == "shift" then
+-        self.battle.shiftChoice = {incoming = value}
++        local incoming = value
++        if type(value) == "table" and value.text then
++            incoming = value.incoming
++            self.battle.message = value.text
++            self.messageSerial = (self.messageSerial or 0) + 1
++            self.messageTimer = 0
++        end
++        self.battle.shiftChoice = {incoming = incoming}
+         self.waiting = false
+     elseif kind == "learning" then
+         assert(value and value:is("Pokemon") and #value:getPendingMoveChoices() > 0, "invalid learning yield")
+@@ -1789,9 +1796,14 @@ function Battle:finishRound()
+                 -- battle text draws that source glyph.
+                 local title = self.session and self.session:title()
+                 local playerName = title and title.playerName or "RED"
+-                self:say(self.trainerName .. " is about to use " .. incoming.name
+-                    .. "!\nWill " .. playerName .. " change POKéMON?")
+-                coroutine.yield("shift", incoming)
++                -- "about to use" is its own page. The question and YES/NO
++                -- are the next screen. A say() of both typed the question
++                -- with no menu, then B sent the foe out.
++                self:say(self.trainerName .. " is about to use " .. incoming.name .. "!")
++                coroutine.yield("shift", {
++                    incoming = incoming,
++                    text = "Will " .. playerName .. " change POKéMON?",
++                })
+                 local selected = self.shiftSelected
+                 self.shiftSelected = nil
+                 if selected then
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -653,7 +653,11 @@ function BattleScene:drawBattleField()
+ 
+     if self.battle.shiftChoice then
+         -- pokered _TrainerAboutToUseText plus the YES/NO box (TWO_OPTION_MENU).
+-        self:_wrapped("shift-prompt", self.battle.message or "", 276, 44).image:draw(14, boxY + 8)
++        -- The question stays in the GB font, beside the menu, not in the
++        -- system font after the typewriter.
++        if self.messageDialog.lines and self.messageDialog.lines[1] then
++            self.messageDialog:draw(true)
++        end
+         self.shiftMenu:draw(300, boxY + 4, 92, 52)
+     elseif self.battle:isAwaitingCommand() then
+         -- Draw text area on left

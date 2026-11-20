@@ -250,7 +250,14 @@ function BattleScriptPhase:advance()
         self.waiting = true
         self.messageTimer = 0
     elseif kind == "shift" then
-        self.battle.shiftChoice = {incoming = value}
+        local incoming = value
+        if type(value) == "table" and value.text then
+            incoming = value.incoming
+            self.battle.message = value.text
+            self.messageSerial = (self.messageSerial or 0) + 1
+            self.messageTimer = 0
+        end
+        self.battle.shiftChoice = {incoming = incoming}
         self.waiting = false
     elseif kind == "learning" then
         assert(value and value:is("Pokemon") and #value:getPendingMoveChoices() > 0, "invalid learning yield")
@@ -270,14 +277,17 @@ function BattleScriptPhase:update()
 end
 
 function BattleScriptPhase:handleInput()
+    -- The 10-frame floor is not the print. PrintLetterDelay may still be
+    -- revealing the line, and a held A is not WaitForTextScrollButtonPress.
+    -- Only a new A after that wait installs the next queued say.
     if self.waiting and self.messageTimer > MESSAGE_MIN_FRAMES
-       and (playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonIsPressed(playdate.kButtonA)) then
+       and playdate.buttonJustPressed(playdate.kButtonA) then
         self.waiting = false
         self:advance()
     end
 end
 
--- ended: terminal message ("You won the battle!" / "You blacked out...");
+-- ended: terminal message (victory, or the pokered blackout page);
 -- A hands control back to whoever owns the battle via the battleEnd signal
 Class("BattleEndedPhase"):extends(State)
 
@@ -931,6 +941,7 @@ function Battle:throwBall(ballId)
         assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
     end
     if result.caught then
+        if newDex then self.dexPageAdded = self.enemy.species end
         self.enemy:resetStages()
         self:clearHitPresentation()
         if not self.sourceEncounter then
@@ -950,7 +961,8 @@ function Battle:throwBall(ballId)
         if result.caught then
             self:say("Gotcha! " .. self.enemy.name .. " was caught!")
             self.message=self.enemy.name .. " was caught!"
-            -- engine/events/battle.asm AskName, after the caught line.
+            -- engine/pokemon/add_mon.asm _AddPartyMon calls AskName after the
+            -- caught line and, when the species was new, after ShowPokedexData.
             self.pendingNickname={mon=self.enemy, speciesName=self.enemy.name}
             self.nicknameReady=true
             return "caught" -- Catching grants no XP in Gen V.
@@ -1023,6 +1035,10 @@ function Battle:resolveRound(turns)
     self.effects:beginRound(turns)
     for _, turn in ipairs(turns) do
         local outcome = self:resolveTurn(turn)
+        -- replacement means a bench can still fight. The later queued move
+        -- still resolves: a fainted actor skips before PP, and a living actor
+        -- spends PP before a fainted target reports no target. Residuals and
+        -- the forced switch happen after the queue.
         if outcome and outcome ~= "replacement" then return outcome end
     end
     return self:finishRound()
@@ -1165,6 +1181,12 @@ function Battle:resolveTurn(turn)
         if not key or not attacker:usePP(key) then
             self:say(attacker.name .. " has no PP left for that move!")
             return interrupted()
+        end
+        -- Pressure on the living target spends one extra PP when any remains.
+        -- The move still resolves after the first point. Struggle has no PP.
+        if key ~= "struggle" and self:targetsFoe(turn.move)
+            and self.effects:livingAbility(self.defender, 46) then
+            attacker:usePP(key)
         end
     end
     -- Committed action: PP and the interrupt gates have already passed.
@@ -1420,6 +1442,13 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
        and opponentTargets[move.targetId or 10]
        and (self:typeMatchup(move.type,defender)==0
             or self.effects:groundImmune(attacker, defender, move)) then
+        -- Lightning Rod still draws Electric moves that Ground would ignore.
+        if move.type=="electric" and self.effects:livingAbility(defender,31) then
+            self.effects:absorbsMove(attacker,defender,move)
+            resetFury()
+            self.conditions:moveFinished(move,false)
+            return nil
+        end
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         resetFury()
         self:say("It doesn't affect " .. defender.name .. "...")
@@ -1679,8 +1708,11 @@ function Battle:_registerFaints(lastFaintedSide)
         if not pokemon:isAlive() and not self.faintAnnounced[side] then
             self.faintAnnounced[side] = true
             changed=true
-            self:say(pokemon.name .. " fainted!")
+            -- present() does not start the slide until isVitalsBlocking() is false,
+            -- which is the bar reaching the authoritative HP. The line is
+            -- printed only after the drain and the slide.
             self:present("faint", {side = side, pokemon = pokemon})
+            self:say(pokemon.name .. " fainted!")
         end
     end
     return lastFaintedSide,changed
@@ -1732,11 +1764,29 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
     if won then
+        local coins = self.payDayCoins or 0
+        if coins > 0 then
+            -- data/text/text_2.asm _PickUpPayDayMoneyText. The scatter line is
+            -- text_3.asm; this page is the yen total, once, on a win.
+            local title = self.session and self.session:title()
+            local playerName = title and title.playerName or "RED"
+            self:say(playerName .. " picked up\n¥" .. coins .. "!")
+        end
         self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
         return "victory"
     end
     if not playerTeamAlive then
-        self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
+        -- pret/pokered text/text_2.asm _PlayerBlackedOutText2. OaksLab is the
+        -- one loss that prints the rival's line and does not black out.
+        local intro = self.session and self.session:getIntro()
+        if intro and intro.stage == "rival_fight" then
+            self.message = "You lost the battle!"
+        else
+            local title = self.session and self.session:title()
+            local playerName = title and title.playerName or "RED"
+            self.message = playerName .. " is out of\nuseable POKéMON!\n\n"
+                .. playerName .. " blacked\nout!"
+        end
         return "defeat"
     end
     return "replacement"
@@ -1767,9 +1817,15 @@ function Battle:finishRound()
                 -- battle text draws that source glyph.
                 local title = self.session and self.session:title()
                 local playerName = title and title.playerName or "RED"
-                self:say(self.trainerName .. " is about to use " .. incoming.name
-                    .. "!\nWill " .. playerName .. " change POKéMON?")
-                coroutine.yield("shift", incoming)
+                -- "about to use" is its own page. pokered then prints
+                -- "Will <PLAYER>" / "change #MON?" with TWO_OPTION_MENU.
+                -- One say() of both typed the question with no menu, and B
+                -- sent the foe out.
+                self:say(self.trainerName .. " is about to use " .. incoming.name .. "!")
+                coroutine.yield("shift", {
+                    incoming = incoming,
+                    text = "Will " .. playerName .. "\nchange POKéMON?",
+                })
                 local selected = self.shiftSelected
                 self.shiftSelected = nil
                 if selected then

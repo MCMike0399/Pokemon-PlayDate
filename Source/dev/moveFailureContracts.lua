@@ -375,6 +375,11 @@ function MoveFailureContracts.run()
             eq(#b:getMoveGaps(), 0)
             for key, value in pairs(shared) do eq(moveData.magnitude[key], value, key) end
             for key in pairs(moveData.magnitude) do assert(shared[key] ~= nil, key) end
+            -- Each seed is a finished battle. Keeping all 100 live is what
+            -- runs the script out of memory; the distribution is the counts.
+            b:clearVolatiles()
+            battles[#battles] = nil
+            collectgarbage("collect")
         end
         for index, expected in ipairs({5, 10, 20, 30, 20, 10, 5}) do
             eq(counts[index], expected, "Magnitude distribution " .. (index + 3))

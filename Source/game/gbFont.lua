@@ -1,103 +1,73 @@
--- Pokered 8x8 font at the GB-to-Playdate integer 2x. Every glyph is
--- 16x16, nearest neighbor, so a tile is never stretched to the 20x13
--- screen cell. gfx/font/font.png, font_extra.png, and the HUD tiles.
--- constants/charmap.asm. The battle HUD tiles are gfx/font/font_battle_extra.2bpp
--- and gfx/battle/battle_hud_1.1bpp after LoadHudTilePatterns.
+-- Pokered 8x8 font. gfx/font/font.png and font_extra.png through the
+-- title-art threshold. constants/charmap.asm. Tiles are scaled to the
+-- TitleIdle cell so a TextBoxBorder stays on the 20px by 13px grid.
 import "game/titleIdle"
 
 GbFont = {}
-GbFont.TILE = 16
 local gfx = playdate and playdate.graphics
 local sheets
 local cache = {}
-local HUD_COLUMNS <const> = 19
 
-local function loadSheet(path)
-    local image = gfx.image.new(path)
-    assert(image, "missing font sheet " .. path)
+local function loadSheet(name)
+    local image = gfx.image.new("images/title/font/" .. name)
+    assert(image, "missing font sheet " .. name)
     return image
 end
 
 function GbFont.load()
     if sheets then return sheets end
-    sheets = {
-        font = loadSheet("images/title/font/font"),
-        extra = loadSheet("images/title/font/extra"),
-        ed = loadSheet("images/title/font/ed"),
-        hud = loadSheet("images/title/font/hud"),
-    }
+    sheets = {font = loadSheet("font"), extra = loadSheet("extra"), ed = loadSheet("ed")}
     return sheets
 end
 
-local function columnsOf(sheetName)
-    if sheetName == "ed" then return 1 end
-    if sheetName == "hud" then return HUD_COLUMNS end
-    return 16
-end
-
--- Exact 2x. Source pixel (sx + floor(px/2), sy + floor(py/2)).
-local function blit(sheetName, index, x, y)
+local function tileImage(sheetName, index)
     local key = sheetName .. ":" .. index
-    local image = cache[key]
-    if not image then
-        local sheet = GbFont.load()[sheetName]
-        local columns = columnsOf(sheetName)
-        local sx = (index % columns) * 8
-        local sy = math.floor(index / columns) * 8
-        image = gfx.image.new(GbFont.TILE, GbFont.TILE, gfx.kColorWhite)
-        gfx.pushContext(image)
-        gfx.setDrawOffset(0, 0)
-        gfx.setColor(gfx.kColorBlack)
-        for py = 0, GbFont.TILE - 1 do
-            local sourceY = sy + math.floor(py / 2)
-            for px = 0, GbFont.TILE - 1 do
-                local sourceX = sx + math.floor(px / 2)
-                if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
-                    gfx.drawPixel(px, py)
-                end
+    local cached = cache[key]
+    if cached then return cached end
+    local sheet = GbFont.load()[sheetName]
+    local columns = 16
+    local sx = (index % columns) * 8
+    local sy = math.floor(index / columns) * 8
+    local image = gfx.image.new(TitleIdle.COL, TitleIdle.ROW, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setColor(gfx.kColorBlack)
+    for y = 0, TitleIdle.ROW - 1 do
+        local sourceY = sy + math.floor(y * 8 / TitleIdle.ROW)
+        for x = 0, TitleIdle.COL - 1 do
+            local sourceX = sx + math.floor(x * 8 / TitleIdle.COL)
+            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(x, y)
             end
         end
-        gfx.popContext()
-        cache[key] = image
     end
-    image:draw(x, y)
-end
-
-function GbFont.line(text, x, y)
-    local cursor = x
-    for _, code in utf8.codes(text or "") do
-        local sheetName, index = TitleIdle.glyph(utf8.char(code))
-        blit(sheetName, index, cursor, y)
-        cursor = cursor + GbFont.TILE
-    end
-end
-
-function GbFont.clip(text, maxChars)
-    local out, count = {}, 0
-    for _, code in utf8.codes(text or "") do
-        if count >= maxChars then break end
-        out[#out + 1] = utf8.char(code)
-        count = count + 1
-    end
-    return table.concat(out)
+    gfx.popContext()
+    cache[key] = image
+    return image
 end
 
 function GbFont.drawChar(char, col, row)
-    local tile = GbFont.TILE
     local sheetName, index = TitleIdle.glyph(char)
-    blit(sheetName, index, col * tile, row * tile)
+    tileImage(sheetName, index):draw(col * TitleIdle.COL, row * TitleIdle.ROW)
 end
 
 function GbFont.drawString(text, col, row)
-    GbFont.line(text, col * GbFont.TILE, row * GbFont.TILE)
+    local cursor, index = 0, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+        tileImage(sheetName, glyph):draw((col + cursor) * TitleIdle.COL, row * TitleIdle.ROW)
+        cursor = cursor + 1
+        index = nextIndex
+    end
 end
 
 function GbFont.drawBox(box)
-    local tile = box.tile or GbFont.TILE
-    local cols = math.floor(box.w / tile)
-    local rows = math.floor(box.h / tile)
+    local cols = math.floor(box.w / TitleIdle.COL)
+    local rows = math.floor(box.h / TitleIdle.ROW)
+    local originCol = math.floor(box.x / TitleIdle.COL)
+    local originRow = math.floor(box.y / TitleIdle.ROW)
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(box.x, box.y, cols * tile, rows * tile)
+    gfx.fillRect(box.x, box.y, box.w, box.h)
     for row = 0, rows - 1 do
         for col = 0, cols - 1 do
             local char
@@ -108,91 +78,139 @@ function GbFont.drawBox(box)
             elseif row == 0 or row == rows - 1 then char = "─"
             elseif col == 0 or col == cols - 1 then char = "│"
             end
-            if char then
-                local sheetName, index = TitleIdle.glyph(char)
-                blit(sheetName, index, box.x + col * tile, box.y + row * tile)
-            end
+            if char then GbFont.drawChar(char, originCol + col, originRow + row) end
         end
     end
 end
 
 -- One naming-screen cell. PK, MN and ED are single tiles, not two letters.
 function GbFont.drawCell(token, x, y)
+    GbFont.load()
     local sheetName, index = TitleIdle.glyph(token)
-    blit(sheetName, index, x, y)
-end
-
--- Same 16px line. Callers that used the tight path stay on the uniform scale.
-function GbFont.drawTight(text, x, y)
-    GbFont.line(text, x, y)
-end
-
--- home/pokemon.asm DrawHPBar. wHPBarType 1 (battle) uses the right cap that
--- LoadHudTilePatterns wrote over vChars2 $6d. The bar length d is 6.
--- Bracket tiles are the ones LoadHudTilePatterns copies onto vChars2.
--- battle_hud_2.1bpp starts at $73 and battle_hud_3.1bpp follows it.
--- $6F is the third tile of battle_hud_1.1bpp, which starts at $6d.
-local HUD_INDEX <const> = {
-    lv = 0, hp = 1, barLeft = 2, barEmpty = 3,
-    bar1 = 4, bar2 = 5, bar3 = 6, bar4 = 7, bar5 = 8, bar6 = 9, bar7 = 10,
-    barFull = 11, barRight = 12,
-    hudVertical = 13, hudCornerLeft = 14, hudRule = 15,
-    hudCornerRight = 16, hudEndRight = 17, hudEndLeft = 18,
-}
-
-function GbFont.hudTile(name, x, y)
-    blit("hud", HUD_INDEX[name], x, y)
-end
-
-local function barTile(pixels)
-    if pixels >= 8 then return "barFull" end
-    if pixels <= 0 then return "barEmpty" end
-    return "bar" .. pixels
-end
-
--- side is "enemy" or "player". A status replaces the level, matching
--- PrintLevel being skipped once a status tile is on the name row.
-function GbFont.drawBattleHud(side, info)
-    local layout = TitleIdle.battleHud(side, info)
-    local tile = GbFont.TILE
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(layout.nameX, layout.nameY, utf8.len(layout.name) * tile, tile)
-    local levelW = (layout.status and utf8.len(layout.status) or (1 + #layout.levelText)) * tile
-    gfx.fillRect(layout.levelX, layout.levelY, levelW, tile)
-    local barW = (2 + layout.segments + 1) * tile
-    gfx.fillRect(layout.barX, layout.barY, barW, tile)
-    if layout.numbers then
-        gfx.fillRect(layout.numbersX, layout.numbersY, utf8.len(layout.numbers) * tile, tile)
-    end
-    GbFont.line(layout.name, layout.nameX, layout.nameY)
-    if layout.status then
-        GbFont.line(layout.status, layout.levelX, layout.levelY)
-    else
-        GbFont.hudTile("lv", layout.levelX, layout.levelY)
-        GbFont.line(layout.levelText, layout.levelX + tile, layout.levelY)
-    end
-    GbFont.hudTile("hp", layout.barX, layout.barY)
-    GbFont.hudTile("barLeft", layout.barX + tile, layout.barY)
-    local filled = 0
-    if layout.maxHp > 0 then
-        filled = math.floor((layout.hp / layout.maxHp) * (layout.segments * 8) + 0.5)
-    end
-    for index = 0, layout.segments - 1 do
-        local pixels = math.max(0, math.min(8, filled - index * 8))
-        GbFont.hudTile(barTile(pixels), layout.barX + (2 + index) * tile, layout.barY)
-    end
-    GbFont.hudTile("barRight", layout.barX + (2 + layout.segments) * tile, layout.barY)
-    if layout.numbers then
-        GbFont.line(layout.numbers, layout.numbersX, layout.numbersY)
-    end
-    local bracket = layout.bracket
-    if bracket then
-        -- PlaceHUDTiles draws past the message box and the enemy platform
-        -- on this screen. The clip keeps the rule off both.
-        gfx.setClipRect(0, 0, 400, bracket.clipBottom)
-        for _, piece in ipairs(bracket.tiles) do
-            GbFont.hudTile(piece.name, piece.x, piece.y)
+    local sheet = sheets[sheetName]
+    local columns = sheetName == "ed" and 1 or 16
+    local sx = (index % columns) * 8
+    local sy = math.floor(index / columns) * 8
+    local image = gfx.image.new(16, 16, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setColor(gfx.kColorBlack)
+    for py = 0, 15 do
+        local sourceY = sy + math.floor(py / 2)
+        for px = 0, 15 do
+            local sourceX = sx + math.floor(px / 2)
+            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(px, py)
+            end
         end
-        gfx.clearClipRect()
     end
+    gfx.popContext()
+    image:draw(x, y)
+end
+
+-- Tight 2x of the 8x8 tile, for a line that is not one glyph per cell.
+function GbFont.drawTight(text, x, y)
+    GbFont.load()
+    local cursor, index = x, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+        local sheet = sheets[sheetName]
+        local sx = (glyph % 16) * 8
+        local sy = math.floor(glyph / 16) * 8
+        local image = gfx.image.new(16, 16, gfx.kColorWhite)
+        gfx.pushContext(image)
+        gfx.setColor(gfx.kColorBlack)
+        for py = 0, 15 do
+            local sourceY = sy + math.floor(py / 2)
+            for px = 0, 15 do
+                local sourceX = sx + math.floor(px / 2)
+                if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
+                    gfx.drawPixel(px, py)
+                end
+            end
+        end
+        gfx.popContext()
+        image:draw(cursor, y)
+        cursor = cursor + 16
+        index = nextIndex
+    end
+end
+
+-- A money figure is spaces, the charmap yen, and digits. Charmap $f0 is
+-- tile 112. Words stay on the current font so the existing boxes still fit,
+-- and the yen plus the digits after it use the source tile.
+local YEN <const> = utf8.codepoint("¥")
+
+function GbFont.isMoneyFigure(text)
+    if text == "" then return true end
+    for _, code in utf8.codes(text) do
+        if code ~= 32 and code ~= YEN and (code < 48 or code > 57) then
+            return false
+        end
+    end
+    return true
+end
+
+local function moneyRuns(text)
+    local runs = {}
+    local codes = {utf8.codepoint(text, 1, -1)}
+    local index = 1
+    while index <= #codes do
+        if codes[index] == YEN then
+            local run = "¥"
+            index = index + 1
+            while index <= #codes and codes[index] >= 48 and codes[index] <= 57 do
+                run = run .. string.char(codes[index])
+                index = index + 1
+            end
+            runs[#runs + 1] = {kind = "figure", text = run}
+        else
+            local chunk = utf8.char(codes[index])
+            index = index + 1
+            while index <= #codes and codes[index] ~= YEN do
+                chunk = chunk .. utf8.char(codes[index])
+                index = index + 1
+            end
+            runs[#runs + 1] = {kind = "text", text = chunk}
+        end
+    end
+    return runs
+end
+
+function GbFont.measureMoneyLine(text)
+    if GbFont.isMoneyFigure(text) then
+        return 16 * (utf8.len(text) or 0), 16
+    end
+    local width, height = 0, 16
+    for _, run in ipairs(moneyRuns(text)) do
+        if run.kind == "figure" then
+            width = width + 16 * utf8.len(run.text)
+        else
+            local runWidth, runHeight = gfx.getTextSize(run.text)
+            width = width + runWidth
+            if runHeight > height then height = runHeight end
+        end
+    end
+    return width, height
+end
+
+function GbFont.drawMoneyLine(text, x, y)
+    if GbFont.isMoneyFigure(text) then
+        GbFont.drawTight(text, x, y)
+        return
+    end
+    local cursor = x
+    for _, run in ipairs(moneyRuns(text)) do
+        if run.kind == "figure" then
+            GbFont.drawTight(run.text, cursor, y)
+            cursor = cursor + 16 * utf8.len(run.text)
+        else
+            gfx.drawText(run.text, cursor, y)
+            cursor = cursor + gfx.getTextSize(run.text)
+        end
+    end
+end
+
+function GbFont.drawMoneyRight(text, rightX, y)
+    local width = GbFont.measureMoneyLine(text)
+    GbFont.drawMoneyLine(text, rightX - width, y)
 end

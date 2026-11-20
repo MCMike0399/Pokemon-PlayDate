@@ -837,21 +837,20 @@ function BattleConditions:events()
     local events={}
     for _,side in ipairs({"player","enemy"}) do
         local mon=self.battle[side];local state=self:of(mon)
-        local function add(kind,order) events[#events+1]={side=side,pokemon=mon,kind=kind,order=order} end
         if alive(mon) then
             if state.roost then events[#events+1]={side=side,pokemon=mon,kind="roostEnd",order=25,record=state.roost} end
             if state.yawn then
                 events[#events+1] = {side=side, pokemon=mon, kind="yawn", order=23, record=state.yawn}
             end
-            if state.disable then add("disable",17) end
-            if state.encore then add("encore",16) end
-            if state.taunt then add("taunt",15) end
-            if state.seed then add("seed",8) end
-            if mon.status=="poison" or mon.status=="badPoison" then add("status",9) end
-            if mon.status=="burn" then add("status",10) end
-            if state.curse then add("curse",12) end
-            if state.trap then add("trap",13) end
-            if state.rampage and (state.rampage.interrupted or mon.status=="sleep") then add("rampageEnd",1000) end
+            if state.disable then events[#events+1]={side=side,pokemon=mon,kind="disable",order=17} end
+            if state.encore then events[#events+1]={side=side,pokemon=mon,kind="encore",order=16} end
+            if state.taunt then events[#events+1]={side=side,pokemon=mon,kind="taunt",order=15} end
+            if state.seed then events[#events+1]={side=side,pokemon=mon,kind="seed",order=8} end
+            if mon.status=="poison" or mon.status=="badPoison" then events[#events+1]={side=side,pokemon=mon,kind="status",order=9} end
+            if mon.status=="burn" then events[#events+1]={side=side,pokemon=mon,kind="status",order=10} end
+            if state.curse then events[#events+1]={side=side,pokemon=mon,kind="curse",order=12} end
+            if state.trap then events[#events+1]={side=side,pokemon=mon,kind="trap",order=13} end
+            if state.rampage and (state.rampage.interrupted or mon.status=="sleep") then events[#events+1]={side=side,pokemon=mon,kind="rampageEnd",order=1000} end
         end
     end
     for _,side in ipairs({"player","enemy"}) do

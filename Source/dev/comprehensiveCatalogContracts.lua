@@ -25,11 +25,11 @@ function ComprehensiveCatalogContracts.run()
         local inventory=VisualCatalog.expectedInventory()
         local additions=CeruleanCatalogExporter.inventory()
         local vermilion = VermilionCatalogExporter.inventory()
-        eq(#inventory.images, CatalogRuntime.declaredImageCount(inventory))
+        eq(inventory.image_count, CatalogRuntime.declaredImageCount(inventory))
         assert(CatalogRuntime.same(inventory.exporters.cerulean,additions),"explicit Cerulean inventory differs")
         assert(CatalogRuntime.same(inventory.exporters.vermilion, vermilion), "explicit Vermilion inventory differs")
         eq(#inventory.exporters.pewter.images,859)
-        local paths={};for _,entry in ipairs(inventory.images) do assert(not paths[entry.path]);paths[entry.path]=true end
+        local paths={};for entry in VisualCatalog.iterImages(inventory) do assert(not paths[entry.path]);paths[entry.path]=true end
         for _,name in ipairs(PewterSlice.names()) do
             for _,kind in ipairs({"terrain","collision","actors","events","viewport"}) do assert(paths["pewter-"..name.."-"..kind..".png"]) end
         end
