@@ -149,6 +149,16 @@ def key_fight(name, trainer_id):
         return "badge-earth"
     if trainer == "pokered:ROUTE_22:objects:2":
         return "rival-2"
+    if trainer == "pokered:LORELEIS_ROOM:objects:1":
+        return "elite-lorelei"
+    if trainer == "pokered:BRUNOS_ROOM:objects:1":
+        return "elite-bruno"
+    if trainer == "pokered:AGATHAS_ROOM:objects:1":
+        return "elite-agatha"
+    if trainer == "pokered:LANCES_ROOM:objects:1":
+        return "elite-lance"
+    if trainer == "pokered:CHAMPIONS_ROOM:objects:1":
+        return "champion"
     return None
 
 
@@ -2538,12 +2548,27 @@ class CharmanderRun(BrockJourney):
         """Badge gates, then the south door of Victory Road. Save on the mat."""
         self.summary["acceptance"] = "walking Route 23 toward Victory Road"
         self._arrange_lead("starter")
-        if "VICTORY_ROAD" in (self._map_name() or ""):
-            self._victory_road_1f()
+        zone = self._map_name() or ""
+        if "VICTORY_ROAD" in zone:
+            if self._on("VictoryRoad1F"):
+                self._victory_road_1f()
+            self._victory_road_2f()
+            return
+        if any(name in zone for name in (
+            "INDIGO_PLATEAU", "LORELEIS_ROOM", "BRUNOS_ROOM", "AGATHAS_ROOM",
+            "LANCES_ROOM", "CHAMPIONS_ROOM", "HALL_OF_FAME",
+        )):
+            self._indigo_plateau()
             return
         # (4, 31) is the 1F door. A resume already standing south of it keeps
-        # the entrance save and steps through.
-        at_door = self._on("Route23") and self.position() == (4, 32)
+        # the entrance save and steps through. North of that door, and the
+        # east cave exit at (14, 32), continue toward Indigo.
+        at_door = self._on("Route23") and self.position() in {(4, 32), (4, 31)}
+        if self._on("Route23") and not at_door:
+            x, y = self.position()
+            if y < 31 or (y <= 32 and x >= 14):
+                self._indigo_plateau()
+                return
         if not at_door:
             if not self._on("Route23"):
                 self.travel(self.zone("Route23"))
@@ -2554,6 +2579,7 @@ class CharmanderRun(BrockJourney):
             self.summary.update(acceptance="Victory Road entrance", natural=True, forbidden_shortcuts=False)
         self._enter_victory_road()
         self._victory_road_1f()
+        self._victory_road_2f()
 
     def _pin_victory_trainers(self):
         for trainer_id, payout, map_id in (
@@ -2653,6 +2679,348 @@ class CharmanderRun(BrockJourney):
             if self._on("VictoryRoad2F"):
                 self.save()
                 self.summary.update(acceptance="Victory Road 2F", natural=True, forbidden_shortcuts=False)
+
+    def _actor_at(self, source_id):
+        from tools.harness.parcel_journey import sequence
+        for npc in sequence(self.state.get("npcs") or [], "npcs"):
+            if npc.get("source_event_id") == source_id or npc.get("id") == source_id:
+                return npc["x"], npc["y"]
+        return None
+
+    def _open_victory_gates(self):
+        """The harness map stays closed. The live switch paints these cells open."""
+        if not self._on("VictoryRoad2F"):
+            return
+        model = self.model()
+        opened = []
+        if self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1"):
+            opened.extend((x, y, 5) for x, y in ((6, 8), (7, 8), (6, 9), (7, 9)))
+        if self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2"):
+            opened.extend((
+                (22, 14, 5), (23, 14, 5), (22, 15, 16), (23, 15, 16),
+            ))
+        for x, y, foot in opened:
+            model.collision[y][x] = 0
+            model.feet[y][x] = foot
+
+    def _plan_boulder(self, player, boulder, goal):
+        """One legal step that moves this boulder onto its switch."""
+        from collections import deque
+        model = self.model()
+        blocked = set(self.occupied())
+        blocked.discard(boulder)
+        blocked.discard(player)
+        warps = set(model.warps)
+        start = (player, boulder)
+        queue, prev = deque([start]), {start: None}
+        found = None
+        while queue:
+            pos, rock = queue.popleft()
+            if rock == goal:
+                found = (pos, rock)
+                break
+            for name, dx, dy in (("up", 0, -1), ("down", 0, 1), ("right", 1, 0), ("left", -1, 0)):
+                nxt = (pos[0] + dx, pos[1] + dy)
+                if nxt == rock:
+                    dest = (rock[0] + dx, rock[1] + dy)
+                    if (dest in blocked or dest in warps or not model.inside(dest)
+                            or model.collision[dest[1]][dest[0]]
+                            or model.feet[dest[1]][dest[0]] == 0x15):
+                        continue
+                    player_foot = model.feet[pos[1]][pos[0]]
+                    dest_foot = model.feet[dest[1]][dest[0]]
+                    if any((player_foot == first and dest_foot == second)
+                           or (player_foot == second and dest_foot == first)
+                           for first, second in model.pairs):
+                        continue
+                    state = (pos, dest)
+                    if state not in prev:
+                        prev[state] = (pos, rock, "push", name)
+                        queue.append(state)
+                    continue
+                if nxt in blocked or nxt in warps or not model.inside(nxt):
+                    continue
+                step = model.terrain_step(pos, name)
+                if step is None or step.destination != nxt:
+                    continue
+                state = (nxt, rock)
+                if state not in prev:
+                    prev[state] = (pos, rock, "walk", name)
+                    queue.append(state)
+        if found is None:
+            return None
+        kind = name = None
+        cursor = found
+        while prev[cursor] is not None:
+            parent_pos, parent_rock, kind, name = prev[cursor]
+            cursor = (parent_pos, parent_rock)
+        return kind, name
+
+    def _push_boulder(self, direction):
+        """Arm, then push. A press that walks the player is not a shove."""
+        before = self.position()
+        self.send("press " + direction, "wait 8")
+        self.drain()
+        if self.position() != before:
+            return "walked"
+        self.send("press " + direction, "wait 12")
+        self.drain()
+        if self.position() != before:
+            return "walked"
+        return "pushed"
+
+    def _solve_boulder(self, source_id, goal, flag):
+        self._use_strength()
+        for _ in range(240):
+            self._open_victory_gates()
+            if self.flag(flag):
+                return
+            rock = self._actor_at(source_id)
+            if rock is None:
+                raise ProtocolError("Victory Road boulder is not on the map: " + source_id)
+            if rock == goal:
+                for _wait in range(6):
+                    if self.flag(flag):
+                        return
+                    self.send("wait 8")
+                    self.drain()
+                raise ProtocolError("boulder is on the switch without " + flag)
+            action = self._plan_boulder(self.position(), rock, goal)
+            if action is None:
+                raise ProtocolError(
+                    "no boulder path for " + source_id + " at " + str(rock)
+                    + " from " + str(self.position()))
+            kind, direction = action
+            if kind == "walk":
+                if not self._step(direction):
+                    self.drain()
+                continue
+            if self._push_boulder(direction) == "walked":
+                continue
+            moved = self._actor_at(source_id)
+            if moved == rock:
+                raise ProtocolError("boulder did not move: " + source_id + " at " + str(rock))
+        raise ProtocolError("boulder puzzle exceeded its step bound at " + str(self.position()))
+
+    def _walk_avoiding_warps(self, goal):
+        from collections import deque
+        for _ in range(200):
+            if self.position() == goal:
+                return
+            model = self.model()
+            start = self.position()
+            blocked = set(self.occupied()) | set(model.warps) | set(model.signs)
+            blocked.discard(start)
+            queue, prev = deque([start]), {start: None}
+            found = None
+            while queue:
+                point = queue.popleft()
+                for name, dx, dy in (("up", 0, -1), ("down", 0, 1), ("right", 1, 0), ("left", -1, 0)):
+                    nxt = (point[0] + dx, point[1] + dy)
+                    if nxt in prev or nxt in blocked:
+                        continue
+                    step = model.terrain_step(point, name)
+                    if step is None or step.destination != nxt:
+                        continue
+                    prev[nxt] = (point, name)
+                    queue.append(nxt)
+                    if nxt == goal:
+                        found = nxt
+                        queue.clear()
+                        break
+            if found is None:
+                raise ProtocolError("no cave path from " + str(start) + " to " + str(goal))
+            step_name, cursor = None, found
+            while prev[cursor] is not None:
+                parent, step_name = prev[cursor]
+                cursor = parent
+            if not self._step(step_name):
+                self.drain()
+        else:
+            raise ProtocolError("cave walk exceeded its step bound at " + str(self.position()))
+
+    def _step_onto_warp(self, direction):
+        for _ in range(3):
+            if not self._on("VictoryRoad2F") and not self._on("VictoryRoad3F"):
+                return
+            self.send("press " + direction, "wait 15")
+            self.drain()
+
+    def _victory_road_2f(self):
+        """Push both 2F boulders, cross 3F, and leave by the east stair."""
+        if self._on("VictoryRoad3F"):
+            self._victory_road_3f_exit()
+            return
+        if not self._on("VictoryRoad2F"):
+            return
+        self._pin_victory_trainers()
+        self._open_victory_gates()
+        if not self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1"):
+            self._solve_boulder(
+                "pokered:VICTORY_ROAD_2F:objects:11", (1, 16),
+                "EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1")
+            self.save()
+            self.summary.update(acceptance="Victory Road 2F switch 1", natural=True, forbidden_shortcuts=False)
+        if not self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2"):
+            self._solve_boulder(
+                "pokered:VICTORY_ROAD_2F:objects:13", (9, 16),
+                "EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2")
+            self.save()
+            self.summary.update(acceptance="Victory Road 2F switch 2", natural=True, forbidden_shortcuts=False)
+        if (self.position()[0] >= 27
+                and self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1")
+                and self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2")):
+            self._victory_road_3f_exit()
+            return
+        if self.position() != (24, 14):
+            self._walk_avoiding_warps((24, 14))
+        self._step_onto_warp("right")
+        if not self._on("VictoryRoad3F"):
+            raise ProtocolError("2F stair missed 3F: " + self._map_name() + " " + str(self.position()))
+        self._victory_road_3f_exit()
+
+    def _victory_road_3f_exit(self):
+        """The east stair is the pocket behind the 3F drop, then Route 23."""
+        self._pin_victory_trainers()
+        if self._on("VictoryRoad3F"):
+            if self.position() != (27, 8):
+                self._walk_avoiding_warps((27, 8))
+            self._step_onto_warp("left")
+        if not self._on("VictoryRoad2F"):
+            raise ProtocolError("3F stair missed the east 2F pocket: " + self._map_name() + " " + str(self.position()))
+        if self.position() != (28, 7):
+            self._walk_avoiding_warps((28, 7))
+        self._record_screen("victory-road", 90)
+        self._step_onto_warp("right")
+        if not self._on("Route23"):
+            raise ProtocolError("Victory Road east exit missed Route 23: " + self._map_name() + " " + str(self.position()))
+        self.save()
+        self.summary.update(acceptance="Victory Road cleared", natural=True, forbidden_shortcuts=False)
+        self._indigo_plateau()
+
+    def _pin_elite_trainers(self):
+        for trainer_id, payout, map_id in (
+            ("pokered:LORELEIS_ROOM:objects:1", 5544, "pokered:LORELEIS_ROOM"),
+            ("pokered:BRUNOS_ROOM:objects:1", 5742, "pokered:BRUNOS_ROOM"),
+            ("pokered:AGATHAS_ROOM:objects:1", 5940, "pokered:AGATHAS_ROOM"),
+            ("pokered:LANCES_ROOM:objects:1", 6138, "pokered:LANCES_ROOM"),
+            ("pokered:CHAMPIONS_ROOM:objects:1", 6435, "pokered:CHAMPIONS_ROOM"),
+        ):
+            self.source_trainers[trainer_id] = {"id": trainer_id, "payout": payout, "map_id": map_id}
+
+    def _heal_indigo(self):
+        nurse = self.zone("IndigoPlateauLobby") + ":objects:1"
+        self.interact(source_id=nurse, stop_phase="heal-confirm")
+        self.select("event.menu.selected", 1)
+        self.send("press a")
+        self.drain()
+        for mon in self.party():
+            if mon["hp"] != mon["maxHP"] or mon["status"] not in {None, "none"} or mon["pp"] != mon["maxPP"]:
+                raise ProtocolError("Indigo restoration incomplete")
+
+    def _talk_up(self, tile):
+        self.navigate(tile)
+        if lookup(self.state, "player.facing") != "up":
+            self.face("up")
+        self.send("press a", "wait 8")
+        self.drain()
+
+    def _leave_north(self, room, stand):
+        if self.position() != stand:
+            self.navigate(stand)
+        for _ in range(4):
+            if not self._on(room):
+                return
+            before = self.position()
+            self.send("press up", "wait 15")
+            self.drain()
+            if self._on(room) and self.position() == before:
+                raise ProtocolError(room + " north door stayed closed at " + str(before))
+
+    def _elite_four(self):
+        """Real fights from the lobby north door through the Champion."""
+        self._pin_elite_trainers()
+        rooms = (
+            ("LoreleisRoom", "EVENT_BEAT_LORELEIS_ROOM_TRAINER_0", (5, 3), (4, 1), "Lorelei"),
+            ("BrunosRoom", "EVENT_BEAT_BRUNOS_ROOM_TRAINER_0", (5, 3), (4, 1), "Bruno"),
+            ("AgathasRoom", "EVENT_BEAT_AGATHAS_ROOM_TRAINER_0", (5, 3), (4, 1), "Agatha"),
+        )
+        for room, flag, talk, door, label in rooms:
+            if not self._on(room):
+                continue
+            self.drain()
+            if not self.flag(flag):
+                self._talk_up(talk)
+            if not self.flag(flag):
+                raise ProtocolError(label + " did not start: " + str(self.position()))
+            self.save()
+            self.summary.update(acceptance=label + " defeated", natural=True, forbidden_shortcuts=False)
+            self._leave_north(room, door)
+        if self._on("LancesRoom"):
+            self.drain()
+            if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
+                self.navigate((6, 2))
+                self.drain()
+            if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
+                self._talk_up((6, 2))
+            if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
+                raise ProtocolError("Lance did not start: " + str(self.position()))
+            self.save()
+            self.summary.update(acceptance="Lance defeated", natural=True, forbidden_shortcuts=False)
+            self._leave_north("LancesRoom", (5, 1))
+        if self._on("ChampionsRoom") or "HALL_OF_FAME" in (self._map_name() or ""):
+            self._champion()
+
+    def _champion(self):
+        self._pin_elite_trainers()
+        if self._on("ChampionsRoom") and not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
+            self.drain()
+            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL") and self.position() != (4, 3):
+                self._talk_up((4, 3))
+            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
+                raise ProtocolError("Champion did not start: " + str(self.position()))
+        self.save()
+        self.summary.update(acceptance="Champion defeated", natural=True, forbidden_shortcuts=False)
+        self._record_screen("credits", 90)
+        for _ in range(40):
+            if "HALL_OF_FAME" in (self._map_name() or "") or self.state.get("root") == "title":
+                break
+            if self._on("ChampionsRoom"):
+                self.send("press up", "wait 15")
+            self.drain()
+        self.save()
+
+    def _indigo_plateau(self):
+        """North from the cave exit, heal, then the Elite Four."""
+        self.summary["acceptance"] = "walking to Indigo Plateau"
+        self._pin_elite_trainers()
+        if self._on("Route23"):
+            self._follow_route({(9, 0), (10, 0)})
+            if self.position() not in {(9, 0), (10, 0)}:
+                raise ProtocolError("Indigo crossing missed: " + str(self.position()))
+            self._cross_edge("up")
+        if self._on("IndigoPlateau"):
+            door = (9, 6) if self.position()[0] <= 9 else (10, 6)
+            if self.position() != door:
+                self.navigate(door)
+            for _ in range(3):
+                if not self._on("IndigoPlateau"):
+                    break
+                self.send("press up", "wait 15")
+                self.drain()
+        if self._on("IndigoPlateauLobby"):
+            self._heal_indigo()
+            self.save()
+            self.summary.update(acceptance="Indigo Plateau", natural=True, forbidden_shortcuts=False)
+            self.navigate((8, 1))
+            for _ in range(3):
+                if not self._on("IndigoPlateauLobby"):
+                    break
+                self.send("press up", "wait 15")
+                self.drain()
+        self._elite_four()
+        if self._on("Route23") or self._on("IndigoPlateau") or self._on("IndigoPlateauLobby"):
+            raise ProtocolError("Indigo approach stopped at " + self._map_name() + " " + str(self.position()))
 
     def _toward_koga(self):
         """Hideout Scope, Tower flute, then the east road to Koga."""
@@ -3395,6 +3763,10 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         self.assertEqual(key_fight("source", "pokered:VIRIDIAN_GYM:objects:1"), "badge-earth")
         self.assertEqual(key_fight("source", "pokered:ROUTE_22:objects:2"), "rival-2")
+        self.assertEqual(key_fight("source", "pokered:LORELEIS_ROOM:objects:1"), "elite-lorelei")
+        self.assertEqual(key_fight("source", "pokered:CHAMPIONS_ROOM:objects:1"), "champion")
+        climb = source.split("def _climb_route23", 1)[1].split("def _pin_victory_trainers", 1)[0]
+        self.assertIn("self._victory_road_2f()", climb)
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
         self.assertEqual(route6["trainers"]["pokered:ROUTE_6:objects:6"]["payout"], 200)
         self.assertIsNone(key_fight("preparation-1", "pokered:VIRIDIAN_FOREST:objects:2"))
@@ -3628,6 +4000,8 @@ class FightRecorder:
             if label == "badge-earth":
                 seconds = "180"
             elif label == "rival-2":
+                seconds = "90"
+            elif label in {"elite-lorelei", "elite-bruno", "elite-agatha", "elite-lance", "champion", "victory-road"}:
                 seconds = "90"
             elif str(label).startswith("badge-"):
                 seconds = "90"
