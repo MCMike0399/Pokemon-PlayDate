@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "95554e0743fe5e9e3f0aadefbba0824f34cfb36f",
+    "source_sha256": "f81d5bd07148e57dd4f85f500dcc784afd7e291a39288ceaa50cadcfc5457db4",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after switchZone releases the departing world, event chunks, and map bed before the next map is built. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 b30c882924ab9baa2b8bc99c1af79bd4e198b67b32b4db41e73df9e80da68c4e.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "68fc1f80755928fc1266704dbd608ce90b9209b5",
     "source_sha256": "b30c882924ab9baa2b8bc99c1af79bd4e198b67b32b4db41e73df9e80da68c4e",
     "policy_date": "2026-11-20",
@@ -1914,6 +1925,7 @@
   
   }
   }}
+  }
   }
   }
   }
