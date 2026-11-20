@@ -168,7 +168,7 @@ function PostgameStory.relocateContinue(candidate)
     end
     local spot <const> = PostgameStory.continueDecision(candidate:location(), teamCount(candidate))
     if not spot then
-        return false
+        return nil
     end
     local ok, saved, reason = pcall(function()
         local world <const> = candidate:worldData()
@@ -185,7 +185,10 @@ function PostgameStory.relocateContinue(candidate)
     if not ok then
         return false, tostring(saved)
     end
-    return saved, reason
+    if not saved then
+        return false, reason or "hall-continue-not-relocated"
+    end
+    return true
 end
 
 function PostgameStory._duringContinue(method, self, ...)
@@ -211,7 +214,12 @@ function PostgameStory.installContinue()
     previousPrepared = GameSaves.continuePreparedTitle
     function GameContext:installSession(candidate)
         if continueDepth > 0 then
-            PostgameStory.relocateContinue(candidate)
+            local moved, reason = PostgameStory.relocateContinue(candidate)
+            -- A Hall save that cannot take the Pallet fly warp must not
+            -- install the Hall cell. A non-Hall continue returns nil.
+            if moved == false then
+                return false, reason or "hall-continue-not-relocated"
+            end
         end
         return previousInstall(self, candidate)
     end

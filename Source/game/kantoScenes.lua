@@ -35,6 +35,9 @@ KantoScenes.reconcileActors = CeruleanStory.reconcileActors
 
 function KantoScenes.install()
     assert(not installed, "Kanto scenes already installed")
+    -- postgameStory.boot() runs at import. A cached load before GameSaves
+    -- exists leaves the Hall continue wrapper uninstalled.
+    PostgameStory.ensureRuntime()
     -- Qualified owners declare membership here. World callbacks remain cheap
     -- boot wiring; they do not imply that scene/text data has been prepared.
     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})
