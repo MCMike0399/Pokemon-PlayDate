@@ -2719,21 +2719,29 @@ class CharmanderRun(BrockJourney):
                 return npc["x"], npc["y"]
         return None
 
+    def model(self):
+        model = super().model()
+        # Route 23 clears the switches. A gate opened earlier in this
+        # process must close again or the next walk steps into the wall.
+        if self.state.get("zone_id") == self.zone("VictoryRoad2F"):
+            self._sync_victory_gates(model)
+        return model
+
+    def _sync_victory_gates(self, model):
+        for event, cells in (
+            ("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1", ((6, 8, 5), (7, 8, 5), (6, 9, 5), (7, 9, 5))),
+            ("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2", ((22, 14, 5), (23, 14, 5), (22, 15, 16), (23, 15, 16))),
+        ):
+            open_gate = self.flag(event)
+            for x, y, foot in cells:
+                model.collision[y][x] = 0 if open_gate else 1
+                if open_gate:
+                    model.feet[y][x] = foot
+
     def _open_victory_gates(self):
         """The harness map stays closed. The live switch paints these cells open."""
-        if not self._on("VictoryRoad2F"):
-            return
-        model = self.model()
-        opened = []
-        if self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1"):
-            opened.extend((x, y, 5) for x, y in ((6, 8), (7, 8), (6, 9), (7, 9)))
-        if self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2"):
-            opened.extend((
-                (22, 14, 5), (23, 14, 5), (22, 15, 16), (23, 15, 16),
-            ))
-        for x, y, foot in opened:
-            model.collision[y][x] = 0
-            model.feet[y][x] = foot
+        if self._on("VictoryRoad2F"):
+            self._sync_victory_gates(super().model())
 
     def _plan_boulder(self, player, boulder, goal):
         """One legal step that moves this boulder onto its switch."""
