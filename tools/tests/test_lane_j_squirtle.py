@@ -696,6 +696,9 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(vermilion_cells(), (11, 4), (39, 14), VERMILION_DOORS))
         self.assertEqual(_can_index({"VERMILION_SCENE_V1_FIRST_1": True, "VERMILION_SCENE_V1_FIRST_3": True}, "FIRST"), 10)
         self.assertEqual(VERMILION_CANS[10], (7, 9))
+        self.assertEqual(TRASH_SECONDS[0], (0, 3))
+        self.assertIn(0, TRASH_SECONDS[14])
+        self.assertIsNotNone(route(route11_cells(), (0, 6), (10, 12), route11_avoid()))
         self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
         self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
@@ -1166,15 +1169,20 @@ class Player:
                     if bite_only:
                         enemy_types = ["water"]
                     species = ((battle.get("player") or {}).get("species") or "")
-                    forced = {"pidgey": "GUST", "pidgeotto": "GUST", "spearow": "PECK",
-                              "fearow": "PECK", "diglett": "DIG", "dugtrio": "DIG"}.get(species)
+                    forced = {
+                        "pidgey": ("GUST",), "pidgeotto": ("GUST",),
+                        "spearow": ("DRILLPECK", "PECK"), "fearow": ("DRILLPECK", "PECK"),
+                        "diglett": ("DIG",), "dugtrio": ("DIG",),
+                    }.get(species) or ()
                     index = None
-                    if forced:
+                    for want in forced:
                         for move_index, name in enumerate(options, start=1):
                             letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
-                            if letters == forced and name not in rejected:
+                            if letters == want and name not in rejected:
                                 index = move_index
                                 break
+                        if index is not None:
+                            break
                     if index is None:
                         index, _name = preferred_move(options, rejected, enemy_types)
                     if index and selected != index:
@@ -2347,6 +2355,17 @@ VERMILION_DOORS = {(11, 3), (9, 13), (23, 13), (12, 19), (23, 19), (18, 31), (19
 ANNE1_SKIP = {(31, 8), (23, 8), (19, 8), (15, 8), (11, 8), (7, 8), (37, 15), (3, 16)}
 ANNE2_SKIP = {(9, 11), (13, 11), (17, 11), (21, 11), (25, 11), (29, 11), (2, 12), (36, 4)}
 # Source coordinates. The gym pad is 1, so the runtime can is (x + 1, y).
+# Second lock from GymTrashCans. Can 0 is a candidate for every first can.
+TRASH_SECONDS = {
+    0: (0, 3),
+    2: (0, 5),
+    4: (0, 7),
+    6: (0, 3, 7, 9),
+    8: (0, 5, 7, 11),
+    10: (0, 13),
+    12: (0, 13),
+    14: (0, 13),
+}
 VERMILION_CANS = (
     (1, 7), (1, 9), (1, 11), (3, 7), (3, 9), (3, 11), (5, 7), (5, 9), (5, 11),
     (7, 7), (7, 9), (7, 11), (9, 7), (9, 9), (9, 11),
@@ -3297,8 +3316,16 @@ def _through_scene(player, limit=6):
             return "explore"
         if player.state.get("root") == "battle":
             return "battle"
-        phase = (player.state.get("event") or {}).get("phase")
-        step = 100 if phase == "vermilion-departure" else 40
+        event = player.state.get("event") or {}
+        phase = event.get("phase")
+        zone = str(player.state.get("zone"))
+        if phase == "vermilion-departure":
+            step = 100
+        elif "captains" in zone or "CAPTAINS_ROOM" in str(event.get("id") or ""):
+            # Rub, the recovery, and the HM01 pages run longer than a sign.
+            step = 160
+        else:
+            step = 40
         if not player.dismiss_until_explore(limit=step) and player.state.get("root") == "battle":
             return "battle"
         if player.exploring():
@@ -3744,15 +3771,30 @@ def _search_can(player, index):
 
 
 def _solve_cans(player, report):
-    for _ in range(4):
-        quest = _quest(player)
-        if quest.get("EVENT_2ND_LOCK_OPENED"):
+    """Start at can 0. A click is pressed again. Any other first can uses K's row."""
+    guesses = {can: 0 for can in TRASH_SECONDS}
+    for _ in range(30):
+        if _quest(player).get("EVENT_2ND_LOCK_OPENED"):
             break
-        if not quest.get("EVENT_1ST_LOCK_OPENED"):
-            _search_can(player, _can_index(quest, "FIRST"))
-            quest = _quest(player)
-        if quest.get("EVENT_1ST_LOCK_OPENED") and not quest.get("EVENT_2ND_LOCK_OPENED"):
-            _search_can(player, _can_index(quest, "SECOND"))
+        first = None
+        if not _quest(player).get("EVENT_1ST_LOCK_OPENED"):
+            for can in TRASH_SECONDS:
+                _search_can(player, can)
+                if _quest(player).get("EVENT_2ND_LOCK_OPENED"):
+                    break
+                if _quest(player).get("EVENT_1ST_LOCK_OPENED"):
+                    first = can
+                    break
+        else:
+            first = _can_index(_quest(player), "FIRST")
+        if _quest(player).get("EVENT_2ND_LOCK_OPENED"):
+            break
+        if first not in TRASH_SECONDS or not _quest(player).get("EVENT_1ST_LOCK_OPENED"):
+            raise RuntimeError("no trash can clicked: " + json.dumps(summary(player.state)))
+        options = TRASH_SECONDS[first]
+        choice = options[guesses[first] % len(options)]
+        guesses[first] += 1
+        _search_can(player, choice)
     quest = _quest(player)
     report["cans"] = {
         "first": _can_index(quest, "FIRST"),
@@ -4139,16 +4181,47 @@ def _cut_tree(player, report):
     return opened
 
 
-def _raise_diglett(player, report):
-    """Catch a Diglett and bring it to 22. B2W2 Dig is 34, so TM28 teaches it."""
+def _mole(player):
+    slot, mon = _member(player, "dugtrio")
+    if mon is None:
+        slot, mon = _member(player, "diglett")
+    return slot, mon or {}
+
+
+def _enter_diglett_cave(player):
+    if player.state.get("zone") == "kanto_digletts_cave":
+        return
+    if "route_11" not in str(player.state.get("zone")):
+        if "vermilion_city" not in str(player.state.get("zone")):
+            _return_vermilion(player, "cave return")
+        _leave(player, vermilion_cells(), [((39, 14), "right"), ((39, 15), "right")],
+               VERMILION_DOORS, "route_11", "Route 11")
     _enter(player, route11_cells(), (4, 5), route11_avoid() - {(4, 5)}, "up",
            "digletts_cave_route_11", "Diglett's Cave")
-    kind = step_onto(player, diglett_house_cells(), (6, 4), {(4, 3)}, "up")
+    step_onto(player, diglett_house_cells(), (6, 4), {(4, 3)}, "up")
     _settle_overlay(player)
-    if "digletts_cave" not in str(player.state.get("zone")) or "route_11" in str(player.state.get("zone")):
-        if player.state.get("zone") != "kanto_digletts_cave":
-            raise RuntimeError("the cave stairs did not open: " + json.dumps(summary(player.state)))
-    if not _member(player, "diglett")[0] and not _member(player, "dugtrio")[0]:
+    if player.state.get("zone") != "kanto_digletts_cave":
+        raise RuntimeError("the cave stairs did not open: " + json.dumps(summary(player.state)))
+
+
+def _leave_diglett_cave(player):
+    zone = str(player.state.get("zone"))
+    if zone == "kanto_digletts_cave":
+        step_onto(player, diglett_cave_cells(), (37, 31), set(), "down")
+        _settle_overlay(player)
+    if "digletts_cave_route_11" in str(player.state.get("zone")):
+        _leave(player, diglett_house_cells(), [((4, 7), "down"), ((5, 7), "down")],
+               {(4, 3)}, "route_11", "cave exit")
+
+
+def _raise_diglett(player, report):
+    """Catch a Diglett and evolve it. Pokered Dig is 19. Dugtrio 26 is the Surge plan."""
+    _, mon = _mole(player)
+    if mon.get("species") == "dugtrio" and (mon.get("level") or 0) >= 26:
+        report["diglett_level"] = {"species": mon.get("species"), "level": mon.get("level"), "moves": mon.get("moves")}
+        return
+    _enter_diglett_cave(player)
+    if not _mole(player)[1]:
         caught = _hunt(player, diglett_cave_cells(), (35, 31), (36, 31), "diglett", limit=16)
         report["diglett"] = {"caught": bool(caught), "party": _party(player), **summary(player.state)}
         if not caught:
@@ -4156,39 +4229,146 @@ def _raise_diglett(player, report):
     _lead(player, "diglett")
     left, right = (35, 31), (36, 31)
     goal = right
-    for _ in range(500):
+    paused = 0
+    battles = 0
+    while battles < 80:
         if not player.exploring():
-            _settle_catch(player)
+            root = player.state.get("root")
+            if root == "evolution":
+                player.dismiss_until_explore(limit=40)
+            else:
+                _settle_catch(player)
             continue
-        mon = player.state.get("pokemon") or {}
-        if (mon.get("level") or 0) >= 22:
+        _, mon = _mole(player)
+        level = mon.get("level") or 0
+        name = mon.get("species") or "diglett"
+        if name == "dugtrio" and level >= 26:
             break
+        if level > paused:
+            _pause(player, report, f"mole_l{level}")
+            _keep_bird_save(report)
+            paused = level
+        lead = (player.state.get("pokemon") or {}).get("species")
+        if lead != name or (mon.get("hp") or 0) < 12:
+            _leave_diglett_cave(player)
+            _rest(player, report, "mole heal", 4, buy=False)
+            _enter_diglett_cave(player)
+            _lead(player, name if name == "dugtrio" else "diglett")
+            if (player.state.get("pokemon") or {}).get("species") not in ("diglett", "dugtrio"):
+                raise RuntimeError("the mole is not leading: " + json.dumps(_party(player)))
+            continue
         here = (player.state["player"]["x"], player.state["player"]["y"])
-        if here not in diglett_cave_cells() and here != left and here != right:
-            break
         if here == goal:
             goal = left if goal == right else right
         steps = route(diglett_cave_cells(), here, goal, set())
         if not steps:
-            break
-        kind = player.step(steps[0])
+            _enter_diglett_cave(player)
+            continue
+        player.step(steps[0])
         if player.state.get("root") != "battle":
             continue
+        battles += 1
         before = player.state.get("last_battle_outcome")
-        player.fight(limit=400, potion_at=12, run_at=6)
+        foe = (player.state.get("battle") or {}).get("enemy") or {}
+        if foe.get("species") == "dugtrio" or (foe.get("level") or 99) > level + 3:
+            if not player.run_away():
+                player.fight(limit=400, potion_at=0)
+        else:
+            player.fight(limit=500, potion_at=0)
         if player.state.get("root") != "overworld":
             _settle_catch(player)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
             raise RuntimeError("blackout raising Diglett: " + json.dumps(summary(player.state)))
-    step_onto(player, diglett_cave_cells(), (37, 31), set(), "down")
-    _settle_overlay(player)
-    _leave(player, diglett_house_cells(), [((4, 7), "down"), ((5, 7), "down")],
-           {(4, 3)}, "route_11", "cave exit")
+    _leave_diglett_cave(player)
     _leave(player, route11_cells(), [((0, 6), "left")], route11_avoid(), "vermilion_city", "Vermilion from Route 11")
-    mon = _member(player, "diglett")[1] or _member(player, "dugtrio")[1] or {}
-    report["diglett_level"] = {"species": mon.get("species"), "level": mon.get("level"), "moves": mon.get("moves")}
-    if (mon.get("level") or 0) < 22:
-        raise RuntimeError("Diglett is not L22 yet: " + json.dumps(report["diglett_level"]))
+    _, mon = _mole(player)
+    report["diglett_level"] = {"species": mon.get("species"), "level": mon.get("level"),
+                               "moves": mon.get("moves"), "battles": battles}
+    if mon.get("species") != "dugtrio" or (mon.get("level") or 0) < 26:
+        raise RuntimeError("Diglett did not become Dugtrio 26: " + json.dumps(report["diglett_level"]))
+
+
+def _raise_spearow(player, report):
+    """Route 11 Spearow to Fearow 34. Pokered Drill Peck is that level."""
+    if _member(player, "spearow")[0] is None and _member(player, "fearow")[0] is None:
+        if "route_11" not in str(player.state.get("zone")):
+            if "vermilion_city" not in str(player.state.get("zone")):
+                _return_vermilion(player, "Spearow return")
+            _leave(player, vermilion_cells(), [((39, 14), "right"), ((39, 15), "right")],
+                   VERMILION_DOORS, "route_11", "Route 11")
+        _stand(player, route11_cells(), (10, 12), route11_avoid(), "Route 11 grass")
+        caught = _hunt(player, route11_cells(), (10, 12), (11, 12), "spearow", limit=20)
+        report["spearow"] = {"caught": bool(caught), "party": _party(player), **summary(player.state)}
+        if not caught:
+            raise RuntimeError("Route 11 did not yield a Spearow: " + json.dumps(summary(player.state)))
+    _lead(player, "spearow" if _member(player, "spearow")[0] else "fearow")
+    left, right = (10, 12), (11, 12)
+    goal = right
+    paused = 0
+    battles = 0
+    while battles < 400:
+        if not player.exploring():
+            root = player.state.get("root")
+            if root == "evolution":
+                player.dismiss_until_explore(limit=40)
+            else:
+                _settle_catch(player)
+            continue
+        _slot, bird = _member(player, "fearow")
+        if bird is None:
+            _slot, bird = _member(player, "spearow")
+        bird = bird or {}
+        level = bird.get("level") or 0
+        name = bird.get("species") or "spearow"
+        moves = bird.get("moves") or []
+        if name == "fearow" and level >= 34 and "drillPeck" in moves:
+            break
+        if name == "spearow" and level >= 22:
+            raise RuntimeError("Spearow reached 22 before it evolved: " + json.dumps(_party(player)))
+        if level > paused:
+            _pause(player, report, f"spearow_l{level}")
+            _keep_bird_save(report)
+            paused = level
+        lead = (player.state.get("pokemon") or {}).get("species")
+        if lead != name or (bird.get("hp") or 0) < 16:
+            if "route_11" in str(player.state.get("zone")):
+                _return_vermilion(player, "spearow heal")
+            _rest(player, report, "spearow heal", 4, buy=False)
+            _leave(player, vermilion_cells(), [((39, 14), "right"), ((39, 15), "right")],
+                   VERMILION_DOORS, "route_11", "Route 11")
+            _stand(player, route11_cells(), (10, 12), route11_avoid(), "Route 11 grass")
+            _lead(player, name)
+            if (player.state.get("pokemon") or {}).get("species") != name:
+                raise RuntimeError("the Spearow is not leading: " + json.dumps(_party(player)))
+            continue
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here == goal:
+            goal = left if goal == right else right
+        steps = route(route11_cells(), here, goal, route11_avoid())
+        if not steps:
+            raise RuntimeError("lost the Route 11 grass: " + json.dumps(summary(player.state)))
+        player.step(steps[0])
+        if player.state.get("root") != "battle":
+            continue
+        battles += 1
+        before = player.state.get("last_battle_outcome")
+        foe = (player.state.get("battle") or {}).get("enemy") or {}
+        if (foe.get("level") or 99) > level + 4:
+            if not player.run_away():
+                player.fight(limit=400, potion_at=0, run_at=10)
+        else:
+            player.fight(limit=500, potion_at=0)
+        if player.state.get("root") != "overworld":
+            _settle_catch(player)
+        if _lost(before, player.state.get("last_battle_outcome") or {}):
+            raise RuntimeError("blackout raising Spearow: " + json.dumps(summary(player.state)))
+    _return_vermilion(player, "Fearow")
+    _, bird = _member(player, "fearow")
+    bird = bird or {}
+    report["fearow"] = {"level": bird.get("level"), "moves": bird.get("moves"), "battles": battles,
+                        "party": _party(player)}
+    if bird.get("species") != "fearow" or (bird.get("level") or 0) < 34 or "drillPeck" not in (bird.get("moves") or []):
+        raise RuntimeError("Spearow did not become Fearow 34 with Drill Peck: " + json.dumps(report["fearow"]))
 
 
 def play_vermilion_prep(player, report, display, clips, output):
@@ -4226,48 +4406,54 @@ def play_vermilion_prep(player, report, display, clips, output):
     _lead(player, "wartortle")
     _pause(player, report, "saved_before_rival")
 
-    def rival():
-        doors = set(VERMILION_DOORS)
-        _stand(player, vermilion_cells(), (18, 29), doors, "dock gate")
-        player.step("down")
-        if not player.exploring():
-            _through_scene(player, 4)
-        _enter(player, vermilion_cells(), (18, 31), doors, "down", "vermilion_dock", "Vermilion dock")
-        _enter(player, vermilion_dock_cells(), (14, 2), set(), "down", "ss_anne_1f", "S.S. Anne")
-        _enter(player, ss_anne_1f_cells(), (2, 6), ANNE1_SKIP, "up", "ss_anne_2f", "S.S. Anne 2F")
-        _stand(player, ss_anne_2f_cells(), (36, 9), ANNE2_SKIP, "rival trigger")
+    if _item_count(player, "hm01") < 1 and not _quest(player).get("EVENT_GOT_HM01"):
+        def rival():
+            doors = set(VERMILION_DOORS)
+            _stand(player, vermilion_cells(), (18, 29), doors, "dock gate")
+            player.step("down")
+            if not player.exploring():
+                _through_scene(player, 4)
+            _enter(player, vermilion_cells(), (18, 31), doors, "down", "vermilion_dock", "Vermilion dock")
+            _enter(player, vermilion_dock_cells(), (14, 2), set(), "down", "ss_anne_1f", "S.S. Anne")
+            _enter(player, ss_anne_1f_cells(), (2, 6), ANNE1_SKIP, "up", "ss_anne_2f", "S.S. Anne 2F")
+            _stand(player, ss_anne_2f_cells(), (36, 9), ANNE2_SKIP, "rival trigger")
+            player.step("up")
+            _fight_once(player, "the S.S. Anne rival", 30, bite_only=True, shift_to="pidgeotto")
+            report["anne_rival"] = {"party": _party(player), **summary(player.state)}
+
+        film(display, clips, output, "ss-anne", report, "end", rival)
+        _enter(player, ss_anne_2f_cells(), (36, 4), ANNE2_SKIP - {(36, 4)}, "up", "captains_room", "captain")
+        _stand(player, captain_cells(), (7, 3), set(), "captain")
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        _through_scene(player, 6)
+        report["hm01"] = {
+            "count": _item_count(player, "hm01"),
+            "flag": bool(_quest(player).get("EVENT_GOT_HM01")),
+            **summary(player.state),
+        }
+        if report["hm01"]["count"] < 1 or not report["hm01"]["flag"]:
+            raise RuntimeError("the captain did not give HM01: " + json.dumps(report["hm01"]))
+        _teach(player, "hm01", "bellsprout", "cut")
+        _leave(player, captain_cells(), [((3, 7), "down")], set(), "ss_anne_2f", "captain exit")
+        _enter(player, ss_anne_2f_cells(), (2, 4), ANNE2_SKIP - {(36, 4)}, "up", "ss_anne_1f", "S.S. Anne stairs")
+        _stand(player, ss_anne_1f_cells(), (27, 0), ANNE1_SKIP, "ship exit")
         player.step("up")
-        _fight_once(player, "the S.S. Anne rival", 30, bite_only=True, shift_to="pidgeotto")
-        report["anne_rival"] = {"party": _party(player), **summary(player.state)}
+        _through_scene(player, 4)
+        _pause(player, report, "saved_hm01")
+        _keep_bird_save(report)
+    _, sprout = _member(player, "bellsprout")
+    if sprout and "cut" not in (sprout.get("moves") or []):
+        _teach(player, "hm01", "bellsprout", "cut")
 
-    film(display, clips, output, "ss-anne", report, "end", rival)
-    _enter(player, ss_anne_2f_cells(), (36, 4), ANNE2_SKIP - {(36, 4)}, "up", "captains_room", "captain")
-    _stand(player, captain_cells(), (7, 3), set(), "captain")
-    if player.state["player"].get("facing") != "up":
-        player.press("up", wait=4)
-    player.press("a", wait=8)
-    _through_scene(player, 6)
-    report["hm01"] = {
-        "count": _item_count(player, "hm01"),
-        "flag": bool(_quest(player).get("EVENT_GOT_HM01")),
-        **summary(player.state),
-    }
-    if report["hm01"]["count"] < 1 or not report["hm01"]["flag"]:
-        raise RuntimeError("the captain did not give HM01: " + json.dumps(report["hm01"]))
-    _teach(player, "hm01", "bellsprout", "cut")
-    _leave(player, captain_cells(), [((3, 7), "down")], set(), "ss_anne_2f", "captain exit")
-    _enter(player, ss_anne_2f_cells(), (2, 4), ANNE2_SKIP - {(36, 4)}, "up", "ss_anne_1f", "S.S. Anne stairs")
-    _stand(player, ss_anne_1f_cells(), (27, 0), ANNE1_SKIP, "ship exit")
-    player.step("up")
-    _through_scene(player, 4)
-    _pause(player, report, "saved_hm01")
-
-    _leave(player, vermilion_cells(), [((39, 14), "right"), ((39, 15), "right")],
-           VERMILION_DOORS, "route_11", "Route 11")
     _raise_diglett(player, report)
-    _rest(player, report, "before Surge", 6)
-    _teach(player, "tm28", "diglett", "dig")
-    _lead(player, "diglett")
+    _raise_spearow(player, report)
+    _rest(player, report, "before Surge", 4)
+    _, mole = _mole(player)
+    if "dig" not in (mole.get("moves") or []):
+        _teach(player, "tm28", mole.get("species") or "dugtrio", "dig")
+    _lead(player, "dugtrio")
     opened = _cut_tree(player, report)
     _pause(player, report, "saved_before_surge")
     gym_doors = set(VERMILION_DOORS)
@@ -4306,7 +4492,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-52")
+            output = Path("/tmp/lane-j-squirtle-53")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
