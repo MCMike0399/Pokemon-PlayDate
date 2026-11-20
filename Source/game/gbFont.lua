@@ -52,10 +52,12 @@ function GbFont.drawChar(char, col, row)
 end
 
 function GbFont.drawString(text, col, row)
-    local cursor = 0
-    for _, code in utf8.codes(text) do
-        GbFont.drawChar(utf8.char(code), col + cursor, row)
+    local cursor, index = 0, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+        tileImage(sheetName, glyph):draw((col + cursor) * TitleIdle.COL, row * TitleIdle.ROW)
         cursor = cursor + 1
+        index = nextIndex
     end
 end
 
@@ -108,13 +110,12 @@ end
 -- Tight 2x of the 8x8 tile, for a line that is not one glyph per cell.
 function GbFont.drawTight(text, x, y)
     GbFont.load()
-    local cursor = x
-    for _, code in utf8.codes(text) do
-        local char = utf8.char(code)
-        local sheetName, index = TitleIdle.glyph(char)
+    local cursor, index = x, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
         local sheet = sheets[sheetName]
-        local sx = (index % 16) * 8
-        local sy = math.floor(index / 16) * 8
+        local sx = (glyph % 16) * 8
+        local sy = math.floor(glyph / 16) * 8
         local image = gfx.image.new(16, 16, gfx.kColorWhite)
         gfx.pushContext(image)
         gfx.setColor(gfx.kColorBlack)
@@ -130,6 +131,7 @@ function GbFont.drawTight(text, x, y)
         gfx.popContext()
         image:draw(cursor, y)
         cursor = cursor + 16
+        index = nextIndex
     end
 end
 

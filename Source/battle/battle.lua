@@ -277,8 +277,11 @@ function BattleScriptPhase:update()
 end
 
 function BattleScriptPhase:handleInput()
+    -- The 10-frame floor is not the print. PrintLetterDelay may still be
+    -- revealing the line, and a held A is not WaitForTextScrollButtonPress.
+    -- Only a new A after that wait installs the next queued say.
     if self.waiting and self.messageTimer > MESSAGE_MIN_FRAMES
-       and (playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonIsPressed(playdate.kButtonA)) then
+       and playdate.buttonJustPressed(playdate.kButtonA) then
         self.waiting = false
         self:advance()
     end
@@ -1761,6 +1764,14 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
     if won then
+        local coins = self.payDayCoins or 0
+        if coins > 0 then
+            -- data/text/text_2.asm _PickUpPayDayMoneyText. The scatter line is
+            -- text_3.asm; this page is the yen total, once, on a win.
+            local title = self.session and self.session:title()
+            local playerName = title and title.playerName or "RED"
+            self:say(playerName .. " picked up\n¥" .. coins .. "!")
+        end
         self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
         return "victory"
     end

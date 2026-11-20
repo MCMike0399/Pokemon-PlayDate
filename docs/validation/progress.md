@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-20 Celadon tones, flower tile, and the battle-text queue
+
+Lane K's order, then lane I's three. Gym tones are tileset `GYM` only (`approved-by-miguel-2026-11-19`); `Shade.LIGHT` is untouched. Flower tile `$03` uses the resting `flower1` when the tileset animates water and flowers. The battle message box clears the iris stencil before it fills. Viridian trainers with a sight range are no longer talk-only. The trainer card and the Pay Day pickup use yen. Held A no longer turns a battle page. `'s` is one tile. The shift question waits until it has printed and 10 frames have passed. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-20 Oak stands in the authored lab
 
 pret/pokered `OaksLab.asm` places OAK at object (5, 2), facing down. Manifest padding 1 is (6, 2). The authored `oaks_lab` zone now registers that actor as `OAK`, which is the name the parcel handoff requires. `MallocPoolSize` stays 16645684.
