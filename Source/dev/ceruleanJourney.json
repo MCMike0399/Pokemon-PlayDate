@@ -406,7 +406,7 @@
     "game/shopState.lua": "eb61c14480fdf802bdfe721803b361a1d6c01b2c9d1194944a309ecf9c13edba",
     "game/sourceEventHandlers.lua": "e5eb16cfb4fbd4429ecdaa8b9639233a95ec8625599ef1620cb84d9b5ab51ad2",
     "game/sourceEvents.lua": "5a7800e6eaf555cff035ad24b8150607fded7908140aa537ff473db4f9be24d2",
-    "game/trainerEvents.lua": "fa5d98699f2548532dd04ce2d4f326b459be0cb29817af88be76f89cdb6e48fc",
+    "game/trainerEvents.lua": "5f72424760347cf8a631b1b5b0e558ed67bb36baa9e2df5eb1b1d7c4308c98f3",
     "main.lua": "3f91a3e140a8f0699e78967211a13c77bceba2fa3fbd4b3e0e079d44c3020afb"
   },
   "trainers": {

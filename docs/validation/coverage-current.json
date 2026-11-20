@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "b50c77813a527cd467b6a669efd56b91243ca198",
+    "source_sha256": "0123af0b844302025644e2034a46c9263a92a6810deed60648117cb1e97bd91c",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after trainer send-out drops learnset ids above pokered NUM_ATTACKS. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 68719b3f1b0deb66e1bedce54c30bd0d3fb104c58a717664d95649edc8ba1d2b.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "8ac1bebde9c6a50da6f4939669b6cfe6d879c389",
     "source_sha256": "68719b3f1b0deb66e1bedce54c30bd0d3fb104c58a717664d95649edc8ba1d2b",
     "policy_date": "2026-11-20",
@@ -1760,6 +1771,7 @@
   
   }
   }}
+  }
   }
   }
   }
