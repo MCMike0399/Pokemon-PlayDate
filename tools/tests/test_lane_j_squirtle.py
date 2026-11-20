@@ -4970,7 +4970,7 @@ def _grind_bird(player, report, cells, left, right, avoid, level=31, limit=48):
         if not player.exploring():
             if player.state.get("root") == "battle":
                 before = player.state.get("last_battle_outcome")
-                player.fight(limit=1200, potion_at=30, shift_to=None)
+                player.fight(limit=1200, potion_at=50, shift_to=None)
                 player.dismiss_until_explore(limit=40)
                 battles += 1
                 if battles % 8 == 0 and player.exploring():
@@ -5772,10 +5772,10 @@ def _rejoin_route9(player, report):
 
 def _grind_route7(player, report):
     species, mon = _bird(player)
-    if not species or (mon.get("level") or 0) >= 31:
+    if not species or (mon.get("level") or 0) >= 31 or (mon.get("hp") or 0) <= 0:
         return None
     _lead(player, species)
-    status = _grind_bird(player, report, route7_cells(), (8, 2), (9, 2), set(ROUTE7_GATES) | {(5, 13)}, level=31, limit=6)
+    status = _grind_bird(player, report, route7_cells(), (8, 2), (9, 2), set(ROUTE7_GATES) | {(5, 13)}, level=31, limit=2)
     if status == "blackout":
         return "blackout"
     _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (5, 14), set(ROUTE7_GATES) | {(5, 13)})
@@ -5844,6 +5844,30 @@ def _follow_k(player, report, display, clips, output):
             if (healed.get("hp") or 0) < 20:
                 raise RuntimeError("the nurse did not heal: " + json.dumps(player.summary())[:400])
             _checkpoint(player, report, "saved_" + atom["map"])
+            if atom["map"] == "CeladonPokecenter":
+                species, mon = _bird(player)
+                if species and (mon.get("level") or 0) < 31 and (mon.get("hp") or 0) > 0:
+                    for x, y in ((3, 4), (3, 5), (3, 6), (3, 7)):
+                        status = _k_go(player, report, "down", "CeladonPokecenter", x, y)
+                        if status == "blackout":
+                            return status
+                    status = _k_go(player, report, "down", "CeladonCity", 41, 10)
+                    if status == "blackout":
+                        return status
+                    status = _k_go(player, report, "down", "CeladonCity", 41, 11)
+                    if status == "blackout":
+                        return status
+                    for x in range(42, 50):
+                        status = _k_go(player, report, "right", "CeladonCity", x, 11)
+                        if status == "blackout":
+                            return status
+                    status = _k_go(player, report, "right", "Route7", 0, 3)
+                    if status == "blackout":
+                        return status
+                    _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (5, 14), set(ROUTE7_GATES) | {(5, 13)})
+                    status = _grind_route7(player, report)
+                    if status:
+                        return status
         elif atom["op"] == "erika":
             return _face_erika(player, report, display, clips, output)
     raise RuntimeError("K's line ended short of Erika")
