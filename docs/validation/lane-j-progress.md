@@ -72,7 +72,9 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Sequence 62 is the resume: `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `d5501d972c51eb4139cf928197633d0ed6deedec11055a2a2a77c28270304755`, the Route 10 Pokémon Center (3, 3) facing up, after the Route 9 Bug Catcher at (41, 8). Wartortle 28, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder. The center mat stays indoors; the exit is the next step down. Then Rock Tunnel, Lavender, the Route 8 underground, Route 7, Celadon, the west gym tree only, and Erika from (5, 4). Sequence 60 at Route 9 (14, 15) sha256 `f869439769a92dc1c2b84f0f748c9320ee5be125d6eb84e5399a141fe51fb074` is the earlier slot.
+Sequence 63 is the pause: `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `97930933be96083d8ffaa90d466dd30253687b2a5652fb4d515b6a611f505bbd`, Route 10 Pokémon Center (3, 3) facing up. Wartortle 28, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder. The party is healed. Sequence 60 at Route 9 (14, 15) sha256 `f869439769a92dc1c2b84f0f748c9320ee5be125d6eb84e5399a141fe51fb074` is the earlier shelf.
+
+The Route 9 rejoin and the Bug Catcher at (41, 8) are done, and the center exit is the step down from the mat. Rock Tunnel 1F then stops on K's line. Standing at (31, 7) and stepping down stays put. `lastTraversalBlock` is `{kind: "terrain", id: "source-pair-collision"}`. The runtime feet are 32 at (31, 7) and 5 at (31, 8), and that pair is listed in `directional_rules.forbidden_tile_pairs`. The same object says those pairs are data only and are not executed. `MapBindings.movement` blocks them anyway, so the step K's pokered walk uses cannot be taken. The only pair-legal walk from the entrance to the stair crosses the Pokémaniac ray at (20, 8) through (23, 8). Stopped here.
 
 ## Blockers
 
