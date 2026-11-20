@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "6704ab56854765bde56a9d026cbb9df099c15a06",
+    "source_sha256": "e8692a8bebc04b41bdb5d63d4430aa7bfdfb0b121440b2f7ec1626544f3a0d57",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the shift question follows the player replacement and the learn name stays on the next page. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f4642809c6e8989745bf40eea15b0a102e202029d44d21cd6dd6269e65474698.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "3cf06230d0b8d56c5c5097659e0e66281160c0e4",
     "source_sha256": "f4642809c6e8989745bf40eea15b0a102e202029d44d21cd6dd6269e65474698",
     "policy_date": "2026-11-20",
@@ -1738,6 +1749,7 @@
   
   }
   }}
+  }
   }
   }
   }
