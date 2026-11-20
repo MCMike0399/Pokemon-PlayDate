@@ -864,7 +864,7 @@ class Player:
         return menu
 
     def choose(self, key, label):
-        for _ in range(8):
+        for _ in range(16):
             menu = self.menu(key)
             options = menu.get("options") or []
             if label not in options:
@@ -1141,10 +1141,6 @@ class Player:
                 else:
                     self.send("wait 18", "press a", max_frames=200)
             elif phase == "command":
-                # The menu is drawn before the intro timer releases A.
-                if (battle.get("introTimer") or 0) > 0 or battle.get("introPhase") not in (None, "ready", "done"):
-                    self.send("wait 20", max_frames=40)
-                    continue
                 player_hp = (battle.get("player") or {}).get("hp") or 0
                 max_hp = (battle.get("player") or {}).get("maxHP") or 0
                 quantities = (self.state.get("inventory") or {}).get("quantities") or {}
@@ -4575,7 +4571,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-61")
+            output = Path("/tmp/lane-j-squirtle-62")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
