@@ -298,9 +298,7 @@ local bootAccepted, bootProblem = pcall(function()
             BootTrace.mark("HideoutTowerContent.install.begin")
             HideoutTowerContent.install()
             CoastStoryWorld.install()
-            -- postgameStory.lua boots with kantoScenes, before this controller
-            -- exists. The second pass registers Mewtwo's scene and the Hall of
-            -- Fame continue once HideoutTowerController.advance is in place.
+            -- The Hall continue module loads on a Hall save, not at this boot.
             if PostgameStory then
                 PostgameStory.ensureRuntime()
             end

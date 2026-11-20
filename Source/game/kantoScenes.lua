@@ -2,9 +2,6 @@
 -- Import after EventState; install after ordinary Cerulean content registration.
 import "game/ceruleanStory"
 import "game/lateKantoStory"
--- A variable call does not run the chunk, so PostgameStory stays nil.
--- main.lua imports game/saves.lua before this file, so boot() can wrap Continue.
-import "game/postgameStory"
 import "game/ceruleanRoutes"
 import "game/ceruleanRoutesState"
 import "game/tutorialEscort"
@@ -38,9 +35,7 @@ KantoScenes.reconcileActors = CeruleanStory.reconcileActors
 
 function KantoScenes.install()
     assert(not installed, "Kanto scenes already installed")
-    -- postgameStory.boot() runs at import. A cached load before GameSaves
-    -- exists leaves the Hall continue wrapper uninstalled.
-    PostgameStory.ensureRuntime()
+    if PostgameStory then PostgameStory.ensureRuntime() end
     -- Qualified owners declare membership here. World callbacks remain cheap
     -- boot wiring; they do not imply that scene/text data has been prepared.
     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})

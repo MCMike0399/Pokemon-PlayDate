@@ -41,11 +41,7 @@ local function saveGame(self, capturePayload)
 end
 
 function GameSaves:save()
-    -- engine/menus/save.asm SaveMenu keeps the map and the text box, then
-    -- prints NowSavingString. scripts/HallOfFame.asm farcall SaveGameData
-    -- leaves the ceremony up. The default loading draw clears the LCD and
-    -- paints BootTrace ("Save.begin", "Phase N"). Returning true keeps the
-    -- frame already on screen.
+    -- SaveMenu keeps the map and the text box. Returning true keeps that frame.
     return GameBootstrap.withLoading("Save", function()
         return saveGame(self, function()
             return self.game:captureSession()
@@ -180,6 +176,18 @@ function GameSaves:prepareTitle()
     return nil, {reason="stale-title-preparation"}
 end
 
+local function installHallContinue(self, candidate)
+    local function install() return self.game:installSession(candidate) end
+    local location = candidate and candidate.location and candidate:location()
+    if not (location and location.zone_id == "pokered:HALL_OF_FAME") then return install() end
+    if not PostgameStory and playdate and playdate.file and playdate.file.run then
+        playdate.file.run("game/" .. "postgameStory")
+    end
+    if not (PostgameStory and PostgameStory._duringContinue) then return install() end
+    PostgameStory.ensureRuntime()
+    return PostgameStory._duringContinue(function() return install() end, self)
+end
+
 local function continueGame(self, prepared)
     if prepared and prepared.generation ~= self._titleGeneration then prepared = nil end
     if BootTrace then
@@ -209,7 +217,7 @@ local function continueGame(self, prepared)
     if BootTrace then
         BootTrace.mark("Continue.map.begin")
     end
-    local ok, problem = self.game:installSession(candidate)
+    local ok, problem = installHallContinue(self, candidate)
     if BootTrace then
         BootTrace.mark("Continue.map.end")
     end
