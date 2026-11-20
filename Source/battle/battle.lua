@@ -1738,7 +1738,9 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
         for _,entry in ipairs(awarded)do
             local mon,row=entry.mon,entry.row
             if row.xp>0 then
-                self:say(mon.name .. " gained " .. row.xp .. " EXP!")
+                -- pokered data/text/text_2.asm _GainedText then _ExpPointsText.
+                -- row.xp stays the Gen V award.
+                self:say(mon.name .. " gained\n" .. row.xp .. " EXP. Points!")
                 self:present("experience", {pokemon = mon, fromXP = beforeXP[mon], fromLevel = row.fromLevel})
                 local shown,why=BattleRewards.acknowledge(self,receipt.id,row.index);assert(shown,why)
                 if row.leveled then
@@ -1764,15 +1766,31 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
     if won then
+        local title = self.session and self.session:title()
+        local playerName = self.playerName or (title and title.playerName) or "RED"
         local coins = self.payDayCoins or 0
         if coins > 0 then
             -- data/text/text_2.asm _PickUpPayDayMoneyText. The scatter line is
             -- text_3.asm; this page is the yen total, once, on a win.
-            local title = self.session and self.session:title()
-            local playerName = title and title.playerName or "RED"
             self:say(playerName .. " picked up\n¥" .. coins .. "!")
         end
-        self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
+        if self.trainerName then
+            -- pokered engine/battle/core.asm TrainerBattleVictory prints
+            -- TrainerDefeatedText, then PrintEndBattleText, then
+            -- MoneyForWinningText, and only then returns to the map.
+            -- endBattleLines and prizeLine are the source pages for that
+            -- trainer, resolved when the battle is attached.
+            self:say(playerName .. " defeated " .. self.trainerName .. "!")
+            for _, line in ipairs(self.endBattleLines or {}) do
+                self:say(line)
+            end
+            if self.prizeLine then
+                self:say(self.prizeLine)
+            end
+            self.message = self.prizeLine or (playerName .. " defeated " .. self.trainerName .. "!")
+        else
+            self.message = "You won the battle!"
+        end
         return "victory"
     end
     if not playerTeamAlive then
