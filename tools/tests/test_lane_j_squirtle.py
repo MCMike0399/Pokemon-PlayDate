@@ -101,6 +101,9 @@ TICKET_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/191a86b9e4ed")
 TICKET_SAVE_SHA = "1363fe0f4563c44e931da1db5199022186790131dd7cd45f5cf87830838ae4ad"
 VERMILION_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/de26045b6d06")
 VERMILION_SAVE_SHA = "51ade10899094ca5582d70e13e6664bb0fe9adff6b95c19036ed86770c32a4e3"
+# Route 6 grass after Bellsprout and Pidgey. Sequence 20. adventure.a is still sequence 19.
+CATCH_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/route6-l15")
+CATCH_SAVE_SHA = "8a84abab8e13556594eb6b53b06dab8c59b4aa87f8b5b51fa83e1865924d0671"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 BILL_POKEMON = "pokered:BILLS_HOUSE:objects:1"
 BILL = "pokered:BILLS_HOUSE:objects:2"
@@ -695,6 +698,7 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
         self.assertEqual(sha256_file(VERMILION_SAVE / "adventure.a.json"), VERMILION_SAVE_SHA)
+        self.assertEqual(sha256_file(CATCH_SAVE / "adventure.b.json"), CATCH_SAVE_SHA)
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -4018,7 +4022,8 @@ def _raise_pidgey(player, report):
             _lead(player, bird.get("species") or "pidgey")
             continue
         hp = mon.get("hp") or 0
-        if hp < 8 or mon.get("status"):
+        status = str(mon.get("status") or "none").lower()
+        if hp < 8 or status not in ("none", "ok", ""):
             _rest(player, report, "bird heal", 4)
             _to_route6_grass(player)
             _lead(player, "pidgeotto" if _member(player, "pidgeotto")[0] else "pidgey")
@@ -4151,9 +4156,12 @@ def play_vermilion_prep(player, report, display, clips, output):
     if not player.exploring():
         player.dismiss_until_explore(limit=40)
     report["resumed"] = summary(player.state)
-    if "vermilion_city" not in str(player.state.get("zone")):
-        raise RuntimeError("the prep did not resume in Vermilion: " + json.dumps(summary(player.state)))
-    _buy_vermilion(player, report, balls=8, supers=4)
+    have_cut = _member(player, "bellsprout")[0]
+    have_bird = _member(player, "pidgey")[0] or _member(player, "pidgeotto")[0]
+    if not (have_cut and have_bird):
+        if "vermilion_city" not in str(player.state.get("zone")):
+            raise RuntimeError("the prep did not resume in Vermilion: " + json.dumps(summary(player.state)))
+        _buy_vermilion(player, report, balls=8, supers=4)
 
     def catch():
         _leave(player, vermilion_cells(), [((19, 0), "up"), ((18, 0), "up")],
@@ -4164,8 +4172,9 @@ def play_vermilion_prep(player, report, display, clips, output):
         if not caught:
             raise RuntimeError("Route 6 did not yield a Bellsprout: " + json.dumps(summary(player.state)))
 
-    film(display, clips, output, "bellsprout", report, "end", catch)
-    if _member(player, "pidgey")[0] is None:
+    if not (have_cut and have_bird):
+        film(display, clips, output, "bellsprout", report, "end", catch)
+    if _member(player, "pidgey")[0] is None and _member(player, "pidgeotto")[0] is None:
         caught = _hunt(player, route6_cells(), (12, 30), (13, 30), "pidgey", limit=24)
         report["pidgey"] = {"caught": bool(caught), "party": _party(player), **summary(player.state)}
         if not caught:
@@ -4256,11 +4265,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-46")
-            save_from = VERMILION_SAVE
-            digest = sha256_file(save_from / "adventure.a.json")
-            if digest != VERMILION_SAVE_SHA:
-                raise SystemExit(f"vermilion save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-47")
+            save_from = CATCH_SAVE
+            digest = sha256_file(save_from / "adventure.b.json")
+            if digest != CATCH_SAVE_SHA:
+                raise SystemExit(f"catch save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_vermilion_prep))
