@@ -2275,7 +2275,8 @@ def _buy_cerulean_potions(player, report):
             player.press("b", wait=4)
     if player.state.get("root") == "shop":
         raise RuntimeError("the mart stayed open: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, cells, (5, 7), set(), "down")
+    # The clerk's neighbor wanders on x=5, which blocks that door.
+    kind = step_onto(player, cells, (6, 7), {(5, 5), (5, 6), (5, 7)}, "down")
     report["cerulean_mart_left"] = {"kind": kind, **summary(player.state)}
     if "cerulean_city" not in str(player.state.get("zone")):
         raise RuntimeError("still inside the mart: " + json.dumps(summary(player.state)))
@@ -2512,7 +2513,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-29")
+            output = Path("/tmp/lane-j-squirtle-30")
             save_from = POTION_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != POTION_SAVE_SHA:
