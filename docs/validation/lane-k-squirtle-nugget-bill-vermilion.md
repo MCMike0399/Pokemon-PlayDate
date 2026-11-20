@@ -43,7 +43,7 @@ The Center walk does not reach the south edge. The tree line and the Cut tree ar
 7. Route 5 house: door `(3, 7)` or `(4, 7)`, stairs `(4, 4)`.
 8. North-south corridor `(5, 4)` walks to `(2, 41)`. The block map is 4×23; the const says 4×24. The committed collision matches the 46 source rows, and both warps are inside them.
 9. Route 6 house stairs `(4, 4)` exit at `(17, 13)`. South edge cells on that walk are only `(8, 35)` and `(9, 35)`. Route 6's south adjustment is `+10`, so Vermilion `(18, 0)` and `(19, 0)`. `(10, 7)` is the Saffron gate. Do not take it.
-10. Vermilion `(18, 0)` reaches the Center `(11, 3)` and the Mart `(23, 13)`. It does not reach the Gym door `(12, 19)`. Those feet match pokered. This note does not send J to Surge.
+10. Vermilion `(18, 0)` reaches the Center `(11, 3)` and the Mart `(23, 13)`. It does not reach the Gym door `(12, 19)`. Those feet match pokered. `(12, 19)` is Vermilion's door. Misty's door is Cerulean `(30, 19)`, in `lane-k-cerulean-gym-door.md`.
 
 ## What J can run
 
@@ -51,3 +51,7 @@ The Center walk does not reach the south edge. The tree line and the Cut tree ar
 2. Talk to Bill's Pokémon. Either answer starts the machine. Take the S.S. Ticket.
 3. On the way back into Cerulean, expect the Bulbasaur rival team at `(20, 6)` or `(21, 6)`. Whirlwind and Teleport did not leave a battle selection stuck.
 4. For Vermilion, go through the burgled house and the backyard Rocket, then leave at the south-edge ranges above. Skip the `y=32` ledge and both Saffron gates.
+
+## Post-Cascade: Vermilion Gym
+
+`(12, 19)` is `warp_event 12, 19, VERMILION_GYM, 1` in `data/maps/objects/VermilionCity.asm`. It is a separate walk component from the north arrival `(18, 0)`. The Center and the Mart are on the north arrival. The Gym door is not. The committed feet match pokered `af519899`, so this is not a Cerulean disconnect and not a slice drift. Leave it until after the Cascade Badge.
