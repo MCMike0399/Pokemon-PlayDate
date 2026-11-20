@@ -1266,7 +1266,8 @@ function Pokemon.initialMovesFor(species, level)
     local moves = {}
     for _, entry in ipairs(data.learnset) do
         if entry.level > level then break end
-        if entry.level >= 1 then
+        -- Wide Guard is not in pokered moves.asm. Gen V rules do not teach it.
+        if entry.level >= 1 and entry.move ~= "wideGuard" then
             moveDefinition(entry.move)
             local known = false
             for _, key in ipairs(moves) do if key == entry.move then known = true; break end end
@@ -1398,6 +1399,23 @@ function Pokemon:init(species, level, attributes)
     end
 end
 
+-- A scripted party replaces the Gen V learnset with the pokered moves for that slot.
+function Pokemon:usePartyMoves(keys)
+    assert(type(keys) == "table" and #keys >= 1 and #keys <= 4, "party moves require 1..4 slots")
+    local moves, seen = {}, {}
+    for _, key in ipairs(keys) do
+        assert(type(key) == "string" and not seen[key], "duplicate party move")
+        seen[key] = true
+        moveDefinition(key)
+        moves[#moves + 1] = key
+    end
+    self.moves = moves
+    self.pp = {}
+    for _, key in ipairs(moves) do
+        self.pp[key] = moveDefinition(key).maxPP
+    end
+end
+
 function Pokemon:attributes()
     return Specimen.attributes({natureId=self.natureId,abilitySlot=self.abilitySlot,heldItem=self.heldItem,
         sex=self.sex,sexProvenance=self.sexProvenance,ivs=self.ivs,evs=self.evs},self.species)
@@ -1496,7 +1514,7 @@ function Pokemon:gainXP(amount)
     for _, key in ipairs(self.moves) do seen[key] = true end
     for _, choice in ipairs(self.pendingMoveChoices) do seen[choice.move] = true end
     for _, entry in ipairs(Pokemon.learnsetEntriesFor(self.species, oldLevel + 1, targetLevel)) do
-        if not seen[entry.move] then
+        if not seen[entry.move] and entry.move ~= "wideGuard" then
             moveDefinition(entry.move)
             planned[#planned + 1] = entry
             seen[entry.move] = true

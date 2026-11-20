@@ -12,12 +12,14 @@ This test fails until tools/notes/lane-e-evolution-cancel-hint.patch
 is applied. That patch deletes only the hint. B and the dialog stay.
 """
 
+import os
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-POKERED_TEXT = Path("/tmp/pokered/data/text/text_3.asm")
-POKERED_EVO = Path("/tmp/pokered/engine/movie/evolution.asm")
+REFERENCE = Path(os.environ["POKERED_REFERENCE_DIR"])
+POKERED_TEXT = REFERENCE / "data/text/text_3.asm"
+POKERED_EVO = REFERENCE / "engine/movie/evolution.asm"
 STATE = ROOT / "Source/game/evolutionState.lua"
 PATCH = ROOT / "tools/notes/lane-e-evolution-cancel-hint.patch"
 HINT = 'gfx.drawText("B: Stop evolution",12,157)'

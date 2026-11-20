@@ -19,11 +19,12 @@ positions stay {{48,22},{64,22},{48,32},{64,32},{48,42},{64,42}}. This
 test fails until tools/notes/lane-e-healing-machine-balls.patch is applied.
 """
 
+import os
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-POKERED = Path("/tmp/pokered/engine/overworld/healing_machine.asm")
+POKERED = Path(os.environ["POKERED_REFERENCE_DIR"]) / "engine/overworld/healing_machine.asm"
 ART = ROOT / "Source/game/eventArt.lua"
 CONTRACT = ROOT / "Source/dev/healingCompositionContracts.lua"
 GRID = ROOT / "Source/data/event-art.json"
