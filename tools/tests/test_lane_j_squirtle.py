@@ -286,6 +286,65 @@ def cerulean_cells():
     return open_map(ROOT / "Source/data/sourceSlice/CeruleanCity.json", 0, 40)
 
 
+EAST = ROOT / "Source/data/midgameEast"
+
+
+def route9_cells():
+    return open_map(EAST / "Route9.json", 0, 60)
+
+
+def route10_cells():
+    return open_map(EAST / "Route10.json", 0, 20)
+
+
+def rock_tunnel_1f_cells():
+    return open_map(EAST / "RockTunnel1F.json", 0, 40)
+
+
+def rock_tunnel_b1_cells():
+    return open_map(EAST / "RockTunnelB1F.json", 0, 40)
+
+
+def rock_tunnel_center_cells():
+    return open_map(EAST / "RockTunnelPokecenter.json", 0, 14)
+
+
+def lavender_cells():
+    return open_map(EAST / "LavenderTown.json", 0, 20)
+
+
+def route8_cells():
+    return open_map(EAST / "Route8.json", 0, 60)
+
+
+def route7_cells():
+    return open_map(EAST / "Route7.json", 0, 20)
+
+
+def underground_route8_cells():
+    return open_map(EAST / "UndergroundPathRoute8.json", 2, 13)
+
+
+def underground_we_cells():
+    return open_map(EAST / "UndergroundPathWestEast.json", 0, 50)
+
+
+def underground_route7_cells():
+    return open_map(EAST / "UndergroundPathRoute7.json", 2, 13)
+
+
+def celadon_cells():
+    return open_map(EAST / "CeladonCity.json", 0, 50)
+
+
+def celadon_mart_cells(floor):
+    return open_map(EAST / f"CeladonMart{floor}F.json", 0, 20)
+
+
+def celadon_gym_cells():
+    return open_map(EAST / "CeladonGym.json", 1, 13)
+
+
 def cerulean_gym_cells():
     return open_map(ROOT / "Source/data/sourceSlice/CeruleanGym.json", 1, 13)
 
@@ -460,6 +519,75 @@ def route(open_cells, start, goal, avoid=(), blocked_edges=()):
                 return steps
             queue.append(nxt)
     return None
+
+
+def map_surface(path, pad=0):
+    """Foot tiles and ledge hops. pad matches open_map so route cells line up."""
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    by_id = {grid["id"]: grid for grid in data["grids"]}
+    feet = {}
+    for y, row in enumerate(data["tile_ids"]):
+        for x, gid in enumerate(row):
+            feet[(x + pad, y)] = by_id[gid]["terrain"]["foot_tile"]
+    names = {(0, 1): "down", (0, -1): "up", (-1, 0): "left", (1, 0): "right"}
+    buttons = {"PAD_DOWN": (0, 1), "PAD_UP": (0, -1), "PAD_LEFT": (-1, 0), "PAD_RIGHT": (1, 0)}
+    ledges = []
+    for rule in data["directional_rules"]["ledges"]:
+        dx, dy = buttons[rule["input"]]
+        ledges.append((rule["standing_foot_tile"], rule["target_foot_tile"], dx, dy, names[(dx, dy)]))
+    return feet, ledges
+
+
+def ledge_route(open_cells, feet, ledges, start, goal, avoid=()):
+    """route(), plus a ledge hop as one step that lands two cells ahead."""
+    blocked = set(avoid)
+    open_cells = set(open_cells)
+    open_cells.add(start)
+    if start == goal:
+        return []
+    if goal not in open_cells or start in blocked or goal in blocked:
+        return None
+    queue = [start]
+    previous = {start: None}
+    while queue:
+        cell = queue.pop(0)
+        x, y = cell
+        foot = feet.get(cell)
+        hopped = set()
+        if foot is not None:
+            for stand, front, dx, dy, direction in ledges:
+                if foot != stand:
+                    continue
+                if feet.get((x + dx, y + dy)) != front:
+                    continue
+                hopped.add((dx, dy))
+                landing = (x + 2 * dx, y + 2 * dy)
+                if landing in previous or landing not in open_cells or landing in blocked:
+                    continue
+                previous[landing] = (cell, direction)
+                if landing == goal:
+                    return _unwind_route(previous, landing, start)
+                queue.append(landing)
+        for direction, (dx, dy) in DELTAS.items():
+            if (dx, dy) in hopped:
+                continue
+            nxt = (x + dx, y + dy)
+            if nxt in previous or nxt not in open_cells or nxt in blocked:
+                continue
+            previous[nxt] = (cell, direction)
+            if nxt == goal:
+                return _unwind_route(previous, nxt, start)
+            queue.append(nxt)
+    return None
+
+
+def _unwind_route(previous, cursor, start):
+    steps = []
+    while cursor != start:
+        cursor, direction = previous[cursor]
+        steps.append(direction)
+    steps.reverse()
+    return steps
 
 
 def first_cell(open_cells, start, predicate, avoid=()):
@@ -725,6 +853,32 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(vermilion_gym_cells(), (2, 12), (5, 9), GYM_SIGHT))
         self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
         self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
+        city = set(cerulean_cells())
+        self.assertIsNone(route(city, (0, 18), (39, 16), set(CERULEAN_DOORS) | CERULEAN_NPCS))
+        city.add((19, 28))
+        self.assertIsNotNone(route(city, (0, 18), (39, 16), set(CERULEAN_DOORS) | CERULEAN_NPCS))
+        feet, ledges = map_surface(EAST / "Route9.json")
+        self.assertIsNone(ledge_route(route9_cells(), feet, ledges, (0, 8), (59, 8), ROUTE9_AVOID))
+        opened = set(route9_cells())
+        opened.add((5, 8))
+        self.assertIsNotNone(ledge_route(opened, feet, ledges, (0, 8), (59, 8), ROUTE9_AVOID))
+        self.assertIsNotNone(route(route10_cells(), (0, 8), (11, 20), ROUTE10_AVOID | {(8, 17)}))
+        self.assertIsNotNone(route(rock_tunnel_1f_cells(), (15, 4), (37, 3), TUNNEL_1F_AVOID))
+        self.assertIsNotNone(route(rock_tunnel_b1_cells(), (33, 25), (3, 3), TUNNEL_B1_AVOID))
+        self.assertIsNotNone(route(rock_tunnel_1f_cells(), (37, 17), (15, 33), TUNNEL_1F_AVOID))
+        self.assertIsNotNone(route(lavender_cells(), (6, 1), (0, 8), LAVENDER_DOORS))
+        self.assertIsNotNone(route(route8_cells(), (59, 8), (13, 4), ROUTE8_AVOID))
+        self.assertIsNotNone(route(underground_route8_cells(), (5, 6), (6, 4), {(5, 4)}))
+        self.assertIsNotNone(route(underground_we_cells(), (47, 2), (2, 5)))
+        self.assertIsNotNone(route(underground_route7_cells(), (6, 4), (5, 6)))
+        self.assertIsNotNone(route(route7_cells(), (5, 14), (0, 3), ROUTE7_GATES | {(5, 13)}))
+        self.assertIsNotNone(route(route7_cells(), (5, 14), (8, 2), ROUTE7_GATES | {(5, 13)}))
+        gym = set(celadon_gym_cells())
+        gym_feet, gym_ledges = map_surface(EAST / "CeladonGym.json", 1)
+        self.assertIsNone(ledge_route(gym, gym_feet, gym_ledges, (5, 16), (5, 4), set()))
+        self.assertIsNotNone(ledge_route(gym, gym_feet, gym_ledges, (5, 16), (6, 8), set()))
+        gym.add((6, 7))
+        self.assertIsNotNone(ledge_route(gym, gym_feet, gym_ledges, (6, 8), (5, 4), {(5, 3)}))
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
         self.assertEqual(sha256_file(VERMILION_SAVE / "adventure.a.json"), VERMILION_SAVE_SHA)
         self.assertEqual(sha256_file(CATCH_SAVE / "adventure.b.json"), CATCH_SAVE_SHA)
@@ -1142,7 +1296,9 @@ class Player:
         for _ in range(limit):
             root = self.state.get("root")
             if root == "learning":
-                if decline_moves:
+                move = ((self.state.get("learning") or {}).get("move_info") or {}).get("key")
+                # Whirlwind, Agility, and Mirror Move are not the Erika plan.
+                if decline_moves or move in ("whirlwind", "agility", "mirrorMove"):
                     _decline_new_move(self)
                     continue
                 if not self.dismiss_until_explore(limit=80) and self.state.get("root") == "battle":
@@ -1172,7 +1328,10 @@ class Player:
                 battle = self.state.get("battle") or {}
                 if battle.get("shift_choice") and self.state.get("root") == "battle":
                     fainted = ((battle.get("enemy") or {}).get("species") or "")
-                    if shift_to and fainted == "kadabra":
+                    grass = fainted in (
+                        "oddish", "bellsprout", "bulbasaur", "victreebel", "tangela", "vileplume")
+                    active = ((battle.get("player") or {}).get("species") or "")
+                    if shift_to and active != shift_to and (fainted == "kadabra" or grass):
                         self.press("a", wait=8)
                     else:
                         self.press("b", wait=8)
@@ -1230,8 +1389,13 @@ class Player:
                         for key, left in pp.items():
                             if "".join(ch for ch in str(key).upper() if ch.isalpha()) == letters and left == 0:
                                 rejected.add(name)
+                    if species in ("pidgey", "pidgeotto", "spearow", "fearow"):
+                        for name in options:
+                            letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
+                            if letters in ("WHIRLWIND", "MIRRORMOVE", "AGILITY"):
+                                rejected.add(name)
                     forced = {
-                        "pidgey": ("GUST",), "pidgeotto": ("GUST",),
+                        "pidgey": ("GUST",), "pidgeotto": ("WINGATTACK", "GUST"),
                         "spearow": ("DRILLPECK", "PECK"), "fearow": ("DRILLPECK", "PECK"),
                         "diglett": ("DIG",), "dugtrio": ("DIG",),
                     }.get(species) or ()
@@ -4583,13 +4747,644 @@ def _cut_route2_to_pewter(player, report, display=None, clips=None, output=None)
     _keep_bird_save(report)
 
 
-def _continue_kanto(player, report, display, clips, output):
-    """Pewter's east road, Mt. Moon, and Route 4. Misty stays beaten."""
+ROUTE9_AVOID = {
+    (13, 10), (24, 7), (31, 7), (48, 8), (16, 15), (43, 3), (22, 2), (45, 15), (40, 8), (10, 15),
+}
+ROUTE10_AVOID = {(10, 44), (3, 57), (14, 64), (7, 25), (3, 61), (7, 54), (6, 39)}
+TUNNEL_1F_AVOID = {(7, 5), (5, 16), (17, 15), (23, 8), (37, 21), (22, 24), (32, 24)}
+TUNNEL_B1_AVOID = {(11, 13), (6, 10), (3, 5), (20, 21), (30, 10), (14, 28), (33, 5), (26, 30)}
+LAVENDER_DOORS = {(3, 5), (14, 5), (7, 9), (15, 13), (3, 13), (7, 13)}
+ROUTE8_AVOID = {(1, 9), (1, 10), (8, 9), (8, 10), (8, 5), (13, 9), (42, 6), (26, 3), (26, 4),
+                (26, 5), (26, 6), (46, 13), (51, 12)}
+ROUTE7_GATES = {(18, 9), (18, 10), (11, 9), (11, 10)}
+CERULEAN_NPCS = {(30, 8), (31, 20), (15, 18), (9, 21), (28, 12), (29, 26), (28, 26), (9, 27), (4, 12), (27, 12)}
+ROCK_NURSE = "pokered:ROCK_TUNNEL_POKECENTER:objects:1"
+EAST_RESUME = {
+    "kanto_cerulean_city", "kanto_route_9", "kanto_route_10", "kanto_rock_tunnel_1f",
+    "kanto_rock_tunnel_b1f", "kanto_rock_tunnel_pokecenter", "kanto_lavender_town",
+    "kanto_route_8", "kanto_underground_path_route_8", "kanto_underground_path_west_east",
+    "kanto_underground_path_route_7", "kanto_route_7", "kanto_celadon_city",
+    "kanto_celadon_mart_1f", "kanto_celadon_mart_2f", "kanto_celadon_gym",
+}
+
+
+def _walk(player, cells, surface, goal, avoid, limit=800):
+    """Recompute a ledge-aware step until the goal, a warp, or a blackout."""
+    feet, ledges = surface
+    blocked = set()
+    talked = set()
+    started = player.state.get("zone")
+    for _ in range(limit):
+        if player.state.get("zone") != started:
+            return "warp"
+        if not player.exploring():
+            root = player.state.get("root")
+            if root == "battle":
+                before = player.state.get("last_battle_outcome")
+                trainer = (player.state.get("battle") or {}).get("trainerName")
+                if trainer:
+                    player.fight(limit=2500, potion_at=30, shift_to="pidgeotto")
+                elif not player.run_away():
+                    player.fight(limit=2500, potion_at=30, shift_to="pidgeotto")
+                player.dismiss_until_explore(limit=80)
+                after = player.state.get("last_battle_outcome") or {}
+                if _lost(before, after):
+                    return "blackout"
+                continue
+            if root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event", "evolution"):
+                player.dismiss_until_explore(limit=100)
+                continue
+            player.settle(limit=40)
+            continue
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here == goal:
+            return "arrived"
+        steps = ledge_route(cells, feet, ledges, here, goal, set(avoid) | blocked)
+        if not steps:
+            return "no-route"
+        kind = player.step(steps[0])
+        if player.state.get("zone") != started or kind == "warp":
+            return "warp"
+        if kind == "blocked":
+            nxt = neighbor(here, steps[0])
+            npc = next((n for n in (player.state.get("npcs") or [])
+                        if (n.get("x"), n.get("y")) == nxt), None)
+            if npc and nxt not in talked:
+                talked.add(nxt)
+                player.press("a", wait=8)
+                continue
+            blocked.add(nxt)
+    return "lost"
+
+
+def _cut_facing(player, cells, surface, stand, facing, tree, avoid, report, key):
+    """Open one Cut tile, then keep it in the walk set. Trees regrow on reload."""
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here != stand:
+        kind = _walk(player, cells, surface, stand, avoid)
+        if kind == "blackout":
+            return kind, set(cells)
+        if (player.state["player"]["x"], player.state["player"]["y"]) != stand:
+            raise RuntimeError(f"could not stand at {stand} for Cut: " + json.dumps(summary(player.state)))
+    if player.state["player"].get("facing") != facing:
+        player.press(facing, wait=4)
+    kind = player.step(facing)
+    landed = (player.state["player"]["x"], player.state["player"]["y"])
+    opened = set(cells)
+    opened.add(tree)
+    if landed != tree:
+        _confirm_cut(player, facing)
+        kind = player.step(facing)
+        landed = (player.state["player"]["x"], player.state["player"]["y"])
+    report[key] = {"kind": kind, "at": list(landed), **summary(player.state)}
+    if landed != tree:
+        raise RuntimeError(f"Cut did not open {tree}: " + json.dumps(report[key]))
+    return "open", opened
+
+
+def _checkpoint(player, report, key):
+    _pause(player, report, key)
+    _keep_bird_save(report)
+
+
+def _note_blackout(report):
+    report["blackouts"] = int(report.get("blackouts") or 0) + 1
+    if report["blackouts"] >= 2:
+        raise RuntimeError("a second blackout on the east road: " + json.dumps(summary_safe(report)))
+
+
+def summary_safe(report):
+    return {"blackouts": report.get("blackouts"), "zone": report.get("resumed")}
+
+
+def _bird(player):
+    for species in ("fearow", "pidgeotto", "spearow", "pidgey"):
+        slot, mon = _member(player, species)
+        if slot:
+            return species, mon or {}
+    return None, {}
+
+
+def _money(player):
+    return int((player.state.get("inventory") or {}).get("money") or 0)
+
+
+def _onto_warp(player, cells, surface, goal, avoid, report, key):
+    """Walk onto a stair. Landing on it changes maps, so a warp is success."""
+    started = player.state.get("zone")
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here != goal:
+        kind = _walk(player, cells, surface, goal, avoid)
+        if kind == "blackout":
+            return kind
+        if kind == "warp" or player.state.get("zone") != started:
+            report[key] = summary(player.state)
+            return "open"
+    if (player.state["player"]["x"], player.state["player"]["y"]) != goal:
+        raise RuntimeError(f"{key} did not open: " + json.dumps(summary(player.state)))
+    for direction, back in (("down", "up"), ("up", "down"), ("left", "right"), ("right", "left")):
+        kind = player.step(direction)
+        if kind == "warp" or player.state.get("zone") != started:
+            report[key] = summary(player.state)
+            return "open"
+        if (player.state["player"]["x"], player.state["player"]["y"]) != goal:
+            player.step(back)
+            player.settle(limit=40)
+            if player.state.get("zone") != started:
+                report[key] = summary(player.state)
+                return "open"
+            break
+    raise RuntimeError(f"{key} stayed put: " + json.dumps(summary(player.state)))
+
+
+def _challenge(player, cells, surface, tile, avoid):
+    """Talk to one trainer from an open side. A missing sprite is not a fight."""
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    spots = []
+    for direction, (dx, dy) in DELTAS.items():
+        spot = (tile[0] - dx, tile[1] - dy)
+        if spot in cells and spot not in avoid and spot != tile:
+            spots.append((abs(spot[0] - here[0]) + abs(spot[1] - here[1]), spot, direction))
+    if not spots:
+        return "skip"
+    _distance, spot, direction = min(spots)
+    if ledge_route(cells, surface[0], surface[1], here, spot, set(avoid) | {tile}) is None:
+        return "skip"
+    kind = _walk(player, cells, surface, spot, set(avoid) | {tile})
+    if kind in ("blackout", "warp"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != spot:
+        return "skip"
+    if player.state["player"].get("facing") != direction:
+        player.press(direction, wait=4)
+    player.press("a", wait=8)
+    for _ in range(8):
+        if player.state.get("root") == "battle":
+            before = player.state.get("last_battle_outcome")
+            player.fight(limit=2500, potion_at=30, shift_to="pidgeotto")
+            player.dismiss_until_explore(limit=80)
+            after = player.state.get("last_battle_outcome") or {}
+            return "blackout" if _lost(before, after) else "fought"
+        if player.exploring():
+            return "silent"
+        player.dismiss_until_explore(limit=20)
+    return "silent"
+
+
+def _grind_bird(player, report, cells, left, right, avoid, level=31, limit=48):
+    """Pace two grass tiles with the flyer in front until Wing Attack's level."""
+    species, mon = _bird(player)
+    if not species or (mon.get("level") or 0) >= level:
+        report["grind"] = {"species": species, "level": (mon or {}).get("level"), "battles": 0}
+        return "ready"
+    _lead(player, species)
+    battles = 0
+    goal = right
+    for _ in range(limit * 20):
+        species, mon = _bird(player)
+        if (mon.get("level") or 0) >= level or battles >= limit:
+            break
+        if not player.exploring():
+            if player.state.get("root") == "battle":
+                before = player.state.get("last_battle_outcome")
+                player.fight(limit=1200, potion_at=30, shift_to=None)
+                player.dismiss_until_explore(limit=40)
+                battles += 1
+                if battles % 8 == 0 and player.exploring():
+                    _checkpoint(player, report, "saved_grind")
+                if _lost(before, player.state.get("last_battle_outcome") or {}):
+                    report["grind"] = {"species": species, "level": (mon or {}).get("level"), "battles": battles}
+                    return "blackout"
+            else:
+                player.dismiss_until_explore(limit=20)
+            continue
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here == goal:
+            goal = left if goal == right else right
+        steps = route(cells, here, goal, avoid)
+        if not steps:
+            break
+        player.step(steps[0])
+    species, mon = _bird(player)
+    report["grind"] = {"species": species, "level": (mon or {}).get("level"), "battles": battles, "party": _party(player)}
+    return "open"
+
+
+def _leave_cerulean_east(player, report, display, clips, output):
+    """The southeast tree at (19, 28) is the only join to the Route 9 edge."""
+    cells = set(cerulean_cells())
+    avoid = set(CERULEAN_DOORS) | CERULEAN_NPCS
+    surface = map_surface(ROOT / "Source/data/sourceSlice/CeruleanCity.json")
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if ledge_route(cells, surface[0], surface[1], here, (39, 16), avoid) is None:
+        def cut():
+            status, opened = _cut_facing(
+                player, cells, surface, (19, 27), "down", (19, 28), avoid, report, "cerulean_tree")
+            if status == "blackout":
+                return status
+            kind = _walk(player, opened, surface, (39, 16), avoid)
+            if kind == "blackout":
+                return kind
+            if (player.state["player"]["x"], player.state["player"]["y"]) != (39, 16):
+                raise RuntimeError("Cerulean east edge did not open: " + json.dumps(summary(player.state)))
+            player.step("right")
+            player.settle(limit=80)
+            report["route9_entry"] = summary(player.state)
+            return "left" if "route_9" in str(player.state.get("zone")) else "stayed"
+
+        if display and clips and output:
+            filmed = film(display, clips, output, "route9", report, "end", cut)
+        else:
+            filmed = cut()
+        if filmed == "blackout":
+            return "blackout"
+        if "route_9" not in str(player.state.get("zone")):
+            raise RuntimeError("Route 9 did not open: " + json.dumps(summary(player.state)))
+    else:
+        kind = _walk(player, cells, surface, (39, 16), avoid)
+        if kind == "blackout":
+            return kind
+        player.step("right")
+        player.settle(limit=80)
+        report["route9_entry"] = summary(player.state)
+        if "route_9" not in str(player.state.get("zone")):
+            raise RuntimeError("Route 9 did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route9")
+    return "open"
+
+
+def _cross_route9(player, report):
+    cells = set(route9_cells())
+    surface = map_surface(EAST / "Route9.json")
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid = set(ROUTE9_AVOID)
+    if here[0] <= 5 and ledge_route(cells, surface[0], surface[1], here, (59, 8), avoid) is None:
+        status, cells = _cut_facing(player, cells, surface, (4, 8), "right", (5, 8), avoid, report, "route9_tree")
+        if status == "blackout":
+            return status
+    _species, mon = _bird(player)
+    if _money(player) < 2800 or (mon.get("level") or 0) < 28:
+        for tile in ((13, 10), (16, 15), (22, 2), (24, 7), (31, 7), (40, 8), (43, 3), (45, 15), (48, 8)):
+            result = _challenge(player, cells, surface, tile, set())
+            if result == "blackout":
+                return result
+            if player.state.get("zone") != "kanto_route_9":
+                return "open"
+        report["route9_trainers"] = {"money": _money(player), "bird": (_bird(player)[1] or {}).get("level")}
+        _checkpoint(player, report, "saved_route9_trainers")
+    kind = _walk(player, cells, surface, (59, 8), avoid)
+    if kind == "blackout":
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (59, 8):
+        raise RuntimeError("Route 9 did not reach Route 10: " + json.dumps(summary(player.state)))
+    player.step("right")
+    player.settle(limit=80)
+    report["route10_entry"] = summary(player.state)
+    if "route_10" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 10 did not open: " + json.dumps(summary(player.state)))
+    return "open"
+
+
+def _cross_route10(player, report):
+    """North of the tunnel: heal, then the cave. South of it: Lavender."""
+    y = player.state["player"]["y"]
+    cells = route10_cells()
+    surface = map_surface(EAST / "Route10.json")
+    avoid = set(ROUTE10_AVOID)
+    if y < 40:
+        avoid |= {(8, 17), (8, 53)}
+        if _needs_heal(player) or "center" not in str(report.get("tunnel_center") or ""):
+            if (player.state["player"]["x"], player.state["player"]["y"]) != (11, 20):
+                kind = _walk(player, cells, surface, (11, 20), avoid | {(11, 19)})
+                if kind == "blackout":
+                    return kind
+            _heal_in(player, report, cells, (11, 19), ROCK_NURSE, rock_tunnel_center_cells(),
+                     "tunnel", "route_10", avoid=avoid | {(11, 19)})
+            report["tunnel_center"] = summary(player.state)
+            _checkpoint(player, report, "saved_tunnel_center")
+        avoid.discard((8, 17))
+        kind = _walk(player, cells, surface, (8, 18), avoid)
+        if kind == "blackout":
+            return kind
+        player.step("up")
+        player.settle(limit=80)
+        report["tunnel_entry"] = summary(player.state)
+        if "rock_tunnel" not in str(player.state.get("zone")):
+            raise RuntimeError("Rock Tunnel did not open: " + json.dumps(summary(player.state)))
+        return "open"
+    kind = _walk(player, cells, surface, (8, 71), avoid | {(8, 17), (8, 53), (11, 19)})
+    if kind == "blackout":
+        return kind
+    player.step("down")
+    player.settle(limit=80)
+    report["lavender_entry"] = summary(player.state)
+    if "lavender" not in str(player.state.get("zone")):
+        raise RuntimeError("Lavender did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_lavender")
+    return "open"
+
+
+def _cross_tunnel(player, report):
     zone = str(player.state.get("zone"))
-    if "cerulean" in zone and "gym" not in zone:
-        _pause(player, report, "saved_cerulean_return")
-        _keep_bird_save(report)
-        return
+    if "b1f" in zone:
+        cells, surface, goal = rock_tunnel_b1_cells(), map_surface(EAST / "RockTunnelB1F.json"), (3, 3)
+        avoid = set(TUNNEL_B1_AVOID)
+    else:
+        cells = rock_tunnel_1f_cells()
+        surface = map_surface(EAST / "RockTunnel1F.json")
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        avoid = set(TUNNEL_1F_AVOID)
+        if ledge_route(cells, surface[0], surface[1], here, (15, 33), avoid):
+            goal = (15, 33)
+        else:
+            goal = (37, 3)
+    return _onto_warp(player, cells, surface, goal, avoid, report, "tunnel_stair")
+
+
+def _cross_lavender(player, report):
+    kind = _walk(player, lavender_cells(), map_surface(EAST / "LavenderTown.json"), (0, 8), LAVENDER_DOORS)
+    if kind == "blackout":
+        return kind
+    player.step("left")
+    player.settle(limit=80)
+    report["route8_entry"] = summary(player.state)
+    if "route_8" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 8 did not open: " + json.dumps(summary(player.state)))
+    return "open"
+
+
+def _cross_route8(player, report):
+    gates = {(1, 9), (1, 10), (8, 9), (8, 10)}
+    kind = _walk(player, route8_cells(), map_surface(EAST / "Route8.json"), (13, 4), gates)
+    if kind == "blackout":
+        return kind
+    player.step("up")
+    player.settle(limit=80)
+    report["underground_entry"] = summary(player.state)
+    if "underground" not in str(player.state.get("zone")):
+        raise RuntimeError("the Route 8 underground did not open: " + json.dumps(summary(player.state)))
+    return "open"
+
+
+def _cross_underground(player, report):
+    zone = str(player.state.get("zone"))
+    if zone == "kanto_underground_path_route_8":
+        cells, surface, goal = underground_route8_cells(), map_surface(EAST / "UndergroundPathRoute8.json", 2), (6, 4)
+        avoid = {(5, 4)}
+    elif zone == "kanto_underground_path_west_east":
+        cells, surface, goal = underground_we_cells(), map_surface(EAST / "UndergroundPathWestEast.json"), (2, 5)
+        avoid = set()
+    elif zone == "kanto_underground_path_route_7":
+        cells, surface, goal = underground_route7_cells(), map_surface(EAST / "UndergroundPathRoute7.json", 2), (5, 7)
+        avoid = {(4, 4)}
+    else:
+        raise RuntimeError("unknown underground room: " + zone)
+    return _onto_warp(player, cells, surface, goal, avoid, report, "underground_step")
+
+
+def _cross_route7(player, report, display, clips, output):
+    cells = route7_cells()
+    avoid = set(ROUTE7_GATES) | {(5, 13)}
+    status = _grind_bird(player, report, cells, (8, 2), (9, 2), avoid)
+    if status == "blackout":
+        return status
+    _lead(player, "wartortle")
+    kind = _walk(player, cells, map_surface(EAST / "Route7.json"), (0, 3), avoid)
+    if kind == "blackout":
+        return kind
+
+    def enter():
+        player.step("left")
+        player.settle(limit=80)
+        report["celadon_entry"] = summary(player.state)
+
+    if display and clips and output:
+        film(display, clips, output, "celadon", report, "end", enter)
+    else:
+        enter()
+    if "celadon" not in str(player.state.get("zone")):
+        raise RuntimeError("Celadon did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_celadon")
+    return "open"
+
+
+def _shop_stock(player):
+    seen = []
+    for _ in range(24):
+        shop = player.state.get("shop") or {}
+        phase = shop.get("phase")
+        if phase == "mode":
+            player.choose("shop", "BUY")
+            continue
+        if phase != "browse":
+            player.press("b", wait=4)
+            continue
+        item = shop.get("item")
+        if item in seen:
+            return seen
+        if item and item != "none":
+            seen.append(item)
+        player.press("down", wait=2)
+    return seen
+
+
+def _close_shop(player):
+    for _ in range(8):
+        if player.state.get("root") != "shop":
+            break
+        phase = (player.state.get("shop") or {}).get("phase")
+        if phase == "mode":
+            player.choose("shop", "QUIT")
+        else:
+            player.press("b", wait=4)
+    _close_menus(player)
+
+
+def _open_clerk(player, cells, surface, spot):
+    kind = _walk(player, cells, surface, spot, {(1, 1), (12, 1), (16, 1), (14, 4), (19, 5)})
+    if kind not in ("arrived", "open"):
+        return kind
+    if player.state["player"].get("facing") != "up":
+        player.press("up", wait=4)
+    player.press("a", wait=8)
+    for _ in range(16):
+        root = player.state.get("root")
+        if root == "shop":
+            return "shop"
+        if root == "overworld":
+            return "closed"
+        player.press("a", wait=6)
+    return "closed"
+
+
+def _buy_celadon(player, report):
+    """Dept. Store 2F sells Super Potions, Antidotes, and Paralyze Heals."""
+    zone = str(player.state.get("zone"))
+    if zone == "kanto_celadon_city":
+        doors = {(8, 13), (10, 13), (12, 27), (24, 9), (24, 3), (25, 3), (41, 9),
+                 (28, 19), (39, 19), (33, 19), (31, 27), (35, 27), (43, 27)}
+        kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (8, 14), doors)
+        if kind == "blackout":
+            return kind
+        player.step("up")
+        player.settle(limit=40)
+        report["mart_door"] = summary(player.state)
+        return "open"
+    if "mart_1f" in zone:
+        floor = celadon_mart_cells(1)
+        surface = map_surface(EAST / "CeladonMart1F.json")
+        if report.get("celadon_stocked"):
+            return _onto_warp(player, floor, surface, (3, 7), {(1, 1), (12, 1), (8, 3)}, report, "mart_exit")
+        kind = _walk(player, floor, surface, (12, 2), {(1, 1), (8, 3)})
+        if kind == "blackout":
+            return kind
+        player.step("up")
+        player.settle(limit=40)
+        report["mart_stairs"] = summary(player.state)
+        return "open"
+    if "mart_2f" not in zone:
+        raise RuntimeError("the Dept. Store floor is unknown: " + json.dumps(summary(player.state)))
+    second = celadon_mart_cells(2)
+    surface = map_surface(EAST / "CeladonMart2F.json")
+    if report.get("celadon_stocked"):
+        return _onto_warp(player, second, surface, (12, 1), {(1, 1), (16, 1)}, report, "mart_down")
+    opened = "closed"
+    for spot in ((5, 5), (6, 5)):
+        opened = _open_clerk(player, second, surface, spot)
+        if opened == "blackout":
+            return opened
+        if opened != "shop":
+            continue
+        stock = _shop_stock(player)
+        report["mart_stock"] = stock
+        if "superPotion" in stock or "antidote" in stock or "paralyzeHeal" in stock:
+            break
+        _close_shop(player)
+        opened = "closed"
+    if opened != "shop":
+        raise RuntimeError("the Dept. Store clerk did not open: " + json.dumps(summary(player.state)))
+    money = _money(player)
+    supers = min(6, money // 700)
+    left = money - supers * 700
+    antidotes = min(5, left // 100)
+    left -= antidotes * 100
+    heals = min(5, left // 200)
+    if supers:
+        report["super_potions"] = _shop_buy(player, "superPotion", 700, _item_count(player, "superPotion") + supers)
+    if antidotes:
+        report["antidotes"] = _shop_buy(player, "antidote", 100, _item_count(player, "antidote") + antidotes)
+    if heals:
+        report["paralyze_heals"] = _shop_buy(player, "paralyzeHeal", 200, _item_count(player, "paralyzeHeal") + heals)
+    report["mart_money"] = _money(player)
+    bought = (report.get("super_potions") or 0) + (report.get("antidotes") or 0) + (report.get("paralyze_heals") or 0)
+    if bought < 1 and money >= 100 and ("superPotion" in (report.get("mart_stock") or []) or "antidote" in (report.get("mart_stock") or [])):
+        raise RuntimeError("Celadon did not sell the counter: " + json.dumps(summary(player.state)))
+    _close_shop(player)
+    report["celadon_stocked"] = True
+    _checkpoint(player, report, "saved_celadon_mart")
+    return "open"
+
+
+def _fight_erika(player, report, display, clips, output):
+    if _quest(player).get("BADGE_RAINBOW"):
+        report["rainbow"] = {"badge": True, "party": _party(player), **summary(player.state)}
+        return "badge"
+    cells = celadon_cells()
+    surface = map_surface(EAST / "CeladonCity.json")
+    if "gym" not in str(player.state.get("zone")):
+        kind = _walk(player, cells, surface, (12, 28), {(8, 13), (10, 13), (12, 27)})
+        if kind == "blackout":
+            return kind
+        player.step("up")
+        player.settle(limit=40)
+        if "gym" not in str(player.state.get("zone")):
+            raise RuntimeError("the Celadon gym did not open: " + json.dumps(summary(player.state)))
+    gym = set(celadon_gym_cells())
+    gym_surface = map_surface(EAST / "CeladonGym.json", 1)
+    # The bottom bush is the door into Erika's room. The other two are side cuts.
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if ledge_route(gym, gym_surface[0], gym_surface[1], here, (5, 4), set()) is None:
+        status, gym = _cut_facing(player, gym, gym_surface, (6, 8), "up", (6, 7), set(), report, "erika_bush")
+        if status == "blackout":
+            return status
+    trainers = {(3, 11), (8, 10), (10, 5), (2, 5), (7, 3), (4, 3), (6, 3), (5, 3)}
+
+    def battle():
+        kind = _walk(player, gym, gym_surface, (5, 4), trainers)
+        if kind == "blackout":
+            return kind
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        _fight_once(player, "Erika", 30, shift_to="pidgeotto")
+        report["erika"] = {"party": _party(player), **summary(player.state)}
+        return "fought"
+
+    if display and clips and output:
+        battle = film(display, clips, output, "erika", report, "end", battle)
+    if battle == "blackout":
+        return battle
+    quest = _quest(player)
+    report["rainbow"] = {"badge": bool(quest.get("BADGE_RAINBOW")), "party": _party(player), **summary(player.state)}
+    if report["rainbow"]["badge"]:
+        _checkpoint(player, report, "saved_rainbow")
+        return "badge"
+    raise RuntimeError("Erika did not give the Rainbow Badge: " + json.dumps(report["rainbow"]))
+
+
+def _east_of_cerulean(player, report, display, clips, output):
+    """Route 9, the dark tunnel, and Celadon. Towns are checkpoints, not stops."""
+    for _ in range(24):
+        zone = str(player.state.get("zone"))
+        if "cerulean_city" in zone:
+            status = _leave_cerulean_east(player, report, display, clips, output)
+        elif zone == "kanto_route_9":
+            status = _cross_route9(player, report)
+        elif zone == "kanto_route_10":
+            status = _cross_route10(player, report)
+        elif "rock_tunnel_pokecenter" in zone:
+            if _needs_heal(player):
+                talked = talk_to(player, rock_tunnel_center_cells(), ROCK_NURSE, set())
+                report["tunnel_nurse"] = talked
+                healed = player.state.get("pokemon") or {}
+                if (healed.get("hp") or 0) < 20:
+                    raise RuntimeError("the tunnel nurse missed: " + json.dumps(summary(player.state)))
+            step_onto(player, rock_tunnel_center_cells(), (3, 7), set(), "down")
+            status = "open"
+        elif "rock_tunnel" in zone:
+            status = _cross_tunnel(player, report)
+        elif "lavender" in zone:
+            status = _cross_lavender(player, report)
+        elif zone == "kanto_route_8":
+            status = _cross_route8(player, report)
+        elif "underground_path" in zone:
+            status = _cross_underground(player, report)
+        elif zone == "kanto_route_7":
+            status = _cross_route7(player, report, display, clips, output)
+        elif "celadon_mart" in zone or (zone == "kanto_celadon_city" and not report.get("celadon_stocked")):
+            status = _buy_celadon(player, report)
+        elif "celadon_gym" in zone or zone == "kanto_celadon_city":
+            bird, _mon = _bird(player)
+            if bird:
+                _lead(player, bird)
+            status = _fight_erika(player, report, display, clips, output)
+        else:
+            if report.get("blackouts"):
+                return "restart"
+            raise RuntimeError("the east road is not open: " + json.dumps(summary(player.state)))
+        if status == "blackout":
+            _note_blackout(report)
+            continue
+        if status == "badge":
+            return
+    raise RuntimeError("the east road did not finish: " + json.dumps(summary(player.state)))
+
+
+def _continue_kanto(player, report, display, clips, output):
+    """Pewter's east road, Mt. Moon, Route 4, then Route 9. Misty stays beaten."""
+    zone = str(player.state.get("zone"))
+    if zone in EAST_RESUME or "rock_tunnel" in zone or "celadon" in zone or "lavender" in zone or "underground_path_route" in zone or "underground_path_west_east" in zone:
+        return _east_of_cerulean(player, report, display, clips, output)
     _lead(player, "wartortle")
     if "route_4" in zone or "mt_moon" in zone:
         _from_route4(player, report, display, clips, output)
@@ -4613,9 +5408,10 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
         _continue_kanto(player, report, display, clips, output)
         return
     if zone in ("kanto_pewter_city", "kanto_route_3", "kanto_route_4", "kanto_mt_moon_1f",
-                "kanto_mt_moon_b1f", "kanto_mt_moon_b2f", "kanto_cerulean_city"):
-        _continue_kanto(player, report, display, clips, output)
-        return
+                "kanto_mt_moon_b1f", "kanto_mt_moon_b2f") or zone in EAST_RESUME:
+        if _continue_kanto(player, report, display, clips, output) != "restart":
+            return
+        zone = str(player.state.get("zone"))
     if "vermilion_gym" in zone:
         _leave(player, vermilion_gym_cells(), [((5, 17), "down"), ((6, 17), "down")],
                GYM_SIGHT, "vermilion_city", "gym exit")
@@ -4644,9 +5440,8 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
         _pause(player, report, "saved_after_surge")
         _keep_bird_save(report)
         zone = str(player.state.get("zone"))
-    if "celadon" in zone:
-        _pause(player, report, "saved_celadon")
-        _keep_bird_save(report)
+    if "celadon" in zone or "lavender" in zone or "rock_tunnel" in zone or zone in EAST_RESUME:
+        _continue_kanto(player, report, display, clips, output)
         return
     if zone != "kanto_digletts_cave":
         if "route_11" not in zone and "digletts_cave_route_11" not in zone:
@@ -4814,7 +5609,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-76")
+            output = Path("/tmp/lane-j-squirtle-77")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
