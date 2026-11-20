@@ -394,6 +394,9 @@ class SquirtleRouteTests(unittest.TestCase):
     def test_water_move_is_preferred_and_the_north_path_is_open(self):
         self.assertEqual(preferred_move(["TACKLE", "TAIL WHIP", "BUBBLE", "-"]), (3, "BUBBLE"))
         self.assertEqual(preferred_move(["TACKLE", "-"])[1], "TACKLE")
+        pallet = padded_open_cells("pallet_town")
+        pallet.add((9, 0))
+        self.assertIsNotNone(route(pallet, (12, 12), (9, 0), avoid={(5, 5), (13, 5), (12, 11)}))
         self.assertIn((11, 0), route1_cells())
         self.assertIn((6, 0), forest_south_cells())
         self.assertIn((6, 0), forest_north_cells())
@@ -1308,6 +1311,8 @@ def play_to_brock(player, report, display=None, clips=None, output=None):
     if player.state.get("zone") != "pallet_town":
         raise RuntimeError("lab door did not reach Pallet: " + json.dumps(summary(player.state)))
     pallet = padded_open_cells("pallet_town")
+    # maps.lua opens (9, 0) at runtime. The source grid leaves that seam solid.
+    pallet.add((9, 0))
     kind = player.travel(pallet, (9, 0), {(5, 5), (13, 5), (12, 11)})
     report["pallet_north"] = {"kind": kind, **summary(player.state)}
     if kind != "arrived":
@@ -1508,7 +1513,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--north" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-7")
+            output = Path("/tmp/lane-j-squirtle-8")
             save_from = LAB_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
             if digest != LAB_SAVE_SHA:
