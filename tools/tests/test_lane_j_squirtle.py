@@ -4196,6 +4196,12 @@ def _raise_pidgey(player, report):
 
 def _cut_tree(player, report):
     doors = set(VERMILION_DOORS)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if "vermilion_city" in str(player.state.get("zone")) and here == (15, 18):
+        opened = set(vermilion_cells())
+        opened.add((15, 18))
+        report["cut"] = {"kind": "already", **summary(player.state)}
+        return opened
     _stand(player, vermilion_cells(), (15, 17), doors, "Cut tree")
     if player.state["player"].get("facing") != "down":
         player.press("down", wait=4)
@@ -4326,12 +4332,12 @@ def _raise_diglett(player, report):
         _, mon = _mole(player)
         level = mon.get("level") or 0
         name = mon.get("species") or "diglett"
-        if name == "dugtrio" and level >= 26:
-            break
         if level > paused:
             _pause(player, report, f"mole_l{level}")
             _keep_bird_save(report)
             paused = level
+        if name == "dugtrio" and level >= 26:
+            break
         lead = (player.state.get("pokemon") or {}).get("species")
         dig_pp = (mon.get("pp") or {}).get("dig")
         # One cave hit can faint a Diglett that is still above 12 HP.
@@ -4622,7 +4628,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-67")
+            output = Path("/tmp/lane-j-squirtle-68")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
