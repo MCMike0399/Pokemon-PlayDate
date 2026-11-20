@@ -328,6 +328,9 @@ class CharmanderRun(BrockJourney):
 
     def brock_after_parcel(self):
         """Finish Boulder Badge from whatever the earned save already did."""
+        if self.flag("TOGGLE_CERULEAN_CAVE_GUY"):
+            self._play_postgame()
+            return
         if self.defeated(BROCK) and self.flag("BADGE_BOULDER"):
             self.after_boulder()
             return
@@ -3187,6 +3190,108 @@ class CharmanderRun(BrockJourney):
         if self._on("ChampionsRoom") or "HALL_OF_FAME" in (self._map_name() or ""):
             self._champion()
 
+    def _surfing(self):
+        travel = (self.observe("midgame-state").get("fieldTravel") or {})
+        return travel.get("mode") == "surfing"
+
+    def _cave_passable(self, model, point, goals):
+        if not model.inside(point):
+            return False
+        if point in model.warps and point not in goals:
+            return False
+        x, y = point
+        if model.collision[y][x] == 0:
+            return True
+        return model.feet[y][x] in self._SURF_FEET
+
+    def _cave_cross(self, goals):
+        """Walk land and Surf the cave water. The goal warp changes the floor."""
+        from collections import deque
+        goals = set(goals)
+        origin = self._map_name()
+        dirs = ((1, 0, "right"), (-1, 0, "left"), (0, 1, "down"), (0, -1, "up"))
+        for _ in range(240):
+            if self._map_name() != origin or self.position() in goals:
+                return
+            model = self.model()
+            start = self.position()
+            blocked = set(self.occupied())
+            queue, prev = deque([start]), {start: None}
+            found = None
+            while queue:
+                x, y = queue.popleft()
+                for dx, dy, name in dirs:
+                    nxt = (x + dx, y + dy)
+                    if nxt in prev or nxt in blocked or not self._cave_passable(model, nxt, goals):
+                        continue
+                    prev[nxt] = ((x, y), name)
+                    if nxt in goals:
+                        found = nxt
+                        queue.clear()
+                        break
+                    queue.append(nxt)
+            if found is None:
+                raise ProtocolError("no cave route on " + origin + " from " + str(start) + " to " + str(sorted(goals)))
+            cur = found
+            while prev[cur] is not None and prev[prev[cur][0]] is not None:
+                cur = prev[cur][0]
+            name = prev[cur][1]
+            before = self.position()
+            nxt = (before[0] + {"right": 1, "left": -1, "down": 0, "up": 0}[name],
+                   before[1] + {"right": 0, "left": 0, "down": 1, "up": -1}[name])
+            entering = model.feet[nxt[1]][nxt[0]] in self._SURF_FEET and model.collision[nxt[1]][nxt[0]] != 0
+            if model.collision[before[1]][before[0]] == 0 and entering and not self._surfing():
+                self.face(name)
+                index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+                self.use_field(index, "surf")
+            elif entering or self._surfing():
+                self._surf_press(name, 1)
+            else:
+                self._step(name)
+            if self.position() == before and self._map_name() == origin:
+                raise ProtocolError("cave step stayed at " + str(before))
+        raise ProtocolError("cave crossing stayed on " + origin + " " + str(self.position()))
+
+    def _play_postgame(self):
+        """Heal, cross to Cerulean Cave, and face Mewtwo. The Mew giver has no script."""
+        self._bind_kanto_route()
+        self.config["name"] = "cerulean-natural"
+        self.config["max_blackouts"] = 4
+        self._flee_wilds = True
+        self.summary["acceptance"] = "walking to Cerulean Cave"
+        if any(mon["hp"] <= 0 or mon["hp"] < mon["maxHP"] for mon in self.party()):
+            self.heal_here("ViridianPokecenter")
+            self.save()
+        cave = self.zone("CeruleanCave1F")
+        scientist = next(event for event in self.models[cave].events["objects"]
+                         if event["id"] == "postgame:CERULEAN_CAVE_1F:mew-gift")
+        if not self._on("CeruleanCave1F") and not self._on("CeruleanCaveB1F"):
+            self.travel(cave, set(self.models[cave].approaches((scientist["x"], scientist["y"]))))
+        if self._on("CeruleanCave1F") and not self.summary.get("mew_gift"):
+            self._record_screen("cerulean-cave", 20)
+            self._record_screen("mew-gift", 25)
+            self.interact(source_id=scientist["id"])
+            gifted = any(mon["species"] == "mew" for mon in self.party())
+            self.summary["mew_gift"] = "received" if gifted else "giver has no script"
+        if not self.flag("EVENT_BEAT_MEWTWO"):
+            if not self._on("CeruleanCaveB1F"):
+                ladder = next(event for event in self.models[cave].events["warps"]
+                              if event["id"] == "pokered:CERULEAN_CAVE_1F:warps:9")
+                self._cave_cross({(ladder["x"], ladder["y"])})
+            if not self._on("CeruleanCaveB1F"):
+                raise ProtocolError("cave ladder stayed on " + self._map_name() + " " + str(self.position()))
+            basement = self.zone("CeruleanCaveB1F")
+            mewtwo = next(event for event in self.models[basement].events["objects"]
+                          if event["id"] == "pokered:CERULEAN_CAVE_B1F:objects:1")
+            self._cave_cross(set(self.models[basement].approaches((mewtwo["x"], mewtwo["y"]))))
+            self._record_screen("mewtwo", 70)
+            self.interact(source_id=mewtwo["id"])
+        if not self.flag("EVENT_BEAT_MEWTWO"):
+            raise ProtocolError("Mewtwo did not finish: " + str(self.position()))
+        self._record_screen("mewtwo-result", 20)
+        self.save()
+        self.summary.update(acceptance="Mewtwo faced", natural=True, forbidden_shortcuts=False)
+
     def drain(self, stop_phase=None):
         # The Hall of Fame script saves, rolls the credits, and returns to the
         # title. Opening the pause menu there asserts. Leave the win text up
@@ -4562,6 +4667,33 @@ class CharmanderRun(BrockJourney):
             self.capture_pending = False
         return True
 
+    def _throw_master_ball(self, battle, options):
+        """The Master Ball is the one capture. A miss falls through to the fight."""
+        if self.quantity("masterBall") <= 0:
+            return False
+        before = self.quantity("masterBall")
+        positions = [i for i, value in enumerate(options, 1)
+                     if value == "BAG" or isinstance(value, dict) and value.get("action") == "bag"]
+        if len(positions) != 1:
+            return False
+        self.select("battle.menu.selected", positions[0])
+        self.send("press a")
+        self.require(root="bag")
+        index = next((i for i, row in enumerate(sequence(self.inventory()["slots"], "inventory.slots"), 1)
+                      if row["id"] == "masterBall"), None)
+        if index is None:
+            return False
+        self.select("bag.selected", index)
+        self.send("press a")
+        self.require(root="battle")
+        if self.quantity("masterBall") != before - 1:
+            raise ProtocolError("Master Ball was not thrown")
+        result = lookup(self.state, "battle.capture_result")
+        self.summary.setdefault("captures", []).append({
+            "enemy": battle.get("enemy"), "result": result, "ball": "masterBall",
+        })
+        return True
+
     def _revive_lance_bench(self, battle, options):
         """Spend a Revive on Lapras when Charizard cannot safely stay in."""
         enemy = ((battle.get("enemy") or {}).get("species") or "").lower()
@@ -4632,6 +4764,11 @@ class CharmanderRun(BrockJourney):
         return True
 
     def battle_preparation_action(self, battle, options):
+        enemy = (battle.get("enemy") or {}).get("species")
+        if enemy == "mewtwo" and not getattr(self, "_mewtwo_ball", False):
+            self._mewtwo_ball = True
+            if self._throw_master_ball(battle, options):
+                return True
         player = battle.get("player") or {}
         status = player.get("status")
         if (player.get("hp") or 0) > 0 and status not in {None, "none"}:
@@ -4712,6 +4849,9 @@ class CharmanderRun(BrockJourney):
 
     def flee(self):
         """A Scope ghost or a flute Snorlax is a real battle. Other wilds run."""
+        enemy = lookup(self.state, "battle.enemy")
+        if isinstance(enemy, dict) and enemy.get("species") == "mewtwo":
+            return self.battle("mewtwo")
         expected = getattr(self, "scripted_wild", None)
         enemy = lookup(self.state, "battle.enemy")
         if (expected and isinstance(enemy, dict)

@@ -14,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class BattleMenuTextDismissTests(unittest.TestCase):
-    @unittest.expectedFailure
     def test_select_dismisses_between_turn_text_before_the_menu(self):
         source = (ROOT / "tools/harness/parcel_journey.py").read_text(encoding="utf-8")
         window = source.split("def select(self, path, index, bound=24):", 1)[1]
