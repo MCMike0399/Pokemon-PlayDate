@@ -3135,6 +3135,9 @@ class CharmanderRun(BrockJourney):
 
     def _elite_four(self):
         """Real fights from the lobby north door through the Champion."""
+        # Lance's Agility turns spend an input each. The default 1200 ends
+        # the fight while a reserve is still attacking.
+        self._battle_input_limit = 2400
         self._pin_elite_trainers()
         rooms = (
             ("LoreleisRoom", "pokered:LORELEIS_ROOM:objects:1", "EVENT_BEAT_LORELEIS_ROOM_TRAINER_0", "Lorelei"),
