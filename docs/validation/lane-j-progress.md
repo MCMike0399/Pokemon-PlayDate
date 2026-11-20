@@ -1,6 +1,6 @@
 # Lane J — Squirtle
 
-Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main `9a33a835`, `2e7863ff`, `e0e9a209`, `ff64287c`, `e142281e`, and `f1fbe5e2` (trainer move ids capped at pokered's 165). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
+Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main through `ed1f1b92` (Vermilion tile-cache hash; `f1fbe5e2` capped trainer move ids at pokered's 165). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
 
 ## Position
 
@@ -53,11 +53,17 @@ The retry beat the fossil super nerd. Wartortle is level 17, 22 HP, with Tackle,
 
 ## Next
 
-Stopped on Route 4. The east step at (59, 4) is blocked, so Cerulean and Misty are not reached. Resume sequence 11 only after that step can enter Cerulean.
+Waiting on K's Misty assist. East through foot `0x27` and west through the solid strip both stay put. Resume the sequence 11 pause only after a land step from this side of Route 4 can reach the Center or Cerulean.
 
 ## Blockers
 
-Route 4's northern road does not continue east. Standing at (59, 4) facing right, one real `press right` stayed on (59, 4) (`cliff_step` `blocked`). The next cell (60, 4) is foot tile `0x27`. Cerulean City is on the far side of that tile. The same collision matches pret/pokered `af519899` `maps/Route4.blk` plus `gfx/blocksets/overworld.bst`. The Mt. Moon B2F exit returns to (24, 5), which is on this east side. The Pokémon Center at (11, 5) is west of the wall around x=20, so it cannot be reached from here. There is no other land exit on this side. Surf is not available. No Source edit from this lane. Pause: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14`.
+Route 4 east of Mt. Moon has no land exit.
+
+East: at (59, 4) facing right, one `press right` stayed put (`cliff_step` `blocked`). (60, 4) is foot `0x27`. That matches pret/pokered `af519899`.
+
+West: from that pause, a real walk arrived at (24, 6) facing left and one `press left` stayed put. The engine reported `lastTraversalBlock` `terrain` / `source-collision`. Standing cell (24, 6) is grid 36, foot `0x39`, collision 0. The cell in front, (23, 6), is grid 18, foot `0x24`, collision 1, `land_passable` false. The solid strip is x=20 through x=23. (20, 6) is foot `0x27`, collision 1. The open Center side begins at (19, 6), foot `0x23`, collision 0. No route from (59, 4) reaches (11, 6) or Cerulean. Surf is not available. No Source edit from this lane.
+
+Pause held: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14` (sequence 11, (59, 4) facing right). The west probe also paused at the wall: `/opt/cursor/artifacts/lane-j/saves/fd77ca00d68d/adventure.b.json` sha256 `8b7c3badfbd49de1f1cc8f1d628833ebb1e9e573ee0a4827efce3e9a264c72e8`.
 
 ## Tests
 
