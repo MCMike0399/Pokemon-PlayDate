@@ -3019,6 +3019,71 @@ class CharmanderRun(BrockJourney):
             if self._on(room) and self.position() == before:
                 raise ProtocolError(room + " north door stayed closed at " + str(before))
 
+    def _healing_items(self):
+        return self.quantity("fullRestore") + self.quantity("maxPotion")
+
+    def _starter_mon(self):
+        return next((mon for mon in self.party() if mon["species"] == "charizard"), None)
+
+    def _top_off_in_field(self):
+        """A water or rock hit lands for more than a third of Charizard's HP."""
+        starter = self._starter_mon()
+        if starter is None or starter["hp"] <= 0 or starter["hp"] * 5 >= starter["maxHP"] * 4:
+            return
+        item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
+        if item is None:
+            return
+        index = next(i for i, mon in enumerate(self.party(), 1) if mon["species"] == "charizard")
+        self._field_item(item, index)
+
+    def _retreat_to_lobby(self):
+        """The south door opens after a win. The lobby shop is the only heal between rooms.
+
+        Entering the lobby clears the Elite Four flags. The payout stays, which
+        is what buys the Full Restores for the next attempt.
+        """
+        rooms = ("ChampionsRoom", "LancesRoom", "AgathasRoom", "BrunosRoom", "LoreleisRoom")
+        for _ in range(8):
+            if self._on("IndigoPlateauLobby"):
+                return
+            if not any(self._on(room) for room in rooms):
+                break
+            door = max(self.model().warps, key=lambda warp: (warp[1], warp[0]))
+            stand = (door[0], max(0, door[1] - 1))
+            if self.position() != stand:
+                self.navigate(stand)
+            left = False
+            for _ in range(4):
+                if self._on("IndigoPlateauLobby") or not any(self._on(room) for room in rooms):
+                    left = True
+                    break
+                before = self.position()
+                self.send("press down", "wait 15")
+                self.drain()
+                if self.position() != before:
+                    left = True
+                    break
+            if not left:
+                raise ProtocolError("Elite Four south door stayed closed at " + str(self.position()))
+        if not self._on("IndigoPlateauLobby"):
+            raise ProtocolError("Elite Four retreat stopped in " + self._map_name() + " " + str(self.position()))
+
+    def _advance_or_bank(self, room):
+        """Walk north only when Charizard is healthy and two heals are in the bag."""
+        self._top_off_in_field()
+        starter = self._starter_mon()
+        healthy = starter is not None and starter["hp"] > 0 and starter["hp"] * 5 >= starter["maxHP"] * 4
+        if getattr(self, "_league_push", False):
+            if healthy or self._healing_items() >= 1:
+                self._leave_north(room, self._north_stand())
+                return "forward"
+        elif healthy and self._healing_items() >= 2:
+            self._league_push = True
+            self._leave_north(room, self._north_stand())
+            return "forward"
+        self._retreat_to_lobby()
+        return "bank"
+
     def _reopen_lorelei(self):
         """Step out to the lobby and back through the north door.
 
@@ -3059,6 +3124,7 @@ class CharmanderRun(BrockJourney):
                 continue
             self.drain()
             if not self.flag(flag):
+                self._lead_starter()
                 if label == "Lorelei":
                     self._record_screen("lorelei", 60)
                 self._talk_to_actor(actor)
@@ -3074,16 +3140,19 @@ class CharmanderRun(BrockJourney):
                 self._record_screen("lorelei-win", 30)
             self.save()
             self.summary.update(acceptance=label + " defeated", natural=True, forbidden_shortcuts=False)
-            self._leave_north(room, self._north_stand())
+            if self._advance_or_bank(room) == "bank":
+                return
         if self._on("LancesRoom"):
             self.drain()
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
+                self._lead_starter()
                 self._talk_to_actor("pokered:LANCES_ROOM:objects:1")
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
                 raise ProtocolError("Lance did not start: " + str(self.position()))
             self.save()
             self.summary.update(acceptance="Lance defeated", natural=True, forbidden_shortcuts=False)
-            self._leave_north("LancesRoom", self._north_stand())
+            if self._advance_or_bank("LancesRoom") == "bank":
+                return
         if self._on("ChampionsRoom") or "HALL_OF_FAME" in (self._map_name() or ""):
             self._champion()
 
@@ -3684,22 +3753,27 @@ class CharmanderRun(BrockJourney):
                     break
                 self.send("press up", "wait 15")
                 self.drain()
-        if self._on("IndigoPlateauLobby"):
-            # The lobby machine is placed beside the nurse. Heal when that
-            # layout is in Source; skip it on a tree that still asserts a Center.
-            composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
-            if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
-                self._heal_indigo()
-            self._stock_league_items()
-            self.save()
-            self.summary.update(acceptance="Indigo Plateau", natural=True, forbidden_shortcuts=False)
-            self.navigate((8, 1))
-            for _ in range(3):
-                if not self._on("IndigoPlateauLobby"):
-                    break
-                self.send("press up", "wait 15")
-                self.drain()
-        self._elite_four()
+        for _ in range(4):
+            if self._on("IndigoPlateauLobby"):
+                # The lobby machine is placed beside the nurse. Heal when that
+                # layout is in Source; skip it on a tree that still asserts a Center.
+                composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
+                if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
+                    self._heal_indigo()
+                self._stock_league_items()
+                self._league_push = self._healing_items() >= 2
+                self._lead_starter()
+                self.save()
+                self.summary.update(acceptance="Indigo Plateau", natural=True, forbidden_shortcuts=False)
+                self.navigate((8, 1))
+                for _ in range(3):
+                    if not self._on("IndigoPlateauLobby"):
+                        break
+                    self.send("press up", "wait 15")
+                    self.drain()
+            self._elite_four()
+            if not self._on("IndigoPlateauLobby"):
+                break
         if self._on("Route23") or self._on("IndigoPlateau") or self._on("IndigoPlateauLobby"):
             raise ProtocolError("Indigo approach stopped at " + self._map_name() + " " + str(self.position()))
 
@@ -4244,8 +4318,28 @@ class CharmanderRun(BrockJourney):
             return True
         return False
 
+    def _top_off_starter(self, battle, options):
+        zone = self.state.get("zone_id") or ""
+        if not any(token in zone for token in (
+            "LORELEIS_ROOM", "BRUNOS_ROOM", "AGATHAS_ROOM", "LANCES_ROOM", "CHAMPIONS_ROOM",
+        )):
+            return False
+        player = battle.get("player") or {}
+        if player.get("species") != "charizard":
+            return False
+        hp, maximum = player.get("hp") or 0, player.get("maxHP") or 1
+        if hp <= 0 or hp * 5 >= maximum * 4:
+            return False
+        item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
+        if item is None:
+            return False
+        self.battle_medicine(item, options)
+        return True
+
     def battle_preparation_action(self, battle, options):
         if self._revive_starter(battle, options):
+            return True
+        if self._top_off_starter(battle, options):
             return True
         if getattr(self, "_bench_share", False) and self._share_bench(battle, options):
             return True

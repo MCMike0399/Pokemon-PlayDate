@@ -247,9 +247,17 @@ class BrockJourney(ParcelJourney):
                 else:self.send('wait 3')
             elif phase=='ask':
                 pending=lookup(self.state,'learning.move_info');known=lookup(self.state,'learning.known_moves')
-                self.learning_slot=learn_decision(pending,known)
-                self.summary['learning'].append({'move':pending,'replace_slot':self.learning_slot,'battle_enemy':lookup(self.state,'battle.enemy.species')})
-                self.select('learning.selected',1 if self.learning_slot else 2);capture();self.send('press a')
+                slot=learn_decision(pending,known)
+                target=1 if slot else 2
+                try:
+                    self.select('learning.selected',target)
+                except ProtocolError:
+                    # TryingToLearn keeps YES/NO inactive until the last page.
+                    self.send('wait 12','press a')
+                    continue
+                self.learning_slot=slot
+                self.summary['learning'].append({'move':pending,'replace_slot':slot,'battle_enemy':lookup(self.state,'battle.enemy.species')})
+                capture();self.send('press a')
             elif phase=='replace':
                 if self.learning_slot is None:raise ProtocolError('replacement appeared without explicit learning decision')
                 self.select('learning.selected',self.learning_slot);capture();self.send('press a')
