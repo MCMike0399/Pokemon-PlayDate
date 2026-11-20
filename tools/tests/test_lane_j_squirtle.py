@@ -95,8 +95,13 @@ BRIDGE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/f420d9c1884d")
 BRIDGE_SAVE_SHA = "f0b12cacc9f2d7f7af0af17edfb5e09d6b2ac2fb34ee4e30a65087d526b8d8f2"
 GYM_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/gym-l22-seq15")
 GYM_SAVE_SHA = "493a71e0b74dc71fd65041e92c5c6c6fdb9f2639f5375b1fd1ab3f3f5646837e"
+CASCADE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/ef2bcb5caf63")
+CASCADE_SAVE_SHA = "2ea6168fe10764c79740c173394672c21022f67591dbcc7de114570e696b7625"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
+BILL_POKEMON = "pokered:BILLS_HOUSE:objects:1"
+BILL = "pokered:BILLS_HOUSE:objects:2"
 CERULEAN_NURSE = "pokered:CERULEAN_POKECENTER:objects:1"
+VERMILION_NURSE = "pokered:VERMILION_POKECENTER:objects:1"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
 BROCK = "pokered:PEWTER_GYM:objects:1"
 
@@ -285,6 +290,46 @@ def cerulean_mart_cells():
 
 def route24_cells():
     return open_map(ROOT / "Source/data/sourceSlice/Route24.json", 0, 20)
+
+
+def route25_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/Route25.json", 0, 60)
+
+
+def bills_house_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/BillsHouse.json", 2, 13)
+
+
+def trashed_house_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/CeruleanTrashedHouse.json", 2, 13)
+
+
+def route5_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/Route5.json", 0, 20)
+
+
+def route6_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/Route6.json", 0, 20)
+
+
+def underground_route5_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/UndergroundPathRoute5.json", 2, 13)
+
+
+def underground_corridor_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/UndergroundPathNorthSouth.json", 2, 13)
+
+
+def underground_route6_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/UndergroundPathRoute6.json", 2, 13)
+
+
+def vermilion_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/VermilionCity.json", 0, 40)
+
+
+def vermilion_center_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/VermilionPokecenter.json", 0, 14)
 
 
 # IntroMovie.SCENES. Copyright and the black bars ignore A. The shooting
@@ -571,6 +616,16 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(bridge, (11, 35), (10, 19), held))
         self.assertIsNotNone(route(bridge, (10, 16), (5, 19), held - {(10, 15)}))
         self.assertIsNone(route(bridge, (10, 16), (5, 19), {(10, 15), (11, 15), (5, 20)}))
+        self.assertEqual(sha256_file(CASCADE_SAVE / "adventure.a.json"), CASCADE_SAVE_SHA)
+        self.assertIsNotNone(route(bills_house_cells(), (4, 7), (3, 5)))
+        self.assertIsNotNone(route(route25_cells(), (0, 9), (45, 4), ROUTE25_SKIP))
+        self.assertIsNotNone(route(trashed_house_cells(), (4, 7), (5, 1)))
+        self.assertIsNotNone(route(route5_cells(), (16, 0), (17, 28), ROUTE5_SKIP))
+        self.assertIsNotNone(route(underground_corridor_cells(), (7, 4), (4, 40)))
+        self.assertIsNotNone(route(route6_cells(), (17, 14), (9, 35), ROUTE6_SKIP))
+        self.assertIsNotNone(route(vermilion_cells(), (18, 0), (11, 4)))
+        self.assertIsNone(route(vermilion_cells(), (18, 0), (12, 20)))
+        self.assertIsNone(route(vermilion_cells(), (19, 0), (12, 20)))
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -2118,6 +2173,175 @@ def _sell_nugget_buy_potions(player, report, target=8):
         raise RuntimeError("still inside the mart: " + json.dumps(summary(player.state)))
 
 
+# Bodies plus the sight of Route 25 trainers the east walk can pass. The
+# remaining four (hiker at (8, 4), lass at (18, 8), junior at (24, 4), lass at
+# (37, 4)) are the only lines between the Route 24 exit and Bill's door.
+ROUTE25_SKIP = {
+    (14, 2), (14, 3), (14, 4),
+    (18, 5), (18, 4), (18, 3), (18, 2),
+    (24, 4), (18, 8), (32, 3), (31, 3), (30, 3), (29, 3), (28, 3),
+    (37, 4), (8, 4), (23, 9), (23, 8), (23, 7), (13, 7), (14, 7), (15, 7),
+    (22, 2),
+}
+# Route 6's south edge is inside the pair at (11, 30) and (11, 31). The other
+# sight lines, the Saffron gates, and the talk-only pair stay off the walk.
+ROUTE6_SKIP = {
+    (10, 21), (11, 21), (0, 15), (1, 15), (2, 15), (3, 15), (4, 15),
+    (11, 31), (11, 30), (19, 26), (18, 26), (17, 26), (16, 26),
+    (9, 1), (10, 1), (10, 7),
+}
+ROUTE5_SKIP = {(9, 29), (10, 29), (10, 33), (10, 21)}
+VERMILION_DOORS = {(11, 3), (9, 13), (23, 13), (12, 19), (23, 19), (18, 31), (19, 31), (15, 13)}
+
+
+def _quest(player):
+    return ((player.state.get("session") or {}).get("flags") or {}).get("quest") or {}
+
+
+def _blackout(player, kind, label):
+    if kind == "blackout":
+        raise RuntimeError(f"blackout at {label}: " + json.dumps(summary(player.state)))
+
+
+def _stand(player, cells, goal, avoid, label, limit=40):
+    kind = player.travel(cells, goal, avoid, limit=limit)
+    _settle_overlay(player)
+    _blackout(player, kind, label)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here != tuple(goal):
+        raise RuntimeError(f"missed {label} {goal}: {kind} " + json.dumps(summary(player.state)))
+    return kind
+
+
+def _leave(player, cells, cells_and_dirs, avoid, zone_part, label):
+    """Walk off one of the edge cells. The first that changes maps wins."""
+    last = "stayed"
+    for cell, direction in cells_and_dirs:
+        last = leave_map(player, cells, cell, avoid, direction)
+        _settle_overlay(player)
+        _blackout(player, last, label)
+        if zone_part in str(player.state.get("zone")):
+            return last
+    raise RuntimeError(f"{label} stayed: {last} " + json.dumps(summary(player.state)))
+
+
+def _enter(player, cells, goal, avoid, direction, zone_part, label):
+    kind = step_onto(player, cells, goal, avoid, direction)
+    _settle_overlay(player)
+    _blackout(player, kind, label)
+    if zone_part not in str(player.state.get("zone")):
+        raise RuntimeError(f"{label} did not open: {kind} " + json.dumps(summary(player.state)))
+    return kind
+
+
+def _bill(player, report, display, clips, output):
+    """YES starts the separator. The PC is a hidden tile, then Bill gives the ticket."""
+    cells = bills_house_cells()
+
+    def receive():
+        talked = talk_to(player, cells, BILL_POKEMON, set())
+        report["bill_pokemon"] = {"result": talked, **summary(player.state)}
+        if not player.exploring():
+            player.dismiss_until_explore(limit=80)
+        _stand(player, cells, (3, 5), set(), "Bill's PC")
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        if not player.exploring():
+            # 134 ticks of the separator, then Bill walks out. A does not skip it.
+            player.dismiss_until_explore(limit=160)
+        talked = talk_to(player, cells, BILL, set())
+        report["bill"] = {"result": talked, **summary(player.state)}
+        if not player.exploring():
+            player.dismiss_until_explore(limit=80)
+
+    if display and clips and output:
+        film(display, clips, output, "bill-ticket", report, "end", receive)
+    else:
+        receive()
+    count = _item_count(player, "ssTicket")
+    report["ss_ticket"] = {"count": count, "flag": _quest(player).get("EVENT_GOT_SS_TICKET"), **summary(player.state)}
+    if player.exploring():
+        report["saved_ticket"] = player.pause_save()
+    if count < 1:
+        raise RuntimeError("Bill did not give the S.S. Ticket: " + json.dumps(summary(player.state)))
+
+
+def play_bill_vermilion(player, report, display, clips, output):
+    """Gym exit, Bill's ticket, burgled house, Underground, Vermilion arrival."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["resumed"] = summary(player.state)
+    report["outcome_stamp"] = _outcome_stamp(player)
+    if "cerulean" not in str(player.state.get("zone")):
+        raise RuntimeError("the ticket walk did not resume in Cerulean: " + json.dumps(summary(player.state)))
+    if "gym" in str(player.state.get("zone")):
+        _leave(player, cerulean_gym_cells(), [((5, 13), "down"), ((6, 13), "down")],
+               CERULEAN_GYM_AVOID, "cerulean_city", "gym exit")
+    if _needs_heal(player) or ((player.state.get("pokemon") or {}).get("hp") or 0) < 40:
+        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                 cerulean_center_cells(), "before_bill", "cerulean_city",
+                 avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    _return_to_bridge(player, report)
+    bridge_avoid = {(10, 5), (11, 15), (5, 20)}
+    _stand(player, route24_cells(), (19, 8), bridge_avoid, "Route 24 east")
+    _leave(player, route24_cells(), [((19, 8), "right"), ((19, 9), "right")],
+           bridge_avoid, "route_25", "Route 25")
+    _stand(player, route25_cells(), (45, 4), ROUTE25_SKIP, "Bill's door")
+    _enter(player, route25_cells(), (45, 3), ROUTE25_SKIP, "up", "bills_house", "Bill's house")
+    _bill(player, report, display, clips, output)
+    _leave(player, bills_house_cells(), [((4, 7), "down"), ((5, 7), "down")],
+           set(), "route_25", "Bill's exit")
+    _stand(player, route25_cells(), (0, 9), ROUTE25_SKIP, "Route 25 west")
+    _leave(player, route25_cells(), [((0, 9), "left"), ((0, 8), "left")],
+           ROUTE25_SKIP, "route_24", "Route 24 return")
+    _stand(player, route24_cells(), (11, 35), bridge_avoid, "Route 24 south")
+    _leave(player, route24_cells(), [((11, 35), "down"), ((10, 35), "down")],
+           bridge_avoid, "cerulean_city", "Cerulean return")
+    if _needs_heal(player) or ((player.state.get("pokemon") or {}).get("hp") or 0) < 40:
+        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                 cerulean_center_cells(), "before_house", "cerulean_city",
+                 avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    house_doors = set(CERULEAN_DOORS) | {(15, 18), (30, 7), (30, 9)}
+    house_doors.discard((27, 11))
+    _enter(player, cerulean_cells(), (27, 11), house_doors, "up", "trashed_house", "burgled house")
+    _enter(player, trashed_house_cells(), (5, 0), set(), "up", "cerulean_city", "burgled back door")
+    # (30, 7) and (30, 9) start the thief. The y=32 ledge is on Route 5 and is not this walk.
+    _stand(player, cerulean_cells(), (30, 10), set(CERULEAN_DOORS) | {(15, 18), (30, 8)}, "thief approach")
+    _stand(player, cerulean_cells(), (30, 9), set(CERULEAN_DOORS) | {(15, 18), (30, 8)}, "Cerulean thief")
+    south_avoid = set(CERULEAN_DOORS) | {(15, 18), (30, 8)}
+    _stand(player, cerulean_cells(), (26, 35), south_avoid, "Cerulean south")
+    _leave(player, cerulean_cells(), [((26, 35), "down"), ((25, 35), "down"), ((27, 35), "down"), ((28, 35), "down")],
+           south_avoid, "route_5", "Route 5")
+    _enter(player, route5_cells(), (17, 27), ROUTE5_SKIP, "up", "underground_path_route_5", "Route 5 underground")
+    _enter(player, underground_route5_cells(), (6, 4), set(), "up", "underground_path_north_south", "north stairs")
+    _enter(player, underground_corridor_cells(), (4, 41), set(), "down", "underground_path_route_6", "south stairs")
+    _leave(player, underground_route6_cells(), [((5, 7), "down"), ((6, 7), "down")],
+           set(), "route_6", "Route 6")
+
+    def arrive():
+        _stand(player, route6_cells(), (9, 35), ROUTE6_SKIP, "Route 6 south")
+        _leave(player, route6_cells(), [((9, 35), "down"), ((8, 35), "down")],
+               ROUTE6_SKIP, "vermilion_city", "Vermilion")
+
+    if display and clips and output:
+        film(display, clips, output, "vermilion", report, "end", arrive)
+    else:
+        arrive()
+    report["vermilion"] = summary(player.state)
+    if "vermilion_city" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 6 did not reach Vermilion: " + json.dumps(summary(player.state)))
+    doors = set(VERMILION_DOORS)
+    doors.discard((11, 3))
+    _heal_in(player, report, vermilion_cells(), (11, 3), VERMILION_NURSE,
+             vermilion_center_cells(), "vermilion", "vermilion_city", avoid=doors)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    report["vermilion_gym_path"] = route(vermilion_cells(), here, (12, 20), VERMILION_DOORS - {(12, 19)}) is not None
+    if player.exploring():
+        report["saved_vermilion"] = player.pause_save()
+
+
 def play_misty_assist(player, report, display, clips, output):
     """Nugget Bridge to level 20, eight Potions, then Bite-only Misty."""
     player.leave_title()
@@ -2864,14 +3088,14 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-39")
-            save_from = GYM_SAVE
+            output = Path("/tmp/lane-j-squirtle-40")
+            save_from = CASCADE_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
-            if digest != GYM_SAVE_SHA:
-                raise SystemExit(f"gym save hash {digest}")
+            if digest != CASCADE_SAVE_SHA:
+                raise SystemExit(f"cascade save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
-            raise SystemExit(play(output, clips, save_from=save_from, story=play_misty_assist))
+            raise SystemExit(play(output, clips, save_from=save_from, story=play_bill_vermilion))
         if "--west" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-25")
             save_from = CLIFF_SAVE
