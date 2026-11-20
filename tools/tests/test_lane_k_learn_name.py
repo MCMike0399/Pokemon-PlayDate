@@ -1,9 +1,9 @@
-"""Move-learn box opens without the move name.
+"""Move-learn box names the move on the pokered continuation page.
 
-Charmander E4 clip: "CHARIZARD is trying to learn" and the name is empty.
-pret/pokered af519899 data/text/text_4.asm _TryingToLearnText puts
-wStringBuffer on the cont immediately after "trying to learn". The box
-draw uses askPages[askPage], and page 1 stops before that name.
+pret/pokered af519899 data/text/text_4.asm _TryingToLearnText prints
+"<mon> is" / "trying to learn" and puts wStringBuffer on the cont.
+The battle box is two rows, so the opened page cannot also carry the
+name. The next page is "trying to learn" / "<MOVE>!".
 """
 
 import subprocess
@@ -60,10 +60,17 @@ PROBE = textwrap.dedent(r'''
     learning.pokemon = { name = "CHARIZARD", moves = {"a", "b", "c", "d"} }
     learning.pendingMove = "flareBlitz"
     learning:showAsk()
-    local drawn = learning.askPages[learning.askPage]
-    if not drawn:find("FLARE BLITZ", 1, true) then
-      io.write("opened box omitted the move name: ")
-      io.write((drawn:gsub("\n", "|")))
+    local opened = learning.askPages[learning.askPage]
+    local continued = learning.askPages[learning.askPage + 1]
+    if opened ~= "CHARIZARD is\ntrying to learn" then
+      io.write("opened page is not the pokered first screen: ")
+      io.write((opened:gsub("\n", "|")))
+      io.write("\n")
+      os.exit(1)
+    end
+    if not continued or not continued:find("FLARE BLITZ", 1, true) then
+      io.write("next page omitted the move name: ")
+      io.write(tostring(continued and continued:gsub("\n", "|")))
       io.write("\n")
       os.exit(1)
     end

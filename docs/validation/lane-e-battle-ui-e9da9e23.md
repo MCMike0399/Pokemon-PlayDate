@@ -8,11 +8,11 @@ K tip `e9da9e23` contains main `e0e9a209`. The three clips were re-run on this t
 
 ## Learn box name
 
-Applied. The opened page is `CHARIZARD is` / `trying to learn` / `FLARE BLITZ!`. `test_lane_k_learn_name` prints `learn-name-shown`. `test_lane_e_learn_pages` still reaches the later pages before YES/NO.
+The two-row box keeps the pokered first screen: `CHARIZARD is` / `trying to learn`. `FLARE BLITZ` is the next page, the `<CONT>` after `trying to learn`. `lane-e-learn-box-name.patch` is not applied; a third line is clipped. `test_lane_k_learn_name` prints `learn-name-shown` for that next page. `test_lane_e_learn_pages` still reaches it before YES/NO.
 
 ## Shift on a fainted lead
 
-Applied. A fainted lead with a living bench gets the SHIFT question before the next foe is sent. `test_lane_k_shift_slots` prints `shift-slots-held` for Bruno's Onix and Lorelei's Jynx. `eligibleForcedReplacements` still rejects a fainted target; the question uses the living bench instead.
+ChooseNextMon runs first. After Weepinbell is sent, the SHIFT question is printed while Onix or Jynx is still the active foe. The question uses party count, because `eligibleForcedReplacements` rejects the fainted lead and then sees no living bench. `test_lane_k_shift_slots` prints `shift-slots-held` and `shift-order-held`.
 
 ## Bruno Hitmonlee
 

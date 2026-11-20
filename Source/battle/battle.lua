@@ -890,7 +890,15 @@ function Battle:chooseParty(index)
             if outcome~="replacement" then return outcome end
             return self:finishRound()
         end
-        if forced then return "command" end
+        -- The foe is still the fainted one. ReplaceFaintedEnemyMon prints
+        -- the SHIFT question before TrainerSentOutText.
+        if forced then
+            if not self.enemy:isAlive() then
+                self.resumeFaintedEnemy = true
+                return self:finishRound()
+            end
+            return "command"
+        end
         local outcome=not pursuit and self:resolveTurn(enemyTurn) or nil
         if outcome and outcome~="replacement" then return outcome end
         return self:finishRound()
@@ -1818,30 +1826,31 @@ function Battle:handleFaint(lastFaintedSide)
     return self:_resolveFaintCheckpoint(last)
 end
 
-local function shiftBenchOpen(self)
-    -- pokered ReplaceFaintedEnemyMon asks whenever the party has another
-    -- living member. A fainted lead is not the gate: ChooseNextMon may
-    -- already have run, and the question still comes before the next foe.
-    if not self.party then return false end
-    local members = self.party:members()
-    if #members < 2 then return false end
-    for _, mon in ipairs(members) do
-        if mon ~= self.player and mon:isAlive() then return true end
-    end
-    return false
-end
-
 function Battle:finishRound()
-    local outcome = self:endOfRoundStatus()
-    self.conditions:endRound()
-    if outcome and outcome ~= "replacement" then return outcome end
+    local resume = self.resumeFaintedEnemy
+    self.resumeFaintedEnemy = nil
+    if not resume then
+        local outcome = self:endOfRoundStatus()
+        self.conditions:endRound()
+        if outcome and outcome ~= "replacement" then return outcome end
+        -- HandleEnemyMonFainted calls ChooseNextMon before
+        -- ReplaceFaintedEnemyMon. The fainted foe stays active until the
+        -- player has sent a living mon.
+        if not self.player:isAlive() and self:hasUsablePlayer() then
+            self.message = "Choose a POKEMON!"
+            return "forcedSwitch"
+        end
+    end
     -- Gen V replaces fainted battlers after residual effects, not mid-move.
     while not self.enemy:isAlive() and self.enemyParty and self.enemyParty:firstUsable() do
         local index = self.enemyParty:firstUsable()
         if index then
             local incoming = self.enemyParty:get(index)
+            -- Party count, not eligibleForcedReplacements: that query
+            -- rejects a fainted lead, and after ChooseNextMon the old lead
+            -- is the fainted bench. pokered still asks when wPartyCount > 1.
             if self.presentationAttached and GameOptions.battleStyle() == "SHIFT"
-                and shiftBenchOpen(self) then
+                and self.player:isAlive() and self.party and self.party:count() > 1 then
                 -- pokered data/text/text_2.asm _TrainerAboutToUseText, shown
                 -- with TWO_OPTION_MENU (engine/battle/core.asm). The # glyph
                 -- is POKé. constants/charmap.asm maps é to $ba, and the

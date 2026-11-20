@@ -172,7 +172,7 @@ function LearningState:showAsk()
     -- The box draws one page. The menu stays inactive until that last page,
     -- and a mash cannot turn a page that has not been up for 10 frames.
     self.askPages = {
-        mon .. " is\ntrying to learn\n" .. name .. "!",
+        mon .. " is\ntrying to learn",
         "trying to learn\n" .. name .. "!",
         "But, " .. mon .. "\ncan't learn more",
         "can't learn more\nthan 4 moves!",
