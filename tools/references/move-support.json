@@ -82,7 +82,7 @@
       "handler": "standard-damage"
     },
     "jumpKick": {
-      "gap": "onMoveFail"
+      "handler": "standard-damage"
     },
     "rollingKick": {
       "handler": "standard-damage"
@@ -400,7 +400,7 @@
       "handler": "dsl"
     },
     "highJumpKick": {
-      "gap": "onMoveFail"
+      "handler": "standard-damage"
     },
     "glare": {
       "handler": "dsl"

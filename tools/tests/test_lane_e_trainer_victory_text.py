@@ -21,11 +21,12 @@ reward and after branches stay on the map.
 """
 
 import json
+import os
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-POKERED = Path("/tmp/pokered")
+POKERED = Path(os.environ["POKERED_REFERENCE_DIR"])
 BATTLE = ROOT / "Source/battle/battle.lua"
 EVENTS = ROOT / "Source/game/sourceEvents.lua"
 PATCH = ROOT / "tools/notes/lane-e-trainer-victory-text.patch"

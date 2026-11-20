@@ -108,7 +108,11 @@ playdate = {
 }
 dofile("Source/battle/battleScene.lua")
 local scene = setmetatable({
-    introTimer = 21, introDrawing = false, selectionOpen = true, battle = {},
+    introTimer = 21, introDrawing = false, selectionOpen = true,
+    -- draw() syncs the message before the field. This probe has no dialog;
+    -- a phase-less machine and a matching cache make that sync a no-op.
+    battle = { machine = { current = function() return nil end }, message = nil },
+    messageSeen = nil, messagePhase = nil, messageSerial = 0,
 }, {__index = BattleScene})
 scene.drawBattleField = function(self)
     local x, y = playdate.graphics.getDrawOffset()
