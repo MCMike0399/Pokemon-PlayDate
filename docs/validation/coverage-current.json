@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "43ee0ceba48d50ea47e63634fd6fca912d5ad4a7",
+    "source_sha256": "2ece0fd60ebecee11bd560b0e32430ab6940cba6cf233acb438bdacbde6da37b",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a Hall of Fame continue loads its module only for the Hall cell and enters Pallet Town at (5, 6) facing down. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 880476e9cd5b3f8e3f6695df6a00ae975cfa72cfe21529dad4b3ce88cc77541c.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "8f09c598d25a24c28bc5966348f32a2f2573e53e",
     "source_sha256": "880476e9cd5b3f8e3f6695df6a00ae975cfa72cfe21529dad4b3ce88cc77541c",
     "policy_date": "2026-11-20",
@@ -1837,6 +1848,7 @@
   
   }
   }}
+  }
   }
   }
   }
