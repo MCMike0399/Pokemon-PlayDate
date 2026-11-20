@@ -27,8 +27,21 @@ end
 -- the word itself is longer.
 function Dialog.wrapLine(text, width)
     width = width or 18
+    -- pokered 's is one column (charmap $bd). Counting the apostrophe and
+    -- the letter separately wraps a possessive a column early and, with the
+    -- two-tile draw, leaves the gap in "CHARIZARD' s".
     local chars = {}
-    for _, code in utf8.codes(text) do chars[#chars + 1] = utf8.char(code) end
+    local index = 1
+    while index <= #text do
+        local nextIndex
+        if TitleIdle and TitleIdle.nextTile then
+            nextIndex = TitleIdle.nextTile(text, index)
+        else
+            nextIndex = utf8.offset(text, 2, index) or (#text + 1)
+        end
+        chars[#chars + 1] = text:sub(index, nextIndex - 1)
+        index = nextIndex
+    end
     if #chars <= width then return {text} end
     local chunks, i = {}, 1
     while i <= #chars do
@@ -158,8 +171,8 @@ function Dialog:handleInput()
     -- before draw, so the box showed a prefix ("VENUSAUR is dam", "RED used
     -- REVIVE") and the next say replaced it. Finish the line first. The
     -- complete line has to be the one on screen for 10 frames, the same
-    -- minimum the battle script already uses, before a later A or a hold
-    -- that starts after that wait can turn the page. Golden-path auto-input
+    -- minimum the battle script already uses, before a later new A can turn
+    -- the page. A hold that is already down does not. Golden-path auto-input
     -- presses A every frame; that press still cannot skip the wait.
     if self.charIndex < #line then
         self.holdFrames = 0
@@ -180,9 +193,13 @@ function Dialog:handleInput()
     if self.shownFrames < 10 then
         return
     end
-    local held = playdate.buttonIsPressed(playdate.kButtonA)
-    self.holdFrames = held and self.holdFrames + 1 or 0
-    if playdate.buttonJustPressed(playdate.kButtonA) or self.holdFrames >= 12 then
+    -- pokered home/print_text.asm PrintLetterDelay only shortens the
+    -- per-letter wait while A is held. home/joypad2.asm
+    -- WaitForTextScrollButtonPress then requires hJoyPressed, a new edge.
+    -- A button that is still down after the last letter must not turn the
+    -- page: that is how the next queued say (EXP, a stat change, recoil)
+    -- replaced the line before it had been read.
+    if playdate.buttonJustPressed(playdate.kButtonA) then
         self.holdFrames = 0
         self.pageShown = false
         self.shownFrames = 0
@@ -245,11 +262,17 @@ function Dialog:draw(settled)
         row2 = shown:sub(newline + 1)
     end
     local function clip(text)
-        local out, count = {}, 0
-        for _, code in utf8.codes(text) do
-            if count >= 18 then break end
-            out[#out + 1] = utf8.char(code)
+        local out, count, index = {}, 0, 1
+        while index <= #text and count < 18 do
+            local nextIndex
+            if TitleIdle and TitleIdle.nextTile then
+                nextIndex = TitleIdle.nextTile(text, index)
+            else
+                nextIndex = utf8.offset(text, 2, index) or (#text + 1)
+            end
+            out[#out + 1] = text:sub(index, nextIndex - 1)
             count = count + 1
+            index = nextIndex
         end
         return table.concat(out)
     end

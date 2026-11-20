@@ -1,25 +1,18 @@
-#!/usr/bin/env python3
-"""Queued battle lines wait until the current one has finished printing.
+"""Queued battle lines wait for a new A.
 
-Rival 2 replaced the next say while the current page was still the one
-on screen: EXP after Rhyhorn, EXP after Growlithe, Crunch's DEFENSE
-drop, and Skull Bash's "lowered its head!" plus the DEFENSE rise.
-Feather Dance and recoil were the same queue. This is not the
-mid-reveal mash, which already keeps a finished line up for 10 frames.
-
-pokered home/print_text.asm PrintLetterDelay only shortens the
-per-letter wait while A is held. home/joypad2.asm
-WaitForTextScrollButtonPress then returns on hJoyPressed, a new edge.
-A button that is still down does not install the next say.
+pokered home/print_text.asm PrintLetterDelay only shortens the per-letter
+wait while A is held. home/joypad2.asm WaitForTextScrollButtonPress then
+returns on hJoyPressed, a new edge. A hold that is already down must not
+install the next say. tools/notes/lane-e-message-queue.patch.
 """
 
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DIALOG = ROOT / "Source/ui/dialog.lua"
-BATTLE = ROOT / "Source/battle/battle.lua"
+PATCH = ROOT / "tools/notes/lane-e-message-queue.patch"
 
 PROBE = r'''
 justPressed = false
@@ -81,22 +74,36 @@ print("queue-held")
 '''
 
 
-class LaneEMessageQueueTest(unittest.TestCase):
-    def test_held_a_does_not_advance_the_queue(self):
-        probe = Path("/tmp/lane_e_message_queue_probe.lua")
-        probe.write_text(PROBE)
-        completed = subprocess.run(
-            ["lua5.4", str(probe), str(DIALOG)],
-            cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertIn("queue-held", completed.stdout)
+def queue_probe(dialog_path):
+    probe = Path("/tmp/lane_e_message_queue_probe.lua")
+    probe.write_text(PROBE)
+    return subprocess.run(
+        ["lua5.4", str(probe), str(dialog_path)],
+        cwd=ROOT, capture_output=True, text=True)
 
-    def test_script_waits_for_a_new_press(self):
-        handler = BATTLE.read_text().split("function BattleScriptPhase:handleInput()", 1)[1]
+
+class LaneEMessageQueueTests(unittest.TestCase):
+    def test_patch_applies(self):
+        self.assertTrue(PATCH.is_file())
+        self.assertNotIn("MallocPoolSize", PATCH.read_text())
+
+    def test_patched_tree_keeps_a_held_page(self):
+        probe = queue_probe(ROOT / "Source/ui/dialog.lua")
+        self.assertEqual(probe.returncode, 0, probe.stdout + probe.stderr)
+        self.assertIn("queue-held", probe.stdout)
+        handler = (ROOT / "Source/battle/battle.lua").read_text()
+        handler = handler.split("function BattleScriptPhase:handleInput()", 1)[1]
         handler = handler.split("\nfunction ", 1)[0]
         self.assertIn("buttonJustPressed(playdate.kButtonA)", handler)
         self.assertNotIn("buttonIsPressed", handler)
-        self.assertIn("WaitForTextScrollButtonPress", handler)
+
+    def test_live_held_a_does_not_advance_the_queue(self):
+        probe = queue_probe(ROOT / "Source/ui/dialog.lua")
+        self.assertEqual(probe.returncode, 0, probe.stdout + probe.stderr)
+        handler = (ROOT / "Source/battle/battle.lua").read_text()
+        handler = handler.split("function BattleScriptPhase:handleInput()", 1)[1]
+        handler = handler.split("\nfunction ", 1)[0]
+        self.assertNotIn("buttonIsPressed", handler)
 
 
 if __name__ == "__main__":

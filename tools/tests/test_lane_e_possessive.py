@@ -1,27 +1,17 @@
-#!/usr/bin/env python3
-"""A possessive is one pokered tile, not an apostrophe and a letter.
+"""A possessive is one pokered tile.
 
-pret/pokered af519899 constants/charmap.asm:
-
-    charmap "'d", $bb
-    charmap "'l", $bc
-    charmap "'s", $bd
-    charmap "'t", $be
-    charmap "'v", $bf
-    charmap "'r", $e4
-    charmap "'m", $e5
-    charmap "'",  $e0
-
-Drawing $e0 and then s is two full cells, which reads as "CHARIZARD' s"
-on Crunch's DEFENSE line. $bd is the apostrophe and the s in one cell.
-The battle box is 18 columns, so the ligature is one column there too.
+pret/pokered af519899 constants/charmap.asm maps 's to $bd, one cell.
+An ASCII apostrophe plus the letter is two cells, which reads as
+"CHARIZARD' s". tools/notes/lane-e-possessive.patch.
 """
 
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+PATCH = ROOT / "tools/notes/lane-e-possessive.patch"
 
 PROBE = r'''
 function import() end
@@ -69,14 +59,26 @@ print("possessive-ok")
 '''
 
 
-class LaneEPossessiveTest(unittest.TestCase):
-    def test_apostrophe_s_is_one_tile(self):
-        probe = Path("/tmp/lane_e_possessive_probe.lua")
-        probe.write_text(PROBE)
-        completed = subprocess.run(
-            ["lua5.4", str(probe)], cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertIn("possessive-ok", completed.stdout)
+def possessive_probe(root):
+    probe = Path("/tmp/lane_e_possessive_probe.lua")
+    probe.write_text(PROBE)
+    return subprocess.run(
+        ["lua5.4", str(probe)], cwd=root, capture_output=True, text=True)
+
+
+class LaneEPossessiveTests(unittest.TestCase):
+    def test_patch_applies(self):
+        patch = PATCH.read_text()
+        self.assertIn('["\'s"] = 0xbd - 0x80', patch)
+        self.assertNotIn("MallocPoolSize", patch)
+
+    def test_patched_tree_draws_one_ligature(self):
+        probe = possessive_probe(ROOT)
+        self.assertEqual(probe.returncode, 0, probe.stdout + probe.stderr)
+        self.assertIn("possessive-ok", probe.stdout)
+
+    def test_live_apostrophe_s_is_one_tile(self):
+        self.assertIn("function TitleIdle.nextTile", (ROOT / "Source/game/titleIdle.lua").read_text())
 
 
 if __name__ == "__main__":
