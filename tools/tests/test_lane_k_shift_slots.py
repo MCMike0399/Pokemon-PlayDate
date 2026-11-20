@@ -19,10 +19,17 @@ HOST = ROOT / "tools/tests/lane_k_shift_slots_host.lua"
 class ShiftSlotTests(unittest.TestCase):
     def test_fainted_lead_still_asks_before_the_next_foe(self):
         completed = subprocess.run(
-            ["lua5.4", str(HOST), str(ROOT)],
+            ["lua5.4", str(HOST), str(ROOT), "slots"],
             check=False, capture_output=True, text=True)
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         self.assertIn("shift-slots-held", completed.stdout)
+
+    def test_question_follows_the_player_replacement(self):
+        completed = subprocess.run(
+            ["lua5.4", str(HOST), str(ROOT), "order"],
+            check=False, capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+        self.assertIn("shift-order-held", completed.stdout)
 
 
 if __name__ == "__main__":
