@@ -4963,7 +4963,7 @@ def _grind_bird(player, report, cells, left, right, avoid, level=31, limit=48):
     _lead(player, species)
     battles = 0
     goal = right
-    for _ in range(limit * 20):
+    for _ in range(limit * 80):
         species, mon = _bird(player)
         if (mon.get("level") or 0) >= level or battles >= limit:
             break
