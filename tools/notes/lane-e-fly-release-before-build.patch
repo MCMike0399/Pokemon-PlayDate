@@ -1,0 +1,191 @@
+diff --git a/Source/game/fieldTravelRequests.lua b/Source/game/fieldTravelRequests.lua
+index bda29285..95835a18 100644
+--- a/Source/game/fieldTravelRequests.lua
++++ b/Source/game/fieldTravelRequests.lua
+@@ -157,6 +157,10 @@ function FieldTravelRequests.complete(token, overlay)
+         end
+     end
+     request.status = "committing"
++    -- The prepared request is the last strong reference to the city being
++    -- left. Fly decodes the destination in this call, so the city has to go
++    -- first. Rollback rebuilds it from the origin key.
++    request.zone = nil
+     local called, accepted, reason = pcall(request.game.commitFieldTravel, request.game,
+         copy(request.observed), copy(plan))
+     request.status = called and accepted and "complete" or "failed"
+diff --git a/Source/game/fieldTravelRuntime.lua b/Source/game/fieldTravelRuntime.lua
+index 4c1ef5eb..97fe6b27 100644
+--- a/Source/game/fieldTravelRuntime.lua
++++ b/Source/game/fieldTravelRuntime.lua
+@@ -65,6 +65,45 @@ local function removePlayer(player)
+     player.exitArrow:remove()
+ end
+ 
++-- The destination definition does not fit beside a live city. Drop the origin
++-- definition, view bitmap, event chunks and map bed first. The same player,
++-- npc manager and view object stay so a failed capture can reattach them.
++local function releaseFlyOrigin(owner, previous, sprites)
++    local zone = previous.zone
++    local view = previous.view
++    if view and zone and zone.detachView then zone:detachView(view) end
++    if view and view.sprite then sprites[view.sprite] = nil end
++    if view and view.releaseBitmaps then view:releaseBitmaps() end
++    if view then view.zone = nil end
++    local manager = previous.manager
++    if manager and manager.npcs then
++        for _, npc in ipairs(manager.npcs) do sprites[npc] = nil end
++        if manager.clear then manager:clear() end
++        previous.originCleared = true
++    end
++    if previous.player then previous.player.collisionMap = nil end
++    if previous.visit then
++        previous.visit.zone = nil
++        previous.visit.view = nil
++    end
++    if previous.savedPos then previous.savedPos.zone = nil end
++    previous.zone = nil
++    previous.builtZone = nil
++    if owner then
++        owner.builtZone = nil
++        owner.builtView = nil
++        owner.presentationVisit = nil
++        owner.savedPos = nil
++    end
++    currentZone = nil
++    if SourceMaps and SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
++    if SourceMaps and SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
++    if WorldDeltas.disposeImportedCache then WorldDeltas.disposeImportedCache() end
++    if SourceEvents and SourceEvents.releaseRecentContent then SourceEvents.releaseRecentContent() end
++    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
++    previous.scoreReleased = true
++end
++
+ -- Destination construction happens while the authoritative session still holds
+ -- the departing location. No root coroutine, input or sprite tick can run here.
+ -- The old view/actors/player remain available until captureTraversal succeeds.
+@@ -81,34 +120,43 @@ function FieldTravelRuntime.fly(game, expected, plan)
+     local previous = {zone = currentZone, player = game.player, manager = game.npcManager,
+         view = getOverworldView(), cameraX = game.camera.x, cameraY = game.camera.y,
+         builtZone = owner.builtZone, builtSession = owner.builtSession,
+-        visit = owner.presentationVisit, builtView = owner.builtView}
++        visit = owner.presentationVisit, builtView = owner.builtView,
++        savedPos = owner.savedPos}
+     local sprites = {}
+     for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
+         sprites[sprite] = true
+     end
+     local undoRuntime = WorldDeltas.checkpointRuntime()
+     local undoWorld, view, player, manager, target, exchanged
++    local originKey, originID, released
+     local ok, result = pcall(function()
+         local world = FieldWorld.reloadWorld(expected.world, {expected.position.zone_id})
+-        undoWorld = WorldDeltas.apply(world)
+         local key = WorldDeltas.zoneKey(plan.location.zone_id)
+         assert(key, "Fly destination not installed")
++        -- checkpointRuntime and the live cache still name the origin. Drop
++        -- both before the destination definition is decoded. Apply the world
++        -- after that, so its undo cannot retain the city being left.
++        originKey = previous.zone and previous.zone.key
++        originID = previous.zone and previous.zone.stableID
++        released = true
++        releaseFlyOrigin(owner, previous, sprites)
++        local stale = undoRuntime
++        undoRuntime = WorldDeltas.checkpointRuntime()
++        stale = nil
++        collectgarbage("collect")
++        collectgarbage("collect")
++        undoWorld = WorldDeltas.apply(world)
+         target = assert(WorldDeltas.ensureZone(key))
+         target:assertEnterable()
+         -- The departing view stays referenced for rollback. Pin the destination
+         -- so the inactive release can drop every other cached city first.
++        -- The origin view was detached above, including when the destination
++        -- is this same city, so the replacement view can attach.
+         local provider = WorldDeltas.definitionProvider()
+         local unpin = provider and provider.owns and provider:owns(target) and provider:pin(target)
+         WorldDeltas.releaseInactiveZones()
+         collectgarbage("collect")
+         if unpin then unpin() end
+-        -- Same-city Fly must also stage a replacement view without disposing it.
+-        if target == previous.zone then
+-            target:detachView(previous.view)
+-        end
+-        -- The origin view object stays for rollback. Its atlas does not: the
+-        -- destination inflate fails while both bitmaps are live.
+-        if previous.view and previous.view.releaseBitmaps then previous.view:releaseBitmaps() end
+         collectgarbage("collect")
+         currentZone = target
+         view = setmetatable({}, WorldView)
+@@ -157,18 +205,41 @@ function FieldTravelRuntime.fly(game, expected, plan)
+                 pcall(sprite.remove, sprite)
+             end
+         end
+-        game.player, game.npcManager, currentZone = previous.player, previous.manager, previous.zone
+-        owner.builtZone, owner.builtSession = previous.builtZone, previous.builtSession
++        game.player, game.npcManager = previous.player, previous.manager
++        owner.builtSession = previous.builtSession
+         owner.presentationVisit, owner.builtView = previous.visit, previous.builtView
++        owner.savedPos = previous.savedPos
+         game.camera.x, game.camera.y = previous.cameraX, previous.cameraY
+         if undoWorld then
+             undoWorld()
+         end
+-        undoRuntime()
++        if undoRuntime then undoRuntime() end
+         collectgarbage("collect")
+-        if previous.view and not previous.view.disposed then
++        local zone = previous.zone
++        if zone == nil and released and originKey then
++            zone = WorldDeltas.ensureZone(originKey)
++        end
++        currentZone = zone
++        owner.builtZone = zone or previous.builtZone
++        if previous.player and zone then
++            previous.player.collisionMap = zone.collision
++        end
++        if previous.savedPos and zone then previous.savedPos.zone = zone end
++        if previous.visit then
++            previous.visit.view = previous.view
++            previous.visit.zone = zone
++        end
++        if previous.view and not previous.view.disposed and zone then
++            previous.view.zone = zone
+             if previous.view.ensureBitmaps then previous.view:ensureBitmaps() end
+-            previous.zone:attachView(previous.view)
++            zone:attachView(previous.view)
++        end
++        if previous.originCleared and zone and previous.manager then
++            zone:spawnNPCs(previous.manager)
++            previous.manager.motion:attach(game, zone, nil, false)
++        end
++        if previous.scoreReleased and originID and KantoAudio and KantoAudio.enterMap then
++            pcall(KantoAudio.enterMap, originID)
+         end
+         game.camera:apply()
+         return false, tostring(result)
+@@ -181,5 +252,11 @@ function FieldTravelRuntime.fly(game, expected, plan)
+     pcall(previous.view.dispose, previous.view)
+     owner.savedPos, owner.savedActors, owner.savedActorsSession = nil, nil, nil
+     owner.fieldArrival = {fromID = expected.position.zone_id, kind = "fly"}
++    -- A different city reloads its bed when the audio observer sees the new
++    -- zone. The same city keeps the observer's zone id, so start that bed here.
++    if previous.scoreReleased and originID and target and target.stableID == originID
++        and KantoAudio and KantoAudio.enterMap then
++        pcall(KantoAudio.enterMap, originID)
++    end
+     return true, result
+ end
+diff --git a/Source/world/overworld.lua b/Source/world/overworld.lua
+index 92df5fc7..2eba0dd6 100644
+--- a/Source/world/overworld.lua
++++ b/Source/world/overworld.lua
+@@ -243,7 +243,8 @@ end
+ function WorldView:dispose()
+     if self.disposed then return end
+     if self.sprite then self.sprite:remove() end
+-    self.zone:detachView(self)
++    -- Fly nils this before the destination is built, then disposes on success.
++    if self.zone then self.zone:detachView(self) end
+     -- The sprite and tilemap own the map's bitmap. Drop those references
+     -- before the next city allocates its own, or both images sit in the pool.
+     self.sprite = nil
