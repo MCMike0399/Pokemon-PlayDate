@@ -1141,6 +1141,10 @@ class Player:
                 else:
                     self.send("wait 18", "press a", max_frames=200)
             elif phase == "command":
+                # The menu is drawn before the intro timer releases A.
+                if (battle.get("introTimer") or 0) > 0 or battle.get("introPhase") not in (None, "ready", "done"):
+                    self.send("wait 20", max_frames=40)
+                    continue
                 player_hp = (battle.get("player") or {}).get("hp") or 0
                 max_hp = (battle.get("player") or {}).get("maxHP") or 0
                 quantities = (self.state.get("inventory") or {}).get("quantities") or {}
@@ -1209,7 +1213,11 @@ class Player:
         """Spend one battle turn on a Potion for the lead. The Lass outlasts Bite otherwise."""
         if (self.state.get("battle") or {}).get("inMoveSelect"):
             self.press("b", wait=4)
-        self.choose("battle", "BAG")
+        try:
+            self.choose("battle", "BAG")
+        except RuntimeError:
+            self.press("b", wait=4)
+            return False
         for _ in range(16):
             root = self.state.get("root")
             if root == "battle":
@@ -4567,7 +4575,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-60")
+            output = Path("/tmp/lane-j-squirtle-61")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
