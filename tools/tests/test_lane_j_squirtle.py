@@ -2542,7 +2542,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-33")
+            output = Path("/tmp/lane-j-squirtle-35")
             save_from = EIGHT_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
             if digest != EIGHT_SAVE_SHA:

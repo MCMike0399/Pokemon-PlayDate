@@ -1,6 +1,6 @@
 # Lane J — Squirtle
 
-Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main through `ed1f1b92` (Vermilion tile-cache hash; `f1fbe5e2` capped trainer move ids at pokered's 165). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
+Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main through `84a8d45e` (a failed Confuse Ray or Supersonic on an already-confused target prints `But it failed!`). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
 
 ## Position
 
@@ -8,7 +8,7 @@ Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 i
 - BLUE, rival RED. Squirtle, level 15, 39 HP, no status, Tackle, Water Gun, Bubble, and Withdraw. Tail Whip was replaced when Water Gun was learned.
 - Intro done. Lab rival won (his Bulbasaur)
 - Oak's Parcel has been delivered. `EVENT_GOT_POKEDEX` and `EVENT_OAK_GOT_PARCEL` are set.
-- Route 3 is crossed. Mt. Moon is crossed. Wartortle, level 17, 22 HP, no status, Tackle, Water Gun, Bubble, and Bite. `EVENT_GOT_DOME_FOSSIL` and `EVENT_BEAT_MT_MOON_EXIT_SUPER_NERD` are set. Standing on Route 4 at (59, 4), facing right. Healing checkpoint is still Pewter City (13, 26) facing down.
+- Route 3 is crossed. Mt. Moon is crossed. The Route 4 open line (down from (59, 4) to y=6, east, ledge hop at x=76, east off (89, 10)) entered Cerulean. Wartortle is level 18 after the gym Lass. The resume for Misty is the eight-Potion pause outside the Mart.
 - Earned pause save: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14` (sequence 11, the cliff). The east-side exit pause is `adventure.b.json` sha256 `35c11c6985486b732e734bf14c15832c1367b4c638b16d9c27a68438b590fb8d` (sequence 10, Route 4 (24, 6)). The Dome Fossil pause is `/opt/cursor/artifacts/lane-j/saves/c964b798257f/adventure.a.json` sha256 `d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4` (sequence 9). Earlier: Route 4 entrance sequence 8 `362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9`, Boulder Badge `fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b`. None of these are in git.
 
 ## Clips
@@ -53,17 +53,11 @@ The retry beat the fossil super nerd. Wartortle is level 17, 22 HP, with Tackle,
 
 ## Next
 
-Waiting on K's Misty assist. East through foot `0x27` and west through the solid strip both stay put. Resume the sequence 11 pause only after a land step from this side of Route 4 can reach the Center or Cerulean.
+Cerulean Gym door `(30, 19)` opens from the south tile `(30, 20)`. `(12, 19)` is Vermilion. The walk enters, beats the Lass, heals, and fights Misty. Two real Misty fights left Starmie at 1 HP and then blacked out. No Cascade Badge yet. Resume `/opt/cursor/artifacts/lane-j/saves/e0f8ae50d17a/adventure.a.json` sha256 `9607c06671633cbcec45150d316937419197ae6741219eb202da39c8f00c4f9b` (sequence 13, Cerulean (25, 26), eight Potions, TM34 sold, money 232).
 
 ## Blockers
 
-Route 4 east of Mt. Moon has no land exit.
-
-East: at (59, 4) facing right, one `press right` stayed put (`cliff_step` `blocked`). (60, 4) is foot `0x27`. That matches pret/pokered `af519899`.
-
-West: from that pause, a real walk arrived at (24, 6) facing left and one `press left` stayed put. The engine reported `lastTraversalBlock` `terrain` / `source-collision`. Standing cell (24, 6) is grid 36, foot `0x39`, collision 0. The cell in front, (23, 6), is grid 18, foot `0x24`, collision 1, `land_passable` false. The solid strip is x=20 through x=23. (20, 6) is foot `0x27`, collision 1. The open Center side begins at (19, 6), foot `0x23`, collision 0. No route from (59, 4) reaches (11, 6) or Cerulean. Surf is not available. No Source edit from this lane.
-
-Pause held: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14` (sequence 11, (59, 4) facing right). The west probe also paused at the wall: `/opt/cursor/artifacts/lane-j/saves/fd77ca00d68d/adventure.b.json` sha256 `8b7c3badfbd49de1f1cc8f1d628833ebb1e9e573ee0a4827efce3e9a264c72e8`.
+No product block on the Gym door. The open neighbor is south of `(30, 19)`. The Misty loss is Starmie's Recover plus a Swift crit: Wartortle fainted with Starmie at 1 HP and no Potions left. The swimmer on the gym's y=7 line stays avoided.
 
 ## Tests
 
