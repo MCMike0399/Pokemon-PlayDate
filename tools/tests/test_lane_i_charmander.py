@@ -3980,7 +3980,11 @@ class CharmanderRun(BrockJourney):
     def _league_loss_stops(self):
         """One Lance loss leaves the plateau to raise Lapras. A second one stops."""
         last = (self.summary.get("battles") or [None])[-1] or {}
-        ident = str(last.get("trainer_id") or "") + " " + str(last.get("trainer") or "")
+        outcome = last.get("outcome") if isinstance(last.get("outcome"), dict) else {}
+        ident = " ".join(str(part or "") for part in (
+            last.get("trainer_id"), last.get("trainer"), last.get("name"),
+            outcome.get("trainer_id"),
+        ))
         if "LANCES_ROOM" not in ident and "LANCE" not in ident.upper() and "CHAMPIONS_ROOM" not in ident:
             return False
         if getattr(self, "_lance_leveled", False):
