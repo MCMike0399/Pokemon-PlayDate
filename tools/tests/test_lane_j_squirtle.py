@@ -708,6 +708,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(vermilion_gym_cells(), (5, 16), (2, 6), GYM_SIGHT))
         self.assertIsNone(route(vermilion_gym_cells(), (5, 16), (2, 8), GYM_SIGHT))
         self.assertIsNotNone(route(vermilion_gym_cells(), (5, 16), (6, 2), GYM_SIGHT))
+        self.assertIsNone(route(vermilion_gym_cells(), (2, 12), (3, 9), GYM_SIGHT))
+        self.assertIsNotNone(route(vermilion_gym_cells(), (2, 12), (5, 9), GYM_SIGHT))
         self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
         self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
@@ -3821,10 +3823,11 @@ def _search_can(player, index):
     source_x, source_y = VERMILION_CANS[index]
     can = (source_x + 1, source_y)
     cells = vermilion_gym_cells()
+    here = (player.state["player"]["x"], player.state["player"]["y"])
     stand, face = None, "up"
     for dx, dy, facing in ((0, 1, "up"), (0, -1, "down"), (-1, 0, "right"), (1, 0, "left")):
         spot = (can[0] + dx, can[1] + dy)
-        if spot in cells and spot not in GYM_SIGHT:
+        if spot in cells and spot not in GYM_SIGHT and route(cells, here, spot, GYM_SIGHT):
             stand, face = spot, facing
             break
     if stand is None:
@@ -4652,7 +4655,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-69")
+            output = Path("/tmp/lane-j-squirtle-70")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
