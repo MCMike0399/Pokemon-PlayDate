@@ -3009,7 +3009,12 @@ class CharmanderRun(BrockJourney):
                 self.send("press up", "wait 15")
                 self.drain()
         if self._on("IndigoPlateauLobby"):
-            self._heal_indigo()
+            # The lobby nurse is a real Center. Its heal animation still
+            # requires a 14x8 POKECENTER map, so the machine crashes here.
+            # lane-e-indigo-heal.patch places that machine; heal once it lands.
+            composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
+            if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
+                self._heal_indigo()
             self.save()
             self.summary.update(acceptance="Indigo Plateau", natural=True, forbidden_shortcuts=False)
             self.navigate((8, 1))
