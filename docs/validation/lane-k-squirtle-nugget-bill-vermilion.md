@@ -1,6 +1,6 @@
 # Squirtle: Nugget Bridge, Bill, Vermilion
 
-Source tip `e2f540aa`, already on `cursor/lane-k-qa`. No Source change. No Misty assist: there is no gym-fail to answer. The assist is `tools/tests/test_lane_k_squirtle_nugget_path.py`. It pins pret/pokered `af519899` and raises if `POKERED_REFERENCE_DIR` is unset.
+Source tip `e2f540aa`, already on `cursor/lane-k-qa`. No Source change. The path test is `tools/tests/test_lane_k_squirtle_nugget_path.py`. It pins pret/pokered `af519899` and raises if `POKERED_REFERENCE_DIR` is unset. The Misty fight after this bridge is `lane-k-misty-assist.md`.
 
 ## Nugget Bridge
 
