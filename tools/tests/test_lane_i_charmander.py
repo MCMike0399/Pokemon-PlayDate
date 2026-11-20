@@ -2565,6 +2565,13 @@ class CharmanderRun(BrockJourney):
         self._arrange_lead("starter")
         zone = self._map_name() or ""
         if "VICTORY_ROAD" in zone:
+            # (24, 13) is the alcove behind the gate Route 23 closed. The
+            # boulder script has no path from there, so leave and re-enter
+            # from the south door instead of pushing from the wrong room.
+            if not self._on("VictoryRoad1F") and not self._can_reach_boulder(
+                    "pokered:VICTORY_ROAD_2F:objects:11"):
+                self._indigo_plateau()
+                return
             self._puzzle = True
             try:
                 if self._on("VictoryRoad1F"):
@@ -3406,6 +3413,20 @@ class CharmanderRun(BrockJourney):
             return True
         try:
             self.model().path(self.position(), {goal}, self.occupied())
+        except ProtocolError:
+            return False
+        return True
+
+    def _can_reach_boulder(self, source_id):
+        """True when a neighboring tile of the boulder is on this floor."""
+        if not self._on("VictoryRoad2F"):
+            return False
+        rock = self._actor_at(source_id)
+        if rock is None:
+            return False
+        approaches = {(rock[0] + dx, rock[1] + dy) for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0))}
+        try:
+            self.model().path(self.position(), approaches, self.occupied())
         except ProtocolError:
             return False
         return True
