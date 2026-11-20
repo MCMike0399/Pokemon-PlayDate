@@ -5445,55 +5445,70 @@ K_LINE = [
     ("walk", "right", 5, "Route10", 8, 18),
     ("warp", "up", "RockTunnel1F", 15, 3),
     ("walk", "down", 4, "RockTunnel1F", 15, 7),
-    ("walk", "right", 16, "RockTunnel1F", 31, 7),
-    ("walk", "down", 1, "RockTunnel1F", 31, 8),
-    ("walk", "right", 3, "RockTunnel1F", 34, 8),
-    ("walk", "up", 5, "RockTunnel1F", 34, 3),
+    ("walk", "right", 5, "RockTunnel1F", 20, 7),
+    ("fight", "down", "RockTunnel1F", 20, 8),
+    ("walk", "down", 2, "RockTunnel1F", 20, 10),
+    ("walk", "right", 14, "RockTunnel1F", 34, 10),
+    ("walk", "up", 7, "RockTunnel1F", 34, 3),
     ("walk", "right", 2, "RockTunnel1F", 36, 3),
     ("warp", "right", "RockTunnelB1F", 33, 25),
-    ("walk", "left", 5, "RockTunnelB1F", 28, 25),
-    ("walk", "down", 5, "RockTunnelB1F", 28, 30),
-    ("walk", "left", 1, "RockTunnelB1F", 27, 30),
-    ("walk", "down", 4, "RockTunnelB1F", 27, 34),
-    ("walk", "left", 2, "RockTunnelB1F", 25, 34),
-    ("walk", "up", 1, "RockTunnelB1F", 25, 33),
-    ("walk", "left", 8, "RockTunnelB1F", 17, 33),
-    ("walk", "up", 4, "RockTunnelB1F", 17, 29),
+    ("walk", "down", 6, "RockTunnelB1F", 33, 31),
+    ("walk", "left", 6, "RockTunnelB1F", 27, 31),
+    ("fight", "left", "RockTunnelB1F", 26, 31),
+    ("walk", "left", 1, "RockTunnelB1F", 25, 31),
+    ("walk", "up", 1, "RockTunnelB1F", 25, 30),
+    ("walk", "left", 8, "RockTunnelB1F", 17, 30),
+    ("walk", "up", 1, "RockTunnelB1F", 17, 29),
     ("fight", "up", "RockTunnelB1F", 17, 28),
     ("walk", "up", 4, "RockTunnelB1F", 17, 24),
     ("walk", "right", 3, "RockTunnelB1F", 20, 24),
     ("walk", "up", 2, "RockTunnelB1F", 20, 22),
-    ("walk", "left", 3, "RockTunnelB1F", 17, 22),
-    ("walk", "up", 1, "RockTunnelB1F", 17, 21),
-    ("walk", "left", 3, "RockTunnelB1F", 14, 21),
-    ("walk", "up", 3, "RockTunnelB1F", 14, 18),
-    ("walk", "left", 1, "RockTunnelB1F", 13, 18),
-    ("walk", "up", 1, "RockTunnelB1F", 13, 17),
-    ("walk", "left", 1, "RockTunnelB1F", 12, 17),
+    ("walk", "right", 5, "RockTunnelB1F", 25, 22),
+    ("walk", "up", 6, "RockTunnelB1F", 25, 16),
+    ("walk", "right", 7, "RockTunnelB1F", 32, 16),
+    ("walk", "up", 6, "RockTunnelB1F", 32, 10),
+    ("walk", "right", 2, "RockTunnelB1F", 34, 10),
+    ("walk", "up", 4, "RockTunnelB1F", 34, 6),
+    ("walk", "right", 3, "RockTunnelB1F", 37, 6),
+    ("walk", "up", 3, "RockTunnelB1F", 37, 3),
+    ("walk", "left", 9, "RockTunnelB1F", 28, 3),
+    ("warp", "left", "RockTunnel1F", 5, 3),
+    ("walk", "down", 12, "RockTunnel1F", 5, 15),
+    ("walk", "left", 1, "RockTunnel1F", 4, 15),
+    ("walk", "down", 6, "RockTunnel1F", 4, 21),
+    ("walk", "right", 2, "RockTunnel1F", 6, 21),
+    ("walk", "up", 3, "RockTunnel1F", 6, 18),
+    ("walk", "right", 2, "RockTunnel1F", 8, 18),
+    ("walk", "up", 4, "RockTunnel1F", 8, 14),
+    ("walk", "right", 6, "RockTunnel1F", 14, 14),
+    ("walk", "up", 3, "RockTunnel1F", 14, 11),
+    ("walk", "right", 2, "RockTunnel1F", 16, 11),
+    ("warp", "right", "RockTunnelB1F", 23, 11),
+    ("walk", "down", 2, "RockTunnelB1F", 23, 13),
+    ("walk", "left", 6, "RockTunnelB1F", 17, 13),
+    ("walk", "down", 4, "RockTunnelB1F", 17, 17),
+    ("walk", "left", 5, "RockTunnelB1F", 12, 17),
     ("fight", "left", "RockTunnelB1F", 11, 17),
-    ("walk", "left", 3, "RockTunnelB1F", 8, 17),
-    ("walk", "up", 1, "RockTunnelB1F", 8, 16),
-    ("walk", "left", 1, "RockTunnelB1F", 7, 16),
-    ("walk", "up", 3, "RockTunnelB1F", 7, 13),
+    ("walk", "left", 1, "RockTunnelB1F", 10, 17),
+    ("walk", "up", 4, "RockTunnelB1F", 10, 13),
+    ("walk", "left", 3, "RockTunnelB1F", 7, 13),
     ("fight", "left", "RockTunnelB1F", 6, 13),
-    ("walk", "left", 2, "RockTunnelB1F", 4, 13),
-    ("walk", "up", 9, "RockTunnelB1F", 4, 4),
-    ("walk", "left", 1, "RockTunnelB1F", 3, 4),
+    ("walk", "left", 1, "RockTunnelB1F", 5, 13),
+    ("walk", "up", 9, "RockTunnelB1F", 5, 4),
+    ("walk", "left", 2, "RockTunnelB1F", 3, 4),
     ("warp", "up", "RockTunnel1F", 37, 17),
-    ("walk", "left", 5, "RockTunnel1F", 32, 17),
-    ("walk", "down", 6, "RockTunnel1F", 32, 23),
+    ("walk", "down", 3, "RockTunnel1F", 37, 20),
+    ("walk", "left", 5, "RockTunnel1F", 32, 20),
+    ("walk", "down", 3, "RockTunnel1F", 32, 23),
     ("walk", "right", 5, "RockTunnel1F", 37, 23),
-    ("walk", "down", 2, "RockTunnel1F", 37, 25),
-    ("walk", "left", 5, "RockTunnel1F", 32, 25),
-    ("walk", "down", 3, "RockTunnel1F", 32, 28),
-    ("walk", "left", 6, "RockTunnel1F", 26, 28),
-    ("walk", "up", 1, "RockTunnel1F", 26, 27),
-    ("walk", "left", 3, "RockTunnel1F", 23, 27),
-    ("walk", "down", 2, "RockTunnel1F", 23, 29),
-    ("walk", "left", 2, "RockTunnel1F", 21, 29),
-    ("walk", "up", 2, "RockTunnel1F", 21, 27),
-    ("walk", "left", 6, "RockTunnel1F", 15, 27),
-    ("walk", "down", 5, "RockTunnel1F", 15, 32),
+    ("walk", "down", 5, "RockTunnel1F", 37, 28),
+    ("walk", "left", 8, "RockTunnel1F", 29, 28),
+    ("walk", "up", 1, "RockTunnel1F", 29, 27),
+    ("walk", "left", 6, "RockTunnel1F", 23, 27),
+    ("fight", "left", "RockTunnel1F", 22, 27),
+    ("walk", "left", 3, "RockTunnel1F", 19, 27),
+    ("walk", "down", 5, "RockTunnel1F", 19, 32),
+    ("walk", "left", 4, "RockTunnel1F", 15, 32),
     ("warp", "down", "Route10", 8, 54),
     ("walk", "right", 2, "Route10", 10, 54),
     ("walk", "down", 1, "Route10", 10, 55),
@@ -5624,6 +5639,22 @@ def _k_atoms():
     return atoms
 
 
+def _k_runtime(name):
+    blob = json.loads((ROOT / "Source/data/sourceMapCache" / f"runtime-{name}.json").read_text())
+    grids = {grid["id"]: grid["terrain"] for grid in blob["definition"]["grids"]}
+    rules = blob["definition"]["directional_rules"]
+    pairs = {tuple(sorted(pair)) for pair in rules["forbidden_tile_pairs"]}
+    return blob["tile_rows"], grids, pairs, rules["ledges"]
+
+
+def _k_tile(name, x, y):
+    pad = K_FILES[name][1]
+    rows, grids, pairs, ledges = _k_runtime(name)
+    sx = x - pad
+    tile = grids[int(rows[y][sx * 2:sx * 2 + 2], 16)]
+    return tile, pairs, ledges
+
+
 def _k_trace():
     opens = {}
     extra = {}
@@ -5642,8 +5673,27 @@ def _k_trace():
         if atom["op"] in ("heal", "erika"):
             continue
         spot = (atom["x"], atom["y"])
-        if spot not in opens[atom["map"]] | extra.get(atom["map"], set()):
+        opened = extra.get(atom["map"], set())
+        if spot not in opens[atom["map"]] | opened:
             raise RuntimeError(f"closed {atom}")
+        if atom["op"] == "ledge":
+            facing, pad_name, dx, dy = {
+                "up": ("SPRITE_FACING_UP", "PAD_UP", 0, -1),
+                "down": ("SPRITE_FACING_DOWN", "PAD_DOWN", 0, 1),
+                "left": ("SPRITE_FACING_LEFT", "PAD_LEFT", -1, 0),
+                "right": ("SPRITE_FACING_RIGHT", "PAD_RIGHT", 1, 0),
+            }[atom["dir"]]
+            if (x + dx * 2, y + dy * 2) != spot:
+                raise RuntimeError(f"ledge span {atom}")
+            stand, _pairs, ledges = _k_tile(where, x, y)
+            front, _pairs, _ledges = _k_tile(where, x + dx, y + dy)
+            if not any(rule["facing"] == facing and rule["input"] == pad_name and rule["standing_foot_tile"] == stand["foot_tile"] and rule["target_foot_tile"] == front["foot_tile"] for rule in ledges):
+                raise RuntimeError(f"no ledge {where} {(x, y)} {atom['dir']}")
+        elif atom["op"] == "step" and spot not in opened:
+            stand, pairs, _ledges = _k_tile(where, x, y)
+            dest, _pairs, _ledges = _k_tile(atom["map"], *spot)
+            if not dest["land_passable"] or tuple(sorted((stand["foot_tile"], dest["foot_tile"]))) in pairs:
+                raise RuntimeError(f"pair block {where} {(x, y)} -> {spot}")
         x, y, where = atom["x"], atom["y"], atom["map"]
     cuts = [atom for atom in _k_atoms() if atom["op"] == "cut" and atom["map"] == "CeladonGym"]
     if len(cuts) != 1 or cuts[0]["dir"] != "right" or (cuts[0]["x"], cuts[0]["y"]) != (2, 4):

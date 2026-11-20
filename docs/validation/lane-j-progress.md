@@ -74,7 +74,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 Sequence 63 is the pause: `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `97930933be96083d8ffaa90d466dd30253687b2a5652fb4d515b6a611f505bbd`, Route 10 Pokémon Center (3, 3) facing up. Wartortle 28, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder. The party is healed. Sequence 60 at Route 9 (14, 15) sha256 `f869439769a92dc1c2b84f0f748c9320ee5be125d6eb84e5399a141fe51fb074` is the earlier shelf.
 
-The Route 9 rejoin and the Bug Catcher at (41, 8) are done, and the center exit is the step down from the mat. Rock Tunnel 1F then stops on K's line. Standing at (31, 7) and stepping down stays put. `lastTraversalBlock` is `{kind: "terrain", id: "source-pair-collision"}`. The runtime feet are 32 at (31, 7) and 5 at (31, 8), and that pair is listed in `directional_rules.forbidden_tile_pairs`. The same object says those pairs are data only and are not executed. `MapBindings.movement` blocks them anyway, so the step K's pokered walk uses cannot be taken. The only pair-legal walk from the entrance to the stair crosses the Pokémaniac ray at (20, 8) through (23, 8). Stopped here.
+The 32/5 step is a pokered cavern pair, so the walk leaves K's cells there. It crosses the Pokémaniac at (20, 8), uses the B1F stairs at (27, 3) and (17, 11), and fights the sight lines those pair walls leave in the way. Then Lavender, Route 8, the underground, Route 7, Celadon, the west gym tree, and Erika.
 
 ## Blockers
 
