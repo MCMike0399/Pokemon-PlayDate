@@ -3611,7 +3611,10 @@ def _teach(player, item, species, move):
 
 def _lead(player, species):
     slot, _mon = _member(player, species)
-    if slot in (None, 1):
+    active = (player.state.get("party") or {}).get("active") or 1
+    # A fainted switch sets the active index without moving slot 1.
+    # Swapping slot 1 with itself still selects the first conscious member.
+    if slot in (None, 1) and active == 1:
         return
     if not player.exploring():
         _close_menus(player)
@@ -4024,9 +4027,12 @@ def _raise_pidgey(player, report):
             break
         if name == "pidgey" and level >= 21:
             raise RuntimeError("Pidgey reached 21 before it evolved: " + json.dumps(_party(player)))
-        # A fainted slot-1 bird is not the lead. firstUsable walks past it.
+        # A fainted switch leaves the active index on Wartortle while the
+        # bird stays in slot 1. Healing does not move that index.
         lead = (player.state.get("pokemon") or {}).get("species")
-        if lead != name or (bird.get("hp") or 0) < 12:
+        quantities = (player.state.get("inventory") or {}).get("quantities") or {}
+        supers = int(quantities.get("superPotion") or 0) + int(quantities.get("potion") or 0)
+        if lead != name or (bird.get("hp") or 0) < 18 or supers < 2:
             _rest(player, report, "bird heal", 4)
             _to_route6_grass(player)
             _lead(player, name)
@@ -4055,7 +4061,7 @@ def _raise_pidgey(player, report):
                 if not player.run_away():
                     player.fight(limit=400, potion_at=0, decline_moves=True, run_at=8)
             else:
-                player.fight(limit=500, potion_at=16, decline_moves=True)
+                player.fight(limit=500, potion_at=16, decline_moves=True, run_at=16)
         if player.state.get("root") != "overworld":
             _settle_catch(player)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
@@ -4270,7 +4276,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-48")
+            output = Path("/tmp/lane-j-squirtle-49")
             save_from = CATCH_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != CATCH_SAVE_SHA:
