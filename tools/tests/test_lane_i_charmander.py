@@ -3344,9 +3344,10 @@ class CharmanderRun(BrockJourney):
                 ("maxPotion", 2),
             ):
                 price = self._INDIGO_PRICES[item]
-                if self.quantity(item) >= cap or self.inventory()["money"] < price:
-                    continue
-                self.buy_item(self._INDIGO_CLERK, item, 1, price)
+                have = self.quantity(item)
+                count = min(cap - have, self.inventory()["money"] // price)
+                if count > 0:
+                    self.buy_item(self._INDIGO_CLERK, item, count, price)
         finally:
             self.require_shop_stock = previous
         self.summary["league_bag"] = {
@@ -4020,7 +4021,8 @@ class CharmanderRun(BrockJourney):
                     continue
                 after = len(self.summary.get("training") or [])
                 quiet = 0 if after > before else quiet + 1
-                if quiet >= 80:
+                # Blue's cave rate is 10/256. Eighty dry steps is a normal miss.
+                if quiet >= 400:
                     self.save()
                     raise ProtocolError("Victory Road east pocket had no wild battle")
                 steps += 1
@@ -4031,11 +4033,19 @@ class CharmanderRun(BrockJourney):
             self._flee_wilds = False
             self._lance_training = False
 
+    def _needs_league_stock(self):
+        money = self.inventory()["money"]
+        for item, cap in (("fullHeal", 4), ("revive", 2), ("maxPotion", 2)):
+            if self.quantity(item) < cap and money >= self._INDIGO_PRICES[item]:
+                return True
+        return False
+
     def _prepare_victory_cave(self):
         """Lobby Full Heals, then the east door. Route 23 grass stays walled off."""
-        if self._on("VictoryRoad2F") and self._reachable((28, 7)):
-            if not any(mon["hp"] <= 0 or not self._clear_status(mon) for mon in self.party()):
-                return
+        hurt = any(mon["hp"] <= 0 or not self._clear_status(mon) for mon in self.party())
+        if self._on("VictoryRoad2F") and self._reachable((28, 7)) and not hurt and not self._needs_league_stock():
+            return
+        if self._on("VictoryRoad2F") or self._on("VictoryRoad3F"):
             self._leave_east_cave()
         if not self._on("IndigoPlateauLobby"):
             self._reach_lobby()
