@@ -4214,6 +4214,26 @@ def _leave_diglett_cave(player):
                {(4, 3)}, "route_11", "cave exit")
 
 
+def _finish_wild(player, level, strong_at):
+    """A live command menu is still the fight. The catch settler only clears the pages after it."""
+    for _ in range(4):
+        if player.exploring():
+            return
+        if player.state.get("root") != "battle":
+            if player.state.get("root") == "evolution":
+                player.dismiss_until_explore(limit=40)
+            else:
+                _settle_catch(player)
+            return
+        foe = (player.state.get("battle") or {}).get("enemy") or {}
+        too_strong = foe.get("species") == "dugtrio" or (foe.get("level") or 99) > (level or 0) + strong_at
+        if too_strong and player.run_away():
+            return
+        player.fight(limit=1200, potion_at=0, run_at=8 if too_strong else None)
+    if not player.exploring():
+        raise RuntimeError("a wild battle stayed open: " + json.dumps(summary(player.state)))
+
+
 def _raise_diglett(player, report):
     """Catch a Diglett and evolve it. Pokered Dig is 19. Dugtrio 26 is the Surge plan."""
     _, mon = _mole(player)
@@ -4233,11 +4253,8 @@ def _raise_diglett(player, report):
     battles = 0
     while battles < 80:
         if not player.exploring():
-            root = player.state.get("root")
-            if root == "evolution":
-                player.dismiss_until_explore(limit=40)
-            else:
-                _settle_catch(player)
+            _, mon = _mole(player)
+            _finish_wild(player, (mon or {}).get("level") or 0, 3)
             continue
         _, mon = _mole(player)
         level = mon.get("level") or 0
@@ -4265,18 +4282,11 @@ def _raise_diglett(player, report):
             _enter_diglett_cave(player)
             continue
         player.step(steps[0])
-        if player.state.get("root") != "battle":
+        if player.state.get("root") != "battle" and player.exploring():
             continue
         battles += 1
         before = player.state.get("last_battle_outcome")
-        foe = (player.state.get("battle") or {}).get("enemy") or {}
-        if foe.get("species") == "dugtrio" or (foe.get("level") or 99) > level + 3:
-            if not player.run_away():
-                player.fight(limit=400, potion_at=0)
-        else:
-            player.fight(limit=500, potion_at=0)
-        if player.state.get("root") != "overworld":
-            _settle_catch(player)
+        _finish_wild(player, level, 3)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
             raise RuntimeError("blackout raising Diglett: " + json.dumps(summary(player.state)))
     _leave_diglett_cave(player)
@@ -4308,11 +4318,10 @@ def _raise_spearow(player, report):
     battles = 0
     while battles < 400:
         if not player.exploring():
-            root = player.state.get("root")
-            if root == "evolution":
-                player.dismiss_until_explore(limit=40)
-            else:
-                _settle_catch(player)
+            _slot, bird = _member(player, "fearow")
+            if bird is None:
+                _slot, bird = _member(player, "spearow")
+            _finish_wild(player, (bird or {}).get("level") or 0, 4)
             continue
         _slot, bird = _member(player, "fearow")
         if bird is None:
@@ -4348,18 +4357,11 @@ def _raise_spearow(player, report):
         if not steps:
             raise RuntimeError("lost the Route 11 grass: " + json.dumps(summary(player.state)))
         player.step(steps[0])
-        if player.state.get("root") != "battle":
+        if player.state.get("root") != "battle" and player.exploring():
             continue
         battles += 1
         before = player.state.get("last_battle_outcome")
-        foe = (player.state.get("battle") or {}).get("enemy") or {}
-        if (foe.get("level") or 99) > level + 4:
-            if not player.run_away():
-                player.fight(limit=400, potion_at=0, run_at=10)
-        else:
-            player.fight(limit=500, potion_at=0)
-        if player.state.get("root") != "overworld":
-            _settle_catch(player)
+        _finish_wild(player, level, 4)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
             raise RuntimeError("blackout raising Spearow: " + json.dumps(summary(player.state)))
     _return_vermilion(player, "Fearow")
@@ -4501,7 +4503,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-54")
+            output = Path("/tmp/lane-j-squirtle-55")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
