@@ -3070,6 +3070,8 @@ class CharmanderRun(BrockJourney):
                 self._talk_to_actor(actor)
             if not self.flag(flag):
                 raise ProtocolError(label + " did not start: " + str(self.position()))
+            if label == "Lorelei":
+                self._record_screen("lorelei-win", 30)
             self.save()
             self.summary.update(acceptance=label + " defeated", natural=True, forbidden_shortcuts=False)
             self._leave_north(room, self._north_stand())
@@ -4219,7 +4221,32 @@ class CharmanderRun(BrockJourney):
             self.capture_pending = False
         return True
 
+    def _revive_starter(self, battle, options):
+        """Bring Charizard back and send him in. The reserve does not finish Lorelei."""
+        active = lookup(self.state, "session.party.active")
+        switch = getattr(self, "_revive_switch", None)
+        if switch:
+            self._revive_switch = None
+            if 1 <= switch <= len(self.party()) and self.party()[switch - 1]["hp"] > 0 and active != switch:
+                return bool(self.battle_switch(switch, options, "revive-starter"))
+            return False
+        player = battle.get("player") or {}
+        if player.get("species") == "charizard" and (player.get("hp") or 0) > 0:
+            return False
+        for index, mon in enumerate(self.party(), 1):
+            if mon["species"] != "charizard" or mon["hp"] > 0:
+                continue
+            item = "revive" if self.quantity("revive") else "maxRevive" if self.quantity("maxRevive") else None
+            if item is None:
+                return False
+            self.battle_medicine(item, options, target=index)
+            self._revive_switch = index
+            return True
+        return False
+
     def battle_preparation_action(self, battle, options):
+        if self._revive_starter(battle, options):
+            return True
         if getattr(self, "_bench_share", False) and self._share_bench(battle, options):
             return True
         from tools.harness.brock_journey import choose_battle_medicine
