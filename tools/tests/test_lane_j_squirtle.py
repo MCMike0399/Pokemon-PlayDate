@@ -113,7 +113,8 @@ BROCK = "pokered:PEWTER_GYM:objects:1"
 def disabled_move(message, options):
     """The move named by 'X was disabled'. A leftover page must not reject the cursor."""
     folded = "".join(ch for ch in str(message or "").upper() if ch.isalpha())
-    if "WASDISABLED" not in folded or "NOLONGERDISABLED" in folded:
+    disabled = "WASDISABLED" in folded or "ISDISABLED" in folded
+    if not disabled or "NOLONGERDISABLED" in folded:
         return None
     for name in options or ():
         letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
@@ -578,6 +579,7 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(preferred_move(["TACKLE", "-"])[1], "TACKLE")
         moves = ["TACKLE", "WATER GUN", "BUBBLE", "BITE"]
         self.assertEqual(disabled_move("WARTORTLE's WATER GUN was disabled!", moves), "WATER GUN")
+        self.assertEqual(disabled_move("WARTORTLE's WATER GUN is disabled!", moves), "WATER GUN")
         self.assertIsNone(disabled_move("WARTORTLE is no longer disabled!", moves))
         self.assertIsNone(disabled_move("GRIMER used DISABLE!", moves))
         self.assertEqual(preferred_move(moves, enemy_types=["water"])[1], "BITE")
@@ -3750,7 +3752,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-42")
+            output = Path("/tmp/lane-j-squirtle-43")
             save_from = VERMILION_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
             if digest != VERMILION_SAVE_SHA:
