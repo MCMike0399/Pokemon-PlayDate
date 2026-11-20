@@ -4438,9 +4438,18 @@ def play_vermilion_prep(player, report, display, clips, output):
         _teach(player, "hm01", "bellsprout", "cut")
         _leave(player, captain_cells(), [((3, 7), "down")], set(), "ss_anne_2f", "captain exit")
         _enter(player, ss_anne_2f_cells(), (2, 4), ANNE2_SKIP - {(36, 4)}, "up", "ss_anne_1f", "S.S. Anne stairs")
-        _stand(player, ss_anne_1f_cells(), (27, 0), ANNE1_SKIP, "ship exit")
-        player.step("up")
-        _through_scene(player, 4)
+        if "ss_anne_1f" in str(player.state.get("zone")):
+            # HM01 arms the departure. The ship can warp to the dock before (27, 0).
+            player.travel(ss_anne_1f_cells(), (27, 0), set(ANNE1_SKIP), limit=40)
+            _settle_overlay(player)
+            here = (player.state["player"]["x"], player.state["player"]["y"])
+            if "ss_anne_1f" in str(player.state.get("zone")) and here in ((26, 0), (27, 0)):
+                player.step("up")
+                _through_scene(player, 4)
+        if not player.exploring():
+            _through_scene(player, 4)
+        if "vermilion_city" not in str(player.state.get("zone")):
+            raise RuntimeError("the ship did not return to Vermilion: " + json.dumps(summary(player.state)))
         _pause(player, report, "saved_hm01")
         _keep_bird_save(report)
     _, sprout = _member(player, "bellsprout")
@@ -4492,7 +4501,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-53")
+            output = Path("/tmp/lane-j-squirtle-54")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
