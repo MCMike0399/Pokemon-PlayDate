@@ -136,6 +136,8 @@ function BattleScene:init(battle)
     self.moveMenu = BattleMenu()
     self.inMoveSelect = false
     self.shiftMenu = BattleMenu()
+    self.shiftShown = 0
+    self.shiftArmed = false
     self.messageDialog = Dialog()
     self.messageReady = false
     self.messageSeen = nil
@@ -248,7 +250,25 @@ function BattleScene:handleInput()
     end
     if self.introPhase ~= "ready" or self.introDrawing then return end
     if self.battle.shiftChoice then
-        if not self.selectionOpen then
+        -- The question is its own page after the foe faints, not only the
+        -- "about to use" line. A press that is already down, including the
+        -- A that left that line and the harness B that follows, must not
+        -- answer YES/NO. Otherwise declineShift resumes straight into
+        -- "sent out" and the question never stays on screen.
+        self:syncMessage()
+        local dialog = self.messageDialog
+        local line = dialog.isActive and dialog.lines and dialog.lines[dialog.currentLine]
+        if line and dialog.charIndex >= #line then
+            self.shiftShown = (self.shiftShown or 0) + 1
+        else
+            self.shiftShown = 0
+        end
+        -- The menu uses a new edge. Presses during the print, and the A that
+        -- dismissed "about to use", never reach it. After the question has
+        -- finished printing it still stays up for the same 10-frame floor as
+        -- every other battle line.
+        if (self.shiftShown or 0) >= 10 and not self.selectionOpen then
+            self.shiftArmed = true
             self.shiftMenu:handleInput()
         end
         return
@@ -646,6 +666,14 @@ function BattleScene:drawBattleField()
     -- Hidden HUDs must still leave narration in its usual system font.
     gfx.setFont(gfx.getSystemFont())
 
+    -- The iris stencil is still active here. BattleScene:draw clears it
+    -- only after drawBattleField returns, so the opening frames clip these
+    -- fills and the glyphs to the circle. The lower row and the bottom rule
+    -- are the part the circle cuts first. Drop the stencil before the box.
+    -- Sprites and platforms above were already drawn inside it.
+    gfx.clearClipRect()
+    gfx.clearStencil()
+
     -- Draw message box or menus. Move selection replaces this box: pokered
     -- TextBoxBorder clears the battle-menu text before TYPE/ and the names.
     local boxY = 180
@@ -921,6 +949,8 @@ function BattleScene:updateShiftMenu()
     local choice = self.battle.shiftChoice
     if choice and self.shiftSeen ~= choice then
         self.shiftSeen = choice
+        self.shiftShown = 0
+        self.shiftArmed = false
         self.shiftMenu.columns = 1
         self.shiftMenu:show({"YES", "NO"}, function(index)
             if index == 1 then
@@ -938,6 +968,8 @@ function BattleScene:updateShiftMenu()
     elseif not choice then
         self.shiftMenu:hide()
         self.shiftSeen = nil
+        self.shiftShown = 0
+        self.shiftArmed = false
     end
 end
 
