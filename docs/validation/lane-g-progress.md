@@ -201,6 +201,10 @@ Grass cells fully inside the frame, player cell excluded, are 13.4% black in the
 
 BlueBot approved both r21 Pallet frames as mockup C. `celadon-gym.png` and `pewter-gym.png` stay approved from r20. No further visual capture until Lane E hands off a new tone or tile.
 
+## Round 22
+
+Hall of Fame and credits capture checklist is `docs/validation/lane-g-hall-of-fame.md`, from pokered `af519899` `engine/movie/hall_of_fame.asm` and `engine/movie/credits.asm`. The frame-log harness is `tools/tests/lane_g_hall_of_fame.py` with `tools/tests/test_lane_g_hall_of_fame.py` and `tools/tests/fixtures/lane_g_hall_of_fame_credits.json`. Lane B's Charmander run is still at Lance, so no credits frames were captured.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
