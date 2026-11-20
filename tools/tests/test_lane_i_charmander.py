@@ -2554,6 +2554,11 @@ class CharmanderRun(BrockJourney):
     def _climb_route23(self):
         """Badge gates, then the south door of Victory Road. Save on the mat."""
         self.summary["acceptance"] = "walking Route 23 toward Victory Road"
+        if not self._lorelei_bench_ready():
+            # The cave clear is the grind. A starter lead one-shots the wilds
+            # and the backups earn nothing.
+            self._bench_share = True
+            self._pin_victory_trainers()
         self._arrange_lead("starter")
         zone = self._map_name() or ""
         if "VICTORY_ROAD" in zone:
@@ -3079,12 +3084,14 @@ class CharmanderRun(BrockJourney):
         active = lookup(self.state, "session.party.active")
         enemy = battle.get("enemy") or {}
         mon = self.party()[trainee - 1]
-        dangerous = (enemy.get("level") or 100) >= mon["level"] + 4 or mon["hp"] * 2 < mon["maxHP"]
+        # Anything above the backup's level is Charizard's fight. The backup
+        # still has to start the battle, or a one-shot gives them no experience.
+        dangerous = (enemy.get("level") or 100) > mon["level"] or mon["hp"] * 2 < mon["maxHP"]
         starter = self.starter_index()
         if active == trainee and dangerous and starter != trainee and self.party()[starter - 1]["hp"] > 0:
             return bool(self.battle_switch(starter, options, "bench-cover"))
         enemy_hp, enemy_max = enemy.get("hp") or 0, enemy.get("maxHP") or 0
-        if (active != trainee and mon["hp"] * 2 >= mon["maxHP"]
+        if (active != trainee and not dangerous and mon["hp"] * 2 >= mon["maxHP"]
                 and enemy_max and enemy_hp * 3 <= enemy_max):
             return bool(self.battle_switch(trainee, options, "bench-finish"))
         player = battle.get("player") or {}
@@ -3500,6 +3507,9 @@ class CharmanderRun(BrockJourney):
 
     def _arrange_lead(self, prefer):
         """The Grass counter keeps the experience until Misty. Pidgey is raised after that."""
+        if getattr(self, "_bench_share", False):
+            self._lead_trainee()
+            return
         if prefer == "counter" and self._have_counter(1):
             self._lead_counter(1)
         elif prefer == "bench":
