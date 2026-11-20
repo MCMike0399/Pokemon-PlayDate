@@ -71,6 +71,46 @@ def clip_path(folder, stamp, slug):
     return Path(folder) / f"{stamp}-{slug}.mp4"
 
 
+MART_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/mart-a7df918d")
+MART_SAVE_SHA = "9a801867ea18179a35c24ced5379781cea0dc7a07fd796b741454c0c2b4a48f7"
+
+
+def publish_clip(report, destination, duration, keep="end"):
+    """Keep a 20–90s clip. A long handoff keeps its opening, not its tail."""
+    if destination is None or not Path(destination).exists() or duration is None:
+        return None
+    destination = Path(destination)
+    original = duration
+    if duration > 90:
+        trimmed = destination.with_name(destination.stem + "-part.mp4")
+        argv = ["ffmpeg", "-y", "-loglevel", "error"]
+        if keep == "start":
+            argv += ["-i", str(destination), "-t", "85"]
+        else:
+            argv += ["-ss", f"{max(0, duration - 85):.3f}", "-i", str(destination), "-t", "85"]
+        argv += ["-an", "-c:v", "libx264rgb", "-crf", "0", "-pix_fmt", "rgb24", str(trimmed)]
+        subprocess.check_call(argv)
+        destination.unlink()
+        trimmed.replace(destination)
+        duration = float(subprocess.check_output([
+            "ffprobe", "-v", "error", "-show_entries", "format=duration",
+            "-of", "csv=p=0", str(destination),
+        ], text=True).strip())
+    if not 20 <= duration <= 90:
+        report["clip_short"] = {"path": str(destination), "duration": duration}
+        return duration
+    entry = {
+        "path": str(destination.relative_to(ROOT)),
+        "sha256": sha256_file(destination),
+        "duration": duration,
+    }
+    if original > 90:
+        entry["trimmed_from"] = original
+        entry["keep"] = keep
+    report.setdefault("clips", []).append(entry)
+    return duration
+
+
 def open_map(path, pad, width):
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     rows = data["collision"]
@@ -302,6 +342,17 @@ class SquirtleRouteTests(unittest.TestCase):
             assert_real_input(["warp oaks_lab", "press a"])
         with self.assertRaises(AssertionError):
             assert_real_input([{"op": "fixture", "options": {}}])
+
+    def test_mart_resume_and_pokedex_clip_are_named(self):
+        source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
+        self.assertIn("pokedex-lab", source)
+        self.assertIn(MART_SAVE_SHA, source)
+        self.assertEqual(sha256_file(MART_SAVE / "adventure.b.json"), MART_SAVE_SHA)
+        lab = (ROOT / "Source/data/maps.lua").read_text(encoding="utf-8")
+        block = lab.split('zone("oaks_lab"', 1)[1].split('zone("pallet_town"', 1)[0]
+        self.assertIn('name = "OAK"', block)
+        self.assertIn("gridX = 6", block)
+        self.assertIn("gridY = 2", block)
 
     def test_clip_name_uses_the_lane_j_folder(self):
         path = clip_path("artifacts/lane-j", "20261119T235900Z", "rival-lab")
@@ -925,7 +976,7 @@ def parcel_count(state):
     return quantities.get("oaksParcel") or 0
 
 
-def play_continue(player, report):
+def play_continue(player, report, display=None, clips=None, output=None):
     """Earned CONTINUE from Viridian. The mart clerk's entry script gives Oak's parcel."""
     player.leave_title()
     if not player.exploring():
@@ -968,8 +1019,9 @@ def play_continue(player, report):
         report["after_parcel_save"] = summary(player.state)
 
 
-def play_deliver(player, report):
-    """Carry Oak's Parcel from the Mart back to Oak."""
+def play_deliver(player, report, display=None, clips=None, output=None):
+    """Carry Oak's Parcel from the Mart back to Oak and film the Pokédex."""
+    import time
     player.leave_title()
     if not player.exploring():
         player.dismiss_until_explore(limit=40)
@@ -1029,10 +1081,28 @@ def play_deliver(player, report):
     lab = padded_open_cells("oaks_lab")
     kind = player.travel(lab, (6, 3), set(), limit=15)
     report["oak"] = {"kind": kind, **summary(player.state)}
-    if kind == "arrived" and player.state["player"].get("facing") != "up":
-        player.press("up", wait=4)
-    player.press("a", wait=8)
-    player.dismiss_until_explore(limit=80)
+    recorder = LcdRecorder(display) if display and clips and output else None
+    destination = None
+    duration = None
+    if recorder:
+        stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+        destination = clip_path(clips, stamp, "pokedex-lab")
+        recorder.start(output / "clips" / "pokedex-lab.nut")
+    try:
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        # The handoff, the rival's walk, and the Pokédex pages are one scene.
+        player.dismiss_until_explore(limit=180)
+    finally:
+        if recorder is not None and recorder.process is not None:
+            try:
+                duration = recorder.stop(destination)
+            except Exception as error:
+                report["clip_error"] = str(error)
+    if destination is not None:
+        publish_clip(report, destination, duration, keep="start")
+        report["pokedex_clip"] = {"path": str(destination), "duration": duration}
     report["after_oak"] = summary(player.state)
     report["parcel_left"] = parcel_count(player.state)
     if parcel_count(player.state) >= 1:
@@ -1091,12 +1161,20 @@ def play(output, clips, save_from=None, story=None):
                 if story is None:
                     play_story(player, report, display, clips, output)
                 else:
-                    story(player, report)
+                    story(player, report, display, clips, output)
             except Exception as error:
                 report["error"] = str(error)
                 report["last"] = summary(player.state)
                 raise
             finally:
+                kept = Path("/opt/cursor/artifacts/lane-j/saves") / session[:12]
+                kept.mkdir(parents=True, exist_ok=True)
+                files = []
+                for src in sorted(data.glob("adventure*.json")):
+                    dest = kept / src.name
+                    shutil.copyfile(src, dest)
+                    files.append({"name": src.name, "sha256": sha256_file(dest)})
+                report["save_kept"] = {"dir": str(kept), "files": files}
                 (output / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
                 print(json.dumps(report, indent=2))
         return 0 if "error" not in report else 1
@@ -1120,8 +1198,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--deliver" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-5")
-            save_from = Path.home() / "Developer/PlaydateSDK/Disk/Data/com.poc.pokemon.harness.a7df918d4bb548558874d7e419888dfd"
+            output = Path("/tmp/lane-j-squirtle-6")
+            save_from = MART_SAVE
+            digest = sha256_file(save_from / "adventure.b.json")
+            if digest != MART_SAVE_SHA:
+                raise SystemExit(f"mart save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_deliver))
