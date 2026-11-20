@@ -5037,8 +5037,15 @@ def _cross_route9(player, report):
                 return result
             if player.state.get("zone") != "kanto_route_9":
                 return "open"
+            if result == "fought":
+                # One trainer, then a new session. A single sweep climbs past the simulator's memory.
+                report["route9_trainers"] = {
+                    "tile": list(tile), "money": _money(player),
+                    "bird": (_bird(player)[1] or {}).get("level"), "party": _party(player),
+                }
+                _checkpoint(player, report, "saved_route9_trainers")
+                return "yield"
         report["route9_trainers"] = {"money": _money(player), "bird": (_bird(player)[1] or {}).get("level")}
-        _checkpoint(player, report, "saved_route9_trainers")
     kind = _walk(player, cells, surface, (59, 8), avoid)
     if kind == "blackout":
         return kind
@@ -5382,6 +5389,8 @@ def _east_of_cerulean(player, report, display, clips, output):
         if status == "blackout":
             _note_blackout(report)
             continue
+        if status == "yield":
+            return "yield"
         if status == "badge":
             return
     raise RuntimeError("the east road did not finish: " + json.dumps(summary(player.state)))
@@ -5616,7 +5625,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-78")
+            output = Path("/tmp/lane-j-squirtle-79")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
