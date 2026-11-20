@@ -77,6 +77,8 @@ LAB_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/930683c875b3")
 LAB_SAVE_SHA = "846b901711349edf2b2f4abfea505fb3b66593d290e4e3170e0e354aad7ced3a"
 VIRIDIAN_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/00f0664cc5b5")
 VIRIDIAN_SAVE_SHA = "56f56cb938174c80ffc7465e41c75d83c76e7fbb1c311e7b0e64231638917122"
+PEWTER_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/d03e3f4459d1")
+PEWTER_SAVE_SHA = "d8c3b1e1fa226fe42174ab076467d39a6bd21aa8505fae9df87d4f00e6488217"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
 BROCK = "pokered:PEWTER_GYM:objects:1"
 
@@ -405,10 +407,13 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(route2_cells(), (3, 44), (3, 43), avoid={(12, 9), (3, 11)}))
         self.assertIsNotNone(route(route2_cells(), (3, 11), (8, 0), avoid={(12, 9)}))
         self.assertIsNotNone(route(viridian_cells(), (17, 6), (18, 0), avoid=set(VIRIDIAN_WARPS)))
+        self.assertIsNotNone(route(center_cells(), (3, 7), (3, 3)))
+        self.assertIsNotNone(route(gym_cells(), (5, 13), (5, 3), avoid=GYM_TRAINER))
         self.assertIsNotNone(route(forest_cells(), (16, 47), (1, 1)))
         self.assertIn((5, 3), gym_cells())
         self.assertEqual(sha256_file(LAB_SAVE / "adventure.a.json"), LAB_SAVE_SHA)
         self.assertEqual(sha256_file(VIRIDIAN_SAVE / "adventure.a.json"), VIRIDIAN_SAVE_SHA)
+        self.assertEqual(sha256_file(PEWTER_SAVE / "adventure.b.json"), PEWTER_SAVE_SHA)
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -623,7 +628,15 @@ class Player:
                 # until the old man has already caught the Weedle.
                 self.press("a", wait=8)
             elif root == "event":
-                self.press("a", wait=6)
+                event = self.state.get("event") or {}
+                phase = event.get("phase")
+                menu = event.get("menu") or {}
+                if phase == "heal-animation":
+                    self.send("wait 20")
+                elif phase == "heal-confirm" and menu.get("active") and "YES" in (menu.get("options") or []):
+                    self.choose("event", "YES")
+                else:
+                    self.press("a", wait=6)
             elif root == "title":
                 return False
             else:
@@ -1275,9 +1288,13 @@ def talk_to(player, cells, event_id, avoid):
         here = (player.state["player"]["x"], player.state["player"]["y"])
         spots = []
         for direction, (dx, dy) in DELTAS.items():
-            spot = (npc["x"] - dx, npc["y"] - dy)
-            if spot in cells and spot not in blocked and spot != (npc["x"], npc["y"]):
-                spots.append((abs(spot[0] - here[0]) + abs(spot[1] - here[1]), spot, direction))
+            adjacent = (npc["x"] - dx, npc["y"] - dy)
+            # A solid counter sits between the player and the nurse. Stand on
+            # the open tile beyond it and face the counter.
+            candidates = [adjacent] if adjacent in cells else [(npc["x"] - 2 * dx, npc["y"] - 2 * dy)]
+            for spot in candidates:
+                if spot in cells and spot not in blocked and spot != (npc["x"], npc["y"]):
+                    spots.append((abs(spot[0] - here[0]) + abs(spot[1] - here[1]), spot, direction))
         if not spots:
             player.send("wait 10")
             continue
@@ -1350,17 +1367,25 @@ def play_to_brock(player, report, display=None, clips=None, output=None):
     report["continued"] = summary(player.state)
     zone = str(player.state.get("zone"))
     if zone == "oaks_lab":
-        resume_in_viridian = False
+        mode = "lab"
     elif "viridian_city" in zone:
-        resume_in_viridian = True
+        mode = "viridian"
+    elif "pewter_city" in zone:
+        mode = "pewter"
     else:
-        raise RuntimeError("continue did not resume the lab or Viridian: " + json.dumps(summary(player.state)))
-    if resume_in_viridian:
-        report["resumed_viridian"] = summary(player.state)
+        raise RuntimeError("continue did not resume a walked save: " + json.dumps(summary(player.state)))
+    if mode == "pewter":
+        report["resumed_pewter"] = summary(player.state)
     else:
+        _reach_pewter(player, report, display, clips, output, mode)
+    _heal_and_fight_brock(player, report, display, clips, output)
+def _reach_pewter(player, report, display, clips, output, mode):
+    if mode == "lab":
         _walk_from_lab(player, report, display, clips, output)
+    else:
+        report["resumed_viridian"] = summary(player.state)
     city = viridian_cells()
-    if not resume_in_viridian:
+    if mode == "lab":
         talked = talk_to(player, city, OLD_MAN, set(VIRIDIAN_WARPS))
         report["old_man"] = {"result": talked, **summary(player.state)}
         if talked != "talked":
@@ -1399,15 +1424,32 @@ def play_to_brock(player, report, display=None, clips=None, output=None):
         raise RuntimeError("Route 2 did not reach Pewter: " + json.dumps(summary(player.state)))
     if player.exploring():
         report["saved_pewter"] = player.pause_save()
-    hp = (player.state.get("pokemon") or {}).get("hp") or 0
-    if hp < 15:
+
+
+# The junior trainer stands at (4, 7) facing right. (5, 7) is her open sight tile.
+GYM_TRAINER = {(4, 7), (5, 7)}
+
+
+def _heal_and_fight_brock(player, report, display, clips, output):
+    pokemon = player.state.get("pokemon") or {}
+    hp = pokemon.get("hp") or 0
+    status = pokemon.get("status") or "none"
+    if hp < 20 or status not in ("none", "healthy", ""):
         pewter = pewter_cells()
         kind = step_onto(player, pewter, (13, 25), set(), "up")
         report["center"] = {"kind": kind, **summary(player.state)}
-        if "center" in str(player.state.get("zone")):
-            talk_to(player, center_cells(), "pokered:PEWTER_POKECENTER:objects:1", set())
-            report["healed"] = summary(player.state)
-            step_onto(player, center_cells(), (3, 7), set(), "down")
+        if "center" not in str(player.state.get("zone")):
+            raise RuntimeError("Pewter did not enter the Center: " + json.dumps(summary(player.state)))
+        nurse = talk_to(player, center_cells(), "pokered:PEWTER_POKECENTER:objects:1", set())
+        report["nurse"] = nurse
+        report["healed"] = summary(player.state)
+        healed = player.state.get("pokemon") or {}
+        if nurse != "talked" or (healed.get("hp") or 0) < 20 or (healed.get("status") or "none") not in ("none", "healthy", ""):
+            raise RuntimeError("the nurse did not heal Squirtle: " + json.dumps(summary(player.state)))
+        kind = step_onto(player, center_cells(), (3, 7), set(), "down")
+        report["center_exit"] = {"kind": kind, **summary(player.state)}
+        if "pewter_city" not in str(player.state.get("zone")):
+            raise RuntimeError("the Center did not return to Pewter: " + json.dumps(summary(player.state)))
     pewter = pewter_cells()
     gym_avoid = {(14, 7), (19, 5), (29, 13), (23, 17), (7, 29), (13, 25)}
     kind = step_onto(player, pewter, (16, 17), gym_avoid, "up")
@@ -1417,7 +1459,7 @@ def play_to_brock(player, report, display=None, clips=None, output=None):
     gym = gym_cells()
 
     def battle_brock():
-        talked = talk_to(player, gym, BROCK, set())
+        talked = talk_to(player, gym, BROCK, GYM_TRAINER)
         report["brock_talk"] = {"result": talked, **summary(player.state)}
         if player.state.get("root") == "battle" or talked == "talked":
             if player.state.get("root") != "battle":
@@ -1529,11 +1571,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--north" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-9")
-            save_from = VIRIDIAN_SAVE
-            digest = sha256_file(save_from / "adventure.a.json")
-            if digest != VIRIDIAN_SAVE_SHA:
-                raise SystemExit(f"viridian save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-10")
+            save_from = PEWTER_SAVE
+            digest = sha256_file(save_from / "adventure.b.json")
+            if digest != PEWTER_SAVE_SHA:
+                raise SystemExit(f"pewter save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_to_brock))
