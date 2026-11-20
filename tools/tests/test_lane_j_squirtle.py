@@ -3267,8 +3267,23 @@ def _settle_catch(player):
 
 def _throw_ball(player):
     """Throw one Poké Ball. Returns caught, miss, or left."""
-    if (player.state.get("battle") or {}).get("inMoveSelect"):
-        player.press("b", wait=4)
+    # The encounter intro is a script page. BAG is absent until the command menu opens.
+    for _ in range(24):
+        battle = player.state.get("battle") or {}
+        options = (battle.get("menu") or {}).get("options") or []
+        if battle.get("inMoveSelect"):
+            player.press("b", wait=4)
+        elif "BAG" in options and battle.get("phase") == "command":
+            break
+        elif battle.get("phase") == "script" and battle.get("waiting"):
+            player.send("wait 8", "press a", max_frames=200)
+        elif battle.get("phase") == "ended":
+            return "left"
+        else:
+            player.send("wait 4")
+    else:
+        options = ((player.state.get("battle") or {}).get("menu") or {}).get("options") or []
+        raise RuntimeError(f"battle command menu never offered BAG: {options}")
     player.choose("battle", "BAG")
     for _ in range(16):
         root = player.state.get("root")
@@ -3901,7 +3916,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-44")
+            output = Path("/tmp/lane-j-squirtle-45")
             save_from = VERMILION_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
             if digest != VERMILION_SAVE_SHA:
