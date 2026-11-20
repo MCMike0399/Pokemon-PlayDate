@@ -1020,6 +1020,11 @@ function EndgameStory.applyRoom(game)
     end
     if zone.stableID == "pokered:LORELEIS_ROOM" then
         game.session:setQuestFlag(STARTED_ELITE_FOUR, true)
+        -- The south door locks on entry. A stale trainer bit cannot wait
+        -- for the lobby reset: her after-text plays and the door stays shut.
+        if game.session:questFlag("EVENT_BEAT_LORELEIS_ROOM_TRAINER_0") ~= true then
+            game.session:setTrainerDefeated("pokered:LORELEIS_ROOM:objects:1", false)
+        end
     elseif zone.stableID == "pokered:INDIGO_PLATEAU_LOBBY" and game.session:questFlag(STARTED_ELITE_FOUR) then
         for _, event in ipairs(INDIGO_RESET) do
             game.session:setQuestFlag(event, false)

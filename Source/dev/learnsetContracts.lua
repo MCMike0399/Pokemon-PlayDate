@@ -43,13 +43,13 @@ function LearnsetContracts.run()
         moves(Pokemon("magikarp", 14), "splash")
         moves(Pokemon("magikarp", 15), "splash,tackle")
         moves(Pokemon("magikarp", 29), "splash,tackle")
-        moves(Pokemon("magikarp", 30), "splash,tackle,flail")
+        moves(Pokemon("magikarp", 30), "splash,tackle")
     end)
 
     test("Known duplicates do not reorder slots and same-level order is preserved", function()
-        moves(Pokemon("poliwhirl", 1), "waterSport,bubble,hypnosis")
-        moves(Pokemon("poliwhirl", 5), "waterSport,bubble,hypnosis")
-        moves(Pokemon("poliwhirl", 8), "waterSport,bubble,hypnosis")
+        moves(Pokemon("poliwhirl", 1), "bubble,hypnosis")
+        moves(Pokemon("poliwhirl", 5), "bubble,hypnosis")
+        moves(Pokemon("poliwhirl", 8), "bubble,hypnosis")
         moves(Pokemon("bulbasaur", 13), "leechSeed,vineWhip,poisonPowder,sleepPowder")
     end)
 
@@ -64,8 +64,13 @@ function LearnsetContracts.run()
                     assert(not seen[move], key .. " duplicate slot " .. move); seen[move] = true
                     equal(p.pp[move], moveData[move].maxPP, key .. " initial PP")
                     local eligible = false
+                    local pokeredAtLevel = false
                     for _, row in ipairs(pokemonData[key].learnset) do
-                        if row.move == move and row.level >= 1 and row.level <= level then eligible = true end
+                        if row.id <= 165 and row.level >= 1 and row.level <= level then pokeredAtLevel = true end
+                        if row.move == move and row.id <= 165 and row.level >= 1
+                            and (row.level <= level or not pokeredAtLevel) then
+                            eligible = true
+                        end
                     end
                     assert(eligible, key .. " ineligible initial move " .. move)
                 end

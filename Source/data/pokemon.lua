@@ -1256,6 +1256,18 @@ local function moveDefinition(key)
     return move
 end
 
+-- pret/pokered af519899 NUM_ATTACKS. A later learnset id is not on the
+-- cartridge. Skipping it keeps the previous pokered move. Wide Guard is
+-- one of those ids and stays unimplemented.
+local POKERED_NUM_ATTACKS <const> = 165
+
+local function appendLearnedMove(moves, entry)
+    moveDefinition(entry.move)
+    for _, key in ipairs(moves) do if key == entry.move then return end end
+    if #moves == 4 then table.remove(moves, 1) end
+    moves[#moves + 1] = entry.move
+end
+
 -- New encounters/gifts only. Evolution must preserve a Pokemon's chosen moves.
 -- Forward FIFO4 mirrors PKHeX SetEncounterMoves: already-known duplicates do
 -- not reorder slots; a forgotten move can be learned at a later source event.
@@ -1266,14 +1278,17 @@ function Pokemon.initialMovesFor(species, level)
     local moves = {}
     for _, entry in ipairs(data.learnset) do
         if entry.level > level then break end
-        -- Wide Guard is not in pokered moves.asm. Gen V rules do not teach it.
-        if entry.level >= 1 and entry.move ~= "wideGuard" then
-            moveDefinition(entry.move)
-            local known = false
-            for _, key in ipairs(moves) do if key == entry.move then known = true; break end end
-            if not known then
-                if #moves == 4 then table.remove(moves, 1) end
-                moves[#moves + 1] = entry.move
+        if entry.level >= 1 and entry.id <= POKERED_NUM_ATTACKS then
+            appendLearnedMove(moves, entry)
+        end
+    end
+    -- Poliwag and Voltorb learn only a later id at level 1. The next
+    -- pokered move in that same list is the slot (Bubble, Tackle).
+    if #moves == 0 then
+        for _, entry in ipairs(data.learnset) do
+            if entry.level >= 1 and entry.id <= POKERED_NUM_ATTACKS then
+                appendLearnedMove(moves, entry)
+                break
             end
         end
     end
@@ -1281,29 +1296,8 @@ function Pokemon.initialMovesFor(species, level)
     return moves
 end
 
--- pret/pokered af519899 NUM_ATTACKS. Trainer parties use the same B2W2
--- learnset order, but a later id is not on the cartridge. Skipping it lets
--- the previous pokered move stay. Player encounters keep initialMovesFor.
-local POKERED_NUM_ATTACKS <const> = 165
 function Pokemon.trainerMovesFor(species, level)
-    checkedLevel(level)
-    local data = pokemonData[species]
-    assert(data and data.learnset, "Missing level-aware learnset: " .. tostring(species))
-    local moves = {}
-    for _, entry in ipairs(data.learnset) do
-        if entry.level > level then break end
-        if entry.level >= 1 and entry.id <= POKERED_NUM_ATTACKS then
-            moveDefinition(entry.move)
-            local known = false
-            for _, key in ipairs(moves) do if key == entry.move then known = true; break end end
-            if not known then
-                if #moves == 4 then table.remove(moves, 1) end
-                moves[#moves + 1] = entry.move
-            end
-        end
-    end
-    assert(#moves > 0, "Trainer has no pokered move: " .. species)
-    return moves
+    return Pokemon.initialMovesFor(species, level)
 end
 
 -- Detached source events for explicit level-up/relearning/evolution owners.
@@ -1539,7 +1533,7 @@ function Pokemon:gainXP(amount)
     for _, key in ipairs(self.moves) do seen[key] = true end
     for _, choice in ipairs(self.pendingMoveChoices) do seen[choice.move] = true end
     for _, entry in ipairs(Pokemon.learnsetEntriesFor(self.species, oldLevel + 1, targetLevel)) do
-        if not seen[entry.move] and entry.move ~= "wideGuard" then
+        if not seen[entry.move] and entry.id <= POKERED_NUM_ATTACKS then
             moveDefinition(entry.move)
             planned[#planned + 1] = entry
             seen[entry.move] = true

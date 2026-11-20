@@ -1,6 +1,28 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "2904e985f4d85b207552d18b672a7bac265e3470",
+    "source_sha256": "a08bc4d83799ef40aa813a417f38d257c286fd41763a3598b94b8cd82c9a2e79",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a direct confuse move says But it failed! and keeps the existing counter. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 08cbd491cbfc7dfcd45282a5d2eb24e153f74e18ed38b45342e6a50130a7ef95.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "9b79d0e0890c5dfc95cc2dbcd2f22a7bea969171",
+    "source_sha256": "08cbd491cbfc7dfcd45282a5d2eb24e153f74e18ed38b45342e6a50130a7ef95",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after wild learnsets stop at pokered NUM_ATTACKS, Lorelei clears a stale trainer bit, and a Pursuit switch closes the party selection. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 0123af0b844302025644e2034a46c9263a92a6810deed60648117cb1e97bd91c.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "b50c77813a527cd467b6a669efd56b91243ca198",
     "source_sha256": "0123af0b844302025644e2034a46c9263a92a6810deed60648117cb1e97bd91c",
     "policy_date": "2026-11-20",
@@ -1771,6 +1793,8 @@
   
   }
   }}
+  }
+  }
   }
   }
   }
