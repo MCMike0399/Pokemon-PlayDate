@@ -87,9 +87,20 @@ local function checked(record)
         assert(type(choice.move)=="string" and moveData[choice.move] and not seenMoves[choice.move],"unknown-or-duplicate-choice-move")
         assert(integer(choice.level,1,record.level),"invalid-choice-level")
         local found=false
-        for _,entry in ipairs(pokemonData[record.species].learnset) do
-            if entry.move==choice.move and entry.level==choice.level and entry.id==choice.sourceMoveId
-                and entry.order==choice.sourceOrder then found=true; break end
+        local function matches(entry)
+            return entry.move==choice.move and entry.level==choice.level and entry.id==choice.sourceMoveId
+                and entry.order==choice.sourceOrder
+        end
+        for _,entry in ipairs(PokeredLearnsets.entriesBetween(record.species, choice.level, choice.level)) do
+            if matches(entry) then found=true; break end
+        end
+        -- Settled saves keep the moves they already know. A pending choice
+        -- written from the B2W2 table still has to load; new choices match
+        -- the pokered row above.
+        if not found then
+            for _,entry in ipairs(pokemonData[record.species].learnset) do
+                if matches(entry) then found=true; break end
+            end
         end
         assert(found,"choice-source-mismatch")
         pending[i]={id=choice.id,move=choice.move,level=choice.level,sourceOrder=choice.sourceOrder,
