@@ -1,0 +1,74 @@
+diff --git a/tools/device/door_census.py b/tools/device/door_census.py
+index 3f091321..84df255d 100644
+--- a/tools/device/door_census.py
++++ b/tools/device/door_census.py
+@@ -167,6 +167,36 @@ def approaches(compact, d, x, y, edge=None):
+     return result
+ 
+ 
++def _zone_door_table(text, start):
++    """Return the door-table body of a zone() call, or None when that call has no to= table."""
++    depth = 1
++    i = start
++    chosen = None
++    while i < len(text) and depth:
++        char = text[i]
++        if char == '(':
++            depth += 1
++        elif char == ')':
++            depth -= 1
++        elif char == '{' and depth == 1:
++            end = i + 1
++            nested = 1
++            while end < len(text) and nested:
++                if text[end] == '{':
++                    nested += 1
++                elif text[end] == '}':
++                    nested -= 1
++                end += 1
++            body = text[i + 1:end - 1]
++            if re.search(r'\bto\s*=', body):
++                if chosen is not None:
++                    raise ValueError('unsupported authored door syntax')
++                chosen = body
++            i = end - 1
++        i += 1
++    return chosen
++
++
+ def authored_inventory(source):
+     """Strictly read the existing literal authored door tables, never evaluate Lua.
+ 
+@@ -204,6 +234,32 @@ def authored_inventory(source):
+                                  for direction, (dx, dy) in DIRECTIONS.items()
+                                  if not door.get('edge') or direction == door['edge']]
+             rows.append(row)
++    # Pallet's authored doors are the door argument of the local zone() helper,
++    # not a doors = { } table inside registerZone. Same literal rules.
++    for match in re.finditer(r'\bzone\(\s*"([^"]+)"\s*,', text):
++        body = _zone_door_table(text, match.end())
++        if body is None:
++            continue
++        literals = re.findall(r'\{([^{}]+)\}', body)
++        remainder = re.sub(r'\{[^{}]+\}|--[^\n]*|[\s,]', '', body)
++        if remainder:
++            raise ValueError('unsupported authored door syntax')
++        for n, literal in enumerate(literals, 1):
++            fields = dict(re.findall(r'(\w+)\s*=\s*("[^"]*"|-?\d+)', literal))
++            residual = re.sub(r'\w+\s*=\s*("[^"]*"|-?\d+)|[\s,]', '', literal)
++            if residual or not {'x', 'y', 'to', 'toX', 'toY'} <= fields.keys():
++                raise ValueError('unsupported authored door fields')
++            door = {k: json.loads(v) for k, v in fields.items()}
++            row = dict(id=f'authored:{match[1]}:door:{n}', kind='authored_door',
++                       source_name=match[1], source_key=match[1], source_id=match[1],
++                       source_file='data/maps.lua', declaration=door, x=door['x'], y=door['y'],
++                       target_class='authored', edge=door.get('edge'))
++            row['approaches'] = [dict(x=door['x'] if door.get('edge') else door['x']-dx,
++                                     y=door['y'] if door.get('edge') else door['y']-dy,
++                                     direction=direction, geometry_gap=None)
++                                 for direction, (dx, dy) in DIRECTIONS.items()
++                                 if not door.get('edge') or direction == door['edge']]
++            rows.append(row)
+     # This is an explicit source-owned adapter, separate from manifest targets.
+     seam = (source / 'data/viridianSlice.lua').read_text()
+     anchor = 'name=="pallet_town" and direction=="up" and y==0 and (x==9 or x==10)'
