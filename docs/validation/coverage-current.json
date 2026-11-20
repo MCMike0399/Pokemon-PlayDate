@@ -1,6 +1,72 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "9b79d0e0890c5dfc95cc2dbcd2f22a7bea969171",
+    "source_sha256": "08cbd491cbfc7dfcd45282a5d2eb24e153f74e18ed38b45342e6a50130a7ef95",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after wild learnsets stop at pokered NUM_ATTACKS, Lorelei clears a stale trainer bit, and a Pursuit switch closes the party selection. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 0123af0b844302025644e2034a46c9263a92a6810deed60648117cb1e97bd91c.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "b50c77813a527cd467b6a669efd56b91243ca198",
+    "source_sha256": "0123af0b844302025644e2034a46c9263a92a6810deed60648117cb1e97bd91c",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after trainer send-out drops learnset ids above pokered NUM_ATTACKS. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 68719b3f1b0deb66e1bedce54c30bd0d3fb104c58a717664d95649edc8ba1d2b.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "8ac1bebde9c6a50da6f4939669b6cfe6d879c389",
+    "source_sha256": "68719b3f1b0deb66e1bedce54c30bd0d3fb104c58a717664d95649edc8ba1d2b",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a fainted lead can see its bench before the shift question. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 e8692a8bebc04b41bdb5d63d4430aa7bfdfb0b121440b2f7ec1626544f3a0d57.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "6704ab56854765bde56a9d026cbb9df099c15a06",
+    "source_sha256": "e8692a8bebc04b41bdb5d63d4430aa7bfdfb0b121440b2f7ec1626544f3a0d57",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the shift question follows the player replacement and the learn name stays on the next page. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f4642809c6e8989745bf40eea15b0a102e202029d44d21cd6dd6269e65474698.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "3cf06230d0b8d56c5c5097659e0e66281160c0e4",
+    "source_sha256": "f4642809c6e8989745bf40eea15b0a102e202029d44d21cd6dd6269e65474698",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Vermilion projection records the shift-question battle.lua hash. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 c09538f54b03738446fdbe6efe4d7709304499a0c0ce4cb72da00c8fd74f1005.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "34e0d4b1c94c2447e5648b754f575ae2f71b946d",
+    "source_sha256": "c09538f54b03738446fdbe6efe4d7709304499a0c0ce4cb72da00c8fd74f1005",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the learn box names the move and a fainted lead still gets the shift question. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 c498581c719ea01c23311c35fed94e2fec282c347d09f0a1b688b3ca7110d624.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "603aac90cbdbf5ef2b3b7784c950f3423afb0d00",
     "source_sha256": "c498581c719ea01c23311c35fed94e2fec282c347d09f0a1b688b3ca7110d624",
     "policy_date": "2026-11-20",
@@ -1716,6 +1782,12 @@
   
   }
   }}
+  }
+  }
+  }
+  }
+  }
+  }
   }
   }
   }

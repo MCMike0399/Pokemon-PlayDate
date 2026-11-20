@@ -123,7 +123,26 @@ class VermilionPreparationTests(unittest.TestCase):
         self.assertEqual(current.split(definitions)[1], original.split(definitions)[1], path)
         # Only the exact image-table caching section reviewed at 309194ee is
         # exempt from the older byte comparison. Further edits need review.
+        # db98ce05 inserts TileFactory.image in that section and nowhere else.
+        # Removing that function restores the reviewed bytes.
         cache_section = current.split(public)[1].split(definitions)[0]
+        image_fn = (
+            b"\n-- One tile image, without an imagetable. Catalog cell probes sample this.\n"
+            b"-- An imagetable for every isolated map is the allocation that fragments the\n"
+            b"-- pool before the last houses are built.\n"
+            b"function TileFactory.image(registry, id)\n"
+            b"    if not baseImages then\n"
+            b"        baseImages = generateBaseImages()\n"
+            b"    end\n"
+            b"    if id <= NUM_TILE_TYPES then\n"
+            b"        return baseImages:getImage(id)\n"
+            b"    end\n"
+            b"    assert(registry, \"imported tile image requires its registry\")\n"
+            b"    return registry:renderImported(id, TileFactory.renderGrid)\n"
+            b"end\n"
+        )
+        self.assertEqual(cache_section.count(image_fn), 1, path)
+        cache_section = cache_section.replace(image_fn, b"", 1)
         self.assertEqual(hashlib.sha256(cache_section).hexdigest(),
                          '1a688c48bfd384b46ec0d716419547806973e2e5968e72df66080009b3d3b709')
         # Base-image assignments within the cache section still use every

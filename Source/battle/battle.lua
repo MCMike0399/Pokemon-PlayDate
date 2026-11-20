@@ -764,7 +764,10 @@ function Battle:eligibleForcedReplacements(target)
     if type(target) ~= "table" or type(target.is) ~= "function" or not target:is("Pokemon") then
         return nil, "invalid-target"
     end
-    if self.outcome or self.effects.closed or not target:isAlive() then return nil, "inactive-target" end
+    -- A fainted active lead still has a bench. ChooseNextMon reads that
+    -- bench before ReplaceFaintedEnemyMon. Fainted bench members stay out
+    -- of the index list below. A closed battle has no bench to offer.
+    if self.outcome or self.effects.closed then return nil, "inactive-target" end
     local side = target == self.player and "player" or (target == self.enemy and "enemy" or nil)
     if not side then return nil, "foreign-target" end
     if not validSwitchSleep(target) then return nil, "invalid-sleep-duration" end
@@ -801,7 +804,9 @@ function Battle:forceSwitch(target)
         return nil
     end
     local choices, targetSide = self:eligibleForcedReplacements(target)
-    if not choices then
+    -- The bench query accepts a fainted lead. Whirlwind still fails on one:
+    -- a fainted target is not dragged out.
+    if not choices or not target:isAlive() then
         self:say("But it failed!")
         return nil
     end
@@ -890,11 +895,23 @@ function Battle:chooseParty(index)
             if outcome~="replacement" then return outcome end
             return self:finishRound()
         end
-        if forced then return "command" end
+        -- The foe is still the fainted one. ReplaceFaintedEnemyMon prints
+        -- the SHIFT question before TrainerSentOutText.
+        if forced then
+            if not self.enemy:isAlive() then
+                self.resumeFaintedEnemy = true
+                return self:finishRound()
+            end
+            return "command"
+        end
         local outcome=not pursuit and self:resolveTurn(enemyTurn) or nil
         if outcome and outcome~="replacement" then return outcome end
         return self:finishRound()
     end)
+    -- Pursuit defers commitActiveMember until after the strike, so this
+    -- return used to leave selectionKind set. The party choice is already
+    -- accepted. BattleScene:completeSelection asserts otherwise.
+    self.selectionKind = nil
     return true
 end
 function Battle:availableBalls()
@@ -1819,16 +1836,30 @@ function Battle:handleFaint(lastFaintedSide)
 end
 
 function Battle:finishRound()
-    local outcome = self:endOfRoundStatus()
-    self.conditions:endRound()
-    if outcome and outcome ~= "replacement" then return outcome end
+    local resume = self.resumeFaintedEnemy
+    self.resumeFaintedEnemy = nil
+    if not resume then
+        local outcome = self:endOfRoundStatus()
+        self.conditions:endRound()
+        if outcome and outcome ~= "replacement" then return outcome end
+        -- HandleEnemyMonFainted calls ChooseNextMon before
+        -- ReplaceFaintedEnemyMon. The fainted foe stays active until the
+        -- player has sent a living mon.
+        if not self.player:isAlive() and self:hasUsablePlayer() then
+            self.message = "Choose a POKEMON!"
+            return "forcedSwitch"
+        end
+    end
     -- Gen V replaces fainted battlers after residual effects, not mid-move.
     while not self.enemy:isAlive() and self.enemyParty and self.enemyParty:firstUsable() do
         local index = self.enemyParty:firstUsable()
         if index then
             local incoming = self.enemyParty:get(index)
+            -- Party count, not eligibleForcedReplacements: that query
+            -- rejects a fainted lead, and after ChooseNextMon the old lead
+            -- is the fainted bench. pokered still asks when wPartyCount > 1.
             if self.presentationAttached and GameOptions.battleStyle() == "SHIFT"
-                and self.player:isAlive() and self.party and #self:eligibleForcedReplacements(self.player) > 0 then
+                and self.player:isAlive() and self.party and self.party:count() > 1 then
                 -- pokered data/text/text_2.asm _TrainerAboutToUseText, shown
                 -- with TWO_OPTION_MENU (engine/battle/core.asm). The # glyph
                 -- is POKé. constants/charmap.asm maps é to $ba, and the
