@@ -2980,6 +2980,33 @@ class CharmanderRun(BrockJourney):
             if self._on(room) and self.position() == before:
                 raise ProtocolError(room + " north door stayed closed at " + str(before))
 
+    def _reopen_lorelei(self):
+        """Step out to the lobby and back through the north door.
+
+        A continue that already cleared STARTED still has her trainer bit.
+        Entering her room sets STARTED, and the lobby reset clears the bit
+        on the way out. The second talk is the battle.
+        """
+        door = max(self.model().warps, key=lambda warp: (warp[1], warp[0]))
+        stand = (door[0], door[1] - 1)
+        if self.position() != stand:
+            self.navigate(stand)
+        for _ in range(4):
+            if self._on("IndigoPlateauLobby"):
+                break
+            self.send("press down", "wait 15")
+            self.drain()
+        if not self._on("IndigoPlateauLobby"):
+            raise ProtocolError("Lorelei exit stayed in " + self._map_name() + " " + str(self.position()))
+        self.navigate((8, 1))
+        for _ in range(4):
+            if self._on("LoreleisRoom"):
+                break
+            self.send("press up", "wait 15")
+            self.drain()
+        if not self._on("LoreleisRoom"):
+            raise ProtocolError("Lorelei door stayed closed at " + str(self.position()))
+
     def _elite_four(self):
         """Real fights from the lobby north door through the Champion."""
         self._pin_elite_trainers()
@@ -2993,6 +3020,11 @@ class CharmanderRun(BrockJourney):
                 continue
             self.drain()
             if not self.flag(flag):
+                self._talk_to_actor(actor)
+            if not self.flag(flag) and room == "LoreleisRoom":
+                # The room entry sets STARTED. The lobby clears the trainer
+                # bit only on that later visit, so walk out and back in.
+                self._reopen_lorelei()
                 self._talk_to_actor(actor)
             if not self.flag(flag):
                 raise ProtocolError(label + " did not start: " + str(self.position()))
@@ -3390,9 +3422,8 @@ class CharmanderRun(BrockJourney):
                 self.send("press up", "wait 15")
                 self.drain()
         if self._on("IndigoPlateauLobby"):
-            # The lobby nurse is a real Center. Its heal animation still
-            # requires a 14x8 POKECENTER map, so the machine crashes here.
-            # lane-e-indigo-heal.patch places that machine; heal once it lands.
+            # The lobby machine is placed beside the nurse. Heal when that
+            # layout is in Source; skip it on a tree that still asserts a Center.
             composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
             if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
                 self._heal_indigo()
