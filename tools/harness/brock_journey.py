@@ -349,14 +349,14 @@ class BrockJourney(ParcelJourney):
         trainer_id=lookup(self.state,'event.id');source=self.source_trainers.get(trainer_id)
         expected_payout=source['payout'] if source else 175 if trainer=='BLUE'and lookup(self.state,'story.stage')=='rival_fight'else None
         self.checkpoint(name+'-intro')
-        limit=getattr(self,'_battle_input_limit',1200)
-        for _ in range(limit):
+        for _ in range(1200):
             root=self.state.get('root')
             if root=='learning':self.learning();continue
             if root=='evolution':self.evolution();continue
             if root=='party':
                 members=self.party();active=lookup(self.state,'session.party.active')
-                index=next((i for i,m in enumerate(members,1)if i!=active and m['hp']>0),None)
+                chooser=getattr(self,'choose_forced_switch',None)
+                index=chooser() if chooser else next((i for i,m in enumerate(members,1)if i!=active and m['hp']>0),None)
                 if index is None:raise ProtocolError('forced switch has no conscious reserve')
                 self.select('party_ui.selected',index);self.send('press a');continue
             if root!='battle':break
@@ -424,7 +424,7 @@ class BrockJourney(ParcelJourney):
                     choices.append({'enemy':battle['enemy']['species'],'move':selected,'heuristic':move_score(selected,battle['player']['level'])})
                     self.send('press a')
             else:raise ProtocolError('unknown battle phase: '+str(phase))
-        else:raise ProtocolError('battle exceeded'+str(limit)+' observed semantic inputs')
+        else:raise ProtocolError('battle exceeded1200 observed semantic inputs')
         if terminal is None:
             if self.capture_escape and lookup(self.state,'last_battle_outcome.kind')=='run':
                 self.summary['battles'].append({'name':name,'trainer':trainer,'trainer_id':trainer_id,'money_before':before_money,

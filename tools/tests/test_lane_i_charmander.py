@@ -2393,9 +2393,9 @@ class CharmanderRun(BrockJourney):
                 return
             except NaturalBlackout:
                 if self.flag("BADGE_EARTH"):
-                    # A league loss used to be counted as a Giovanni walk.
-                    # The plateau checkpoint is the real heal, then the lobby.
                     self.recover_blackout()
+                    if self._league_loss_stops():
+                        return
                     self._lead_starter()
                     continue
                 if self.state.get("root") == "dialog":
@@ -3099,10 +3099,8 @@ class CharmanderRun(BrockJourney):
         return self._on("IndigoPlateauLobby") or self._on("IndigoPlateau")
 
     def _advance_or_bank(self, room):
-        """Heal at the lobby nurse when the lead cannot take the next room."""
+        """The north door is the only way on. The lobby mats clear the wins."""
         self._top_off_in_field()
-        if self._needs_league_heal() and self._retreat_to_lobby():
-            return "bank"
         self._leave_north(room, self._north_stand())
         return "forward"
 
@@ -3135,9 +3133,6 @@ class CharmanderRun(BrockJourney):
 
     def _elite_four(self):
         """Real fights from the lobby north door through the Champion."""
-        # Lance's Agility turns spend an input each. The default 1200 ends
-        # the fight while a reserve is still attacking.
-        self._battle_input_limit = 2400
         self._pin_elite_trainers()
         rooms = (
             ("LoreleisRoom", "pokered:LORELEIS_ROOM:objects:1", "EVENT_BEAT_LORELEIS_ROOM_TRAINER_0", "Lorelei"),
@@ -3169,11 +3164,10 @@ class CharmanderRun(BrockJourney):
                 return
         if self._on("LancesRoom"):
             self.drain()
-            if self._needs_league_heal() and not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
-                if self._retreat_to_lobby():
-                    return
+            # The 1200-input cap is one battle. This save is the next leg.
+            self.save()
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
-                self._lead_starter()
+                self._lead_for_lance(None)
                 self._record_screen("lance", 60)
                 self._talk_to_actor("pokered:LANCES_ROOM:objects:1")
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
@@ -3210,6 +3204,7 @@ class CharmanderRun(BrockJourney):
     _BENCH_LEVEL = 47
     _INDIGO_CLERK = "pokered:INDIGO_PLATEAU_LOBBY:objects:4"
     _INDIGO_PRICES = {
+        "fullHeal": 600,
         "revive": 1500,
         "fullRestore": 3000,
         "maxPotion": 2500,
@@ -3329,6 +3324,7 @@ class CharmanderRun(BrockJourney):
             # One full heal before a second Revive. A half-Revive does not
             # cover the rock hit that drops Charizard in a single turn.
             for item, cap in (
+                ("fullHeal", 2),
                 ("fullRestore", 1), ("revive", 1), ("maxPotion", 1),
                 ("fullRestore", 2), ("revive", 2),
             ):
@@ -3898,6 +3894,120 @@ class CharmanderRun(BrockJourney):
         if index != 1:
             self.field_swap(index, 1)
 
+    def _mon_healthy(self, mon):
+        return (mon["hp"] > 0 and mon["status"] in {None, "none"}
+                and mon["hp"] * 2 > mon["maxHP"])
+
+    def _lead_for_lance(self, enemy):
+        """Charizard takes Gyarados and Aerodactyl only while he is healthy."""
+        enemy = (enemy or "").lower()
+        party = self.party()
+        active = lookup(self.state, "session.party.active") or 1
+
+        def slot(species, healthy=False):
+            for index, mon in enumerate(party, 1):
+                if mon["species"] != species or mon["hp"] <= 0:
+                    continue
+                if healthy and not self._mon_healthy(mon):
+                    continue
+                return index
+            return None
+
+        if enemy in {"gyarados", "aerodactyl"}:
+            choice = slot("charizard", healthy=True) or slot("pidgeotto") or slot("lapras") or slot("weepinbell")
+        elif enemy in {"dragonair", "dragonite"}:
+            choice = slot("lapras") or slot("charizard", healthy=True) or slot("pidgeotto")
+        else:
+            choice = slot("charizard", healthy=True) or slot("charizard") or slot("pidgeotto")
+        if choice and choice != active:
+            self.field_swap(choice, active)
+
+    def choose_forced_switch(self):
+        """A fainted lead yields to the matchup, not the next party slot."""
+        active = lookup(self.state, "session.party.active") or 1
+        enemy = ((self.state.get("battle") or {}).get("enemy") or {}).get("species")
+        party = self.party()
+        order = ["charizard", "pidgeotto", "lapras", "weepinbell"]
+        if enemy in {"gyarados", "aerodactyl"}:
+            zard = next((mon for mon in party if mon["species"] == "charizard"), None)
+            order = (["charizard"] if zard and self._mon_healthy(zard) else []) + ["pidgeotto", "lapras", "weepinbell"]
+        elif enemy in {"dragonair", "dragonite"}:
+            order = ["lapras", "charizard", "pidgeotto", "weepinbell"]
+        for species in order:
+            for index, mon in enumerate(party, 1):
+                if index != active and mon["species"] == species and mon["hp"] > 0:
+                    if species == "charizard" and enemy in {"gyarados", "aerodactyl"} and not self._mon_healthy(mon):
+                        continue
+                    return index
+        return next((index for index, mon in enumerate(party, 1) if index != active and mon["hp"] > 0), None)
+
+    def _league_loss_stops(self):
+        """One Lance loss leaves the plateau to raise Lapras. A second one stops."""
+        last = (self.summary.get("battles") or [None])[-1] or {}
+        ident = str(last.get("trainer_id") or "") + " " + str(last.get("trainer") or "")
+        if "LANCES_ROOM" not in ident and "LANCE" not in ident.upper() and "CHAMPIONS_ROOM" not in ident:
+            return False
+        if getattr(self, "_lance_leveled", False):
+            raise ProtocolError("Lance failed after the bench was leveled")
+        self._lance_leveled = True
+        self._level_bench_for_lance()
+        self._indigo_plateau()
+        return True
+
+    def _level_bench_for_lance(self):
+        """Route 23 grass. Pokered teaches Lapras Ice Beam at 38."""
+        self.summary["acceptance"] = "leveling Lapras for Ice Beam"
+        self._bench_share = True
+        self._flee_wilds = False
+        try:
+            if any(mon["hp"] <= 0 or mon["status"] not in {None, "none"} for mon in self.party()):
+                if not self._on("IndigoPlateauLobby"):
+                    self._reach_lobby()
+                self._heal_indigo()
+            if self._on("IndigoPlateauLobby"):
+                self._exit_lobby_south()
+            if self._on("IndigoPlateau"):
+                self._cross_edge("down")
+            if not self._on("Route23"):
+                raise ProtocolError("Lapras training left the plateau on " + self._map_name())
+            self._follow_route({(14, 37)})
+            for _ in range(16):
+                if not self._on("Route23") or self.position()[1] >= 44:
+                    break
+                if not self._step("down"):
+                    break
+            self._follow_route({(10, 44), (11, 44)})
+            start = len(self.summary.get("training") or [])
+            steps = 0
+            while steps < 240 and len(self.summary.get("training") or []) < start + 14:
+                lapras = next((mon for mon in self.party() if mon["species"] == "lapras"), None)
+                if lapras and lapras["level"] >= 38:
+                    break
+                if any(mon["hp"] <= 0 or mon["status"] not in {None, "none"} for mon in self.party()):
+                    self._reach_lobby()
+                    self._heal_indigo()
+                    self._exit_lobby_south()
+                    if self._on("IndigoPlateau"):
+                        self._cross_edge("down")
+                    self._follow_route({(10, 44)})
+                goal = (11, 44) if self.position() == (10, 44) else (10, 44)
+                if self.position() not in {(10, 44), (11, 44)}:
+                    self._follow_route({(10, 44)})
+                lowest = None
+                for index, mon in enumerate(self.party(), 1):
+                    if mon["species"] in {"lapras", "pidgeotto", "weepinbell"} and mon["hp"] > 0:
+                        if lowest is None or mon["level"] < lowest[0]:
+                            lowest = (mon["level"], index)
+                active = lookup(self.state, "session.party.active") or 1
+                if lowest and lowest[1] != active:
+                    self.field_swap(lowest[1], active)
+                self._step("right" if goal[0] > self.position()[0] else "left")
+                steps += 1
+            self.save()
+        finally:
+            self._bench_share = False
+            self._flee_wilds = False
+
     def _lead_species(self, species):
         best = None
         for index, mon in enumerate(self.party(), 1):
@@ -4335,7 +4445,11 @@ class CharmanderRun(BrockJourney):
         switch = getattr(self, "_revive_switch", None)
         if switch:
             self._revive_switch = None
-            if 1 <= switch <= len(self.party()) and self.party()[switch - 1]["hp"] > 0 and active != switch:
+            enemy = ((battle.get("enemy") or {}).get("species") or "")
+            mon = self.party()[switch - 1] if 1 <= switch <= len(self.party()) else None
+            if mon and enemy in {"gyarados", "aerodactyl"} and not self._mon_healthy(mon):
+                return False
+            if mon and mon["hp"] > 0 and active != switch:
                 return bool(self.battle_switch(switch, options, "revive-starter"))
             return False
         player = battle.get("player") or {}
@@ -4371,6 +4485,33 @@ class CharmanderRun(BrockJourney):
         return True
 
     def battle_preparation_action(self, battle, options):
+        player = battle.get("player") or {}
+        if (player.get("hp") or 0) > 0 and player.get("status") not in {None, "none"} and self.quantity("fullHeal") > 0:
+            self.battle_medicine("fullHeal", options)
+            return True
+        enemy = ((battle.get("enemy") or {}).get("species") or "")
+        zone = self.state.get("zone_id") or ""
+        if any(token in zone for token in ("LANCES_ROOM", "CHAMPIONS_ROOM")) and enemy:
+            active = lookup(self.state, "session.party.active") or 1
+            party = self.party()
+
+            def slot(species, healthy=False):
+                for index, mon in enumerate(party, 1):
+                    if mon["species"] != species or mon["hp"] <= 0:
+                        continue
+                    if healthy and not self._mon_healthy(mon):
+                        continue
+                    return index
+                return None
+
+            if enemy in {"gyarados", "aerodactyl"}:
+                choice = slot("charizard", True) or slot("pidgeotto") or slot("lapras")
+            elif enemy in {"dragonair", "dragonite"}:
+                choice = slot("lapras") or slot("charizard", True) or slot("pidgeotto")
+            else:
+                choice = None
+            if choice and choice != active and self.battle_switch(choice, options, "lance-matchup"):
+                return True
         if self._revive_starter(battle, options):
             return True
         if self._top_off_starter(battle, options):
