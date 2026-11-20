@@ -4775,11 +4775,15 @@ EAST_RESUME = {
 }
 
 
-def _walk(player, cells, surface, goal, avoid, limit=800):
-    """Recompute a ledge-aware step until the goal, a warp, or a blackout."""
+def _walk(player, cells, surface, goal, avoid, limit=800, report=None, yield_after=2):
+    """Recompute a ledge-aware step until the goal, a warp, or a blackout.
+
+    Two trainer battles are enough for one session. The caller saves and exits.
+    """
     feet, ledges = surface
     blocked = set()
     talked = set()
+    fights = 0
     started = player.state.get("zone")
     for _ in range(limit):
         if player.state.get("zone") != started:
@@ -4797,6 +4801,11 @@ def _walk(player, cells, surface, goal, avoid, limit=800):
                 after = player.state.get("last_battle_outcome") or {}
                 if _lost(before, after):
                     return "blackout"
+                if trainer and report is not None:
+                    fights += 1
+                    if fights >= yield_after:
+                        _checkpoint(player, report, "saved_east_yield")
+                        return "yield"
                 continue
             if root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event", "evolution"):
                 player.dismiss_until_explore(limit=100)
@@ -4829,7 +4838,7 @@ def _cut_facing(player, cells, surface, stand, facing, tree, avoid, report, key)
     here = (player.state["player"]["x"], player.state["player"]["y"])
     if here != stand:
         kind = _walk(player, cells, surface, stand, avoid)
-        if kind == "blackout":
+        if kind in ("blackout", "yield"):
             return kind, set(cells)
         if (player.state["player"]["x"], player.state["player"]["y"]) != stand:
             raise RuntimeError(f"could not stand at {stand} for Cut: " + json.dumps(summary(player.state)))
@@ -4881,8 +4890,8 @@ def _onto_warp(player, cells, surface, goal, avoid, report, key):
     started = player.state.get("zone")
     here = (player.state["player"]["x"], player.state["player"]["y"])
     if here != goal:
-        kind = _walk(player, cells, surface, goal, avoid)
-        if kind == "blackout":
+        kind = _walk(player, cells, surface, goal, avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
             return kind
         if kind == "warp" or player.state.get("zone") != started:
             report[key] = summary(player.state)
@@ -4996,7 +5005,7 @@ def _leave_cerulean_east(player, report, display, clips, output):
             if status == "blackout":
                 return status
             kind = _walk(player, opened, surface, (39, 16), avoid)
-            if kind == "blackout":
+            if kind in ("blackout", "yield"):
                 return kind
             if (player.state["player"]["x"], player.state["player"]["y"]) != (39, 16):
                 raise RuntimeError("Cerulean east edge did not open: " + json.dumps(summary(player.state)))
@@ -5015,7 +5024,7 @@ def _leave_cerulean_east(player, report, display, clips, output):
             raise RuntimeError("Route 9 did not open: " + json.dumps(summary(player.state)))
     else:
         kind = _walk(player, cells, surface, (39, 16), avoid)
-        if kind == "blackout":
+        if kind in ("blackout", "yield"):
             return kind
         player.step("right")
         player.settle(limit=80)
@@ -5052,8 +5061,8 @@ def _cross_route9(player, report):
                 _checkpoint(player, report, "saved_route9_trainers")
                 return "yield"
         report["route9_trainers"] = {"money": _money(player), "bird": (_bird(player)[1] or {}).get("level")}
-    kind = _walk(player, cells, surface, (59, 8), avoid)
-    if kind == "blackout":
+    kind = _walk(player, cells, surface, (59, 8), avoid, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
         return kind
     if (player.state["player"]["x"], player.state["player"]["y"]) != (59, 8):
         raise RuntimeError("Route 9 did not reach Route 10: " + json.dumps(summary(player.state)))
@@ -5075,16 +5084,16 @@ def _cross_route10(player, report):
         avoid |= {(8, 17), (8, 53)}
         if _needs_heal(player) or "center" not in str(report.get("tunnel_center") or ""):
             if (player.state["player"]["x"], player.state["player"]["y"]) != (11, 20):
-                kind = _walk(player, cells, surface, (11, 20), avoid | {(11, 19)})
-                if kind == "blackout":
+                kind = _walk(player, cells, surface, (11, 20), avoid | {(11, 19)}, report=report, yield_after=2)
+                if kind in ("blackout", "yield"):
                     return kind
             _heal_in(player, report, cells, (11, 19), ROCK_NURSE, rock_tunnel_center_cells(),
                      "tunnel", "route_10", avoid=avoid | {(11, 19)})
             report["tunnel_center"] = summary(player.state)
             _checkpoint(player, report, "saved_tunnel_center")
         avoid.discard((8, 17))
-        kind = _walk(player, cells, surface, (8, 18), avoid)
-        if kind == "blackout":
+        kind = _walk(player, cells, surface, (8, 18), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
             return kind
         player.step("up")
         player.settle(limit=80)
@@ -5092,8 +5101,8 @@ def _cross_route10(player, report):
         if "rock_tunnel" not in str(player.state.get("zone")):
             raise RuntimeError("Rock Tunnel did not open: " + json.dumps(summary(player.state)))
         return "open"
-    kind = _walk(player, cells, surface, (8, 71), avoid | {(8, 17), (8, 53), (11, 19)})
-    if kind == "blackout":
+    kind = _walk(player, cells, surface, (8, 71), avoid | {(8, 17), (8, 53), (11, 19)}, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
         return kind
     player.step("down")
     player.settle(limit=80)
@@ -5122,8 +5131,8 @@ def _cross_tunnel(player, report):
 
 
 def _cross_lavender(player, report):
-    kind = _walk(player, lavender_cells(), map_surface(EAST / "LavenderTown.json"), (0, 8), LAVENDER_DOORS)
-    if kind == "blackout":
+    kind = _walk(player, lavender_cells(), map_surface(EAST / "LavenderTown.json"), (0, 8), LAVENDER_DOORS, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
         return kind
     player.step("left")
     player.settle(limit=80)
@@ -5135,8 +5144,8 @@ def _cross_lavender(player, report):
 
 def _cross_route8(player, report):
     gates = {(1, 9), (1, 10), (8, 9), (8, 10)}
-    kind = _walk(player, route8_cells(), map_surface(EAST / "Route8.json"), (13, 4), gates)
-    if kind == "blackout":
+    kind = _walk(player, route8_cells(), map_surface(EAST / "Route8.json"), (13, 4), gates, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
         return kind
     player.step("up")
     player.settle(limit=80)
@@ -5169,8 +5178,8 @@ def _cross_route7(player, report, display, clips, output):
     if status == "blackout":
         return status
     _lead(player, "wartortle")
-    kind = _walk(player, cells, map_surface(EAST / "Route7.json"), (0, 3), avoid)
-    if kind == "blackout":
+    kind = _walk(player, cells, map_surface(EAST / "Route7.json"), (0, 3), avoid, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
         return kind
 
     def enter():
@@ -5244,7 +5253,7 @@ def _buy_celadon(player, report):
         doors = {(8, 13), (10, 13), (12, 27), (24, 9), (24, 3), (25, 3), (41, 9),
                  (28, 19), (39, 19), (33, 19), (31, 27), (35, 27), (43, 27)}
         kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (8, 14), doors)
-        if kind == "blackout":
+        if kind in ("blackout", "yield"):
             return kind
         player.step("up")
         player.settle(limit=40)
@@ -5256,7 +5265,7 @@ def _buy_celadon(player, report):
         if report.get("celadon_stocked"):
             return _onto_warp(player, floor, surface, (3, 7), {(1, 1), (12, 1), (8, 3)}, report, "mart_exit")
         kind = _walk(player, floor, surface, (12, 2), {(1, 1), (8, 3)})
-        if kind == "blackout":
+        if kind in ("blackout", "yield"):
             return kind
         player.step("up")
         player.settle(limit=40)
@@ -5313,7 +5322,7 @@ def _fight_erika(player, report, display, clips, output):
     surface = map_surface(EAST / "CeladonCity.json")
     if "gym" not in str(player.state.get("zone")):
         kind = _walk(player, cells, surface, (12, 28), {(8, 13), (10, 13), (12, 27)})
-        if kind == "blackout":
+        if kind in ("blackout", "yield"):
             return kind
         player.step("up")
         player.settle(limit=40)
@@ -5330,8 +5339,8 @@ def _fight_erika(player, report, display, clips, output):
     trainers = {(3, 11), (8, 10), (10, 5), (2, 5), (7, 3), (4, 3), (6, 3), (5, 3)}
 
     def battle():
-        kind = _walk(player, gym, gym_surface, (5, 4), trainers)
-        if kind == "blackout":
+        kind = _walk(player, gym, gym_surface, (5, 4), trainers, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
             return kind
         if player.state["player"].get("facing") != "up":
             player.press("up", wait=4)
@@ -5342,7 +5351,7 @@ def _fight_erika(player, report, display, clips, output):
 
     if display and clips and output:
         battle = film(display, clips, output, "erika", report, "end", battle)
-    if battle == "blackout":
+    if battle in ("blackout", "yield"):
         return battle
     quest = _quest(player)
     report["rainbow"] = {"badge": bool(quest.get("BADGE_RAINBOW")), "party": _party(player), **summary(player.state)}
@@ -5631,7 +5640,10 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-80")
+            number = 81
+            while Path(f"/tmp/lane-j-squirtle-{number}").exists():
+                number += 1
+            output = Path(f"/tmp/lane-j-squirtle-{number}")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
