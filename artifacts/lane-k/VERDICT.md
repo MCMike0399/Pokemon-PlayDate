@@ -63,3 +63,13 @@ The 13 host failures are harness, census, projection, and byte-freeze pins. No n
 ## Round 3
 
 No new patch. SHIFT after a foe faint asks `Will RED\nchange POKéMON?` before the send-out, and SET does not (`tools/tests/test_lane_e_shift_faint.py`). A trainer wipe prints `_PlayerBlackedOutText2` and the Center spots match `FlyWarpData` (`tools/tests/test_lane_e_blackout.py`). The twelve Viridian arrows match the RLE paths and swap frames (`tools/tests/test_lane_e_spinner_motion.py`). The Squirtle walk to Brock is in `docs/validation/lane-k-squirtle-pewter.md`.
+
+## Round 4 — main FF call
+
+E tip `56414b632d906074c7f7d78d7bb21b44061fa3c8` (Source identical to `51764017`). Host discover: 1333 ran, 1243 passed, 12 failed, 67 errors, 11 skipped, 0 expected failures. Detail: `docs/validation/lane-k-suite-56414b63.md`.
+
+Prior expected failures now pass on the live tree: gym tones, flower `$03`, iris stencil, Viridian sight, trainer-card and Pay Day yen, message queue, possessive ligatures, shift hold.
+
+The twelve assertion failures are the `6e4bc90f` thirteen minus `test_vermilion_preparation`, which now errors in `setUpClass` on the same new pin. Sixteen errors are new versus that baseline. All of them raise `unpinned consumed source: gfx/tilesets/flower/flower1.png`. That pin break arrives with the flower substitution in `a1740550`.
+
+No. Do not fast-forward `main` `6e4bc90f` to `56414b63`.
