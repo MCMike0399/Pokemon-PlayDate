@@ -5561,7 +5561,7 @@ K_LINE = [
     ("walk", "left", 45, "UndergroundPathWestEast", 2, 2),
     ("walk", "down", 2, "UndergroundPathWestEast", 2, 4),
     ("warp", "down", "UndergroundPathRoute7", 6, 4),
-    ("walk", "down", 2, "UndergroundPathRoute7", 6, 6),
+    ("walk", "down", 3, "UndergroundPathRoute7", 6, 7),
     ("warp", "down", "Route7", 5, 14),
     ("walk", "right", 3, "Route7", 8, 14),
     ("walk", "up", 5, "Route7", 8, 9),

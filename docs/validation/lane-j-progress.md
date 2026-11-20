@@ -72,7 +72,9 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Sequence 67 is the pause: `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `26f82a0c75cc1e8aa6f19b4a655478285fb30317b370f06d0e2dcd7b9485753c`, Rock Tunnel B1F (26, 31) facing left. Wartortle 28, Bellsprout 15, Pidgeotto 20, Dugtrio 27, all healed. Boulder, Cascade, and Thunder. This is K's second tunnel fight from `59bb2119`. The next steps are that walk through both B1F visits, the Route 10 exit at (8, 54), then Lavender, Celadon, and Erika.
+Lavender is healed. Sequence 90 is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `1e236e9e1b246cd95b7b2e7fa223be50ae7a2b32691c873feb2d288a97f2d394`, Lavender Pokémon Center (3, 3) facing up. Wartortle 29, Bellsprout 15, Pidgeotto 22, Dugtrio 27. Boulder, Cascade, and Thunder.
+
+The live pause is sequence 91, `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `21d04474a5b212b648375e78e8df4456799b76420616bac66dbb8323617d760b`, Route 8 (47, 12) facing up. Wartortle 30, Bellsprout 15, Pidgeotto 22, Dugtrio 27. K's tunnel fights are done and the exit was Route 10 (8, 54). The Route 7 underground mat stays indoors, so the exit is the next step down. Then Celadon and Erika.
 
 ## Blockers
 
