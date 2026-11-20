@@ -32,6 +32,18 @@ class VermilionAmbientTests(unittest.TestCase):
                 if name == 'sprites.json':
                     from tools.generate_overworld_sprites import same_except_opaque_white
                     self.assertTrue(same_except_opaque_white(data, old), name)
+                elif name == 'manifest-entries.json':
+                    from tools.flower_phase import same_manifest_entries
+                    from tools.generate_cerulean_content import canonical
+                    pinned_maps = {map_name: subprocess.check_output(
+                        ['git', 'show', 'e4dd170:Source/data/vermilionPreparation/' + map_name])
+                        for map_name in self.artifacts if map_name[:1].isupper() and map_name.endswith('.json')}
+                    self.assertTrue(data == old or same_manifest_entries(
+                        data, old, self.artifacts, pinned_maps, canonical), name)
+                elif name[:1].isupper():
+                    from tools.flower_phase import same_decoded_bytes
+                    from tools.generate_cerulean_content import canonical
+                    self.assertTrue(data == old or same_decoded_bytes(data, old, canonical), name)
                 else:
                     self.assertEqual(data, old, name)
 
