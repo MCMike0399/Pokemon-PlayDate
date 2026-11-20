@@ -44,6 +44,19 @@ COPYRIGHT_LINES = (
     "©'95.'96.'98 GAME FREAK inc.",
 )
 
+# HoFDisplayPlayerStats. TextBoxBorder at hlcoord 5, 0 with b=2, c=9 is an
+# 11 by 4 tile box. The name is PlaceString at hlcoord 7, 2. hallView shifts
+# that top row to Playdate y=-48, so a border drawn at y=0 is the clip.
+PLAYER_NAME_BOX = {
+    "col": 5,
+    "row": 0,
+    "width": 11,
+    "height": 4,
+    "name_col": 7,
+    "name_row": 2,
+    "playdate_top": -48,
+}
+
 # Owned count is strictly less than the threshold. NUM_POKEMON is 151.
 DEX_RATINGS = (
     (10, ("You still have", "lots to do.", "Look for Pokémon", "in grassy areas!")),
@@ -96,6 +109,11 @@ def play_time_text(hours, minutes):
     if not isinstance(minutes, int) or isinstance(minutes, bool) or minutes < 0 or minutes > 59:
         raise ValueError("minutes must be an integer from 0 to 59")
     return f"{hours}:{minutes:02d}"
+
+
+def display_pokered(text):
+    """Charmap '#' is the POKé tile. The species is not part of the string."""
+    return text.replace("#", "POKé")
 
 
 def _norm(text):
@@ -294,7 +312,7 @@ def expected_beats(party, player, credits, version="blue"):
                 "text": ["THE END"],
             })
             continue
-        lines = list(screen["lines"])
+        lines = [display_pokered(line) for line in screen["lines"]]
         if version == "red":
             lines = ["RED VERSION STAFF" if line == "BLUE VERSION STAFF" else line for line in lines]
         beat = {
@@ -336,6 +354,44 @@ def _check_timing(frame, beat, errors, where):
         errors.append(
             f"{where}: fade_gb_frames is {frame['fade_gb_frames']}, pokered fades for {beat['fade_gb_frames']}"
         )
+
+
+def _check_sprite(frame, root, errors, where):
+    """A scroll frame's front pic is dithered with Shade.LIGHT, not named in text."""
+    if not frame.get("sprite"):
+        return
+    png = frame.get("png")
+    if not png:
+        errors.append(f"{where}: sprite frame has no png")
+        return
+    path = Path(png)
+    if not path.is_absolute():
+        path = root / path
+    if not path.is_file():
+        errors.append(f"{where}: missing sprite frame {path}")
+        return
+    from PIL import Image
+    with Image.open(path) as image:
+        gray = image.convert("L")
+        width, height = gray.size
+        found = False
+        # Shade.LIGHT at phase (0, 0), baked into a 2x cell: 0x55 then 0xBB.
+        # That 2x2 is black, white / white, black.
+        for y in range(0, height - 1, 2):
+            for x in range(0, width - 1, 2):
+                block = (
+                    gray.getpixel((x, y)) < 128,
+                    gray.getpixel((x + 1, y)) < 128,
+                    gray.getpixel((x, y + 1)) < 128,
+                    gray.getpixel((x + 1, y + 1)) < 128,
+                )
+                if block == (True, False, False, True):
+                    found = True
+                    break
+            if found:
+                break
+        if not found:
+            errors.append(f"{where}: front sprite is missing the Shade.LIGHT dither")
 
 
 def _check_png(frame, root, errors, where):
@@ -386,6 +442,20 @@ def check_log(log, credits, root=None):
             errors.append(f"missing beat {beat['id']}")
             continue
         text = _frame_text(match)
+        if "#" in text:
+            errors.append(f"{beat['id']}: '#' is the POKé tile, not a literal hash")
+        if str(beat["id"]).startswith("credits-") and "species" in beat:
+            token = str(beat["species"]).casefold()
+            folded = re.sub(r"\s+", "", text).casefold()
+            if token and token in folded:
+                errors.append(f"{beat['id']}: {beat['species']} is a scrolling sprite, not text")
+        if "é" in "".join(str(item) for item in beat["text"]) and "é" not in text:
+            errors.append(f"{beat['id']}: é is the font glyph, not a missing character")
+        if beat["id"] == "hof-player" and "name_box" in match:
+            box = match["name_box"]
+            for key, expected in PLAYER_NAME_BOX.items():
+                if box.get(key) != expected:
+                    errors.append(f"hof-player: {key} is {box.get(key)}, pokered uses {expected}")
         for needle in beat["text"]:
             if needle == "TYPE2 erased":
                 if _contains(text, "TYPE2/"):
@@ -403,6 +473,7 @@ def check_log(log, credits, root=None):
                 errors.append(f"{beat['id']}: species is {got}, pokered shows {beat['species']}")
         _check_timing(match, beat, errors, beat["id"])
         _check_png(match, root, errors, beat["id"])
+        _check_sprite(match, root, errors, beat["id"])
     while cursor < len(frames):
         frame = frames[cursor]
         cursor += 1

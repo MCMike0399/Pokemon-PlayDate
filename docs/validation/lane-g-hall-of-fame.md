@@ -99,7 +99,7 @@ The owned count picks the first threshold it is strictly under. 151 is the last 
 
 `HallOfFamePC` clears, holds 100 (`credits-clear`), shifts the font so the text can fade, and fills rows 0–3 and 14–17 with tile `$7e` (solid black). `BGP` is `%11000000`. Music stops, `MUSIC_CREDITS` starts, then 128 frames (`credits-music`). The roll starts at tile column 9, row 6. Each string's first byte is a leftward indent. The next string is two rows down.
 
-A fade command runs `FadeInCredits` (20) and then the hold below. A text command uses the hold only. `CRED_TEXT_MON` and `CRED_TEXT_FADE_MON` then scroll the next `CreditsMons` entry as a black silhouette (`BGP` `%11111100`) from tile `(8, 6)`: 7 one-tile steps, then 20 more while `rWX` starts at `$A7` and drops by 8. That scroll is scanline-timed, not a `DelayFrames` count, so the log does not time it. The species is a field on the text beat.
+A fade command runs `FadeInCredits` (20) and then the hold below. A text command uses the hold only. `CRED_TEXT_MON` and `CRED_TEXT_FADE_MON` then scroll the next `CreditsMons` entry from tile `(8, 6)`: 7 one-tile steps, then 20 more while `rWX` starts at `$A7` and drops by 8. Pokered silhouettes that pic with `BGP` `%11111100`. This port draws the 4-shade front sprite with `Shade.LIGHT` and `Shade.DARK` at that tile, then steps it one tile left per scroll frame. The species is a field on the text beat, never a line of text. Charmap `#` is `POKé`, so `#MON` is drawn `POKéMON` and `#DEX` is drawn `POKéDEX`. `é` uses the font glyph, not the system font's missing-character mark.
 
 | Beat | Kind | Hold | Mon | Lines |
 | --- | --- | --- | --- | --- |

@@ -129,6 +129,29 @@ class HallOfFameSequenceTests(unittest.TestCase):
         staff = next(beat for beat in beats if beat["id"] == "credits-00")
         self.assertIn("RED VERSION STAFF", staff["text"])
         self.assertNotIn("BLUE VERSION STAFF", staff["text"])
+        self.assertIn("POKéMON", staff["text"])
+        self.assertNotIn("#MON", staff["text"])
+
+    def test_species_name_is_not_credits_text(self):
+        log = _log(self.credits)
+        first = next(frame for frame in log["frames"] if frame["beat"] == "credits-00")
+        first["text"] = list(first["text"]) + ["venusaur"]
+        errors = check_log(log, self.credits)
+        self.assertTrue(any("scrolling sprite" in error for error in errors))
+
+    def test_literal_hash_is_rejected(self):
+        log = _log(self.credits)
+        first = next(frame for frame in log["frames"] if frame["beat"] == "credits-00")
+        first["text"] = ["#MON", "BLUE VERSION STAFF"]
+        errors = check_log(log, self.credits)
+        self.assertTrue(any("literal hash" in error for error in errors))
+
+    def test_dex_rating_keeps_the_accent(self):
+        log = _log(self.credits, player=_player(owned=2))
+        rating = next(frame for frame in log["frames"] if frame["beat"] == "hof-dex-rating")
+        rating["text"] = [line.replace("é", "e").replace("Poké", "Poke") for line in rating["text"]]
+        errors = check_log(log, self.credits)
+        self.assertTrue(any("é" in error for error in errors))
 
     def test_png_must_be_400x240(self):
         import tempfile

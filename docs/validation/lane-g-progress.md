@@ -213,6 +213,10 @@ Dry run of that harness on E's tip, before lane I's Charmander reaches Lance. Th
 
 `edcbe288` is on main (`ea32b553` nests the coverage snapshot after it). The Champion-win recapture is `artifacts/lane-g/hof-main/`. Charizard shows `LEVEL/ 65`, `TYPE1/ FIRE`, `TYPE2/ FLYING`, and `HALL OF FAME`. `RED` is on the player card. Credits text is white on black, including `#MON` / `BLUE VERSION STAFF` / `venusaur`, the three `©'95.'96.'98` lines with `parasect`, and `THE END`. `python3 tools/tests/lane_g_hall_of_fame.py --log artifacts/lane-g/hof-main/log.json --pokered /tmp/pokered` prints `hall-of-fame ok (43 frames)`. No new lane-e patch.
 
+## Round 25
+
+BlueBot approved the hof-main layout and flagged the credits species names, the literal `#`, and the missing `é`. `tools/notes/lane-e-hof-credits-fidelity.patch` draws the 4-shade front sprite with `Shade.LIGHT` and `Shade.DARK` at tile `(8, 6)`, scrolling one tile left per frame, and stops printing the species. `#` expands to `POKé`. `é` is the font.png tile 58 glyph. The name box already matches `HoFDisplayPlayerStats`: `hlcoord 5, 0`, `b=2`, `c=9`, top at Playdate y=-48. The y=0 line is that clip. `hlcoord 7, 2` is y=-16, so the name stays on row 3, the first visible row. The patched recapture is `artifacts/lane-g/hof-fidelity/`. `Source/` is unchanged on this branch.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

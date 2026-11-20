@@ -47,14 +47,16 @@ io.write(tostring(y))
 
     def test_credits_draw_shows_the_notice_and_the_end(self):
         draw = (ROOT / "Source/game/eventState.lua").read_text()
+        story = (ROOT / "Source/game/endgameStory.lua").read_text()
         start = draw.index("local view = CreditsPlayer.view(self.credits)")
         block = draw[start:draw.index("gfx.popContext()", start)]
+        shown = block + "\n" + story
         self.assertIn("kDrawModeFillWhite", block)
-        self.assertIn("©'95.'96.'98 Nintendo", block)
-        self.assertIn("©'95.'96.'98 Creatures inc.", block)
-        self.assertIn("©'95.'96.'98 GAME FREAK inc.", block)
-        self.assertNotIn('view.ending and view.phase == "done"', block)
-        self.assertIn("if view.ending then", block)
+        self.assertIn("©'95.'96.'98 Nintendo", shown)
+        self.assertIn("©'95.'96.'98 Creatures inc.", shown)
+        self.assertIn("©'95.'96.'98 GAME FREAK inc.", shown)
+        self.assertNotIn('view.ending and view.phase == "done"', shown)
+        self.assertIn("if view.ending then", shown)
 
     def test_dry_run_credits_frames_show_text(self):
         blank = []
