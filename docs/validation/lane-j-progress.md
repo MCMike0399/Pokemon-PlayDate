@@ -8,8 +8,8 @@ Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 i
 - BLUE, rival RED. Squirtle, level 15, 39 HP, no status, Tackle, Water Gun, Bubble, and Withdraw. Tail Whip was replaced when Water Gun was learned.
 - Intro done. Lab rival won (his Bulbasaur)
 - Oak's Parcel has been delivered. `EVENT_GOT_POKEDEX` and `EVENT_OAK_GOT_PARCEL` are set.
-- Route 3 is crossed. Standing on Route 4 at (9, 17), facing up, just north of the Route 3 seam. Healing checkpoint is still Pewter City (13, 26) facing down.
-- Earned pause save: `/opt/cursor/artifacts/lane-j/saves/ae6ff5c3ae0d/adventure.b.json` sha256 `362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9` (sequence 8). The Boulder Badge pause remains `/opt/cursor/artifacts/lane-j/saves/a6328d508ccc/adventure.a.json` sha256 `fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b` (sequence 7). Earlier pauses: pre-gym Pewter `d8c3b1e1fa226fe42174ab076467d39a6bd21aa8505fae9df87d4f00e6488217`, Viridian `56f56cb938174c80ffc7465e41c75d83c76e7fbb1c311e7b0e64231638917122`, lab `846b901711349edf2b2f4abfea505fb3b66593d290e4e3170e0e354aad7ced3a`. None of these are in git.
+- Route 3 is crossed. Mt. Moon is crossed. Wartortle, level 17, 22 HP, no status, Tackle, Water Gun, Bubble, and Bite. `EVENT_GOT_DOME_FOSSIL` and `EVENT_BEAT_MT_MOON_EXIT_SUPER_NERD` are set. Standing on Route 4 at (59, 4), facing right. Healing checkpoint is still Pewter City (13, 26) facing down.
+- Earned pause save: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14` (sequence 11, the cliff). The east-side exit pause is `adventure.b.json` sha256 `35c11c6985486b732e734bf14c15832c1367b4c638b16d9c27a68438b590fb8d` (sequence 10, Route 4 (24, 6)). The Dome Fossil pause is `/opt/cursor/artifacts/lane-j/saves/c964b798257f/adventure.a.json` sha256 `d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4` (sequence 9). Earlier: Route 4 entrance sequence 8 `362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9`, Boulder Badge `fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b`. None of these are in git.
 
 ## Clips
 
@@ -49,15 +49,15 @@ A second cave attempt used the pair-legal path. Foot tiles 32 and 5 cannot be st
 
 A third crossing evolved to Wartortle again, lost to the fossil super nerd, and blacked out to Pewter. The retry beat him at B2F (12, 7) and learned Bite, but Grimer's Disable page stayed up while the cursor moved, so every move was marked rejected and the rest of the fight used Tackle. Wartortle finished paralyzed at 14 HP. The Dome Fossil sprite at (12, 6) is the only step into the exit pocket, and treating that blocked step as a wall left no route. The win was not written. The sequence 8 Route 4 pause is still the resume. The clips are `20261120T024836Z-mt-moon.mp4` (60.13s), `20261120T025319Z-route3.mp4` (41.33s), and `20261120T025414Z-mt-moon.mp4` (47.53s).
 
-The retry beat the fossil super nerd. Wartortle is level 17, 22 HP, with Tackle, Water Gun, Bubble, and Bite, and the Dome Fossil is in the bag. The pause is B2F (12, 7) facing up: `/opt/cursor/artifacts/lane-j/saves/c964b798257f/adventure.a.json` sha256 `d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4` (sequence 9). The walk toward the exit stair stepped on warp (5, 7) before the goal, so the cave was left unfinished. That warp is now kept out of the path to (6, 7).
+The retry beat the fossil super nerd. Wartortle is level 17, 22 HP, with Tackle, Water Gun, Bubble, and Bite, and `EVENT_GOT_DOME_FOSSIL` is set. The first exit walk stepped on warp (5, 7) early. The next walk kept that stair for the last step, returned through B1F, and landed on Route 4 (24, 6). The Center is west of the wall at x=20, so the east side cannot heal there. The walk reached (59, 4) and a right step was blocked. Cerulean did not open.
 
 ## Next
 
-Resume sequence 9. Leave B2F without stepping on (5, 7), heal on Route 4, try the east step at (59, 4), then the Cerulean Center and Misty. Bite is the first choice against a Water-type.
+Stopped on Route 4. The east step at (59, 4) is blocked, so Cerulean and Misty are not reached. Resume sequence 11 only after that step can enter Cerulean.
 
 ## Blockers
 
-None. The missing Oak was E's `837a61e6`, merged here from `51764017`. `tools/tests/test_lane_e_oaks_lab_oak.py` passes.
+Route 4's northern road does not continue east. Standing at (59, 4) facing right, one real `press right` stayed on (59, 4) (`cliff_step` `blocked`). The next cell (60, 4) is foot tile `0x27`. Cerulean City is on the far side of that tile. The same collision matches pret/pokered `af519899` `maps/Route4.blk` plus `gfx/blocksets/overworld.bst`. The Mt. Moon B2F exit returns to (24, 5), which is on this east side. The Pokémon Center at (11, 5) is west of the wall around x=20, so it cannot be reached from here. There is no other land exit on this side. Surf is not available. No Source edit from this lane. Pause: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14`.
 
 ## Tests
 
