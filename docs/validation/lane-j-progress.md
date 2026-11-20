@@ -1,6 +1,6 @@
 # Lane J — Squirtle
 
-Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main `9a33a835`, `2e7863ff`, `e0e9a209`, and `ff64287c` (battle confirm hold, plus the Cerulean and Vermilion journey projections). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
+Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main `9a33a835`, `2e7863ff`, `e0e9a209`, `ff64287c`, and `e142281e` (the fainted-lead shift question). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
 
 ## Position
 
