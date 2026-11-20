@@ -1,10 +1,9 @@
-"""Trainer parties must not send a move id past pokered NUM_ATTACKS.
+"""Trainer and wild parties must not send a move id past pokered NUM_ATTACKS.
 
 pret/pokered af519899 data/moves/moves.asm ends at STRUGGLE, const $a5
 (165). Bruno's Hitmonlee is the known case: the B2W2 FIFO puts Wide Guard
-and other later ids in the four slots, and the party row replaces them.
-Every other trainer send-out uses the same learnset. Player encounters
-still use initialMovesFor, which only skips Wide Guard.
+and other later ids in the four slots. initialMovesFor now skips those
+ids for wild, gift, and trainer send-out. Wide Guard stays unimplemented.
 """
 
 import subprocess
@@ -22,10 +21,9 @@ class TrainerFifoTests(unittest.TestCase):
             "\nfunction ", 1)[0]
         player = pokemon.split("function Pokemon.initialMovesFor", 1)[1].split(
             "\nfunction ", 1)[0]
-        self.assertIn("entry.id <= POKERED_NUM_ATTACKS", trainer)
+        self.assertIn("entry.id <= POKERED_NUM_ATTACKS", player)
         self.assertIn("POKERED_NUM_ATTACKS <const> = 165", pokemon)
-        self.assertNotIn("entry.id <= POKERED_NUM_ATTACKS", player)
-        self.assertIn('entry.move ~= "wideGuard"', player)
+        self.assertIn("return Pokemon.initialMovesFor(species, level)", trainer)
         events = (ROOT / "Source/game/trainerEvents.lua").read_text(encoding="utf-8")
         self.assertIn(
             "created:usePartyMoves(Pokemon.trainerMovesFor(mon.species, mon.level))",
