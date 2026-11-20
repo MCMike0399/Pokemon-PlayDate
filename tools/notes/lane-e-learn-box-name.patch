@@ -1,0 +1,13 @@
+diff --git a/Source/game/learningState.lua b/Source/game/learningState.lua
+index fc0c26ac..dbe49424 100644
+--- a/Source/game/learningState.lua
++++ b/Source/game/learningState.lua
+@@ -172,7 +172,7 @@ function LearningState:showAsk()
+     -- The box draws one page. The menu stays inactive until that last page,
+     -- and a mash cannot turn a page that has not been up for 10 frames.
+     self.askPages = {
+-        mon .. " is\ntrying to learn",
++        mon .. " is\ntrying to learn\n" .. name .. "!",
+         "trying to learn\n" .. name .. "!",
+         "But, " .. mon .. "\ncan't learn more",
+         "can't learn more\nthan 4 moves!",
