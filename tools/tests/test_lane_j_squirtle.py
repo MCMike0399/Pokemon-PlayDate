@@ -4279,7 +4279,9 @@ def _raise_diglett(player, report):
             paused = level
         lead = (player.state.get("pokemon") or {}).get("species")
         dig_pp = (mon.get("pp") or {}).get("dig")
-        if lead != name or (mon.get("hp") or 0) < 12 or dig_pp == 0:
+        # One cave hit can faint a Diglett that is still above 12 HP.
+        max_hp = mon.get("maxHP") or 0
+        if lead != name or (mon.get("hp") or 0) < max(20, max_hp // 2) or dig_pp == 0:
             _leave_diglett_cave(player)
             _rest(player, report, "mole heal", 4, buy=False)
             _enter_diglett_cave(player)
@@ -4565,7 +4567,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-58")
+            output = Path("/tmp/lane-j-squirtle-59")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
