@@ -1,0 +1,12 @@
+diff --git a/Source/game/eventState.lua b/Source/game/eventState.lua
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -550,7 +550,7 @@ function EventState:draw()
+     if self.phase=="credits" then
+         local view = CreditsPlayer.view(self.credits)
+         gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
+-        gfx.setFont(gfx.getSystemFont());gfx.setImageDrawMode(gfx.kDrawModeCopy)
++        gfx.setFont(gfx.getSystemFont());gfx.setImageDrawMode(gfx.kDrawModeInverted)
+         gfx.setColor(gfx.kColorBlack);gfx.fillRect(0,0,400,240)
+         gfx.setColor(gfx.kColorWhite)
+         if view.phase ~= "preamble" then
