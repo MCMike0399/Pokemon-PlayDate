@@ -4402,13 +4402,13 @@ def play_vermilion_prep(player, report, display, clips, output):
         report["pidgey"] = {"caught": bool(caught), "party": _party(player), **summary(player.state)}
         if not caught:
             raise RuntimeError("Route 6 did not yield a Pidgey: " + json.dumps(summary(player.state)))
-    _pause(player, report, "saved_catches")
-    _raise_pidgey(player, report)
-    _rest(player, report, "before the rival", 4)
-    _lead(player, "wartortle")
-    _pause(player, report, "saved_before_rival")
-
     if _item_count(player, "hm01") < 1 and not _quest(player).get("EVENT_GOT_HM01"):
+        _pause(player, report, "saved_catches")
+        _raise_pidgey(player, report)
+        _rest(player, report, "before the rival", 4)
+        _lead(player, "wartortle")
+        _pause(player, report, "saved_before_rival")
+
         def rival():
             doors = set(VERMILION_DOORS)
             _stand(player, vermilion_cells(), (18, 29), doors, "dock gate")
@@ -4503,7 +4503,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-55")
+            output = Path("/tmp/lane-j-squirtle-56")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
