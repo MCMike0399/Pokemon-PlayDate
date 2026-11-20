@@ -925,9 +925,9 @@ class Player:
                 before = self.state.get("last_battle_outcome")
                 trainer = (self.state.get("battle") or {}).get("trainerName")
                 if trainer:
-                    self.fight(limit=2500)
+                    self.fight(limit=2500, potion_at=30)
                 elif not self.run_away():
-                    self.fight(limit=2500)
+                    self.fight(limit=2500, potion_at=30)
                 self.dismiss_until_explore(limit=80)
                 after = self.state.get("last_battle_outcome") or {}
                 if after != before and after.get("won") is False:
@@ -2019,7 +2019,7 @@ def _take_nugget(player, report):
         raise RuntimeError("the Nugget was not received: " + json.dumps(summary(player.state)))
 
 
-def _sell_nugget_buy_potions(player, report):
+def _sell_nugget_buy_potions(player, report, target=8):
     """Cerulean pays 5000 for the Nugget and does not stock Super Potions."""
     if player.state.get("zone") != "kanto_cerulean_city":
         leave_map(player, route24_cells(), (11, 35), set(), "down")
@@ -2082,11 +2082,11 @@ def _sell_nugget_buy_potions(player, report):
                 player.send("wait 4")
     if _item_count(player, "nugget") != 0:
         raise RuntimeError("the Nugget did not sell: " + json.dumps(summary(player.state)))
-    _shop_buy_potions(player, 8)
+    _shop_buy_potions(player, target)
     have = _item_count(player, "potion")
     report["potions"] = have
     report["money"] = int((player.state.get("inventory") or {}).get("money") or 0)
-    if have < 8:
+    if have < target:
         raise RuntimeError("the mart did not sell eight Potions: " + json.dumps(summary(player.state)))
     for _ in range(8):
         if player.state.get("root") != "shop":
@@ -2146,6 +2146,11 @@ def _prepare_misty(player, report):
     _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
              cerulean_center_cells(), "before_bridge", "cerulean_city",
              avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    # One Potion survives the rival's Vine Whip. The Nugget buy is still eight later.
+    if _item_count(player, "potion") < 1 and _item_count(player, "nugget") < 1:
+        money = int((player.state.get("inventory") or {}).get("money") or 0)
+        if money >= 300:
+            _sell_nugget_buy_potions(player, report, target=1)
     bodies = {(11, 31), (10, 28), (11, 25), (10, 22), (11, 19), (11, 15), (5, 20), (10, 5)}
     for spot in ((10, 31), (11, 28), (10, 25), (11, 22), (10, 19)):
         _bridge_spot(player, report, spot, bodies | {(10, 15)})
@@ -2856,7 +2861,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-37")
+            output = Path("/tmp/lane-j-squirtle-38")
             save_from = BRIDGE_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != BRIDGE_SAVE_SHA:
