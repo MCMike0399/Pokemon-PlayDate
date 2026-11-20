@@ -619,6 +619,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(moon_cells(), (14, 35), (5, 6)))
         self.assertIsNotNone(route(moon_cells(), (14, 35), (6, 5), moon_avoid()))
         self.assertIsNotNone(route(moon_cells(), (14, 35), (6, 5), moon_avoid() | MOON_1F_SKIP, MOON_1F_EDGES))
+        self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7),
+                                   (MOON_B2_AVOID - {(12, 8)}) | {(5, 7), (13, 7)}, MOON_B2_EDGES))
         self.assertIn(((10, 22), (9, 22)), MOON_1F_EDGES)
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (12, 7), MOON_B2_AVOID, MOON_B2_EDGES))
         self.assertIn((12, 6), route_cells(moon_b2_cells(), (12, 7), (6, 7), MOON_B2_AVOID))
@@ -2762,6 +2764,7 @@ def _from_route3_north(player, report, display, clips, output):
         raise RuntimeError("Route 3's north edge did not open Route 4: " + json.dumps(summary(player.state)))
     if player.exploring():
         report["saved_route4"] = player.pause_save()
+        _keep_bird_save(report)
     _from_route4(player, report, display, clips, output)
 
 
@@ -3267,6 +3270,18 @@ def _descend(player, report, display, clips, output):
     report["moon_b2_enter"] = {"kind": kind, "zone": player.state.get("zone")}
     if player.state.get("zone") != "kanto_mt_moon_b2f":
         raise RuntimeError("B1F stairs did not open B2F: " + json.dumps(summary(player.state)))
+    if _item_count(player, "domeFossil") >= 1:
+        # The fossil is already taken. The nerd now stands on (13, 7), and (12, 8) is the way past him.
+        avoid = (set(MOON_B2_AVOID) - {(12, 8)}) | {(5, 7), (13, 7)}
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        avoid.discard(here)
+        kind = player.travel(moon_b2_cells(), (6, 7), avoid, limit=40, blocked_edges=MOON_B2_EDGES)
+        report["moon_b2"] = kind
+        if "pewter" in str(player.state.get("zone")):
+            return "blackout"
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (6, 7):
+            raise RuntimeError("could not reach the Mt. Moon exit: " + json.dumps(summary(player.state)))
+        return _exit_moon(player, report)
     kind = player.travel(moon_b2_cells(), (12, 7), MOON_B2_AVOID, limit=40, blocked_edges=MOON_B2_EDGES)
     report["moon_b2"] = kind
     if "pewter" in str(player.state.get("zone")):
@@ -4799,7 +4814,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-75")
+            output = Path("/tmp/lane-j-squirtle-76")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
