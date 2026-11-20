@@ -59,3 +59,7 @@ Lane I moved to `51e1efc4`. Against E `6e4bc90f`:
 | `lane-e-battle-message.patch` | already-landed |
 
 The 13 host failures are harness, census, projection, and byte-freeze pins. No new patch from that list. Celadon capture stays with YellowBot after E lands the gym tones and the flower tile.
+
+## Round 3
+
+No new patch. SHIFT after a foe faint asks `Will RED\nchange POKéMON?` before the send-out, and SET does not (`tools/tests/test_lane_e_shift_faint.py`). A trainer wipe prints `_PlayerBlackedOutText2` and the Center spots match `FlyWarpData` (`tools/tests/test_lane_e_blackout.py`). The twelve Viridian arrows match the RLE paths and swap frames (`tools/tests/test_lane_e_spinner_motion.py`). The Squirtle walk to Brock is in `docs/validation/lane-k-squirtle-pewter.md`.
