@@ -1035,8 +1035,8 @@ class Player:
                     return "arrived"
         return "lost"
 
-    def run_away(self, limit=80):
-        """Leave a wild battle. The command menu can be empty for a frame, so that is a wait."""
+    def run_away(self, limit=240):
+        """Leave a wild battle. A failed escape still takes a full attack page, so the budget counts those pages."""
         misses = 0
         for _ in range(limit):
             root = self.state.get("root")
@@ -3768,7 +3768,10 @@ def _buy_vermilion(player, report, balls=8, supers=6):
     report["poke_balls"] = _shop_buy(player, "pokeBall", 200, balls)
     report["super_potions"] = _shop_buy(player, "superPotion", 700, supers)
     report["mart_money"] = int((player.state.get("inventory") or {}).get("money") or 0)
-    if report["poke_balls"] < min(4, balls) or report["super_potions"] < min(4, supers):
+    money_left = report["mart_money"]
+    short_balls = report["poke_balls"] < min(4, balls) and money_left >= 200
+    short_supers = report["super_potions"] < min(4, supers) and money_left >= 700
+    if short_balls or short_supers:
         raise RuntimeError("Vermilion Mart did not sell balls and Super Potions: " + json.dumps(summary(player.state)))
     for _ in range(8):
         if player.state.get("root") != "shop":
@@ -4070,7 +4073,8 @@ def _rest(player, report, label, supers, buy=True):
     doors.discard((11, 3))
     _heal_in(player, report, vermilion_cells(), (11, 3), VERMILION_NURSE,
              vermilion_center_cells(), label, "vermilion_city", avoid=doors)
-    if buy and _item_count(player, "superPotion") < supers:
+    money = int((player.state.get("inventory") or {}).get("money") or 0)
+    if buy and _item_count(player, "superPotion") < supers and money >= 700:
         _buy_vermilion(player, report, balls=8, supers=supers)
 
 
@@ -4261,10 +4265,15 @@ def _finish_wild(player, level, strong_at, potion_at=0):
                 _settle_catch(player)
             return
         foe = (player.state.get("battle") or {}).get("enemy") or {}
-        too_strong = foe.get("species") == "dugtrio" or (foe.get("level") or 99) > (level or 0) + strong_at
-        if too_strong and player.run_away():
-            return
-        player.fight(limit=1200, potion_at=max(potion_at, 32) if too_strong else potion_at)
+        foe_level = foe.get("level")
+        too_strong = foe.get("species") == "dugtrio" or (
+            foe_level is not None and foe_level > (level or 0) + strong_at)
+        if too_strong:
+            # A wild Dugtrio outspeeds a Diglett, so a failed run is not a reason to stay and attack.
+            if player.run_away() or player.exploring():
+                return
+            continue
+        player.fight(limit=1200, potion_at=potion_at)
     if not player.exploring():
         raise RuntimeError("a wild battle stayed open: " + json.dumps(summary(player.state)))
 
@@ -4304,7 +4313,7 @@ def _raise_diglett(player, report):
         dig_pp = (mon.get("pp") or {}).get("dig")
         # One cave hit can faint a Diglett that is still above 12 HP.
         max_hp = mon.get("maxHP") or 0
-        if lead != name or (mon.get("hp") or 0) < max(20, max_hp // 2) or dig_pp == 0:
+        if lead != name or (mon.get("hp") or 0) < max(20, max_hp // 2) or (dig_pp is not None and dig_pp < 4):
             _leave_diglett_cave(player)
             _rest(player, report, "mole heal", 4)
             _enter_diglett_cave(player)
@@ -4590,7 +4599,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-64")
+            output = Path("/tmp/lane-j-squirtle-65")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
