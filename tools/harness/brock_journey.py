@@ -370,7 +370,9 @@ class BrockJourney(ParcelJourney):
                 elif battle.get('waiting'):
                     self.send('wait 12', 'press a')
                 else:
-                    self.send('wait 2')
+                    # Animation between text boxes. A two-frame poll spends the
+                    # 1200-input cap on frames that are not decisions.
+                    self.send('wait 12')
             elif phase=='forcedSwitch':
                 # The rules enter this phase before the controller opens Party
                 # on its next update. Wait for that owner; never pick an outcome.
