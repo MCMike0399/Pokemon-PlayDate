@@ -3527,41 +3527,43 @@ class CharmanderRun(BrockJourney):
         if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
             self._heal_indigo()
 
-    def _collect_east_healing(self):
-        """Push the 3F boulder two tiles and take the Max Revive beside the cooltrainer."""
-        item = "pokered:VICTORY_ROAD_3F:objects:5"
-        trainer = "pokered:VICTORY_ROAD_3F:objects:1"
-        self._lead_starter()
-        if self.quantity("maxRevive") < 1 and not self.flag("PICKUP:" + item):
-            self._enter_east_cave()
-            if self._on("VictoryRoad2F"):
-                if self.position() != (28, 7):
-                    self._walk_avoiding_warps((28, 7))
-                self._step_onto_warp("left")
-            if not self._on("VictoryRoad3F"):
-                raise ProtocolError("3F stair missed: " + self._map_name() + " " + str(self.position()))
-            self._use_strength()
-            rock = self._actor_at("pokered:VICTORY_ROAD_3F:objects:9")
-            if rock == (24, 10):
-                self._walk_avoiding_warps((25, 10))
-                self._shove("left")
-                if self.position() != (24, 10):
-                    self._step("left")
-                self._shove("left")
-            self.pickup(item, "maxRevive", "PICKUP:" + item)
-            self.save()
-        if not self.defeated(trainer):
-            self.source_trainers[trainer] = {
-                "id": trainer, "payout": 1505, "map_id": "pokered:VICTORY_ROAD_3F",
-            }
-            if not self._on("VictoryRoad3F"):
-                self._enter_east_cave()
-                if self._on("VictoryRoad2F"):
-                    if self.position() != (28, 7):
-                        self._walk_avoiding_warps((28, 7))
-                    self._step_onto_warp("left")
-            if self._fight_if_here(trainer):
-                self.save()
+    def _fund_revive(self):
+        """The east door cannot reach a trainer. One owned Rare Candy sells for a Revive."""
+        if (self.quantity("revive") >= 1 or self.quantity("maxRevive") >= 1
+                or self.inventory()["money"] >= 1500 or self.quantity("rareCandy") < 1):
+            return
+        if not self._on("IndigoPlateauLobby"):
+            self._reach_lobby()
+        before, qty = self.inventory()["money"], self.quantity("rareCandy")
+        self.interact(source_id=self._INDIGO_CLERK)
+        self.require(root="shop", **{"shop.phase": "mode"})
+        self.select("shop.menu.selected", 2)
+        self.send("press a")
+        visited = set()
+        for _ in range(24):
+            current = lookup(self.state, "shop.item")
+            if current == "rareCandy":
+                break
+            if current in visited:
+                raise ProtocolError("Rare Candy absent from the Indigo sell list")
+            visited.add(current)
+            self.send("press down")
+        else:
+            raise ProtocolError("Indigo sell browse exceeded")
+        self.send("press a")
+        self.require(**{"shop.phase": "quantity", "shop.quantity": 1})
+        self.send("press a")
+        self.require(**{"shop.phase": "confirm"})
+        self.select("shop.menu.selected", 1)
+        self.send("press a")
+        self.require(**{"shop.phase": "result", "shop.result.ok": True})
+        total = lookup(self.state, "shop.result.total")
+        if type(total) is not int or total < 1500 or self.inventory()["money"] != before + total or self.quantity("rareCandy") != qty - 1:
+            raise ProtocolError("Rare Candy sale did not fund a Revive")
+        self.send("press a", "press b", "press b")
+        self.drain()
+        self._stock_league_items()
+        self.save()
 
     def _reopen_and_farm_trainers(self):
         """Route 23 closed the gates. Re-solve both floors, then take the trainer payout."""
@@ -3625,8 +3627,9 @@ class CharmanderRun(BrockJourney):
                         break
                     if (self.quantity("revive") < 1 and self.quantity("maxRevive") < 1
                             and self.quantity("fullRestore") < 1):
-                        # The south door is walled off from this side. The 3F ball is not.
-                        self._collect_east_healing()
+                        # Route 23 walls the south door off from the east cave. Sell one
+                        # Rare Candy at the lobby clerk, then buy the Revive.
+                        self._fund_revive()
                     elif (self.inventory()["money"] < 1500
                             and not self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1")):
                         self._reopen_and_farm_trainers()
