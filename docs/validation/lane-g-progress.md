@@ -209,6 +209,10 @@ Hall of Fame and credits capture checklist is `docs/validation/lane-g-hall-of-fa
 
 Dry run of that harness on E's tip, before lane I's Charmander reaches Lance. The fixture is the existing skip-intro party of one Charizard at level 65, money 1234, in `kanto_hall_of_fame`. Frames and `log.json` are in `artifacts/lane-g/hof-dryrun/`. The Hall of Fame card matches pokered for CHARIZARD (LEVEL/ 65, TYPE1/ FIRE, TYPE2/ FLYING, HALL OF FAME) and the dex pages. The player name is drawn at y=-16, above the 240px frame. Every credits PNG, including the copyright screen and THE END, is a black 400×240 frame: the system font stamps black glyphs in Copy mode on the black fill. The composed credits strings match the 36 screens and the 15 species. The harness fails on the three copyright lines and on THE END, which is assigned only in the done phase that `EventState:update` leaves before draw. The unapplied fix is `tools/notes/lane-e-hall-of-fame-draw.patch`. `tools/tests/test_lane_e_hall_of_fame_draw.py` fails on the live tree. No Source edit.
 
+## Round 24
+
+`edcbe288` is on main (`ea32b553` nests the coverage snapshot after it). The Champion-win recapture is `artifacts/lane-g/hof-main/`. Charizard shows `LEVEL/ 65`, `TYPE1/ FIRE`, `TYPE2/ FLYING`, and `HALL OF FAME`. `RED` is on the player card. Credits text is white on black, including `#MON` / `BLUE VERSION STAFF` / `venusaur`, the three `©'95.'96.'98` lines with `parasect`, and `THE END`. `python3 tools/tests/lane_g_hall_of_fame.py --log artifacts/lane-g/hof-main/log.json --pokered /tmp/pokered` prints `hall-of-fame ok (43 frames)`. No new lane-e patch.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
