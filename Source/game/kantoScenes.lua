@@ -2,6 +2,9 @@
 -- Import after EventState; install after ordinary Cerulean content registration.
 import "game/ceruleanStory"
 import "game/lateKantoStory"
+-- A variable call does not run the chunk, so PostgameStory stays nil.
+-- main.lua imports game/saves.lua before this file, so boot() can wrap Continue.
+import "game/postgameStory"
 import "game/ceruleanRoutes"
 import "game/ceruleanRoutesState"
 import "game/tutorialEscort"
