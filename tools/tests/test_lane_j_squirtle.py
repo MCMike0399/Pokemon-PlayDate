@@ -689,6 +689,8 @@ class SquirtleRouteTests(unittest.TestCase):
         opened.add((15, 18))
         self.assertIsNone(route(vermilion_cells(), (15, 17), (12, 20), VERMILION_DOORS - {(12, 19)}))
         self.assertIsNotNone(route(opened, (15, 17), (12, 20), VERMILION_DOORS - {(12, 19)}))
+        self.assertIsNone(route(vermilion_cells(), (12, 20), (11, 4), VERMILION_DOORS - {(11, 3)}))
+        self.assertIsNotNone(route(opened, (12, 20), (11, 4), VERMILION_DOORS - {(11, 3)}))
         self.assertIsNotNone(route(route6_cells(), (9, 35), (12, 30), ROUTE6_SKIP))
         floor = {(x, y) for (x, y) in route6_cells() if y < 14}
         bug = (set(ROUTE6_SKIP) | floor) - {(1, 15), (2, 15), (3, 15), (4, 15)}
@@ -4488,7 +4490,18 @@ def _toward_celadon(player, report):
                GYM_SIGHT, "vermilion_city", "gym exit")
         zone = str(player.state.get("zone"))
     if "vermilion_city" in zone:
-        _rest(player, report, "after Surge", 4)
+        # The gym door lands south of the cut tree. Static collision still treats that tile as solid.
+        opened = set(vermilion_cells())
+        opened.add((15, 18))
+        doors = set(VERMILION_DOORS)
+        doors.discard((11, 3))
+        _heal_in(player, report, opened, (11, 3), VERMILION_NURSE,
+                 vermilion_center_cells(), "after Surge", "vermilion_city", avoid=doors)
+        if (_item_count(player, "superPotion") < 4
+                and int((player.state.get("inventory") or {}).get("money") or 0) >= 700):
+            _buy_vermilion(player, report, balls=8, supers=4)
+        _pause(player, report, "saved_after_surge")
+        _keep_bird_save(report)
         zone = str(player.state.get("zone"))
     if "celadon" in zone:
         _pause(player, report, "saved_celadon")
@@ -4682,7 +4695,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-72")
+            output = Path("/tmp/lane-j-squirtle-73")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
