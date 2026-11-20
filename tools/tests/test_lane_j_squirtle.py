@@ -93,6 +93,8 @@ EIGHT_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/e0f8ae50d17a")
 EIGHT_SAVE_SHA = "9607c06671633cbcec45150d316937419197ae6741219eb202da39c8f00c4f9b"
 BRIDGE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/f420d9c1884d")
 BRIDGE_SAVE_SHA = "f0b12cacc9f2d7f7af0af17edfb5e09d6b2ac2fb34ee4e30a65087d526b8d8f2"
+GYM_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/gym-l22-seq15")
+GYM_SAVE_SHA = "493a71e0b74dc71fd65041e92c5c6c6fdb9f2639f5375b1fd1ab3f3f5646837e"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 CERULEAN_NURSE = "pokered:CERULEAN_POKECENTER:objects:1"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
@@ -562,6 +564,7 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(cerulean_mart_cells(), (5, 6), (4, 5)))
         self.assertIn((5, 7), cerulean_mart_cells())
         self.assertEqual(sha256_file(BRIDGE_SAVE / "adventure.b.json"), BRIDGE_SAVE_SHA)
+        self.assertEqual(sha256_file(GYM_SAVE / "adventure.a.json"), GYM_SAVE_SHA)
         self.assertIsNotNone(route(cerulean_cells(), (19, 18), (21, 0), CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)}))
         bridge = route24_cells()
         held = {(11, 31), (10, 28), (11, 25), (10, 22), (11, 19), (11, 15), (5, 20), (10, 5), (10, 15)}
@@ -2861,11 +2864,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-38")
-            save_from = BRIDGE_SAVE
-            digest = sha256_file(save_from / "adventure.b.json")
-            if digest != BRIDGE_SAVE_SHA:
-                raise SystemExit(f"blackout save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-39")
+            save_from = GYM_SAVE
+            digest = sha256_file(save_from / "adventure.a.json")
+            if digest != GYM_SAVE_SHA:
+                raise SystemExit(f"gym save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_misty_assist))
