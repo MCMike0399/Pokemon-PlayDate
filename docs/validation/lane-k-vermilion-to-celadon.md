@@ -4,7 +4,7 @@ Main is still `fe6376b9`. The champion-rival patch and the Hyper Beam recharge p
 
 pret/pokered `af519899`. Parties below are the object roster numbers in `parties.asm`. Moves are that species' level-1 set plus `evos_moves`, and then LoneMoves for the two leaders. Samples are the engine, seeds 1 onward, 0 IV / 0 EV. Super Potion heals 50.
 
-The team is Wartortle 28–30 (Tail Whip, Bubble, Water Gun, Bite), Bellsprout with Cut, one flyer, and Diglett or Dugtrio. Cut is not required on this walk. Bellsprout keeps it. Flash is optional: both Rock Tunnel floors are the dark maps, and nothing in the field move stops walking. This team does not learn Flash.
+The team is Wartortle 28–30 (Tail Whip, Bubble, Water Gun, Bite), Bellsprout with Cut, one flyer, and Diglett or Dugtrio. Cut is required once, on the Route 2 tree at `(5, 10)`, before Pewter. The rest of this walk does not need it. Bellsprout keeps it. Flash is optional: both Rock Tunnel floors are the dark maps, and nothing in the field move stops walking. This team does not learn Flash.
 
 ## Trash cans
 
@@ -51,7 +51,7 @@ The same room has a Gentleman with Pikachu 23, a Rocker with Voltorb 20, Magnemi
 
 The Center's east edge is `(39, 14)` and `(39, 15)`, onto Route 11. Do not keep going east for Lavender. Route 11's open east edge is y=8 and y=9. The connection adds 54, so those steps land on Route 12 at `(0, 62)` and `(0, 63)`. `(0, 63)` is solid. `(0, 62)` is the west end of Snorlax's row. He stands at `(10, 62)` until the Poké Flute fight, and the tile east of him is on the far side of that cell. No ledge leaves the pocket. The Route 12 gate is north of him, at y=15 and y=21. Its south door is the way through the building onto the north road, and that door is past him. The Route 11 gate returns to Route 11. Neither gate reaches Lavender or Rock Tunnel. The feet match pokered, so this build does not either.
 
-Lavender is the other way. Diglett's Cave is Route 11 source `(4, 5)`. It comes out on Route 2. North from there is Cerulean, then Route 9, Rock Tunnel, and Lavender. These tunnel trainers are on that walk, before Erika. Route 8's underground door is source `(13, 3)`. The west-east path comes out on Route 7, and Route 7's west edge is Celadon. The flute is in Lavender, so it cannot open Route 12 before this. The Saffron gates want a drink from the Celadon roof, which is after this. The Bike Voucher is the Fan Club in Vermilion and the bicycle is the Cerulean shop. Neither is required for Erika.
+Lavender is the other way. Diglett's Cave is Route 11 source `(4, 5)`. It comes out on Route 2 `(12, 9)`. The east side does not connect to Pewter until Cut on the tree at `(5, 10)`. That walk is `lane-k-route2-cave-side.md`. From Pewter, east is Route 3, Mt. Moon, Route 4, and Cerulean, then Route 9, Rock Tunnel, and Lavender. These tunnel trainers are on that walk, before Erika. Route 8's underground door is source `(13, 3)`. The west-east path comes out on Route 7, and Route 7's west edge is Celadon. The flute is in Lavender, so it cannot open Route 12 before this. The Saffron gates want a drink from the Celadon roof, which is after this. The Bike Voucher is the Fan Club in Vermilion and the bicycle is the Cerulean shop. Neither is required for Erika.
 
 ## Rock Tunnel
 
