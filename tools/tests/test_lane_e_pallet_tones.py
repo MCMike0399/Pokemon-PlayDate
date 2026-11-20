@@ -1,17 +1,16 @@
 """Pallet mockup C grass is two strokes, chosen per cell.
 
-Lane E has not applied this yet. tools/notes/lane-e-pallet-tones.patch
-paints overworld tiles $23 and $39 with mockup C's open-center stroke
-(192 black pixels) or its border stroke (78 black pixels). The center
-stroke is a bit of the cell's map position. $39 keeps a tuft accent.
-$2C keeps a lighter lawn stipple except on a center-stroke cell.
-Shade.LIGHT and importedTonePatterns.json stay on the approved Bayer bytes.
+tools/notes/lane-e-pallet-tones.patch is Lane G's approved mockup C.
+overworld.lua gained bitmap release after that patch was cut, so the same
+painter is in the live tree rather than a clean apply of the old hunk.
+$23 and $39 use the open-center stroke (192 black pixels) or the border
+stroke (78 black pixels). The center stroke is a bit of the cell's map
+position. $39 keeps a tuft accent. $2C keeps a lighter lawn stipple except
+on a center-stroke cell. Shade.LIGHT and importedTonePatterns.json stay on
+the approved Bayer bytes.
 """
 import json
 import re
-import shutil
-import subprocess
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -83,30 +82,15 @@ def assert_pallet_tones(root):
 
 
 class LaneEPalletToneTests(unittest.TestCase):
-    def test_pallet_tones_patch_applies(self):
-        completed = subprocess.run(
-            ["git", "apply", "--check", str(PATCH)],
-            cwd=ROOT, check=False, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stderr)
+    def test_notes_patch_is_mockup_c_and_leaves_shade_alone(self):
         text = PATCH.read_text()
+        self.assertIn("PALLET_CENTER", text)
+        self.assertIn("blitLawnStipple", text)
+        self.assertIn("0x888A888A", text)
         self.assertNotIn("Source/lib/shade.lua", text)
         self.assertNotIn("importedTonePatterns.json", text)
-        scratch = Path(tempfile.mkdtemp(prefix="lane-e-pallet-tones-"))
-        try:
-            completed = subprocess.run(
-                ["git", "worktree", "add", "--detach", str(scratch), "HEAD"],
-                cwd=ROOT, check=False, capture_output=True, text=True)
-            self.assertEqual(completed.returncode, 0, completed.stderr)
-            completed = subprocess.run(
-                ["git", "apply", str(PATCH)],
-                cwd=scratch, check=False, capture_output=True, text=True)
-            self.assertEqual(completed.returncode, 0, completed.stderr)
-            assert_pallet_tones(scratch)
-        finally:
-            subprocess.run(["git", "worktree", "remove", "--force", str(scratch)], cwd=ROOT, check=False)
-            shutil.rmtree(scratch, ignore_errors=True)
+        self.assertNotIn("MallocPoolSize", text)
 
-    @unittest.expectedFailure
     def test_pallet_ground_uses_per_tile_tones(self):
         assert_pallet_tones(ROOT)
 

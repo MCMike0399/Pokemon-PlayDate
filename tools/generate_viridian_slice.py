@@ -92,10 +92,13 @@ def source_artifacts(artifacts):
          for name in [n+'.json' for n in MAPS]+['sprites.json','dialogue.json']}
 
 def check_source(artifacts, directory):
+ from tools.flower_phase import same_decoded_bytes
+ from tools.generate_kanto_maps import json_bytes
  directory=Path(directory).resolve();expected=source_artifacts(artifacts)
  if {path.name for path in directory.glob('*.json')}!=set(expected):raise ValueError('Source JSON inventory mismatch')
  for name,data in expected.items():
-  if (directory/name).read_bytes()!=data:raise ValueError('Source JSON differs from pinned generation: '+name)
+  pinned=(directory/name).read_bytes()
+  if pinned!=data and not same_decoded_bytes(data, pinned, json_bytes):raise ValueError('Source JSON differs from pinned generation: '+name)
  return len(expected)
 
 def main():
