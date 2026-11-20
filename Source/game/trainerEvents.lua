@@ -1,3 +1,4 @@
+import "data/redPartyMoves"
 -- Cohesive trainer progression/temporary encounter owner. Session owns all
 -- durable flags/money; native EventState owns the bounded approach lifecycle.
 Class("TrainerEvents")
@@ -196,7 +197,11 @@ function TrainerEvents:launch(token)
     local party=Party()
     local planned=RulesRNG.new(1);planned:restore(RulesRNG.snapshot())
     for _,mon in ipairs(value.definition.party) do
-        assert(party:add(assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))))
+        local created = assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))
+        local scriptedMoves = RedPartyMoves[value.definition.id]
+        local scripted = scriptedMoves and scriptedMoves[mon.species]
+        if scripted then created:usePartyMoves(scripted) end
+        assert(party:add(created))
     end
     RulesRNG.restore(planned:snapshot()) -- Entire detached team succeeded.
     if value.lease then value.motion:releaseScript(value.lease); value.lease = nil end
