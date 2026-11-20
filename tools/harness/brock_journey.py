@@ -447,6 +447,11 @@ class BrockJourney(ParcelJourney):
         for _ in range(1200):
             if self.advance_event(stop_phase):continue
             root=self.state.get('root')
+            if root=='party' and not self.training_mode:
+                members=self.party();active=lookup(self.state,'session.party.active')
+                index=next((i for i,m in enumerate(members,1)if i!=active and m['hp']>0),None)
+                if index is None:raise ProtocolError('forced switch has no conscious reserve')
+                self.select('party_ui.selected',index);self.send('press a');continue
             if root=='battle':
                 if lookup(self.state,'battle.trainerName'):self.battle('source-trainer-'+str(len(self.summary['battles'])),expected='win')
                 elif self.training_mode:

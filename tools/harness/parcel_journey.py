@@ -405,6 +405,10 @@ class ParcelJourney(Journey):
         self.summary["wild_encounters"].append(entry)
         for _ in range(240):
             if self.state.get("root") != "battle":
+                # A failed RUN can faint the lead. The party screen is the
+                # replacement, not the end of the encounter.
+                if self.state.get("root") == "party":
+                    return
                 entry["exit"] = self.state.get("last_battle_outcome")
                 if lookup(self.state, "last_battle_outcome.blackout"):
                     raise ProtocolError("natural parcel walk interrupted by real blackout")
@@ -414,6 +418,8 @@ class ParcelJourney(Journey):
                 self.send("press a")
             elif phase == "script":
                 self.send("wait 12", "press a") if lookup(self.state, "battle.waiting") else self.send("wait 2")
+            elif phase == "forcedSwitch":
+                self.send("wait 2")
             elif phase == "command":
                 if lookup(self.state, "battle.inMoveSelect"):
                     self.send("press b")
