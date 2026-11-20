@@ -182,6 +182,10 @@ Celadon Gym stands at `(6, 15)` facing down, camera `(8, 336)`. The planters on 
 | `artifacts/lane-g/r20/celadon-gym.png` | `6ca82f940c3b2cda2d910ffb9c291170286d7af0a04f6971bbf64f0ffd92b3d4` |
 | `artifacts/lane-g/r20/pewter-gym.png` | `3bb08c527f8b024aa78920f94a5b4c391df732290101ee8126fc1ae925c0f51d` |
 
+BlueBot approved `celadon-gym.png` and `pewter-gym.png`. Those two stay. Do not re-shoot them unless Lane E commits a new gym atlas and asks for a confirmation capture.
+
+BlueBot did not approve `pallet-c-wide.png` or `pallet-c-street-lab.png`. Paths and lawns are still about 35% black. Mockup C / r19 is about 10–20% black, light stipple, and no heavy path pad. The two-stroke overlay is still only `tools/notes/lane-e-pallet-tones.patch`. Pallet stays on hold until Lane E lands that patch on `cursor/lane-e-integration`. The next capture is Pallet C only, same cameras: wide `(10, 7)` / `(136, 112)`, street/lab `(12, 12)` facing up / `(200, 272)`, under `artifacts/lane-g/r21/`. `origin/cursor/lane-e-integration` moved to `56414b63` after `51764017`, and that commit is the host-suite note plus the Champion continue check. `paintPalletField` is still absent. No Pallet re-shoot on this tip.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
