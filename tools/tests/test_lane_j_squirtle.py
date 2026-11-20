@@ -97,6 +97,8 @@ GYM_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/gym-l22-seq15")
 GYM_SAVE_SHA = "493a71e0b74dc71fd65041e92c5c6c6fdb9f2639f5375b1fd1ab3f3f5646837e"
 CASCADE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/ef2bcb5caf63")
 CASCADE_SAVE_SHA = "2ea6168fe10764c79740c173394672c21022f67591dbcc7de114570e696b7625"
+TICKET_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/191a86b9e4ed")
+TICKET_SAVE_SHA = "1363fe0f4563c44e931da1db5199022186790131dd7cd45f5cf87830838ae4ad"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 BILL_POKEMON = "pokered:BILLS_HOUSE:objects:1"
 BILL = "pokered:BILLS_HOUSE:objects:2"
@@ -626,6 +628,9 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(vermilion_cells(), (18, 0), (11, 4)))
         self.assertIsNone(route(vermilion_cells(), (18, 0), (12, 20)))
         self.assertIsNone(route(vermilion_cells(), (19, 0), (12, 20)))
+        self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
+        self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
+        self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -2204,6 +2209,12 @@ def _blackout(player, kind, label):
 
 
 def _stand(player, cells, goal, avoid, label, limit=40):
+    # route() rejects a start or goal that is listed as blocked. The player can
+    # already be standing on a door that the rest of the walk must not re-enter.
+    avoid = set(avoid)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    avoid.discard(tuple(goal))
     kind = player.travel(cells, goal, avoid, limit=limit)
     _settle_overlay(player)
     _blackout(player, kind, label)
@@ -2216,8 +2227,12 @@ def _stand(player, cells, goal, avoid, label, limit=40):
 def _leave(player, cells, cells_and_dirs, avoid, zone_part, label):
     """Walk off one of the edge cells. The first that changes maps wins."""
     last = "stayed"
+    here = (player.state["player"]["x"], player.state["player"]["y"])
     for cell, direction in cells_and_dirs:
-        last = leave_map(player, cells, cell, avoid, direction)
+        local = set(avoid)
+        local.discard(here)
+        local.discard(cell)
+        last = leave_map(player, cells, cell, local, direction)
         _settle_overlay(player)
         _blackout(player, last, label)
         if zone_part in str(player.state.get("zone")):
@@ -2274,24 +2289,26 @@ def play_bill_vermilion(player, report, display, clips, output):
         player.dismiss_until_explore(limit=40)
     report["resumed"] = summary(player.state)
     report["outcome_stamp"] = _outcome_stamp(player)
-    if "cerulean" not in str(player.state.get("zone")):
-        raise RuntimeError("the ticket walk did not resume in Cerulean: " + json.dumps(summary(player.state)))
-    if "gym" in str(player.state.get("zone")):
-        _leave(player, cerulean_gym_cells(), [((5, 13), "down"), ((6, 13), "down")],
-               CERULEAN_GYM_AVOID, "cerulean_city", "gym exit")
-    if _needs_heal(player) or ((player.state.get("pokemon") or {}).get("hp") or 0) < 40:
-        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
-                 cerulean_center_cells(), "before_bill", "cerulean_city",
-                 avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
-    _return_to_bridge(player, report)
     bridge_avoid = {(10, 5), (11, 15), (5, 20)}
-    _stand(player, route24_cells(), (19, 8), bridge_avoid, "Route 24 east")
-    _leave(player, route24_cells(), [((19, 8), "right"), ((19, 9), "right")],
-           bridge_avoid, "route_25", "Route 25")
-    _stand(player, route25_cells(), (45, 4), ROUTE25_SKIP, "Bill's door")
-    _enter(player, route25_cells(), (45, 3), ROUTE25_SKIP, "up", "bills_house", "Bill's house")
-    _bill(player, report, display, clips, output)
-    _leave(player, bills_house_cells(), [((4, 7), "down"), ((5, 7), "down")],
+    if _item_count(player, "ssTicket") < 1:
+        if "cerulean" not in str(player.state.get("zone")):
+            raise RuntimeError("the ticket walk did not resume in Cerulean: " + json.dumps(summary(player.state)))
+        if "gym" in str(player.state.get("zone")):
+            _leave(player, cerulean_gym_cells(), [((5, 13), "down"), ((6, 13), "down")],
+                   CERULEAN_GYM_AVOID, "cerulean_city", "gym exit")
+        if _needs_heal(player) or ((player.state.get("pokemon") or {}).get("hp") or 0) < 40:
+            _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                     cerulean_center_cells(), "before_bill", "cerulean_city",
+                     avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+        _return_to_bridge(player, report)
+        _stand(player, route24_cells(), (19, 8), bridge_avoid, "Route 24 east")
+        _leave(player, route24_cells(), [((19, 8), "right"), ((19, 9), "right")],
+               bridge_avoid, "route_25", "Route 25")
+        _stand(player, route25_cells(), (45, 4), ROUTE25_SKIP, "Bill's door")
+        _enter(player, route25_cells(), (45, 3), ROUTE25_SKIP, "up", "bills_house", "Bill's house")
+        _bill(player, report, display, clips, output)
+    if "bills_house" in str(player.state.get("zone")):
+        _leave(player, bills_house_cells(), [((4, 7), "down"), ((5, 7), "down")],
            set(), "route_25", "Bill's exit")
     _stand(player, route25_cells(), (0, 9), ROUTE25_SKIP, "Route 25 west")
     _leave(player, route25_cells(), [((0, 9), "left"), ((0, 8), "left")],
@@ -2307,9 +2324,8 @@ def play_bill_vermilion(player, report, display, clips, output):
     house_doors.discard((27, 11))
     _enter(player, cerulean_cells(), (27, 11), house_doors, "up", "trashed_house", "burgled house")
     _enter(player, trashed_house_cells(), (5, 0), set(), "up", "cerulean_city", "burgled back door")
-    # (30, 7) and (30, 9) start the thief. The y=32 ledge is on Route 5 and is not this walk.
-    _stand(player, cerulean_cells(), (30, 10), set(CERULEAN_DOORS) | {(15, 18), (30, 8)}, "thief approach")
-    _stand(player, cerulean_cells(), (30, 9), set(CERULEAN_DOORS) | {(15, 18), (30, 8)}, "Cerulean thief")
+    # (27, 9) is the back door we just left. (30, 9) is the thief. (30, 10) is solid.
+    _stand(player, cerulean_cells(), (30, 9), set(CERULEAN_DOORS) | {(15, 18)}, "Cerulean thief")
     south_avoid = set(CERULEAN_DOORS) | {(15, 18), (30, 8)}
     _stand(player, cerulean_cells(), (26, 35), south_avoid, "Cerulean south")
     _leave(player, cerulean_cells(), [((26, 35), "down"), ((25, 35), "down"), ((27, 35), "down"), ((28, 35), "down")],
@@ -3088,11 +3104,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-40")
-            save_from = CASCADE_SAVE
-            digest = sha256_file(save_from / "adventure.a.json")
-            if digest != CASCADE_SAVE_SHA:
-                raise SystemExit(f"cascade save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-41")
+            save_from = TICKET_SAVE
+            digest = sha256_file(save_from / "adventure.b.json")
+            if digest != TICKET_SAVE_SHA:
+                raise SystemExit(f"ticket save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_bill_vermilion))
