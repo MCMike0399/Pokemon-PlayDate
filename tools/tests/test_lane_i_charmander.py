@@ -3516,20 +3516,52 @@ class CharmanderRun(BrockJourney):
             return False
         if starter["status"] not in {None, "none"}:
             return False
-        return self.quantity("revive") >= 1 or self.quantity("fullRestore") >= 1
+        return (self.quantity("revive") >= 1 or self.quantity("maxRevive") >= 1
+                or self.quantity("fullRestore") >= 1)
 
     def _heal_reachable_center(self):
-        """Walk the south road to Viridian. The lobby nurse is only used once we are inside it."""
-        if self._on("IndigoPlateauLobby"):
-            composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
-            if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
-                self._heal_indigo()
-            return
-        if self._on("VictoryRoad1F") or self._on("VictoryRoad2F") or self._on("VictoryRoad3F"):
-            self._leave_east_cave()
-        if self._on("IndigoPlateau"):
-            self._cross_edge("down")
-        self.heal_here("ViridianPokecenter")
+        """The east cave door only joins the Indigo side of Route 23. Viridian is behind that wall."""
+        if not self._on("IndigoPlateauLobby"):
+            self._reach_lobby()
+        composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
+        if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
+            self._heal_indigo()
+
+    def _collect_east_healing(self):
+        """Push the 3F boulder two tiles and take the Max Revive beside the cooltrainer."""
+        item = "pokered:VICTORY_ROAD_3F:objects:5"
+        trainer = "pokered:VICTORY_ROAD_3F:objects:1"
+        self._lead_starter()
+        if self.quantity("maxRevive") < 1 and not self.flag("PICKUP:" + item):
+            self._enter_east_cave()
+            if self._on("VictoryRoad2F"):
+                if self.position() != (28, 7):
+                    self._walk_avoiding_warps((28, 7))
+                self._step_onto_warp("left")
+            if not self._on("VictoryRoad3F"):
+                raise ProtocolError("3F stair missed: " + self._map_name() + " " + str(self.position()))
+            self._use_strength()
+            rock = self._actor_at("pokered:VICTORY_ROAD_3F:objects:9")
+            if rock == (24, 10):
+                self._walk_avoiding_warps((25, 10))
+                self._shove("left")
+                if self.position() != (24, 10):
+                    self._step("left")
+                self._shove("left")
+            self.pickup(item, "maxRevive", "PICKUP:" + item)
+            self.save()
+        if not self.defeated(trainer):
+            self.source_trainers[trainer] = {
+                "id": trainer, "payout": 1505, "map_id": "pokered:VICTORY_ROAD_3F",
+            }
+            if not self._on("VictoryRoad3F"):
+                self._enter_east_cave()
+                if self._on("VictoryRoad2F"):
+                    if self.position() != (28, 7):
+                        self._walk_avoiding_warps((28, 7))
+                    self._step_onto_warp("left")
+            if self._fight_if_here(trainer):
+                self.save()
 
     def _reopen_and_farm_trainers(self):
         """Route 23 closed the gates. Re-solve both floors, then take the trainer payout."""
@@ -3591,7 +3623,11 @@ class CharmanderRun(BrockJourney):
                         self._lead_starter()
                     if self._can_attempt_lorelei():
                         break
-                    if (self.inventory()["money"] < 1500
+                    if (self.quantity("revive") < 1 and self.quantity("maxRevive") < 1
+                            and self.quantity("fullRestore") < 1):
+                        # The south door is walled off from this side. The 3F ball is not.
+                        self._collect_east_healing()
+                    elif (self.inventory()["money"] < 1500
                             and not self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1")):
                         self._reopen_and_farm_trainers()
                     else:
