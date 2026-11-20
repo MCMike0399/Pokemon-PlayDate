@@ -2902,6 +2902,11 @@ class CharmanderRun(BrockJourney):
                 "EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2")
             self.save()
             self.summary.update(acceptance="Victory Road 2F switch 2", natural=True, forbidden_shortcuts=False)
+        # Route 23 closes these gates on entry. Collect the payout first.
+        if (self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1")
+                and self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2")
+                and self._bench_share and not self._lorelei_bench_ready()):
+            self._collect_victory_payout()
         if (self.position()[0] >= 27
                 and self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1")
                 and self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH2")):
@@ -3327,7 +3332,7 @@ class CharmanderRun(BrockJourney):
         start = len(self.summary.get("training") or [])
         steps = 0
         while len(self.summary.get("training") or []) < start + battles and steps < 220:
-            if self._lorelei_bench_ready() or not self._on("VictoryRoad2F"):
+            if self._lorelei_bench_ready() or not self._on("VictoryRoad2F") or self._party_needs_center():
                 return
             goal = b if self.position() == a else a
             dx, dy = goal[0] - self.position()[0], goal[1] - self.position()[1]
@@ -3387,6 +3392,20 @@ class CharmanderRun(BrockJourney):
         except ProtocolError:
             return False
         return True
+
+    def _collect_victory_payout(self):
+        """Beat the trainers the open gates can reach. One payout buys a Revive."""
+        self._pin_victory_trainers()
+        self._open_victory_gates()
+        for trainer in (
+            "pokered:VICTORY_ROAD_2F:objects:2",
+            "pokered:VICTORY_ROAD_2F:objects:3",
+            "pokered:VICTORY_ROAD_2F:objects:5",
+            "pokered:VICTORY_ROAD_2F:objects:1",
+        ):
+            if self.inventory()["money"] >= 1500 and self._lorelei_bench_ready():
+                return
+            self._fight_if_here(trainer)
 
     def _join_victory_floor(self):
         """The Route 23 door opens into a walled pocket. Trainers are past it.
