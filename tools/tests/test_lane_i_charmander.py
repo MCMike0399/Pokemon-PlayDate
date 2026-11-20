@@ -2392,6 +2392,12 @@ class CharmanderRun(BrockJourney):
                 self._giovanni_once()
                 return
             except NaturalBlackout:
+                if self.flag("BADGE_EARTH"):
+                    # A league loss used to be counted as a Giovanni walk.
+                    # The plateau checkpoint is the real heal, then the lobby.
+                    self.recover_blackout()
+                    self._lead_starter()
+                    continue
                 if self.state.get("root") == "dialog":
                     self.dialog()
                 self._arrange_lead("starter")
@@ -3036,13 +3042,63 @@ class CharmanderRun(BrockJourney):
         index = next(i for i, mon in enumerate(self.party(), 1) if mon["species"] == "charizard")
         self._field_item(item, index)
 
-    def _advance_or_bank(self, room):
-        """The south door stays shut after the win. Heal in place, then go north.
+    def _needs_league_heal(self):
+        """A paralyzed or half-HP lead with no Full Restore cannot open Lance."""
+        starter = self._starter_mon()
+        if starter is None or starter["hp"] <= 0:
+            return (self.quantity("revive") + self.quantity("maxRevive")
+                    + self.quantity("fullRestore")) < 1
+        if starter["status"] not in {None, "none"}:
+            return self.quantity("fullRestore") < 1
+        if starter["hp"] * 2 < starter["maxHP"]:
+            return self._healing_items() < 1
+        return False
 
-        Standing on Lorelei's lobby warp at (6, 11) does not leave the room,
-        so a payout cannot be spent until a blackout. Two Revives cover a KO.
+    def _retreat_to_lobby(self):
+        """Walk the south mats back to the Indigo nurse.
+
+        Those mats are edge doors: landing on the tile does not warp, and
+        the next step down does. The lobby reset clears the Elite Four
+        flags. That is the nurse, and the payout is what buys the heals.
         """
+        rooms = ("ChampionsRoom", "LancesRoom", "AgathasRoom", "BrunosRoom", "LoreleisRoom")
+        for _ in range(8):
+            if self._on("IndigoPlateauLobby") or self._on("IndigoPlateau"):
+                return True
+            if not any(self._on(name) for name in rooms):
+                return True
+            south = [warp for warp in self.model().warps if warp[1] > 0]
+            if not south:
+                return False
+            door = max(south, key=lambda warp: (warp[1], warp[0]))
+            if door[1] == self.model().height - 1:
+                above = (door[0], door[1] - 1)
+                if self.position() != door:
+                    if self.position() != above:
+                        self.navigate(above)
+                    self.send("press down", "wait 15")
+                    self.drain()
+                for _ in range(3):
+                    if not any(self._on(name) for name in rooms):
+                        return True
+                    if self.position() != door:
+                        break
+                    self.send("press down", "wait 20")
+                    self.drain()
+            else:
+                above = (door[0], max(0, door[1] - 1))
+                if self.position() not in {door, above}:
+                    self.navigate(above)
+                if self.position() != door:
+                    self.send("press down", "wait 15")
+                    self.drain()
+        return self._on("IndigoPlateauLobby") or self._on("IndigoPlateau")
+
+    def _advance_or_bank(self, room):
+        """Heal at the lobby nurse when the lead cannot take the next room."""
         self._top_off_in_field()
+        if self._needs_league_heal() and self._retreat_to_lobby():
+            return "bank"
         self._leave_north(room, self._north_stand())
         return "forward"
 
@@ -3106,11 +3162,16 @@ class CharmanderRun(BrockJourney):
                 return
         if self._on("LancesRoom"):
             self.drain()
+            if self._needs_league_heal() and not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
+                if self._retreat_to_lobby():
+                    return
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
                 self._lead_starter()
+                self._record_screen("lance", 60)
                 self._talk_to_actor("pokered:LANCES_ROOM:objects:1")
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
                 raise ProtocolError("Lance did not start: " + str(self.position()))
+            self._record_screen("lance-win", 30)
             self.save()
             self.summary.update(acceptance="Lance defeated", natural=True, forbidden_shortcuts=False)
             if self._advance_or_bank("LancesRoom") == "bank":
@@ -3126,6 +3187,7 @@ class CharmanderRun(BrockJourney):
                 self._talk_to_actor("pokered:CHAMPIONS_ROOM:objects:1")
             if not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
                 raise ProtocolError("Champion did not start: " + str(self.position()))
+        self._record_screen("champion-win", 30)
         self.save()
         self.summary.update(acceptance="Champion defeated", natural=True, forbidden_shortcuts=False)
         self._record_screen("credits", 90)
