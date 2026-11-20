@@ -3036,53 +3036,15 @@ class CharmanderRun(BrockJourney):
         index = next(i for i, mon in enumerate(self.party(), 1) if mon["species"] == "charizard")
         self._field_item(item, index)
 
-    def _retreat_to_lobby(self):
-        """The south door opens after a win. The lobby shop is the only heal between rooms.
-
-        Entering the lobby clears the Elite Four flags. The payout stays, which
-        is what buys the Full Restores for the next attempt.
-        """
-        rooms = ("ChampionsRoom", "LancesRoom", "AgathasRoom", "BrunosRoom", "LoreleisRoom")
-        for _ in range(8):
-            if self._on("IndigoPlateauLobby"):
-                return
-            if not any(self._on(room) for room in rooms):
-                break
-            door = max(self.model().warps, key=lambda warp: (warp[1], warp[0]))
-            stand = (door[0], max(0, door[1] - 1))
-            if self.position() != stand:
-                self.navigate(stand)
-            left = False
-            for _ in range(4):
-                if self._on("IndigoPlateauLobby") or not any(self._on(room) for room in rooms):
-                    left = True
-                    break
-                before = self.position()
-                self.send("press down", "wait 15")
-                self.drain()
-                if self.position() != before:
-                    left = True
-                    break
-            if not left:
-                raise ProtocolError("Elite Four south door stayed closed at " + str(self.position()))
-        if not self._on("IndigoPlateauLobby"):
-            raise ProtocolError("Elite Four retreat stopped in " + self._map_name() + " " + str(self.position()))
-
     def _advance_or_bank(self, room):
-        """Walk north only when Charizard is healthy and two heals are in the bag."""
+        """The south door stays shut after the win. Heal in place, then go north.
+
+        Standing on Lorelei's lobby warp at (6, 11) does not leave the room,
+        so a payout cannot be spent until a blackout. Two Revives cover a KO.
+        """
         self._top_off_in_field()
-        starter = self._starter_mon()
-        healthy = starter is not None and starter["hp"] > 0 and starter["hp"] * 5 >= starter["maxHP"] * 4
-        if getattr(self, "_league_push", False):
-            if healthy or self._healing_items() >= 1:
-                self._leave_north(room, self._north_stand())
-                return "forward"
-        elif healthy and self._healing_items() >= 2:
-            self._league_push = True
-            self._leave_north(room, self._north_stand())
-            return "forward"
-        self._retreat_to_lobby()
-        return "bank"
+        self._leave_north(room, self._north_stand())
+        return "forward"
 
     def _reopen_lorelei(self):
         """Step out to the lobby and back through the north door.
