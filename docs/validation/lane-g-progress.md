@@ -165,6 +165,23 @@ The player HUD stays at `x=160, y=96, w=224, h=48`. `tools/notes/lane-e-enemy-pl
 
 The r15 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `fde6a429` with the lane E patches applied, including the shift. That bundle's `source_sha256` is `95f4784205079ab31b396e27c6debdf5b59003b82a7a3961c35169b7e20a3ae7` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r15/`: `menu.png` and `gap.png`.
 
+## Round 20
+
+Lane E tip `5176401725558a31aad4c212c36245a0de3050ed` is in this branch by merge (`327466fc`). A rebase would have rewritten the 12 lane-G commits and needed a force push, so the branch was not rebased. `origin/main` is still `6e4bc90f` and was not moved. `Shade.LIGHT` is still `{0x55, 0xBB, 0x55, 0xFF, 0x55, 0xBB, 0x55, 0xFF}`.
+
+Playdate Simulator 3.1.2. The four frames are 400×240 in `artifacts/lane-g/r20/`.
+
+Pallet C is the imported town (`pallet_town`, source `PalletTown`, padding 0). The wide frame stands at `(10, 7)` facing down, camera `(136, 112)`. The street/lab frame stands at `(12, 12)` facing up, camera `(200, 272)`, with the lab door on the row above. Both use the approved global Bayer. The two-stroke mockup C overlay is still only `tools/notes/lane-e-pallet-tones.patch`. It is not applied on `51764017`.
+
+Celadon Gym stands at `(6, 15)` facing down, camera `(8, 336)`. The planters on that row are `pokered:GYM:cell:2b-2b-03-2b` (tile `$03` in the lower-left quadrant). Pewter Gym stands at `(6, 8)` facing down, camera `(8, 144)`, on the same GYM tileset. The committed `Source/terrainAtlases/gym-table-32-32.png` is still the pre-override bake from `7219d8a5`. These two frames were rendered from a scratch rebuild of that table by the generator `a1740550` landed (`tools/generate_terrain_atlases.py` plus `Source/data/terrainToneOverrides.json`). The rebuilt table was not committed: the same generator also rewrites other tilesets, and this lane does not own the atlas. `generate_kanto_maps.py` now substitutes flower1 for tile `$03` when the tileset animation is `TILEANIM_WATER_FLOWER`. `CeladonGym.json` was not regenerated in `a1740550`, so the flower shape is the grid already stored on that cell, redrawn with the GYM tones.
+
+| Frame | sha256 |
+| --- | --- |
+| `artifacts/lane-g/r20/pallet-c-wide.png` | `8ffb2659dea65be7424fbb6808fd7e173c671689dfd9dafad1757a42297bcc7c` |
+| `artifacts/lane-g/r20/pallet-c-street-lab.png` | `ddfd558c12a87cafa3a72feffaa393f31ae31261bee5511dcf77d5e1bf1c4604` |
+| `artifacts/lane-g/r20/celadon-gym.png` | `6ca82f940c3b2cda2d910ffb9c291170286d7af0a04f6971bbf64f0ffd92b3d4` |
+| `artifacts/lane-g/r20/pewter-gym.png` | `3bb08c527f8b024aa78920f94a5b4c391df732290101ee8126fc1ae925c0f51d` |
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
