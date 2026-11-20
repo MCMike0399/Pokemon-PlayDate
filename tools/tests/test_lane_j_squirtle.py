@@ -112,7 +112,7 @@ def disabled_move(message, options):
 
 
 def preferred_move(options, skip=(), enemy_types=()):
-    """Water Gun, then Bubble, then Bite. Bite leads against a Water-type."""
+    """Water Gun, then Bubble, then Bite. Bite leads when Water is resisted."""
     named = []
     skipped = set()
     for name in skip or ():
@@ -122,7 +122,8 @@ def preferred_move(options, skip=(), enemy_types=()):
         if letters in {"", "DASH"} or str(name).strip() in {"", "-"} or letters in skipped:
             continue
         named.append((index, name, letters))
-    resisted = "water" in {str(kind).lower() for kind in (enemy_types or ()) if kind}
+    types = {str(kind).lower() for kind in (enemy_types or ()) if kind}
+    resisted = "water" in types or "grass" in types
     order = ("BITE", "TACKLE", "WATERGUN", "BUBBLE") if resisted else ("WATERGUN", "BUBBLE", "BITE", "TACKLE")
     for want in order:
         for index, name, letters in named:
@@ -921,12 +922,16 @@ class Player:
                 return kind
             root = self.state.get("root")
             if root == "battle":
+                before = self.state.get("last_battle_outcome")
                 trainer = (self.state.get("battle") or {}).get("trainerName")
                 if trainer:
                     self.fight(limit=2500)
                 elif not self.run_away():
                     self.fight(limit=2500)
                 self.dismiss_until_explore(limit=80)
+                after = self.state.get("last_battle_outcome") or {}
+                if after != before and after.get("won") is False:
+                    return "blackout"
                 continue
             if root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event"):
                 self.dismiss_until_explore(limit=100)
@@ -1940,6 +1945,8 @@ def _return_to_bridge(player, report):
     for cell in ((21, 0), (20, 0)):
         kind = player.travel(cerulean_cells(), cell, avoid, limit=30)
         _settle_overlay(player)
+        if kind == "blackout":
+            raise RuntimeError("blackout before the bridge: " + json.dumps(summary(player.state)))
         if (player.state["player"]["x"], player.state["player"]["y"]) != cell:
             continue
         if player.state["player"].get("facing") != "up":
@@ -1987,6 +1994,8 @@ def _bridge_spot(player, report, spot, avoid):
     _return_to_bridge(player, report)
     kind = player.travel(route24_cells(), spot, avoid, limit=30)
     _settle_overlay(player)
+    if kind == "blackout":
+        raise RuntimeError("blackout on Nugget Bridge: " + json.dumps(summary(player.state)))
     _abort_if_lost(player, report)
     report.setdefault("bridge", []).append({"spot": list(spot), "kind": kind, **summary(player.state)})
     _heal_on_bridge(player, report)
@@ -1997,6 +2006,8 @@ def _take_nugget(player, report):
     _return_to_bridge(player, report)
     kind = player.travel(route24_cells(), (10, 16), {(10, 15), (11, 15), (5, 20)}, limit=30)
     _settle_overlay(player)
+    if kind == "blackout":
+        raise RuntimeError("blackout before the Nugget: " + json.dumps(summary(player.state)))
     if (player.state["player"]["x"], player.state["player"]["y"]) != (10, 16):
         raise RuntimeError("could not stand south of the Nugget: " + json.dumps(summary(player.state)))
     player.step("up")
@@ -2113,6 +2124,25 @@ def play_misty_assist(player, report, display, clips, output):
     report["outcome_stamp"] = _outcome_stamp(player)
     if "cerulean" not in str(player.state.get("zone")):
         raise RuntimeError("the assist did not resume in Cerulean: " + json.dumps(summary(player.state)))
+    stocked = (_item_count(player, "potion") >= 8 and _item_count(player, "nugget") == 0
+               and ((player.state.get("pokemon") or {}).get("level") or 0) >= 20)
+    if not stocked:
+        _prepare_misty(player, report)
+    level = (player.state.get("pokemon") or {}).get("level") or 0
+    report["level"] = level
+    if level < 20:
+        raise RuntimeError("Nugget Bridge ended below level 20: " + json.dumps(summary(player.state)))
+    if _needs_heal(player) or ((player.state.get("pokemon") or {}).get("hp") or 0) < 40:
+        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                 cerulean_center_cells(), "before_misty", "cerulean_city",
+                 avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    if player.exploring():
+        report["saved_before_gym"] = player.pause_save()
+    _fight_misty(player, report, display, clips, output)
+
+
+def _prepare_misty(player, report):
+    """Bridge, Nugget, and eight Potions. The gym stays closed until this returns."""
     _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
              cerulean_center_cells(), "before_bridge", "cerulean_city",
              avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
@@ -2123,10 +2153,11 @@ def play_misty_assist(player, report, display, clips, output):
     _bridge_spot(player, report, (5, 19), bodies)
     _heal_on_bridge(player, report, floor=51, come_back=False)
     _sell_nugget_buy_potions(player, report)
-    if _needs_heal(player) or ((player.state.get("pokemon") or {}).get("hp") or 0) < 40:
-        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
-                 cerulean_center_cells(), "before_misty", "cerulean_city",
-                 avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    report["level"] = (player.state.get("pokemon") or {}).get("level")
+
+
+def _fight_misty(player, report, display, clips, output):
+    """South door, Bite only, Potion at 34 or below."""
     gym_doors = set(CERULEAN_DOORS) | {(30, 7), (30, 9), (15, 18)}
     gym_doors.discard((30, 19))
     kind = step_onto(player, cerulean_cells(), (30, 19), gym_doors, "up")
@@ -2825,7 +2856,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-36")
+            output = Path("/tmp/lane-j-squirtle-37")
             save_from = BRIDGE_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != BRIDGE_SAVE_SHA:
