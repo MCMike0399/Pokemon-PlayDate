@@ -206,6 +206,20 @@ end
 function TrainerEvents:attachBattle(token,battle)
     local value,reason=info(self,token);if not value then return false,reason end
     if value.phase~="battle" or not battle:is("Battle") or battle.enemyParty~=value.party or battle.party~=value.session:party() or battle.trainerName~=value.definition.name then return false,"wrong-trainer-battle" end
+    local descriptor = SourceEvents.has(value.definition.id) and SourceEvents.descriptor(value.definition.id) or nil
+    if descriptor and descriptor.kind == "trainer" and descriptor.won then
+        local title = value.session:title()
+        local playerName = title and title.playerName or "RED"
+        local ram = {player = playerName, wAmountMoneyWon = value.definition.payout}
+        local lines = {}
+        for _, page in ipairs(SourceEvents.pages(value.definition.id, descriptor.won, ram)) do
+            lines[#lines + 1] = page.text
+        end
+        local money = SourceEvents.pages(value.definition.id, {"_MoneyForWinningText"}, ram)
+        battle.playerName = playerName
+        battle.endBattleLines = lines
+        battle.prizeLine = money[1].text
+    end
     value.battle=battle;return true
 end
 function TrainerEvents:currentBattleToken(npc)

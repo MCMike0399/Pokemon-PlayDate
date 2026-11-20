@@ -1025,6 +1025,11 @@ function EndgameStory.applyRoom(game)
             game.session:setQuestFlag(event, false)
         end
         game.session:setQuestFlag(STARTED_ELITE_FOUR, false)
+        -- The quest flags are the pokered events. The battle itself keys off
+        -- the trainer bit, which the lobby reset was leaving set.
+        for _, room in ipairs(data.elite_four) do
+            game.session:setTrainerDefeated(room.id, false)
+        end
     end
     for _, switch in ipairs(data.victory_road.switches) do
         if switch.map == name and game.session:questFlag(switch.event) then

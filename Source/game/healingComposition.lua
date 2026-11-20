@@ -7,6 +7,18 @@ local offsets={{-8,14,false},{8,14,true},{-8,24,false},{8,24,true},{-8,34,false}
 local acceptedMachines = setmetatable({}, {__mode = "k"})
 function HealingComposition.layout(zone)
     assert(zone, "explicit healing-machine map required")
+    if zone.stableID == "pokered:INDIGO_PLATEAU_LOBBY" then
+        assert(TILE_SIZE == 32, "healing OAM composition requires native2x source tiles")
+        -- A Center draws this machine on cell (1, 0). The lobby uses the same
+        -- two tiles at cell (5, 4): two cells left and one up from the nurse.
+        local monitorX <const> = 5 * TILE_SIZE + 24
+        local monitorY <const> = 4 * TILE_SIZE + 8
+        local result <const> = {monitor = {x = monitorX, y = monitorY}, balls = {}}
+        for i, row in ipairs(offsets) do
+            result.balls[i] = {x = result.monitor.x + row[1], y = result.monitor.y + row[2], flip_x = row[3]}
+        end
+        return result
+    end
     if acceptedMachines[zone] ~= zone.stableID then
         if zone.stableID ~= "pokered:VIRIDIAN_POKECENTER" and zone.stableID ~= "pokered:PEWTER_POKECENTER" then
             local name = SourceMaps.nameForID(zone.stableID)
