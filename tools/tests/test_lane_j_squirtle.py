@@ -100,6 +100,10 @@ def viridian_cells():
     return open_map(ROOT / "Source/data/viridianSlice/ViridianCity.json", 0, 40)
 
 
+def mart_cells():
+    return open_map(ROOT / "Source/data/viridianSlice/ViridianMart.json", 2, 13)
+
+
 # IntroMovie.SCENES. Copyright and the black bars ignore A. The shooting
 # star accepts A as skip-to-fight, and the fight accepts A as finish.
 INTRO_STEP_WAIT = 12
@@ -146,11 +150,18 @@ def neighbor(cell, direction):
 
 
 def route(open_cells, start, goal, avoid=()):
-    """Four-direction walk on open cells. The goal may be open. avoid is blocked."""
+    """Four-direction walk on open cells. The goal may be open. avoid is blocked.
+
+    The start cell counts as open. Pallet's Route 1 seam (9, 0) is solid in
+    the source grid and forced open at runtime, and the player is already
+    standing on it.
+    """
     blocked = set(avoid)
+    open_cells = set(open_cells)
+    open_cells.add(start)
     if start == goal:
         return []
-    if start not in open_cells or goal not in open_cells or start in blocked or goal in blocked:
+    if goal not in open_cells or start in blocked or goal in blocked:
         return None
     queue = [start]
     previous = {start: None}
@@ -175,8 +186,8 @@ def route(open_cells, start, goal, avoid=()):
 
 def first_cell(open_cells, start, predicate, avoid=()):
     blocked = set(avoid)
-    if start not in open_cells:
-        return None
+    open_cells = set(open_cells)
+    open_cells.add(start)
     queue = [start]
     seen = {start}
     while queue:
@@ -276,6 +287,14 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(title_action(["CONTINUE", "NEW GAME", "OPTION"]), "CONTINUE")
         self.assertEqual(title_action(["NEW GAME", "OPTION"]), "NEW GAME")
         self.assertIsNone(title_action(["OPTION"]))
+        mart = mart_cells()
+        self.assertEqual(route(mart, (4, 5), (6, 7)), ["down", "down", "right", "right"])
+        self.assertIsNotNone(route(padded_open_cells("pallet_town"), (10, 0), (12, 11), avoid={(5, 5), (13, 5)}))
+        pallet = padded_open_cells("pallet_town")
+        self.assertNotIn((9, 0), pallet)
+        seam = route(pallet, (9, 0), (12, 11), avoid={(5, 5), (13, 5)})
+        self.assertIsNotNone(seam)
+        self.assertNotIn((5, 5), route_cells(pallet, (9, 0), (12, 11), avoid={(5, 5), (13, 5)}))
 
     def test_button_vocabulary_excludes_warps_and_fixtures(self):
         assert_real_input(["press a", "wait 12", "snapshot", {"op": "await", "path": "zone", "equals": "oaks_lab"}])
@@ -949,6 +968,80 @@ def play_continue(player, report):
         report["after_parcel_save"] = summary(player.state)
 
 
+def play_deliver(player, report):
+    """Carry Oak's Parcel from the Mart back to Oak."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["continued"] = summary(player.state)
+    if "mart" not in str(player.state.get("zone")):
+        raise RuntimeError("continue did not resume the Mart: " + json.dumps(summary(player.state)))
+    if parcel_count(player.state) < 1:
+        raise RuntimeError("the Mart save has no parcel: " + json.dumps(summary(player.state)))
+    kind = player.travel(mart_cells(), (6, 7), set())
+    report["mart_exit"] = {"kind": kind, **summary(player.state)}
+    if kind != "arrived":
+        raise RuntimeError("could not reach the Mart mat: " + json.dumps(summary(player.state)))
+    player.press("down", wait=12)
+    player.settle(limit=120)
+    player.dismiss_until_explore(limit=20)
+    report["outside_mart"] = summary(player.state)
+    if "viridian_city" not in str(player.state.get("zone")):
+        raise RuntimeError("Mart door did not return to Viridian: " + json.dumps(summary(player.state)))
+    city = viridian_cells()
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    kind = player.travel(city, VIRIDIAN_SOUTH, set(VIRIDIAN_WARPS), limit=20)
+    report["south_gate"] = {"kind": kind, **summary(player.state)}
+    if kind != "arrived":
+        raise RuntimeError("could not reach Viridian's south edge: " + json.dumps(summary(player.state)))
+    player.press("down", wait=12)
+    player.settle(limit=120)
+    player.dismiss_until_explore(limit=20)
+    report["route1_return"] = summary(player.state)
+    if "route" not in str(player.state.get("zone")):
+        raise RuntimeError("Viridian south did not reach Route 1: " + json.dumps(summary(player.state)))
+    route1 = route1_cells()
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    south = first_cell(route1, here, lambda cell: cell[1] == 35 and cell[0] == 10)
+    if south is None:
+        south = first_cell(route1, here, lambda cell: cell[1] == 35)
+    kind = player.travel(route1, south, set(), limit=40)
+    report["route1_south"] = {"kind": kind, "goal": south, **summary(player.state)}
+    if kind != "arrived":
+        raise RuntimeError("could not reach Route 1's south edge: " + json.dumps(summary(player.state)))
+    player.press("down", wait=12)
+    player.settle(limit=120)
+    player.dismiss_until_explore(limit=20)
+    report["pallet_return"] = summary(player.state)
+    if "pallet" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 1 did not reach Pallet: " + json.dumps(summary(player.state)))
+    pallet = padded_open_cells("pallet_town")
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    kind = player.travel(pallet, (12, 11), {(5, 5), (13, 5)}, limit=20)
+    report["lab_door"] = {"kind": kind, **summary(player.state)}
+    if "lab" not in str(player.state.get("zone")) and kind == "arrived":
+        player.press("up", wait=12)
+        player.settle(limit=120)
+    player.dismiss_until_explore(limit=30)
+    report["lab_return"] = summary(player.state)
+    if "lab" not in str(player.state.get("zone")):
+        raise RuntimeError("Pallet did not enter the lab: " + json.dumps(summary(player.state)))
+    lab = padded_open_cells("oaks_lab")
+    kind = player.travel(lab, (6, 3), set(), limit=15)
+    report["oak"] = {"kind": kind, **summary(player.state)}
+    if kind == "arrived" and player.state["player"].get("facing") != "up":
+        player.press("up", wait=4)
+    player.press("a", wait=8)
+    player.dismiss_until_explore(limit=80)
+    report["after_oak"] = summary(player.state)
+    report["parcel_left"] = parcel_count(player.state)
+    if parcel_count(player.state) >= 1:
+        raise RuntimeError("Oak did not take the parcel: " + json.dumps(summary(player.state)))
+    if player.exploring():
+        report["saved_oak"] = player.pause_save()
+        report["after_oak_save"] = summary(player.state)
+
+
 def play(output, clips, save_from=None, story=None):
     import sys
     import uuid
@@ -1026,6 +1119,12 @@ if __name__ == "__main__":
         unittest.main()
     else:
         clips = ROOT / "artifacts" / "lane-j"
+        if "--deliver" in sys.argv:
+            output = Path("/tmp/lane-j-squirtle-5")
+            save_from = Path.home() / "Developer/PlaydateSDK/Disk/Data/com.poc.pokemon.harness.a7df918d4bb548558874d7e419888dfd"
+            if output.exists():
+                raise SystemExit(f"{output} already exists")
+            raise SystemExit(play(output, clips, save_from=save_from, story=play_deliver))
         if "--continue" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-3")
             save_from = Path.home() / "Developer/PlaydateSDK/Disk/Data/com.poc.pokemon.harness.3548dbef55f74fdd867104123d77c2df"
