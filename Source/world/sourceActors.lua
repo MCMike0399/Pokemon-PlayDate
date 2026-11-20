@@ -107,6 +107,15 @@ function SourceActors.stepImage(source, facing, tick, profile)
     return content(profile or "pewter").stepImage(source, facing, tick)
 end
 
+local PALLET_NAMES <const> = {
+    TEXT_OAKSLAB_RIVAL = "BLUE",
+    TEXT_OAKSLAB_OAK1 = "OAK",
+    TEXT_OAKSLAB_OAK2 = "OAK",
+    TEXT_PALLETTOWN_OAK = "OAK",
+    TEXT_REDSHOUSE1F_MOM = "MOM",
+    TEXT_BLUESHOUSE_DAISY_SITTING = "Daisy",
+    TEXT_BLUESHOUSE_DAISY_WALKING = "Daisy",
+}
 function SourceActors.objectDefinition(d, event, spec, options)
     local profile = SourceMaps.entry(d.name).profile
     local resolver = content(profile)
@@ -122,7 +131,7 @@ function SourceActors.objectDefinition(d, event, spec, options)
         end
         return visibility
     end
-    local def = { gridX=event.x, gridY=event.y, name=trainer and trainer.name or event.text_id,
+    local def = { gridX=event.x, gridY=event.y, name=PALLET_NAMES[event.text_id] or trainer and trainer.name or event.text_id,
         sprite=key, source_event_id=event.id, source_sprite=event.sprite,
         source_boulder=SourceActors.isBoulderEvent(event),
         source_movement={kind=event.movement, range=event.range_or_facing},
@@ -198,7 +207,12 @@ function SourceActors.describeSource(zoneID, world, game)
             local delta=({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
             for i=0,math.max(0,trainer.sight_range_cells-1)do spec.script_positions[(event.y+delta[2]*i)*surface.width+event.x+delta[1]*i+1]=true end
         end
-        local positions = SourceEvents.actorPositions(event.id)
+        -- The Mew gift uses a postgame id, not a pokered object index. It has no
+        -- script route. Pokered object ids still go through the stable-id check.
+        local positions = {}
+        if event.id:match("^pokered:[^:]+:objects:%d+$") then
+            positions = SourceEvents.actorPositions(event.id)
+        end
         for _,position in ipairs(positions) do
             assert(position.x < surface.width and position.y < surface.height, "script position outside source map")
             local cell = position.y * surface.width + position.x + 1
@@ -235,14 +249,16 @@ function SourceActors.describeSource(zoneID, world, game)
             spec.script_positions[cell] = true
         end
         spec.script_overlap = {}
-        for _, position in ipairs(SourceEvents.actorOverlapPositions(event.id)) do
+        local overlaps = event.id:match("^pokered:[^:]+:objects:%d+$") and SourceEvents.actorOverlapPositions(event.id) or {}
+        for _, position in ipairs(overlaps) do
             local cell = position.y * surface.width + position.x + 1
             assert(spec.script_positions[cell], "script overlap outside source script positions")
             spec.script_overlap[cell] = true
         end
         local metadata = resolver.metadata and resolver.metadata(d, event, game) or {}
         spec.script_collision_positions = {}
-        for _, position in ipairs(SourceEvents.actorCollisionPositions(event.id)) do
+        local collisions = event.id:match("^pokered:[^:]+:objects:%d+$") and SourceEvents.actorCollisionPositions(event.id) or {}
+        for _, position in ipairs(collisions) do
             local cell = position.y * surface.width + position.x + 1
             assert(spec.script_positions[cell] and not protected[cell], "collision exception outside source script positions")
             spec.script_collision_positions[cell] = true

@@ -25,7 +25,7 @@ local function settle(b, stopMessage)
     error("script did not reach command/learning after presentation")
 end
 local function setup(species,level,moves,two,enemyLevel,enemySpecies)
-    local game=GameContext();local mon=Pokemon(species or "squirtle",level or 6);assert(game:recruit(mon))
+    local game=GameContext();local mon=Pokemon(species or "squirtle",level or 7);assert(game:recruit(mon))
     if species and species~="squirtle" and species~="bulbasaur" and species~="charmander" then assert(game:recruit(Pokemon("charmander",5))) end
     local starter=({charmander=true,squirtle=true,bulbasaur=true})[mon.species] and mon.species or "charmander"
     local rival=({charmander="squirtle",squirtle="bulbasaur",bulbasaur="charmander"})[starter]
@@ -69,15 +69,34 @@ end
 -- that move. The confirmation text is _AbandonLearningText ("Abandon learning"
 -- plus the move name and "?"), not a later-generation "Stop learning" line.
 local function dismissLearningMessage(game, learning)
-    for _ = 1, 6 do
+    -- A finishes the typewriter. The complete page then stays up for 10
+    -- frames, which is MESSAGE_MIN_FRAMES / WaitForTextScrollButtonPress,
+    -- before a later A can turn it. Each wrapped page has to clear that hold.
+    for _ = 1, 8 do
+        if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+            return
+        end
         eq(game.machine:getCurrent(), "learning")
         eq(learning.phase, "message")
         Autopilot.beginFrame()
         Autopilot.step({"press", "a"}, game)
         game.machine:handleInput()
+        for _ = 1, 12 do
+            if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+                return
+            end
+            Autopilot.beginFrame()
+            game.machine:handleInput()
+        end
         if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
             return
         end
+        Autopilot.beginFrame()
+        Autopilot.step({"press", "a"}, game)
+        game.machine:handleInput()
+    end
+    if game.machine:getCurrent() ~= "learning" or learning.phase ~= "message" then
+        return
     end
     error("learning message did not end")
 end
@@ -105,9 +124,10 @@ local function declineByButtons(game, learning, seen)
     game.machine:handleInput()
     eq(learning.phase, "message")
     eq(learning.messageKind, "declined")
-    local text = table.concat(learning.dialog.lines, "\n")
-    assert(text:find("did not learn", 1, true), text)
-    assert(text:find(moveData[move].name, 1, true), text)
+    -- data/text/text_4.asm _DidNotLearnText: name, then "did not learn",
+    -- then `cont` scrolls that row up and prints the move.
+    eq(learning.dialog.lines[1], learning.pokemon.name .. "\ndid not learn")
+    eq(learning.dialog.lines[2], "did not learn\n" .. moveData[move].name .. "!")
     eq(#learning.pokemon:getPendingMoveChoices(), before - 1)
     for _, choice in ipairs(learning.pokemon:getPendingMoveChoices()) do
         eq(choice.id == id, false, "declined choice still pending")
@@ -228,8 +248,8 @@ function BattleLearningContracts.run()
         finishMessage(learning);eq(game.machine:getCurrent(),"battle")
     end)
     test("All actual participating recipients resolve sequentially before enemy2",function()
-        local game,owner,p,e,reserve=setup(nil,nil,nil,true);local bench=Pokemon("charmander",6)
-        bench.xp=bench:xpForLevel(7)-1;assert(game:recruit(bench))
+        local game,owner,p,e,reserve=setup(nil,nil,nil,true);local bench=Pokemon("charmander",8)
+        bench.xp=bench:xpForLevel(9)-1;assert(game:recruit(bench))
         local b=owner.battle;assert(b:chooseParty(2));settle(b);eq(b.player,bench)
         faint(owner);local first=overlay(game,owner);eq(first.pokemon,p);eq(b.enemy,e)
         finishMessage(first);settle(b);eq(b:getLearningSnapshot().species,"charmander");eq(b.enemy,e)
@@ -336,10 +356,12 @@ function BattleLearningContracts.run()
         valid.enemy_party={[1]={species="rattata",level=5},[3]={species="geodude",level=5}}
         eq(pcall(function() HarnessFixtures.reset(game,valid) end),false);eq(game.session,session);eq(game.machine:current(),stack);sameRNG(rng)
     end)
-    test("Squirtle B2W2 Bubble is the ordered level7 move not constructor level6",function()
-        local p=Pokemon("squirtle",6);eq(p:hasMove("bubble"),false);local found=0
-        for _,entry in ipairs(pokemonData.squirtle.learnset) do if entry.move=="bubble" then eq(entry.level,7);eq(entry.id,145);found=found+1 end end
-        eq(found,1);p:gainXP(p:xpForLevel(7)-p.xp);eq(p:getPendingMoveChoices()[1].move,"bubble");eq(p:hasMove("bubble"),false)
+    test("Squirtle Bubble is the pokered level8 move not constructor level7",function()
+        local p=Pokemon("squirtle",7);eq(p:hasMove("bubble"),false);local found=0
+        for _,entry in ipairs(PokeredLearnsets.entriesBetween("squirtle", 8, 8)) do
+            if entry.move=="bubble" then eq(entry.level,8);eq(entry.id,145);found=found+1 end
+        end
+        eq(found,1);p:gainXP(p:xpForLevel(8)-p.xp);eq(p:getPendingMoveChoices()[1].move,"bubble");eq(p:hasMove("bubble"),false)
     end)
     test("Level 50 Articuno decline then YES ends that move and the win can emit", function()
         -- Seafoam B4F Articuno is level 50. A full moveset must be able to

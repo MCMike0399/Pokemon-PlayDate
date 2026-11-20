@@ -24,7 +24,8 @@ PROTECTED_DRIFT = {
     'Source/world/tilefactory.lua': '946c4b00b736632ebf7fa08e7a25ea118e7deb9c',
     'Source/world/spritefactory.lua': '61ea7445f4f783113ff359f68b167cf5273a8b69',
     'Source/world/player.lua': '411d4428c55a341d22e54673269dcb50a38bfbd8',
-    'Source/world/zone.lua': 'b086c523fb0e7ab6193a7de6cff67f65674317cd',
+    # f036d38c releases an inactive city before the next map view allocates.
+    'Source/world/zone.lua': 'f036d38c17d5a2db4ca5d47d09c38369d29a6a22',
     'Source/data/maps.lua': '42f9286346663a3270ff2a136c0bb6d78fab4745',
 }
 MECHANICS_FREEZE = {
@@ -34,9 +35,9 @@ MECHANICS_FREEZE = {
     'Source/battle/ordinaryAbilities.lua': '59103c25ae2206381b5026ae4e5edbfb4c6d6246',
     'Source/battle/contactAbilities.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
     'Source/battle/substitutePolicy.lua': 'd9c39c119d3e0b001d1fd33e4d7849f5c1806dda',
-    # db83fbfd widens names to printable ASCII plus × ♂ ♀ and saves them at session version 5.
-    'Source/domain/pokemonCodec.lua': 'db83fbfd90fdaae160b406a088b744386d8faa11',
-    'Source/domain/sessionCodec.lua': 'db83fbfd90fdaae160b406a088b744386d8faa11',
+    # 05aab518 releases each Pokémon snapshot while a save slot is encoded.
+    'Source/domain/pokemonCodec.lua': '05aab518183c3f5b981d4018ca34ea427e3bedbe',
+    'Source/domain/sessionCodec.lua': '05aab518183c3f5b981d4018ca34ea427e3bedbe',
     'Source/lib/rng.lua': '921f02bb3a81c25010b2983d9c0024b307ea7708',
     # 264d302a puts Thrash and the sibling fields back at epoch 6 and Sunny Day/Hail at epoch 7.
     'tools/references/move-producer-migrations.json': '264d302a0640f6387c5084198b3ecc71c15713b1',

@@ -73,6 +73,7 @@ function Items.planUse(id, mon, moveSlot)
                 plan.ppRestored = plan.ppRestored+after-before
             end
         end
+    elseif item.effect == "statStage" then return nil,"battle-only"
     else return nil,"unsupported-item-use" end
     plan.hpRestored = plan.hpAfter-plan.hpBefore
     if plan.clearStatus then plan.statusCured=mon.status end

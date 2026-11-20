@@ -63,6 +63,7 @@ end
 -- DialogState and the composed production event executor. Missing integration
 -- fails explicitly; injected withScene must supply the same native surface.
 function KantoServicesContracts.withScene(name, options, fn)
+    collectgarbage("collect")
     local oldZone = currentZone
     local oldOwner = GameSession.activeRNGSession()
     local oldRNG = RulesRNG.snapshot()
@@ -109,6 +110,8 @@ function KantoServicesContracts.withScene(name, options, fn)
         end
     end
     if zone then zone:disposeView() end
+    zone = nil
+    collectgarbage("collect")
     restoreTiles()
     local active = GameSession.activeRNGSession()
     if active then active:deactivateRNG() end

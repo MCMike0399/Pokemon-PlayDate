@@ -173,7 +173,9 @@ function PartyState:handleInput()
             self.selected = self.selected % count + 1
         elseif playdate.buttonJustPressed(playdate.kButtonA) then
             if self.phase == "swap" then
-                assert(party:swap(self.swapFrom, self.selected))
+                local from, to = self.swapFrom, self.selected
+                assert(party:swap(from, to))
+                if from ~= to then self.swapReceipt = {from = from, to = to} end
                 -- The first conscious roster member leads field encounters.
                 local lead = party:firstUsable()
                 if lead then assert(party:switch(lead)) end

@@ -36,8 +36,6 @@ setmetatable(Story,{__index=function(_,key) if fields[key] then return Story.get
     __newindex=function(t,key,value) assert(not fields[key],"Story fields are session-owned"); rawset(t,key,value) end})
 
 local STARTER_LEVEL <const> = 5
-local BALL_TILE <const> = 37   -- Pb: table with a POKE BALL on it
-local TABLE_TILE <const> = 28  -- Tb: plain table (ball taken)
 
 local COUNTER <const> = {
     bulbasaur = "charmander",
@@ -45,13 +43,19 @@ local COUNTER <const> = {
     squirtle = "bulbasaur",
 }
 
--- The three starter balls on Oak's table (grid coords in oaks_lab).
+-- The three starter balls on Oak's table, imported lab coordinates.
 -- Gen 1 left-to-right order: CHARMANDER, SQUIRTLE, BULBASAUR.
+local PALLET_ID <const> = "pokered:PALLET_TOWN"
+local LAB_ID <const> = "pokered:OAKS_LAB"
+local LAB_KEY <const> = "kanto_oaks_lab"
 local BALLS <const> = {
-    { x = 6, y = 2, species = "charmander" },
-    { x = 7, y = 2, species = "squirtle" },
-    { x = 8, y = 2, species = "bulbasaur" },
+    { x = 7, y = 3, species = "charmander" },
+    { x = 8, y = 3, species = "squirtle" },
+    { x = 9, y = 3, species = "bulbasaur" },
 }
+local function zoneIs(id)
+    return currentZone and currentZone.stableID == id
+end
 
 -- ------------------------------------------------------------
 -- Oak's speech. engine/movie/oak_speech/oak_speech.asm OakSpeech
@@ -245,21 +249,14 @@ function Story.begin(game,seed)
     return game:beginNewSession(seed)
 end
 
-local function setLabTile(gx, gy, id)
-    zoneRegistry.oaks_lab:setTile(gx, gy, id)
-end
-
-local function takeBall(species)
+-- The imported balls are actors, not Pb tiles. Taking one removes that actor.
+local function takeBall(game, species)
+    if not game or not zoneIs(LAB_ID) or not game.npcManager then return end
     for _, ball in ipairs(BALLS) do
         if ball.species == species then
-            setLabTile(ball.x, ball.y, TABLE_TILE)
+            local npc = game.npcManager:getNPCAt(ball.x, ball.y)
+            if npc then game.npcManager:removeNPC(npc) end
         end
-    end
-end
-
-local function restoreBalls()
-    for _, ball in ipairs(BALLS) do
-        setLabTile(ball.x, ball.y, BALL_TILE)
     end
 end
 
@@ -286,13 +283,13 @@ function Story.check(game, overworldState)
     local stage = Story.get(game).stage
 
     -- Scene triggers: fire on BEING somewhere, not on a step
-    if stage == "lab_greet" and currentZone == zoneRegistry.oaks_lab then
+    if stage == "lab_greet" and zoneIs(LAB_ID) then
         update(game,{stage="choose"})
         game.machine:push("dialog", Story.labGreet(game))
         return true
     end
 
-    if stage == "goodbye" and currentZone == zoneRegistry.oaks_lab then
+    if stage == "goodbye" and zoneIs(LAB_ID) then
         update(game,{stage="done"})
         local lines = Story.goodbye(game, Story.get(game).rivalOutcome)
         game.machine:push("dialog", lines, function()
@@ -306,20 +303,20 @@ function Story.check(game, overworldState)
     if not (player and player.stepJustFinished) then return false end
 
     -- Oak stops you at the Route 1 grass strip and escorts you to the lab
-    if stage == "pre_oak" and currentZone == zoneRegistry.pallet_town
+    if stage == "pre_oak" and (zoneIs(PALLET_ID) or zoneIs("pallet_town"))
        and player.gridY <= 2 then
         game.machine:push("dialog", OAK_STOP, function()
             update(game,{stage="lab_greet"})
             -- Drop the player a clear tile below Oak so the two sprites
             -- don't stack into one tall figure
             overworldState.sub:change("doorWarp",
-                { to = "oaks_lab", toX = 5, toY = 5, facing = "up" })
+                { to = LAB_KEY, toX = 6, toY = 4, facing = "up" })
         end)
         return true
     end
 
     -- BLUE blocks the lab exit and challenges you
-    if stage == "pre_rival" and currentZone == zoneRegistry.oaks_lab
+    if stage == "pre_rival" and zoneIs(LAB_ID)
        and player.gridY >= 8 then
         local session=game.session
         game.machine:push("dialog", Story.rivalChallenge(game), function()
@@ -352,12 +349,11 @@ end
 
 function Story.tryInteract(game, fx, fy)
     if Story.tryNameRater(game, fx, fy) then return true end
-    if Story.get(game).stage ~= "choose" or currentZone ~= zoneRegistry.oaks_lab then
+    if Story.get(game).stage ~= "choose" or not zoneIs(LAB_ID) then
         return false
     end
     for _, ball in ipairs(BALLS) do
-        if ball.x == fx and ball.y == fy
-           and currentZone.tiles[fy + 1][fx + 1] == BALL_TILE then
+        if ball.x == fx and ball.y == fy and game.npcManager:getNPCAt(fx, fy) then
             Story.chooseStarter(game, ball.species)
             return true
         end
@@ -370,8 +366,8 @@ function Story.chooseStarter(game, species)
     assert(game.session:party():count()==0,"starter requires an empty party")
     assert(game:recruit(starterPokemon(game, species)))
     assert(game.session:setIntro({stage="pre_rival",starter=species,rivalStarter=COUNTER[species]}))
-    takeBall(species)
-    takeBall(Story.get(game).rivalStarter)
+    takeBall(game, species)
+    takeBall(game, Story.get(game).rivalStarter)
     local mon = game:getPlayerPokemon()
     local speciesName = pokemonData[species].name
     game.machine:push("dialog", {
@@ -510,7 +506,7 @@ function Story.skipIntro(game)
     local starter=tuple.starter or "squirtle"
     if not game:getPlayerPokemon() then assert(game:recruit(starterPokemon(game, starter))) end
     assert(game.session:setIntro({stage="done",starter=starter,rivalStarter=COUNTER[starter],rivalOutcome=tuple.rivalOutcome}))
-    takeBall(starter); takeBall(COUNTER[starter])
+    takeBall(game, starter); takeBall(game, COUNTER[starter])
 end
 
 function Story.resetIntro(game)

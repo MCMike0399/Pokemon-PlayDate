@@ -1,0 +1,44 @@
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -530,6 +530,14 @@ function BattleScene:drawBattleField()
+     if self.playerShown and not self:isFaintSlide("player")
+         and not (flashHide and self.battle.attackerSide == "enemy") then
+         self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
++    elseif not self.playerIntroDone then
++        -- pokered draws Red's back on the player platform until the first
++        -- send-out. The platform was empty through "wants to battle!".
++        local sendingPlayer = self.activePresentation and self.activePresentation.kind == "sendout"
++            and self.activePresentation.details and self.activePresentation.details.side == "player"
++        if not sendingPlayer then
++            self:drawPlayerBack()
++        end
+     end
+ 
+     -- Draw platforms on top of resting sprites. A faint slide is drawn after
+@@ -952,6 +960,9 @@ function BattleScene:updateVisualEvent(request)
+         self.trainerVisible = false
+     elseif request.kind == "sendout" then
+         self[request.details.side .. "Shown"] = request.details.pokemon
++        if request.details.side == "player" then
++            self.playerIntroDone = true
++        end
+     elseif request.kind == "recall" or request.kind == "faint" then
+         self[request.details.side .. "Shown"] = nil
+     end
+@@ -1036,6 +1047,16 @@ function BattleScene:drawLevelStats()
+     end
+ end
+ 
++function BattleScene:drawPlayerBack()
++    if self.playerBackImage == nil then
++        self.playerBackImage = gfx.image.new("images/player/red-pic-back") or false
++    end
++    if not self.playerBackImage then return end
++    local _, h = self.playerBackImage:getSize()
++    -- The player platform's top edge is y 150. Stand Red on it.
++    self.playerBackImage:draw(40, 150 - h)
++end
++
+ function BattleScene:drawTrainer()
+     local sourceClass = self.battle.trainerClass
+     if not sourceClass then

@@ -6,6 +6,7 @@ import "domain/growth"
 import "data/specimenData"
 import "data/specimenTraits"
 import "domain/specimen"
+import "data/pokeredLearnsets"
 
 -- Gen I species with complete B2W2 level-up learnsets (version group 14).
 -- Auto-generated from veekun/pokedex data
@@ -1256,42 +1257,21 @@ local function moveDefinition(key)
     return move
 end
 
--- New encounters/gifts only. Evolution must preserve a Pokemon's chosen moves.
--- Forward FIFO4 mirrors PKHeX SetEncounterMoves: already-known duplicates do
--- not reorder slots; a forgotten move can be learned at a later source event.
+-- Wild, gift, and starter moves follow pret/pokered WriteMonMoves.
+-- Level-1 moves plus evos_moves at or below this level, last four kept.
 function Pokemon.initialMovesFor(species, level)
     checkedLevel(level)
-    local data = pokemonData[species]
-    assert(data and data.learnset, "Missing level-aware learnset: " .. tostring(species))
-    local moves = {}
-    for _, entry in ipairs(data.learnset) do
-        if entry.level > level then break end
-        if entry.level >= 1 then
-            moveDefinition(entry.move)
-            local known = false
-            for _, key in ipairs(moves) do if key == entry.move then known = true; break end end
-            if not known then
-                if #moves == 4 then table.remove(moves, 1) end
-                moves[#moves + 1] = entry.move
-            end
-        end
-    end
-    assert(#moves > 0, "Pokemon has no eligible initial move: " .. species)
-    return moves
+    return PokeredLearnsets.movesAtLevel(species, level)
 end
 
--- Detached source events for explicit level-up/relearning/evolution owners.
--- Level0 entries are excluded from ordinary encounter and level-up learning.
+function Pokemon.trainerMovesFor(species, level, class, index, starter)
+    checkedLevel(level)
+    return PokeredLearnsets.trainerMoves(species, level, class, index, starter)
+end
+
+-- Level-up, evolution, relearn, and daycare read pokered evos_moves.
 function Pokemon.learnsetEntriesFor(species, minimum, maximum)
-    local data = pokemonData[species]
-    assert(data and data.learnset, "Missing level-aware learnset: " .. tostring(species))
-    local entries = {}
-    for _, entry in ipairs(data.learnset) do
-        if entry.level >= minimum and entry.level <= maximum then
-            entries[#entries + 1] = {move = entry.move, level = entry.level, order = entry.order, id = entry.id}
-        end
-    end
-    return entries
+    return PokeredLearnsets.entriesBetween(species, minimum, maximum)
 end
 
 function Pokemon:hasMove(key)
@@ -1395,6 +1375,23 @@ function Pokemon:init(species, level, attributes)
     self.nextMoveChoiceId = 1
     for _, moveKey in ipairs(self.moves) do
         self.pp[moveKey] = moveDefinition(moveKey).maxPP
+    end
+end
+
+-- A scripted party replaces the Gen V learnset with the pokered moves for that slot.
+function Pokemon:usePartyMoves(keys)
+    assert(type(keys) == "table" and #keys >= 1 and #keys <= 4, "party moves require 1..4 slots")
+    local moves, seen = {}, {}
+    for _, key in ipairs(keys) do
+        assert(type(key) == "string" and not seen[key], "duplicate party move")
+        seen[key] = true
+        moveDefinition(key)
+        moves[#moves + 1] = key
+    end
+    self.moves = moves
+    self.pp = {}
+    for _, key in ipairs(moves) do
+        self.pp[key] = moveDefinition(key).maxPP
     end
 end
 

@@ -27,7 +27,10 @@ local INDIGO_RESET <const> = {
 local VISIBILITY <const> = {
     ["pokered:VIRIDIAN_GYM:objects:1"] = {{group = "quest", id = GIOVANNI_HIDE, equals = false}},
     [MOLTRES] = {{group = "quest", id = "EVENT_BEAT_MOLTRES", equals = false}},
-    ["pokered:VICTORY_ROAD_2F:objects:13"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_2F_BOULDER", equals = false}},
+    -- Pokered always places the 2F puzzle boulder (objects:13) at (23, 16).
+    -- Route 23 sets TOGGLE_VICTORY_ROAD_2F_BOULDER on the way in, so hiding
+    -- objects:13 on that flag removed the only boulder that can reach the
+    -- switch at (9, 16). The 3F hole boulder stays on its own toggle.
     ["pokered:VICTORY_ROAD_3F:objects:10"] = {{group = "quest", id = "TOGGLE_VICTORY_ROAD_3F_BOULDER", equals = false}},
     ["pokered:CHAMPIONS_ROOM:objects:2"] = {{group = "quest", id = OAK_SHOW, equals = true}},
 }
@@ -466,7 +469,11 @@ end
 function EndgameStory.playerHallRows(stats)
     stats = stats or {}
     return {
-        {text = stats.name or "RED", col = 7, row = 2},
+        -- HoFDisplayPlayerStats places the name at hlcoord 7, 2. The hall
+        -- view is a 2x Game Boy screen shifted up 48px so the row-15
+        -- caption fits, which puts that tile at y=-16. One tile lower
+        -- lands on the first visible row.
+        {text = stats.name or "RED", col = 7, row = 3},
         {text = "PLAY TIME", col = 1, row = 6},
         {text = EndgameStory.formatPlayTime(stats.hours, stats.minutes), col = 5, row = 7},
         {text = "MONEY", col = 1, row = 9},
@@ -835,7 +842,13 @@ function EndgameStory.plan(id, observation)
                     {op = "dialog", labels = {room.dont_run_text}},
                     {op = "move", direction = "up", count = 1}}}
             end
-            return {status = "ready", steps = approachWalk(room, pending.x)}
+            local steps <const> = approachWalk(room, pending.x)
+            if room.walk then
+                -- WalkToLance_RLEList is simulated joypad. The corridor
+                -- cells stay solid, and CollisionCheckOnLand skips them.
+                return {status = "ready", simulated = true, steps = steps}
+            end
+            return {status = "ready", steps = steps}
         end
     end
     local gate <const> = data.route22_gate
@@ -1011,11 +1024,21 @@ function EndgameStory.applyRoom(game)
     end
     if zone.stableID == "pokered:LORELEIS_ROOM" then
         game.session:setQuestFlag(STARTED_ELITE_FOUR, true)
+        -- The south door locks on entry. A stale trainer bit cannot wait
+        -- for the lobby reset: her after-text plays and the door stays shut.
+        if game.session:questFlag("EVENT_BEAT_LORELEIS_ROOM_TRAINER_0") ~= true then
+            game.session:setTrainerDefeated("pokered:LORELEIS_ROOM:objects:1", false)
+        end
     elseif zone.stableID == "pokered:INDIGO_PLATEAU_LOBBY" and game.session:questFlag(STARTED_ELITE_FOUR) then
         for _, event in ipairs(INDIGO_RESET) do
             game.session:setQuestFlag(event, false)
         end
         game.session:setQuestFlag(STARTED_ELITE_FOUR, false)
+        -- The quest flags are the pokered events. The battle itself keys off
+        -- the trainer bit, which the lobby reset was leaving set.
+        for _, room in ipairs(data.elite_four) do
+            game.session:setTrainerDefeated(room.id, false)
+        end
     end
     for _, switch in ipairs(data.victory_road.switches) do
         if switch.map == name and game.session:questFlag(switch.event) then
@@ -1201,7 +1224,11 @@ end
 
 local function trainerRow(row)
     return {id = row.id, map_id = row.map_id, name = row.name, sprite_source = row.sprite_source,
-        sight_range_cells = row.sight or 0, talk_only = true, party = copy(row.party), payout = row.payout}
+        class_source = row.class_source,
+        -- scripts/ViridianGym.asm trainers use sight (object movement). talk_only
+        -- rejects TrainerEvents sight, so a range of 0 stays talk-only (Giovanni,
+        -- the Elite Four) and a positive range keeps line of sight.
+        sight_range_cells = row.sight or 0, talk_only = (row.sight or 0) == 0, party = copy(row.party), payout = row.payout}
 end
 
 local function trainerEvent(row)
@@ -1538,7 +1565,11 @@ function EndgameStory.drawPhoto(gfx, state)
     end
     for _, row in ipairs(EndgameStory.hallRows(photo)) do
         local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
-        gfx.drawText(row.text, px, py)
+        if row.text:find("¥", 1, true) then
+            GbFont.drawMoneyLine(row.text, px, py)
+        else
+            gfx.drawText(row.text, px, py)
+        end
     end
     if photo.kind == "player" then
         local pages <const> = EndgameStory.playerHallPages(photo.stats)
@@ -1757,11 +1788,13 @@ function EndgameStory.install()
     local charmander <const> = rival.parties_by_player_starter.charmander
     trainers[rival.id] = {id = rival.id, map_id = rival.map_id, name = "BLUE",
         sprite_source = rival.sprite_source, sight_range_cells = 0, talk_only = true,
+        class_source = rival.class_source,
         party = copy(charmander.party), payout = charmander.payout,
         rival_parties = copy(rival.parties_by_player_starter)}
     local champ <const> = data.champion
     local champParty <const> = champ.parties_by_player_starter.charmander
     addTrainer({id = champ.id, map_id = champ.map_id, name = "BLUE", sprite_source = champ.sprite_source,
+        class_source = champ.class_source,
         sight = 0, party = champParty.party, payout = champParty.payout},
         {kind = "bespoke", content = CONTENT, before = copy(champ.before), won = copy(champ.won),
             after = copy(champ.after), lost = copy(champ.lost),

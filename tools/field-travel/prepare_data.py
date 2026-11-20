@@ -43,7 +43,7 @@ def generate(reference):
     fly = []
     for name in CITIES:
         constant, x, y = re.search(rf'^\.{name}:\s+fly_warp (\w+),\s+(\d+),\s+(\d+)', warps, re.M).groups()
-        fly.append({'name': name, 'id': 'pallet_town' if name == 'PalletTown' else f'pokered:{constant}',
+        fly.append({'name': name, 'id': f'pokered:{constant}',
                     'source_map': constant, 'x': int(x), 'y': int(y)})
     pairs = sources['data/tilesets/pair_collision_tile_ids.asm'].decode().split('TilePairCollisionsWater::')[1]
     water_pairs = [{'tileset': tileset, 'a': int(a, 16), 'b': int(b, 16)}

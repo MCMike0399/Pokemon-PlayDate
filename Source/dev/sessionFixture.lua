@@ -8,6 +8,10 @@ function SessionFixture.forVersion(record, version)
         result.fieldTravel = nil
         result.safari = nil
         result.coins = nil
+        -- sessionCodec.lua:131-136 rejects a hall of fame record before v4.
+        -- Play time arrived with that record and is rejected the same way.
+        result.hallOfFame = nil
+        result.playTime = nil
     end
     if version < 3 then
         result.daycare = nil

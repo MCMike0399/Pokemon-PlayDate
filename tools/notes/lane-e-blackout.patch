@@ -1,0 +1,38 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index be8995e3..9ba0c59a 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1765,7 +1765,17 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
+         return "victory"
+     end
+     if not playerTeamAlive then
+-        self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
++        -- pret/pokered text/text_2.asm _PlayerBlackedOutText2. OaksLab is the
++        -- one loss that prints the rival's line and does not black out.
++        local intro = self.session and self.session:getIntro()
++        if intro and intro.stage == "rival_fight" then
++            self.message = "You lost the battle!"
++        else
++            local title = self.session and self.session:title()
++            local playerName = title and title.playerName or "RED"
++            self.message = playerName .. " is out of\nuseable POKéMON!\n\n"
++                .. playerName .. " blacked\nout!"
++        end
+         return "defeat"
+     end
+     return "replacement"
+diff --git a/Source/game/battleState.lua b/Source/game/battleState.lua
+index 1e5f3df9..a32c4f3b 100644
+--- a/Source/game/battleState.lua
++++ b/Source/game/battleState.lua
+@@ -143,6 +143,10 @@ function BattleState:finish(won, kind)
+         end
+         if not receipt then return end
+         if not receipt.won then
++            -- pokered Route22Rival2AfterBattleScript returns to the default
++            -- script on LOST_BATTLE. The blackout page already ended the
++            -- fight, so the rival's victory line must not resume on the map.
++            if blackout then return end
+             local descriptor = SourceEvents.descriptor(receipt.id)
+             if descriptor and descriptor.lost then
+                 local lines = {}

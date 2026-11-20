@@ -52,10 +52,12 @@ function GbFont.drawChar(char, col, row)
 end
 
 function GbFont.drawString(text, col, row)
-    local cursor = 0
-    for _, code in utf8.codes(text) do
-        GbFont.drawChar(utf8.char(code), col + cursor, row)
+    local cursor, index = 0, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+        tileImage(sheetName, glyph):draw((col + cursor) * TitleIdle.COL, row * TitleIdle.ROW)
         cursor = cursor + 1
+        index = nextIndex
     end
 end
 
@@ -108,13 +110,12 @@ end
 -- Tight 2x of the 8x8 tile, for a line that is not one glyph per cell.
 function GbFont.drawTight(text, x, y)
     GbFont.load()
-    local cursor = x
-    for _, code in utf8.codes(text) do
-        local char = utf8.char(code)
-        local sheetName, index = TitleIdle.glyph(char)
+    local cursor, index = x, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
         local sheet = sheets[sheetName]
-        local sx = (index % 16) * 8
-        local sy = math.floor(index / 16) * 8
+        local sx = (glyph % 16) * 8
+        local sy = math.floor(glyph / 16) * 8
         local image = gfx.image.new(16, 16, gfx.kColorWhite)
         gfx.pushContext(image)
         gfx.setColor(gfx.kColorBlack)
@@ -130,5 +131,86 @@ function GbFont.drawTight(text, x, y)
         gfx.popContext()
         image:draw(cursor, y)
         cursor = cursor + 16
+        index = nextIndex
     end
+end
+
+-- A money figure is spaces, the charmap yen, and digits. Charmap $f0 is
+-- tile 112. Words stay on the current font so the existing boxes still fit,
+-- and the yen plus the digits after it use the source tile.
+local YEN <const> = utf8.codepoint("¥")
+
+function GbFont.isMoneyFigure(text)
+    if text == "" then return true end
+    for _, code in utf8.codes(text) do
+        if code ~= 32 and code ~= YEN and (code < 48 or code > 57) then
+            return false
+        end
+    end
+    return true
+end
+
+local function moneyRuns(text)
+    local runs = {}
+    local codes = {utf8.codepoint(text, 1, -1)}
+    local index = 1
+    while index <= #codes do
+        if codes[index] == YEN then
+            local run = "¥"
+            index = index + 1
+            while index <= #codes and codes[index] >= 48 and codes[index] <= 57 do
+                run = run .. string.char(codes[index])
+                index = index + 1
+            end
+            runs[#runs + 1] = {kind = "figure", text = run}
+        else
+            local chunk = utf8.char(codes[index])
+            index = index + 1
+            while index <= #codes and codes[index] ~= YEN do
+                chunk = chunk .. utf8.char(codes[index])
+                index = index + 1
+            end
+            runs[#runs + 1] = {kind = "text", text = chunk}
+        end
+    end
+    return runs
+end
+
+function GbFont.measureMoneyLine(text)
+    if GbFont.isMoneyFigure(text) then
+        return 16 * (utf8.len(text) or 0), 16
+    end
+    local width, height = 0, 16
+    for _, run in ipairs(moneyRuns(text)) do
+        if run.kind == "figure" then
+            width = width + 16 * utf8.len(run.text)
+        else
+            local runWidth, runHeight = gfx.getTextSize(run.text)
+            width = width + runWidth
+            if runHeight > height then height = runHeight end
+        end
+    end
+    return width, height
+end
+
+function GbFont.drawMoneyLine(text, x, y)
+    if GbFont.isMoneyFigure(text) then
+        GbFont.drawTight(text, x, y)
+        return
+    end
+    local cursor = x
+    for _, run in ipairs(moneyRuns(text)) do
+        if run.kind == "figure" then
+            GbFont.drawTight(run.text, cursor, y)
+            cursor = cursor + 16 * utf8.len(run.text)
+        else
+            gfx.drawText(run.text, cursor, y)
+            cursor = cursor + gfx.getTextSize(run.text)
+        end
+    end
+end
+
+function GbFont.drawMoneyRight(text, rightX, y)
+    local width = GbFont.measureMoneyLine(text)
+    GbFont.drawMoneyLine(text, rightX - width, y)
 end

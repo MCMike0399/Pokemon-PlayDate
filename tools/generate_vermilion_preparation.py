@@ -4,6 +4,7 @@
 No active inventory writes, new provider, ASM execution, network or Simulator.
 """
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -14,6 +15,7 @@ from tools.generate_kanto_maps import (Reference, REVISION, decode_map, records,
     decode_png, tile_grids, quadrant_ids, compose_grid, collision_tiles, CODES)
 from tools.generate_viridian_slice import sprite_data
 from tools.generate_source_map_cache import build as cache_build
+from tools.flower_phase import installed_flower_hash
 from tools.generate_cerulean_content import (canonical, digest, species, envelope,
     blue_source, direct_labels, conditional,
     trainer_tables, sprite_sources, item_ids, verify)
@@ -192,8 +194,15 @@ def verify_installed_entries(artifacts, manifest=None):
     for name, expected in additions.items():
         actual = manifest['maps'][name]
         for field, value in expected.items():
-            if actual.get(field) != value:
-                raise ValueError('installed Vermilion entry drift: ' + name + ':' + field)
+            if actual.get(field) == value:
+                continue
+            fresh = artifacts.get(name + '.json')
+            pinned_path = actual.get('path')
+            if (field == 'source_sha256' and fresh is not None and pinned_path
+                    and installed_flower_hash(fresh, value, (ROOT / 'Source' / pinned_path).read_bytes(),
+                                               actual.get('source_sha256'), canonical)):
+                continue
+            raise ValueError('installed Vermilion entry drift: ' + name + ':' + field)
     return True
 
 
@@ -219,8 +228,15 @@ def proposed_pipeline(artifacts, *, manifest=None):
         for name, entry in manifest['maps'].items():
             target = source / entry['path']
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(artifacts[name + '.json'] if name in additions
-                               else (ROOT / 'Source' / entry['path']).read_bytes())
+            fresh = artifacts.get(name + '.json') if name in additions else None
+            installed = ROOT / 'Source' / entry['path']
+            # The active manifest still names the static-phase file. Stage that
+            # file when the fresh flower-phase decode has a different hash.
+            if fresh is not None and hashlib.sha256(fresh).hexdigest() == entry['source_sha256']:
+                payload = fresh
+            else:
+                payload = installed.read_bytes()
+            target.write_bytes(payload)
         # The cache reads this auxiliary file whenever Silph floors are installed.
         # A private manifest root may contain only the decoded maps.
         if 'SilphCo3F' in manifest['maps'] and 'SilphCo11F' in manifest['maps']:

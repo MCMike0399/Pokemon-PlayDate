@@ -136,6 +136,8 @@ function BattleScene:init(battle)
     self.moveMenu = BattleMenu()
     self.inMoveSelect = false
     self.shiftMenu = BattleMenu()
+    self.shiftShown = 0
+    self.shiftArmed = false
     self.messageDialog = Dialog()
     self.messageReady = false
     self.messageSeen = nil
@@ -248,7 +250,25 @@ function BattleScene:handleInput()
     end
     if self.introPhase ~= "ready" or self.introDrawing then return end
     if self.battle.shiftChoice then
-        if not self.selectionOpen then
+        -- The question is its own page after the foe faints, not only the
+        -- "about to use" line. A press that is already down, including the
+        -- A that left that line and the harness B that follows, must not
+        -- answer YES/NO. Otherwise declineShift resumes straight into
+        -- "sent out" and the question never stays on screen.
+        self:syncMessage()
+        local dialog = self.messageDialog
+        local line = dialog.isActive and dialog.lines and dialog.lines[dialog.currentLine]
+        if line and dialog.charIndex >= #line then
+            self.shiftShown = (self.shiftShown or 0) + 1
+        else
+            self.shiftShown = 0
+        end
+        -- The menu uses a new edge. Presses during the print, and the A that
+        -- dismissed "about to use", never reach it. After the question has
+        -- finished printing it still stays up for the same 10-frame floor as
+        -- every other battle line.
+        if (self.shiftShown or 0) >= 10 and not self.selectionOpen then
+            self.shiftArmed = true
             self.shiftMenu:handleInput()
         end
         return
@@ -269,10 +289,14 @@ function BattleScene:handleInput()
         end
     else
         self:syncMessage()
+        -- pret/pokered af519899 WaitForTextScrollButtonPress consumes the
+        -- A that finishes this page. That press must not also install the
+        -- next queued say; the following new A does.
+        local ready = self.messageReady
         if not self.messageReady then
             self.messageDialog:handleInput()
         end
-        if self.messageReady then
+        if ready and self.messageReady then
             self.battle:handleInput()
         end
         self:syncMessage()
@@ -415,6 +439,9 @@ end
 
 function BattleScene:draw()
     if self.captureClosed then return end
+    -- Enter sets the intro line before this frame's update. Syncing here
+    -- opens the GB text instead of painting that line with the system font.
+    self:syncMessage()
     -- A dialog pushed over the battle applies the overworld camera when it
     -- finishes drawing. This field is screen space, so draw it from the origin
     -- or the player's sprite and HUD slide off the top.
@@ -527,6 +554,14 @@ function BattleScene:drawBattleField()
     if self.playerShown and not self:isFaintSlide("player")
         and not (flashHide and self.battle.attackerSide == "enemy") then
         self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
+    elseif not self.playerIntroDone then
+        -- pokered draws Red's back on the player platform until the first
+        -- send-out. The platform was empty through "wants to battle!".
+        local sendingPlayer = self.activePresentation and self.activePresentation.kind == "sendout"
+            and self.activePresentation.details and self.activePresentation.details.side == "player"
+        if not sendingPlayer then
+            self:drawPlayerBack()
+        end
     end
 
     -- Draw platforms on top of resting sprites. A faint slide is drawn after
@@ -635,6 +670,14 @@ function BattleScene:drawBattleField()
     -- Hidden HUDs must still leave narration in its usual system font.
     gfx.setFont(gfx.getSystemFont())
 
+    -- The iris stencil is still active here. BattleScene:draw clears it
+    -- only after drawBattleField returns, so the opening frames clip these
+    -- fills and the glyphs to the circle. The lower row and the bottom rule
+    -- are the part the circle cuts first. Drop the stencil before the box.
+    -- Sprites and platforms above were already drawn inside it.
+    gfx.clearClipRect()
+    gfx.clearStencil()
+
     -- Draw message box or menus. Move selection replaces this box: pokered
     -- TextBoxBorder clears the battle-menu text before TYPE/ and the names.
     local boxY = 180
@@ -650,9 +693,16 @@ function BattleScene:drawBattleField()
 
     if self.battle.shiftChoice then
         -- pokered _TrainerAboutToUseText plus the YES/NO box (TWO_OPTION_MENU).
-        self:_wrapped("shift-prompt", self.battle.message or "", 276, 44).image:draw(14, boxY + 8)
+        -- The question stays in the GB font, beside the menu, not in the
+        -- system font after the typewriter.
+        if self.messageDialog.lines and self.messageDialog.lines[1] then
+            self.messageDialog:draw(true)
+        end
         self.shiftMenu:draw(300, boxY + 4, 92, 52)
-    elseif self.battle:isAwaitingCommand() then
+    -- pret/pokered af519899 finishes the HP bar before the command list.
+    -- updateVitals has already run on the resume that applies the damage
+    -- and returns command, so this frame would paint FIGHT on the old HP.
+    elseif self.battle:isAwaitingCommand() and not self:isVitalsBlocking() then
         -- Draw text area on left
         self:_text("what-will", "What will", gfx.getSystemFont()).image:draw(14, boxY + 10)
         local name = self.battle.player.name
@@ -671,9 +721,10 @@ function BattleScene:drawBattleField()
         -- Word-wrapped inside the frame so long messages never escape
         if self.messageDialog.isActive then
             self.messageDialog:draw()
-        else
-            local message = self.battle.message or ""
-            self:_wrapped("battle-message", message, 374, 44).image:draw(14, boxY + 10)
+        elseif self.battle.message and self.battle.message ~= "" then
+            -- A dismisses the typewriter and leaves battle.message set through
+            -- the trainer exit and the send-out. Keep that page in the GB font.
+            self.messageDialog:draw(true)
         end
     end
     end
@@ -902,6 +953,8 @@ function BattleScene:updateShiftMenu()
     local choice = self.battle.shiftChoice
     if choice and self.shiftSeen ~= choice then
         self.shiftSeen = choice
+        self.shiftShown = 0
+        self.shiftArmed = false
         self.shiftMenu.columns = 1
         self.shiftMenu:show({"YES", "NO"}, function(index)
             if index == 1 then
@@ -919,6 +972,8 @@ function BattleScene:updateShiftMenu()
     elseif not choice then
         self.shiftMenu:hide()
         self.shiftSeen = nil
+        self.shiftShown = 0
+        self.shiftArmed = false
     end
 end
 
@@ -948,6 +1003,9 @@ function BattleScene:updateVisualEvent(request)
         self.trainerVisible = false
     elseif request.kind == "sendout" then
         self[request.details.side .. "Shown"] = request.details.pokemon
+        if request.details.side == "player" then
+            self.playerIntroDone = true
+        end
     elseif request.kind == "recall" or request.kind == "faint" then
         self[request.details.side .. "Shown"] = nil
     end
@@ -1030,6 +1088,32 @@ function BattleScene:drawLevelStats()
     for index, row in ipairs(BattleScene.levelStatLines(box)) do
         gfx.drawText(string.format("%-8s%3d", row.label, row.value), x + 10, y + 8 + (index - 1) * 22)
     end
+end
+
+function BattleScene:drawPlayerBack()
+    if self.playerBackImage == nil then
+        self.playerBackImage = gfx.image.new("images/player/red-pic-back") or false
+    end
+    if not self.playerBackImage then return end
+    -- redb.png is 32x32, the same pixels as an overworld frame. The player's
+    -- battle slot is the 80px box used for back sprites, feet on y 150.
+    local size = 80
+    local iw, ih = self.playerBackImage:getSize()
+    local scale = math.min(size / iw, size / ih)
+    local sw = math.max(1, math.floor(iw * scale))
+    local sh = math.max(1, math.floor(ih * scale))
+    if self.playerBackScale ~= scale then
+        local image = gfx.image.new(sw, sh)
+        gfx.pushContext(image)
+            gfx.setDrawOffset(0, 0)
+            self.playerBackImage:drawScaled(0, 0, scale)
+        gfx.popContext()
+        self.playerBackScaled = image
+        self.playerBackScale = scale
+    end
+    local x = 55 + math.floor((size - sw) / 2)
+    local y = 70 + size - sh
+    self.playerBackScaled:draw(x, y)
 end
 
 function BattleScene:drawTrainer()

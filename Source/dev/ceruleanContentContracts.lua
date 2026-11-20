@@ -35,7 +35,8 @@ function CeruleanContentContracts.run()
     local entries = SourceMaps.record("data/sourceSlice/manifest-entries.json").maps
     for name, entry in pairs(entries) do
         test("shared source projection: " .. name, function()
-            local raw = SourceMaps.definition(name)
+            collectgarbage("collect")
+            local raw = SourceMaps.sharedDefinition(name)
             local padded = SourceMaps.padded(name)
             local descriptor = SourceMaps.descriptor(name)
             local installed = SourceMaps.entry(name)
@@ -43,6 +44,8 @@ function CeruleanContentContracts.run()
             assert(entry.profile == "source" and raw.name == name)
             assert(descriptor.source_sha256 == entry.source_sha256)
             assert(padded.dimensions.cells[1] == entry.width)
+            padded = nil
+            collectgarbage("collect")
             for y = 0, entry.height - 1 do
                 for x = entry.padding, entry.padding + raw.dimensions.cells[1] - 1 do
                     local cell = SourceMaps.cell(name, x, y)
@@ -50,6 +53,9 @@ function CeruleanContentContracts.run()
                     same(SourceMaps.tile(cell.key).grid, grid.grid)
                     assert(cell.terrain.foot_tile == grid.terrain.foot_tile)
                 end
+                -- Large projections copy one grid per cell. Drop those copies
+                -- before the next row so the pool keeps the resident atlas.
+                if y % 4 == 3 then collectgarbage("collect") end
             end
             for _, event in ipairs(raw.events.objects) do
                 local strip = CeruleanContent.sprite(event.sprite)
@@ -71,15 +77,16 @@ function CeruleanContentContracts.run()
         local ok, problem = pcall(function()
             WorldDeltas._withDefinitionProvider(provider, function()
                 assert(#provider:inventory() == installedMapCount)
-                for _, name in ipairs(SourceMaps.names()) do
+                local world = provider:export()
+                for index, name in ipairs(SourceMaps.names()) do
                     local entry = SourceMaps.entry(name)
                     local definition = SourceMaps.padded(name)
-                    local surface = provider:surface(entry.id, provider:export())
+                    local surface = provider:surface(entry.id, world)
                     local zone = provider:ensure(entry.key)
                     assert(zone.stableID == entry.id and zone:isSliceReady())
                     assert(surface.width == zone.width and surface.height == zone.height)
                     assert(#zone.npcDefs == #definition.events.objects)
-                    local actors = SourceActors.describeSource(entry.id, provider:export())
+                    local actors = SourceActors.describeSource(entry.id, world)
                     if entry.profile == "viridian" then
                         assert(actors == nil, "legacy static actor policy changed")
                     else
@@ -109,6 +116,7 @@ function CeruleanContentContracts.run()
                             assert(zone.collision[y + 1][x + 1] == surface.collision[y + 1][x + 1])
                         end
                     end
+                    if index % 4 == 0 then collectgarbage("collect") end
                 end
             end)
         end)
@@ -166,7 +174,7 @@ function CeruleanContentContracts.run()
     test("source bank payout and RAM names remain literal valid UTF-8", function()
         local ram = { player = "RÉD", rival = "BLÜE", wAmountMoneyWon = 175 }
         local pages = EventText.pagesFrom({ "_MoneyForWinningText" }, CeruleanContent.text, ram)
-        assert(#pages == 1 and pages[1].text == "RÉD got ¥175 for winning!")
+        assert(#pages == 1 and pages[1].text == "RÉD got ¥175\nfor winning!")
         assert(utf8.len(pages[1].text))
         assert(SourceText.expand("<PLAYER> / <RIVAL>", ram) == "RÉD / BLÜE")
         for _, symbol in ipairs({ "wPlayerName", "wRivalName" }) do
@@ -182,8 +190,8 @@ function CeruleanContentContracts.run()
         local pages = EventText.pagesFrom({ "_ViridianCityOldManSleepyPrivatePropertyText" },
             function(label) return texts[label] end)
         assert(#pages == 2)
-        assert(pages[1].text == "You can't go through here!")
-        assert(pages[2].text == "This is private property!")
+        assert(pages[1].text == "You can't go\nthrough here!")
+        assert(pages[2].text == "This is private\nproperty!")
     end)
     test("source renderer still rejects unknown controls and invalid UTF-8 RAM", function()
         local function resolve()

@@ -210,6 +210,7 @@ local function normalize(record,deps)
         playerName=playerName,rivalName=rivalName}
 end
 function SessionCodec.encode(session,gate)
+    if PokemonCodec.releaseSnapshots then PokemonCodec.releaseSnapshots() end
     SessionCodec.relieveHeap()
     local ok,result=pcall(function()
         assert(type(session)=="table" and type(session.is)=="function" and session:is("GameSession"),"GameSession required")

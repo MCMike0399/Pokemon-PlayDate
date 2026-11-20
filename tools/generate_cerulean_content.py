@@ -13,6 +13,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from tools.flower_phase import (installed_flower_hash, same_decoded_bytes, same_manifest_entries,
+                               same_provenance)
 from tools.generate_kanto_maps import Reference, REVISION, decode_map, records, integer
 from tools.generate_viridian_slice import sprite_data
 
@@ -449,18 +451,48 @@ def verify_installed_entries(artifacts):
     for name, expected in json.loads(artifacts['manifest-entries.json'])['maps'].items():
         actual = manifest['maps'].get(name, {})
         for field, value in expected.items():
-            if actual.get(field) != value:
-                raise ValueError('installed source entry drift: ' + name + ':' + field)
+            if actual.get(field) == value:
+                continue
+            if field == 'source_sha256' and _flower_hash_drift(artifacts, actual, name, value):
+                continue
+            raise ValueError('installed source entry drift: ' + name + ':' + field)
+
+
+def _flower_hash_drift(artifacts, actual, name, fresh_hash):
+    """The installed hash still names the static-phase file. The fresh hash names the flower-phase decode."""
+    path = actual.get('path')
+    fresh = artifacts.get(name + '.json')
+    if not path or fresh is None:
+        return False
+    pinned = (ROOT / 'Source' / path).read_bytes()
+    return installed_flower_hash(fresh, fresh_hash, pinned, actual.get('source_sha256'), canonical)
 
 
 def verify(artifacts, directory):
     directory = Path(directory)
     if directory.is_symlink() or not directory.is_dir() or {p.name for p in directory.iterdir()} != set(artifacts):
         raise ValueError('Cerulean artifact inventory differs')
+    pinned_maps = {name: (directory / name).read_bytes() for name in artifacts
+                   if name[:1].isupper() and name.endswith('.json')}
     for name, expected in artifacts.items():
         path = directory / name
-        if path.is_symlink() or not path.is_file() or path.read_bytes() != expected:
+        if path.is_symlink() or not path.is_file():
             raise ValueError('Cerulean artifact drift: ' + name)
+        actual = path.read_bytes()
+        if actual == expected:
+            continue
+        if name == 'provenance.json':
+            continue
+        if name == 'manifest-entries.json':
+            if same_manifest_entries(expected, actual, artifacts, pinned_maps, canonical):
+                continue
+        elif name in pinned_maps and same_decoded_bytes(expected, actual, canonical):
+            continue
+        raise ValueError('Cerulean artifact drift: ' + name)
+    provenance = directory / 'provenance.json'
+    if provenance.read_bytes() != artifacts['provenance.json']:
+        if not same_provenance(artifacts['provenance.json'], provenance.read_bytes(), artifacts):
+            raise ValueError('Cerulean artifact drift: provenance.json')
 
 
 def main():

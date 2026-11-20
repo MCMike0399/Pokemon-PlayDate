@@ -17,11 +17,15 @@ function EventState.redrawSprites()
 end
 function EventState.observe(game,id,options)
     local bag=game.session:inventory();local items,canAdd={},{}
-    for _,id in ipairs(SourceEvents.itemIDs()) do
-        items[id]=bag:quantity(id)
-        local candidate=assert(Inventory.fromData(ItemData.definitions,bag:toData()))
-        canAdd[id]=candidate:add(id,1)==true
+    -- One live bag check per id. Building a throwaway inventory for every
+    -- source item kept a full catalog walk alive until the next map collection.
+    for _,itemID in ipairs(SourceEvents.itemIDs()) do
+        items[itemID]=bag:quantity(itemID)
+        canAdd[itemID]=bag:canAdd(itemID,1)==true
     end
+    -- The id walk builds short-lived records. Drop them before the caller
+    -- decodes dialogue, or the first talk on a fresh map crosses the pool.
+    collectgarbage("step", 400)
     return {intro=game.session:getIntro().stage,flags=game.session:flags().quest,trainers=game.session:flags().trainers,items=items,can_add=canAdd,
         mode=options and options.mode or "talk"}
 end
@@ -45,6 +49,14 @@ function EventState:dialog(pages,callback,receipt)
     local lines={}
     for _, page in ipairs(pages) do
         lines[#lines + 1] = {text = page.text, ending = page.ending}
+    end
+    if pages[1].label == "_OaksLabOak1HowIsYourPokedexComingText" then
+        local owned = 0
+        local dex = self.session and self.session:pokedex()
+        for _, flag in pairs(dex and dex.owned or {}) do
+            if flag then owned = owned + 1 end
+        end
+        self.game.lastDexRating = {owned = owned}
     end
     self.phase,self.waiting=receipt and "receipt" or "dialog",pages[1].label
     self.machine:push("dialog",lines,self:guard(callback))
@@ -113,7 +125,9 @@ function EventState:enter(id,options)
     self.hasFailureText=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
     if plan.scene=="oak-pokedex" then
-        assert(currentZone==zoneRegistry.oaks_lab,"Oak parcel scene requires protected authored lab")
+        -- The session key oaks_lab and the imported pokered:OAKS_LAB are the same lab.
+        assert(currentZone and (currentZone.stableID=="pokered:OAKS_LAB" or currentZone.stableID=="oaks_lab"),
+            "Oak parcel scene requires the lab")
         self.oak=assert(self.game.npcManager:findByName("OAK"),"Oak actor missing")
         self.oldOakFacing=self.oak.facing
         local aisle=self:oakAisle()
@@ -541,12 +555,27 @@ function EventState:draw()
         gfx.setColor(gfx.kColorWhite)
         if view.phase ~= "preamble" then
             local text = table.concat(view.lines or {}, "\n")
-            if view.ending and view.phase == "done" then
+            -- The hold and the fade stay on screen. The done phase is
+            -- cleared in this same update, before draw.
+            if view.ending then
                 text = "THE END"
+            elseif view.copyright then
+                local notice = {
+                    "©'95.'96.'98 Nintendo",
+                    "©'95.'96.'98 Creatures inc.",
+                    "©'95.'96.'98 GAME FREAK inc.",
+                }
+                if text ~= "" then text = text .. "\n" end
+                text = text .. table.concat(notice, "\n")
+                if view.mon then text = text .. "\n" .. view.mon end
             elseif view.mon then
                 text = text .. "\n" .. view.mon
             end
+            -- System-font glyphs are black. Copy mode on the black fill
+            -- leaves every credits screen, the copyright, and THE END blank.
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
             gfx.drawText(text, 120, 80)
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
         end
         gfx.popContext()
         return
@@ -572,6 +601,11 @@ function EventState:startTrainer(step)
     local npc
     for _,actor in ipairs(self.game.npcManager.npcs) do if actor.def and actor.def.source_event_id==step.id then npc=actor;break end end
     if not npc then self:fail("absent-source-trainer");return end
+    -- A scripted walk holds the actor lease. TrainerEvents claims that same
+    -- actor, and claimScript rejects a second owner. The Route 22 rival walks
+    -- and then starts the battle in one event, so the walk lease is released
+    -- first, the same handoff the other story controllers already make.
+    self:cancelNPCMove()
     local token,reason=self.game.trainers:prepare(npc,step.mode,self)
     if not token then self:fail(reason);return end
     self.trainerToken,self.trainerNPC,self.trainerStep=token,npc,step;self.trainerLaunching=false
@@ -587,6 +621,10 @@ function EventState:startTrainer(step)
     end
 end
 function EventState:trainerReady()
+    -- The route walk is still live here. A minor step frees it before the
+    -- rival page is copied. Branch 2 of the Cerulean rival otherwise runs
+    -- out of memory inside that copy.
+    collectgarbage("step", 200)
     self:source(self.trainerStep.before,function()
         local party,reason=self.game.trainers:launch(self.trainerToken)
         if not party then self:fail(reason);return end

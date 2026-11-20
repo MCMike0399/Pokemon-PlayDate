@@ -30,7 +30,11 @@ function EventArt.pokedex()
 end
 local function small(first)
     local gfx=playdate.graphics;local rows={};local grid=source().heal_machine.grid
-    for y=1,16 do rows[y]=(y<=8 and grid[first+y-1] or string.rep(".",8))..string.rep(".",8) end
+    -- AnimateHealingMachine shows these tiles under rOBP1=$e0, so OBJ color 1 is white.
+    for y=1,16 do
+        local cell=y<=8 and grid[first+y-1] or string.rep(".",8)
+        rows[y]=cell:gsub("1","w")..string.rep(".",8)
+    end
     local full=SpriteFactory.makeSprite(rows,{0,0});local out=gfx.image.new(16,16,gfx.kColorClear)
     gfx.pushContext(out);gfx.setDrawOffset(0,0);full:draw(0,0);gfx.popContext();return out
 end

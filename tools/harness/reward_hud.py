@@ -36,7 +36,7 @@ class RewardHUDJourney(Journey):
                     self.require(**{'battle.player.level':7,'battle.player.hp':20,'battle.player.maxHP':22,'battle.player.xp':303,
                                     'battle.player.individuals.evs.spe':1,'battle.rewards.holds.1.level':6,
                                     'battle.rewards.holds.1.hp':18,'battle.rewards.holds.1.maxHP':20,'battle.presentation.player.level':6,'battle.presentation.player.hp':18,'battle.presentation.player.maxHP':20})
-                    if message!='CHARMANDER gained 68 EXP!':raise ProtocolError('unexpected literal first-foe EXP: '+message)
+                    if message!='CHARMANDER gained\n68 EXP. Points!':raise ProtocolError('unexpected literal first-foe EXP: '+message)
                     self.checkpoint('reward-gained-before-ack');self.send('record reward-gained-held 12');gained=True
                 elif ' grew to ' in message and gained and not grew:
                     self.require(**{'battle.player.level':7,'battle.player.hp':20,'battle.player.maxHP':22,'battle.rewards.holds':[],'battle.presentation.player.level':7,'battle.presentation.player.hp':20,'battle.presentation.player.maxHP':22})

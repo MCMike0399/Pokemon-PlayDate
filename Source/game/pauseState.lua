@@ -29,6 +29,7 @@ function PauseState:enter()
                 self.machine:pop() -- Capture only the settled overworld.
                 local ok, metadata = self.game.saves:save()
                 self.lastSave = {ok = ok, reason = metadata and metadata.reason}
+                self.game.lastSave = self.lastSave
                 local lines
                 if ok then
                     lines={Story.playerName(self.game) .. " saved the game!"}
@@ -88,7 +89,12 @@ function PauseState:draw()
                 flags[id] = session:questFlag(id) == true
             end
             gfx.drawText("NAME/" .. Story.playerName(self.game), 32, 42)
-            gfx.drawText("MONEY/$" .. session:inventory():money(), 32, 72)
+            -- engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
+            -- prints the charmap money sign ($f0), not "$".
+            local moneyLabel = "MONEY/"
+            gfx.drawText(moneyLabel, 32, 72)
+            local moneyWidth = gfx.getTextSize(moneyLabel)
+            GbFont.drawMoneyLine("¥" .. session:inventory():money(), 32 + moneyWidth, 72)
             gfx.drawText("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 32, 102)
             gfx.drawText("BADGES  " .. TitleIdle.countFlags(flags), 32, 132)
             gfx.drawText("A / B: Back", 32, 178)

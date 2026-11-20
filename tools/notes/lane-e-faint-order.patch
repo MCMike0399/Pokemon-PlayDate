@@ -1,0 +1,22 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index a6001154..f8ea67b5 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1672,8 +1672,16 @@ function Battle:_registerFaints(lastFaintedSide)
+         if not pokemon:isAlive() and not self.faintAnnounced[side] then
+             self.faintAnnounced[side] = true
+             changed=true
+-            self:say(pokemon.name .. " fainted!")
++            -- say() parks the script on the fainted line immediately.
++            -- updateVitals keeps stepping the bar under that line, and a
++            -- neutral KO has no earlier message covering the tween. The
++            -- step is maxHP/30, so a large fraction of a high max HP takes
++            -- longer than the 20-frame SlideDownFaintedMonPic. present()
++            -- does not start that slide until isVitalsBlocking() is false,
++            -- which is the bar reaching the authoritative HP. The line is
++            -- printed only after the drain and the slide.
+             self:present("faint", {side = side, pokemon = pokemon})
++            self:say(pokemon.name .. " fainted!")
+         end
+     end
+     return lastFaintedSide,changed
