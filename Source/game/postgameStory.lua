@@ -671,4 +671,13 @@ function PostgameStory.boot()
     PostgameStory.ensureRuntime()
 end
 
+-- story() and play() stay decoded after the continue hooks are installed.
+-- The next postgame script loads them again. A Hall continue does not need
+-- those tables while the player is walking out of Pallet.
+function PostgameStory.releaseContinueData()
+    local held = cached ~= nil or playCached ~= nil
+    cached, playCached = nil, nil
+    return held
+end
+
 PostgameStory.boot()

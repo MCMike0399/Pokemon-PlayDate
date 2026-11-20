@@ -224,6 +224,20 @@ local function continueGame(self, prepared)
             self.observeBoundary(candidate, "loaded", payload, metadata)
         end
         self.game:offerPartyLearning()
+        -- The Hall room was only needed to read the save. Pallet is current.
+        -- Drop that definition and the postgame JSON, then return the bytes
+        -- before the player takes a step.
+        local released = false
+        if PostgameStory and PostgameStory.releaseContinueData then
+            released = PostgameStory.releaseContinueData() or released
+        end
+        if SourceMaps and SourceMaps.releaseRetainedExcept and currentZone then
+            local kept = SourceMaps.nameForID(currentZone.stableID)
+            released = SourceMaps.releaseRetainedExcept(kept) or released
+        end
+        if released then
+            collectgarbage("collect")
+        end
     end
     if BootTrace then
         BootTrace.mark("Continue.end")

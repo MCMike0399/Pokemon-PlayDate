@@ -3396,7 +3396,7 @@
     "game/daycareState.lua": "8b4a7d2fa5f41136c29ea77eacee7d747e1c205ffd06c9c99f22887dce7e87ad",
     "game/fieldMoveState.lua": "3c8281f6d7eda0668a512906698b1a8d2ce9b2405f57d956f592e842c6ed0b06",
     "game/partyState.lua": "76380ea709ea95cb8671e81f3d1fe9f9c456039ea3b7e3460220c7312d2979b3",
-    "game/saves.lua": "a69afc99010847ec0e523b05f5d0d09eefdbc7f25f831eb882a2921d388e5787",
+    "game/saves.lua": "3eb8336d6e4f489ac2e9841dd557527ca9ed92b55582264c1687a8c5476a8cba",
     "game/sourceEvents.lua": "5a7800e6eaf555cff035ad24b8150607fded7908140aa537ff473db4f9be24d2",
     "game/trainerEvents.lua": "96cd4f46c26cfc57c771768be943b41b8d6f5daa06dc05dec94b0c5492b18fee",
     "game/vermilionGifts.lua": "8a2f10a2db0f1cacfb3c48cc3b620b5791bf5ea9c24f524b5d13274719c46c65",
