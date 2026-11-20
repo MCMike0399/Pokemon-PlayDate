@@ -4491,6 +4491,28 @@ class CharmanderRun(BrockJourney):
             self.capture_pending = False
         return True
 
+    def _revive_lance_bench(self, battle, options):
+        """Spend a Revive on Lapras when Charizard cannot safely stay in."""
+        enemy = ((battle.get("enemy") or {}).get("species") or "").lower()
+        if enemy not in {"gyarados", "aerodactyl", "dragonair", "dragonite"}:
+            return False
+        party, _active = self._battle_members(battle)
+        if any(mon["species"] == "charizard" and self._mon_healthy(mon) for mon in party):
+            return False
+        bench = {"lapras", "pidgeotto", "pidgeot", "weepinbell"}
+        if any(mon["species"] in bench and mon["hp"] > 0 and self._clear_status(mon) for mon in party):
+            return False
+        item = "revive" if self.quantity("revive") else "maxRevive" if self.quantity("maxRevive") else None
+        if item is None:
+            return False
+        for species in ("lapras", "pidgeot", "pidgeotto", "weepinbell"):
+            for index, mon in enumerate(party, 1):
+                if mon["species"] == species and mon["hp"] <= 0:
+                    self.battle_medicine(item, options, target=index)
+                    self._revive_switch = index
+                    return True
+        return False
+
     def _revive_starter(self, battle, options):
         """Bring Charizard back and send him in. The reserve does not finish Lorelei."""
         active = lookup(self.state, "session.party.active")
@@ -4499,7 +4521,9 @@ class CharmanderRun(BrockJourney):
             self._revive_switch = None
             enemy = ((battle.get("enemy") or {}).get("species") or "")
             mon = self.party()[switch - 1] if 1 <= switch <= len(self.party()) else None
-            if mon and enemy in {"gyarados", "aerodactyl", "dragonair", "dragonite"} and not self._mon_healthy(mon):
+            if (mon and mon["species"] == "charizard"
+                    and enemy in {"gyarados", "aerodactyl", "dragonair", "dragonite"}
+                    and not self._mon_healthy(mon)):
                 return False
             if mon and mon["hp"] > 0 and active != switch:
                 return bool(self.battle_switch(switch, options, "revive-starter"))
@@ -4563,6 +4587,10 @@ class CharmanderRun(BrockJourney):
         if any(token in zone for token in ("LANCES_ROOM", "CHAMPIONS_ROOM")) and enemy:
             party, active = self._battle_members(battle)
             choice = self._lance_choice(party, enemy)
+            chosen = party[choice - 1] if choice else None
+            hurt_starter = chosen and chosen["species"] == "charizard" and not self._mon_healthy(chosen)
+            if (choice is None or hurt_starter) and self._revive_lance_bench(battle, options):
+                return True
             if choice and choice != active and self.battle_switch(choice, options, "lance-matchup"):
                 return True
         if self._revive_starter(battle, options):
