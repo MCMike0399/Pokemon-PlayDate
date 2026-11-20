@@ -79,24 +79,39 @@ VIRIDIAN_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/00f0664cc5b5")
 VIRIDIAN_SAVE_SHA = "56f56cb938174c80ffc7465e41c75d83c76e7fbb1c311e7b0e64231638917122"
 PEWTER_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/d03e3f4459d1")
 PEWTER_SAVE_SHA = "d8c3b1e1fa226fe42174ab076467d39a6bd21aa8505fae9df87d4f00e6488217"
+BADGE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/a6328d508ccc")
+BADGE_SAVE_SHA = "fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b"
+ROUTE4_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/ae6ff5c3ae0d")
+ROUTE4_SAVE_SHA = "362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
 BROCK = "pokered:PEWTER_GYM:objects:1"
 
 
 def preferred_move(options):
-    """Bubble, then Water Gun. Tackle only when no water move is listed."""
+    """Water Gun, then Bubble. Tackle only when no water move is listed."""
     named = []
     for index, name in enumerate(options or [], start=1):
         letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
         if letters in {"", "DASH"} or str(name).strip() in {"", "-"}:
             continue
         named.append((index, name, letters))
-    for index, name, letters in named:
-        if letters in {"BUBBLE", "WATERGUN"}:
-            return index, name
+    for want in ("WATERGUN", "BUBBLE"):
+        for index, name, letters in named:
+            if letters == want:
+                return index, name
     if named:
         return named[0][0], named[0][1]
     return None, None
+
+
+def forget_index(learning):
+    """Replace Tail Whip, then Withdraw, then Bubble. Keep Water Gun."""
+    order = ["tailWhip", "growl", "withdraw", "bubble", "tackle"]
+    by_key = {move.get("key"): move.get("index") for move in (learning.get("known_moves") or [])}
+    for key in order:
+        if key in by_key:
+            return by_key[key]
+    return 4
 
 
 def publish_clip(report, destination, duration, keep="end"):
@@ -194,6 +209,30 @@ def gym_cells():
 
 def center_cells():
     return open_map(ROOT / "Source/data/pewterSlice/PewterPokecenter.json", 0, 14)
+
+
+def route3_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/Route3.json", 0, 70)
+
+
+def route4_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/Route4.json", 0, 90)
+
+
+def moon_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/MtMoon1F.json", 0, 40)
+
+
+def moon_b1_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/MtMoonB1F.json", 0, 28)
+
+
+def moon_b2_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/MtMoonB2F.json", 0, 40)
+
+
+def moon_center_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/MtMoonPokecenter.json", 0, 14)
 
 
 # IntroMovie.SCENES. Copyright and the black bars ignore A. The shooting
@@ -397,6 +436,7 @@ class SquirtleRouteTests(unittest.TestCase):
 
     def test_water_move_is_preferred_and_the_north_path_is_open(self):
         self.assertEqual(preferred_move(["TACKLE", "TAIL WHIP", "BUBBLE", "-"]), (3, "BUBBLE"))
+        self.assertEqual(preferred_move(["TACKLE", "WATER GUN", "BUBBLE", "WITHDRAW"]), (2, "WATER GUN"))
         self.assertEqual(preferred_move(["TACKLE", "-"])[1], "TACKLE")
         pallet = padded_open_cells("pallet_town")
         pallet.add((9, 0))
@@ -414,6 +454,18 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(sha256_file(LAB_SAVE / "adventure.a.json"), LAB_SAVE_SHA)
         self.assertEqual(sha256_file(VIRIDIAN_SAVE / "adventure.a.json"), VIRIDIAN_SAVE_SHA)
         self.assertEqual(sha256_file(PEWTER_SAVE / "adventure.b.json"), PEWTER_SAVE_SHA)
+        self.assertEqual(sha256_file(BADGE_SAVE / "adventure.a.json"), BADGE_SAVE_SHA)
+        self.assertEqual(sha256_file(ROUTE4_SAVE / "adventure.b.json"), ROUTE4_SAVE_SHA)
+        self.assertIsNotNone(route(gym_cells(), (5, 2), (5, 12)))
+        self.assertIsNotNone(route(route3_cells(), (0, 10), (59, 0)))
+        self.assertIsNotNone(route(route3_cells(), (0, 10), (59, 0), route3_avoid()))
+        self.assertIsNotNone(route(route4_cells(), (9, 17), (18, 6)))
+        self.assertIsNotNone(route(moon_cells(), (14, 35), (5, 6)))
+        self.assertIsNotNone(route(moon_b1_cells(), (5, 6), (21, 16)))
+        self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7)))
+        self.assertIsNotNone(route(moon_b1_cells(), (23, 4), (26, 3)))
+        self.assertIsNotNone(route(route4_cells(), (24, 6), (59, 4)))
+        self.assertIsNone(route(route4_cells(), (59, 4), (61, 4)))
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -615,10 +667,10 @@ class Player:
                     else:
                         self.send("wait 6")
                 else:
-                    # YES learns. The second move is Tail Whip, the one Bubble replaces.
+                    # YES learns. Forget Tail Whip while it is still known.
                     # The stop menu's second row returns to that question.
                     selected = learning.get("selected") or 1
-                    target = {"ask": 1, "confirm": 1, "replace": 2, "stop": 2}.get(phase, 1)
+                    target = forget_index(learning) if phase == "replace" else {"ask": 1, "confirm": 1, "stop": 2}.get(phase, 1)
                     if selected == target:
                         self.press("a", wait=6)
                     else:
@@ -627,6 +679,15 @@ class Player:
                 # The hurry menu opens on YES. A during the catch demo is ignored
                 # until the old man has already caught the Weedle.
                 self.press("a", wait=8)
+            elif root == "evolution":
+                # B cancels the animation. Wait it out, then confirm the result.
+                evo = self.state.get("evolution") or {}
+                if evo.get("phase") == "animate":
+                    self.send("wait 20")
+                elif evo.get("dialog_ready"):
+                    self.press("a", wait=6)
+                else:
+                    self.send("wait 6")
             elif root == "event":
                 event = self.state.get("event") or {}
                 phase = event.get("phase")
@@ -702,7 +763,7 @@ class Player:
 
     def follow(self, open_cells, goal, avoid):
         blocked = set(avoid)
-        for _ in range(12):
+        for _ in range(40):
             if not self.exploring():
                 return "overlay"
             cell = (self.state["player"]["x"], self.state["player"]["y"])
@@ -777,7 +838,7 @@ class Player:
         for _ in range(limit):
             root = self.state.get("root")
             if root == "learning":
-                if not self.dismiss_until_explore(limit=8) and self.state.get("root") == "battle":
+                if not self.dismiss_until_explore(limit=40) and self.state.get("root") == "battle":
                     continue
                 if self.state.get("root") != "battle":
                     break
@@ -1485,6 +1546,245 @@ def _heal_and_fight_brock(player, report, display, clips, output):
         report["saved_badge"] = player.pause_save()
 
 
+def _needs_heal(player):
+    mon = player.state.get("pokemon") or {}
+    status = mon.get("status") or "none"
+    hp = mon.get("hp") or 0
+    return hp < 28 or status not in ("none", "healthy", "")
+
+
+def _heal_in(player, report, city, door, nurse_id, inside, label, outdoors):
+    kind = step_onto(player, city, door, set(), "up")
+    report[label + "_door"] = {"kind": kind, **summary(player.state)}
+    if "center" not in str(player.state.get("zone")):
+        raise RuntimeError(f"{label} door did not open: " + json.dumps(summary(player.state)))
+    talked = talk_to(player, inside, nurse_id, set())
+    report[label + "_nurse"] = talked
+    healed = player.state.get("pokemon") or {}
+    if talked != "talked" or (healed.get("hp") or 0) < 20 or (healed.get("status") or "none") not in ("none", "healthy", ""):
+        raise RuntimeError(f"{label} nurse missed: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, inside, (3, 7), set(), "down")
+    report[label + "_left"] = {"kind": kind, **summary(player.state)}
+    if outdoors not in str(player.state.get("zone")):
+        raise RuntimeError(f"still inside {label}: " + json.dumps(summary(player.state)))
+
+
+# Bodies of every Route 3 trainer, plus the sight of the ones the road can pass
+# without fighting. The four remaining sight lines are the only way east.
+ROUTE3_FIGHT = {(10, 6), (14, 4), (19, 5), (24, 6)}
+ROUTE3_SKIP = (
+    ((16, 9), "left", 2),
+    ((23, 4), "left", 4),
+    ((22, 9), "left", 3),
+    ((33, 10), "up", 2),
+    ((57, 11), "down", 0),
+)
+
+
+def route3_avoid():
+    delta = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
+    avoid = set(ROUTE3_FIGHT)
+    for (x, y), facing, sight in ROUTE3_SKIP:
+        avoid.add((x, y))
+        dx, dy = delta[facing]
+        for step in range(1, sight + 1):
+            avoid.add((x + dx * step, y + dy * step))
+    return avoid
+
+
+def careful_travel(player, cells, goal, avoid, limit=40, hp_floor=22):
+    """Walk until the goal, a zone change, or Squirtle needs the Center."""
+    started = player.state.get("zone")
+    for _ in range(limit):
+        if started and player.state.get("zone") != started:
+            return "warp"
+        kind = player.follow(cells, goal, avoid)
+        if kind != "overlay":
+            return kind
+        root = player.state.get("root")
+        if root == "battle":
+            trainer = (player.state.get("battle") or {}).get("trainerName")
+            if trainer or not player.run_away():
+                player.fight()
+            player.dismiss_until_explore(limit=40)
+        elif root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event"):
+            player.dismiss_until_explore(limit=40)
+        else:
+            return kind
+        mon = player.state.get("pokemon") or {}
+        status = mon.get("status") or "none"
+        if (mon.get("hp") or 0) < hp_floor or status not in ("none", "healthy", ""):
+            return "hurt"
+    return "lost"
+
+
+def _cross_route3(player, report, display, clips, output):
+    """Walk Pewter's east road. Heal in Pewter between the trainers the road must cross."""
+    doors = {(14, 7), (19, 5), (29, 13), (23, 17), (7, 29), (13, 25), (16, 17)}
+    filmed = False
+    avoid = route3_avoid()
+    for attempt in range(6):
+        zone = str(player.state.get("zone"))
+        if "pewter_city" in zone:
+            if _needs_heal(player):
+                _heal_in(player, report, pewter_cells(), (13, 25),
+                         "pokered:PEWTER_POKECENTER:objects:1", center_cells(), "pewter_heal", "pewter_city")
+            here = (player.state["player"]["x"], player.state["player"]["y"])
+            blocked = set(doors)
+            blocked.discard(here)
+            kind = player.travel(pewter_cells(), (39, 18), blocked, limit=8)
+            report["pewter_east"] = kind
+            if kind != "arrived":
+                raise RuntimeError("could not reach Pewter's east edge: " + json.dumps(summary(player.state)))
+
+            def walk(blocked=blocked):
+                leave_map(player, pewter_cells(), (39, 18), blocked, "right")
+                return careful_travel(player, route3_cells(), (59, 0), avoid)
+
+            if not filmed:
+                kind = film(display, clips, output, "route3", report, "start", walk)
+                filmed = True
+            else:
+                kind = walk()
+        elif "route_3" in zone:
+            here = (player.state["player"]["x"], player.state["player"]["y"])
+            blocked = set(avoid)
+            blocked.discard(here)
+            kind = careful_travel(player, route3_cells(), (59, 0), blocked)
+        else:
+            raise RuntimeError("Route 3 retry left the road: " + json.dumps(summary(player.state)))
+        report[f"route3_{attempt}"] = {"kind": kind, **summary(player.state)}
+        if player.state.get("zone") == "kanto_route_3" and (player.state["player"]["x"], player.state["player"]["y"]) == (59, 0):
+            return
+        if kind == "hurt" and "route_3" in str(player.state.get("zone")):
+            _retreat_route3(player, avoid)
+        if "pewter" in str(player.state.get("zone")):
+            continue
+        raise RuntimeError("Route 3 walk stopped early: " + json.dumps(summary(player.state)))
+    raise RuntimeError("Route 3 did not reach Route 4: " + json.dumps(summary(player.state)))
+
+
+def _retreat_route3(player, avoid):
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    blocked = set(avoid)
+    blocked.discard(here)
+    kind = careful_travel(player, route3_cells(), (0, 10), blocked, hp_floor=1)
+    if player.state.get("zone") != "kanto_route_3":
+        return
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (0, 10):
+        raise RuntimeError("could not retreat to Pewter: " + json.dumps(summary(player.state)))
+    leave_map(player, route3_cells(), (0, 10), blocked, "left")
+
+
+def play_to_cerulean(player, report, display, clips, output):
+    """Leave the Boulder Badge save, cross Route 3 and Mt. Moon, then try Cerulean."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    zone = str(player.state.get("zone"))
+    report["resumed"] = summary(player.state)
+    if "route_4" in zone:
+        report["resumed_route4"] = summary(player.state)
+        _from_route4(player, report, display, clips, output)
+        return
+    if "route_3" in zone:
+        _cross_route3(player, report, display, clips, output)
+        _from_route3_north(player, report, display, clips, output)
+        return
+    if "pewter_city" in zone:
+        _cross_route3(player, report, display, clips, output)
+        _from_route3_north(player, report, display, clips, output)
+        return
+    if "pewter_gym" not in zone:
+        raise RuntimeError("continue did not resume a walked save: " + json.dumps(summary(player.state)))
+    kind = player.travel( gym_cells(), (5, 12), set(), limit=8)
+    report["gym_exit_walk"] = kind
+    if kind != "arrived":
+        raise RuntimeError("could not reach the gym door: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, gym_cells(), (5, 13), set(), "down")
+    report["gym_left"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
+    if player.state.get("zone") != "kanto_pewter_city":
+        raise RuntimeError("gym door did not return to Pewter: " + json.dumps(summary(player.state)))
+    _cross_route3(player, report, display, clips, output)
+    _from_route3_north(player, report, display, clips, output)
+
+
+def _from_route3_north(player, report, display, clips, output):
+    kind = leave_map(player, route3_cells(), (59, 0), set(), "up")
+    report["route4_enter"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
+    if player.state.get("zone") != "kanto_route_4":
+        raise RuntimeError("Route 3's north edge did not open Route 4: " + json.dumps(summary(player.state)))
+    if player.exploring():
+        report["saved_route4"] = player.pause_save()
+    _from_route4(player, report, display, clips, output)
+
+
+def _from_route4(player, report, display, clips, output):
+    if _needs_heal(player):
+        _heal_in(player, report, route4_cells(), (11, 5),
+                 "pokered:MT_MOON_POKECENTER:objects:1", moon_center_cells(), "moon_heal", "route_4")
+    kind = player.travel( route4_cells(), (18, 6), set(), limit=12)
+    report["cave_approach"] = kind
+    if kind != "arrived":
+        raise RuntimeError("could not reach Mt. Moon: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, route4_cells(), (18, 5), set(), "up")
+    report["moon_enter"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
+    if player.state.get("zone") != "kanto_mt_moon_1f":
+        raise RuntimeError("Mt. Moon entrance did not open: " + json.dumps(summary(player.state)))
+    _descend(player, report)
+    if player.state.get("zone") != "kanto_route_4":
+        raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
+    kind = player.travel( route4_cells(), (59, 4), set(), limit=20)
+    report["cliff"] = {"kind": kind, "at": summary(player.state)}
+    if kind != "arrived":
+        raise RuntimeError("could not reach the Route 4 cliff: " + json.dumps(summary(player.state)))
+    blocked = player.step("right")
+    report["cliff_step"] = {"kind": blocked, "at": summary(player.state)}
+    if player.exploring():
+        report["saved_cliff"] = player.pause_save()
+    if player.state.get("zone") == "kanto_cerulean_city":
+        report["cerulean"] = summary(player.state)
+        return
+    raise RuntimeError(
+        "Route 4's northern road is cut at (60,4) by foot tile 0x27; "
+        "Cerulean is on the far side and there is no other land exit: "
+        + json.dumps(summary(player.state)))
+
+
+def _descend(player, report):
+    """1F stairs, B1F to B2F, back up at the Route 4 exit stairs."""
+    kind = player.travel( moon_cells(), (5, 6), set(), limit=40)
+    report["moon_1f"] = kind
+    if kind != "arrived":
+        raise RuntimeError("could not cross Mt. Moon 1F: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, moon_cells(), (5, 5), set(), "up")
+    report["moon_b1_enter"] = {"kind": kind, "zone": player.state.get("zone")}
+    if player.state.get("zone") != "kanto_mt_moon_b1f":
+        raise RuntimeError("1F stairs did not open B1F: " + json.dumps(summary(player.state)))
+    kind = player.travel( moon_b1_cells(), (21, 16), set(), limit=40)
+    report["moon_b1"] = kind
+    if kind != "arrived":
+        raise RuntimeError("could not cross Mt. Moon B1F: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, moon_b1_cells(), (21, 17), set(), "down")
+    report["moon_b2_enter"] = {"kind": kind, "zone": player.state.get("zone")}
+    if player.state.get("zone") != "kanto_mt_moon_b2f":
+        raise RuntimeError("B1F stairs did not open B2F: " + json.dumps(summary(player.state)))
+    kind = player.travel( moon_b2_cells(), (6, 7), set(), limit=40)
+    report["moon_b2"] = kind
+    if kind != "arrived":
+        raise RuntimeError("could not cross Mt. Moon B2F: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, moon_b2_cells(), (5, 7), set(), "left")
+    report["moon_exit_stairs"] = {"kind": kind, "zone": player.state.get("zone")}
+    if player.state.get("zone") != "kanto_mt_moon_b1f":
+        raise RuntimeError("B2F stairs did not return to B1F: " + json.dumps(summary(player.state)))
+    kind = player.travel( moon_b1_cells(), (26, 3), set(), limit=20)
+    report["moon_exit_walk"] = kind
+    if kind != "arrived":
+        raise RuntimeError("could not reach the cave exit: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, moon_b1_cells(), (27, 3), set(), "right")
+    report["moon_exit"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
+
+
 def play(output, clips, save_from=None, story=None):
     import sys
     import uuid
@@ -1570,6 +1870,15 @@ if __name__ == "__main__":
         unittest.main()
     else:
         clips = ROOT / "artifacts" / "lane-j"
+        if "--east" in sys.argv:
+            output = Path("/tmp/lane-j-squirtle-18")
+            save_from = ROUTE4_SAVE
+            digest = sha256_file(save_from / "adventure.b.json")
+            if digest != ROUTE4_SAVE_SHA:
+                raise SystemExit(f"route 4 save hash {digest}")
+            if output.exists():
+                raise SystemExit(f"{output} already exists")
+            raise SystemExit(play(output, clips, save_from=save_from, story=play_to_cerulean))
         if "--north" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-10")
             save_from = PEWTER_SAVE

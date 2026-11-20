@@ -5,11 +5,11 @@ Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 i
 ## Position
 
 - Badges: Boulder Badge (`BADGE_BOULDER`). TM34 is in the bag. Payout was 1386.
-- BLUE, rival RED. Squirtle, level 12, 20 HP, no status, Tackle, Tail Whip, Bubble, and Withdraw
+- BLUE, rival RED. Squirtle, level 15, 39 HP, no status, Tackle, Water Gun, Bubble, and Withdraw. Tail Whip was replaced when Water Gun was learned.
 - Intro done. Lab rival won (his Bulbasaur)
 - Oak's Parcel has been delivered. `EVENT_GOT_POKEDEX` and `EVENT_OAK_GOT_PARCEL` are set.
-- Standing in Pewter Gym at (5, 2), facing up, on the tile where Brock was fought.
-- Earned pause save: `/opt/cursor/artifacts/lane-j/saves/a6328d508ccc/adventure.a.json` sha256 `fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b` (sequence 7). The pre-gym Pewter pause remains `/opt/cursor/artifacts/lane-j/saves/d03e3f4459d1/adventure.b.json` sha256 `d8c3b1e1fa226fe42174ab076467d39a6bd21aa8505fae9df87d4f00e6488217`. Earlier pauses: Viridian `56f56cb938174c80ffc7465e41c75d83c76e7fbb1c311e7b0e64231638917122`, lab `846b901711349edf2b2f4abfea505fb3b66593d290e4e3170e0e354aad7ced3a`. None of these are in git.
+- Route 3 is crossed. Standing on Route 4 at (9, 17), facing up, just north of the Route 3 seam. Healing checkpoint is still Pewter City (13, 26) facing down.
+- Earned pause save: `/opt/cursor/artifacts/lane-j/saves/ae6ff5c3ae0d/adventure.b.json` sha256 `362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9` (sequence 8). The Boulder Badge pause remains `/opt/cursor/artifacts/lane-j/saves/a6328d508ccc/adventure.a.json` sha256 `fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b` (sequence 7). Earlier pauses: pre-gym Pewter `d8c3b1e1fa226fe42174ab076467d39a6bd21aa8505fae9df87d4f00e6488217`, Viridian `56f56cb938174c80ffc7465e41c75d83c76e7fbb1c311e7b0e64231638917122`, lab `846b901711349edf2b2f4abfea505fb3b66593d290e4e3170e0e354aad7ced3a`. None of these are in git.
 
 ## Clips
 
@@ -23,6 +23,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T010900Z-route1.mp4` | 24.03s | `f46446c1aed298405a06c00b055444af84f15359ac4a04d2f12cdf44a0d33023` | The walk north on Route 1 into Viridian. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T011836Z-gym-pewter.mp4` | 45.37s | `341d2404b7f16eabd0f526dccc5dc5cb660a774360d9540157079efd6d0c6e58` | The Pewter Gym trainer battle that blacked out. This is not the Boulder Badge. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T012706Z-gym-pewter.mp4` | 70.93s | `1d3c2df84e1aeb53e5da03654da14a58756c6e2346c549ab10dd8bec87b9c6f7` | Brock, Geodude then Onix, and the Boulder Badge. Decoded frames are only 0 and 255. |
+| `artifacts/lane-j/20261120T020656Z-route3.mp4` | 80.73s | `8c25bf7a0134b25b5d0e77ca881ed771f53037c9d96e109ee747826fe4d5516a` | Leaving Pewter onto Route 3. Decoded frames are only 0 and 255. |
 
 ## Title intro
 
@@ -38,9 +39,11 @@ An earlier walk reached the same lab before Oak was placed. A at (6, 3) did noth
 
 The lab save walked out, filmed Route 1 (24.03s), and talked to the old man at (17, 6). The next walk crossed Route 2, Viridian Forest, and the north gate into Pewter at level 8 with 10 HP. Bubble was learned. A forest battle left Squirtle poisoned. The first Center visit looked for a tile beside the nurse and left without healing. The gym path then crossed the junior trainer's sight at (5, 7). Squirtle fainted. That blackout was not saved. The Pewter pause at (18, 35) resumed. The nurse is at (3, 1) behind the solid counter at (3, 2). Standing at (3, 3) and facing up opened the heal, and YES restored Squirtle to 25 HP. The walk to Brock avoided (4, 7) and (5, 7). Brock's Geodude and Onix fainted. `last_battle_outcome.won` is true, `BADGE_BOULDER` is set, and the bag holds one TM34. Squirtle reached level 12 with 20 HP and learned Withdraw. The clip is `20261120T012706Z-gym-pewter.mp4` (70.93s).
 
+The gym pause walked east. Pewter's Center healed Squirtle before Route 3. The northern road is blocked by trainer sight, so the walk crossed four of them and returned to Pewter whenever HP fell under 22 or a status landed: the bug catcher at (10, 6), the youngster at (14, 4), the youngster at (19, 5), and the youngster at (24, 6). Their flags are `pokered:ROUTE_3:objects:2`, `:3`, `:5`, and `:8`. Water Gun replaced Tail Whip at level 13. Route 3's north edge at (59, 0) opened Route 4 at (9, 17). The pause there is sequence 8. A later step entered Mt. Moon and reached level 16; the evolution announcement was on screen and this driver never pressed A, so that cave progress was not saved. The Route 4 pause is the resume. The clip is `20261120T020656Z-route3.mp4` (80.73s).
+
 ## Next
 
-Stopped after the Boulder Badge, as requested. The gym pause above is the resume for Route 3.
+Route 4 is open. Next is the Mt. Moon stair chain, then the east road toward Cerulean. Resume from the sequence 8 pause above.
 
 ## Blockers
 
@@ -48,4 +51,4 @@ None. The missing Oak was E's `837a61e6`, merged here from `51764017`. `tools/te
 
 ## Tests
 
-`python3 -m unittest tools.tests.test_lane_j_squirtle tools.tests.test_lane_e_oaks_lab_oak` — 12 tests, all passed. No skips. The Pewter resume then won Brock in the Simulator (`/tmp/lane-j-squirtle-10`, exit 0).
+`python3 -m unittest tools.tests.test_lane_j_squirtle tools.tests.test_lane_e_oaks_lab_oak` — 12 tests, all passed before the Route 3 walk. The Route 3 host checks passed again after that walk (`SquirtleRouteTests`, 11 tests). The Simulator run is `/tmp/lane-j-squirtle-17`. It saved Route 4 and then stopped on the evolution announcement inside Mt. Moon.
