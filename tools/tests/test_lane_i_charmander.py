@@ -1904,7 +1904,8 @@ class CharmanderRun(BrockJourney):
         before = self.position()
         grinding = (getattr(self, "_bench_share", False)
                     and not getattr(self, "_stopping", False)
-                    and not getattr(self, "_puzzle", False))
+                    and not getattr(self, "_puzzle", False)
+                    and not getattr(self, "_flee_wilds", False))
         if grinding:
             self.training_mode = "league-bench"
         try:
@@ -3051,11 +3052,14 @@ class CharmanderRun(BrockJourney):
                 continue
             self.drain()
             if not self.flag(flag):
+                if label == "Lorelei":
+                    self._record_screen("lorelei", 60)
                 self._talk_to_actor(actor)
             if not self.flag(flag) and room == "LoreleisRoom":
                 # The room entry sets STARTED. The lobby clears the trainer
                 # bit only on that later visit, so walk out and back in.
                 self._reopen_lorelei()
+                self._record_screen("lorelei", 60)
                 self._talk_to_actor(actor)
             if not self.flag(flag):
                 raise ProtocolError(label + " did not start: " + str(self.position()))
@@ -3328,13 +3332,18 @@ class CharmanderRun(BrockJourney):
                 self.model().path(self.position(), set(approaches), self.occupied())
             except ProtocolError:
                 return False
-        self._lead_trainee()
+        if getattr(self, "_flee_wilds", False):
+            self._lead_starter()
+        else:
+            self._lead_trainee()
         self._record_screen("victory-road", 60)
         self.interact(source_id=source_id)
         self._revive_fainted()
         return True
 
     def _pace_tiles(self, a, b, battles):
+        if getattr(self, "_flee_wilds", False):
+            return
         if self.position() not in {a, b}:
             self._walk_avoiding_warps(a)
         start = len(self.summary.get("training") or [])
@@ -3352,7 +3361,7 @@ class CharmanderRun(BrockJourney):
             steps += 1
 
     def _try_south_grass(self):
-        if not self._on("Route23"):
+        if getattr(self, "_flee_wilds", False) or not self._on("Route23"):
             return
         self._follow_route({(14, 37)})
         for _ in range(16):
@@ -3411,9 +3420,10 @@ class CharmanderRun(BrockJourney):
             "pokered:VICTORY_ROAD_2F:objects:5",
             "pokered:VICTORY_ROAD_2F:objects:1",
         ):
-            if self.inventory()["money"] >= 1500 and (
-                self._lorelei_bench_ready() or self._party_needs_center()
-            ):
+            # A paralyzed or low Charizard cannot buy the Revive. Stop and heal.
+            if self._needs_field_heal():
+                return
+            if self.inventory()["money"] >= 1500 and self._lorelei_bench_ready():
                 return
             if self._fight_if_here(trainer):
                 self.save()
@@ -3467,40 +3477,109 @@ class CharmanderRun(BrockJourney):
         if not self._lorelei_bench_ready():
             self._try_south_grass()
 
-    def _raise_lorelei_bench(self):
-        """Victory Road and Route 23 until two backups reach the high 40s."""
+    def _needs_field_heal(self):
+        """Paralysis and a low Charizard both stop a trainer payout."""
+        for mon in self.party():
+            if mon["hp"] <= 0 or mon["status"] not in {None, "none"}:
+                return True
+            if mon["species"] == "charizard" and mon["hp"] * 3 < mon["maxHP"] * 2:
+                return True
+        return self._party_needs_center()
+
+    def _can_attempt_lorelei(self):
+        """Lorelei starts once Charizard is healthy and a Revive is in the bag."""
         if self._lorelei_bench_ready():
+            return True
+        starter = next((mon for mon in self.party() if mon["species"] == "charizard"), None)
+        if starter is None or starter["hp"] <= 0 or starter["hp"] * 3 < starter["maxHP"] * 2:
+            return False
+        if starter["status"] not in {None, "none"}:
+            return False
+        return self.quantity("revive") >= 1 or self.quantity("fullRestore") >= 1
+
+    def _heal_reachable_center(self):
+        """Walk the south road to Viridian. The lobby nurse is only used once we are inside it."""
+        if self._on("IndigoPlateauLobby"):
+            composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
+            if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
+                self._heal_indigo()
+            return
+        if self._on("VictoryRoad1F") or self._on("VictoryRoad2F") or self._on("VictoryRoad3F"):
+            self._leave_east_cave()
+        if self._on("IndigoPlateau"):
+            self._cross_edge("down")
+        self.heal_here("ViridianPokecenter")
+
+    def _reopen_and_farm_trainers(self):
+        """Route 23 closed the gates. Re-solve both floors, then take the trainer payout."""
+        self._lead_starter()
+        if self._on("VictoryRoad2F") or self._on("VictoryRoad3F"):
+            self._leave_east_cave()
+        if self._on("IndigoPlateauLobby"):
+            self._exit_lobby_south()
+        if self._on("IndigoPlateau"):
+            self._cross_edge("down")
+        if not self._on("VictoryRoad1F"):
+            if not self._on("Route23"):
+                self.travel(self.zone("Route23"))
+            if self.position() != (4, 32):
+                self._follow_route({(4, 32)})
+            if not self._on("Route23") or self.position() != (4, 32):
+                raise ProtocolError(
+                    "Victory Road south door missed: " + self._map_name() + " " + str(self.position()))
+        self._puzzle = True
+        try:
+            if not self._on("VictoryRoad1F"):
+                self._enter_victory_road()
+            self._victory_road_1f()
+            self._victory_road_2f()
+        finally:
+            self._puzzle = False
+
+    def _raise_lorelei_bench(self):
+        """Flee rock wilds, heal, buy a Revive from a trainer payout, then fight Lorelei."""
+        if self._can_attempt_lorelei():
             self._bench_share = False
             self.training_mode = None
+            self._flee_wilds = False
             return
         from tools.harness.brock_journey import NaturalBlackout
         self._grinding = True
         self._bench_share = True
+        self._flee_wilds = True
         self._pin_victory_trainers()
-        self.summary["acceptance"] = "grinding a Lorelei bench"
+        self.summary["acceptance"] = "earning a Revive for Lorelei"
         try:
-            while not self._lorelei_bench_ready():
+            while not self._can_attempt_lorelei():
                 battles = len(self.summary["battles"])
                 trained = len(self.summary.get("training") or [])
+                money = self.inventory()["money"]
                 try:
-                    self._lead_trainee()
-                    if self._party_needs_center():
+                    self._lead_starter()
+                    if money >= 1500 and (self._want_league_shop() or self._needs_field_heal()):
                         if not self._on("IndigoPlateauLobby"):
                             self._reach_lobby()
-                        composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
-                        if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
+                        if self._want_league_shop():
+                            self._stock_league_items()
+                        if any(mon["hp"] < mon["maxHP"] or mon["status"] not in {None, "none"}
+                               for mon in self.party()):
                             self._heal_indigo()
-                        self._lead_trainee()
-                    if self._on("IndigoPlateauLobby") or self._want_league_shop():
-                        if not self._on("IndigoPlateauLobby"):
-                            self._reach_lobby()
-                        self._stock_league_items()
-                    self._grind_east_cave()
+                        self._lead_starter()
+                    elif self._needs_field_heal():
+                        self._heal_reachable_center()
+                        self._lead_starter()
+                    if self._can_attempt_lorelei():
+                        break
+                    if (self.inventory()["money"] < 1500
+                            and not self.flag("EVENT_VICTORY_ROAD_2_BOULDER_ON_SWITCH1")):
+                        self._reopen_and_farm_trainers()
+                    else:
+                        self._grind_east_cave()
                     self._revive_fainted()
                     self.save()
                 except NaturalBlackout:
                     self.recover_blackout()
-                    self._lead_trainee()
+                    self._lead_starter()
                     if not any(self._on(name) for name in (
                         "Route23", "IndigoPlateau", "IndigoPlateauLobby",
                         "VictoryRoad1F", "VictoryRoad2F", "VictoryRoad3F",
@@ -3508,16 +3587,20 @@ class CharmanderRun(BrockJourney):
                         self._climb_route23()
                 self.summary["bench"] = self._bench_levels()
                 if (len(self.summary["battles"]) == battles
-                        and len(self.summary.get("training") or []) == trained):
+                        and len(self.summary.get("training") or []) == trained
+                        and not self._can_attempt_lorelei()
+                        and self.inventory()["money"] <= money):
                     raise ProtocolError(
                         "league grind made no progress at "
                         + self._map_name() + " " + str(self.position())
+                        + " ¥" + str(self.inventory()["money"])
                         + " bench " + str(self._bench_levels()))
         finally:
             self._grinding = False
             self._bench_share = False
             self.training_mode = None
-        self._arrange_lead("starter")
+            self._flee_wilds = False
+        self._lead_starter()
         self.summary["bench"] = self._bench_levels()
 
     def _indigo_plateau(self):
