@@ -2275,8 +2275,19 @@ def _buy_cerulean_potions(player, report):
             player.press("b", wait=4)
     if player.state.get("root") == "shop":
         raise RuntimeError("the mart stayed open: " + json.dumps(summary(player.state)))
-    # The clerk's neighbor wanders on x=5, which blocks that door.
-    kind = step_onto(player, cells, (6, 7), {(5, 5), (5, 6), (5, 7)}, "down")
+    # The clerk's neighbor walks the whole x=5 column. Wait for a gap, then use either mat.
+    kind = "stayed"
+    for _ in range(12):
+        if "cerulean_city" in str(player.state.get("zone")):
+            break
+        for door in ((6, 7), (5, 7)):
+            kind = step_onto(player, cells, door, set(), "down")
+            if "cerulean_city" in str(player.state.get("zone")):
+                break
+        else:
+            player.send("wait 18")
+            continue
+        break
     report["cerulean_mart_left"] = {"kind": kind, **summary(player.state)}
     if "cerulean_city" not in str(player.state.get("zone")):
         raise RuntimeError("still inside the mart: " + json.dumps(summary(player.state)))
@@ -2513,7 +2524,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-30")
+            output = Path("/tmp/lane-j-squirtle-31")
             save_from = POTION_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != POTION_SAVE_SHA:
