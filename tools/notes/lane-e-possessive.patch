@@ -1,0 +1,127 @@
+diff --git a/Source/game/titleIdle.lua b/Source/game/titleIdle.lua
+index 8811ec0e..5f13cd89 100644
+--- a/Source/game/titleIdle.lua
++++ b/Source/game/titleIdle.lua
+@@ -354,7 +354,26 @@ function TitleIdle.rectsOverlap(a, b)
+     return a.x < b.x + b.w and b.x < a.x + a.w and a.y < b.y + b.h and b.y < a.y + a.h
+ end
+ 
++-- pret/pokered af519899 constants/charmap.asm. These are one tile each.
++-- An ASCII apostrophe plus the letter is the stray gap in "CHARIZARD' s".
++TitleIdle.LIGATURES = {
++    ["'d"] = 0xbb - 0x80, ["'l"] = 0xbc - 0x80, ["'s"] = 0xbd - 0x80,
++    ["'t"] = 0xbe - 0x80, ["'v"] = 0xbf - 0x80,
++    ["'r"] = 0xe4 - 0x80, ["'m"] = 0xe5 - 0x80,
++}
++
++function TitleIdle.nextTile(text, index)
++    local pair = text:sub(index, index + 1)
++    local ligature = TitleIdle.LIGATURES[pair]
++    if ligature then return index + 2, "font", ligature end
++    local code = utf8.codepoint(text, index)
++    local nextIndex = utf8.offset(text, 2, index) or (#text + 1)
++    local sheet, glyph = TitleIdle.glyph(utf8.char(code))
++    return nextIndex, sheet, glyph
++end
++
+ function TitleIdle.glyph(char)
++    if TitleIdle.LIGATURES[char] then return "font", TitleIdle.LIGATURES[char] end
+     if char == "PK" then return "font", 0xe1 - 0x80 end
+     if char == "MN" then return "font", 0xe2 - 0x80 end
+     if char == "ED" then return "ed", 0 end
+diff --git a/Source/game/gbFont.lua b/Source/game/gbFont.lua
+index 76198400..b7653c8c 100644
+--- a/Source/game/gbFont.lua
++++ b/Source/game/gbFont.lua
+@@ -52,10 +52,12 @@ function GbFont.drawChar(char, col, row)
+ end
+ 
+ function GbFont.drawString(text, col, row)
+-    local cursor = 0
+-    for _, code in utf8.codes(text) do
+-        GbFont.drawChar(utf8.char(code), col + cursor, row)
++    local cursor, index = 0, 1
++    while index <= #text do
++        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
++        tileImage(sheetName, glyph):draw((col + cursor) * TitleIdle.COL, row * TitleIdle.ROW)
+         cursor = cursor + 1
++        index = nextIndex
+     end
+ end
+ 
+@@ -108,13 +110,12 @@ end
+ -- Tight 2x of the 8x8 tile, for a line that is not one glyph per cell.
+ function GbFont.drawTight(text, x, y)
+     GbFont.load()
+-    local cursor = x
+-    for _, code in utf8.codes(text) do
+-        local char = utf8.char(code)
+-        local sheetName, index = TitleIdle.glyph(char)
++    local cursor, index = x, 1
++    while index <= #text do
++        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+         local sheet = sheets[sheetName]
+-        local sx = (index % 16) * 8
+-        local sy = math.floor(index / 16) * 8
++        local sx = (glyph % 16) * 8
++        local sy = math.floor(glyph / 16) * 8
+         local image = gfx.image.new(16, 16, gfx.kColorWhite)
+         gfx.pushContext(image)
+         gfx.setColor(gfx.kColorBlack)
+@@ -130,6 +131,7 @@ function GbFont.drawTight(text, x, y)
+         gfx.popContext()
+         image:draw(cursor, y)
+         cursor = cursor + 16
++        index = nextIndex
+     end
+ end
+ 
+diff --git a/Source/ui/dialog.lua b/Source/ui/dialog.lua
+index 8050e61e..061c1335 100644
+--- a/Source/ui/dialog.lua
++++ b/Source/ui/dialog.lua
+@@ -27,8 +27,21 @@ end
+ -- the word itself is longer.
+ function Dialog.wrapLine(text, width)
+     width = width or 18
++    -- pokered 's is one column (charmap $bd). Counting the apostrophe and
++    -- the letter separately wraps a possessive a column early and, with the
++    -- two-tile draw, leaves the gap in "CHARIZARD' s".
+     local chars = {}
+-    for _, code in utf8.codes(text) do chars[#chars + 1] = utf8.char(code) end
++    local index = 1
++    while index <= #text do
++        local nextIndex
++        if TitleIdle and TitleIdle.nextTile then
++            nextIndex = TitleIdle.nextTile(text, index)
++        else
++            nextIndex = utf8.offset(text, 2, index) or (#text + 1)
++        end
++        chars[#chars + 1] = text:sub(index, nextIndex - 1)
++        index = nextIndex
++    end
+     if #chars <= width then return {text} end
+     local chunks, i = {}, 1
+     while i <= #chars do
+@@ -245,11 +262,17 @@ function Dialog:draw(settled)
+         row2 = shown:sub(newline + 1)
+     end
+     local function clip(text)
+-        local out, count = {}, 0
+-        for _, code in utf8.codes(text) do
+-            if count >= 18 then break end
+-            out[#out + 1] = utf8.char(code)
++        local out, count, index = {}, 0, 1
++        while index <= #text and count < 18 do
++            local nextIndex
++            if TitleIdle and TitleIdle.nextTile then
++                nextIndex = TitleIdle.nextTile(text, index)
++            else
++                nextIndex = utf8.offset(text, 2, index) or (#text + 1)
++            end
++            out[#out + 1] = text:sub(index, nextIndex - 1)
+             count = count + 1
++            index = nextIndex
+         end
+         return table.concat(out)
+     end

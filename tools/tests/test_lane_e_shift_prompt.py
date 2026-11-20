@@ -34,6 +34,21 @@ class ShiftPromptTests(unittest.TestCase):
         self.assertIn("value.text", handler)
         self.assertIn("self.battle.message = value.text", handler)
 
+    def test_question_stays_up_after_the_faint(self):
+        scene = (ROOT / "Source/battle/battleScene.lua").read_text()
+        handle = scene.split("function BattleScene:handleInput()", 1)[1].split(
+            "\nfunction BattleScene:", 1)[0]
+        shift = handle.split("if self.battle.shiftChoice then", 1)[1]
+        # The about-to-use page is already its own say. The question after
+        # a foe faints has to finish printing and stay for the battle-text
+        # floor before YES/NO can decline it into the send-out line.
+        self.assertIn("self.shiftShown", shift)
+        self.assertIn("(self.shiftShown or 0) >= 10", shift)
+        self.assertLess(
+            shift.index("(self.shiftShown or 0) >= 10"),
+            shift.index("self.shiftMenu:handleInput()"))
+        self.assertIn("sent out", shift)
+
     def test_shift_prompt_stays_in_the_gb_font(self):
         scene = (ROOT / "Source/battle/battleScene.lua").read_text()
         branch = scene.split("if self.battle.shiftChoice then", 1)[1].split(
