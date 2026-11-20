@@ -8,11 +8,11 @@ K tip `e9da9e23` contains main `e0e9a209`. The three clips were re-run on this t
 
 ## Learn box name
 
-Not applied. Page 1 is `CHARIZARD is` / `trying to learn`. Page 2 is `trying to learn` / `FLARE BLITZ!`, the pokered `<CONT>` page. `lane-e-learn-box-name.patch` would put the name on a third line of page 1. The two-row box and `test_lane_e_learn_pages` already keep that name on page 2.
+The two-row box keeps the pokered first screen: `CHARIZARD is` / `trying to learn`. `FLARE BLITZ` is the next page, the `<CONT>` after `trying to learn`. `lane-e-learn-box-name.patch` is not applied; a third line is clipped. `test_lane_k_learn_name` prints `learn-name-on-next-page` for that next page. `test_lane_e_learn_pages` still reaches it before YES/NO.
 
 ## Shift on a fainted lead
 
-Diagnosed, not patched. With Charizard at 0 HP, Bruno sends Hitmonchan and never sets `shiftChoice`. `Battle:finishRound` asks only when `self.player:isAlive()`. `eligibleForcedReplacements` returns `inactive-target` for a fainted lead, so the question cannot be asked until the replacement is committed.
+ChooseNextMon runs first. `eligibleForcedReplacements` returns the living bench for that fainted lead. After Weepinbell is sent, the SHIFT question is printed while Onix or Jynx is still the active foe. The question uses party count, because the old lead is then the fainted bench. `test_lane_k_shift_slots` prints `shift-slots-held` and `shift-order-held`. Whirlwind still fails on a fainted target.
 
 ## Bruno Hitmonlee
 

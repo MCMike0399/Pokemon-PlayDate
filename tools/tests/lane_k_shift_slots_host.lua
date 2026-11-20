@@ -88,6 +88,23 @@ local function faintInto(trainer, foeSpecies, foeLevel, nextSpecies, nextLevel)
         return battle:finishRound()
     end)
     local log = drain(battle)
+    local choices = battle:eligibleForcedReplacements(lead)
+    if choices == nil then
+        error(trainer .. " eligibleForcedReplacements rejected the fainted lead\n" .. log)
+    end
+    if battle.shiftChoice and not battle.player:isAlive() then
+        error(trainer .. " asked while " .. battle.player.name .. " is fainted; ChooseNextMon comes first\n" .. log)
+    end
+    if battle:phase() == "forcedSwitch" then
+        local ok, problem = battle:chooseParty(2)
+        if not ok then
+            error(trainer .. " ChooseNextMon rejected the bench: " .. tostring(problem) .. "\n" .. log)
+        end
+        log = log .. "\n" .. drain(battle)
+    end
+    if battle.player ~= bench then
+        error(trainer .. " did not send " .. bench.name .. " before the question; lead is " .. battle.player.name .. "\n" .. log)
+    end
     if not battle.shiftChoice then
         error(trainer .. " sent " .. battle.enemy.name .. " without YES/NO\n" .. log)
     end
