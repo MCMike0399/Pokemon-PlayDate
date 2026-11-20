@@ -363,7 +363,16 @@ local function applyStatus(self, battle, rest)
         return
     end
     if self.status == "confuse" then
-        if pokemon.confusion then return end
+        if pokemon.confusion then
+            -- Confuse Ray and Supersonic are the pokered moves whose only
+            -- effect is confusion. Gen V says But it failed! and keeps the
+            -- counter. A secondary, and Swagger's attack raise, stay silent.
+            local move=self.statusCause=="move" and battle.currentMove
+            local onlyConfuse=move and move.category=="status" and move.effects
+                and #move.effects==1 and move.effects[1].status=="confuse"
+            if onlyConfuse then battle:say("But it failed!") end
+            return
+        end
         local immunity=battle.effects and battle.effects:statusImmunity(pokemon,"confuse")
         if immunity then battle:say(pokemon.name.." is protected by "..immunity.."!");return end
         if self:preventedBySide(battle,pokemon) then return end
