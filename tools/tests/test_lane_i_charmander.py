@@ -3232,7 +3232,7 @@ class CharmanderRun(BrockJourney):
         if getattr(self, "_lance_training", False):
             best = None
             for index, mon in enumerate(self.party(), 1):
-                if mon["species"] not in {"lapras", "pidgeotto", "weepinbell"} or mon["hp"] <= 0:
+                if mon["species"] not in {"lapras", "pidgeotto", "pidgeot", "weepinbell"} or mon["hp"] <= 0:
                     continue
                 if best is None or mon["level"] < best[0]:
                     best = (mon["level"], index)
@@ -3937,12 +3937,13 @@ class CharmanderRun(BrockJourney):
         return party, active
 
     def _lance_choice(self, party, enemy):
-        """Charizard carries Lance. The level-24 bench only covers a gap."""
+        """Charizard carries Lance while healthy. Ice Beam Lapras covers the gap."""
         enemy = (enemy or "").lower()
 
         def slot(species, healthy=False):
+            names = {"pidgeotto", "pidgeot"} if species == "pidgeotto" else {species}
             for index, mon in enumerate(party, 1):
-                if mon["species"] != species or mon["hp"] <= 0 or not self._clear_status(mon):
+                if mon["species"] not in names or mon["hp"] <= 0 or not self._clear_status(mon):
                     continue
                 if healthy and not self._mon_healthy(mon):
                     continue
@@ -3950,10 +3951,12 @@ class CharmanderRun(BrockJourney):
             return None
 
         if enemy in {"gyarados", "aerodactyl"}:
-            return slot("charizard", True) or slot("pidgeotto") or slot("weepinbell") or slot("lapras")
+            return slot("charizard", True) or slot("lapras") or slot("pidgeotto") or slot("weepinbell")
         if enemy in {"dragonair", "dragonite"}:
-            return slot("charizard", True) or slot("charizard") or slot("pidgeotto") or slot("weepinbell") or slot("lapras")
-        return slot("charizard", True) or slot("charizard") or slot("pidgeotto")
+            return (slot("charizard", True) or slot("lapras") or slot("pidgeotto")
+                    or slot("weepinbell") or slot("charizard"))
+        return (slot("charizard", True) or slot("charizard") or slot("pidgeotto")
+                or slot("lapras") or slot("weepinbell"))
 
     def _lead_for_lance(self, enemy):
         """Charizard takes Gyarados and Aerodactyl only while he is healthy."""
@@ -4496,7 +4499,7 @@ class CharmanderRun(BrockJourney):
             self._revive_switch = None
             enemy = ((battle.get("enemy") or {}).get("species") or "")
             mon = self.party()[switch - 1] if 1 <= switch <= len(self.party()) else None
-            if mon and enemy in {"gyarados", "aerodactyl"} and not self._mon_healthy(mon):
+            if mon and enemy in {"gyarados", "aerodactyl", "dragonair", "dragonite"} and not self._mon_healthy(mon):
                 return False
             if mon and mon["hp"] > 0 and active != switch:
                 return bool(self.battle_switch(switch, options, "revive-starter"))
@@ -4554,14 +4557,15 @@ class CharmanderRun(BrockJourney):
                     break
         enemy = ((battle.get("enemy") or {}).get("species") or "")
         zone = self.state.get("zone_id") or ""
+        # A Max Potion makes Charizard the healthy lead before the matchup switch.
+        if self._top_off_starter(battle, options):
+            return True
         if any(token in zone for token in ("LANCES_ROOM", "CHAMPIONS_ROOM")) and enemy:
             party, active = self._battle_members(battle)
             choice = self._lance_choice(party, enemy)
             if choice and choice != active and self.battle_switch(choice, options, "lance-matchup"):
                 return True
         if self._revive_starter(battle, options):
-            return True
-        if self._top_off_starter(battle, options):
             return True
         if getattr(self, "_bench_share", False) and self._share_bench(battle, options):
             return True
