@@ -4917,9 +4917,15 @@ def _challenge(player, cells, surface, tile, avoid):
     _distance, spot, direction = min(spots)
     if ledge_route(cells, surface[0], surface[1], here, spot, set(avoid) | {tile}) is None:
         return "skip"
+    stamp = json.dumps(player.state.get("last_battle_outcome"), sort_keys=True, default=str)
     kind = _walk(player, cells, surface, spot, set(avoid) | {tile})
     if kind in ("blackout", "warp"):
         return kind
+    # A sight battle beats the trainer before the talk, so the button only gets the after-text.
+    if json.dumps(player.state.get("last_battle_outcome"), sort_keys=True, default=str) != stamp:
+        if not player.exploring():
+            player.dismiss_until_explore(limit=40)
+        return "fought"
     if (player.state["player"]["x"], player.state["player"]["y"]) != spot:
         return "skip"
     if player.state["player"].get("facing") != direction:
@@ -5625,7 +5631,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-79")
+            output = Path("/tmp/lane-j-squirtle-80")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
