@@ -53,18 +53,11 @@ end
 
 local function assertPokered(species, level)
     local moves = Pokemon.trainerMovesFor(species, level)
+    if joined(moves) ~= joined(PokeredLearnsets.movesAtLevel(species, level)) then
+        error(species .. " " .. level .. " trainer moves are " .. joined(moves))
+    end
     if #moves < 1 or #moves > 4 then
         error(species .. " " .. level .. " has " .. #moves .. " moves")
-    end
-    local ids = {}
-    for _, entry in ipairs(pokemonData[species].learnset) do
-        ids[entry.move] = entry.id
-    end
-    for _, key in ipairs(moves) do
-        local id = ids[key]
-        if not id or id > 165 then
-            error(species .. " " .. level .. " sent " .. key .. " id " .. tostring(id))
-        end
     end
 end
 
@@ -81,23 +74,21 @@ local banned = {
 }
 local function assertInitial(species, level, expected)
     local moves = Pokemon.initialMovesFor(species, level)
-    local ids = {}
-    for _, entry in ipairs(pokemonData[species].learnset) do ids[entry.move] = entry.id end
     for _, key in ipairs(moves) do
-        if banned[key] or not ids[key] or ids[key] > 165 then
-            error(species .. " " .. level .. " initial " .. key .. " id " .. tostring(ids[key]))
+        if banned[key] then
+            error(species .. " " .. level .. " initial " .. key)
         end
     end
-    if expected and joined(moves) ~= expected then
+    if joined(moves) ~= expected then
         error(species .. " " .. level .. " initial moves are " .. joined(moves))
     end
 end
 
-assertInitial("magnemite", 21, "supersonic,thunderShock,sonicBoom,thunderWave")
-assertInitial("sandshrew", 19, "defenseCurl,sandAttack,poisonSting,swift")
-assertInitial("voltorb", 18, "tackle,sonicBoom")
-assertInitial("poliwag", 18, "bubble,hypnosis,waterGun,doubleSlap")
+assertInitial("magnemite", 21, "tackle,sonicBoom")
+assertInitial("sandshrew", 19, "scratch,sandAttack,slash")
+assertInitial("voltorb", 18, "tackle,screech,sonicBoom")
+assertInitial("poliwag", 18, "bubble,hypnosis")
 assertInitial("poliwag", 1, "bubble")
-assertInitial("voltorb", 1, "tackle")
+assertInitial("voltorb", 1, "tackle,screech")
 assertInitial("magikarp", 30, "splash,tackle")
 print("trainer-fifo-held")
