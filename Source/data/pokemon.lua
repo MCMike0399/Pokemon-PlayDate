@@ -1281,6 +1281,31 @@ function Pokemon.initialMovesFor(species, level)
     return moves
 end
 
+-- pret/pokered af519899 NUM_ATTACKS. Trainer parties use the same B2W2
+-- learnset order, but a later id is not on the cartridge. Skipping it lets
+-- the previous pokered move stay. Player encounters keep initialMovesFor.
+local POKERED_NUM_ATTACKS <const> = 165
+function Pokemon.trainerMovesFor(species, level)
+    checkedLevel(level)
+    local data = pokemonData[species]
+    assert(data and data.learnset, "Missing level-aware learnset: " .. tostring(species))
+    local moves = {}
+    for _, entry in ipairs(data.learnset) do
+        if entry.level > level then break end
+        if entry.level >= 1 and entry.id <= POKERED_NUM_ATTACKS then
+            moveDefinition(entry.move)
+            local known = false
+            for _, key in ipairs(moves) do if key == entry.move then known = true; break end end
+            if not known then
+                if #moves == 4 then table.remove(moves, 1) end
+                moves[#moves + 1] = entry.move
+            end
+        end
+    end
+    assert(#moves > 0, "Trainer has no pokered move: " .. species)
+    return moves
+end
+
 -- Detached source events for explicit level-up/relearning/evolution owners.
 -- Level0 entries are excluded from ordinary encounter and level-up learning.
 function Pokemon.learnsetEntriesFor(species, minimum, maximum)
