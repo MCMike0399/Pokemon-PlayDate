@@ -289,10 +289,14 @@ function BattleScene:handleInput()
         end
     else
         self:syncMessage()
+        -- pret/pokered af519899 WaitForTextScrollButtonPress consumes the
+        -- A that finishes this page. That press must not also install the
+        -- next queued say; the following new A does.
+        local ready = self.messageReady
         if not self.messageReady then
             self.messageDialog:handleInput()
         end
-        if self.messageReady then
+        if ready and self.messageReady then
             self.battle:handleInput()
         end
         self:syncMessage()
