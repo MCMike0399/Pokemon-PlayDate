@@ -229,6 +229,12 @@ The r2 frames still drew `é` as a subscript, and the Venusaur credit showed onl
 
 BlueBot approved the r3 card, dex rating, spacing, bands, black text, silhouette and `THE END`. The credits scroll did not match `ScrollCreditsMonLeft`: the text stayed still and the mon was drawn on top of it. `tools/notes/lane-e-hof-credits-fidelity.patch` now scrolls only the white middle. The pic starts at column 20, off the right edge, and shares `SCX` with the text. The black bands stay put. After the seven open steps, the window walks in from `$A7` and masks the wrap. Step 27 has the text gone and the mon at the left. One mon-hold frame is the step-27 frame, so the roll keeps its length. The patched recapture is `artifacts/lane-g/hof-fidelity-r4/`. The scroll check fails on the live tree. `Source/` is unchanged on this branch.
 
+## Round 29
+
+`232d4452` on `cursor/lane-e-integration` includes `dc58ecf0` and `51832ff4`. The Simulator capture used that tree with no local patch. Every requested frame matches the r4 bytes from `ca39ef14`: the player card, the dex rating, credits steps 0, 7 and 27, Venusaur, Parasect, the copyright hold, and `THE END`. `python3 tools/tests/lane_g_hall_of_fame.py --log` on those frames prints `hall-of-fame ok (42 frames)`. The frames are in the agent store at `lane-g/hof-e-232d4452/`. No new lane-e patch.
+
+A normal boot leaves `game/creditsDraw` out of `main.pdz`. It is a standalone `game/creditsDraw.pdz`. On the title screen and in Pallet, and while Oak's Hall dialog is up, `EndgameStory.drawCredits` is nil. Ten frames after that dialog closes, the Hall photo has loaded it. The roll then draws the same frames as r4.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
