@@ -83,6 +83,10 @@ BADGE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/a6328d508ccc")
 BADGE_SAVE_SHA = "fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b"
 ROUTE4_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/ae6ff5c3ae0d")
 ROUTE4_SAVE_SHA = "362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9"
+FOSSIL_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/c964b798257f")
+FOSSIL_SAVE_SHA = "d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4"
+MISTY = "pokered:CERULEAN_GYM:objects:1"
+CERULEAN_NURSE = "pokered:CERULEAN_POKECENTER:objects:1"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
 BROCK = "pokered:PEWTER_GYM:objects:1"
 
@@ -99,8 +103,8 @@ def disabled_move(message, options):
     return None
 
 
-def preferred_move(options, skip=()):
-    """Water Gun, then Bubble, then Bite. Skip a move Disable has shut off."""
+def preferred_move(options, skip=(), enemy_types=()):
+    """Water Gun, then Bubble, then Bite. Bite leads against a Water-type."""
     named = []
     skipped = set()
     for name in skip or ():
@@ -110,7 +114,9 @@ def preferred_move(options, skip=()):
         if letters in {"", "DASH"} or str(name).strip() in {"", "-"} or letters in skipped:
             continue
         named.append((index, name, letters))
-    for want in ("WATERGUN", "BUBBLE", "BITE", "TACKLE"):
+    resisted = "water" in {str(kind).lower() for kind in (enemy_types or ()) if kind}
+    order = ("BITE", "TACKLE", "WATERGUN", "BUBBLE") if resisted else ("WATERGUN", "BUBBLE", "BITE", "TACKLE")
+    for want in order:
         for index, name, letters in named:
             if letters == want:
                 return index, name
@@ -248,6 +254,18 @@ def moon_b2_cells():
 
 def moon_center_cells():
     return open_map(ROOT / "Source/data/sourceSlice/MtMoonPokecenter.json", 0, 14)
+
+
+def cerulean_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/CeruleanCity.json", 0, 40)
+
+
+def cerulean_gym_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/CeruleanGym.json", 1, 13)
+
+
+def cerulean_center_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/CeruleanPokecenter.json", 0, 14)
 
 
 # IntroMovie.SCENES. Copyright and the black bars ignore A. The shooting
@@ -458,6 +476,7 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(disabled_move("WARTORTLE's WATER GUN was disabled!", moves), "WATER GUN")
         self.assertIsNone(disabled_move("WARTORTLE is no longer disabled!", moves))
         self.assertIsNone(disabled_move("GRIMER used DISABLE!", moves))
+        self.assertEqual(preferred_move(moves, enemy_types=["water"])[1], "BITE")
         pallet = padded_open_cells("pallet_town")
         pallet.add((9, 0))
         self.assertIsNotNone(route(pallet, (12, 12), (9, 0), avoid={(5, 5), (13, 5), (12, 11)}))
@@ -486,6 +505,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn(((10, 22), (9, 22)), MOON_1F_EDGES)
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (12, 7), MOON_B2_AVOID, MOON_B2_EDGES))
         self.assertIn((12, 6), route_cells(moon_b2_cells(), (12, 7), (6, 7), MOON_B2_AVOID))
+        self.assertIn((5, 7), route_cells(moon_b2_cells(), (12, 7), (6, 7), MOON_B2_AVOID))
+        self.assertNotIn((5, 7), route_cells(moon_b2_cells(), (12, 7), (6, 7), MOON_B2_AVOID | {(5, 7)}))
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7), MOON_B2_AVOID))
         self.assertIsNotNone(route(moon_b1_cells(), (5, 6), (21, 16)))
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7)))
@@ -898,7 +919,8 @@ class Player:
                         named = disabled_move(message, options)
                         if named:
                             rejected.add(named)
-                    index, _name = preferred_move(options, rejected)
+                    enemy_types = ((battle.get("enemy") or {}).get("types") or [])
+                    index, _name = preferred_move(options, rejected, enemy_types)
                     if index and selected != index:
                         self.press("down" if index > selected else "up", wait=2)
                     else:
@@ -1781,6 +1803,13 @@ def play_to_cerulean(player, report, display, clips, output):
         player.dismiss_until_explore(limit=40)
     zone = str(player.state.get("zone"))
     report["resumed"] = summary(player.state)
+    if "mt_moon_b2f" in zone or "mt_moon_b1f" in zone:
+        report["resumed_moon"] = summary(player.state)
+        if _exit_moon(player, report) == "blackout":
+            _from_route4(player, report, display, clips, output)
+        else:
+            _to_cerulean(player, report, display, clips, output)
+        return
     if "route_4" in zone:
         report["resumed_route4"] = summary(player.state)
         _from_route4(player, report, display, clips, output)
@@ -1843,10 +1872,56 @@ def _from_route4(player, report, display, clips, output):
         raise RuntimeError("Mt. Moon blacked out three times: " + json.dumps(summary(player.state)))
     if player.state.get("zone") != "kanto_route_4":
         raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
+    _to_cerulean(player, report, display, clips, output)
+
+
+def _exit_moon(player, report):
+    """Leave B2F through the stair at (5, 7). The walk to (6, 7) must not step on it."""
+    if "b2f" in str(player.state.get("zone")):
+        avoid = set(MOON_B2_AVOID)
+        avoid.add((5, 7))
+        avoid.add((13, 7))
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here != (6, 7):
+            kind = player.travel(moon_b2_cells(), (6, 7), avoid, limit=40, blocked_edges=MOON_B2_EDGES)
+            report["moon_b2_exit"] = kind
+            if "pewter" in str(player.state.get("zone")):
+                return "blackout"
+            if not (kind == "warp" and player.state.get("zone") == "kanto_mt_moon_b1f"):
+                if kind != "arrived":
+                    raise RuntimeError("could not cross Mt. Moon B2F: " + json.dumps(summary(player.state)))
+                kind = step_onto(player, moon_b2_cells(), (5, 7), MOON_B2_AVOID, "left", MOON_B2_EDGES)
+                report["moon_exit_stairs"] = {"kind": kind, "zone": player.state.get("zone")}
+        else:
+            kind = step_onto(player, moon_b2_cells(), (5, 7), MOON_B2_AVOID, "left", MOON_B2_EDGES)
+            report["moon_exit_stairs"] = {"kind": kind, "zone": player.state.get("zone")}
+        if "pewter" in str(player.state.get("zone")):
+            return "blackout"
+        if player.state.get("zone") != "kanto_mt_moon_b1f":
+            raise RuntimeError("B2F stairs did not return to B1F: " + json.dumps(summary(player.state)))
+    if player.state.get("zone") != "kanto_mt_moon_b1f":
+        raise RuntimeError("Mt. Moon exit started off the cave floors: " + json.dumps(summary(player.state)))
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here != (26, 3):
+        kind = player.travel(moon_b1_cells(), (26, 3), set(), limit=20, blocked_edges=MOON_B1_EDGES)
+        report["moon_exit_walk"] = kind
+        if "pewter" in str(player.state.get("zone")):
+            return "blackout"
+        if kind != "arrived":
+            raise RuntimeError("could not reach the cave exit: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, moon_b1_cells(), (27, 3), set(), "right", MOON_B1_EDGES)
+    report["moon_exit"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
+    return "through"
+
+
+def _to_cerulean(player, report, display, clips, output):
+    """Route 4's east step, then the Cerulean Center and Misty."""
+    if player.state.get("zone") != "kanto_route_4":
+        raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
     if _needs_heal(player):
         _heal_in(player, report, route4_cells(), (11, 5),
                  "pokered:MT_MOON_POKECENTER:objects:1", moon_center_cells(), "moon_heal_after", "route_4")
-    kind = player.travel( route4_cells(), (59, 4), set(), limit=20)
+    kind = player.travel(route4_cells(), (59, 4), set(), limit=20)
     report["cliff"] = {"kind": kind, "at": summary(player.state)}
     if kind != "arrived":
         raise RuntimeError("could not reach the Route 4 cliff: " + json.dumps(summary(player.state)))
@@ -1854,13 +1929,44 @@ def _from_route4(player, report, display, clips, output):
     report["cliff_step"] = {"kind": blocked, "at": summary(player.state)}
     if player.exploring():
         report["saved_cliff"] = player.pause_save()
-    if player.state.get("zone") == "kanto_cerulean_city":
-        report["cerulean"] = summary(player.state)
-        return
-    raise RuntimeError(
-        "Route 4's northern road is cut at (60,4) by foot tile 0x27; "
-        "Cerulean is on the far side and there is no other land exit: "
-        + json.dumps(summary(player.state)))
+    if player.state.get("zone") != "kanto_cerulean_city":
+        raise RuntimeError(
+            "Route 4's northern road is cut at (60,4) by foot tile 0x27; "
+            "Cerulean is on the far side and there is no other land exit: "
+            + json.dumps(summary(player.state)))
+    report["cerulean"] = summary(player.state)
+    _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+             cerulean_center_cells(), "cerulean_heal", "cerulean_city")
+    avoid = {(4, 11), (27, 11), (13, 15), (13, 25), (25, 25)}
+    kind = step_onto(player, cerulean_cells(), (30, 19), avoid, "up")
+    report["cerulean_gym_door"] = {"kind": kind, **summary(player.state)}
+    if "gym" not in str(player.state.get("zone")):
+        raise RuntimeError("Cerulean did not enter the gym: " + json.dumps(summary(player.state)))
+
+    def battle_misty():
+        talked = talk_to(player, cerulean_gym_cells(), MISTY, set())
+        report["misty_talk"] = {"result": talked, **summary(player.state)}
+        if player.state.get("root") == "battle" or talked == "talked":
+            if player.state.get("root") != "battle":
+                player.dismiss_until_explore(limit=20)
+            if player.state.get("root") == "battle":
+                report["misty_won"] = player.fight(limit=900)
+        else:
+            raise RuntimeError("Misty did not battle: " + json.dumps(summary(player.state)))
+        player.dismiss_until_explore(limit=120)
+
+    if display and clips and output:
+        film(display, clips, output, "gym-cerulean", report, "end", battle_misty)
+    else:
+        battle_misty()
+    outcome = player.state.get("last_battle_outcome") or {}
+    report["misty_outcome"] = outcome
+    quest = ((player.state.get("session") or {}).get("flags") or {}).get("quest") or {}
+    report["cascade"] = quest.get("BADGE_CASCADE")
+    if player.exploring():
+        report["saved_cascade"] = player.pause_save()
+    if outcome.get("won") is not True or not quest.get("BADGE_CASCADE"):
+        raise RuntimeError("Misty did not award the Cascade Badge: " + json.dumps(summary(player.state)))
 
 
 def take_dome_fossil(player, report):
@@ -1926,25 +2032,7 @@ def _descend(player, report, display, clips, output):
         raise RuntimeError("could not reach the Dome Fossil: " + json.dumps(summary(player.state)))
     if take_dome_fossil(player, report) == "blackout":
         return "blackout"
-    kind = player.travel(moon_b2_cells(), (6, 7), MOON_B2_AVOID, limit=40, blocked_edges=MOON_B2_EDGES)
-    report["moon_b2_exit"] = kind
-    if "pewter" in str(player.state.get("zone")):
-        return "blackout"
-    if kind != "arrived":
-        raise RuntimeError("could not cross Mt. Moon B2F: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, moon_b2_cells(), (5, 7), MOON_B2_AVOID, "left", MOON_B2_EDGES)
-    report["moon_exit_stairs"] = {"kind": kind, "zone": player.state.get("zone")}
-    if player.state.get("zone") != "kanto_mt_moon_b1f":
-        raise RuntimeError("B2F stairs did not return to B1F: " + json.dumps(summary(player.state)))
-    kind = player.travel(moon_b1_cells(), (26, 3), set(), limit=20, blocked_edges=MOON_B1_EDGES)
-    report["moon_exit_walk"] = kind
-    if "pewter" in str(player.state.get("zone")):
-        return "blackout"
-    if kind != "arrived":
-        raise RuntimeError("could not reach the cave exit: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, moon_b1_cells(), (27, 3), set(), "right", MOON_B1_EDGES)
-    report["moon_exit"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
-    return "through"
+    return _exit_moon(player, report)
 
 
 def play(output, clips, save_from=None, story=None):
@@ -2033,11 +2121,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--east" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-22")
-            save_from = ROUTE4_SAVE
-            digest = sha256_file(save_from / "adventure.b.json")
-            if digest != ROUTE4_SAVE_SHA:
-                raise SystemExit(f"route 4 save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-23")
+            save_from = FOSSIL_SAVE
+            digest = sha256_file(save_from / "adventure.a.json")
+            if digest != FOSSIL_SAVE_SHA:
+                raise SystemExit(f"fossil save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_to_cerulean))

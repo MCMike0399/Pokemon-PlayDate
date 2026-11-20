@@ -49,9 +49,11 @@ A second cave attempt used the pair-legal path. Foot tiles 32 and 5 cannot be st
 
 A third crossing evolved to Wartortle again, lost to the fossil super nerd, and blacked out to Pewter. The retry beat him at B2F (12, 7) and learned Bite, but Grimer's Disable page stayed up while the cursor moved, so every move was marked rejected and the rest of the fight used Tackle. Wartortle finished paralyzed at 14 HP. The Dome Fossil sprite at (12, 6) is the only step into the exit pocket, and treating that blocked step as a wall left no route. The win was not written. The sequence 8 Route 4 pause is still the resume. The clips are `20261120T024836Z-mt-moon.mp4` (60.13s), `20261120T025319Z-route3.mp4` (41.33s), and `20261120T025414Z-mt-moon.mp4` (47.53s).
 
+The retry beat the fossil super nerd. Wartortle is level 17, 22 HP, with Tackle, Water Gun, Bubble, and Bite, and the Dome Fossil is in the bag. The pause is B2F (12, 7) facing up: `/opt/cursor/artifacts/lane-j/saves/c964b798257f/adventure.a.json` sha256 `d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4` (sequence 9). The walk toward the exit stair stepped on warp (5, 7) before the goal, so the cave was left unfinished. That warp is now kept out of the path to (6, 7).
+
 ## Next
 
-Resume the sequence 8 pause. Cross Mt. Moon, accept the Dome Fossil, heal if the cave leaves a status, then try Route 4's east step toward Cerulean and Misty. Only the move named in "was disabled" is skipped, and "no longer disabled" clears that skip.
+Resume sequence 9. Leave B2F without stepping on (5, 7), heal on Route 4, try the east step at (59, 4), then the Cerulean Center and Misty. Bite is the first choice against a Water-type.
 
 ## Blockers
 
