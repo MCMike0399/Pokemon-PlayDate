@@ -2162,7 +2162,7 @@ def _prepare_misty(player, report):
 
 
 def _fight_misty(player, report, display, clips, output):
-    """South door, Bite only, Potion at 34 or below."""
+    """South door, Bite only, Potion at 26 or below."""
     gym_doors = set(CERULEAN_DOORS) | {(30, 7), (30, 9), (15, 18)}
     gym_doors.discard((30, 19))
     kind = step_onto(player, cerulean_cells(), (30, 19), gym_doors, "up")
@@ -2183,7 +2183,7 @@ def _fight_misty(player, report, display, clips, output):
             if player.state.get("root") != "battle":
                 player.dismiss_until_explore(limit=20)
             if player.state.get("root") == "battle":
-                report["misty_won"] = player.fight(limit=5000, potion_at=34, bite_only=True)
+                report["misty_won"] = player.fight(limit=5000, potion_at=26, bite_only=True)
         else:
             raise RuntimeError("Misty did not battle: " + json.dumps(summary(player.state)))
         player.dismiss_until_explore(limit=120)
@@ -2690,7 +2690,7 @@ def _to_cerulean(player, report, display, clips, output):
             if player.state.get("root") != "battle":
                 player.dismiss_until_explore(limit=20)
             if player.state.get("root") == "battle":
-                report["misty_won"] = player.fight(limit=5000, potion_at=34, bite_only=True)
+                report["misty_won"] = player.fight(limit=5000, potion_at=26, bite_only=True)
         else:
             raise RuntimeError("Misty did not battle: " + json.dumps(summary(player.state)))
         player.dismiss_until_explore(limit=120)
