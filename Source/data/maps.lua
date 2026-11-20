@@ -96,6 +96,11 @@ local function registerPalletZones()
     zone("oaks_lab", "OaksLab", "Oak's Lab", 1, 13, true, { x = 6, y = 10, facing = "up" }, {
         { x = 5, y = 11, edge = "down", to = "pallet_town", toX = 12, toY = 12, facing = "down" },
         { x = 6, y = 11, edge = "down", to = "pallet_town", toX = 12, toY = 12, facing = "down" },
+    }, {
+        -- pret/pokered af519899 data/maps/objects/OaksLab.asm
+        -- object_event 5, 2, SPRITE_OAK, STAY, DOWN, TEXT_OAKSLAB_OAK1
+        -- Manifest padding 1 places him at (6, 2). Parcel handoff starts only for an actor named OAK.
+        { gridX = 6, gridY = 2, name = "OAK", sprite = "oak", facing = "down" },
     })
     zone("pallet_town", "PalletTown", "Pallet Town", 0, 20, false, { x = 5, y = 6, facing = "down" }, {
         { x = 5, y = 5, to = "reds_house", toX = 5, toY = 6, facing = "up" },

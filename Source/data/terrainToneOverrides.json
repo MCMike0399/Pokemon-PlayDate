@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "approval": "approved-by-miguel-2026-11-19",
+  "note": "Per-tileset 1-bit stand-ins for GB color 1/2 (see /workspace/celadon-gym-redesign/FINDINGS.md). Source grids are unchanged. 'white' paints the shade as white. Bytes are 8x8 MSB-first, 1 is white, phase (0, 0).",
+  "tilesets": {
+    "GYM": {
+      "default": {
+        "light": [187, 255, 238, 255, 187, 255, 238, 255],
+        "dark": [85, 170, 85, 170, 85, 170, 85, 170]
+      },
+      "tiles": {
+        "2b": { "light": "white", "dark": [85, 255, 85, 255, 85, 255, 85, 255] },
+        "11": { "light": "white", "dark": [85, 170, 85, 170, 85, 170, 85, 170] },
+        "1f": { "light": "white", "dark": [85, 170, 85, 170, 85, 170, 85, 170] }
+      }
+    }
+  }
+}

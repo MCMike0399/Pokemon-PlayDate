@@ -1,0 +1,37 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 3197888f..0ad54ff2 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1761,6 +1761,14 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
+     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
+     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
+     if won then
++        local coins = self.payDayCoins or 0
++        if coins > 0 then
++            -- data/text/text_2.asm _PickUpPayDayMoneyText. The scatter line is
++            -- text_3.asm; this page is the yen total, once, on a win.
++            local title = self.session and self.session:title()
++            local playerName = title and title.playerName or "RED"
++            self:say(playerName .. " picked up\n¥" .. coins .. "!")
++        end
+         self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
+         return "victory"
+     end
+diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
+index 05e375d9..340349c3 100644
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -89,7 +89,12 @@ function PauseState:draw()
+                 flags[id] = session:questFlag(id) == true
+             end
+             gfx.drawText("NAME/" .. Story.playerName(self.game), 32, 42)
+-            gfx.drawText("MONEY/$" .. session:inventory():money(), 32, 72)
++            -- engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
++            -- prints the charmap money sign ($f0), not "$".
++            local moneyLabel = "MONEY/"
++            gfx.drawText(moneyLabel, 32, 72)
++            local moneyWidth = gfx.getTextSize(moneyLabel)
++            GbFont.drawMoneyLine("¥" .. session:inventory():money(), 32 + moneyWidth, 72)
+             gfx.drawText("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 32, 102)
+             gfx.drawText("BADGES  " .. TitleIdle.countFlags(flags), 32, 132)
+             gfx.drawText("A / B: Back", 32, 178)

@@ -70,11 +70,7 @@ function WorldView:init(zone, options)
         end
     end
     self.tilemap:setTiles(tileIDs, zone.width)
-    self.sprite = gfx.sprite.new()
-    self.sprite:setTilemap(self.tilemap)
-    self.sprite:setCenter(0, 0)
-    self.sprite:moveTo(0, 0)
-    self.sprite:setZIndex(-1)
+    self:_attachSprite()
     zone:attachView(self)
     if self.attached then
         self.sprite:add()
@@ -107,11 +103,7 @@ function WorldView:ensureBitmaps()
         end
     end
     self.tilemap:setTiles(tileIDs, self.zone.width)
-    self.sprite = gfx.sprite.new()
-    self.sprite:setTilemap(self.tilemap)
-    self.sprite:setCenter(0, 0)
-    self.sprite:moveTo(0, 0)
-    self.sprite:setZIndex(-1)
+    self:_attachSprite()
     if self.attached ~= false then
         self.sprite:add()
     end
@@ -169,6 +161,7 @@ function WorldView:applyTiles(plan)
         end
         self.images, self.imageCount = oldImages, oldCount
         self.tilemap:setImageTable(oldImages)
+        self:_composePalletField()
         self.sprite:markDirty()
     end
     local ok, problem = pcall(function()
@@ -179,6 +172,7 @@ function WorldView:applyTiles(plan)
         for _, change in ipairs(plan) do
             self.tilemap:setTileAtPosition(change.x + 1, change.y + 1, change.id)
         end
+        self:_composePalletField()
         self.sprite:markDirty()
     end)
     if not ok then
@@ -194,8 +188,36 @@ function WorldView:render()
     gfx.setDrawOffset(0, 0)
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
     self.tilemap:draw(0, 0)
+    self.zone.registry:paintPalletField(self)
     gfx.popContext()
     return image
+end
+function WorldView:_attachSprite()
+    self.sprite = gfx.sprite.new()
+    self.sprite:setCenter(0, 0)
+    self.sprite:moveTo(0, 0)
+    self.sprite:setZIndex(-1)
+    if self.zone.stableID == "pokered:PALLET_TOWN" then
+        -- One image per tile key cannot vary by cell. The sprite image is the
+        -- tilemap with grass quadrants painted per cell. Tile ids stay put,
+        -- and roofs, doors, walls and rooms are not repainted.
+        self:_composePalletField()
+    else
+        self.sprite:setTilemap(self.tilemap)
+    end
+end
+function WorldView:_composePalletField()
+    if self.zone.stableID ~= "pokered:PALLET_TOWN" or not self.tilemap or not self.sprite then return end
+    local image = gfx.image.new(self.zone.width * TILE_SIZE, self.zone.height * TILE_SIZE, gfx.kColorWhite)
+    local ox, oy = gfx.getDrawOffset()
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    self.tilemap:draw(0, 0)
+    self.zone.registry:paintPalletField(self)
+    gfx.popContext()
+    gfx.setDrawOffset(ox, oy)
+    self.sprite:setImage(image)
 end
 -- One cell, not the whole city. image.new of a 40x36 map is about 180 KiB
 -- and returns "out of memory" once the 16 MiB pool is holding the tilemap.
