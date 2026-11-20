@@ -469,7 +469,11 @@ end
 function EndgameStory.playerHallRows(stats)
     stats = stats or {}
     return {
-        {text = stats.name or "RED", col = 7, row = 2},
+        -- HoFDisplayPlayerStats places the name at hlcoord 7, 2. The hall
+        -- view is a 2x Game Boy screen shifted up 48px so the row-15
+        -- caption fits, which puts that tile at y=-16. One tile lower
+        -- lands on the first visible row.
+        {text = stats.name or "RED", col = 7, row = 3},
         {text = "PLAY TIME", col = 1, row = 6},
         {text = EndgameStory.formatPlayTime(stats.hours, stats.minutes), col = 5, row = 7},
         {text = "MONEY", col = 1, row = 9},
