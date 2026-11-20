@@ -86,8 +86,8 @@ class BrunoHitmonleeTests(unittest.TestCase):
         pokemon = (ROOT / "Source/data/pokemon.lua").read_text(encoding="utf-8")
         chooser = pokemon.split("function Pokemon.initialMovesFor", 1)[1].split("\nfunction ", 1)[0]
         learning = pokemon.split("function Pokemon:gainXP", 1)[1].split("\nfunction ", 1)[0]
-        self.assertIn("entry.id <= POKERED_NUM_ATTACKS", chooser)
-        self.assertIn("entry.id <= POKERED_NUM_ATTACKS", learning)
+        self.assertIn("return PokeredLearnsets.movesAtLevel(species, level)", chooser)
+        self.assertIn("Pokemon.learnsetEntriesFor(self.species, oldLevel + 1, targetLevel)", learning)
         # The B2W2 FIFO at 55, before the skip and the party row, is the clip:
         # slot 1 is Wide Guard (Gen V 469). That row must not be what launches.
         raw = []
