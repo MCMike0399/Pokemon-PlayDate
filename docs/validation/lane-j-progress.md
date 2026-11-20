@@ -1,14 +1,14 @@
 # Lane J — Squirtle
 
-Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main through `84a8d45e` (a failed Confuse Ray or Supersonic on an already-confused target prints `But it failed!`). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
+Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main through `fe6376b9` (pokered trainer movesets and learnsets). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
 
 ## Position
 
-- Badges: Boulder Badge (`BADGE_BOULDER`). TM34 is in the bag. Payout was 1386.
+- Badges: Boulder Badge (`BADGE_BOULDER`) and Cascade Badge (`BADGE_CASCADE`). Misty's payout was 2079. TM34 was sold. The Dome Fossil is still in the bag.
 - BLUE, rival RED. Squirtle, level 15, 39 HP, no status, Tackle, Water Gun, Bubble, and Withdraw. Tail Whip was replaced when Water Gun was learned.
 - Intro done. Lab rival won (his Bulbasaur)
 - Oak's Parcel has been delivered. `EVENT_GOT_POKEDEX` and `EVENT_OAK_GOT_PARCEL` are set.
-- Route 3 is crossed. Mt. Moon is crossed. The Route 4 open line (down from (59, 4) to y=6, east, ledge hop at x=76, east off (89, 10)) entered Cerulean. Wartortle is level 18 after the gym Lass. The resume for Misty is the eight-Potion pause outside the Mart.
+- Route 3 is crossed. Mt. Moon is crossed. The Route 4 open line entered Cerulean. Nugget Bridge, including the rival on the north corridor and the off-line Jr.Trainer, left Wartortle at level 22 with the Nugget. The gym fight on `fe6376b9` used Bite only. Staryu L18 had Tackle and Water Gun. Starmie L21 had Tackle, Water Gun, and Bubblebeam. Neither used Recover or Swift. Wartortle is level 23, 19 HP, still Tackle, Water Gun, Bubble, and Bite, standing in the gym at (5, 3).
 - Earned pause save: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14` (sequence 11, the cliff). The east-side exit pause is `adventure.b.json` sha256 `35c11c6985486b732e734bf14c15832c1367b4c638b16d9c27a68438b590fb8d` (sequence 10, Route 4 (24, 6)). The Dome Fossil pause is `/opt/cursor/artifacts/lane-j/saves/c964b798257f/adventure.a.json` sha256 `d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4` (sequence 9). Earlier: Route 4 entrance sequence 8 `362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9`, Boulder Badge `fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b`. None of these are in git.
 
 ## Clips
@@ -28,6 +28,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T024836Z-mt-moon.mp4` | 60.13s | `2a634e95b62d40d1b93ab96129b1a5aeadcfad7bab452f3a587a133e0d95067d` | The next 1F stair walk, before the fossil nerd blackout. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T025319Z-route3.mp4` | 41.33s | `35ffa5094d9b1e68b6fc2b7dbfcc1cb264ef8bc055353d22f84371cda4dd47e4` | The Route 3 recross after that blackout. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T025414Z-mt-moon.mp4` | 47.53s | `79723686ea1ea0cb8af33a75c2967d71483723e70ab11cfa2803902addac4671` | The retry's 1F stair walk. Decoded frames are only 0 and 255. |
+| `artifacts/lane-j/20261120T055730Z-gym-cerulean.mp4` | 85.0s, trimmed from 102.1s | `e041115526f22ae6ec005672fc0fe35fe41c220ab834424ae0fd5ec089222ccf` | Misty, Staryu then Starmie, and the Cascade Badge. Decoded frames are only 0 and 255. |
 
 ## Title intro
 
@@ -53,11 +54,11 @@ The retry beat the fossil super nerd. Wartortle is level 17, 22 HP, with Tackle,
 
 ## Next
 
-Cerulean Gym door `(30, 19)` opens from the south tile `(30, 20)`. `(12, 19)` is Vermilion. The walk enters, beats the Lass, heals, and fights Misty. Two real Misty fights left Starmie at 1 HP and then blacked out. No Cascade Badge yet. Resume `/opt/cursor/artifacts/lane-j/saves/e0f8ae50d17a/adventure.a.json` sha256 `9607c06671633cbcec45150d316937419197ae6741219eb202da39c8f00c4f9b` (sequence 13, Cerulean (25, 26), eight Potions, TM34 sold, money 232).
+Cascade Badge is set. The resume is `/opt/cursor/artifacts/lane-j/saves/ef2bcb5caf63/adventure.a.json` sha256 `2ea6168fe10764c79740c173394672c21022f67591dbcc7de114570e696b7625` (sequence 17, Cerulean Gym (5, 3), Wartortle level 23). The pre-gym pause is sequence 16 in `adventure.b.json` sha256 `3f0c02be2899c5c44740c7e0d8bb3d316ade5d4c769f2109aaa4390701c1ef58`. Bill and the burgled house are the next walk. Vermilion Gym door `(12, 19)` stays closed until that arrival is its own walk.
 
 ## Blockers
 
-No product block on the Gym door. The open neighbor is south of `(30, 19)`. The Misty loss is Starmie's Recover plus a Swift crit: Wartortle fainted with Starmie at 1 HP and no Potions left. The swimmer on the gym's y=7 line stays avoided.
+No product red on Misty after `fe6376b9`. The gym fight showed Staryu with Tackle and Water Gun, and Starmie with Tackle, Water Gun, and Bubblebeam. The moves that landed were Tackle. Recover and Swift did not appear. Earlier 1 HP losses were the pre-patch Starmie. The swimmer on the gym's y=7 line stayed avoided.
 
 ## Tests
 
