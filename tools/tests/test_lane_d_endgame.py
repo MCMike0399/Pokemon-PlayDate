@@ -308,7 +308,7 @@ check(EndgameStory.hallShowsCaption({kind = "player"}, "fade", 1), false, "the f
 local redRows = EndgameStory.playerHallRows({name = "RED", hours = 1, minutes = 5, money = 3000})
 check(redRows[1].text, "RED", "red's name is in the name box")
 check(redRows[1].col, 7, "name is hlcoord 7, 2")
-check(redRows[1].row, 2, "name row")
+check(redRows[1].row, 3, "the shifted hall view draws hlcoord row 2 on the next tile")
 check(redRows[2].text, "PLAY TIME", "play time label")
 check(redRows[2].row, 6, "play time is hlcoord 1, 6")
 check(redRows[3].text, "  1:05", "hours are three right-aligned digits, minutes have a leading zero")

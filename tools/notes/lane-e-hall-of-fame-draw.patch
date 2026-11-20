@@ -1,0 +1,42 @@
+--- a/Source/game/eventState.lua	2026-11-20 00:53:52.977054717 +0000
++++ b/Source/game/eventState.lua	2026-11-20 09:13:05.205445109 +0000
+@@ -555,12 +555,27 @@
+         gfx.setColor(gfx.kColorWhite)
+         if view.phase ~= "preamble" then
+             local text = table.concat(view.lines or {}, "\n")
+-            if view.ending and view.phase == "done" then
++            -- The hold and the fade stay on screen. The done phase is
++            -- cleared in this same update, before draw.
++            if view.ending then
+                 text = "THE END"
++            elseif view.copyright then
++                local notice = {
++                    "©'95.'96.'98 Nintendo",
++                    "©'95.'96.'98 Creatures inc.",
++                    "©'95.'96.'98 GAME FREAK inc.",
++                }
++                if text ~= "" then text = text .. "\n" end
++                text = text .. table.concat(notice, "\n")
++                if view.mon then text = text .. "\n" .. view.mon end
+             elseif view.mon then
+                 text = text .. "\n" .. view.mon
+             end
++            -- System-font glyphs are black. Copy mode on the black fill
++            -- leaves every credits screen, the copyright, and THE END blank.
++            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+             gfx.drawText(text, 120, 80)
++            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+         end
+         gfx.popContext()
+         return
+--- a/Source/game/endgameStory.lua	2026-11-20 03:56:19.535095716 +0000
++++ b/Source/game/endgameStory.lua	2026-11-20 09:13:05.209445102 +0000
+@@ -469,7 +469,7 @@
+ function EndgameStory.playerHallRows(stats)
+     stats = stats or {}
+     return {
+-        {text = stats.name or "RED", col = 7, row = 2},
++        {text = stats.name or "RED", col = 7, row = 3},
+         {text = "PLAY TIME", col = 1, row = 6},
+         {text = EndgameStory.formatPlayTime(stats.hours, stats.minutes), col = 5, row = 7},
+         {text = "MONEY", col = 1, row = 9},
