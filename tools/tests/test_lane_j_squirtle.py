@@ -957,6 +957,8 @@ class Player:
                 self.press("a", wait=6)
             else:
                 self.send("wait 8")
+        if self.state.get("root") == "battle":
+            return False
         raise RuntimeError(f"overlay did not clear: {summary(self.state)}")
 
     def skip_intro(self):
@@ -4655,7 +4657,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-70")
+            output = Path("/tmp/lane-j-squirtle-71")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
