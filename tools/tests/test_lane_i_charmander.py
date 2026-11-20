@@ -3698,7 +3698,12 @@ class CharmanderRun(BrockJourney):
 
     def _indigo_plateau(self):
         """North from the cave exit, heal, then the Elite Four."""
-        self._raise_lorelei_bench()
+        # A resume already inside the rooms cannot walk back to the clerk.
+        # The south warp stays shut, and the lobby reset would wipe the wins.
+        if not any(self._on(name) for name in (
+            "LoreleisRoom", "BrunosRoom", "AgathasRoom", "LancesRoom", "ChampionsRoom",
+        )):
+            self._raise_lorelei_bench()
         self.summary["acceptance"] = "walking to Indigo Plateau"
         self._pin_elite_trainers()
         if self._on("Route23"):
