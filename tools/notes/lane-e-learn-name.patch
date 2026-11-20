@@ -1,0 +1,33 @@
+diff --git a/Source/game/learningState.lua b/Source/game/learningState.lua
+index af4a82d1..cb2ba2dc 100644
+--- a/Source/game/learningState.lua
++++ b/Source/game/learningState.lua
+@@ -304,6 +304,19 @@ local function battleText(text, width)
+     end
+ end
+ 
++function LearningState:visiblePrompt()
++    -- pokered cont after "trying to learn" scrolls that row up and prints
++    -- the move name on the second text-box line. The box is two rows.
++    local rows = {}
++    for row in (self.prompt .. "\n"):gmatch("(.-)\n") do rows[#rows + 1] = row end
++    for index, row in ipairs(rows) do
++        if row:find("trying to learn", 1, true) and rows[index + 1] then
++            return rows[index] .. "\n" .. rows[index + 1]
++        end
++    end
++    return self.prompt
++end
++
+ function LearningState:draw()
+     if not self.active then return end
+     local x, y = gfx.getDrawOffset()
+@@ -322,7 +335,7 @@ function LearningState:draw()
+         self.menu:draw(80, 84, 308, 88)
+         battleText(self.prompt, 360)
+     elseif self.phase ~= "idle" and self.phase ~= "closed" then
+-        battleText(self.prompt, 270)
++        battleText(self:visiblePrompt(), 270)
+         self.menu:draw(300, 184, 92, 52)
+     end
+     gfx.setFont(font)
