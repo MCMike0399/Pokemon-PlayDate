@@ -38,8 +38,12 @@ import "battle/dsl"
 import "battle/moves"
 
 for item in REQUEST:gmatch("[^;]+") do
-    local class, index, species, level = item:match("([^|]+)|([^|]+)|([^|]+)|([^|]+)")
-    local moves = Pokemon.trainerMovesFor(species, tonumber(level), class, tonumber(index))
+    local class, index, species, level, starter = item:match("^([^|]+)|([^|]+)|([^|]+)|([^|]+)|(.+)$")
+    if not class then
+        class, index, species, level = item:match("^([^|]+)|([^|]+)|([^|]+)|([^|]+)$")
+    end
+    if starter == "" then starter = nil end
+    local moves = Pokemon.trainerMovesFor(species, tonumber(level), class, tonumber(index), starter)
     print(string.format("moves %s %s %s %s %s", class, index, species, level, table.concat(moves, ",")))
 end
 print("trainer-moves-host-ok")

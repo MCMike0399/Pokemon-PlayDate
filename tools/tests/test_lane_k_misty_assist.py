@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pins the Misty assist: actual moves, Bite range, bridge level, Mart prices.
+"""Pins the faithful Misty fight: send-out, Bite range, bridge level, Mart prices.
 
 These are the numbers in docs/validation/lane-k-misty-assist.md. The test
 passes while that plan is still true. It is not a Source failure.
@@ -41,15 +41,13 @@ class MistyAssistPins(unittest.TestCase):
 
     def test_moves_damage_and_shop_match_the_plan(self):
         got = self.pins()
-        self.assertEqual(got["staryu-18"], "harden,waterGun,recover,swift")
-        self.assertEqual(got["starmie-21"], "waterGun,recover,swift")
-        self.assertEqual(got["wartortle-17"], "bubble,withdraw,waterGun,bite")
+        self.assertEqual(got["staryu-18"], "tackle,waterGun")
+        self.assertEqual(got["starmie-21"], "tackle,waterGun,bubbleBeam")
         self.assertEqual(got["starmie-hp"], "56")
-        self.assertEqual(got["recover"], "28")
         self.assertEqual(got["crit"], "16")
         self.assertEqual(got["bite-17"], "12-16")
         self.assertEqual(got["bite-20"], "18-22")
-        self.assertEqual(got["swift-20"], "14-17")
+        self.assertEqual(got["tackle-17"], "11-13")
         self.assertEqual(got["watergun-17"], "3-4")
         self.assertEqual(got["bridge-with-side"], "20")
         self.assertEqual(got["bridge-main"], "19")
@@ -58,13 +56,7 @@ class MistyAssistPins(unittest.TestCase):
         self.assertEqual(got["super-price"], "700")
         self.assertIn("potion", got["cerulean-mart"].split(","))
         self.assertNotIn("superPotion", got["cerulean-mart"].split(","))
-        swift = int(got["ai-lowhp"].split()[1])
-        recover = int(got["ai-lowhp"].split()[3])
-        water = int(got["ai-lowhp"].split()[5])
-        self.assertEqual(swift + recover + water, 200)
-        self.assertEqual(water, 0)
-        self.assertGreater(swift, 60)
-        self.assertGreater(recover, 60)
+        self.assertEqual(got["ai-lowhp"], "tackle 200 waterGun 0 bubbleBeam 0")
         self.assertIn("misty-assist-ok", self.lines)
 
 

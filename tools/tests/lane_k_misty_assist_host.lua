@@ -1,4 +1,4 @@
--- Pins the Misty assist numbers: B2W2 trainer moves, Gen V crit, Bite range, bridge XP.
+-- Pins the faithful Misty fight: pokered send-out, Gen V crit, Bite range, bridge XP.
 local ROOT = assert(arg[1], "repo path required")
 local SOURCE = ROOT .. "/Source/"
 
@@ -76,19 +76,20 @@ end
 
 local staryu = Pokemon("staryu", 18)
 local starmie = Pokemon("starmie", 21)
+staryu:usePartyMoves(Pokemon.trainerMovesFor("staryu", 18, "OPP_MISTY", 1))
+starmie:usePartyMoves(Pokemon.trainerMovesFor("starmie", 21, "OPP_MISTY", 2))
 local wartortle = Pokemon("wartortle", 20)
 print("staryu-18 " .. table.concat(staryu.moves, ","))
 print("starmie-21 " .. table.concat(starmie.moves, ","))
 print("wartortle-17 " .. table.concat(Pokemon("wartortle", 17).moves, ","))
 print("starmie-hp " .. starmie.maxHP)
-print("recover " .. math.floor(starmie.maxHP * 0.5))
 print("crit " .. BattleEffects.criticalDenominator(0))
 local low, high = band(Pokemon("wartortle", 17), starmie, "bite")
 print(string.format("bite-17 %d-%d", low, high))
 low, high = band(wartortle, starmie, "bite")
 print(string.format("bite-20 %d-%d", low, high))
-low, high = band(starmie, wartortle, "swift")
-print(string.format("swift-20 %d-%d", low, high))
+low, high = band(starmie, Pokemon("wartortle", 17), "tackle")
+print(string.format("tackle-17 %d-%d", low, high))
 low, high = band(Pokemon("wartortle", 17), starmie, "waterGun")
 print(string.format("watergun-17 %d-%d", low, high))
 
@@ -101,8 +102,8 @@ for _ = 1, 200 do
     local turn = battle:enemyTurn()
     counts[turn.key] = (counts[turn.key] or 0) + 1
 end
-print(string.format("ai-lowhp swift %d recover %d waterGun %d",
-    counts.swift or 0, counts.recover or 0, counts.waterGun or 0))
+print(string.format("ai-lowhp tackle %d waterGun %d bubbleBeam %d",
+    counts.tackle or 0, counts.waterGun or 0, counts.bubbleBeam or 0))
 
 local line = {
     {"caterpie", 14}, {"weedle", 14}, {"pidgey", 14}, {"nidoranF", 14},
