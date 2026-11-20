@@ -4093,7 +4093,10 @@ def _raise_pidgey(player, report):
             _settle_catch(player)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
             raise RuntimeError("blackout raising Pidgey: " + json.dumps(summary(player.state)))
-    mon = player.state.get("pokemon") or {}
+    _slot, mon = _member(player, "pidgeotto")
+    if mon is None:
+        _slot, mon = _member(player, "pidgey")
+    mon = mon or {}
     report["bird"] = {"battles": battles, "party": _party(player), **summary(player.state)}
     if mon.get("species") != "pidgeotto" or (mon.get("level") or 0) < 19:
         raise RuntimeError("Pidgey did not reach Pidgeotto 19: " + json.dumps(report["bird"]))
@@ -4303,7 +4306,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-51")
+            output = Path("/tmp/lane-j-squirtle-52")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
