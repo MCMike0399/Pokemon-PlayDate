@@ -85,6 +85,8 @@ ROUTE4_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/ae6ff5c3ae0d")
 ROUTE4_SAVE_SHA = "362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9"
 FOSSIL_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/c964b798257f")
 FOSSIL_SAVE_SHA = "d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4"
+CLIFF_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5")
+CLIFF_SAVE_SHA = "9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 CERULEAN_NURSE = "pokered:CERULEAN_POKECENTER:objects:1"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
@@ -513,6 +515,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(moon_b1_cells(), (23, 4), (26, 3)))
         self.assertIsNotNone(route(route4_cells(), (24, 6), (59, 4)))
         self.assertIsNone(route(route4_cells(), (24, 6), (11, 6)))
+        self.assertIsNone(route(route4_cells(), (59, 4), (11, 6)))
+        self.assertEqual(route4_cite(23, 6)["foot_tile"], 0x24)
+        self.assertEqual(route4_cite(23, 6)["collision"], 1)
+        self.assertEqual(route4_cite(20, 6)["foot_tile"], 0x27)
         self.assertIsNone(route(route4_cells(), (59, 4), (61, 4)))
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
@@ -1879,6 +1885,53 @@ def _from_route4(player, report, display, clips, output):
     _to_cerulean(player, report, display, clips, output)
 
 
+def route4_cite(x, y):
+    """Source grid id, foot tile, and collision for one Route 4 cell."""
+    data = json.loads((ROOT / "Source/data/sourceSlice/Route4.json").read_text(encoding="utf-8"))
+    grid_id = data["tile_ids"][y][x]
+    grid = next(item for item in data["grids"] if item["id"] == grid_id)
+    foot = grid["terrain"]["foot_tile"]
+    return {
+        "x": x, "y": y, "grid_id": grid_id, "foot_tile": foot, "foot_hex": hex(foot),
+        "collision": data["collision"][y][x],
+        "land_passable": grid["terrain"]["land_passable"],
+    }
+
+
+def probe_west(player, report, display, clips, output):
+    """Walk west from the Route 4 cliff. Do not step east into foot 0x27."""
+    del display, clips, output
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["resumed"] = summary(player.state)
+    if player.state.get("zone") != "kanto_route_4":
+        raise RuntimeError("west probe did not resume Route 4: " + json.dumps(summary(player.state)))
+    kind = player.travel(route4_cells(), (24, 6), set(), limit=20)
+    report["west_walk"] = {"kind": kind, **summary(player.state)}
+    if kind != "arrived":
+        raise RuntimeError("west probe did not reach the wall: " + json.dumps(summary(player.state)))
+    kind = player.step("left")
+    stood = player.state.get("player") or {}
+    report["west_step"] = {
+        "kind": kind,
+        "x": stood.get("x"), "y": stood.get("y"), "facing": stood.get("facing"),
+        "block": stood.get("lastTraversalBlock"),
+        "runtime_tile": stood.get("tile"),
+    }
+    report["stand"] = route4_cite(stood.get("x"), stood.get("y"))
+    report["ahead"] = route4_cite((stood.get("x") or 0) - 1, stood.get("y"))
+    if player.exploring():
+        report["saved_west"] = player.pause_save()
+    if kind == "blocked" and player.state.get("zone") == "kanto_route_4":
+        ahead = report["ahead"]
+        raise RuntimeError(
+            "west blocked at ({x},{y}) grid {grid_id} foot {foot_hex} collision {collision}; "
+            "the Center is on the far side and there is no land gap".format(**ahead)
+            + ": " + json.dumps(report["west_step"]))
+    report["west_open"] = summary(player.state)
+
+
 def _exit_moon(player, report):
     """Leave B2F through the stair at (5, 7). The walk to (6, 7) must not step on it."""
     if "b2f" in str(player.state.get("zone")):
@@ -2128,6 +2181,15 @@ if __name__ == "__main__":
         unittest.main()
     else:
         clips = ROOT / "artifacts" / "lane-j"
+        if "--west" in sys.argv:
+            output = Path("/tmp/lane-j-squirtle-25")
+            save_from = CLIFF_SAVE
+            digest = sha256_file(save_from / "adventure.a.json")
+            if digest != CLIFF_SAVE_SHA:
+                raise SystemExit(f"cliff save hash {digest}")
+            if output.exists():
+                raise SystemExit(f"{output} already exists")
+            raise SystemExit(play(output, clips, save_from=save_from, story=probe_west))
         if "--east" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-24")
             save_from = FOSSIL_SAVE
