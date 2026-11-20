@@ -205,6 +205,10 @@ BlueBot approved both r21 Pallet frames as mockup C. `celadon-gym.png` and `pewt
 
 Hall of Fame and credits capture checklist is `docs/validation/lane-g-hall-of-fame.md`, from pokered `af519899` `engine/movie/hall_of_fame.asm` and `engine/movie/credits.asm`. The frame-log harness is `tools/tests/lane_g_hall_of_fame.py` with `tools/tests/test_lane_g_hall_of_fame.py` and `tools/tests/fixtures/lane_g_hall_of_fame_credits.json`. Lane B's Charmander run is still at Lance, so no credits frames were captured.
 
+## Round 23
+
+Dry run of that harness on E's tip, before lane I's Charmander reaches Lance. The fixture is the existing skip-intro party of one Charizard at level 65, money 1234, in `kanto_hall_of_fame`. Frames and `log.json` are in `artifacts/lane-g/hof-dryrun/`. The Hall of Fame card matches pokered for CHARIZARD (LEVEL/ 65, TYPE1/ FIRE, TYPE2/ FLYING, HALL OF FAME) and the dex pages. The player name is drawn at y=-16, above the 240px frame. Every credits PNG, including the copyright screen and THE END, is a black 400×240 frame: the system font stamps black glyphs in Copy mode on the black fill. The composed credits strings match the 36 screens and the 15 species. The harness fails on the three copyright lines and on THE END, which is assigned only in the done phase that `EventState:update` leaves before draw. The unapplied fix is `tools/notes/lane-e-hall-of-fame-draw.patch`. `tools/tests/test_lane_e_hall_of_fame_draw.py` fails on the live tree. No Source edit.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

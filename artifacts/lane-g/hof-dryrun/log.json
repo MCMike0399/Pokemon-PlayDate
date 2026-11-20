@@ -1,0 +1,332 @@
+{
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "version": "blue",
+  "fixture": {
+    "zone": "kanto_hall_of_fame",
+    "intro": "skip",
+    "party_pokemon": [
+      {
+        "species": "charizard",
+        "level": 65
+      }
+    ],
+    "money": 1234
+  },
+  "party": [
+    {
+      "species": "CHARIZARD",
+      "level": 65,
+      "types": [
+        "FIRE",
+        "FLYING"
+      ]
+    }
+  ],
+  "player": {
+    "name": "RED",
+    "hours": 0,
+    "minutes": 0,
+    "money": 1234,
+    "seen": 2,
+    "owned": 2
+  },
+  "frames": [
+    {
+      "beat": "hof-blank",
+      "text": "",
+      "gb_frames": 100,
+      "png": "hof-blank.png"
+    },
+    {
+      "beat": "hof-mon-0",
+      "text": "CHARIZARD\nLEVEL/\n65\nTYPE1/\nFIRE\nTYPE2/\nFLYING",
+      "species": "CHARIZARD",
+      "gb_frames": 80,
+      "png": "hof-mon-0.png"
+    },
+    {
+      "beat": "hof-banner-0",
+      "text": "CHARIZARD\nLEVEL/\n65\nTYPE1/\nFIRE\nTYPE2/\nFLYING\nHALL OF FAME",
+      "species": "CHARIZARD",
+      "gb_frames": 180,
+      "png": "hof-banner-0.png"
+    },
+    {
+      "beat": "hof-player",
+      "text": "RED\nPLAY TIME\n  0:00\nMONEY\n  \u00a51234\nPOK\u00e9DEX   Seen:2\n         Owned:2",
+      "png": "hof-player.png"
+    },
+    {
+      "beat": "hof-dex-seen",
+      "text": "RED\nPLAY TIME\n  0:00\nMONEY\n  \u00a51234\nPOK\u00e9DEX   Seen:2\n         Owned:2",
+      "gb_frames": 120,
+      "png": "hof-dex-seen.png"
+    },
+    {
+      "beat": "hof-dex-rating-label",
+      "text": "RED\nPLAY TIME\n  0:00\nMONEY\n  \u00a51234\nPOK\u00e9DEX Rating:",
+      "gb_frames": 120,
+      "png": "hof-dex-rating-label.png"
+    },
+    {
+      "beat": "hof-dex-rating",
+      "text": "RED\nPLAY TIME\n  0:00\nMONEY\n  \u00a51234\nYou still have\nlots to do.\nLook for POK\u00e9MON\nin grassy areas!",
+      "gb_frames": 120,
+      "png": "hof-dex-rating.png"
+    },
+    {
+      "beat": "credits-00",
+      "text": "#MON\nBLUE VERSION STAFF\nvenusaur",
+      "gb_frames": 90,
+      "png": "credits-00.png",
+      "fade_gb_frames": 20,
+      "species": "VENUSAUR"
+    },
+    {
+      "beat": "credits-01",
+      "text": "DIRECTOR\nSATOSHI TAJIRI\narbok",
+      "gb_frames": 90,
+      "png": "credits-01.png",
+      "fade_gb_frames": 20,
+      "species": "ARBOK"
+    },
+    {
+      "beat": "credits-02",
+      "text": "PROGRAMMERS\nTAKENORI OOTA\nSHIGEKI MORIMOTO",
+      "gb_frames": 120,
+      "png": "credits-02.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-03",
+      "text": "PROGRAMMERS\nTETSUYA WATANABE\nJUNICHI MASUDA\nSOUSUKE TAMADA\nrhyhorn",
+      "gb_frames": 110,
+      "png": "credits-03.png",
+      "species": "RHYHORN"
+    },
+    {
+      "beat": "credits-04",
+      "text": "CHARACTER DESIGN\nKEN SUGIMORI\nATSUKO NISHIDA\nfearow",
+      "gb_frames": 90,
+      "png": "credits-04.png",
+      "fade_gb_frames": 20,
+      "species": "FEAROW"
+    },
+    {
+      "beat": "credits-05",
+      "text": "MUSIC\nJUNICHI MASUDA",
+      "gb_frames": 120,
+      "png": "credits-05.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-06",
+      "text": "SOUND EFFECTS\nJUNICHI MASUDA\nabra",
+      "gb_frames": 110,
+      "png": "credits-06.png",
+      "species": "ABRA"
+    },
+    {
+      "beat": "credits-07",
+      "text": "GAME DESIGN\nSATOSHI TAJIRI\ngraveler",
+      "gb_frames": 90,
+      "png": "credits-07.png",
+      "fade_gb_frames": 20,
+      "species": "GRAVELER"
+    },
+    {
+      "beat": "credits-08",
+      "text": "MONSTER DESIGN\nKEN SUGIMORI\nATSUKO NISHIDA\nMOTOFUMI FUZIWARA",
+      "gb_frames": 120,
+      "png": "credits-08.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-09",
+      "text": "MONSTER DESIGN\nSHIGEKI MORIMOTO\nSATOSHI OOTA\nRENA YOSHIKAWA\nhitmonlee",
+      "gb_frames": 110,
+      "png": "credits-09.png",
+      "species": "HITMONLEE"
+    },
+    {
+      "beat": "credits-10",
+      "text": "GAME SCENARIO\nSATOSHI TAJIRI",
+      "gb_frames": 120,
+      "png": "credits-10.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-11",
+      "text": "GAME SCENARIO\nRYOHSUKE TANIGUCHI\nFUMIHIRO NONOMURA\nHIROYUKI ZINNAI\ntangela",
+      "gb_frames": 110,
+      "png": "credits-11.png",
+      "species": "TANGELA"
+    },
+    {
+      "beat": "credits-12",
+      "text": "PARAMETRIC DESIGN\nKOHJI NISINO\nTAKEO NAKAMURA\nstarmie",
+      "gb_frames": 90,
+      "png": "credits-12.png",
+      "fade_gb_frames": 20,
+      "species": "STARMIE"
+    },
+    {
+      "beat": "credits-13",
+      "text": "MAP DESIGN\nSATOSHI TAJIRI\nKOHJI NISINO",
+      "gb_frames": 120,
+      "png": "credits-13.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-14",
+      "text": "MAP DESIGN\nKENJI MATSUSIMA\nFUMIHIRO NONOMURA\nRYOHSUKE TANIGUCHI\ngyarados",
+      "gb_frames": 110,
+      "png": "credits-14.png",
+      "species": "GYARADOS"
+    },
+    {
+      "beat": "credits-15",
+      "text": "PRODUCT TESTING\nAKIYOSHI KAKEI\nKAZUKI TSUCHIYA",
+      "gb_frames": 120,
+      "png": "credits-15.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-16",
+      "text": "PRODUCT TESTING\nTAKEO NAKAMURA\nMASAMITSU YUDA\nditto",
+      "gb_frames": 110,
+      "png": "credits-16.png",
+      "species": "DITTO"
+    },
+    {
+      "beat": "credits-17",
+      "text": "SPECIAL THANKS\nTATSUYA HISHIDA\nYASUHIRO SAKAI",
+      "gb_frames": 120,
+      "png": "credits-17.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-18",
+      "text": "SPECIAL THANKS\nWATARU YAMAGUCHI\nKAZUYUKI YAMAMOTO",
+      "gb_frames": 140,
+      "png": "credits-18.png"
+    },
+    {
+      "beat": "credits-19",
+      "text": "SPECIAL THANKS\nAKIHITO TOMISAWA\nHIROSHI KAWAMOTO\nTOMOMICHI OOTA\nomastar",
+      "gb_frames": 110,
+      "png": "credits-19.png",
+      "species": "OMASTAR"
+    },
+    {
+      "beat": "credits-20",
+      "text": "PRODUCERS\nSHIGERU MIYAMOTO",
+      "gb_frames": 120,
+      "png": "credits-20.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-21",
+      "text": "PRODUCERS\nTAKASHI KAWAGUCHI",
+      "gb_frames": 140,
+      "png": "credits-21.png"
+    },
+    {
+      "beat": "credits-22",
+      "text": "PRODUCERS\nTSUNEKAZU ISHIHARA\nvileplume",
+      "gb_frames": 110,
+      "png": "credits-22.png",
+      "species": "VILEPLUME"
+    },
+    {
+      "beat": "credits-23",
+      "text": "US VERSION STAFF",
+      "gb_frames": 120,
+      "png": "credits-23.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-24",
+      "text": "US COORDINATION\nGAIL TILDEN",
+      "gb_frames": 120,
+      "png": "credits-24.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-25",
+      "text": "US COORDINATION\nNAOKO KAWAKAMI\nHIRO NAKAMURA",
+      "gb_frames": 140,
+      "png": "credits-25.png"
+    },
+    {
+      "beat": "credits-26",
+      "text": "US COORDINATION\nWILLIAM GIESE\nSARA OSBORNE",
+      "gb_frames": 140,
+      "png": "credits-26.png"
+    },
+    {
+      "beat": "credits-27",
+      "text": "TEXT TRANSLATION\nNOB OGASAWARA",
+      "gb_frames": 120,
+      "png": "credits-27.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-28",
+      "text": "PROGRAMMERS\nTERUKI MURAKAWA\nKOHTA FUKUI",
+      "gb_frames": 120,
+      "png": "credits-28.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-29",
+      "text": "SPECIAL THANKS\nSATORU IWATA",
+      "gb_frames": 120,
+      "png": "credits-29.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-30",
+      "text": "SPECIAL THANKS\nTAKAHIRO HARADA",
+      "gb_frames": 140,
+      "png": "credits-30.png"
+    },
+    {
+      "beat": "credits-31",
+      "text": "PRODUCT TESTING\nPAAD TESTING\nNCL SUPER MARIO CLUB",
+      "gb_frames": 120,
+      "png": "credits-31.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-32",
+      "text": "PRODUCER\nTAKEHIRO IZUSHI",
+      "gb_frames": 120,
+      "png": "credits-32.png",
+      "fade_gb_frames": 20
+    },
+    {
+      "beat": "credits-33",
+      "text": "EXECUTIVE PRODUCER\nHIROSHI YAMAUCHI\nnidoking",
+      "gb_frames": 90,
+      "png": "credits-33.png",
+      "fade_gb_frames": 20,
+      "species": "NIDOKING"
+    },
+    {
+      "beat": "credits-34",
+      "text": "\nparasect",
+      "gb_frames": 90,
+      "png": "credits-34.png",
+      "fade_gb_frames": 20,
+      "species": "PARASECT"
+    },
+    {
+      "beat": "the-end",
+      "text": "",
+      "gb_frames": 16,
+      "fade_gb_frames": 20,
+      "png": "the-end.png"
+    }
+  ]
+}
