@@ -1738,7 +1738,9 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
         for _,entry in ipairs(awarded)do
             local mon,row=entry.mon,entry.row
             if row.xp>0 then
-                self:say(mon.name .. " gained " .. row.xp .. " EXP!")
+                -- pokered data/text/text_2.asm _GainedText then _ExpPointsText.
+                -- row.xp stays the Gen V award.
+                self:say(mon.name .. " gained\n" .. row.xp .. " EXP. Points!")
                 self:present("experience", {pokemon = mon, fromXP = beforeXP[mon], fromLevel = row.fromLevel})
                 local shown,why=BattleRewards.acknowledge(self,receipt.id,row.index);assert(shown,why)
                 if row.leveled then
@@ -1764,15 +1766,31 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
     if won then
+        local title = self.session and self.session:title()
+        local playerName = self.playerName or (title and title.playerName) or "RED"
         local coins = self.payDayCoins or 0
         if coins > 0 then
             -- data/text/text_2.asm _PickUpPayDayMoneyText. The scatter line is
             -- text_3.asm; this page is the yen total, once, on a win.
-            local title = self.session and self.session:title()
-            local playerName = title and title.playerName or "RED"
             self:say(playerName .. " picked up\n¥" .. coins .. "!")
         end
-        self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
+        if self.trainerName then
+            -- pokered engine/battle/core.asm TrainerBattleVictory prints
+            -- TrainerDefeatedText, then PrintEndBattleText, then
+            -- MoneyForWinningText, and only then returns to the map.
+            -- endBattleLines and prizeLine are the source pages for that
+            -- trainer, resolved when the battle is attached.
+            self:say(playerName .. " defeated " .. self.trainerName .. "!")
+            for _, line in ipairs(self.endBattleLines or {}) do
+                self:say(line)
+            end
+            if self.prizeLine then
+                self:say(self.prizeLine)
+            end
+            self.message = self.prizeLine or (playerName .. " defeated " .. self.trainerName .. "!")
+        else
+            self.message = "You won the battle!"
+        end
         return "victory"
     end
     if not playerTeamAlive then
@@ -1992,6 +2010,38 @@ function Battle:useItem(id,partyIndex,moveSlot)
     if not self.player:isAlive() or not self.enemy:isAlive() then return false,"fainted" end
     if self.conditions:locked(self.player) then return false,"locked-move" end
     local item=type(id)=="string" and ItemData.definitions[id] or nil
+    -- X Accuracy/Attack/Defend/Speed/Special raise one stage. They are not
+    -- medicine, and a key item never enters this branch. Guard Spec. and
+    -- Dire Hit stay unsupported.
+    if item and item.effect == "statStage" then
+        if item.keyItem then return false,"unsupported-item-use" end
+        local xItems = {xAccuracy=true,xAttack=true,xDefend=true,xSpeed=true,xSpecial=true}
+        local allowed = {atk=true,def=true,spa=true,spd=true,spe=true,acc=true,eva=true}
+        local stat = item.stat
+        if not xItems[id] or not allowed[stat] or item.stages ~= 1 then return false,"unsupported-item-use" end
+        partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
+        if not partyIndex then return false,"invalid-index" end
+        local target,problem=self.party:get(partyIndex)
+        if not target then return false,problem end
+        if Party._owner(target)~=self.party then return false,"stale-target" end
+        local current = target.statStages and target.statStages[stat]
+        if type(current) ~= "number" or current >= 6 or current < -6 then return false,"no-effect" end
+        local consumed, why = Inventory.consume(self.session:inventory(), id, 1)
+        if not consumed then return false, why end
+        target.statStages[stat] = current + 1
+        local labels = {atk="ATTACK",def="DEFENSE",spa="SP.ATK",spd="SP.DEF",spe="SPEED",acc="ACCURACY",eva="EVASION"}
+        self.effects:beginRound()
+        self.selectionKind=nil
+        self:clearHitPresentation()
+        self:runScript(function()
+            self:say("RED used "..item.name.." on "..target.name.."!")
+            self:say(target.name.."'s "..labels[stat].." rose!")
+            local outcome=self:resolveTurn(self:enemyTurn())
+            if outcome and outcome~="replacement" then return outcome end
+            return self:finishRound()
+        end)
+        return true,{kind="statStage",stat=stat,before=current,after=current+1}
+    end
     local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}
     if not item or not legal[item.effect] then return false,"unsupported-item-use" end
     partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
