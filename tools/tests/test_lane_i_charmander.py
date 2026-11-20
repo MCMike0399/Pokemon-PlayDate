@@ -3971,11 +3971,13 @@ class CharmanderRun(BrockJourney):
             if not self._on("Route23"):
                 raise ProtocolError("Lapras training left the plateau on " + self._map_name())
             self._follow_route({(14, 37)})
-            for _ in range(16):
-                if not self._on("Route23") or self.position()[1] >= 44:
-                    break
-                if not self._step("down"):
-                    break
+            # Tile 22 (the plateau grass) is south of a solid wall. The
+            # imported Route 23 has no ledge rules, so a down step from
+            # (14, 37) never moves and a path search raises.
+            if not self._reachable((10, 44)) and not self._reachable((11, 44)):
+                self.save()
+                raise ProtocolError(
+                    "Route 23 grass is south of a solid wall and the imported map has no ledges")
             self._follow_route({(10, 44), (11, 44)})
             start = len(self.summary.get("training") or [])
             steps = 0
