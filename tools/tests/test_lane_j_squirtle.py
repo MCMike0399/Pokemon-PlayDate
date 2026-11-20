@@ -270,6 +270,10 @@ def cerulean_center_cells():
     return open_map(ROOT / "Source/data/sourceSlice/CeruleanPokecenter.json", 0, 14)
 
 
+def cerulean_mart_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/CeruleanMart.json", 2, 13)
+
+
 # IntroMovie.SCENES. Copyright and the black bars ignore A. The shooting
 # star accepts A as skip-to-fight, and the fight accepts A as finish.
 INTRO_STEP_WAIT = 12
@@ -544,6 +548,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(cerulean_cells(), (0, 18), (19, 18), CERULEAN_DOORS | {(15, 18)}))
         self.assertIsNotNone(route(cerulean_gym_cells(), (5, 13), (6, 2), CERULEAN_GYM_AVOID))
         self.assertIsNone(route(cerulean_gym_cells(), (5, 13), (6, 2), CERULEAN_GYM_AVOID | CERULEAN_LASS_SIGHT))
+        self.assertIsNotNone(route(cerulean_mart_cells(), (5, 6), (4, 5)))
+        self.assertIn((5, 7), cerulean_mart_cells())
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -937,6 +943,12 @@ class Player:
                 else:
                     self.send("wait 18", "press a", max_frames=200)
             elif phase == "command":
+                player_hp = (battle.get("player") or {}).get("hp") or 0
+                max_hp = (battle.get("player") or {}).get("maxHP") or 0
+                potions = int(((self.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
+                if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= 22 and player_hp < max_hp
+                        and self.use_potion()):
+                    continue
                 if not battle.get("inMoveSelect"):
                     self.choose("battle", "FIGHT")
                 else:
@@ -959,6 +971,40 @@ class Player:
             else:
                 self.send("wait 4")
         return won
+
+    def use_potion(self):
+        """Spend one battle turn on a Potion for the lead. The Lass outlasts Bite otherwise."""
+        if (self.state.get("battle") or {}).get("inMoveSelect"):
+            self.press("b", wait=4)
+        self.choose("battle", "BAG")
+        for _ in range(16):
+            root = self.state.get("root")
+            if root == "battle":
+                return True
+            if root == "bag":
+                bag = self.state.get("bag") or {}
+                if bag.get("phase") not in (None, "list", "closed"):
+                    self.press("a", wait=4)
+                    continue
+                slots = ((self.state.get("inventory") or {}).get("slots") or [])
+                index = next((i for i, slot in enumerate(slots, start=1) if slot.get("id") == "potion"), None)
+                if index is None:
+                    self.press("b", wait=4)
+                    return False
+                selected = bag.get("selected") or 1
+                if selected != index:
+                    self.press("down" if index > selected else "up", wait=2)
+                else:
+                    self.press("a", wait=6)
+            elif root == "party":
+                selected = ((self.state.get("party_info") or {}).get("selected") or 1)
+                if selected != 1:
+                    self.press("up", wait=2)
+                else:
+                    self.press("a", wait=8)
+            else:
+                self.send("wait 4")
+        return False
 
     def pause_save(self):
         if not self.exploring():
@@ -2072,6 +2118,94 @@ def _follow_route4_line(player, report):
     raise RuntimeError("Route 4 line ended before Cerulean")
 
 
+CERULEAN_CLERK = "pokered:CERULEAN_MART:objects:1"
+
+
+def _buy_cerulean_potions(player, report):
+    """Cerulean Mart sells Potion. Five of them cover the Lass and Misty."""
+    have = int(((player.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
+    if have >= 5:
+        report["potions"] = have
+        return
+    doors = set(CERULEAN_DOORS)
+    doors.discard((25, 25))
+    kind = step_onto(player, cerulean_cells(), (25, 25), doors | {(15, 18)}, "up")
+    report["cerulean_mart_door"] = {"kind": kind, **summary(player.state)}
+    if "mart" not in str(player.state.get("zone")):
+        raise RuntimeError("Cerulean Mart did not open: " + json.dumps(summary(player.state)))
+    cells = cerulean_mart_cells()
+    opened = False
+    for _ in range(8):
+        if player.state.get("root") == "shop":
+            opened = True
+            break
+        if not player.exploring():
+            player.dismiss_until_explore(limit=20)
+        npc = npc_named(player.state, CERULEAN_CLERK)
+        if npc is None:
+            break
+        spot = (npc["x"] + 2, npc["y"])
+        kind = player.travel(cells, spot, {(npc["x"], npc["y"])})
+        if kind != "arrived":
+            continue
+        if player.state["player"].get("facing") != "left":
+            player.press("left", wait=4)
+        player.press("a", wait=8)
+        if player.state.get("root") == "shop":
+            opened = True
+            break
+    if not opened:
+        raise RuntimeError("the clerk did not open the mart: " + json.dumps(summary(player.state)))
+    for _ in range(24):
+        shop = player.state.get("shop") or {}
+        phase = shop.get("phase")
+        have = int(((player.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
+        if have >= 5 and phase in ("browse", "mode"):
+            break
+        if phase == "mode":
+            player.choose("shop", "BUY")
+        elif phase == "browse":
+            if shop.get("item") == "potion":
+                player.press("a", wait=4)
+            else:
+                selected = shop.get("selected") or 1
+                player.press("down" if selected < 2 else "up", wait=2)
+        elif phase == "quantity":
+            quantity = shop.get("quantity") or 1
+            if quantity < 5:
+                player.press("up", wait=2)
+            else:
+                player.press("a", wait=4)
+        elif phase == "confirm":
+            player.choose("shop", "YES")
+        elif phase == "result":
+            player.press("a", wait=4)
+        else:
+            player.send("wait 4")
+    have = int(((player.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
+    report["potions"] = have
+    if have < 5:
+        raise RuntimeError("the mart did not sell five Potions: " + json.dumps(summary(player.state)))
+    for _ in range(8):
+        if player.state.get("root") != "shop":
+            break
+        phase = (player.state.get("shop") or {}).get("phase")
+        if phase == "browse":
+            player.press("b", wait=4)
+        elif phase == "mode":
+            player.choose("shop", "QUIT")
+        else:
+            player.press("b", wait=4)
+    if player.state.get("root") == "shop":
+        raise RuntimeError("the mart stayed open: " + json.dumps(summary(player.state)))
+    kind = step_onto(player, cells, (5, 7), set(), "down")
+    report["cerulean_mart_left"] = {"kind": kind, **summary(player.state)}
+    if "cerulean_city" not in str(player.state.get("zone")):
+        raise RuntimeError("still inside the mart: " + json.dumps(summary(player.state)))
+    if player.exploring():
+        report["saved_potions"] = player.pause_save()
+
+
 def _to_cerulean(player, report, display, clips, output):
     """Route 4's open line, then the Cerulean Center and Misty."""
     if player.state.get("zone") == "kanto_route_4":
@@ -2091,6 +2225,7 @@ def _to_cerulean(player, report, display, clips, output):
         _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
                  cerulean_center_cells(), "cerulean_heal", "cerulean_city",
                  avoid=CERULEAN_DOORS | {(15, 18)})
+    _buy_cerulean_potions(player, report)
     gym_doors = set(CERULEAN_DOORS)
     gym_doors.discard((30, 19))
     kind = step_onto(player, cerulean_cells(), (30, 19), gym_doors | {(15, 18)}, "up")
