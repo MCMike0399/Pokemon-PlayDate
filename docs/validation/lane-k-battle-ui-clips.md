@@ -1,6 +1,6 @@
 # Charmander E4 battle-UI gaps
 
-pret/pokered `af519899719f0754965776faac0e836a3b906e6d`. Three host tests stay red for E. None use `expectedFailure`. `Source/` is unchanged. Two sketches are unapplied (`git apply --check` succeeds).
+pret/pokered `af519899719f0754965776faac0e836a3b906e6d`. The message queue landed in `603aac90`. The learn-box sketch stays unapplied. The shift tests stay red. None use `expectedFailure`. Lane K does not edit `Source/`.
 
 ## Message queue
 
@@ -19,10 +19,10 @@ Sketch: `tools/notes/lane-e-message-queue-confirm.patch`. Remember `messageReady
 
 `engine/battle/core.asm` `HandleEnemyMonFainted`: a battle mon at 0 HP goes through `ChooseNextMon`, then `ReplaceFaintedEnemyMon`. `ChooseNextMon` loads that mon and calls `SendOutMon` while the fainted foe is still active. `ReplaceFaintedEnemyMon` then prints `_TrainerAboutToUseText` and opens `TWO_OPTION_MENU` when `BIT_BATTLE_SHIFT` is clear, the party has a bench, and the battle is not a link or the first send-out (`data/text/text_2.asm`). `Battle:finishRound` asks only when `self.player:isAlive()` (`Source/battle/battle.lua`). A living lead still gets the question; these two clip slots are the fainted lead. `eligibleForcedReplacements` also rejects a fainted target, so dropping the `isAlive` check alone raises on `#nil`.
 
-`test_question_follows_the_player_replacement` commits Weepinbell through `Battle:chooseParty` on the forced-switch phase, then requires the YES/NO while Onix or Jynx is still the active foe. The current script sends Hitmonchan or Lapras first. After Weepinbell is sent, that foe is already active and `shiftChoice` is still nil. Asking while Charizard is fainted also fails this test. No patch.
+`test_question_follows_the_player_replacement` requires `eligibleForcedReplacements` to return the bench for that fainted lead, then commits Weepinbell through `Battle:chooseParty`, then requires the YES/NO while Onix or Jynx is still the active foe. The current function returns `inactive-target`. The current script sends Hitmonchan or Lapras first. After Weepinbell is sent, that foe is already active and `shiftChoice` is still nil. Asking while Charizard is fainted also fails this test. No patch.
 
 ## Learn box name
 
-`tools/tests/test_lane_k_learn_name.py`. `LearningState:showAsk` draws `askPages[1]`, which is `CHARIZARD is` / `trying to learn`. The opened box omits `FLARE BLITZ`.
+`tools/tests/test_lane_k_learn_name.py` asserts the pokered multi-page contract. `_TryingToLearnText` puts `wStringBuffer` on the `cont` after `trying to learn`, so `FLARE BLITZ` is on the following page while YES/NO is still closed. The test does not require the name on page 1.
 
-`data/text/text_4.asm` `_TryingToLearnText` puts `wStringBuffer` on the `cont` immediately after `trying to learn`. The opened page is that first screen. The next page is `trying to learn` / `FLARE BLITZ!`, which `test_lane_e_learn_pages.py` already reaches before YES/NO. `LearningState:draw` paints through `battleText`, and that box stops after two rows. `tools/notes/lane-e-learn-box-name.patch` adds the name as a third line of page 1, so the painter drops it. The red test stays on the opened page because that is the clip string. The sketch is not the fix.
+`LearningState:draw` paints through `battleText`, and that box stops after two rows. `tools/notes/lane-e-learn-box-name.patch` adds the name as a third line of page 1, so the painter drops it. Do not apply that sketch as-is. E chooses: keep this multi-page contract, or widen the box.

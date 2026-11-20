@@ -137,31 +137,41 @@ local function replaceThenAsk(trainer, foeSpecies, foeLevel, nextSpecies, nextLe
         return battle:finishRound()
     end)
     local log = drain(battle)
+    local problems = {}
+    local choices, reason = battle:eligibleForcedReplacements(lead)
+    if choices == nil then
+        problems[#problems + 1] = trainer .. " eligibleForcedReplacements rejected the fainted lead: " .. tostring(reason)
+    end
+    local function fail(message)
+        if #problems > 0 then message = table.concat(problems, "\n") .. "\n" .. message end
+        error(message .. "\n" .. log)
+    end
     if battle.shiftChoice and not battle.player:isAlive() then
-        error(trainer .. " asked while " .. battle.player.name .. " is fainted; ChooseNextMon comes first\n" .. log)
+        fail(trainer .. " asked while " .. battle.player.name .. " is fainted; ChooseNextMon comes first")
     end
     if battle.enemy == foe and battle:phase() ~= "forcedSwitch" then
-        error(trainer .. " left " .. foe.name .. " active in " .. tostring(battle:phase()) .. " without ChooseNextMon\n" .. log)
+        fail(trainer .. " left " .. foe.name .. " active in " .. tostring(battle:phase()) .. " without ChooseNextMon")
     end
     if battle:phase() == "forcedSwitch" then
         local ok, problem = battle:chooseParty(2)
         if not ok then
-            error(trainer .. " ChooseNextMon rejected the bench: " .. tostring(problem) .. "\n" .. log)
+            fail(trainer .. " ChooseNextMon rejected the bench: " .. tostring(problem))
         end
         log = log .. "\n" .. drain(battle)
     end
     if battle.player ~= bench then
-        error(trainer .. " did not send " .. bench.name .. " before the question; lead is " .. battle.player.name .. "\n" .. log)
+        fail(trainer .. " did not send " .. bench.name .. " before the question; lead is " .. battle.player.name)
     end
     if not battle.shiftChoice then
-        error(trainer .. " sent " .. battle.player.name .. " and " .. battle.enemy.name .. " is active with no YES/NO\n" .. log)
+        fail(trainer .. " sent " .. battle.player.name .. " and " .. battle.enemy.name .. " is active with no YES/NO")
     end
     if battle.enemy ~= foe then
-        error(trainer .. " sent " .. battle.enemy.name .. " before the YES/NO\n" .. log)
+        fail(trainer .. " sent " .. battle.enemy.name .. " before the YES/NO")
     end
     if battle.message ~= "Will RED\nchange POKéMON?" then
-        error(trainer .. " question was [" .. tostring(battle.message) .. "]")
+        fail(trainer .. " question was [" .. tostring(battle.message) .. "]")
     end
+    if #problems > 0 then fail(trainer .. " shift order was reached with a fainted-lead rejection") end
 end
 
 replaceThenAsk("BRUNO", "onix", 53, "hitmonchan", 55)

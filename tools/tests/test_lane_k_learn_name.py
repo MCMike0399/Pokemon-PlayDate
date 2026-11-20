@@ -1,9 +1,9 @@
-"""Move-learn box opens without the move name.
+"""Move name is the next learn page, before YES/NO.
 
-Charmander E4 clip: "CHARIZARD is trying to learn" and the name is empty.
 pret/pokered af519899 data/text/text_4.asm _TryingToLearnText puts
-wStringBuffer on the cont immediately after "trying to learn". The box
-draw uses askPages[askPage], and page 1 stops before that name.
+wStringBuffer on the cont after "trying to learn". The two-row box cannot
+carry that name on the opened page. tools/notes/lane-e-learn-box-name.patch
+stays unapplied. E may keep this multi-page contract or widen the box.
 """
 
 import subprocess
@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "Source/game/learningState.lua"
 
 PROBE = textwrap.dedent(r'''
+    local justPressed = false
+    local held = false
     playdate = {
       graphics = {
         kColorWhite = 1, kColorBlack = 0,
@@ -26,8 +28,8 @@ PROBE = textwrap.dedent(r'''
         sprite = { addDirtyRect = function() end },
       },
       kButtonA = 1, kButtonB = 2,
-      buttonJustPressed = function() return false end,
-      buttonIsPressed = function() return false end,
+      buttonJustPressed = function() return justPressed end,
+      buttonIsPressed = function() return held end,
     }
     function import() end
     function Class(name)
@@ -51,6 +53,7 @@ PROBE = textwrap.dedent(r'''
     function BattleMenu:init() self.isActive = false end
     function BattleMenu:show() self.isActive = true end
     function BattleMenu:hide() self.isActive = false end
+    function BattleMenu:handleInput() end
     Class("Dialog")
     function Dialog:init() end
     moveData = { flareBlitz = { name = "FLARE BLITZ" } }
@@ -60,24 +63,47 @@ PROBE = textwrap.dedent(r'''
     learning.pokemon = { name = "CHARIZARD", moves = {"a", "b", "c", "d"} }
     learning.pendingMove = "flareBlitz"
     learning:showAsk()
-    local drawn = learning.askPages[learning.askPage]
-    if not drawn:find("FLARE BLITZ", 1, true) then
-      io.write("opened box omitted the move name: ")
-      io.write((drawn:gsub("\n", "|")))
-      io.write("\n")
+    if learning.menu.isActive then
+      io.write("YES/NO opened before a following page\n")
       os.exit(1)
     end
-    io.write("learn-name-shown\n")
+    local function tap()
+      justPressed = false
+      held = false
+      for _ = 1, 11 do learning:handleInput() end
+      justPressed = true
+      held = true
+      learning:handleInput()
+      justPressed = false
+      held = false
+    end
+    local named = false
+    for _ = 1, 8 do
+      if learning.menu.isActive then break end
+      tap()
+      local page = learning.askPages[learning.askPage]
+      if not learning.menu.isActive and page:find("FLARE BLITZ", 1, true) then
+        named = true
+      end
+    end
+    if not named then
+      local shown = learning.askPages[learning.askPage]:gsub("\n", "|")
+      io.write("move name was not on a following page before YES/NO: ")
+      io.write(shown)
+      io.write(learning.menu.isActive and " menu-open\n" or " menu-closed\n")
+      os.exit(1)
+    end
+    io.write("learn-name-on-next-page\n")
 ''')
 
 
 class LearnNameTests(unittest.TestCase):
-    def test_opened_box_names_the_move(self):
+    def test_name_is_on_the_following_page_before_yes_no(self):
         completed = subprocess.run(
             ["lua5.4", "-", str(SOURCE)],
             input=PROBE, check=False, capture_output=True, text=True)
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertIn("learn-name-shown", completed.stdout)
+        self.assertIn("learn-name-on-next-page", completed.stdout)
 
 
 if __name__ == "__main__":
