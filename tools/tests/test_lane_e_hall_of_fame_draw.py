@@ -51,7 +51,11 @@ io.write(tostring(y))
         start = draw.index("local view = CreditsPlayer.view(self.credits)")
         block = draw[start:draw.index("gfx.popContext()", start)]
         shown = block + "\n" + story
-        self.assertIn("kDrawModeFillWhite", block)
+        if "EndgameStory.drawCredits" in block:
+            self.assertIn("creditsBands", story)
+            self.assertIn('text = "black"', story)
+        else:
+            self.assertIn("kDrawModeFillWhite", block)
         self.assertIn("©'95.'96.'98 Nintendo", shown)
         self.assertIn("©'95.'96.'98 Creatures inc.", shown)
         self.assertIn("©'95.'96.'98 GAME FREAK inc.", shown)

@@ -1,222 +1,7 @@
-diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
---- a/Source/game/endgameStory.lua
-+++ b/Source/game/endgameStory.lua
-@@ -1511,6 +1511,149 @@ local function photoImage(gfx, state, photo, which)
-     return nil
- end
- 
-+-- constants/charmap.asm maps "#" to POKé. The é tile is font.png tile 58,
-+-- the same rows SourceTextFont keeps for that glyph.
-+EndgameStory.accentERows = {
-+    "..##....",
-+    "##......",
-+    "..####..",
-+    ".#....#.",
-+    ".######.",
-+    ".#......",
-+    "..#####.",
-+    "........",
-+}
-+
-+function EndgameStory.expandPokeredText(text)
-+    return (text or ""):gsub("#", "POKé")
-+end
-+
-+function EndgameStory.creditsCaption(view)
-+    view = view or {}
-+    if view.ending then
-+        return "THE END"
-+    end
-+    local text = table.concat(view.lines or {}, "\n")
-+    if view.copyright then
-+        local notice = table.concat({
-+            "©'95.'96.'98 Nintendo",
-+            "©'95.'96.'98 Creatures inc.",
-+            "©'95.'96.'98 GAME FREAK inc.",
-+        }, "\n")
-+        if text ~= "" then
-+            text = text .. "\n"
-+        end
-+        text = text .. notice
-+    end
-+    return EndgameStory.expandPokeredText(text)
-+end
-+
-+-- DisplayCreditsMon places a 7x7 front pic at hlcoord 8, 6, then
-+-- ScrollCreditsMonLeft steps rSCX by one tile. The grids are already
-+-- centered in that box the way LoadUncompressedSpriteData aligns them.
-+function EndgameStory.creditsMonPlace(scroll)
-+    scroll = math.floor(tonumber(scroll) or 0)
-+    if scroll < 0 then
-+        scroll = 0
-+    end
-+    local gbX = 64 - scroll * 8
-+    local gbY = 48
-+    local x, y = EndgameStory.hallPixel(gbX, gbY)
-+    return {gbX = gbX, gbY = gbY, x = x, y = y, scroll = scroll, width = 56, height = 56}
-+end
-+
-+local accentEImage
-+local creditsMonImages = {}
-+
-+function EndgameStory.drawAccentE(gfx, x, y)
-+    if not accentEImage then
-+        accentEImage = gfx.image.new(16, 16, gfx.kColorClear)
-+        gfx.pushContext(accentEImage)
-+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
-+        gfx.setColor(gfx.kColorBlack)
-+        for row, bits in ipairs(EndgameStory.accentERows) do
-+            for col = 1, 8 do
-+                if bits:sub(col, col) == "#" then
-+                    gfx.fillRect((col - 1) * 2, (row - 1) * 2, 2, 2)
-+                end
-+            end
-+        end
-+        gfx.popContext()
-+    end
-+    accentEImage:draw(x, y)
-+end
-+
-+function EndgameStory.drawPokeredText(gfx, text, x, y)
-+    text = EndgameStory.expandPokeredText(text)
-+    local font = gfx.getSystemFont()
-+    local height = font:getHeight() + font:getLeading()
-+    local lineY = y
-+    for line in (text .. "\n"):gmatch("(.-)\n") do
-+        local cursor = x
-+        local index = 1
-+        while index <= #line do
-+            local nextIndex = utf8.offset(line, 2, index) or (#line + 1)
-+            local glyph = line:sub(index, nextIndex - 1)
-+            if glyph == "é" then
-+                EndgameStory.drawAccentE(gfx, cursor, lineY)
-+                cursor = cursor + 16
-+            elseif glyph ~= "" then
-+                gfx.drawText(glyph, cursor, lineY)
-+                cursor = cursor + font:getTextWidth(glyph)
-+            end
-+            index = nextIndex
-+        end
-+        lineY = lineY + height
-+    end
-+end
-+
-+function EndgameStory.creditsMonImage(gfx, species)
-+    local key = species and species:lower() or ""
-+    if creditsMonImages[key] then
-+        return creditsMonImages[key]
-+    end
-+    local data = json.decodeFile("data/endgame/creditsMonShades.json")
-+    local rows = data and data.mons and data.mons[key]
-+    if not rows then
-+        return nil
-+    end
-+    local scale = EndgameStory.hallView().scale
-+    local image = gfx.image.new(#rows[1] * scale, #rows * scale, gfx.kColorWhite)
-+    gfx.pushContext(image)
-+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
-+    gfx.setDrawOffset(0, 0)
-+    for rowIndex, row in ipairs(rows) do
-+        for col = 1, #row do
-+            local shade = row:sub(col, col)
-+            local px = (col - 1) * scale
-+            local py = (rowIndex - 1) * scale
-+            if shade == "1" then
-+                Shade.set(Shade.LIGHT)
-+            elseif shade == "2" then
-+                Shade.set(Shade.DARK)
-+            elseif shade == "#" then
-+                Shade.set(Shade.BLACK)
-+            else
-+                Shade.set(Shade.WHITE)
-+            end
-+            gfx.fillRect(px, py, scale, scale)
-+        end
-+    end
-+    Shade.reset()
-+    gfx.popContext()
-+    creditsMonImages[key] = image
-+    return image
-+end
-+
-+function EndgameStory.drawCreditsMon(gfx, species, scroll)
-+    local image = EndgameStory.creditsMonImage(gfx, species)
-+    if not image then
-+        return
-+    end
-+    local place = EndgameStory.creditsMonPlace(scroll)
-+    image:draw(place.x, place.y)
-+end
-+
- local function blitHallPic(gfx, image, gbX, gbY)
-     if not image then
-         return
-@@ -1568,7 +1711,7 @@ function EndgameStory.drawPhoto(gfx, state)
-         if row.text:find("¥", 1, true) then
-             GbFont.drawMoneyLine(row.text, px, py)
-         else
--            gfx.drawText(row.text, px, py)
-+            EndgameStory.drawPokeredText(gfx, row.text, px, py)
-         end
-     end
-     if photo.kind == "player" then
-@@ -1576,13 +1719,13 @@ function EndgameStory.drawPhoto(gfx, state)
-         local page <const> = pages[state.photo.page or 1]
-         if page then
-             local px, py = EndgameStory.hallPixel(8, 13 * 8)
--            gfx.drawText(page.text, px, py)
-+            EndgameStory.drawPokeredText(gfx, page.text, px, py)
-         end
-     elseif EndgameStory.hallShowsCaption(photo, stage, state.photo.clock) then
-         local caption <const> = EndgameStory.hallCaptionRow()
-         drawHallBox(gfx, boxes.caption)
-         local px, py = EndgameStory.hallPixel(caption.col * 8, caption.row * 8)
--        gfx.drawText(caption.text, px, py)
-+        EndgameStory.drawPokeredText(gfx, caption.text, px, py)
-     end
-     if stage == "fade" and Shade then
-         gfx.clearClipRect()
-diff --git a/Source/game/eventState.lua b/Source/game/eventState.lua
---- a/Source/game/eventState.lua
-+++ b/Source/game/eventState.lua
-@@ -554,28 +554,17 @@ function EventState:draw()
-         gfx.setColor(gfx.kColorBlack);gfx.fillRect(0,0,400,240)
-         gfx.setColor(gfx.kColorWhite)
-         if view.phase ~= "preamble" then
--            local text = table.concat(view.lines or {}, "\n")
--            -- The hold and the fade stay on screen. The done phase is
--            -- cleared in this same update, before draw.
--            if view.ending then
--                text = "THE END"
--            elseif view.copyright then
--                local notice = {
--                    "©'95.'96.'98 Nintendo",
--                    "©'95.'96.'98 Creatures inc.",
--                    "©'95.'96.'98 GAME FREAK inc.",
--                }
--                if text ~= "" then text = text .. "\n" end
--                text = text .. table.concat(notice, "\n")
--                if view.mon then text = text .. "\n" .. view.mon end
--            elseif view.mon then
--                text = text .. "\n" .. view.mon
--            end
-+            -- The species is the scrolling front pic, not a line of text.
-+            -- "#" is the POKé tile. THE END stays up through the hold.
-+            local text = EndgameStory.creditsCaption(view)
-             -- System-font glyphs are black. Copy mode on the black fill
-             -- leaves every credits screen, the copyright, and THE END blank.
-             gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
--            gfx.drawText(text, 120, 80)
-+            EndgameStory.drawPokeredText(gfx, text, 120, 80)
-             gfx.setImageDrawMode(gfx.kDrawModeCopy)
-+            if view.phase == "scroll" and view.mon then
-+                EndgameStory.drawCreditsMon(gfx, view.mon, view.scroll)
-+            end
-         end
-         gfx.popContext()
-         return
---- /dev/null	2026-11-19 00:11:43.284246674 +0000
-+++ b/Source/data/endgame/creditsMonShades.json	2026-11-20 13:02:12.851981053 +0000
+diff --git a/Source/data/endgame/creditsMonShades.json b/Source/data/endgame/creditsMonShades.json
+new file mode 100644
+--- /dev/null
++++ b/Source/data/endgame/creditsMonShades.json
 @@ -0,0 +1,877 @@
 +{
 +  "schema": 1,
@@ -1095,3 +880,369 @@ diff --git a/Source/game/eventState.lua b/Source/game/eventState.lua
 +    ]
 +  }
 +}
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -1511,6 +1511,298 @@ local function photoImage(gfx, state, photo, which)
+     return nil
+ end
+ 
++-- constants/charmap.asm maps "#" to POKé. The é tile is font.png char $BA,
++-- an 8x8 cell, the same height as the other lowercase letters. Rows come
++-- from the font generator's sourceText projection. Strings without é are
++-- one drawText call so the system font keeps its own advances, including
++-- the space and the colon.
++function EndgameStory.expandPokeredText(text)
++    return (text or ""):gsub("#", "POKé")
++end
++
++function EndgameStory.accentCell()
++    return 8
++end
++
++function EndgameStory.accentRows()
++    local data <const> = json.decodeFile("data/sourceText.json")
++    return data.glyphs["é"].rows
++end
++
++function EndgameStory.glyphAdvance(font, char)
++    if char == "é" then
++        char = "e"
++    end
++    return font:getTextWidth("X" .. char .. "X") - font:getTextWidth("XX")
++end
++
++function EndgameStory.textWidth(font, text)
++    text = EndgameStory.expandPokeredText(text)
++    if not text:find("é", 1, true) then
++        return font:getTextWidth(text)
++    end
++    local width = 0
++    for line in (text .. "\n"):gmatch("(.-)\n") do
++        local run = ""
++        local index = 1
++        local function flush()
++            if run ~= "" then
++                width = width + font:getTextWidth(run)
++                run = ""
++            end
++        end
++        while index <= #line do
++            local nextIndex = utf8.offset(line, 2, index) or (#line + 1)
++            local glyph = line:sub(index, nextIndex - 1)
++            if glyph == "é" then
++                flush()
++                width = width + EndgameStory.glyphAdvance(font, "e")
++            else
++                run = run .. glyph
++            end
++            index = nextIndex
++        end
++        flush()
++    end
++    return width
++end
++
++function EndgameStory.creditsCaption(view)
++    view = view or {}
++    if view.ending then
++        return "THE END"
++    end
++    local text = table.concat(view.lines or {}, "\n")
++    if view.copyright then
++        local notice = table.concat({
++            "©'95.'96.'98 Nintendo",
++            "©'95.'96.'98 Creatures inc.",
++            "©'95.'96.'98 GAME FREAK inc.",
++        }, "\n")
++        if text ~= "" then
++            text = text .. "\n"
++        end
++        text = text .. notice
++    end
++    return EndgameStory.expandPokeredText(text)
++end
++
++-- HallOfFamePC fills rows 0-3 and 14-17 black. The middle, rows 4-13, is
++-- white. hallView's 2x shift is the port's row mapping.
++function EndgameStory.creditsBands()
++    local view <const> = EndgameStory.hallView()
++    local function rowY(row)
++        return view.y + row * 8 * view.scale
++    end
++    local function band(row0, row1)
++        local y0 = math.max(0, rowY(row0))
++        local y1 = math.min(240, rowY(row1))
++        return {x = 0, y = y0, w = 400, h = y1 - y0}
++    end
++    return {top = band(0, 4), middle = band(4, 14), bottom = band(14, 18), text = "black"}
++end
++
++-- DisplayCreditsMon starts at hlcoord 8, 6. ScrollCreditsMonLeft adds 8 to
++-- SCX, seven times, then twenty more while rWX starts at $A7 and drops by
++-- 8. The window's visible edge is WX - 7.
++function EndgameStory.creditsScroll(scroll)
++    scroll = math.floor(tonumber(scroll) or 0)
++    if scroll < 0 then
++        scroll = 0
++    end
++    local windowGb = 160
++    if scroll > 7 then
++        windowGb = 160 - 8 * (scroll - 7)
++    end
++    local view <const> = EndgameStory.hallView()
++    return {
++        scroll = scroll,
++        scx = scroll * 8,
++        dx = -scroll * 8 * view.scale,
++        windowGb = windowGb,
++        windowX = view.x + windowGb * view.scale,
++    }
++end
++
++function EndgameStory.creditsMonPlace(scroll)
++    local motion <const> = EndgameStory.creditsScroll(scroll)
++    local gbX = 64 - motion.scx
++    local gbY = 48
++    local x, y = EndgameStory.hallPixel(gbX, gbY)
++    return {gbX = gbX, gbY = gbY, x = x, y = y, scroll = motion.scroll, width = 56, height = 56}
++end
++
++local accentEImage
++
++function EndgameStory.drawAccentE(gfx, x, y)
++    local cell <const> = EndgameStory.accentCell()
++    if not accentEImage then
++        local rows <const> = EndgameStory.accentRows()
++        accentEImage = gfx.image.new(cell, cell, gfx.kColorClear)
++        gfx.pushContext(accentEImage)
++        gfx.setImageDrawMode(gfx.kDrawModeCopy)
++        gfx.setColor(gfx.kColorBlack)
++        for row, bits in ipairs(rows) do
++            for col = 1, #bits do
++                if bits:sub(col, col) == "#" then
++                    gfx.fillRect(col - 1, row - 1, 1, 1)
++                end
++            end
++        end
++        gfx.popContext()
++    end
++    accentEImage:draw(x, y)
++end
++
++function EndgameStory.drawPokeredText(gfx, text, x, y)
++    text = EndgameStory.expandPokeredText(text)
++    if not text:find("é", 1, true) then
++        gfx.drawText(text, x, y)
++        return
++    end
++    local font <const> = gfx.getSystemFont()
++    local height <const> = font:getHeight() + font:getLeading()
++    local lineY = y
++    for line in (text .. "\n"):gmatch("(.-)\n") do
++        local cursor = x
++        local run = ""
++        local index = 1
++        local function flush()
++            if run ~= "" then
++                gfx.drawText(run, cursor, lineY)
++                cursor = cursor + font:getTextWidth(run)
++                run = ""
++            end
++        end
++        while index <= #line do
++            local nextIndex = utf8.offset(line, 2, index) or (#line + 1)
++            local glyph = line:sub(index, nextIndex - 1)
++            if glyph == "é" then
++                flush()
++                EndgameStory.drawAccentE(gfx, cursor, lineY + font:getHeight() - EndgameStory.accentCell())
++                cursor = cursor + EndgameStory.glyphAdvance(font, "e")
++            else
++                run = run .. glyph
++            end
++            index = nextIndex
++        end
++        flush()
++        lineY = lineY + height
++    end
++end
++
++function EndgameStory.drawCreditsMon(gfx, species, scroll)
++    local key = species and species:lower() or ""
++    local data <const> = json.decodeFile("data/endgame/creditsMonShades.json")
++    local rows = data and data.mons and data.mons[key]
++    if not rows then
++        return
++    end
++    local place <const> = EndgameStory.creditsMonPlace(scroll)
++    local windowX <const> = EndgameStory.creditsScroll(scroll).windowX
++    local scale <const> = EndgameStory.hallView().scale
++    local width = #rows[1] * scale
++    local height = #rows * scale
++    local clipW = math.max(0, math.min(place.x + width, windowX) - place.x)
++    if clipW <= 0 then
++        return
++    end
++    -- The 7x7 pic replaces the tiles under it. White matches the middle,
++    -- so this is not a box. BGP %11111100 then stamps every other shade black.
++    gfx.setColor(gfx.kColorWhite)
++    gfx.fillRect(place.x, place.y, clipW, height)
++    gfx.setColor(gfx.kColorBlack)
++    for rowIndex, row in ipairs(rows) do
++        for col = 1, #row do
++            if row:sub(col, col) ~= "." then
++                local px = place.x + (col - 1) * scale
++                if px + scale <= windowX then
++                    gfx.fillRect(px, place.y + (rowIndex - 1) * scale, scale, scale)
++                end
++            end
++        end
++    end
++end
++
++-- PlaceString starts at hlcoord 9, 6. The first byte of each credit is a
++-- signed indent. <NEXT> then drops two rows. CopyrightTextString is its own
++-- PlaceString at hlcoord 2, 7. THE END is hlcoord 4, 8.
++local CREDIT_COLUMN <const> = {
++    ["#MON"] = 6, ["BLUE VERSION STAFF"] = 1,
++    ["DIRECTOR"] = 6, ["SATOSHI TAJIRI"] = 3,
++    ["PROGRAMMERS"] = 4, ["TAKENORI OOTA"] = 3, ["SHIGEKI MORIMOTO"] = 2,
++    ["TETSUYA WATANABE"] = 2, ["JUNICHI MASUDA"] = 3, ["SOUSUKE TAMADA"] = 3,
++    ["CHARACTER DESIGN"] = 2, ["KEN SUGIMORI"] = 4, ["ATSUKO NISHIDA"] = 3,
++    ["MUSIC"] = 7, ["SOUND EFFECTS"] = 3,
++    ["GAME DESIGN"] = 4, ["GAME SCENARIO"] = 3,
++    ["MONSTER DESIGN"] = 3, ["MOTOFUMI FUZIWARA"] = 2,
++    ["SATOSHI OOTA"] = 4, ["RENA YOSHIKAWA"] = 3,
++    ["RYOHSUKE TANIGUCHI"] = 1, ["FUMIHIRO NONOMURA"] = 1, ["HIROYUKI ZINNAI"] = 2,
++    ["PARAMETRIC DESIGN"] = 1, ["KOHJI NISINO"] = 4, ["TAKEO NAKAMURA"] = 3,
++    ["MAP DESIGN"] = 5, ["KENJI MATSUSIMA"] = 2,
++    ["PRODUCT TESTING"] = 2, ["AKIYOSHI KAKEI"] = 3, ["KAZUKI TSUCHIYA"] = 2,
++    ["MASAMITSU YUDA"] = 3, ["SPECIAL THANKS"] = 3,
++    ["YASUHIRO SAKAI"] = 3, ["WATARU YAMAGUCHI"] = 2, ["KAZUYUKI YAMAMOTO"] = 1,
++    ["AKIHITO TOMISAWA"] = 2, ["HIROSHI KAWAMOTO"] = 2, ["TOMOMICHI OOTA"] = 3,
++    ["PRODUCERS"] = 5, ["SHIGERU MIYAMOTO"] = 2, ["TAKASHI KAWAGUCHI"] = 1,
++    ["TSUNEKAZU ISHIHARA"] = 1, ["PRODUCER"] = 5, ["TAKEHIRO IZUSHI"] = 2,
++    ["EXECUTIVE PRODUCER"] = 1, ["HIROSHI YAMAUCHI"] = 2,
++    ["US VERSION STAFF"] = 2, ["US COORDINATION"] = 2,
++    ["GAIL TILDEN"] = 4, ["NAOKO KAWAKAMI"] = 3, ["HIRO NAKAMURA"] = 3,
++    ["WILLIAM GIESE"] = 3, ["SARA OSBORNE"] = 4,
++    ["TEXT TRANSLATION"] = 2, ["NOB OGASAWARA"] = 3,
++    ["SATORU IWATA"] = 4, ["TAKAHIRO HARADA"] = 2,
++    ["TERUKI MURAKAWA"] = 2, ["KOHTA FUKUI"] = 4,
++    ["PAAD TESTING"] = 4, ["NCL SUPER MARIO CLUB"] = 0,
++}
++
++function EndgameStory.creditsLine(text, index, kind)
++    if kind == "ending" then
++        return {text = text, col = 4, row = 8}
++    end
++    if kind == "copyright" then
++        return {text = text, col = 2, row = 7 + (index - 1) * 2}
++    end
++    return {text = text, col = CREDIT_COLUMN[text] or 9, row = 6 + (index - 1) * 2}
++end
++
++function EndgameStory.drawCredits(gfx, view)
++    local bands <const> = EndgameStory.creditsBands()
++    gfx.setImageDrawMode(gfx.kDrawModeCopy)
++    gfx.setFont(gfx.getSystemFont())
++    gfx.setColor(gfx.kColorWhite)
++    gfx.fillRect(0, 0, 400, 240)
++    gfx.setColor(gfx.kColorBlack)
++    gfx.fillRect(bands.top.x, bands.top.y, bands.top.w, bands.top.h)
++    gfx.fillRect(bands.bottom.x, bands.bottom.y, bands.bottom.w, bands.bottom.h)
++    if not view or view.phase == "preamble" then
++        return
++    end
++    local motion <const> = EndgameStory.creditsScroll(view.phase == "scroll" and view.scroll or 0)
++    gfx.setClipRect(0, bands.middle.y, math.max(0, motion.windowX), bands.middle.h)
++    gfx.setColor(gfx.kColorBlack)
++    local kind = view.ending and "ending" or (view.copyright and "copyright" or "text")
++    local lines = view.lines or {}
++    if view.ending then
++        lines = {"THE END"}
++    elseif view.copyright then
++        lines = {
++            "©'95.'96.'98 Nintendo",
++            "©'95.'96.'98 Creatures inc.",
++            "©'95.'96.'98 GAME FREAK inc.",
++        }
++    end
++    for index, line in ipairs(lines) do
++        local placed <const> = EndgameStory.creditsLine(line, index, kind)
++        local x, y = EndgameStory.hallPixel(placed.col * 8, placed.row * 8)
++        EndgameStory.drawPokeredText(gfx, placed.text, x + motion.dx, y)
++    end
++    if view.phase == "scroll" and view.mon then
++        EndgameStory.drawCreditsMon(gfx, view.mon, view.scroll)
++    end
++    gfx.clearClipRect()
++end
++
+ local function blitHallPic(gfx, image, gbX, gbY)
+     if not image then
+         return
+@@ -1568,7 +1860,7 @@ function EndgameStory.drawPhoto(gfx, state)
+         if row.text:find("¥", 1, true) then
+             GbFont.drawMoneyLine(row.text, px, py)
+         else
+-            gfx.drawText(row.text, px, py)
++            EndgameStory.drawPokeredText(gfx, row.text, px, py)
+         end
+     end
+     if photo.kind == "player" then
+@@ -1576,13 +1868,13 @@ function EndgameStory.drawPhoto(gfx, state)
+         local page <const> = pages[state.photo.page or 1]
+         if page then
+             local px, py = EndgameStory.hallPixel(8, 13 * 8)
+-            gfx.drawText(page.text, px, py)
++            EndgameStory.drawPokeredText(gfx, page.text, px, py)
+         end
+     elseif EndgameStory.hallShowsCaption(photo, stage, state.photo.clock) then
+         local caption <const> = EndgameStory.hallCaptionRow()
+         drawHallBox(gfx, boxes.caption)
+         local px, py = EndgameStory.hallPixel(caption.col * 8, caption.row * 8)
+-        gfx.drawText(caption.text, px, py)
++        EndgameStory.drawPokeredText(gfx, caption.text, px, py)
+     end
+     if stage == "fade" and Shade then
+         gfx.clearClipRect()
+diff --git a/Source/game/eventState.lua b/Source/game/eventState.lua
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -550,33 +550,8 @@ function EventState:draw()
+     if self.phase=="credits" then
+         local view = CreditsPlayer.view(self.credits)
+         gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
+-        gfx.setFont(gfx.getSystemFont());gfx.setImageDrawMode(gfx.kDrawModeCopy)
+-        gfx.setColor(gfx.kColorBlack);gfx.fillRect(0,0,400,240)
+-        gfx.setColor(gfx.kColorWhite)
+-        if view.phase ~= "preamble" then
+-            local text = table.concat(view.lines or {}, "\n")
+-            -- The hold and the fade stay on screen. The done phase is
+-            -- cleared in this same update, before draw.
+-            if view.ending then
+-                text = "THE END"
+-            elseif view.copyright then
+-                local notice = {
+-                    "©'95.'96.'98 Nintendo",
+-                    "©'95.'96.'98 Creatures inc.",
+-                    "©'95.'96.'98 GAME FREAK inc.",
+-                }
+-                if text ~= "" then text = text .. "\n" end
+-                text = text .. table.concat(notice, "\n")
+-                if view.mon then text = text .. "\n" .. view.mon end
+-            elseif view.mon then
+-                text = text .. "\n" .. view.mon
+-            end
+-            -- System-font glyphs are black. Copy mode on the black fill
+-            -- leaves every credits screen, the copyright, and THE END blank.
+-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+-            gfx.drawText(text, 120, 80)
+-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+-        end
++        -- Rows 0-3 and 14-17 are black. The middle is white and the text is black.
++        EndgameStory.drawCredits(gfx, view)
+         gfx.popContext()
+         return
+     end

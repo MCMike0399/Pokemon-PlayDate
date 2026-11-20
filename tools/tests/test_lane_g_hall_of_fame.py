@@ -146,6 +146,18 @@ class HallOfFameSequenceTests(unittest.TestCase):
         errors = check_log(log, self.credits)
         self.assertTrue(any("literal hash" in error for error in errors))
 
+    def test_glyph_advance_table_rejects_a_collapsed_space_or_colon(self):
+        from tools.tests.lane_g_hall_of_fame import check_glyph_advances
+        glyphs = list("PLAY TIME0:")
+        before = {char: 6 for char in glyphs}
+        crushed = dict(before)
+        crushed[" "] = 0
+        self.assertTrue(any(" " in error for error in check_glyph_advances(before, crushed)))
+        missing_colon = dict(before)
+        missing_colon[":"] = 0
+        self.assertTrue(any("no advance" in error or "':'" in error for error in check_glyph_advances(missing_colon, missing_colon)))
+        self.assertEqual(check_glyph_advances(before, before), [])
+
     def test_dex_rating_keeps_the_accent(self):
         log = _log(self.credits, player=_player(owned=2))
         rating = next(frame for frame in log["frames"] if frame["beat"] == "hof-dex-rating")

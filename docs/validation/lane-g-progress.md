@@ -217,6 +217,10 @@ Dry run of that harness on E's tip, before lane I's Charmander reaches Lance. Th
 
 BlueBot approved the hof-main layout and flagged the credits species names, the literal `#`, and the missing `é`. `tools/notes/lane-e-hof-credits-fidelity.patch` draws the 4-shade front sprite with `Shade.LIGHT` and `Shade.DARK` at tile `(8, 6)`, scrolling one tile left per frame, and stops printing the species. `#` expands to `POKé`. `é` is the font.png tile 58 glyph. The name box already matches `HoFDisplayPlayerStats`: `hlcoord 5, 0`, `b=2`, `c=9`, top at Playdate y=-48. The y=0 line is that clip. `hlcoord 7, 2` is y=-16, so the name stays on row 3, the first visible row. The patched recapture is `artifacts/lane-g/hof-fidelity/`. `Source/` is unchanged on this branch.
 
+## Round 26
+
+BlueBot rejected the 57499214 frames. The name box and the `#` to `POKé` mapping stay. `tools/notes/lane-e-hof-credits-fidelity.patch` now keeps whole-string advances, so `You still have`, `PLAY TIME`, and `0:00` keep the system font's space and colon. `é` is font.png char `$BA` from the font generator, drawn as one 8px cell. Credits use black bands on rows 0–3 and 14–17, a white middle, and black text. The credits mon is a solid black silhouette at tile `(8, 6)`. It scrolls with the text, and `rWX` hides the part that wraps in from the right. The patched recapture is `artifacts/lane-g/hof-fidelity-r2/`. `Source/` is unchanged on this branch.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
