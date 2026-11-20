@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "837a61e634d7af4678bfcdbfb1e0c25ba2a917c7",
+    "source_sha256": "3779d17a22eb4df6b30c7162becb2f3aaaeac7fb28346d4982822c262d17f912",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after OAK stands at the padded Oak's Lab cell. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 a79132ba87bf99f31c4f77cfa923a098260ae6a0f34eed273f9041a5f119ba79.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "a2c1a5607afb918ee4730a25d1c38c82fa48d909",
     "source_sha256": "a79132ba87bf99f31c4f77cfa923a098260ae6a0f34eed273f9041a5f119ba79",
     "policy_date": "2026-11-19",
@@ -1606,6 +1617,7 @@
   
   }
   }}
+  }
   }
   }
   }
