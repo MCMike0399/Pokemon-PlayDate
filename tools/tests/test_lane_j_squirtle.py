@@ -4226,7 +4226,7 @@ def _leave_diglett_cave(player):
                {(4, 3)}, "route_11", "cave exit")
 
 
-def _finish_wild(player, level, strong_at):
+def _finish_wild(player, level, strong_at, potion_at=0):
     """A live command menu is still the fight. The catch settler only clears the pages after it."""
     for _ in range(4):
         if player.exploring():
@@ -4241,7 +4241,7 @@ def _finish_wild(player, level, strong_at):
         too_strong = foe.get("species") == "dugtrio" or (foe.get("level") or 99) > (level or 0) + strong_at
         if too_strong and player.run_away():
             return
-        player.fight(limit=1200, potion_at=0, run_at=8 if too_strong else None)
+        player.fight(limit=1200, potion_at=potion_at, run_at=8 if too_strong else None)
     if not player.exploring():
         raise RuntimeError("a wild battle stayed open: " + json.dumps(summary(player.state)))
 
@@ -4266,7 +4266,7 @@ def _raise_diglett(player, report):
     while battles < 80:
         if not player.exploring():
             _, mon = _mole(player)
-            _finish_wild(player, (mon or {}).get("level") or 0, 3)
+            _finish_wild(player, (mon or {}).get("level") or 0, 3, potion_at=22)
             continue
         _, mon = _mole(player)
         level = mon.get("level") or 0
@@ -4283,7 +4283,7 @@ def _raise_diglett(player, report):
         max_hp = mon.get("maxHP") or 0
         if lead != name or (mon.get("hp") or 0) < max(20, max_hp // 2) or dig_pp == 0:
             _leave_diglett_cave(player)
-            _rest(player, report, "mole heal", 4, buy=False)
+            _rest(player, report, "mole heal", 4)
             _enter_diglett_cave(player)
             _lead(player, name if name == "dugtrio" else "diglett")
             if (player.state.get("pokemon") or {}).get("species") not in ("diglett", "dugtrio"):
@@ -4301,7 +4301,7 @@ def _raise_diglett(player, report):
             continue
         battles += 1
         before = player.state.get("last_battle_outcome")
-        _finish_wild(player, level, 3)
+        _finish_wild(player, level, 3, potion_at=22)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
             raise RuntimeError("blackout raising Diglett: " + json.dumps(summary(player.state)))
     _leave_diglett_cave(player)
@@ -4567,7 +4567,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-59")
+            output = Path("/tmp/lane-j-squirtle-60")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
