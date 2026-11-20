@@ -3259,6 +3259,9 @@ class CharmanderRun(BrockJourney):
         self.config["max_blackouts"] = 4
         self._flee_wilds = True
         self.summary["acceptance"] = "walking to Cerulean Cave"
+        if self.state.get("zone_id") == self.zone("HallOfFame"):
+            raise ProtocolError("post-Hall continue stayed in the Hall of Fame at "
+                                + str(self.position()) + "; Pallet relocation did not run")
         if any(mon["hp"] <= 0 or mon["hp"] < mon["maxHP"] for mon in self.party()):
             self.heal_here("ViridianPokecenter")
             self.save()
