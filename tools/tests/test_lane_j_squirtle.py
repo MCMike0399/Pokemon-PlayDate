@@ -4483,6 +4483,13 @@ def _toward_celadon(player, report):
     the report, after the Route 2 pause.
     """
     zone = str(player.state.get("zone"))
+    if "vermilion_gym" in zone:
+        _leave(player, vermilion_gym_cells(), [((5, 17), "down"), ((6, 17), "down")],
+               GYM_SIGHT, "vermilion_city", "gym exit")
+        zone = str(player.state.get("zone"))
+    if "vermilion_city" in zone:
+        _rest(player, report, "after Surge", 4)
+        zone = str(player.state.get("zone"))
     if "celadon" in zone:
         _pause(player, report, "saved_celadon")
         _keep_bird_save(report)
@@ -4510,9 +4517,24 @@ def _toward_celadon(player, report):
     _pause(player, report, "saved_route2")
     _keep_bird_save(report)
     here = (player.state["player"]["x"], player.state["player"]["y"])
-    steps = route(route2_cells(), here, (8, 0), {(12, 9), (3, 11)})
+    blocked = {(12, 9), (3, 11)}
+    steps = route(route2_cells(), here, (8, 0), blocked)
     if not steps:
-        raise RuntimeError("Route 2's cave side does not reach Pewter: " + json.dumps(summary(player.state)))
+        # The static grid splits the cave side from Pewter. Try the tree seam before reporting it.
+        _stand(player, route2_cells(), (11, 2), blocked, "Route 2 seam")
+        before = (player.state["player"]["x"], player.state["player"]["y"])
+        kind = player.step("left")
+        after = (player.state["player"]["x"], player.state["player"]["y"])
+        report["route2_seam"] = {"from": before, "kind": kind, "to": after}
+        _pause(player, report, "saved_route2_seam")
+        _keep_bird_save(report)
+        if after == before:
+            raise RuntimeError("Route 2's cave side does not reach Pewter: " + json.dumps(report["route2_seam"]))
+        opened = set(route2_cells())
+        opened.add(after)
+        steps = route(opened, after, (8, 0), blocked)
+        if not steps:
+            raise RuntimeError("Route 2's cave side does not reach Pewter: " + json.dumps(report["route2_seam"]))
     kind = leave_map(player, route2_cells(), (8, 0), {(12, 9), (3, 11)}, "up")
     if "pewter" not in str(player.state.get("zone")):
         raise RuntimeError(f"Route 2 did not reach Pewter: {kind} " + json.dumps(summary(player.state)))
@@ -4526,6 +4548,9 @@ def play_vermilion_prep(player, report, display, clips, output):
     if not player.exploring():
         player.dismiss_until_explore(limit=40)
     report["resumed"] = summary(player.state)
+    if _quest(player).get("BADGE_THUNDER"):
+        _toward_celadon(player, report)
+        return
     have_cut = _member(player, "bellsprout")[0]
     have_bird = _member(player, "pidgey")[0] or _member(player, "pidgeotto")[0]
     if not (have_cut and have_bird):
@@ -4657,7 +4682,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-71")
+            output = Path("/tmp/lane-j-squirtle-72")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")

@@ -36,6 +36,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T062608Z-vermilion.mp4` | 84.97s, trimmed from 149.37s | `257a78bc7a6813e55a6a051ebeaed8cc9ecee041838c7fc11db003c6c790b89d` | Route 6 into Vermilion. 400x240, decoded luma only 0 and 255. |
 | `artifacts/lane-j/20261120T065442Z-ss-anne.mp4` | 85.0s, trimmed from 323.63s | `757d2eaaa7a6ef51be9b8f521d30a2760b3b4d25324472d8dc00a03c79a6a9d1` | The S.S. Anne rival, ending in the blackout. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
 | `artifacts/lane-j/20261120T085952Z-ss-anne.mp4` | 85.0s | `17ce2cf09faa8b9aeeef2de6cf1541208d2b3de17e08145bf7bc56b373c879f4` | The S.S. Anne rival win. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
+| `artifacts/lane-j/20261120T122228Z-gym-vermilion.mp4` | 85.0s | `499f042e3fc20a3b794b9c58ac9390db852392e89bccc092b45d9891fc534108` | Lt. Surge. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
 
 ## Title intro
 
@@ -67,7 +68,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-HM01 is saved. The Thunder Badge is not. The HM01 pause is `/opt/cursor/artifacts/lane-j/saves/hm01/adventure.a.json` sha256 `d13db4c790f30de1b9f82f6b4e59bbe0463c7bf0ea4f252f7e38483023444589` (sequence 29). The later resume is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `72e55110bf92557a6b009da8578544b43c539c61da1302a22619ca5d35d628bd` (sequence 48, Dugtrio 26, Scratch, Growl, Dig, and Sand Attack, standing on the cut Vermilion tree). Money left is 45, so there is no Super Potion for Surge. Electric moves do not hit Ground. A Dugtrio with Arena Trap cannot be fled. Sand Veil still runs. Dig's PP is restored at the Center when it hits 0. Main is still `fe6376b9`. The champion-rival patch and Hyper Beam were not on main. Lane K `86dabc53` confirms the walk: trash cans start at can 0, a wrong second can re-rolls the first lock, and that lock is rolled on a door into Vermilion. Surge is Dugtrio 26 with Dig, potion at 20. Route 11 does not reach Lavender; Snorlax blocks it. After the badge the walk is Diglett's Cave from Route 11 (4, 5) to Route 2, north to Cerulean, Route 9, Rock Tunnel, Lavender, Route 8's underground door (13, 3), Route 7, and Celadon. A Route 11 Spearow is raised to Fearow 34 for Drill Peck before Erika.
+The Thunder Badge is saved. `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `55ac984ab143b462f9f45602351f847300ab238a05c1cbea300839a16da5371a` (sequence 50) is Dugtrio 27 in Vermilion Gym at (6, 2), with Dig, `BADGE_THUNDER`, and `EVENT_BEAT_LT_SURGE`. Surge paid enough to buy Super Potions on the way out. Main is `ea32b553` (Hall of Fame credits) and is already merged. The champion-rival patch and Hyper Beam were not on main. Route 11 does not reach Lavender; Snorlax blocks it. The walk now is out of the gym, Diglett's Cave from Route 11 (4, 5) to Route 2, north to Cerulean, Route 9, Rock Tunnel, Lavender, Route 8's underground door (13, 3), Route 7, and Celadon. A Route 11 Spearow is raised to Fearow 34 for Drill Peck before Erika.
 
 ## Blockers
 
