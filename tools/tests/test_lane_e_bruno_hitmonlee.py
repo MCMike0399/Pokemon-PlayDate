@@ -88,6 +88,21 @@ class BrunoHitmonleeTests(unittest.TestCase):
         learning = pokemon.split("function Pokemon:gainXP", 1)[1].split("\nfunction ", 1)[0]
         self.assertIn('entry.move ~= "wideGuard"', chooser)
         self.assertIn('entry.move ~= "wideGuard"', learning)
+        # The B2W2 FIFO at 55, before the skip and the party row, is the clip:
+        # slot 1 is Wide Guard (Gen V 469). That row must not be what launches.
+        raw = []
+        for part in re.search(r'learnset = "([^"]+)"', pokemon.split("hitmonlee = {", 1)[1]).group(1).split(";"):
+            move, level, _form, _gid = part.split("|")
+            if int(level) > 55 or int(level) < 1:
+                continue
+            if move in raw:
+                continue
+            if len(raw) == 4:
+                raw.pop(0)
+            raw.append(move)
+        self.assertEqual(raw, ["wideGuard", "blazeKick", "endure", "megaKick"])
+        self.assertNotEqual(party_moves(), raw)
+        self.assertNotIn("wideGuard", party_moves())
 
 
 if __name__ == "__main__":
