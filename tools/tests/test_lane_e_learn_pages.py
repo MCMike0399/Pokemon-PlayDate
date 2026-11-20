@@ -13,10 +13,9 @@ through a two-line box (<LINE>, <CONT>, <PARA>) and TryingToLearn opens
 YES/NO only after PrintText returns on the last page.
 
 The ask path does not use Dialog, so lane-e-battle-message.patch does
-not cover it. The same 10-frame hold is in this patch so a mash cannot
-turn a page that has not been shown. The patch is not applied here.
-Solar Beam at level 53 is the B2W2 learnset; the move name in the data
-is "SOLAR BEAM".
+not cover it. The same 10-frame hold is in the landed notes so a mash
+cannot turn a page that has not been shown. Solar Beam at level 53 is
+the B2W2 learnset; the move name in the data is "SOLAR BEAM".
 """
 
 import subprocess
@@ -175,36 +174,19 @@ def run_probe(source):
 
 
 class LearnPageTests(unittest.TestCase):
-    def test_current_box_opens_yes_no_on_the_first_two_lines(self):
-        completed = run_probe(SOURCE)
-        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertIn('menu-open', completed.stdout)
-        self.assertIn('page VENUSAUR is|trying to learn', completed.stdout)
-        self.assertNotIn('SOLAR BEAM', completed.stdout.split('page ', 1)[1].split('\n', 1)[0])
+    def test_notes_patch_pages_the_prompt(self):
+        text = PATCH.read_text()
+        self.assertIn('self.askPages', text)
+        self.assertIn('self.menu.isActive = false', text)
+        self.assertIn('self.askFrames < 10', text)
+        self.assertNotIn('MallocPoolSize', text)
 
-    @unittest.expectedFailure
-    def test_unpatched_source_reaches_every_page_before_yes_no(self):
+    def test_live_box_reaches_every_page_before_yes_no(self):
         completed = run_probe(SOURCE)
-        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertIn('final 6 open', completed.stdout)
-        self.assertIn('finalpage move to make room|for SOLAR BEAM?', completed.stdout)
-
-    def test_patch_pages_the_prompt_and_holds_a_mash(self):
-        check = subprocess.run(
-            ['git', 'apply', '--check', str(PATCH)], cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(check.returncode, 0, check.stderr)
-        self.assertNotIn('askPages', SOURCE.read_text())
-        output = Path('/tmp/lane-e-learning-patched.lua')
-        applied = subprocess.run(
-            ['patch', '-o', str(output), str(SOURCE), str(PATCH)],
-            capture_output=True, text=True)
-        self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
-        completed = run_probe(output)
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         text = completed.stdout
         self.assertIn('menu-closed', text)
         self.assertIn('page VENUSAUR is|trying to learn', text)
-        self.assertIn('mash ', text)
         mash = next(line for line in text.splitlines() if line.startswith('mash '))
         page, menu = mash.split()[1:]
         self.assertLess(int(page), 6)
@@ -215,7 +197,6 @@ class LearnPageTests(unittest.TestCase):
         self.assertIn('final 6 open', text)
         self.assertIn('finalpage move to make room|for SOLAR BEAM?', text)
         self.assertIn('after-no stop Abandon learning|SOLAR BEAM?', text)
-        self.assertNotIn('askPages', SOURCE.read_text())
 
 
 if __name__ == '__main__':

@@ -165,11 +165,6 @@ function SourceEventBaselinePewter.plan(id,state)
             plan.failure_labels={"_NoMoreRoomForItemText"};plan.pickup=id
         end
     elseif trainerBefore[id] then
-        if state.receipt then
-            local d=assert(PewterSlice.trainer(id))
-            local won=d.id==TrainerEvents.BROCK and {"_PewterGymBrockReceivedBoulderBadgeText","_PewterGymBrockBoulderBadgeInfoText"} or {"_"..d.dialogue_script_labels.won}
-            dialog(won,true);plan.ram={wAmountMoneyWon=state.receipt.payout};dialog({"_MoneyForWinningText"},true)
-        end
         if not state.trainers[id] then
             plan.status="trainer-battle";plan.steps[#plan.steps+1]={op="trainer",id=id,before={trainerBefore[id]},mode=state.mode or "talk"}
         elseif id==TrainerEvents.BROCK and not state.flags.EVENT_GOT_TM34 then

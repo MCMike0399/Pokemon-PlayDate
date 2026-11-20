@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-"""X Attack and X Speed are sold and then rejected in battle.
+"""X Attack, X Defend, X Speed, X Special, and X Accuracy raise one stage.
 
-Celadon Mart 5F stocks them. Battle:useItem accepts only heal, full
-restore, cure, revive, and PP. Items.planUse returns unsupported-item-use
-for effect "unsupported" before any stage change, so a purchased X Speed
-does not raise Speed and does not spend the turn. One stage is 3/2, which
-is the Gen V X item. The patch is not applied on this branch. Guard Spec.
+Celadon Mart 5F stocks them. One stage is the Gen V X item. Field use
+returns battle-only, so the bag cannot spend them on the map. Guard Spec.
 and Dire Hit are not a single stage and stay unsupported.
 """
 
-import subprocess
 import unittest
 from pathlib import Path
 
@@ -25,62 +21,42 @@ def item_line(text, item_id):
 
 
 class XItemTests(unittest.TestCase):
-    def test_live_source_rejects_x_speed(self):
-        line = item_line(ITEMS.read_text(), 'xSpeed')
-        self.assertIn('["effect"] = "unsupported"', line)
-        self.assertNotIn('statStage', line)
-        battle = BATTLE.read_text()
-        self.assertIn(
-            'local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}',
-            battle)
-        self.assertNotIn('statStage=true', battle)
-        domain = DOMAIN.read_text()
-        self.assertIn('else return nil,"unsupported-item-use" end', domain)
-        self.assertNotIn('battle-only', domain)
-
-    @unittest.expectedFailure
-    def test_unpatched_battle_accepts_an_x_speed_stage(self):
-        line = item_line(ITEMS.read_text(), 'xSpeed')
-        self.assertIn('["effect"] = "statStage"', line)
-        self.assertIn('["stat"] = "spe"', line)
-        self.assertIn('["stages"] = 1', line)
-        self.assertIn('statStage=true', BATTLE.read_text())
-
-    def test_patch_raises_one_stage_and_keeps_field_use_closed(self):
-        check = subprocess.run(
-            ['git', 'apply', '--check', str(PATCH)], cwd=ROOT,
-            capture_output=True, text=True)
-        self.assertEqual(check.returncode, 0, check.stderr)
-        staged = Path('/tmp/lane-e-x-items-staged')
-        if staged.exists():
-            subprocess.check_call(['rm', '-rf', str(staged)])
-        for relative in (
-                'Source/data/items.lua',
-                'Source/domain/items.lua',
-                'Source/battle/battle.lua'):
-            destination = staged / relative
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes((ROOT / relative).read_bytes())
-        applied = subprocess.run(
-            ['patch', '-p1', '-d', str(staged), '-i', str(PATCH)],
-            capture_output=True, text=True)
-        self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
-        patched_items = (staged / 'Source/data/items.lua').read_text()
+    def test_live_x_items_raise_one_stage_in_battle_only(self):
+        items = ITEMS.read_text()
         for item_id, stat in (
                 ('xAccuracy', 'acc'), ('xAttack', 'atk'), ('xDefend', 'def'),
                 ('xSpeed', 'spe'), ('xSpecial', 'spa')):
-            line = item_line(patched_items, item_id)
+            line = item_line(items, item_id)
             self.assertIn('["effect"] = "statStage"', line)
             self.assertIn(f'["stat"] = "{stat}"', line)
             self.assertIn('["stages"] = 1', line)
-        patched_domain = (staged / 'Source/domain/items.lua').read_text()
-        self.assertIn('elseif item.effect == "statStage" then return nil,"battle-only"', patched_domain)
-        patched_battle = (staged / 'Source/battle/battle.lua').read_text()
-        self.assertIn('statStage=true', patched_battle)
-        self.assertIn('target.statStages[stat] = current + 1', patched_battle)
-        self.assertIn('Inventory.consume(self.session:inventory(), id, 1)', patched_battle)
-        self.assertNotIn('statStage', item_line(ITEMS.read_text(), 'xSpeed'))
-        self.assertNotIn('statStage=true', BATTLE.read_text())
+        for item_id in ('guardSpec', 'direHit'):
+            line = item_line(items, item_id)
+            self.assertIn('["effect"] = "unsupported"', line)
+        battle = BATTLE.read_text()
+        use_item = battle.split('function Battle:useItem', 1)[1].split('\nfunction ', 1)[0]
+        medicine = 'local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}'
+        reject = 'if not item or not legal[item.effect] then return false,"unsupported-item-use" end'
+        self.assertIn(medicine, use_item)
+        self.assertNotIn('statStage=true', use_item)
+        self.assertLess(use_item.index(medicine), use_item.index(reject))
+        stage = use_item.split(medicine, 1)[0]
+        self.assertIn('item.effect == "statStage"', stage)
+        self.assertIn('if item.keyItem then return false,"unsupported-item-use" end', stage)
+        for item_id in ('xAccuracy', 'xAttack', 'xDefend', 'xSpeed', 'xSpecial'):
+            self.assertIn(item_id + '=true', stage.replace(' ', ''))
+        self.assertIn('target.statStages[stat] = current + 1', use_item)
+        self.assertIn('Inventory.consume(self.session:inventory(), id, 1)', use_item)
+        domain = DOMAIN.read_text()
+        self.assertIn('elseif item.effect == "statStage" then return nil,"battle-only"', domain)
+
+    def test_notes_patch_is_the_handoff(self):
+        text = PATCH.read_text()
+        self.assertIn('["stat"] = "spe"', text)
+        self.assertIn('statStage=true', text)
+        self.assertIn('battle-only', text)
+        self.assertNotIn('MallocPoolSize', text)
+        self.assertNotIn('guardSpec', text)
 
 
 if __name__ == '__main__':

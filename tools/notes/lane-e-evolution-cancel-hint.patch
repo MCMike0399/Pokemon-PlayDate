@@ -1,0 +1,11 @@
+diff --git a/Source/game/evolutionState.lua b/Source/game/evolutionState.lua
+--- a/Source/game/evolutionState.lua
++++ b/Source/game/evolutionState.lua
+@@ -115,7 +115,6 @@ function EvolutionState:draw()
+     gfx.setDrawOffset(0,0);gfx.setFont(font);gfx.clear(gfx.kColorWhite);gfx.setColor(gfx.kColorBlack)
+     local species=self.showTarget and self.info.species or self.info.from
+     local image=self.images[species];local w,h=image:getSize();image:drawScaled(200-w,100-h,2)
+-    if self.sub:is("animate") and self.info.can_cancel then gfx.drawText("B: Stop evolution",12,157) end
+     self.dialog:draw()
+     gfx.setFont(oldFont);gfx.setDrawOffset(x,y)
+ end

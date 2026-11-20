@@ -270,11 +270,9 @@ local function pickup(d, state, id)
 end
 local function trainer(d, state, id)
     local plan = { status = "ready", steps = {} }
-    if state.receipt then
-        plan.steps[#plan.steps + 1] = dialog(d.won, "confirmed-dialog")
-        plan.ram = { wAmountMoneyWon = state.receipt.payout }
-        plan.steps[#plan.steps + 1] = dialog({ "_MoneyForWinningText" }, "confirmed-dialog")
-    end
+    -- The defeat line, won (end-battle) pages, and _MoneyForWinningText are
+    -- said on the battle screen before the fade. Reward and after stay here:
+    -- those are the map script (badge info, TM) and the talk-again text.
     if not state.trainers[id] then
         plan.status = "trainer-battle"
         plan.steps[#plan.steps + 1] = { op = "trainer", id = id, before = copy(d.before), mode = state.mode or "talk" }
