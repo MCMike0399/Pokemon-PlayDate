@@ -1075,6 +1075,16 @@ class Player:
                     continue
                 misses = 0
                 self.choose("battle", "RUN")
+                # Arena Trap rejects the run with no text and leaves the menu up.
+                battle = self.state.get("battle") or {}
+                options = (battle.get("menu") or {}).get("options") or []
+                if (battle.get("phase") == "command" and (battle.get("runAttempts") or 0) == 0
+                        and "RUN" in options):
+                    misses += 1
+                    if misses >= 2:
+                        return False
+                else:
+                    misses = 0
             else:
                 self.send("wait 4")
         return self.state.get("root") != "battle"
@@ -4269,9 +4279,10 @@ def _finish_wild(player, level, strong_at, potion_at=0):
         too_strong = foe.get("species") == "dugtrio" or (
             foe_level is not None and foe_level > (level or 0) + strong_at)
         if too_strong:
-            # A wild Dugtrio outspeeds a Diglett, so a failed run is not a reason to stay and attack.
+            # Sand Veil Dugtrio can be fled. Arena Trap cannot, so that one is a Dig fight.
             if player.run_away() or player.exploring():
                 return
+            player.fight(limit=1200, potion_at=max(potion_at, 200))
             continue
         player.fight(limit=1200, potion_at=potion_at)
     if not player.exploring():
@@ -4599,7 +4610,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-65")
+            output = Path("/tmp/lane-j-squirtle-66")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
