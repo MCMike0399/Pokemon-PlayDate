@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "edcbe2884eb84b4b4c3b56e115961c2147bac062",
+    "source_sha256": "9f81fa6caf276dfa1642a97306a8ab9fc2c1427dc52ed12a2dc9a89cd26cb157",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after credits draw in white, the copyright notice, THE END during the hold, and the Hall of Fame name on the first visible row. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 8fb6964f5b9d51a0af9ec143b1d63078f68b3123bfc2b4f6968a0848137ad6db.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "2e6f3bfbcb203f08cc1201b29682e71c76048e3a",
     "source_sha256": "8fb6964f5b9d51a0af9ec143b1d63078f68b3123bfc2b4f6968a0848137ad6db",
     "policy_date": "2026-11-20",
@@ -1804,6 +1815,7 @@
   
   }
   }}
+  }
   }
   }
   }
