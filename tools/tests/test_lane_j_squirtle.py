@@ -104,6 +104,8 @@ VERMILION_SAVE_SHA = "51ade10899094ca5582d70e13e6664bb0fe9adff6b95c19036ed86770c
 # Route 6 grass after Bellsprout and Pidgey. Sequence 20. adventure.a is still sequence 19.
 CATCH_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/route6-l15")
 CATCH_SAVE_SHA = "8a84abab8e13556594eb6b53b06dab8c59b4aa87f8b5b51fa83e1865924d0671"
+# Overwritten as the bird levels. The loader prefers it over the L15 catch.
+BIRD_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/route6-bird")
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 BILL_POKEMON = "pokered:BILLS_HOUSE:objects:1"
 BILL = "pokered:BILLS_HOUSE:objects:2"
@@ -3202,7 +3204,8 @@ def play(output, clips, save_from=None, story=None):
         report_copied = copied
     else:
         report_copied = []
-    report = {"session": session, "build": metadata.get("build_id"), "clips": [], "save_copied": report_copied}
+    report = {"session": session, "build": metadata.get("build_id"), "clips": [],
+              "save_copied": report_copied, "data_dir": str(data)}
     process = None
     owner_runtime = OwnerLock(harness.runtime_lock_path(sdk))
     owner_device = OwnerLock(harness.device_lock_path())
@@ -3974,14 +3977,23 @@ def _return_vermilion(player, label):
         raise RuntimeError(f"{label} did not reach Vermilion: " + json.dumps(summary(player.state)))
 
 
-def _rest(player, report, label, supers):
+def _rest(player, report, label, supers, buy=True):
     _return_vermilion(player, label)
     doors = set(VERMILION_DOORS)
     doors.discard((11, 3))
     _heal_in(player, report, vermilion_cells(), (11, 3), VERMILION_NURSE,
              vermilion_center_cells(), label, "vermilion_city", avoid=doors)
-    if _item_count(player, "superPotion") < supers:
+    if buy and _item_count(player, "superPotion") < supers:
         _buy_vermilion(player, report, balls=8, supers=supers)
+
+
+def _keep_bird_save(report):
+    data = Path(report.get("data_dir") or "")
+    if not data.is_dir():
+        return
+    BIRD_SAVE.mkdir(parents=True, exist_ok=True)
+    for src in sorted(data.glob("adventure*.json")):
+        shutil.copyfile(src, BIRD_SAVE / src.name)
 
 
 def _pause(player, report, key):
@@ -4007,7 +4019,8 @@ def _raise_pidgey(player, report):
     left, right = (12, 30), (13, 30)
     goal = right
     battles = 0
-    while battles < 60:
+    paused_level = 0
+    while battles < 120:
         if not player.exploring():
             root = player.state.get("root")
             if root == "learning":
@@ -4027,13 +4040,15 @@ def _raise_pidgey(player, report):
             break
         if name == "pidgey" and level >= 21:
             raise RuntimeError("Pidgey reached 21 before it evolved: " + json.dumps(_party(player)))
-        # A fainted switch leaves the active index on Wartortle while the
-        # bird stays in slot 1. Healing does not move that index.
+        if level > paused_level:
+            _pause(player, report, f"bird_l{level}")
+            _keep_bird_save(report)
+            paused_level = level
+        # The Center is free. Super Potions stay in the bag for the rival.
+        # A fainted switch leaves Wartortle active while the bird stays in slot 1.
         lead = (player.state.get("pokemon") or {}).get("species")
-        quantities = (player.state.get("inventory") or {}).get("quantities") or {}
-        supers = int(quantities.get("superPotion") or 0) + int(quantities.get("potion") or 0)
-        if lead != name or (bird.get("hp") or 0) < 18 or supers < 2:
-            _rest(player, report, "bird heal", 4)
+        if lead != name or (bird.get("hp") or 0) < 18:
+            _rest(player, report, "bird heal", 4, buy=False)
             _to_route6_grass(player)
             _lead(player, name)
             if (player.state.get("pokemon") or {}).get("species") != name:
@@ -4057,11 +4072,13 @@ def _raise_pidgey(player, report):
             player.fight(limit=800, potion_at=0, decline_moves=True)
         else:
             foe = battle.get("enemy") or {}
-            if (foe.get("level") or 99) > level + 3:
+            # Meowth outspeeds and Bite chunks a 37 HP Pidgey. Bellsprout
+            # takes super-effective Gust and Vine Whip is resisted.
+            if foe.get("species") == "meowth" or (foe.get("level") or 99) > level + 3:
                 if not player.run_away():
                     player.fight(limit=400, potion_at=0, decline_moves=True, run_at=8)
             else:
-                player.fight(limit=500, potion_at=16, decline_moves=True, run_at=16)
+                player.fight(limit=500, potion_at=0, decline_moves=True)
         if player.state.get("root") != "overworld":
             _settle_catch(player)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
@@ -4276,11 +4293,12 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-49")
-            save_from = CATCH_SAVE
-            digest = sha256_file(save_from / "adventure.b.json")
-            if digest != CATCH_SAVE_SHA:
-                raise SystemExit(f"catch save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-50")
+            save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
+            if save_from == CATCH_SAVE:
+                digest = sha256_file(save_from / "adventure.b.json")
+                if digest != CATCH_SAVE_SHA:
+                    raise SystemExit(f"catch save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_vermilion_prep))
