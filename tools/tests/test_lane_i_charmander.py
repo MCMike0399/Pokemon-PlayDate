@@ -2925,6 +2925,30 @@ class CharmanderRun(BrockJourney):
         self.send("press a", "wait 8")
         self.drain()
 
+    def _talk_to_actor(self, source_id):
+        """Stand on the cell south of the live sprite and press A.
+
+        Lorelei, Bruno, and Agatha are padded one cell east of their
+        source coordinates. The unpadded cell (5, 3) faces an empty tile.
+        """
+        pos = self._actor_at(source_id)
+        if pos is None:
+            raise ProtocolError("missing actor " + source_id)
+        stand = (pos[0], pos[1] + 1)
+        if self.position() != stand:
+            self.navigate(stand)
+        if lookup(self.state, "player.facing") != "up":
+            self.face("up")
+        self.send("press a", "wait 8")
+        self.drain()
+
+    def _north_stand(self):
+        north = [warp for warp in self.model().warps if warp[1] == 0]
+        if not north:
+            raise ProtocolError("no north warp in " + str(self._map_name()))
+        left = min(north)
+        return (left[0], left[1] + 1)
+
     def _leave_north(self, room, stand):
         if self.position() != stand:
             self.navigate(stand)
@@ -2941,33 +2965,30 @@ class CharmanderRun(BrockJourney):
         """Real fights from the lobby north door through the Champion."""
         self._pin_elite_trainers()
         rooms = (
-            ("LoreleisRoom", "EVENT_BEAT_LORELEIS_ROOM_TRAINER_0", (5, 3), (4, 1), "Lorelei"),
-            ("BrunosRoom", "EVENT_BEAT_BRUNOS_ROOM_TRAINER_0", (5, 3), (4, 1), "Bruno"),
-            ("AgathasRoom", "EVENT_BEAT_AGATHAS_ROOM_TRAINER_0", (5, 3), (4, 1), "Agatha"),
+            ("LoreleisRoom", "pokered:LORELEIS_ROOM:objects:1", "EVENT_BEAT_LORELEIS_ROOM_TRAINER_0", "Lorelei"),
+            ("BrunosRoom", "pokered:BRUNOS_ROOM:objects:1", "EVENT_BEAT_BRUNOS_ROOM_TRAINER_0", "Bruno"),
+            ("AgathasRoom", "pokered:AGATHAS_ROOM:objects:1", "EVENT_BEAT_AGATHAS_ROOM_TRAINER_0", "Agatha"),
         )
-        for room, flag, talk, door, label in rooms:
+        for room, actor, flag, label in rooms:
             if not self._on(room):
                 continue
             self.drain()
             if not self.flag(flag):
-                self._talk_up(talk)
+                self._talk_to_actor(actor)
             if not self.flag(flag):
                 raise ProtocolError(label + " did not start: " + str(self.position()))
             self.save()
             self.summary.update(acceptance=label + " defeated", natural=True, forbidden_shortcuts=False)
-            self._leave_north(room, door)
+            self._leave_north(room, self._north_stand())
         if self._on("LancesRoom"):
             self.drain()
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
-                self.navigate((6, 2))
-                self.drain()
-            if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
-                self._talk_up((6, 2))
+                self._talk_to_actor("pokered:LANCES_ROOM:objects:1")
             if not self.flag("EVENT_BEAT_LANCES_ROOM_TRAINER_0"):
                 raise ProtocolError("Lance did not start: " + str(self.position()))
             self.save()
             self.summary.update(acceptance="Lance defeated", natural=True, forbidden_shortcuts=False)
-            self._leave_north("LancesRoom", (5, 1))
+            self._leave_north("LancesRoom", self._north_stand())
         if self._on("ChampionsRoom") or "HALL_OF_FAME" in (self._map_name() or ""):
             self._champion()
 
@@ -2975,8 +2996,8 @@ class CharmanderRun(BrockJourney):
         self._pin_elite_trainers()
         if self._on("ChampionsRoom") and not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
             self.drain()
-            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL") and self.position() != (4, 3):
-                self._talk_up((4, 3))
+            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
+                self._talk_to_actor("pokered:CHAMPIONS_ROOM:objects:1")
             if not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
                 raise ProtocolError("Champion did not start: " + str(self.position()))
         self.save()

@@ -1,0 +1,16 @@
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+index b39542dd..838598b9 100644
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -1203,6 +1203,11 @@ function EndgameStory.check(game)
+                     armed.justWalked = nil
+                 end
+             end
++        elseif room.exit_block and not armed[room.flag] then
++            -- The entrance applyRoom closed this door. The beat flag does
++            -- not re-enter the map, so open the north warps where we stand.
++            armed[room.flag] = true
++            EndgameStory.applyRoom(game)
+         end
+     end
+     return false
