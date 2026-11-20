@@ -521,7 +521,10 @@ function PostgameStory.ensureRuntime()
         return
     end
     entering = true
+    PostgameStory.installEvents()
     PostgameStory.installContinue()
+    PostgameStory.installHall()
+    PostgameStory.installScene()
     entering = false
 end
 

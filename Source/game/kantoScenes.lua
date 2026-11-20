@@ -35,7 +35,11 @@ KantoScenes.reconcileActors = CeruleanStory.reconcileActors
 
 function KantoScenes.install()
     assert(not installed, "Kanto scenes already installed")
-    if PostgameStory then PostgameStory.ensureRuntime() end
+    -- The chunk is not part of this boot. A Hall continue loads the
+    -- standalone pdz. A boot that already ran it still retries the wrap.
+    if PostgameStory then
+        PostgameStory.ensureRuntime()
+    end
     -- Qualified owners declare membership here. World callbacks remain cheap
     -- boot wiring; they do not imply that scene/text data has been prepared.
     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})

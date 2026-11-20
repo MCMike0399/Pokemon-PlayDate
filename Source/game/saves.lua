@@ -176,16 +176,32 @@ function GameSaves:prepareTitle()
     return nil, {reason="stale-title-preparation"}
 end
 
-local function installHallContinue(self, candidate)
-    local function install() return self.game:installSession(candidate) end
-    local location = candidate and candidate.location and candidate:location()
-    if not (location and location.zone_id == "pokered:HALL_OF_FAME") then return install() end
-    if not PostgameStory and playdate and playdate.file and playdate.file.run then
-        playdate.file.run("game/" .. "postgameStory")
+-- A literal import compiles the module into main.pdz and runs boot() on
+-- every contract shard. file.run loads the standalone pdz for this save.
+local function loadHallContinue(candidate)
+    if PostgameStory ~= nil or type(candidate) ~= "table" or type(candidate.location) ~= "function" then
+        return nil
     end
-    if not (PostgameStory and PostgameStory._duringContinue) then return install() end
-    PostgameStory.ensureRuntime()
-    return PostgameStory._duringContinue(function() return install() end, self)
+    local location = candidate:location()
+    if type(location) ~= "table" or location.zone_id ~= "pokered:HALL_OF_FAME" then
+        return nil
+    end
+    local record = type(candidate.hallOfFame) == "function" and candidate:hallOfFame() or nil
+    local teams = type(record) == "table" and record.teams or nil
+    if type(teams) ~= "table" or #teams < 1 then
+        return nil
+    end
+    if playdate == nil or playdate.file == nil or type(playdate.file.run) ~= "function" then
+        return false, "postgame-story-unavailable"
+    end
+    local folder, name = "game/", "postgameStory"
+    playdate.file.run(folder .. name)
+    if PostgameStory == nil or type(PostgameStory.relocateContinue) ~= "function" then
+        return false, "postgame-story-unavailable"
+    end
+    local moved, reason = PostgameStory.relocateContinue(candidate)
+    if moved == false then return false, reason or "hall-continue-not-relocated" end
+    return true
 end
 
 local function continueGame(self, prepared)
@@ -214,10 +230,14 @@ local function continueGame(self, prepared)
     end
     local candidate, payload = prepared.candidate, prepared.payload
     metadata = prepared.metadata
+    local loaded, why = loadHallContinue(candidate)
+    if loaded == false then
+        return false, {reason = why or "hall-continue-not-relocated"}
+    end
     if BootTrace then
         BootTrace.mark("Continue.map.begin")
     end
-    local ok, problem = installHallContinue(self, candidate)
+    local ok, problem = self.game:installSession(candidate)
     if BootTrace then
         BootTrace.mark("Continue.map.end")
     end

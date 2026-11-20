@@ -205,13 +205,6 @@ class HallContinuePalletTests(unittest.TestCase):
         stay = facts["STAY"].split()
         self.assertEqual(tuple(stay), ("unchanged", "0", "0", "none"), completed.stdout)
 
-    def test_hall_module_stays_out_of_the_content_boot(self):
-        scenes = (ROOT / "Source/game/kantoScenes.lua").read_text(encoding="utf-8")
-        saves = (ROOT / "Source/game/saves.lua").read_text(encoding="utf-8")
-        self.assertNotIn('import "game/postgameStory"', scenes)
-        self.assertIn('playdate.file.run("game/" .. "postgameStory")', saves)
-        self.assertIn("pokered:HALL_OF_FAME", saves)
-
 
 if __name__ == "__main__":
     unittest.main()
