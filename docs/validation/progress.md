@@ -1,5 +1,9 @@
 # Full-game execution ledger
 
+## 2026-11-20 Credits follow the pokered band layout
+
+`HallOfFamePC` fills rows 0-3 and 14-17 black and the middle white. Credits text is black on that middle. `#` is POKé and é is font.png `$BA`. The mon is a black silhouette and scrolls with the text for 27 steps while the window masks the wrap. The earlier white-on-black `kDrawModeFillWhite` draw is replaced by `EndgameStory.drawCredits`. The old assertion now locks this layout. `MallocPoolSize` stays 16645684.
+
 ## 2026-11-20 Lane I credits color is superseded by the Hall of Fame fix
 
 `ea32b553` already draws the credits, the copyright, and THE END in white. `EventState:draw` fills the roll black and then uses `kDrawModeFillWhite` for the system font. Lane I `272329f6` `tools/notes/lane-e-credits-text-color.patch` switches that call to `kDrawModeInverted`, and `test_lane_e_credits_text_color.py` requires Inverted and forbids Copy. That test is also an `expectedFailure`. `055eda1b` deletes both files. They are superseded. The Simulator frames for credits-00, credits-34, THE END, and the Hall name are the captures from that fix. The menu-dismiss test is not covered there: `ParcelJourney.select` waited out a closed command menu. That harness fix is folded in, without the `expectedFailure` marker `272329f6` carried. `MallocPoolSize` stays 16645684.

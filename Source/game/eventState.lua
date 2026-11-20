@@ -550,33 +550,8 @@ function EventState:draw()
     if self.phase=="credits" then
         local view = CreditsPlayer.view(self.credits)
         gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
-        gfx.setFont(gfx.getSystemFont());gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        gfx.setColor(gfx.kColorBlack);gfx.fillRect(0,0,400,240)
-        gfx.setColor(gfx.kColorWhite)
-        if view.phase ~= "preamble" then
-            local text = table.concat(view.lines or {}, "\n")
-            -- The hold and the fade stay on screen. The done phase is
-            -- cleared in this same update, before draw.
-            if view.ending then
-                text = "THE END"
-            elseif view.copyright then
-                local notice = {
-                    "©'95.'96.'98 Nintendo",
-                    "©'95.'96.'98 Creatures inc.",
-                    "©'95.'96.'98 GAME FREAK inc.",
-                }
-                if text ~= "" then text = text .. "\n" end
-                text = text .. table.concat(notice, "\n")
-                if view.mon then text = text .. "\n" .. view.mon end
-            elseif view.mon then
-                text = text .. "\n" .. view.mon
-            end
-            -- System-font glyphs are black. Copy mode on the black fill
-            -- leaves every credits screen, the copyright, and THE END blank.
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            gfx.drawText(text, 120, 80)
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        end
+        -- Rows 0-3 and 14-17 are black. The middle is white and the text is black.
+        EndgameStory.drawCredits(gfx, view)
         gfx.popContext()
         return
     end
