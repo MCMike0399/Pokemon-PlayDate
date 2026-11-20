@@ -16,7 +16,7 @@ The team is Wartortle 28–30 (Tail Whip, Bubble, Water Gun, Bite), Bellsprout w
 | y=9 | 1 | 4 | 7 | 10 | 13 |
 | y=11 | 2 | 5 | 8 | 11 | 14 |
 
-The first lock is `Random` masked with `$e`: an even index, 0, 2, 4, 6, 8, 10, 12, or 14. This build rolls it on a door entry into Vermilion City, on the first trash check if that entry has not happened, and again when a second-can guess is wrong. A cartridge also rolls it on every city load, including a Route 11 walk and Continue. Leaving the Center re-rolls an unopened first lock here. Walking to Route 11 and back does not.
+The first lock is `Random` masked with `$e`: an even index, 0, 2, 4, 6, 8, 10, 12, or 14. `VermilionGym.asm` does not roll it. That script's map-load bit only calls `.LoadNames`, the city name and LT.SURGE. The roll is `VermilionCity_Script.setFirstLockTrashCanIndex`. It runs when `BIT_CUR_MAP_LOADED_1` is set, which overworld entry sets on a door and on a connection, and which a battle return and Continue set too. This build rolls on a door into Vermilion City, on the first trash check if that entry has not happened, and again when a second-can guess is wrong. It does not roll on Gym entry. A connection walk and Continue do not roll here. That narrower city trigger is the tested rule in `vermilionStoryContracts`. Leaving the Center re-rolls an unopened first lock here. Walking to Route 11 and back does not.
 
 Check the eight even cans. Start at can 0, source `(1, 7)`. A click is the first switch. The second can is `swap(random) & mask`, then minus 1, read from `GymTrashCans`. A zero result underflows and becomes can 0. That is the same byte the engine uses.
 
@@ -49,9 +49,9 @@ The same room has a Gentleman with Pikachu 23, a Rocker with Voltorb 20, Magnemi
 
 ## The walk
 
-The Center's east edge is `(39, 14)` and `(39, 15)`, onto Route 11. Route 12's north end is Lavender. Snorlax is source `(10, 62)`, on the south half, so Lavender does not require the flute. Rock Tunnel is north of Lavender. It is the way to Route 10, Route 9, and Cerulean. The Bike Voucher is the Fan Club in Vermilion and the bicycle is the Cerulean shop. Neither is required for Erika.
+The Center's east edge is `(39, 14)` and `(39, 15)`, onto Route 11. Do not keep going east for Lavender. Route 11's open east edge is y=8 and y=9. The connection adds 54, so those steps land on Route 12 at `(0, 62)` and `(0, 63)`. `(0, 63)` is solid. `(0, 62)` is the west end of Snorlax's row. He stands at `(10, 62)` until the Poké Flute fight, and the tile east of him is on the far side of that cell. No ledge leaves the pocket. The Route 12 gate is north of him, at y=15 and y=21. Its south door is the way through the building onto the north road, and that door is past him. The Route 11 gate returns to Route 11. Neither gate reaches Lavender or Rock Tunnel. The feet match pokered, so this build does not either.
 
-Celadon is the other way. Route 8's underground door is source `(13, 3)`. The west-east path comes out on Route 7, and Route 7's west edge is Celadon. The Saffron gates want a drink from the Celadon roof, which is after this.
+Lavender is the other way. Diglett's Cave is Route 11 source `(4, 5)`. It comes out on Route 2. North from there is Cerulean, then Route 9, Rock Tunnel, and Lavender. These tunnel trainers are on that walk, before Erika. Route 8's underground door is source `(13, 3)`. The west-east path comes out on Route 7, and Route 7's west edge is Celadon. The flute is in Lavender, so it cannot open Route 12 before this. The Saffron gates want a drink from the Celadon roof, which is after this. The Bike Voucher is the Fan Club in Vermilion and the bicycle is the Cerulean shop. Neither is required for Erika.
 
 ## Rock Tunnel
 
