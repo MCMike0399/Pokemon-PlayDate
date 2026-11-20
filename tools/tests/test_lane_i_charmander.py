@@ -3284,6 +3284,16 @@ class CharmanderRun(BrockJourney):
     def _leave_east_cave(self):
         if self._on("Route23") or self._on("IndigoPlateau") or self._on("IndigoPlateauLobby"):
             return
+        if self._on("VictoryRoad2F") and not self._reachable((28, 7)):
+            self._walk_avoiding_warps((25, 13))
+            self._step_onto_warp("down")
+        if self._on("VictoryRoad3F"):
+            if self.position() == (27, 15):
+                self._step("up")
+            self._walk_avoiding_warps((26, 9))
+            self._step_onto_warp("up")
+            if self.position() == (27, 7):
+                self._step("right")
         if not self._on("VictoryRoad2F"):
             return
         if self.position() != (28, 7):
@@ -3369,26 +3379,40 @@ class CharmanderRun(BrockJourney):
                 return True
         return False
 
-    def _join_victory_floor(self):
-        """The Route 23 door opens into a walled pocket. Trainers are west of it.
+    def _reachable(self, goal):
+        if self.position() == goal:
+            return True
+        try:
+            self.model().path(self.position(), {goal}, self.occupied())
+        except ProtocolError:
+            return False
+        return True
 
-        (27, 7) climbs to 3F. (23, 6) on that floor steps back onto 2F (23, 7).
+    def _join_victory_floor(self):
+        """The Route 23 door opens into a walled pocket. Trainers are past it.
+
+        Left from (28, 7) climbs to 3F (26, 8). That pocket does not connect
+        to (23, 6). Its south stair (27, 15) returns to 2F (25, 14), which
+        does reach the trainers.
         """
-        if not self._on("VictoryRoad2F") or self.position()[0] < 24:
+        on_pocket = self._on("VictoryRoad2F") and self._reachable((28, 7))
+        if on_pocket:
+            if self.position() != (28, 7):
+                self._walk_avoiding_warps((28, 7))
+            self.send("press left", "wait 15")
+            self.drain()
+        if self._on("VictoryRoad2F") and not self._reachable((28, 7)):
             return
-        if self.position() != (28, 7):
-            self._walk_avoiding_warps((28, 7))
-        self.send("press left", "wait 15")
-        self.drain()
         if not self._on("VictoryRoad3F"):
             raise ProtocolError("east stair stayed on " + self._map_name() + " " + str(self.position()))
-        self._walk_avoiding_warps((23, 6))
+        if self.position() == (27, 15):
+            self._step("up")
+        self._walk_avoiding_warps((27, 14))
         self.send("press down", "wait 15")
         self.drain()
-        if not self._on("VictoryRoad2F"):
-            raise ProtocolError("3F return missed 2F: " + self._map_name() + " " + str(self.position()))
-        if self.position() == (23, 7):
-            self._step("left")
+        if not self._on("VictoryRoad2F") or self.position() != (25, 14):
+            raise ProtocolError("3F south stair missed the trainer floor: " + self._map_name() + " " + str(self.position()))
+        self._step("up")
 
     def _grind_east_cave(self):
         self._enter_east_cave()
@@ -3403,7 +3427,12 @@ class CharmanderRun(BrockJourney):
                 break
             self._fight_if_here(trainer)
         if self._on("VictoryRoad2F") and not self._lorelei_bench_ready():
-            self._pace_tiles((28, 7), (28, 8), 6)
+            # (28, 7) is the east pocket. The trainer floor cannot walk there,
+            # and (25, 14) between the open tiles is the stair back to 3F.
+            if self._reachable((28, 7)):
+                self._pace_tiles((28, 7), (28, 8), 6)
+            else:
+                self._pace_tiles((24, 12), (24, 13), 6)
         self._leave_east_cave()
         if not self._lorelei_bench_ready():
             self._try_south_grass()
