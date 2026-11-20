@@ -34,9 +34,19 @@ class XItemTests(unittest.TestCase):
             line = item_line(items, item_id)
             self.assertIn('["effect"] = "unsupported"', line)
         battle = BATTLE.read_text()
-        self.assertIn('statStage=true', battle)
-        self.assertIn('target.statStages[stat] = current + 1', battle)
-        self.assertIn('Inventory.consume(self.session:inventory(), id, 1)', battle)
+        use_item = battle.split('function Battle:useItem', 1)[1].split('\nfunction ', 1)[0]
+        medicine = 'local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}'
+        reject = 'if not item or not legal[item.effect] then return false,"unsupported-item-use" end'
+        self.assertIn(medicine, use_item)
+        self.assertNotIn('statStage=true', use_item)
+        self.assertLess(use_item.index(medicine), use_item.index(reject))
+        stage = use_item.split(medicine, 1)[0]
+        self.assertIn('item.effect == "statStage"', stage)
+        self.assertIn('if item.keyItem then return false,"unsupported-item-use" end', stage)
+        for item_id in ('xAccuracy', 'xAttack', 'xDefend', 'xSpeed', 'xSpecial'):
+            self.assertIn(item_id + '=true', stage.replace(' ', ''))
+        self.assertIn('target.statStages[stat] = current + 1', use_item)
+        self.assertIn('Inventory.consume(self.session:inventory(), id, 1)', use_item)
         domain = DOMAIN.read_text()
         self.assertIn('elseif item.effect == "statStage" then return nil,"battle-only"', domain)
 
