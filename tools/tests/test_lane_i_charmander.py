@@ -3187,25 +3187,92 @@ class CharmanderRun(BrockJourney):
         if self._on("ChampionsRoom") or "HALL_OF_FAME" in (self._map_name() or ""):
             self._champion()
 
+    def drain(self, stop_phase=None):
+        # The Hall of Fame script saves, rolls the credits, and returns to the
+        # title. Opening the pause menu there asserts. Leave the win text up
+        # so the result clip starts on it.
+        if self._hold_champion_ending():
+            return
+        return super().drain(stop_phase)
+
+    def _hold_champion_ending(self):
+        root = self.state.get("root")
+        if root in {"battle", "party", "learning", "evolution"}:
+            return False
+        zone = self._map_name() or ""
+        if root == "title":
+            return getattr(self, "_ceremony", False)
+        if "HALL_OF_FAME" in zone:
+            return True
+        if "CHAMPIONS_ROOM" not in zone:
+            return False
+        outcome = self.state.get("last_battle_outcome") or {}
+        trainer = str(outcome.get("trainer_id") or "")
+        return outcome.get("won") is True and "CHAMPIONS_ROOM" in trainer
+
     def _champion(self):
         self._pin_elite_trainers()
         if self._on("ChampionsRoom") and not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
             self.drain()
-            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
+            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL") and not self._hold_champion_ending():
                 self._talk_to_actor("pokered:CHAMPIONS_ROOM:objects:1")
-            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL"):
+            if not self.flag("EVENT_BEAT_CHAMPION_RIVAL") and not self._hold_champion_ending():
                 raise ProtocolError("Champion did not start: " + str(self.position()))
-        self._record_screen("champion-win", 30)
-        self.save()
+        self._record_screen("champion-win", 45)
         self.summary.update(acceptance="Champion defeated", natural=True, forbidden_shortcuts=False)
-        self._record_screen("credits", 90)
-        for _ in range(40):
-            if "HALL_OF_FAME" in (self._map_name() or "") or self.state.get("root") == "title":
+        self._finish_ceremony()
+
+    def _slot_sequence(self):
+        best = 0
+        data = Path(self.client.data)
+        for name in ("adventure.a.json", "adventure.b.json"):
+            path = data / name
+            if not path.is_file():
+                continue
+            try:
+                best = max(best, int(json.loads(path.read_text(encoding="utf-8")).get("sequence") or 0))
+            except (OSError, ValueError):
+                continue
+        return best
+
+    def _finish_ceremony(self):
+        """Press the Champion text, then let the Hall of Fame and credits run.
+
+        HallOfFamePC writes the post-Hall save and then the title. That save
+        is the one to archive. The pause menu is not on the title.
+        """
+        recorded = False
+        self._ceremony = True
+        before = self._slot_sequence()
+        for _ in range(6000):
+            root = self.state.get("root")
+            phase = lookup(self.state, "event.phase") if root == "event" else None
+            if phase == "credits" and not recorded:
+                self._record_screen("credits", 90)
+                recorded = True
+            if root == "title":
                 break
-            if self._on("ChampionsRoom"):
-                self.send("press up", "wait 15")
-            self.drain()
-        self.save()
+            if phase == "failed":
+                raise ProtocolError("hall event failed: " + str(lookup(self.state, "event.waiting")))
+            if root == "dialog":
+                self.dialog()
+            elif phase == "dialog":
+                self.send("press a", "wait 6")
+            else:
+                self.send("wait 12")
+        else:
+            raise ProtocolError(
+                "credits did not return to the title: "
+                + str(self.state.get("root")) + " " + str(self._map_name()))
+        if not recorded:
+            raise ProtocolError("credits never started")
+        for _ in range(40):
+            if self._slot_sequence() > before:
+                self._archive_earned_save()
+                self.summary.update(acceptance="Hall of Fame saved", natural=True, forbidden_shortcuts=False)
+                return
+            self.send("wait 4")
+        raise ProtocolError("hall save did not land after the credits")
 
     _LORELEI_BENCH = {"weepinbell", "victreebel", "pidgeotto", "pidgeot"}
     _BENCH_LEVEL = 47
