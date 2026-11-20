@@ -4279,10 +4279,22 @@ def _finish_wild(player, level, strong_at, potion_at=0):
         too_strong = foe.get("species") == "dugtrio" or (
             foe_level is not None and foe_level > (level or 0) + strong_at)
         if too_strong:
-            # Sand Veil Dugtrio can be fled. Arena Trap cannot, so that one is a Dig fight.
+            # Sand Veil Dugtrio can be fled. Arena Trap cannot.
             if player.run_away() or player.exploring():
                 return
-            player.fight(limit=1200, potion_at=max(potion_at, 200))
+            supers = int(((player.state.get("inventory") or {}).get("quantities") or {}).get("superPotion") or 0)
+            battler = ((player.state.get("battle") or {}).get("player") or {}).get("species")
+            if supers < 2 and battler in ("diglett", "dugtrio"):
+                # One Super Potion does not cover the charge turn. Wartortle's Water Gun does.
+                if not (player.state.get("battle") or {}).get("inMoveSelect"):
+                    player.choose("battle", "POKEMON")
+                for _ in range(8):
+                    if player.state.get("root") != "party":
+                        break
+                    _send_out(player, "wartortle")
+                player.fight(limit=1200, potion_at=30)
+            else:
+                player.fight(limit=1200, potion_at=max(potion_at, 200))
             continue
         player.fight(limit=1200, potion_at=potion_at)
     if not player.exploring():
@@ -4610,7 +4622,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-66")
+            output = Path("/tmp/lane-j-squirtle-67")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
