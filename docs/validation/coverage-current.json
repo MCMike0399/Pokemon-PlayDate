@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "db8107f09193ac6fa377d2c830911cf3dfbb91f3",
+    "source_sha256": "ffb760cdda7d925847fea3844b19feb6d6c259ab7cf857070d288f6fa1f65169",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the filed Lane I handoffs. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 d8512ec91876dd76b5f7e0775ad14f7da2e32f68f3b3f82afc1a9b97ad1191fd.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "1b46664017e9372b8cf1abb7e8ce90b0e5acc4c9",
     "source_sha256": "d8512ec91876dd76b5f7e0775ad14f7da2e32f68f3b3f82afc1a9b97ad1191fd",
     "policy_date": "2026-11-20",
@@ -1639,6 +1650,7 @@
   
   }
   }}
+  }
   }
   }
   }
