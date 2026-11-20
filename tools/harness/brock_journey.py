@@ -118,7 +118,14 @@ def choose_move(moves,level=None):
         indices.add(move['index']);ranked.append((move_score(move,level),-move['index'],move))
     if not ranked:return None
     best=max(ranked,key=lambda x:x[:2])
-    if best[0]<=0:raise ProtocolError('driver has no supported damaging legal move; refusing status mash')
+    if best[0]<=0:return None
+    # A ghost is immune to Normal. Keep the last Fire PP for that, and spend
+    # Slash or Strength on anything those moves can still hit.
+    if best[2].get('pp',99)<=8:
+        abundant=[row for row in ranked if row[0]>0 and row[2].get('pp',0)>=10 and row[2]['index']!=best[2]['index']]
+        if abundant:
+            alt=max(abundant,key=lambda row:row[:2])
+            if alt[0]*2>=best[0]:return alt[2]
     return best[2]
 
 
@@ -334,6 +341,8 @@ class BrockJourney(ParcelJourney):
         raise ProtocolError('evolution UI exceeded bounded inputs')
 
     def battle(self,name,strategy='attack',expected=None):
+        self._coverage_tries=0
+        self._coverage_switch=False
         self.require(root='battle');self.await_value('battle.introPhase','ready')
         self.capture_escape=False
         before_money=self.inventory()['money'];trainer=lookup(self.state,'battle.trainerName');terminal=None;choices=[]
@@ -370,6 +379,16 @@ class BrockJourney(ParcelJourney):
                     if not lookup(self.state,'battle.menu.active'):
                         self.send('wait 2');continue
                     options=sequence(lookup(self.state,'battle.menu.options'),'battle.menu.options')
+                    if getattr(self,'_force_struggle',False):
+                        self._force_struggle=False
+                        fight=[i for i,v in enumerate(options,1)if v=='FIGHT'or isinstance(v,dict)and v.get('action')=='fight']
+                        if len(fight)!=1:raise ProtocolError('battle requires exactly one real FIGHT action')
+                        self.select('battle.menu.selected',fight[0]);self.send('press a');continue
+                    if getattr(self,'_coverage_switch',False):
+                        self._coverage_switch=False
+                        active=lookup(self.state,'session.party.active')
+                        reserve=next((i for i,mon in enumerate(self.party(),1)if i!=active and mon['hp']>0),None)
+                        if reserve and self.battle_switch(reserve,options,'coverage'):continue
                     if self.battle_preparation_action(battle,options):continue
                     medicine=choose_battle_medicine(battle['player'],self.inventory())
                     if medicine:
@@ -385,7 +404,21 @@ class BrockJourney(ParcelJourney):
                         damaging=[move for move in legal if move_score(move,battle['player']['level'])>0]
                         selected=min(damaging,key=lambda move:(move_score(move,battle['player']['level']),move['index']))if damaging else None
                     else:selected=choose_move(legal,battle['player']['level'])
-                    if selected is None:raise ProtocolError('empty legal menu must use production Struggle via FIGHT')
+                    if selected is None and not legal:
+                        # No PP left. Cancel the move list; FIGHT uses Struggle.
+                        self._force_struggle=True
+                        self.send('press b')
+                        continue
+                    if selected is None:
+                        # Immune or status only. Send in a reserve, then take
+                        # the listed move so the turn still resolves.
+                        if getattr(self,'_coverage_tries',0)>=4:
+                            selected=legal[0]
+                        else:
+                            self._coverage_tries=getattr(self,'_coverage_tries',0)+1
+                            self._coverage_switch=True
+                            self.send('press b')
+                            continue
                     self.select_grid('battle.moveMenu.selected',selected['index'],lookup(self.state,'battle.moveMenu.columns'))
                     choices.append({'enemy':battle['enemy']['species'],'move':selected,'heuristic':move_score(selected,battle['player']['level'])})
                     self.send('press a')
