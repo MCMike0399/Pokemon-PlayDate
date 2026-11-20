@@ -9,6 +9,10 @@ local function capture(self, callback)
     end
     return callback()
 end
+-- The publish and PC bodies live in a standalone pdz so a Hall continue
+-- can stay in this boot chunk without raising the contract pool.
+GameSaves._ownerPublishers = ownerPublishers
+GameSaves._capture = capture
 
 function GameSaves:init(game, prefix)
     self.game = game
@@ -62,44 +66,10 @@ function GameSaves:saveFromHall(event)
     end)
 end
 
--- Both permitted capture boundaries share the exact same publication authority.
 function GameSaves:_publishPayload(payload)
-    self:discardPreparedTitle()
-    local request=self._replacement
-    if request and request.session~=self.game.session then
-        self.store:cancelReplacement(request.ticket); self._replacement=nil
-        return false,{reason="replacement-session-changed"}
-    end
-    local ok, metadata, published
-    if request then
-        local publish = ownerPublishers[self]
-        if publish then
-            ok, metadata, published = publish(payload, request.ticket)
-        else
-            ok, metadata, published = self.store:replace(payload, request.ticket)
-        end
-        if ok then self._replacement = nil end
-    else
-        local publish = ownerPublishers[self]
-        if publish then
-            ok, metadata, published = publish(payload)
-        else
-            ok, metadata, published = self.store:save(payload)
-        end
-    end
-    -- The envelope proof covered this publication's readbacks. Drop it before
-    -- the caller keeps walking so a later, different record cannot reuse it
-    -- and the detached copy does not stay live.
-    SessionCodec.releaseValidationProof()
-    -- Optional read-only observer is installed explicitly by the private
-    -- harness. Observe the actual verified disk boundary, never recapture play.
-    if ok and self.observeBoundary then
-        -- SaveStore returns only the detached data from its exact published
-        -- readback. Observing it must not load/decode/encode the same bytes again.
-        self.observeBoundary(self.game.session, "saved", published, GameSession._copy(metadata))
-    end
-    SessionCodec.releaseValidationProof()
-    return ok, metadata
+    local folder, name = "game/", "savesPublish"
+    playdate.file.run(folder .. name)
+    return self:_publishPayload(payload)
 end
 
 -- Called only by the YES branch of the Title confirmation. No writes happen
@@ -284,28 +254,8 @@ function GameSaves:start()
     self.game.machine:change("title")
 end
 
--- Synchronous trusted-PC transaction; this never makes an ordinary overlay
--- eligible for captureSession. Failed publication restores active-box state.
 function GameSaves:changeBoxFromPC(pc,index,epoch)
-    if not self.game:isPCSaveBoundary(pc,epoch) then return false,{reason="unsafe-pc-save-state"} end
-    local storage=self.game.session:storage()
-    if type(index)~="number" or index%1~=0 or index<1 or index>Storage.BOX_COUNT then
-        return false,{reason="invalid-box"}
-    end
-    local previous=storage:activeBox()
-    local traversal={location=self.game.session:location(),world=self.game.session:worldData(),checkpoint=self.game.session:checkpoint()}
-    local ok,result,metadata=pcall(function()
-        assert(storage:selectBox(index))
-        local payload, problem = capture(self, function()
-            return self.game:captureSessionFromPC(pc, epoch)
-        end)
-        if not payload then return false,{reason="unsafe-pc-save-state",error=problem} end
-        return self:_publishPayload(payload)
-    end)
-    if not ok or not result then
-        assert(storage:selectBox(previous))
-        assert(self.game.session:captureTraversal(traversal))
-        return false,ok and metadata or {reason="pc-save-error",error=tostring(result)}
-    end
-    return true,metadata
+    local folder, name = "game/", "savesPublish"
+    playdate.file.run(folder .. name)
+    return self:changeBoxFromPC(pc,index,epoch)
 end
