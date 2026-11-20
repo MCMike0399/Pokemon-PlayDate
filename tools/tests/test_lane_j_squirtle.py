@@ -87,6 +87,18 @@ OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
 BROCK = "pokered:PEWTER_GYM:objects:1"
 
 
+def disabled_move(message, options):
+    """The move named by 'X was disabled'. A leftover page must not reject the cursor."""
+    folded = "".join(ch for ch in str(message or "").upper() if ch.isalpha())
+    if "WASDISABLED" not in folded or "NOLONGERDISABLED" in folded:
+        return None
+    for name in options or ():
+        letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
+        if letters and letters not in {"DASH"} and letters in folded:
+            return name
+    return None
+
+
 def preferred_move(options, skip=()):
     """Water Gun, then Bubble, then Bite. Skip a move Disable has shut off."""
     named = []
@@ -442,6 +454,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(preferred_move(["TACKLE", "WATER GUN", "BUBBLE", "WITHDRAW"]), (2, "WATER GUN"))
         self.assertEqual(preferred_move(["TACKLE", "WATER GUN", "BUBBLE", "BITE"], ["WATER GUN"]), (3, "BUBBLE"))
         self.assertEqual(preferred_move(["TACKLE", "-"])[1], "TACKLE")
+        moves = ["TACKLE", "WATER GUN", "BUBBLE", "BITE"]
+        self.assertEqual(disabled_move("WARTORTLE's WATER GUN was disabled!", moves), "WATER GUN")
+        self.assertIsNone(disabled_move("WARTORTLE is no longer disabled!", moves))
+        self.assertIsNone(disabled_move("GRIMER used DISABLE!", moves))
         pallet = padded_open_cells("pallet_town")
         pallet.add((9, 0))
         self.assertIsNotNone(route(pallet, (12, 12), (9, 0), avoid={(5, 5), (13, 5), (12, 11)}))
@@ -468,6 +484,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(moon_cells(), (14, 35), (6, 5), moon_avoid()))
         self.assertIsNotNone(route(moon_cells(), (14, 35), (6, 5), moon_avoid() | MOON_1F_SKIP, MOON_1F_EDGES))
         self.assertIn(((10, 22), (9, 22)), MOON_1F_EDGES)
+        self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (12, 7), MOON_B2_AVOID, MOON_B2_EDGES))
+        self.assertIn((12, 6), route_cells(moon_b2_cells(), (12, 7), (6, 7), MOON_B2_AVOID))
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7), MOON_B2_AVOID))
         self.assertIsNotNone(route(moon_b1_cells(), (5, 6), (21, 16)))
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7)))
@@ -874,8 +892,12 @@ class Player:
                     options = move_menu.get("options") or []
                     selected = move_menu.get("selected") or 1
                     message = battle.get("message") or ""
-                    if "disabled" in message.lower() and 1 <= selected <= len(options):
-                        rejected.add(options[selected - 1])
+                    if "no longer disabled" in message.lower():
+                        rejected.clear()
+                    else:
+                        named = disabled_move(message, options)
+                        if named:
+                            rejected.add(named)
                     index, _name = preferred_move(options, rejected)
                     if index and selected != index:
                         self.press("down" if index > selected else "up", wait=2)
@@ -1821,6 +1843,9 @@ def _from_route4(player, report, display, clips, output):
         raise RuntimeError("Mt. Moon blacked out three times: " + json.dumps(summary(player.state)))
     if player.state.get("zone") != "kanto_route_4":
         raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
+    if _needs_heal(player):
+        _heal_in(player, report, route4_cells(), (11, 5),
+                 "pokered:MT_MOON_POKECENTER:objects:1", moon_center_cells(), "moon_heal_after", "route_4")
     kind = player.travel( route4_cells(), (59, 4), set(), limit=20)
     report["cliff"] = {"kind": kind, "at": summary(player.state)}
     if kind != "arrived":
@@ -1836,6 +1861,34 @@ def _from_route4(player, report, display, clips, output):
         "Route 4's northern road is cut at (60,4) by foot tile 0x27; "
         "Cerulean is on the far side and there is no other land exit: "
         + json.dumps(summary(player.state)))
+
+
+def take_dome_fossil(player, report):
+    """The Dome Fossil sprite blocks the only stairs to the exit. Face it and accept YES."""
+    for _ in range(4):
+        if "pewter" in str(player.state.get("zone")):
+            return "blackout"
+        player_state = player.state.get("player") or {}
+        cell = (player_state.get("x"), player_state.get("y"))
+        if cell != (12, 7):
+            kind = player.travel(moon_b2_cells(), (12, 7), MOON_B2_AVOID, limit=12, blocked_edges=MOON_B2_EDGES)
+            if kind != "arrived":
+                break
+            continue
+        if player_state.get("facing") != "up":
+            player.press("up", wait=8)
+            if player.state.get("root") != "overworld":
+                player.dismiss_until_explore(limit=40)
+            continue
+        player.press("a", wait=8)
+        player.dismiss_until_explore(limit=120)
+        quantities = (player.state.get("inventory") or {}).get("quantities") or {}
+        if int(quantities.get("domeFossil") or 0) >= 1:
+            report["fossil"] = summary(player.state)
+            if player.exploring():
+                report["saved_fossil"] = player.pause_save()
+            return "taken"
+    raise RuntimeError("Dome Fossil was not taken: " + json.dumps(summary(player.state)))
 
 
 def _descend(player, report, display, clips, output):
@@ -1865,8 +1918,16 @@ def _descend(player, report, display, clips, output):
     report["moon_b2_enter"] = {"kind": kind, "zone": player.state.get("zone")}
     if player.state.get("zone") != "kanto_mt_moon_b2f":
         raise RuntimeError("B1F stairs did not open B2F: " + json.dumps(summary(player.state)))
-    kind = player.travel(moon_b2_cells(), (6, 7), MOON_B2_AVOID, limit=40, blocked_edges=MOON_B2_EDGES)
+    kind = player.travel(moon_b2_cells(), (12, 7), MOON_B2_AVOID, limit=40, blocked_edges=MOON_B2_EDGES)
     report["moon_b2"] = kind
+    if "pewter" in str(player.state.get("zone")):
+        return "blackout"
+    if kind != "arrived":
+        raise RuntimeError("could not reach the Dome Fossil: " + json.dumps(summary(player.state)))
+    if take_dome_fossil(player, report) == "blackout":
+        return "blackout"
+    kind = player.travel(moon_b2_cells(), (6, 7), MOON_B2_AVOID, limit=40, blocked_edges=MOON_B2_EDGES)
+    report["moon_b2_exit"] = kind
     if "pewter" in str(player.state.get("zone")):
         return "blackout"
     if kind != "arrived":
@@ -1972,7 +2033,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--east" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-21")
+            output = Path("/tmp/lane-j-squirtle-22")
             save_from = ROUTE4_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != ROUTE4_SAVE_SHA:

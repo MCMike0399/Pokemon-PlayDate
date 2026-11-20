@@ -25,6 +25,9 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T012706Z-gym-pewter.mp4` | 70.93s | `1d3c2df84e1aeb53e5da03654da14a58756c6e2346c549ab10dd8bec87b9c6f7` | Brock, Geodude then Onix, and the Boulder Badge. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T020656Z-route3.mp4` | 80.73s | `8c25bf7a0134b25b5d0e77ca881ed771f53037c9d96e109ee747826fe4d5516a` | Leaving Pewter onto Route 3. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T023747Z-mt-moon.mp4` | 60.57s | `805cc8f940fa66a4139c6312c6eb80033ff72e0b6001edb1f41c62a5dc2894f9` | The Mt. Moon 1F stair walk. Decoded frames are only 0 and 255. |
+| `artifacts/lane-j/20261120T024836Z-mt-moon.mp4` | 60.13s | `2a634e95b62d40d1b93ab96129b1a5aeadcfad7bab452f3a587a133e0d95067d` | The next 1F stair walk, before the fossil nerd blackout. Decoded frames are only 0 and 255. |
+| `artifacts/lane-j/20261120T025319Z-route3.mp4` | 41.33s | `35ffa5094d9b1e68b6fc2b7dbfcc1cb264ef8bc055353d22f84371cda4dd47e4` | The Route 3 recross after that blackout. Decoded frames are only 0 and 255. |
+| `artifacts/lane-j/20261120T025414Z-mt-moon.mp4` | 47.53s | `79723686ea1ea0cb8af33a75c2967d71483723e70ab11cfa2803902addac4671` | The retry's 1F stair walk. Decoded frames are only 0 and 255. |
 
 ## Title intro
 
@@ -44,9 +47,11 @@ The gym pause walked east. Pewter's Center healed Squirtle before Route 3. The n
 
 A second cave attempt used the pair-legal path. Foot tiles 32 and 5 cannot be stepped between, so the collision-only route west from (10, 22) is refused and the other stairs drop into a dead pocket. The legal path reached B2F. Squirtle evolved to Wartortle at level 16. The super nerd's battle then left Water Gun disabled, and the menu kept confirming that move, so the fight never advanced. That cave was not saved. The Route 4 pause above is still the resume. The clip is `20261120T023747Z-mt-moon.mp4` (60.57s).
 
+A third crossing evolved to Wartortle again, lost to the fossil super nerd, and blacked out to Pewter. The retry beat him at B2F (12, 7) and learned Bite, but Grimer's Disable page stayed up while the cursor moved, so every move was marked rejected and the rest of the fight used Tackle. Wartortle finished paralyzed at 14 HP. The Dome Fossil sprite at (12, 6) is the only step into the exit pocket, and treating that blocked step as a wall left no route. The win was not written. The sequence 8 Route 4 pause is still the resume. The clips are `20261120T024836Z-mt-moon.mp4` (60.13s), `20261120T025319Z-route3.mp4` (41.33s), and `20261120T025414Z-mt-moon.mp4` (47.53s).
+
 ## Next
 
-Resume the sequence 8 pause, cross Mt. Moon again, and continue toward Cerulean. A disabled move is skipped for the rest of that battle.
+Resume the sequence 8 pause. Cross Mt. Moon, accept the Dome Fossil, heal if the cave leaves a status, then try Route 4's east step toward Cerulean and Misty. Only the move named in "was disabled" is skipped, and "no longer disabled" clears that skip.
 
 ## Blockers
 
