@@ -89,6 +89,8 @@ CLIFF_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5")
 CLIFF_SAVE_SHA = "9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14"
 POTION_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/0c3f08774f1b")
 POTION_SAVE_SHA = "eba0696ff186ffcf8beb0b9ffbd1e831f1d82949f67da036e0e1256b37d04354"
+EIGHT_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/e0f8ae50d17a")
+EIGHT_SAVE_SHA = "9607c06671633cbcec45150d316937419197ae6741219eb202da39c8f00c4f9b"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 CERULEAN_NURSE = "pokered:CERULEAN_POKECENTER:objects:1"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
@@ -950,7 +952,10 @@ class Player:
                 potions = int(((self.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
                 # A Potion is applied before the foe moves. Starmie's Swift crit
                 # is 31, so healing at 32 or below finishes at 45 or more.
-                if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= potion_at
+                # Staryu's hits are about 9, so those turns stay on Bite.
+                foe = ((battle.get("enemy") or {}).get("species") or "")
+                ceiling = min(potion_at, 18) if foe == "staryu" else potion_at
+                if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= ceiling
                         and player_hp < max_hp and self.use_potion()):
                     continue
                 if not battle.get("inMoveSelect"):
@@ -2366,7 +2371,7 @@ def _to_cerulean(player, report, display, clips, output):
             if player.state.get("root") != "battle":
                 player.dismiss_until_explore(limit=20)
             if player.state.get("root") == "battle":
-                report["misty_won"] = player.fight(limit=1200, potion_at=32)
+                report["misty_won"] = player.fight(limit=5000, potion_at=32)
         else:
             raise RuntimeError("Misty did not battle: " + json.dumps(summary(player.state)))
         player.dismiss_until_explore(limit=120)
@@ -2537,11 +2542,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-32")
-            save_from = POTION_SAVE
-            digest = sha256_file(save_from / "adventure.b.json")
-            if digest != POTION_SAVE_SHA:
-                raise SystemExit(f"potion save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-33")
+            save_from = EIGHT_SAVE
+            digest = sha256_file(save_from / "adventure.a.json")
+            if digest != EIGHT_SAVE_SHA:
+                raise SystemExit(f"eight-potion save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_route4_line))
