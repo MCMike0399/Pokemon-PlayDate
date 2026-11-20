@@ -1902,7 +1902,9 @@ class CharmanderRun(BrockJourney):
 
     def _step(self, direction):
         before = self.position()
-        grinding = getattr(self, "_bench_share", False) and not getattr(self, "_stopping", False)
+        grinding = (getattr(self, "_bench_share", False)
+                    and not getattr(self, "_stopping", False)
+                    and not getattr(self, "_puzzle", False))
         if grinding:
             self.training_mode = "league-bench"
         try:
@@ -2562,9 +2564,13 @@ class CharmanderRun(BrockJourney):
         self._arrange_lead("starter")
         zone = self._map_name() or ""
         if "VICTORY_ROAD" in zone:
-            if self._on("VictoryRoad1F"):
-                self._victory_road_1f()
-            self._victory_road_2f()
+            self._puzzle = True
+            try:
+                if self._on("VictoryRoad1F"):
+                    self._victory_road_1f()
+                self._victory_road_2f()
+            finally:
+                self._puzzle = False
             return
         if any(name in zone for name in (
             "INDIGO_PLATEAU", "LORELEIS_ROOM", "BRUNOS_ROOM", "AGATHAS_ROOM",
@@ -2589,9 +2595,18 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("Victory Road entrance missed: " + self._map_name() + " " + str(self.position()))
             self.save()
             self.summary.update(acceptance="Victory Road entrance", natural=True, forbidden_shortcuts=False)
-        self._enter_victory_road()
-        self._victory_road_1f()
-        self._victory_road_2f()
+        if self._bench_share and self._party_needs_center():
+            self.heal_here("ViridianPokecenter")
+            if not self._on("Route23"):
+                self.travel(self.zone("Route23"))
+                self._follow_route({(4, 32)})
+        self._puzzle = True
+        try:
+            self._enter_victory_road()
+            self._victory_road_1f()
+            self._victory_road_2f()
+        finally:
+            self._puzzle = False
 
     def _pin_victory_trainers(self):
         for trainer_id, payout, map_id in (
