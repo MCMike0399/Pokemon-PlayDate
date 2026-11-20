@@ -37,6 +37,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T065442Z-ss-anne.mp4` | 85.0s, trimmed from 323.63s | `757d2eaaa7a6ef51be9b8f521d30a2760b3b4d25324472d8dc00a03c79a6a9d1` | The S.S. Anne rival, ending in the blackout. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
 | `artifacts/lane-j/20261120T085952Z-ss-anne.mp4` | 85.0s | `17ce2cf09faa8b9aeeef2de6cf1541208d2b3de17e08145bf7bc56b373c879f4` | The S.S. Anne rival win. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
 | `artifacts/lane-j/20261120T122228Z-gym-vermilion.mp4` | 85.0s | `499f042e3fc20a3b794b9c58ac9390db852392e89bccc092b45d9891fc534108` | Lt. Surge. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
+| `artifacts/lane-j/20261120T125308Z-route2.mp4` | 9.67s | `5e24de6ba48d559cf19742e1a91cb0bb21981657192323e917842812a19bf626` | The Route 2 step left from (11, 2). 400x240, gbrp, 290 frames. Eight sampled frames are luma 0 and 255 only. |
 
 ## Title intro
 
@@ -68,11 +69,15 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-The Thunder Badge is saved. `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `55ac984ab143b462f9f45602351f847300ab238a05c1cbea300839a16da5371a` (sequence 50) is Dugtrio 27 in Vermilion Gym at (6, 2), with Dig, `BADGE_THUNDER`, and `EVENT_BEAT_LT_SURGE`. Surge paid enough to buy Super Potions on the way out. That pause does not contain the Vermilion city cut stored on sequence 49. A step up from (15, 19) stays on (15, 19). Cut from the south side opens the tree again. Main is `ea32b553` (Hall of Fame credits) and is already merged. The champion-rival patch and Hyper Beam were not on main. Route 11 does not reach Lavender; Snorlax blocks it. The walk now is out of the gym, Diglett's Cave from Route 11 (4, 5) to Route 2, north to Cerulean, Route 9, Rock Tunnel, Lavender, Route 8's underground door (13, 3), Route 7, and Celadon. A Route 11 Spearow is raised to Fearow 34 for Drill Peck before Erika.
+The Thunder Badge is saved. The walk left the gym, Cut the tree again from (15, 19), healed at the Center, bought 3 Super Potions (¥321 left), and took Diglett's Cave to Route 2. The pause is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `69022cd7cdad58f2c964fca7c23a10117f567f770a6b1c2f6b142c886e3fcccf` (sequence 53), Route 2 (11, 2) facing left. Dugtrio 27, Bellsprout 15, Pidgeotto 20, and Wartortle 27 are healed. `BADGE_THUNDER` and `EVENT_BEAT_LT_SURGE` are set. A step left stays on (11, 2). The static grid also has no path from the cave side to Pewter (8, 0). The route stops there. Main is `ea32b553` and is already merged. Celadon and the Rainbow Badge are not reached. Spearow is not caught.
 
 ## Blockers
 
 No product red on Misty after `fe6376b9`, and none on Bill, the burgled house, the Underground, the Vermilion arrival, or the S.S. Anne rival. The first Anne loss was the fight: Ivysaur's Vine Whip and Leech Seed outlasted 6 Super Potions. The later fight won with the bird and saved HM01. The disconnected gym door matches the documented north-arrival component until Cut. Recover and Swift did not appear in the gym fight. The swimmer on the gym's y=7 line stayed avoided.
+
+Suspected product red: Route 2's cave side does not reach Pewter. The north cave door lands on Route 2 (12, 9). From (11, 2), facing left, one step is `blocked` and the tile stays (11, 2). The same static grid has no four-direction path from (12, 10) to (8, 0). Pallet's (9, 0) seam is solid in JSON and open at runtime; this one is not.
+
+The Vermilion cut also fails to stay in a later pause. Sequence 49, saved on the open tile, stores Vermilion (15, 18) as `pokered:OVERWORLD:cell:2c-2c-2c-2c`. Sequence 50, saved in the gym after that cut, does not. Loading it, a step up from (15, 19) stays put. Cut from that south tile opened the tree again and the player stood on (15, 18). Sequences 52 and 53, saved on Route 2 after that second cut, again store only the dock tiles.
 
 ## Tests
 
