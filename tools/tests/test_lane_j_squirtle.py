@@ -919,7 +919,7 @@ class Player:
             return kind
         return "lost"
 
-    def fight(self, limit=700):
+    def fight(self, limit=700, potion_at=22):
         won = None
         rejected = set()
         for _ in range(limit):
@@ -948,8 +948,10 @@ class Player:
                 player_hp = (battle.get("player") or {}).get("hp") or 0
                 max_hp = (battle.get("player") or {}).get("maxHP") or 0
                 potions = int(((self.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
-                if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= 22 and player_hp < max_hp
-                        and self.use_potion()):
+                # A Potion is applied before the foe moves. Starmie's Swift crit
+                # is 31, so healing at 32 or below finishes at 45 or more.
+                if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= potion_at
+                        and player_hp < max_hp and self.use_potion()):
                     continue
                 if not battle.get("inMoveSelect"):
                     self.choose("battle", "FIGHT")
@@ -2129,12 +2131,52 @@ def _item_count(player, item):
     return int(((player.state.get("inventory") or {}).get("quantities") or {}).get(item) or 0)
 
 
-def _buy_cerulean_potions(player, report):
+def _shop_buy_potions(player, target):
+    """Buy Potions until target or the 300 price no longer fits. Leaves the list open."""
+    buying = False
+    have = _item_count(player, "potion")
+    for _ in range(30):
+        shop = player.state.get("shop") or {}
+        phase = shop.get("phase")
+        have = _item_count(player, "potion")
+        money = int((player.state.get("inventory") or {}).get("money") or 0)
+        if (have >= target or money < 300) and phase in ("browse", "mode") and buying:
+            return have
+        if phase == "mode":
+            player.choose("shop", "BUY")
+            buying = True
+        elif phase == "browse" and not buying:
+            player.press("b", wait=4)
+        elif phase == "browse":
+            if shop.get("item") == "potion":
+                player.press("a", wait=4)
+            else:
+                player.press("down", wait=2)
+        elif phase == "quantity":
+            want = min(target - have, money // 300)
+            quantity = shop.get("quantity") or 1
+            if want < 1:
+                player.press("b", wait=4)
+            elif quantity < want:
+                player.press("up", wait=2)
+            else:
+                player.press("a", wait=4)
+        elif phase == "confirm":
+            player.choose("shop", "YES")
+        elif phase == "result":
+            player.press("a", wait=4)
+        else:
+            player.send("wait 4")
+    return have
+
+
+def _buy_cerulean_potions(player, report, target=8, require=8):
     """Buy Potions, sell TM34, and buy what that pays for.
 
     Starmie's Recover outlasts five Potions. TM34 is Bide and sells for 1000.
+    Quit and leave as soon as the bag holds the target.
     """
-    if _item_count(player, "potion") >= 8 and _item_count(player, "tm34") == 0:
+    if _item_count(player, "potion") >= target and _item_count(player, "tm34") == 0:
         report["potions"] = _item_count(player, "potion")
         return
     doors = set(CERULEAN_DOORS)
@@ -2225,43 +2267,13 @@ def _buy_cerulean_potions(player, report):
                 player.send("wait 4")
         if _item_count(player, "tm34") != 0:
             raise RuntimeError("TM34 did not sell: " + json.dumps(summary(player.state)))
-        buying = False
-        for _ in range(24):
-            shop = player.state.get("shop") or {}
-            phase = shop.get("phase")
-            have = _item_count(player, "potion")
-            money = int((player.state.get("inventory") or {}).get("money") or 0)
-            if (have >= 8 or money < 300) and phase in ("browse", "mode") and buying:
-                break
-            if phase == "mode":
-                player.choose("shop", "BUY")
-                buying = True
-            elif phase == "browse" and not buying:
-                player.press("b", wait=4)
-            elif phase == "browse":
-                if shop.get("item") == "potion":
-                    player.press("a", wait=4)
-                else:
-                    player.press("down", wait=2)
-            elif phase == "quantity":
-                want = min(8 - have, money // 300)
-                quantity = shop.get("quantity") or 1
-                if want < 1:
-                    player.press("b", wait=4)
-                elif quantity < want:
-                    player.press("up", wait=2)
-                else:
-                    player.press("a", wait=4)
-            elif phase == "confirm":
-                player.choose("shop", "YES")
-            elif phase == "result":
-                player.press("a", wait=4)
-            else:
-                player.send("wait 4")
+        _shop_buy_potions(player, target)
+    if _item_count(player, "tm34") == 0 and _item_count(player, "potion") < target:
+        _shop_buy_potions(player, target)
     have = _item_count(player, "potion")
     report["potions"] = have
     report["money"] = int((player.state.get("inventory") or {}).get("money") or 0)
-    if have < 8:
+    if have < require:
         raise RuntimeError("the mart did not stock eight Potions: " + json.dumps(summary(player.state)))
     for _ in range(8):
         if player.state.get("root") != "shop":
@@ -2328,7 +2340,7 @@ def _to_cerulean(player, report, display, clips, output):
         kind = player.travel(cells, (6, 3), CERULEAN_GYM_AVOID, limit=20)
         report["lass_walk"] = {"kind": kind, **summary(player.state)}
         if player.state.get("root") == "battle":
-            report["lass_won"] = player.fight(limit=900)
+            report["lass_won"] = player.fight(limit=900, potion_at=20)
             player.dismiss_until_explore(limit=80)
         if "gym" not in str(player.state.get("zone")):
             raise RuntimeError("the Lass fight left the gym: " + json.dumps(summary(player.state)))
@@ -2341,6 +2353,7 @@ def _to_cerulean(player, report, display, clips, output):
             _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
                      cerulean_center_cells(), "cerulean_heal_again", "cerulean_city",
                      avoid=CERULEAN_DOORS | {(15, 18)})
+        if "gym" not in str(player.state.get("zone")):
             doors = set(CERULEAN_DOORS)
             doors.discard((30, 19))
             kind = step_onto(player, cerulean_cells(), (30, 19), doors | {(15, 18)}, "up")
@@ -2353,7 +2366,7 @@ def _to_cerulean(player, report, display, clips, output):
             if player.state.get("root") != "battle":
                 player.dismiss_until_explore(limit=20)
             if player.state.get("root") == "battle":
-                report["misty_won"] = player.fight(limit=900)
+                report["misty_won"] = player.fight(limit=1200, potion_at=32)
         else:
             raise RuntimeError("Misty did not battle: " + json.dumps(summary(player.state)))
         player.dismiss_until_explore(limit=120)
@@ -2524,7 +2537,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-31")
+            output = Path("/tmp/lane-j-squirtle-32")
             save_from = POTION_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != POTION_SAVE_SHA:
