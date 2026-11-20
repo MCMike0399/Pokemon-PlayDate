@@ -3028,7 +3028,7 @@ class CharmanderRun(BrockJourney):
     def _top_off_in_field(self):
         """A water or rock hit lands for more than a third of Charizard's HP."""
         starter = self._starter_mon()
-        if starter is None or starter["hp"] <= 0 or starter["hp"] * 5 >= starter["maxHP"] * 4:
+        if starter is None or starter["hp"] <= 0 or starter["hp"] * 2 >= starter["maxHP"]:
             return
         item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
         if item is None:
@@ -3257,18 +3257,16 @@ class CharmanderRun(BrockJourney):
 
         self.require_shop_stock = allow
         try:
-            money = self.inventory()["money"]
-            revives = min(max(0, 2 - self.quantity("revive")), money // self._INDIGO_PRICES["revive"])
-            if revives:
-                self.buy_item(self._INDIGO_CLERK, "revive", revives, self._INDIGO_PRICES["revive"])
-            money = self.inventory()["money"]
-            restores = min(max(0, 3 - self.quantity("fullRestore")), money // self._INDIGO_PRICES["fullRestore"])
-            if restores:
-                self.buy_item(self._INDIGO_CLERK, "fullRestore", restores, self._INDIGO_PRICES["fullRestore"])
-            money = self.inventory()["money"]
-            potions = min(max(0, 2 - self.quantity("maxPotion")), money // self._INDIGO_PRICES["maxPotion"])
-            if potions and self.quantity("fullRestore") >= 1:
-                self.buy_item(self._INDIGO_CLERK, "maxPotion", potions, self._INDIGO_PRICES["maxPotion"])
+            # One full heal before a second Revive. A half-Revive does not
+            # cover the rock hit that drops Charizard in a single turn.
+            for item, cap in (
+                ("fullRestore", 1), ("revive", 1), ("maxPotion", 1),
+                ("fullRestore", 2), ("revive", 2),
+            ):
+                price = self._INDIGO_PRICES[item]
+                if self.quantity(item) >= cap or self.inventory()["money"] < price:
+                    continue
+                self.buy_item(self._INDIGO_CLERK, item, 1, price)
         finally:
             self.require_shop_stock = previous
         self.summary["league_bag"] = {
@@ -4295,7 +4293,7 @@ class CharmanderRun(BrockJourney):
         if player.get("species") != "charizard":
             return False
         hp, maximum = player.get("hp") or 0, player.get("maxHP") or 1
-        if hp <= 0 or hp * 5 >= maximum * 4:
+        if hp <= 0 or hp * 2 >= maximum:
             return False
         item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
         if item is None:
