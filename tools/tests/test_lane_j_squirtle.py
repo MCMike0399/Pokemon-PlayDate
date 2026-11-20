@@ -91,6 +91,8 @@ POTION_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/0c3f08774f1b")
 POTION_SAVE_SHA = "eba0696ff186ffcf8beb0b9ffbd1e831f1d82949f67da036e0e1256b37d04354"
 EIGHT_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/e0f8ae50d17a")
 EIGHT_SAVE_SHA = "9607c06671633cbcec45150d316937419197ae6741219eb202da39c8f00c4f9b"
+BRIDGE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/f420d9c1884d")
+BRIDGE_SAVE_SHA = "f0b12cacc9f2d7f7af0af17edfb5e09d6b2ac2fb34ee4e30a65087d526b8d8f2"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 CERULEAN_NURSE = "pokered:CERULEAN_POKECENTER:objects:1"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
@@ -276,6 +278,10 @@ def cerulean_center_cells():
 
 def cerulean_mart_cells():
     return open_map(ROOT / "Source/data/sourceSlice/CeruleanMart.json", 2, 13)
+
+
+def route24_cells():
+    return open_map(ROOT / "Source/data/sourceSlice/Route24.json", 0, 20)
 
 
 # IntroMovie.SCENES. Copyright and the black bars ignore A. The shooting
@@ -554,6 +560,13 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNone(route(cerulean_gym_cells(), (5, 13), (6, 2), CERULEAN_GYM_AVOID | CERULEAN_LASS_SIGHT))
         self.assertIsNotNone(route(cerulean_mart_cells(), (5, 6), (4, 5)))
         self.assertIn((5, 7), cerulean_mart_cells())
+        self.assertEqual(sha256_file(BRIDGE_SAVE / "adventure.b.json"), BRIDGE_SAVE_SHA)
+        self.assertIsNotNone(route(cerulean_cells(), (19, 18), (21, 0), CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)}))
+        bridge = route24_cells()
+        held = {(11, 31), (10, 28), (11, 25), (10, 22), (11, 19), (11, 15), (5, 20), (10, 5), (10, 15)}
+        self.assertIsNotNone(route(bridge, (11, 35), (10, 19), held))
+        self.assertIsNotNone(route(bridge, (10, 16), (5, 19), held - {(10, 15)}))
+        self.assertIsNone(route(bridge, (10, 16), (5, 19), {(10, 15), (11, 15), (5, 20)}))
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -910,18 +923,18 @@ class Player:
             if root == "battle":
                 trainer = (self.state.get("battle") or {}).get("trainerName")
                 if trainer:
-                    self.fight()
+                    self.fight(limit=2500)
                 elif not self.run_away():
-                    self.fight()
-                self.dismiss_until_explore(limit=30)
+                    self.fight(limit=2500)
+                self.dismiss_until_explore(limit=80)
                 continue
             if root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event"):
-                self.dismiss_until_explore(limit=40)
+                self.dismiss_until_explore(limit=100)
                 continue
             return kind
         return "lost"
 
-    def fight(self, limit=700, potion_at=22):
+    def fight(self, limit=700, potion_at=22, bite_only=False):
         won = None
         rejected = set()
         for _ in range(limit):
@@ -954,7 +967,7 @@ class Player:
                 # is 31, so healing at 32 or below finishes at 45 or more.
                 # Staryu's hits are about 9, so those turns stay on Bite.
                 foe = ((battle.get("enemy") or {}).get("species") or "")
-                ceiling = min(potion_at, 18) if foe == "staryu" else potion_at
+                ceiling = potion_at if bite_only or foe != "staryu" else min(potion_at, 18)
                 if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= ceiling
                         and player_hp < max_hp and self.use_potion()):
                     continue
@@ -972,6 +985,8 @@ class Player:
                         if named:
                             rejected.add(named)
                     enemy_types = ((battle.get("enemy") or {}).get("types") or [])
+                    if bite_only:
+                        enemy_types = ["water"]
                     index, _name = preferred_move(options, rejected, enemy_types)
                     if index and selected != index:
                         self.press("down" if index > selected else "up", wait=2)
@@ -1884,6 +1899,274 @@ def _retreat_route3(player, avoid):
     leave_map(player, route3_cells(), (0, 10), blocked, "left")
 
 
+def _settle_overlay(player, limit=16):
+    """Finish a script or a trainer battle before the next step."""
+    for _ in range(limit):
+        root = player.state.get("root")
+        if player.exploring():
+            return True
+        if root == "battle":
+            player.fight(limit=2500, potion_at=16)
+            player.dismiss_until_explore(limit=80)
+            continue
+        player.dismiss_until_explore(limit=100)
+    return player.exploring()
+
+
+def _outcome_stamp(player):
+    outcome = player.state.get("last_battle_outcome") or {}
+    return [
+        outcome.get("won"), outcome.get("kind"), outcome.get("enemy_hp"),
+        outcome.get("trainerName") or outcome.get("trainer_id"),
+    ]
+
+
+def _abort_if_lost(player, report):
+    stamp = _outcome_stamp(player)
+    if stamp == report.get("outcome_stamp"):
+        return
+    report["outcome_stamp"] = stamp
+    if stamp[0] is False:
+        raise RuntimeError("blackout before the gym: " + json.dumps(summary(player.state)))
+
+
+def _return_to_bridge(player, report):
+    """North edge (21, 0) is the bridge. The rival at (20, 6)/(21, 6) is on that walk."""
+    if player.state.get("zone") == "kanto_route_24":
+        return "there"
+    _settle_overlay(player)
+    avoid = set(CERULEAN_DOORS) | {(30, 7), (30, 9), (15, 18)}
+    kind = "stayed"
+    for cell in ((21, 0), (20, 0)):
+        kind = player.travel(cerulean_cells(), cell, avoid, limit=30)
+        _settle_overlay(player)
+        if (player.state["player"]["x"], player.state["player"]["y"]) != cell:
+            continue
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.step("up")
+        _settle_overlay(player)
+        if player.state.get("zone") == "kanto_route_24":
+            break
+    _abort_if_lost(player, report)
+    report["bridge_entry"] = {"kind": kind, **summary(player.state)}
+    if player.state.get("zone") != "kanto_route_24":
+        raise RuntimeError("Route 24 did not open: " + json.dumps(summary(player.state)))
+    return kind
+
+
+def _heal_on_bridge(player, report, floor=24, come_back=True):
+    hp = (player.state.get("pokemon") or {}).get("hp") or 0
+    if hp >= floor and not _needs_heal(player):
+        return
+    if player.state.get("zone") == "kanto_route_24":
+        avoid = {(11, 15), (5, 20)}
+        if _item_count(player, "nugget") < 1:
+            avoid.add((10, 15))
+        for cell in ((11, 35), (10, 35)):
+            player.travel(route24_cells(), cell, avoid, limit=30)
+            _settle_overlay(player)
+            if (player.state["player"]["x"], player.state["player"]["y"]) != cell:
+                continue
+            if player.state["player"].get("facing") != "down":
+                player.press("down", wait=4)
+            player.step("down")
+            _settle_overlay(player)
+            if player.state.get("zone") != "kanto_route_24":
+                break
+    if "cerulean_city" not in str(player.state.get("zone")):
+        raise RuntimeError("the bridge did not return to Cerulean: " + json.dumps(summary(player.state)))
+    _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+             cerulean_center_cells(), "bridge_heal", "cerulean_city",
+             avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    if come_back:
+        _return_to_bridge(player, report)
+
+
+def _bridge_spot(player, report, spot, avoid):
+    _return_to_bridge(player, report)
+    kind = player.travel(route24_cells(), spot, avoid, limit=30)
+    _settle_overlay(player)
+    _abort_if_lost(player, report)
+    report.setdefault("bridge", []).append({"spot": list(spot), "kind": kind, **summary(player.state)})
+    _heal_on_bridge(player, report)
+
+
+def _take_nugget(player, report):
+    """(10, 15) is the only walk north of the bridge. The Rocket battles after the gift."""
+    _return_to_bridge(player, report)
+    kind = player.travel(route24_cells(), (10, 16), {(10, 15), (11, 15), (5, 20)}, limit=30)
+    _settle_overlay(player)
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (10, 16):
+        raise RuntimeError("could not stand south of the Nugget: " + json.dumps(summary(player.state)))
+    player.step("up")
+    _settle_overlay(player, limit=24)
+    _abort_if_lost(player, report)
+    count = _item_count(player, "nugget")
+    report["nugget"] = {"kind": kind, "count": count, **summary(player.state)}
+    if count < 1:
+        raise RuntimeError("the Nugget was not received: " + json.dumps(summary(player.state)))
+
+
+def _sell_nugget_buy_potions(player, report):
+    """Cerulean pays 5000 for the Nugget and does not stock Super Potions."""
+    if player.state.get("zone") != "kanto_cerulean_city":
+        leave_map(player, route24_cells(), (11, 35), set(), "down")
+        _settle_overlay(player)
+    doors = set(CERULEAN_DOORS)
+    doors.discard((25, 25))
+    kind = step_onto(player, cerulean_cells(), (25, 25), doors | {(15, 18), (30, 7), (30, 9)}, "up")
+    _settle_overlay(player)
+    report["nugget_mart_door"] = {"kind": kind, **summary(player.state)}
+    if "mart" not in str(player.state.get("zone")):
+        raise RuntimeError("Cerulean Mart did not open: " + json.dumps(summary(player.state)))
+    cells = cerulean_mart_cells()
+    opened = False
+    for _ in range(8):
+        if player.state.get("root") == "shop":
+            opened = True
+            break
+        if not player.exploring():
+            _settle_overlay(player)
+        npc = npc_named(player.state, CERULEAN_CLERK)
+        if npc is None:
+            break
+        spot = (npc["x"] + 2, npc["y"])
+        player.travel(cells, spot, {(npc["x"], npc["y"])})
+        if player.state["player"].get("facing") != "left":
+            player.press("left", wait=4)
+        player.press("a", wait=8)
+        if player.state.get("root") == "shop":
+            opened = True
+            break
+    if not opened:
+        raise RuntimeError("the clerk did not open the mart: " + json.dumps(summary(player.state)))
+    if _item_count(player, "nugget") >= 1:
+        armed = False
+        for _ in range(24):
+            if _item_count(player, "nugget") == 0:
+                break
+            shop = player.state.get("shop") or {}
+            phase = shop.get("phase")
+            if phase == "browse" and not armed:
+                player.press("b", wait=4)
+            elif phase == "mode":
+                player.choose("shop", "SELL")
+                armed = True
+            elif phase == "browse":
+                if shop.get("item") == "nugget":
+                    player.press("a", wait=4)
+                else:
+                    player.press("down", wait=2)
+            elif phase == "quantity":
+                if (shop.get("quantity") or 1) == 1 and shop.get("item") == "nugget":
+                    player.press("a", wait=4)
+                else:
+                    player.press("b", wait=4)
+            elif phase == "confirm":
+                player.choose("shop", "YES")
+            elif phase == "result":
+                player.press("a", wait=4)
+            else:
+                player.send("wait 4")
+    if _item_count(player, "nugget") != 0:
+        raise RuntimeError("the Nugget did not sell: " + json.dumps(summary(player.state)))
+    _shop_buy_potions(player, 8)
+    have = _item_count(player, "potion")
+    report["potions"] = have
+    report["money"] = int((player.state.get("inventory") or {}).get("money") or 0)
+    if have < 8:
+        raise RuntimeError("the mart did not sell eight Potions: " + json.dumps(summary(player.state)))
+    for _ in range(8):
+        if player.state.get("root") != "shop":
+            break
+        phase = (player.state.get("shop") or {}).get("phase")
+        if phase == "browse":
+            player.press("b", wait=4)
+        elif phase == "mode":
+            player.choose("shop", "QUIT")
+        else:
+            player.press("b", wait=4)
+    kind = "stayed"
+    for _ in range(12):
+        if "cerulean_city" in str(player.state.get("zone")):
+            break
+        for door in ((6, 7), (5, 7)):
+            kind = step_onto(player, cells, door, set(), "down")
+            if "cerulean_city" in str(player.state.get("zone")):
+                break
+        else:
+            player.send("wait 18")
+            continue
+        break
+    report["nugget_mart_left"] = {"kind": kind, **summary(player.state)}
+    if "cerulean_city" not in str(player.state.get("zone")):
+        raise RuntimeError("still inside the mart: " + json.dumps(summary(player.state)))
+
+
+def play_misty_assist(player, report, display, clips, output):
+    """Nugget Bridge to level 20, eight Potions, then Bite-only Misty."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["resumed"] = summary(player.state)
+    report["outcome_stamp"] = _outcome_stamp(player)
+    if "cerulean" not in str(player.state.get("zone")):
+        raise RuntimeError("the assist did not resume in Cerulean: " + json.dumps(summary(player.state)))
+    _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+             cerulean_center_cells(), "before_bridge", "cerulean_city",
+             avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    bodies = {(11, 31), (10, 28), (11, 25), (10, 22), (11, 19), (11, 15), (5, 20), (10, 5)}
+    for spot in ((10, 31), (11, 28), (10, 25), (11, 22), (10, 19)):
+        _bridge_spot(player, report, spot, bodies | {(10, 15)})
+    _take_nugget(player, report)
+    _bridge_spot(player, report, (5, 19), bodies)
+    _heal_on_bridge(player, report, floor=51, come_back=False)
+    _sell_nugget_buy_potions(player, report)
+    if _needs_heal(player) or ((player.state.get("pokemon") or {}).get("hp") or 0) < 40:
+        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                 cerulean_center_cells(), "before_misty", "cerulean_city",
+                 avoid=CERULEAN_DOORS | {(15, 18), (30, 7), (30, 9)})
+    gym_doors = set(CERULEAN_DOORS) | {(30, 7), (30, 9), (15, 18)}
+    gym_doors.discard((30, 19))
+    kind = step_onto(player, cerulean_cells(), (30, 19), gym_doors, "up")
+    report["cerulean_gym_door"] = {"kind": kind, **summary(player.state)}
+    if "gym" not in str(player.state.get("zone")):
+        raise RuntimeError("Cerulean did not enter the gym: " + json.dumps(summary(player.state)))
+
+    def battle_misty():
+        cells = cerulean_gym_cells()
+        kind = player.travel(cells, (6, 3), CERULEAN_GYM_AVOID, limit=20)
+        report["lass_walk"] = {"kind": kind, **summary(player.state)}
+        if player.state.get("root") == "battle":
+            report["lass_won"] = player.fight(limit=900, potion_at=20)
+            player.dismiss_until_explore(limit=80)
+        talked = talk_to(player, cerulean_gym_cells(), MISTY, CERULEAN_GYM_AVOID)
+        report["misty_talk"] = {"result": talked, **summary(player.state)}
+        if player.state.get("root") == "battle" or talked == "talked":
+            if player.state.get("root") != "battle":
+                player.dismiss_until_explore(limit=20)
+            if player.state.get("root") == "battle":
+                report["misty_won"] = player.fight(limit=5000, potion_at=34, bite_only=True)
+        else:
+            raise RuntimeError("Misty did not battle: " + json.dumps(summary(player.state)))
+        player.dismiss_until_explore(limit=120)
+
+    if display and clips and output:
+        film(display, clips, output, "gym-cerulean", report, "end", battle_misty)
+    else:
+        battle_misty()
+    outcome = player.state.get("last_battle_outcome") or {}
+    report["misty_outcome"] = outcome
+    quest = ((player.state.get("session") or {}).get("flags") or {}).get("quest") or {}
+    report["cascade"] = quest.get("BADGE_CASCADE")
+    report["level"] = (player.state.get("pokemon") or {}).get("level")
+    if player.exploring():
+        report["saved_cascade"] = player.pause_save()
+    if outcome.get("won") is not True or not quest.get("BADGE_CASCADE"):
+        raise RuntimeError("Misty did not award the Cascade Badge: " + json.dumps(summary(player.state)))
+
+
 def play_route4_line(player, report, display, clips, output):
     """Resume the (59, 4) pause and take the open line to Misty."""
     player.leave_title()
@@ -2371,7 +2654,7 @@ def _to_cerulean(player, report, display, clips, output):
             if player.state.get("root") != "battle":
                 player.dismiss_until_explore(limit=20)
             if player.state.get("root") == "battle":
-                report["misty_won"] = player.fight(limit=5000, potion_at=32)
+                report["misty_won"] = player.fight(limit=5000, potion_at=34, bite_only=True)
         else:
             raise RuntimeError("Misty did not battle: " + json.dumps(summary(player.state)))
         player.dismiss_until_explore(limit=120)
@@ -2542,14 +2825,14 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-35")
-            save_from = EIGHT_SAVE
-            digest = sha256_file(save_from / "adventure.a.json")
-            if digest != EIGHT_SAVE_SHA:
-                raise SystemExit(f"eight-potion save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-36")
+            save_from = BRIDGE_SAVE
+            digest = sha256_file(save_from / "adventure.b.json")
+            if digest != BRIDGE_SAVE_SHA:
+                raise SystemExit(f"blackout save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
-            raise SystemExit(play(output, clips, save_from=save_from, story=play_route4_line))
+            raise SystemExit(play(output, clips, save_from=save_from, story=play_misty_assist))
         if "--west" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-25")
             save_from = CLIFF_SAVE
