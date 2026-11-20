@@ -74,7 +74,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 Lavender is healed. Sequence 90 is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `1e236e9e1b246cd95b7b2e7fa223be50ae7a2b32691c873feb2d288a97f2d394`, Lavender Pokémon Center (3, 3) facing up. Wartortle 29, Bellsprout 15, Pidgeotto 22, Dugtrio 27. Boulder, Cascade, and Thunder.
 
-The live pause is sequence 114, `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `ac86ae68cc1644f65501c482dc79c79d84c3240697b8b796a77969081f317857`, Route 7 (5, 14). Pidgeotto 25, Bellsprout 15, Wartortle 30, Dugtrio 27. Boulder, Cascade, and Thunder. K's tunnel fights and the Route 10 exit are done. Pidgeotto is grinding here to 31, then Celadon and Erika.
+The live pause is sequence 120, `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `105d064a8588b8c07c1a65a3758fd49314aeafcb7bc5abde5fd93d5bd22b28b1`, Route 7 (5, 14). Pidgeotto 26, Bellsprout 15, Wartortle 31, Dugtrio 27. Boulder, Cascade, and Thunder. K's tunnel fights and the Route 10 exit are done. Pidgeotto is grinding here to 31, then Celadon and Erika.
 
 ## Blockers
 
