@@ -72,7 +72,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Sequence 60 is the resume: `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `f869439769a92dc1c2b84f0f748c9320ee5be125d6eb84e5399a141fe51fb074`, Route 9 (14, 15) facing right. Wartortle 27, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder. Money ¥1381. The line is K's: rejoin (20, 12), Rock Tunnel, Lavender, the Route 8 underground, Route 7, Celadon, the west gym tree only, then Erika from (5, 4). Sequence 57 at Cerulean (0, 18) is the earlier slot.
+Sequence 62 is the resume: `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `d5501d972c51eb4139cf928197633d0ed6deedec11055a2a2a77c28270304755`, the Route 10 Pokémon Center (3, 3) facing up, after the Route 9 Bug Catcher at (41, 8). Wartortle 28, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder. The center mat stays indoors; the exit is the next step down. Then Rock Tunnel, Lavender, the Route 8 underground, Route 7, Celadon, the west gym tree only, and Erika from (5, 4). Sequence 60 at Route 9 (14, 15) sha256 `f869439769a92dc1c2b84f0f748c9320ee5be125d6eb84e5399a141fe51fb074` is the earlier slot.
 
 ## Blockers
 
