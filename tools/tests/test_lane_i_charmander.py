@@ -2657,14 +2657,23 @@ class CharmanderRun(BrockJourney):
             ))
             self._require_flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH")
             self.save()
-            # The gate is open in the live map. Path around the cooltrainer
-            # who stands on the old straight stair line.
-            self._open_victory_1f_gate()
-            self.navigate((2, 1))
+            self.summary.update(acceptance="Victory Road 1F switch", natural=True, forbidden_shortcuts=False)
+        if self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH") and self.position() not in {(2, 1), (1, 1)}:
+            # The opened gate is not in the static collision model. This
+            # walk starts on (17, 11), just above the switch. The cooltrainer
+            # stands on (3, 3), so the last climb uses column 2.
+            if self.position() != (17, 11):
+                raise ProtocolError("Victory Road 1F stair walk starts at (17, 11), not " + str(self.position()))
+            self._play_groups((
+                ("walk", "down", 1), ("walk", "left", 1), ("walk", "down", 2),
+                ("walk", "left", 7), ("walk", "up", 2), ("walk", "right", 2),
+                ("walk", "up", 6), ("walk", "left", 4), ("walk", "down", 2),
+                ("walk", "left", 4), ("walk", "up", 3), ("walk", "left", 1),
+                ("walk", "up", 4),
+            ))
             if self.position() != (2, 1):
                 raise ProtocolError("Victory Road 1F stairs missed: " + str(self.position()))
             self.save()
-            self.summary.update(acceptance="Victory Road 1F switch", natural=True, forbidden_shortcuts=False)
         if self.position() in {(2, 1), (1, 1)} and self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH"):
             # The stair tile is open, so the press walks onto the warp.
             for _ in range(2):
@@ -2682,16 +2691,6 @@ class CharmanderRun(BrockJourney):
             if npc.get("source_event_id") == source_id or npc.get("id") == source_id:
                 return npc["x"], npc["y"]
         return None
-
-    def _open_victory_1f_gate(self):
-        """Block (4, 6) is the 1F switch. Copy the floor foot so the pair table allows it."""
-        if not self._on("VictoryRoad1F") or not self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH"):
-            return
-        model = self.model()
-        foot = model.feet[14][9]
-        for x, y in ((8, 12), (9, 12), (8, 13), (9, 13)):
-            model.collision[y][x] = 0
-            model.feet[y][x] = foot
 
     def _open_victory_gates(self):
         """The harness map stays closed. The live switch paints these cells open."""
