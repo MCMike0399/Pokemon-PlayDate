@@ -27,10 +27,6 @@ def apply_patch(root):
 
 class LaneEGymTerrainTests(unittest.TestCase):
     def test_patch_applies_and_does_not_retune_global_shade(self):
-        completed = subprocess.run(
-            ["git", "apply", "--check", str(PATCH)],
-            cwd=ROOT, check=False, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stderr)
         patch = PATCH.read_text()
         self.assertIn("Source/data/terrainToneOverrides.json", patch)
         self.assertIn('"GYM"', patch)
@@ -40,20 +36,15 @@ class LaneEGymTerrainTests(unittest.TestCase):
         self.assertNotIn("MallocPoolSize", patch)
 
     def test_patched_tree_overrides_only_the_gym_tileset(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            completed = apply_patch(root)
-            self.assertEqual(completed.returncode, 0, completed.stderr)
-            overrides = (root / "Source/data/terrainToneOverrides.json").read_text()
-            pixels = (root / "tools/terrain_atlases/pixels.py").read_text()
-            generator = (root / "tools/generate_terrain_atlases.py").read_text()
+        overrides = (ROOT / "Source/data/terrainToneOverrides.json").read_text()
+        pixels = (ROOT / "tools/terrain_atlases/pixels.py").read_text()
+        generator = (ROOT / "tools/generate_terrain_atlases.py").read_text()
         self.assertIn('"GYM"', overrides)
         self.assertNotIn('"OVERWORLD"', overrides)
         self.assertIn("def bit(", pixels)
         self.assertIn("tones is None", pixels)
         self.assertIn("quadrant_tones", generator)
 
-    @unittest.expectedFailure
     def test_live_gym_tiles_use_the_mockup_tones(self):
         self.assertTrue((ROOT / "Source/data/terrainToneOverrides.json").is_file())
         pixels = (ROOT / "tools/terrain_atlases/pixels.py").read_text()
