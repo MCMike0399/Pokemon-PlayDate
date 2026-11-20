@@ -1036,8 +1036,14 @@ class Player:
         return "lost"
 
     def run_away(self, limit=80):
+        """Leave a wild battle. The command menu can be empty for a frame, so that is a wait."""
+        misses = 0
         for _ in range(limit):
-            if self.state.get("root") != "battle":
+            root = self.state.get("root")
+            if root == "party":
+                _send_out(self, None)
+                continue
+            if root != "battle":
                 return True
             battle = self.state.get("battle") or {}
             phase = battle.get("phase")
@@ -1051,11 +1057,24 @@ class Player:
             elif phase == "command":
                 if battle.get("inMoveSelect"):
                     self.press("b", wait=4)
-                else:
-                    options = (battle.get("menu") or {}).get("options") or []
-                    if "RUN" not in options:
+                    continue
+                mon = battle.get("player") or {}
+                player_hp = mon.get("hp") or 0
+                max_hp = mon.get("maxHP") or 0
+                quantities = (self.state.get("inventory") or {}).get("quantities") or {}
+                potions = int(quantities.get("potion") or 0) + int(quantities.get("superPotion") or 0)
+                if potions > 0 and 0 < player_hp < max_hp and player_hp <= max(28, max_hp - 12):
+                    if self.use_potion():
+                        continue
+                options = (battle.get("menu") or {}).get("options") or []
+                if "RUN" not in options:
+                    misses += 1
+                    if misses >= 8:
                         return False
-                    self.choose("battle", "RUN")
+                    self.send("wait 4")
+                    continue
+                misses = 0
+                self.choose("battle", "RUN")
             else:
                 self.send("wait 4")
         return self.state.get("root") != "battle"
@@ -4245,7 +4264,7 @@ def _finish_wild(player, level, strong_at, potion_at=0):
         too_strong = foe.get("species") == "dugtrio" or (foe.get("level") or 99) > (level or 0) + strong_at
         if too_strong and player.run_away():
             return
-        player.fight(limit=1200, potion_at=potion_at, run_at=8 if too_strong else None)
+        player.fight(limit=1200, potion_at=max(potion_at, 32) if too_strong else potion_at)
     if not player.exploring():
         raise RuntimeError("a wild battle stayed open: " + json.dumps(summary(player.state)))
 
@@ -4571,7 +4590,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-63")
+            output = Path("/tmp/lane-j-squirtle-64")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
