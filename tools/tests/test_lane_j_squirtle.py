@@ -838,7 +838,7 @@ class Player:
         for _ in range(limit):
             root = self.state.get("root")
             if root == "learning":
-                if not self.dismiss_until_explore(limit=40) and self.state.get("root") == "battle":
+                if not self.dismiss_until_explore(limit=80) and self.state.get("root") == "battle":
                     continue
                 if self.state.get("root") != "battle":
                     break
@@ -1606,9 +1606,9 @@ def careful_travel(player, cells, goal, avoid, limit=40, hp_floor=22):
             trainer = (player.state.get("battle") or {}).get("trainerName")
             if trainer or not player.run_away():
                 player.fight()
-            player.dismiss_until_explore(limit=40)
-        elif root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event"):
-            player.dismiss_until_explore(limit=40)
+            player.dismiss_until_explore(limit=80)
+        elif root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event", "evolution"):
+            player.dismiss_until_explore(limit=80)
         else:
             return kind
         mon = player.state.get("pokemon") or {}

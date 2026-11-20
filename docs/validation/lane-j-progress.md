@@ -1,6 +1,6 @@
 # Lane J — Squirtle
 
-Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
+Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 in `837a61e6`), then main `9a33a835` (flower pin, gym atlas, Pallet tones) and main `2e7863ff` (learn pages, the X-item battle gate, and Brine doubling at half HP). The remote branch only moved forward. Real Simulator presses only. Earned saves stay outside git.
 
 ## Position
 
