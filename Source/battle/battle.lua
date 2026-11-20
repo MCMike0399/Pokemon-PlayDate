@@ -908,6 +908,10 @@ function Battle:chooseParty(index)
         if outcome and outcome~="replacement" then return outcome end
         return self:finishRound()
     end)
+    -- Pursuit defers commitActiveMember until after the strike, so this
+    -- return used to leave selectionKind set. The party choice is already
+    -- accepted. BattleScene:completeSelection asserts otherwise.
+    self.selectionKind = nil
     return true
 end
 function Battle:availableBalls()

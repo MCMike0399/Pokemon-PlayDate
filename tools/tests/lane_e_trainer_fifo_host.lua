@@ -47,11 +47,8 @@ if joined(lee) ~= "jumpKick,focusEnergy,highJumpKick,megaKick" then
     error("Hitmonlee 55 trainer moves are " .. joined(lee))
 end
 local leaked = Pokemon.initialMovesFor("hitmonlee", 55)
-if joined(leaked) == joined(lee) then
-    error("player learnset was filtered with the trainer party")
-end
-for _, key in ipairs(leaked) do
-    if key == "wideGuard" then error("player initial moves still include wideGuard") end
+if joined(leaked) ~= joined(lee) then
+    error("wild Hitmonlee 55 kept a later id: " .. joined(leaked))
 end
 
 local function assertPokered(species, level)
@@ -76,4 +73,31 @@ assertPokered("onix", 56)
 assertPokered("geodude", 12)
 assertPokered("poliwag", 18)
 assertPokered("machamp", 58)
+
+local banned = {
+    magnetBomb = true, rapidSpin = true, furyCutter = true, magnitude = true,
+    spark = true, rollout = true, rainDance = true, waterSport = true, charge = true,
+    wideGuard = true, flail = true,
+}
+local function assertInitial(species, level, expected)
+    local moves = Pokemon.initialMovesFor(species, level)
+    local ids = {}
+    for _, entry in ipairs(pokemonData[species].learnset) do ids[entry.move] = entry.id end
+    for _, key in ipairs(moves) do
+        if banned[key] or not ids[key] or ids[key] > 165 then
+            error(species .. " " .. level .. " initial " .. key .. " id " .. tostring(ids[key]))
+        end
+    end
+    if expected and joined(moves) ~= expected then
+        error(species .. " " .. level .. " initial moves are " .. joined(moves))
+    end
+end
+
+assertInitial("magnemite", 21, "supersonic,thunderShock,sonicBoom,thunderWave")
+assertInitial("sandshrew", 19, "defenseCurl,sandAttack,poisonSting,swift")
+assertInitial("voltorb", 18, "tackle,sonicBoom")
+assertInitial("poliwag", 18, "bubble,hypnosis,waterGun,doubleSlap")
+assertInitial("poliwag", 1, "bubble")
+assertInitial("voltorb", 1, "tackle")
+assertInitial("magikarp", 30, "splash,tackle")
 print("trainer-fifo-held")
