@@ -87,6 +87,8 @@ FOSSIL_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/c964b798257f")
 FOSSIL_SAVE_SHA = "d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4"
 CLIFF_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5")
 CLIFF_SAVE_SHA = "9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14"
+POTION_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/0c3f08774f1b")
+POTION_SAVE_SHA = "eba0696ff186ffcf8beb0b9ffbd1e831f1d82949f67da036e0e1256b37d04354"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 CERULEAN_NURSE = "pokered:CERULEAN_POKECENTER:objects:1"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
@@ -1500,6 +1502,8 @@ def talk_to(player, cells, event_id, avoid):
         if not player.exploring():
             continue
         if (player.state["player"]["x"], player.state["player"]["y"]) != spot:
+            # A defeated trainer can still stand on the nearest tile.
+            blocked.add(spot)
             continue
         if player.state["player"].get("facing") != direction:
             player.press(direction, wait=4)
@@ -2234,6 +2238,30 @@ def _to_cerulean(player, report, display, clips, output):
         raise RuntimeError("Cerulean did not enter the gym: " + json.dumps(summary(player.state)))
 
     def battle_misty():
+        cells = cerulean_gym_cells()
+        # The Lass watches every tile in front of Misty. Beat her first.
+        kind = player.travel(cells, (6, 3), CERULEAN_GYM_AVOID, limit=20)
+        report["lass_walk"] = {"kind": kind, **summary(player.state)}
+        if player.state.get("root") == "battle":
+            report["lass_won"] = player.fight(limit=900)
+            player.dismiss_until_explore(limit=80)
+        if "gym" not in str(player.state.get("zone")):
+            raise RuntimeError("the Lass fight left the gym: " + json.dumps(summary(player.state)))
+        hp = (player.state.get("pokemon") or {}).get("hp") or 0
+        if hp < 40:
+            kind = step_onto(player, cells, (5, 13), CERULEAN_GYM_AVOID, "down")
+            report["gym_heal_exit"] = {"kind": kind, **summary(player.state)}
+            if "cerulean_city" not in str(player.state.get("zone")):
+                raise RuntimeError("the gym exit did not open: " + json.dumps(summary(player.state)))
+            _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                     cerulean_center_cells(), "cerulean_heal_again", "cerulean_city",
+                     avoid=CERULEAN_DOORS | {(15, 18)})
+            doors = set(CERULEAN_DOORS)
+            doors.discard((30, 19))
+            kind = step_onto(player, cerulean_cells(), (30, 19), doors | {(15, 18)}, "up")
+            report["gym_return"] = {"kind": kind, **summary(player.state)}
+            if "gym" not in str(player.state.get("zone")):
+                raise RuntimeError("Cerulean did not re-enter the gym: " + json.dumps(summary(player.state)))
         talked = talk_to(player, cerulean_gym_cells(), MISTY, CERULEAN_GYM_AVOID)
         report["misty_talk"] = {"result": talked, **summary(player.state)}
         if player.state.get("root") == "battle" or talked == "talked":
@@ -2411,11 +2439,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-26")
-            save_from = CLIFF_SAVE
-            digest = sha256_file(save_from / "adventure.a.json")
-            if digest != CLIFF_SAVE_SHA:
-                raise SystemExit(f"cliff save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-28")
+            save_from = POTION_SAVE
+            digest = sha256_file(save_from / "adventure.b.json")
+            if digest != POTION_SAVE_SHA:
+                raise SystemExit(f"potion save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_route4_line))
