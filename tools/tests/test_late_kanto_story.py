@@ -112,6 +112,7 @@ class LateKantoSourceTests(unittest.TestCase):
         probe = r'''
 json = { decodeFile = function() return document end }
 pokemonData = {articuno=true, zapdos=true, moltres=true, mewtwo=true}
+import = function() end
 dofile(module_path)
 local function check(actual, expected, label)
     if actual ~= expected then

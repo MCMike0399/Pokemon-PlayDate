@@ -304,6 +304,18 @@ check(noted[1].species, "pikachu", "recorded party")
 check(registered.hooks.explore({ session = { party = function()
     return { count = function() return 1 end, get = function() return { species = "pikachu", level = 70, name = "PIKACHU" } end }
 end } }), false, "one ceremony")
+local giftId = "pokered:CERULEAN_CAVE_1F:script:mew-gift"
+check(registered.events[giftId].kind, "bespoke", "mew gift is a registered script")
+check(registered.events["postgame:CERULEAN_CAVE_1F:mew-gift"], nil, "map id stays unregistered")
+local gift = SourceEventHandlers[giftId]()
+check(gift.scene, "postgame", "gift scene")
+check(gift.scene_script, "gift", "gift script")
+SourceEvents.has = function(id) return id == giftId end
+SourceEvents.dispatch = function(_, id) dispatched = id; return true end
+currentZone = { stableID = "pokered:CERULEAN_CAVE_1F" }
+check(PostgameStory.tryGift({ player = { getFacingTile = function() return 23, 16 end } }), true, "facing the scientist")
+check(dispatched, giftId, "gift dispatch")
+check(PostgameStory.tryGift({ player = { getFacingTile = function() return 4, 4 end } }), false, "other tiles stay quiet")
 print("lane-h cave ok")
 '''
         with tempfile.TemporaryDirectory() as directory:

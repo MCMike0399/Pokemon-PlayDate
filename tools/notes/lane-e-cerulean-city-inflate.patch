@@ -1,0 +1,32 @@
+Lane E tip d010ec62678d53f41e33e2d83ba1fe946d310fa4.
+
+The path from the Hall continue into Cerulean Cave cannot be walked.
+switchZone("kanto_cerulean_city") fails while inflating the map:
+
+  runtime error: pd_readcompressed inflate failed, out of memory
+
+Two sessions:
+
+  3a952294f07e40c380cdc7d25a1a8081
+    Hall ceremony, continue, live player Pallet (5, 6) facing down,
+    pause menu open. The next request's city fixture died on inflate.
+  181de250fb4449d3b86a7a7c383b3489
+    Fresh boot, fixture zone kanto_cerulean_city at (4, 13). Same
+    inflate error. Cave 1F and B1F fixtures in their own fresh
+    processes did load.
+
+MallocPoolSize stays 16645684. Do not raise it and do not hand-edit
+pins. The collision walk on this tip still reaches the gift tile
+CeruleanCave1F (24, 16) in 872 steps from PalletTown (5, 6) once the
+cave guard, the rival, the rocket and the ticket guard are absent
+(804 walk, 44 surf, 10 warp, 9 connection, 4 ledge, 1 surf-land; one
+surf boarding on Route24 (8, 16) facing down). From CeruleanCity
+(4, 13) the door is three steps: up to (4, 12), up into the cave at
+(24, 17), up to (24, 16). The Simulator cannot load the city those
+steps stand on.
+
+On E, free boot-retained imported definitions before
+WorldDeltas.ensureZone of kanto_cerulean_city, without keeping the
+Hall photo and credits images alive across that load. switchZone in
+Source/world/zone.lua is only ensureZone plus the currentZone
+assignment. Do not edit Source on this branch.

@@ -2,11 +2,10 @@
 -- Power Plant, Cerulean Cave and the other remainder maps are installed.
 -- This module reads the pinned plan. It does not write badges, write a
 -- save, or place Mew.
--- pdc 3.1.2 treats the import name as a file request, even inside type().
-local importer = import
-if type(importer) == "function" then
-    importer "game/postgameStory"
-end
+-- A variable call is not an import statement. pdc puts the file in the
+-- bundle and then never runs the chunk, so the Simulator never builds
+-- PostgameStory. This statement runs the chunk before this file.
+import "game/postgameStory"
 LateKantoStory = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local cached
@@ -77,6 +76,5 @@ function LateKantoStory.actorMetadata(id)
     return {}
 end
 
-if type(importer) == "function" then
-    importer "game/fossilRevival"
-end
+-- Same as the postgame import above. FossilRevival.talk is the lab handover.
+import "game/fossilRevival"

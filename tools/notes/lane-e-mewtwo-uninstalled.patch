@@ -1,0 +1,26 @@
+Lane E tip d010ec62678d53f41e33e2d83ba1fe946d310fa4.
+
+Talking to Mewtwo does not start a battle. Fresh harness session, fixture
+zone kanto_cerulean_cave_b1f, entry (26, 13) facing right, then A.
+Snapshot player.lastTraversalBlock:
+
+  kind = unimplemented-source-event
+  id   = pokered:CERULEAN_CAVE_B1F:objects:1
+
+Root stayed overworld. No battle phase. The static is declared in
+SourceEncounters and in postgame story.json cave.mewtwo, and
+PostgameStory.installEvents does addStatic for that id, but the chunk
+runs only from loadHallContinue when the saved zone is still
+pokered:HALL_OF_FAME. A visit that did not take that path, and a later
+continue of the Pallet save the Hall continue relocates to, never
+registers the id. KantoWorld then blocks the talk.
+
+Same-process proof after the Hall continue was blocked by the Cerulean
+City inflate failure in lane-e-cerulean-city-inflate.patch. The restart
+harness cannot hold the Simulator either: LinuxResidentGuard kills it
+when VmHWM passes 1 GiB, before ready.
+
+On E, call PostgameStory.installEvents for every continue of a save that
+has a Hall of Fame team, not only while location.zone_id is
+pokered:HALL_OF_FAME. Do not edit Source on this branch. MallocPoolSize
+stays 16645684.
