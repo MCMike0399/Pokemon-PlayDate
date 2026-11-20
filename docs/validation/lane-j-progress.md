@@ -69,15 +69,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-The Thunder Badge is saved. The walk left the gym, Cut the tree again from (15, 19), healed at the Center, bought 3 Super Potions (¥321 left), and took Diglett's Cave to Route 2. The pause is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `69022cd7cdad58f2c964fca7c23a10117f567f770a6b1c2f6b142c886e3fcccf` (sequence 53), Route 2 (11, 2) facing left. Dugtrio 27, Bellsprout 15, Pidgeotto 20, and Wartortle 27 are healed. `BADGE_THUNDER` and `EVENT_BEAT_LT_SURGE` are set. A step left stays on (11, 2). The static grid also has no path from the cave side to Pewter (8, 0). The route stops there. Main is `ea32b553` and is already merged. Celadon and the Rainbow Badge are not reached. Spearow is not caught.
+The Thunder Badge is saved. K confirmed the Route 2 seam and the regrown Vermilion tree match pokered, so neither is a product red. Sequence 53 is Route 2 (11, 2). The next step is Cut at (5, 10) from (5, 11), then Pewter (18, 35), Route 3, Mt. Moon, Route 4, and Cerulean without another Misty fight. Main is `ea32b553` and is already merged.
 
 ## Blockers
 
 No product red on Misty after `fe6376b9`, and none on Bill, the burgled house, the Underground, the Vermilion arrival, or the S.S. Anne rival. The first Anne loss was the fight: Ivysaur's Vine Whip and Leech Seed outlasted 6 Super Potions. The later fight won with the bird and saved HM01. The disconnected gym door matches the documented north-arrival component until Cut. Recover and Swift did not appear in the gym fight. The swimmer on the gym's y=7 line stayed avoided.
 
-Suspected product red: Route 2's cave side does not reach Pewter. The north cave door lands on Route 2 (12, 9). From (11, 2), facing left, one step is `blocked` and the tile stays (11, 2). The same static grid has no four-direction path from (12, 10) to (8, 0). Pallet's (9, 0) seam is solid in JSON and open at runtime; this one is not.
-
-The Vermilion cut also fails to stay in a later pause. Sequence 49, saved on the open tile, stores Vermilion (15, 18) as `pokered:OVERWORLD:cell:2c-2c-2c-2c`. Sequence 50, saved in the gym after that cut, does not. Loading it, a step up from (15, 19) stays put. Cut from that south tile opened the tree again and the player stood on (15, 18). Sequences 52 and 53, saved on Route 2 after that second cut, again store only the dock tiles.
+Route 2's blocked left step from (11, 2) and the Vermilion tree returning after a map change are pokered behavior. The cave side joins Pewter after Cut at (5, 10).
 
 ## Tests
 

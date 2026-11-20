@@ -709,6 +709,13 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(route11_cells(), (0, 6), (10, 12), route11_avoid()))
         self.assertIsNotNone(route(diglett_cave_cells(), (36, 31), (5, 6)))
         self.assertIsNone(route(route2_cells(), (12, 10), (8, 0), {(12, 9)}))
+        cave_side = {(12, 9), (3, 11)}
+        self.assertIsNotNone(route(route2_cells(), (11, 2), (5, 11), cave_side))
+        self.assertNotIn((5, 10), route2_cells())
+        self.assertIsNone(route(route2_cells(), (5, 11), (8, 0), cave_side))
+        route2_cut = set(route2_cells())
+        route2_cut.add((5, 10))
+        self.assertIsNotNone(route(route2_cut, (5, 11), (8, 0), cave_side))
         self.assertIsNotNone(route(vermilion_gym_cells(), (5, 16), (2, 6), GYM_SIGHT))
         self.assertIsNone(route(vermilion_gym_cells(), (5, 16), (2, 8), GYM_SIGHT))
         self.assertIsNotNone(route(vermilion_gym_cells(), (5, 16), (6, 2), GYM_SIGHT))
@@ -2784,7 +2791,10 @@ def _from_route4(player, report, display, clips, output):
         raise RuntimeError("Mt. Moon blacked out three times: " + json.dumps(summary(player.state)))
     if player.state.get("zone") != "kanto_route_4":
         raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
-    _to_cerulean(player, report, display, clips, output)
+    if _quest(player).get("BADGE_CASCADE"):
+        _enter_cerulean(player, report)
+    else:
+        _to_cerulean(player, report, display, clips, output)
 
 
 def route4_open_line():
@@ -4221,8 +4231,8 @@ def _raise_pidgey(player, report):
     _lead(player, "wartortle")
 
 
-def _use_cut(player, report, facing):
-    """Cut the tile being faced. The caller is already standing beside the tree."""
+def _confirm_cut(player, facing):
+    """Open the field menu and confirm Cut while facing the tree."""
     if player.state["player"].get("facing") != facing:
         player.press(facing, wait=4)
     if not player.exploring():
@@ -4247,6 +4257,11 @@ def _use_cut(player, report, facing):
         else:
             player.press("b", wait=4)
     _close_menus(player)
+
+
+def _use_cut(player, report, facing):
+    """Cut the tile being faced. The caller is already standing beside the tree."""
+    _confirm_cut(player, facing)
     opened = set(vermilion_cells())
     opened.add((15, 18))
     kind = player.travel(opened, (15, 18), set(VERMILION_DOORS))
@@ -4484,14 +4499,108 @@ def _raise_spearow(player, report):
         raise RuntimeError("Spearow did not become Fearow 34 with Drill Peck: " + json.dumps(report["fearow"]))
 
 
-def _toward_celadon(player, report, display=None, clips=None, output=None):
-    """After the badge: Diglett's Cave to Route 2, then north toward Cerulean.
+def _enter_cerulean(player, report):
+    """Route 4's open line into the city. Cascade is already set, so the gym stays closed."""
+    if player.state.get("zone") == "kanto_route_4":
+        if player.exploring() and (player.state["player"]["x"], player.state["player"]["y"]) != (59, 4):
+            report["saved_route4_exit"] = player.pause_save()
+            _keep_bird_save(report)
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here != (59, 4) and here[0] >= 24 and route(route4_cells(), here, (59, 4)) is not None:
+            kind = player.travel(route4_cells(), (59, 4), set(), limit=20)
+            report["cliff"] = {"kind": kind, "at": summary(player.state)}
+            if kind != "arrived":
+                raise RuntimeError("could not reach the Route 4 cliff: " + json.dumps(summary(player.state)))
+        _follow_route4_line(player, report)
+    if player.state.get("zone") != "kanto_cerulean_city":
+        raise RuntimeError("Cerulean did not open: " + json.dumps(summary(player.state)))
+    if _needs_heal(player):
+        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                 cerulean_center_cells(), "cerulean_return", "cerulean_city",
+                 avoid=CERULEAN_DOORS | {(15, 18)})
+    report["cerulean_return"] = summary(player.state)
+    _pause(player, report, "saved_cerulean_return")
+    _keep_bird_save(report)
 
-    The static Route 2 grid keeps the cave door on the east path, apart from
-    Pewter's exit at (8, 0). The walk still tries that exit. A blocked step is
-    the report, after the Route 2 pause.
+
+ROUTE2_AVOID = {(12, 9), (3, 11)}
+
+
+def _cut_route2_to_pewter(player, report, display=None, clips=None, output=None):
+    """Cut the cave-side tree at (5, 10) and take the north edge to Pewter.
+
+    The tree is back after a reload. Stand at (5, 11), face up, and cut before
+    the walk north. (8, 0) lands on Pewter (18, 35).
+    """
+    blocked = set(ROUTE2_AVOID)
+    cells = route2_cells()
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if route(cells, here, (8, 0), blocked) is None:
+        def cross():
+            _stand(player, cells, (5, 11), blocked, "Route 2 tree")
+            if player.state["player"].get("facing") != "up":
+                player.press("up", wait=4)
+            kind = player.step("up")
+            landed = (player.state["player"]["x"], player.state["player"]["y"])
+            opened = set(cells)
+            opened.add((5, 10))
+            if landed != (5, 10):
+                _confirm_cut(player, "up")
+                kind = player.travel(opened, (5, 10), blocked)
+                landed = (player.state["player"]["x"], player.state["player"]["y"])
+            report["route2_cut"] = {"kind": kind, "at": list(landed), **summary(player.state)}
+            if landed != (5, 10):
+                raise RuntimeError("Route 2 Cut did not open (5, 10): " + json.dumps(report["route2_cut"]))
+            kind = leave_map(player, opened, (8, 0), blocked, "up")
+            report["pewter_entry"] = {"kind": kind, **summary(player.state)}
+            return kind
+
+        if display and clips and output:
+            film(display, clips, output, "route2", report, "end", cross)
+        else:
+            cross()
+    else:
+        kind = leave_map(player, cells, (8, 0), blocked, "up")
+        report["pewter_entry"] = {"kind": kind, **summary(player.state)}
+    if "pewter" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 2 did not reach Pewter: " + json.dumps(summary(player.state)))
+    _pause(player, report, "saved_pewter_return")
+    _keep_bird_save(report)
+
+
+def _continue_kanto(player, report, display, clips, output):
+    """Pewter's east road, Mt. Moon, and Route 4. Misty stays beaten."""
+    zone = str(player.state.get("zone"))
+    if "cerulean" in zone and "gym" not in zone:
+        _pause(player, report, "saved_cerulean_return")
+        _keep_bird_save(report)
+        return
+    _lead(player, "wartortle")
+    if "route_4" in zone or "mt_moon" in zone:
+        _from_route4(player, report, display, clips, output)
+        return
+    if "pewter" in zone or "route_3" in zone:
+        _cross_route3(player, report, display, clips, output)
+        _from_route3_north(player, report, display, clips, output)
+        return
+    raise RuntimeError("the road east of Pewter is not open: " + json.dumps(summary(player.state)))
+
+
+def _toward_celadon(player, report, display=None, clips=None, output=None):
+    """After the badge: Diglett's Cave to Route 2, Cut (5, 10), then Pewter.
+
+    A reload grows the tree back. The cave side reaches Pewter only after Cut
+    from (5, 11). Cascade is already set, so Cerulean does not mean Misty.
     """
     zone = str(player.state.get("zone"))
+    if zone == "kanto_route2":
+        _cut_route2_to_pewter(player, report, display, clips, output)
+        _continue_kanto(player, report, display, clips, output)
+        return
+    if zone in ("kanto_pewter_city", "kanto_route_3", "kanto_route_4", "kanto_mt_moon_1f",
+                "kanto_mt_moon_b1f", "kanto_mt_moon_b2f", "kanto_cerulean_city"):
+        _continue_kanto(player, report, display, clips, output)
+        return
     if "vermilion_gym" in zone:
         _leave(player, vermilion_gym_cells(), [((5, 17), "down"), ((6, 17), "down")],
                GYM_SIGHT, "vermilion_city", "gym exit")
@@ -4546,38 +4655,8 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
            {(4, 3)}, "route2", "Route 2")
     _pause(player, report, "saved_route2")
     _keep_bird_save(report)
-    here = (player.state["player"]["x"], player.state["player"]["y"])
-    blocked = {(12, 9), (3, 11)}
-    cells = route2_cells()
-    steps = route(cells, here, (8, 0), blocked)
-    if not steps:
-        # The static grid splits the cave side from Pewter. Try the tree seam before reporting it.
-        def probe():
-            _stand(player, route2_cells(), (11, 2), blocked, "Route 2 seam")
-            started = (player.state["player"]["x"], player.state["player"]["y"])
-            moved = player.step("left")
-            landed = (player.state["player"]["x"], player.state["player"]["y"])
-            report["route2_seam"] = {"from": started, "kind": moved, "to": landed}
-            return started, landed
-
-        if display and clips and output:
-            _before, after = film(display, clips, output, "route2", report, "end", probe)
-        else:
-            _before, after = probe()
-        _pause(player, report, "saved_route2_seam")
-        _keep_bird_save(report)
-        if after == report["route2_seam"]["from"]:
-            raise RuntimeError("Route 2's cave side does not reach Pewter: " + json.dumps(report["route2_seam"]))
-        cells = set(route2_cells())
-        cells.add(after)
-        steps = route(cells, after, (8, 0), blocked)
-        if not steps:
-            raise RuntimeError("Route 2's cave side does not reach Pewter: " + json.dumps(report["route2_seam"]))
-    kind = leave_map(player, cells, (8, 0), {(12, 9), (3, 11)}, "up")
-    if "pewter" not in str(player.state.get("zone")):
-        raise RuntimeError(f"Route 2 did not reach Pewter: {kind} " + json.dumps(summary(player.state)))
-    _pause(player, report, "saved_pewter_return")
-    _keep_bird_save(report)
+    _cut_route2_to_pewter(player, report, display, clips, output)
+    _continue_kanto(player, report, display, clips, output)
 
 
 def play_vermilion_prep(player, report, display, clips, output):
@@ -4720,7 +4799,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-74")
+            output = Path("/tmp/lane-j-squirtle-75")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
