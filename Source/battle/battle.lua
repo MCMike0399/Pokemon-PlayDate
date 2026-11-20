@@ -2010,17 +2010,20 @@ function Battle:useItem(id,partyIndex,moveSlot)
     if not self.player:isAlive() or not self.enemy:isAlive() then return false,"fainted" end
     if self.conditions:locked(self.player) then return false,"locked-move" end
     local item=type(id)=="string" and ItemData.definitions[id] or nil
-    local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true,statStage=true}
-    if not item or not legal[item.effect] then return false,"unsupported-item-use" end
-    partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
-    if not partyIndex then return false,"invalid-index" end
-    local target,problem=self.party:get(partyIndex)
-    if not target then return false,problem end
-    if Party._owner(target)~=self.party then return false,"stale-target" end
-    if item.effect == "statStage" then
+    -- X Accuracy/Attack/Defend/Speed/Special raise one stage. They are not
+    -- medicine, and a key item never enters this branch. Guard Spec. and
+    -- Dire Hit stay unsupported.
+    if item and item.effect == "statStage" then
+        if item.keyItem then return false,"unsupported-item-use" end
+        local xItems = {xAccuracy=true,xAttack=true,xDefend=true,xSpeed=true,xSpecial=true}
         local allowed = {atk=true,def=true,spa=true,spd=true,spe=true,acc=true,eva=true}
         local stat = item.stat
-        if not allowed[stat] or item.stages ~= 1 then return false,"unsupported-item-use" end
+        if not xItems[id] or not allowed[stat] or item.stages ~= 1 then return false,"unsupported-item-use" end
+        partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
+        if not partyIndex then return false,"invalid-index" end
+        local target,problem=self.party:get(partyIndex)
+        if not target then return false,problem end
+        if Party._owner(target)~=self.party then return false,"stale-target" end
         local current = target.statStages and target.statStages[stat]
         if type(current) ~= "number" or current >= 6 or current < -6 then return false,"no-effect" end
         local consumed, why = Inventory.consume(self.session:inventory(), id, 1)
@@ -2039,6 +2042,13 @@ function Battle:useItem(id,partyIndex,moveSlot)
         end)
         return true,{kind="statStage",stat=stat,before=current,after=current+1}
     end
+    local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}
+    if not item or not legal[item.effect] then return false,"unsupported-item-use" end
+    partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
+    if not partyIndex then return false,"invalid-index" end
+    local target,problem=self.party:get(partyIndex)
+    if not target then return false,problem end
+    if Party._owner(target)~=self.party then return false,"stale-target" end
     local ok,result=Items.use(self.session:inventory(),id,target,moveSlot)
     if not ok then return false,result end
     self.effects:beginRound()

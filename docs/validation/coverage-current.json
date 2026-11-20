@@ -1,6 +1,28 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "937b9025855733721409c2e7a3188ad6c8575d59",
+    "source_sha256": "e9b85a82d34759899b824bda89aa3aee2c7fc7eebe20324afa35e881bbd94940",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after Brine hits and doubles at or below half HP. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 e8df797cd4d72c3aaa6310e7a3b63963a7fedafc55de0dbb15d0f7e6b7cf5378.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "eb76d786502e62ed622c9e5ad12e1707dd2a1d71",
+    "source_sha256": "e8df797cd4d72c3aaa6310e7a3b63963a7fedafc55de0dbb15d0f7e6b7cf5378",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the battle legal set keeps key items out. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 9b46b4b279a999460478985f24d4f7043f6b11160f6563cec294a16af2718495.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "f301b7430dd41368a529e5fd6816dc212f7124f3",
     "source_sha256": "9b46b4b279a999460478985f24d4f7043f6b11160f6563cec294a16af2718495",
     "policy_date": "2026-11-20",
@@ -1661,6 +1683,8 @@
   
   }
   }}
+  }
+  }
   }
   }
   }
