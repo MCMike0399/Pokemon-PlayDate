@@ -2656,15 +2656,11 @@ class CharmanderRun(BrockJourney):
                 ("push", "down", 1),
             ))
             self._require_flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH")
-            # The opened gate is not in the static collision model, so the
-            # steps are the searched path. Stop on (2, 1), beside the stair.
-            self._play_groups((
-                ("walk", "down", 1), ("walk", "left", 1), ("walk", "down", 2),
-                ("walk", "left", 7), ("walk", "up", 2), ("walk", "right", 2),
-                ("walk", "up", 6), ("walk", "left", 4), ("walk", "down", 2),
-                ("walk", "left", 4), ("walk", "up", 5), ("walk", "left", 1),
-                ("walk", "up", 2),
-            ))
+            self.save()
+            # The gate is open in the live map. Path around the cooltrainer
+            # who stands on the old straight stair line.
+            self._open_victory_1f_gate()
+            self.navigate((2, 1))
             if self.position() != (2, 1):
                 raise ProtocolError("Victory Road 1F stairs missed: " + str(self.position()))
             self.save()
@@ -2686,6 +2682,16 @@ class CharmanderRun(BrockJourney):
             if npc.get("source_event_id") == source_id or npc.get("id") == source_id:
                 return npc["x"], npc["y"]
         return None
+
+    def _open_victory_1f_gate(self):
+        """Block (4, 6) is the 1F switch. Copy the floor foot so the pair table allows it."""
+        if not self._on("VictoryRoad1F") or not self.flag("EVENT_VICTORY_ROAD_1_BOULDER_ON_SWITCH"):
+            return
+        model = self.model()
+        foot = model.feet[14][9]
+        for x, y in ((8, 12), (9, 12), (8, 13), (9, 13)):
+            model.collision[y][x] = 0
+            model.feet[y][x] = foot
 
     def _open_victory_gates(self):
         """The harness map stays closed. The live switch paints these cells open."""
