@@ -11,6 +11,7 @@ Branch `cursor/lane-j-squirtle`. Merged E tip `51764017` (Oak at lab cell 6, 2 i
 - Route 3 is crossed. Mt. Moon is crossed. The Route 4 open line entered Cerulean. Nugget Bridge, including the rival on the north corridor and the off-line Jr.Trainer, left Wartortle at level 22 with the Nugget. The gym fight on `fe6376b9` used Bite only. Staryu L18 had Tackle and Water Gun. Starmie L21 had Tackle, Water Gun, and Bubblebeam. Neither used Recover or Swift.
 - S.S. Ticket is in the bag (`ssTicket` 1, `EVENT_GOT_SS_TICKET`). Bill's YES started the separator. The ticket pause is `/opt/cursor/artifacts/lane-j/saves/191a86b9e4ed/adventure.b.json` sha256 `1363fe0f4563c44e931da1db5199022186790131dd7cd45f5cf87830838ae4ad` (sequence 18, Bill's house (5, 4)).
 - Vermilion is reached. The burgled house back door, the thief at (30, 9) (TM28), Route 5's underground door (17, 27), and Route 6's south edge (9, 35) landed Vermilion (19, 0). The Center healed Wartortle. The north arrival has no walk to the gym door (12, 19). Thunder Badge is not set. Wartortle is level 25, 67 HP, Tackle, Water Gun, Bubble, and Bite, outside the Vermilion Center at (11, 4). The pause is `/opt/cursor/artifacts/lane-j/saves/de26045b6d06/adventure.a.json` sha256 `51ade10899094ca5582d70e13e6664bb0fe9adff6b95c19036ed86770c32a4e3` (sequence 19).
+- The S.S. Anne rival blacked out once. pret/pokered af519899 English Blue puts Bellsprout, not Oddish, on Routes 5, 6, 24, and 25, and Bellsprout learns Cut. That catch did not start. HM01 is not in the bag. The blackout was not written, so the resume is still sequence 19.
 - Earned pause save: `/opt/cursor/artifacts/lane-j/saves/5a428a2c98f5/adventure.a.json` sha256 `9f3237a35d79f667b80884f3b0711356450817f5f068e67611f02ffdd29e2a14` (sequence 11, the cliff). The east-side exit pause is `adventure.b.json` sha256 `35c11c6985486b732e734bf14c15832c1367b4c638b16d9c27a68438b590fb8d` (sequence 10, Route 4 (24, 6)). The Dome Fossil pause is `/opt/cursor/artifacts/lane-j/saves/c964b798257f/adventure.a.json` sha256 `d7c9172de14d727711569feeb8d1b5eac274d43f03223898d55afbcbdd47d2f4` (sequence 9). Earlier: Route 4 entrance sequence 8 `362f03f4ab81c87ca6421b4d419090fb17e557a79e3d27146398fc9f872772d9`, Boulder Badge `fca4f05f2567bd621c35b195f24c0f7db80655b09b67409d282e3e4550a1b05b`. None of these are in git.
 
 ## Clips
@@ -33,6 +34,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T055730Z-gym-cerulean.mp4` | 85.0s, trimmed from 102.1s | `e041115526f22ae6ec005672fc0fe35fe41c220ab834424ae0fd5ec089222ccf` | Misty, Staryu then Starmie, and the Cascade Badge. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T061534Z-bill-ticket.mp4` | 38.77s | `a4dd9a22fd14d6ae0f13e249ad76c749e73ee518a7c3b3c90048b837d2ec66fa` | Bill's separator and the S.S. Ticket. 400x240, decoded luma only 0 and 255. |
 | `artifacts/lane-j/20261120T062608Z-vermilion.mp4` | 84.97s, trimmed from 149.37s | `257a78bc7a6813e55a6a051ebeaed8cc9ecee041838c7fc11db003c6c790b89d` | Route 6 into Vermilion. 400x240, decoded luma only 0 and 255. |
+| `artifacts/lane-j/20261120T065442Z-ss-anne.mp4` | 85.0s, trimmed from 323.63s | `757d2eaaa7a6ef51be9b8f521d30a2760b3b4d25324472d8dc00a03c79a6a9d1` | The S.S. Anne rival, ending in the blackout. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
 
 ## Title intro
 
@@ -56,14 +58,20 @@ A third crossing evolved to Wartortle again, lost to the fossil super nerd, and 
 
 The retry beat the fossil super nerd. Wartortle is level 17, 22 HP, with Tackle, Water Gun, Bubble, and Bite, and `EVENT_GOT_DOME_FOSSIL` is set. The first exit walk stepped on warp (5, 7) early. The next walk kept that stair for the last step, returned through B1F, and landed on Route 4 (24, 6). The Center is west of the wall at x=20, so the east side cannot heal there. The walk reached (59, 4) and a right step was blocked. Cerulean did not open.
 
+## S.S. Anne blackout
+
+From sequence 19 the walk bought 8 Poké Balls and 6 Super Potions at the Vermilion Mart (money left 3745), showed the ticket at (18, 30), and boarded. The rival trigger is 2F (36, 8). Kadabra L18 disabled Water Gun, then used Confusion. The first session kept confirming Water Gun because the page says "is disabled" rather than "was disabled", so that fight never advanced and was stopped. The parser now accepts both, and the second session switched moves.
+
+Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Leech Seed, and enough HP that Bite could not finish it. Vine Whip was super effective. Leech Seed restored Ivysaur between Bites, and Bite missed. All 6 Super Potions were used. Wartortle fainted with Ivysaur at 6 HP. The session woke at the Vermilion Center (11, 4), level 26, 69 HP, with no Super Potions and no HM01. No pause was written. The disk resume is still sequence 19. The same fight was not started again.
+
 ## Next
 
-S.S. Ticket and Vermilion arrival are done. The resume is `/opt/cursor/artifacts/lane-j/saves/de26045b6d06/adventure.a.json` sha256 `51ade10899094ca5582d70e13e6664bb0fe9adff6b95c19036ed86770c32a4e3` (sequence 19, Vermilion (11, 4), Wartortle level 25, 67 HP). The gym door `(12, 19)` is not on the north-arrival component. Thunder Badge waits for a walk that actually reaches that door. Main is still `fe6376b9`; the champion-rival patch was not there at the ticket pause or the Vermilion pause.
+HM01 and the Thunder Badge are not earned. The resume is `/opt/cursor/artifacts/lane-j/saves/de26045b6d06/adventure.a.json` sha256 `51ade10899094ca5582d70e13e6664bb0fe9adff6b95c19036ed86770c32a4e3` (sequence 19, Vermilion (11, 4), Wartortle level 25, 67 HP). Main is still `fe6376b9`. The champion-rival patch and Hyper Beam were not on main before this walk. Lane K is still `aef7fd9b`, with no Surge plan.
 
 ## Blockers
 
-No product red on Misty after `fe6376b9`, and none on Bill, the burgled house, the Underground, or the Vermilion arrival. The disconnected gym door matches the documented north-arrival component. Bill, the Cerulean thief, and Route 6 did not black out. Recover and Swift did not appear in the gym fight. The swimmer on the gym's y=7 line stayed avoided.
+No product red on Misty after `fe6376b9`, and none on Bill, the burgled house, the Underground, the Vermilion arrival, or the S.S. Anne rival. The loss is the fight: Ivysaur's Vine Whip and Leech Seed outlasted 6 Super Potions. The disconnected gym door matches the documented north-arrival component. Bill, the Cerulean thief, and Route 6 did not black out. Recover and Swift did not appear in the gym fight. The swimmer on the gym's y=7 line stayed avoided.
 
 ## Tests
 
-`python3 -m unittest tools.tests.test_lane_j_squirtle tools.tests.test_lane_e_oaks_lab_oak` — 12 tests, all passed before the Route 3 walk. The Route 3 host checks passed again after that walk (`SquirtleRouteTests`, 11 tests). The Simulator run is `/tmp/lane-j-squirtle-17`. It saved Route 4 and then stopped on the evolution announcement inside Mt. Moon.
+`python3 -m unittest tools.tests.test_lane_j_squirtle tools.tests.test_lane_e_oaks_lab_oak` — 12 tests, all passed before the Route 3 walk. The Route 3 host checks passed again after that walk (`SquirtleRouteTests`, 11 tests). The Simulator run is `/tmp/lane-j-squirtle-17`. It saved Route 4 and then stopped on the evolution announcement inside Mt. Moon. The same 11 host tests passed after the Anne driver. The blackout session is `/tmp/lane-j-squirtle-43`.
