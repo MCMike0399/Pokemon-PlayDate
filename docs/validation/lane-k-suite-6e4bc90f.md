@@ -75,14 +75,35 @@ Four parcel-journey tests skip until `PARCEL_BUNDLE_SOURCE` is an identified sta
 
 `tools/tests/test_lane_e_postgame_continue.py` passed inside this suite. Detail is in that module. No new `lane-e-*.patch`. The thirteen historical debug-warp names now resolve a sprite strip, and `DebugState` zone switch does not call `FieldWorld.enter`, so the Rock Tunnel outside-entry assert is not on that path. That assert stays. It is the source rule for an outside step into a dark map other than `ROCK_TUNNEL_1F`.
 
+## Triage of the 13 failures
+
+None of these is a new product patch. The 51 errors stay environment pins and are not in this table.
+
+| Failure | Class | Why |
+| --- | --- | --- |
+| `test_capture_followup` field draws at the origin | Harness stub | `scene:draw` now calls `syncMessage`, which reads `battle.machine`. The probe's battle is `{}`. Production scenes have a machine. |
+| `test_cerulean_observations` projection bytes | Projection pin | Generated projection does not match the committed snapshot. |
+| `test_door_census` authored portals | Stale census pin | Expects 11 `authored_door` rows. Pallet's houses are source warps now (`REDS_HOUSE_1F`, `BLUES_HOUSE`, `OAKS_LAB`). The doors are still in the map. |
+| `test_door_census` unsupported authored syntax | Stale census pin | A mutated `maps.lua` no longer takes the old `unsupported authored` path. |
+| `test_lane_g_front_end` copyright tiles | Env path | The parser looks at `POKERED` or `/tmp/pokered`, not `POKERED_REFERENCE_DIR`. The checkout used here is `/tmp/pokemon-host/pokered`, so `title.asm` was not opened. |
+| `test_region_registrations` owner-import cases | Harness string | The raiser now says `transform dependency changed: world/sourceMaps.lua`. The test still matches `owner imports changed`. |
+| `test_source_map_pipeline` `maps.lua` unchanged | Byte freeze | `PROTECTED_DRIFT` pins an older `Source/data/maps.lua`. |
+| `test_substitute_art` tilefactory freeze | Byte freeze | `tilefactory.lua` is pinned to an older blob. |
+| `test_substitute_art` mechanics producer | Byte freeze | `battlePresentationContracts.lua` differs where the landed shift question replaced the old announcement text. |
+| `test_vermilion_acquisition` machine projection | Projection pin | Generated collection does not match the pin. |
+| `test_vermilion_journey` three counter teams | Projection pin | Same collection mismatch. |
+| `test_vermilion_preparation` old manifest | Byte freeze | Stored sha256 does not match the current preparation bytes. |
+
 ## Lane I handoffs
 
-`origin/cursor/lane-i-device-perf` is `988d5ad5ded91332f4dbc32273f88324b6b79f6b`. Checked with `git apply --check` against this tip.
+`origin/cursor/lane-i-device-perf` is now `51e1efc45735ec9f3f08b0533f1f1c3931fc8759`. The preverify is in `docs/validation/lane-k-patch-preverify.md`.
 
-| BlueBot item | On I | Against `6e4bc90f` |
-| --- | --- | --- |
-| Message-queue advance-before-finish | `tools/notes/lane-e-battle-message.patch` | Already landed. Apply fails at `Source/ui/dialog.lua:13`. `Dialog:handleInput` already finishes the line and waits 10 frames before `advance`. |
-| Possessive-space | Not in `tools/notes` or `tools/tests` on lane I, and not on main, B, H, G, or F | Waiting on I. |
-| Shift prompt | `tools/notes/lane-e-shift-prompt.patch` | Already landed. Apply fails at `Source/battle/battle.lua:250` and `Source/battle/battleScene.lua:653`. |
+| Patch | Against `6e4bc90f` |
+| --- | --- |
+| `lane-e-message-queue.patch` | clean |
+| `lane-e-possessive.patch` | clean |
+| `lane-e-shift-hold.patch` | clean |
+| `lane-e-battle-message.patch` | already-landed (`dialog.lua:13`) |
+| `lane-e-shift-prompt.patch` | already-landed (`battle.lua:250`, `battleScene.lua:653`) |
 
-`tools/notes/lane-e-text-advance.patch` on I is the nurse-audio guard: `textAdvance` must not index `EventState:dialog` as a Dialog. The tip already has that check at `Source/game/kantoAudio.lua:176`. Apply fails there. It is not a distinct handoff.
+`lane-e-text-advance.patch` remains the nurse-audio guard already at `kantoAudio.lua:176`.

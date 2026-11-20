@@ -48,4 +48,14 @@ The first full discover died on `KeyError: POKERED_REFERENCE_DIR`. The rerun set
 
 Champion win, Hall of Fame, credits, and Continue at Pallet `(5, 6)` facing down pass for Squirtle, Bulbasaur, and Charmander fixture parties (`tools/tests/test_lane_e_postgame_continue.py`). The thirteen historical debug-warp maps resolve their sprite strips. No new patch.
 
-Lane I `988d5ad5`: the message-queue advance-before-finish patch and the shift prompt are already on this tip. Possessive-space is not on origin. Waiting on I. `lane-e-text-advance.patch` is the nurse-audio guard already at `kantoAudio.lua:176`.
+Lane I moved to `51e1efc4`. Against E `6e4bc90f`:
+
+| Patch | Verdict |
+| --- | --- |
+| `lane-e-message-queue.patch` | clean |
+| `lane-e-possessive.patch` | clean |
+| `lane-e-shift-hold.patch` | clean |
+| `lane-e-shift-prompt.patch` | already-landed |
+| `lane-e-battle-message.patch` | already-landed |
+
+The 13 host failures are harness, census, projection, and byte-freeze pins. No new patch from that list. Celadon capture stays with YellowBot after E lands the gym tones and the flower tile.
