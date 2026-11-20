@@ -111,11 +111,11 @@ function EvolutionContracts.run()
         local again,why=Evolution.prepare(game.session,mon,{kind="level"});eq(again,nil);eq(why,"no-level-event")
     end)
     test("Old-species level learning resolves before evolution; learned move and PP survive",function()
-        local game,mon=leveled("charmander",15,16);local choices=mon:getPendingMoveChoices();eq(#choices,1);eq(choices[1].move,"dragonRage")
+        local game,mon=leveled("charmander",14,16);local choices=mon:getPendingMoveChoices();eq(#choices,1);eq(choices[1].move,"leer")
         local request,why=Evolution.prepare(game.session,mon,{kind="level"});eq(request,nil);eq(why,"learning-pending")
-        mon:resolveMoveChoice(choices[1].id,"learn",2);mon.pp.dragonRage=3
+        mon:resolveMoveChoice(choices[1].id,"learn");mon.pp.leer=3
         request=assert(Evolution.prepare(game.session,mon,{kind="level"}));assert(Evolution.complete(request))
-        eq(mon.species,"charmeleon");eq(mon.moves[2],"dragonRage");eq(mon.pp.dragonRage,3);eq(#mon:getPendingMoveChoices(),0)
+        eq(mon.species,"charmeleon");eq(mon:hasMove("leer"),true);eq(mon.pp.leer,3);eq(#mon:getPendingMoveChoices(),0)
     end)
     test("Abra16 becomes Kadabra and queues exactly current-level Confusion, never Kinesis1",function()
         local game,mon=pendingGame();mon.pp.teleport=0
