@@ -72,7 +72,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Cerulean is open again. Cut at Route 2 (5, 10) landed Pewter (18, 35). Route 3, Mt. Moon, and the Route 4 line landed Cerulean (0, 18). The pause is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `dc5d793037c2eb04e10984b05617ab8ff17b4d30b558471480b9d25681b720f2` (sequence 57). Wartortle 27, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder are set. Misty was not fought again. The Dome Fossil was already held, so B2F walked to the exit stairs. Money is ¥321, with 3 Super Potions. Next is Route 9, Rock Tunnel, Lavender, the Route 8 underground, Route 7, and Celadon, then Fearow 34 and Erika. Main is `ea32b553` and is already merged.
+Sequence 60 is the resume: `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `f869439769a92dc1c2b84f0f748c9320ee5be125d6eb84e5399a141fe51fb074`, Route 9 (14, 15) facing right. Wartortle 27, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder. Money ¥1381. The line is K's: rejoin (20, 12), Rock Tunnel, Lavender, the Route 8 underground, Route 7, Celadon, the west gym tree only, then Erika from (5, 4). Sequence 57 at Cerulean (0, 18) is the earlier slot.
 
 ## Blockers
 

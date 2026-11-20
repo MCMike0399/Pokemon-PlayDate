@@ -879,6 +879,7 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(ledge_route(gym, gym_feet, gym_ledges, (5, 16), (6, 8), set()))
         gym.add((6, 7))
         self.assertIsNotNone(ledge_route(gym, gym_feet, gym_ledges, (6, 8), (5, 4), {(5, 3)}))
+        _k_trace()
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
         self.assertEqual(sha256_file(VERMILION_SAVE / "adventure.a.json"), VERMILION_SAVE_SHA)
         self.assertEqual(sha256_file(CATCH_SAVE / "adventure.b.json"), CATCH_SAVE_SHA)
@@ -5361,53 +5362,457 @@ def _fight_erika(player, report, display, clips, output):
     raise RuntimeError("Erika did not give the Rainbow Badge: " + json.dumps(report["rainbow"]))
 
 
-def _east_of_cerulean(player, report, display, clips, output):
-    """Route 9, the dark tunnel, and Celadon. Towns are checkpoints, not stops."""
-    for _ in range(24):
-        zone = str(player.state.get("zone"))
-        if "cerulean_city" in zone:
-            status = _leave_cerulean_east(player, report, display, clips, output)
-        elif zone == "kanto_route_9":
-            status = _cross_route9(player, report)
-        elif zone == "kanto_route_10":
-            status = _cross_route10(player, report)
-        elif "rock_tunnel_pokecenter" in zone:
-            if _needs_heal(player):
-                talked = talk_to(player, rock_tunnel_center_cells(), ROCK_NURSE, set())
-                report["tunnel_nurse"] = talked
-                healed = player.state.get("pokemon") or {}
-                if (healed.get("hp") or 0) < 20:
-                    raise RuntimeError("the tunnel nurse missed: " + json.dumps(summary(player.state)))
-            step_onto(player, rock_tunnel_center_cells(), (3, 7), set(), "down")
-            status = "open"
-        elif "rock_tunnel" in zone:
-            status = _cross_tunnel(player, report)
-        elif "lavender" in zone:
-            status = _cross_lavender(player, report)
-        elif zone == "kanto_route_8":
-            status = _cross_route8(player, report)
-        elif "underground_path" in zone:
-            status = _cross_underground(player, report)
-        elif zone == "kanto_route_7":
-            status = _cross_route7(player, report, display, clips, output)
-        elif "celadon_mart" in zone or (zone == "kanto_celadon_city" and not report.get("celadon_stocked")):
-            status = _buy_celadon(player, report)
-        elif "celadon_gym" in zone or zone == "kanto_celadon_city":
-            bird, _mon = _bird(player)
-            if bird:
-                _lead(player, bird)
-            status = _fight_erika(player, report, display, clips, output)
-        else:
-            if report.get("blackouts"):
-                return "restart"
-            raise RuntimeError("the east road is not open: " + json.dumps(summary(player.state)))
-        if status == "blackout":
-            _note_blackout(report)
+K_ZONES = {
+    "Route9": "kanto_route_9",
+    "Route10": "kanto_route_10",
+    "RockTunnelPokecenter": "kanto_rock_tunnel_pokecenter",
+    "RockTunnel1F": "kanto_rock_tunnel_1f",
+    "RockTunnelB1F": "kanto_rock_tunnel_b1f",
+    "LavenderTown": "kanto_lavender_town",
+    "LavenderPokecenter": "kanto_lavender_pokecenter",
+    "Route8": "kanto_route_8",
+    "UndergroundPathRoute8": "kanto_underground_path_route_8",
+    "UndergroundPathWestEast": "kanto_underground_path_west_east",
+    "UndergroundPathRoute7": "kanto_underground_path_route_7",
+    "Route7": "kanto_route_7",
+    "CeladonCity": "kanto_celadon_city",
+    "CeladonPokecenter": "kanto_celadon_pokecenter",
+    "CeladonGym": "kanto_celadon_gym",
+}
+K_FILES = {
+    "Route9": ("Route9.json", 0, 60),
+    "Route10": ("Route10.json", 0, 20),
+    "RockTunnelPokecenter": ("RockTunnelPokecenter.json", 0, 14),
+    "RockTunnel1F": ("RockTunnel1F.json", 0, 40),
+    "RockTunnelB1F": ("RockTunnelB1F.json", 0, 40),
+    "LavenderTown": ("LavenderTown.json", 0, 20),
+    "LavenderPokecenter": ("LavenderPokecenter.json", 0, 14),
+    "Route8": ("Route8.json", 0, 60),
+    "UndergroundPathRoute8": ("UndergroundPathRoute8.json", 2, 13),
+    "UndergroundPathWestEast": ("UndergroundPathWestEast.json", 0, 50),
+    "UndergroundPathRoute7": ("UndergroundPathRoute7.json", 2, 13),
+    "Route7": ("Route7.json", 0, 20),
+    "CeladonCity": ("CeladonCity.json", 0, 50),
+    "CeladonPokecenter": ("CeladonPokecenter.json", 0, 14),
+    "CeladonGym": ("CeladonGym.json", 1, 13),
+}
+K_NURSE = {
+    "RockTunnelPokecenter": "pokered:ROCK_TUNNEL_POKECENTER:objects:1",
+    "LavenderPokecenter": "pokered:LAVENDER_POKECENTER:objects:1",
+    "CeladonPokecenter": "pokered:CELADON_POKECENTER:objects:1",
+}
+K_LINE = [
+    ("walk", "up", 1, "Route9", 20, 11),
+    ("walk", "right", 8, "Route9", 28, 11),
+    ("walk", "down", 1, "Route9", 28, 12),
+    ("walk", "right", 13, "Route9", 41, 12),
+    ("walk", "up", 3, "Route9", 41, 9),
+    ("fight", "up", "Route9", 41, 8),
+    ("walk", "up", 1, "Route9", 41, 7),
+    ("walk", "left", 2, "Route9", 39, 7),
+    ("walk", "up", 3, "Route9", 39, 4),
+    ("walk", "right", 5, "Route9", 44, 4),
+    ("walk", "up", 1, "Route9", 44, 3),
+    ("walk", "right", 6, "Route9", 50, 3),
+    ("walk", "down", 1, "Route9", 50, 4),
+    ("ledge", "down", "Route9", 50, 6),
+    ("walk", "down", 1, "Route9", 50, 7),
+    ("walk", "right", 1, "Route9", 51, 7),
+    ("walk", "down", 1, "Route9", 51, 8),
+    ("walk", "right", 8, "Route9", 59, 8),
+    ("conn", "right", "Route10", 0, 8),
+    ("walk", "down", 1, "Route10", 0, 9),
+    ("walk", "right", 2, "Route10", 2, 9),
+    ("walk", "down", 1, "Route10", 2, 10),
+    ("ledge", "down", "Route10", 2, 12),
+    ("walk", "down", 1, "Route10", 2, 13),
+    ("walk", "right", 8, "Route10", 10, 13),
+    ("walk", "down", 2, "Route10", 10, 15),
+    ("walk", "right", 4, "Route10", 14, 15),
+    ("walk", "down", 5, "Route10", 14, 20),
+    ("walk", "left", 3, "Route10", 11, 20),
+    ("warp", "up", "RockTunnelPokecenter", 3, 7),
+    ("walk", "up", 4, "RockTunnelPokecenter", 3, 3),
+    ("heal", "RockTunnelPokecenter"),
+    ("walk", "down", 3, "RockTunnelPokecenter", 3, 6),
+    ("warp", "down", "Route10", 11, 20),
+    ("walk", "left", 1, "Route10", 10, 20),
+    ("walk", "down", 5, "Route10", 10, 25),
+    ("walk", "left", 1, "Route10", 9, 25),
+    ("walk", "down", 1, "Route10", 9, 26),
+    ("walk", "left", 6, "Route10", 3, 26),
+    ("walk", "up", 8, "Route10", 3, 18),
+    ("walk", "right", 5, "Route10", 8, 18),
+    ("warp", "up", "RockTunnel1F", 15, 3),
+    ("walk", "down", 4, "RockTunnel1F", 15, 7),
+    ("walk", "right", 16, "RockTunnel1F", 31, 7),
+    ("walk", "down", 1, "RockTunnel1F", 31, 8),
+    ("walk", "right", 3, "RockTunnel1F", 34, 8),
+    ("walk", "up", 5, "RockTunnel1F", 34, 3),
+    ("walk", "right", 2, "RockTunnel1F", 36, 3),
+    ("warp", "right", "RockTunnelB1F", 33, 25),
+    ("walk", "left", 5, "RockTunnelB1F", 28, 25),
+    ("walk", "down", 5, "RockTunnelB1F", 28, 30),
+    ("walk", "left", 1, "RockTunnelB1F", 27, 30),
+    ("walk", "down", 4, "RockTunnelB1F", 27, 34),
+    ("walk", "left", 2, "RockTunnelB1F", 25, 34),
+    ("walk", "up", 1, "RockTunnelB1F", 25, 33),
+    ("walk", "left", 8, "RockTunnelB1F", 17, 33),
+    ("walk", "up", 4, "RockTunnelB1F", 17, 29),
+    ("fight", "up", "RockTunnelB1F", 17, 28),
+    ("walk", "up", 4, "RockTunnelB1F", 17, 24),
+    ("walk", "right", 3, "RockTunnelB1F", 20, 24),
+    ("walk", "up", 2, "RockTunnelB1F", 20, 22),
+    ("walk", "left", 3, "RockTunnelB1F", 17, 22),
+    ("walk", "up", 1, "RockTunnelB1F", 17, 21),
+    ("walk", "left", 3, "RockTunnelB1F", 14, 21),
+    ("walk", "up", 3, "RockTunnelB1F", 14, 18),
+    ("walk", "left", 1, "RockTunnelB1F", 13, 18),
+    ("walk", "up", 1, "RockTunnelB1F", 13, 17),
+    ("walk", "left", 1, "RockTunnelB1F", 12, 17),
+    ("fight", "left", "RockTunnelB1F", 11, 17),
+    ("walk", "left", 3, "RockTunnelB1F", 8, 17),
+    ("walk", "up", 1, "RockTunnelB1F", 8, 16),
+    ("walk", "left", 1, "RockTunnelB1F", 7, 16),
+    ("walk", "up", 3, "RockTunnelB1F", 7, 13),
+    ("fight", "left", "RockTunnelB1F", 6, 13),
+    ("walk", "left", 2, "RockTunnelB1F", 4, 13),
+    ("walk", "up", 9, "RockTunnelB1F", 4, 4),
+    ("walk", "left", 1, "RockTunnelB1F", 3, 4),
+    ("warp", "up", "RockTunnel1F", 37, 17),
+    ("walk", "left", 5, "RockTunnel1F", 32, 17),
+    ("walk", "down", 6, "RockTunnel1F", 32, 23),
+    ("walk", "right", 5, "RockTunnel1F", 37, 23),
+    ("walk", "down", 2, "RockTunnel1F", 37, 25),
+    ("walk", "left", 5, "RockTunnel1F", 32, 25),
+    ("walk", "down", 3, "RockTunnel1F", 32, 28),
+    ("walk", "left", 6, "RockTunnel1F", 26, 28),
+    ("walk", "up", 1, "RockTunnel1F", 26, 27),
+    ("walk", "left", 3, "RockTunnel1F", 23, 27),
+    ("walk", "down", 2, "RockTunnel1F", 23, 29),
+    ("walk", "left", 2, "RockTunnel1F", 21, 29),
+    ("walk", "up", 2, "RockTunnel1F", 21, 27),
+    ("walk", "left", 6, "RockTunnel1F", 15, 27),
+    ("walk", "down", 5, "RockTunnel1F", 15, 32),
+    ("warp", "down", "Route10", 8, 54),
+    ("walk", "right", 2, "Route10", 10, 54),
+    ("walk", "down", 1, "Route10", 10, 55),
+    ("walk", "right", 4, "Route10", 14, 55),
+    ("walk", "down", 1, "Route10", 14, 56),
+    ("ledge", "down", "Route10", 14, 58),
+    ("walk", "down", 2, "Route10", 14, 60),
+    ("ledge", "down", "Route10", 14, 62),
+    ("walk", "down", 1, "Route10", 14, 63),
+    ("walk", "right", 1, "Route10", 15, 63),
+    ("walk", "down", 2, "Route10", 15, 65),
+    ("walk", "left", 5, "Route10", 10, 65),
+    ("walk", "down", 1, "Route10", 10, 66),
+    ("ledge", "down", "Route10", 10, 68),
+    ("walk", "left", 1, "Route10", 9, 68),
+    ("walk", "down", 3, "Route10", 9, 71),
+    ("conn", "down", "LavenderTown", 9, 0),
+    ("walk", "left", 3, "LavenderTown", 6, 0),
+    ("walk", "down", 6, "LavenderTown", 6, 6),
+    ("walk", "left", 3, "LavenderTown", 3, 6),
+    ("warp", "up", "LavenderPokecenter", 3, 7),
+    ("walk", "up", 4, "LavenderPokecenter", 3, 3),
+    ("heal", "LavenderPokecenter"),
+    ("walk", "down", 3, "LavenderPokecenter", 3, 6),
+    ("warp", "down", "LavenderTown", 3, 6),
+    ("walk", "left", 3, "LavenderTown", 0, 6),
+    ("walk", "down", 2, "LavenderTown", 0, 8),
+    ("conn", "left", "Route8", 59, 8),
+    ("walk", "left", 7, "Route8", 52, 8),
+    ("walk", "down", 5, "Route8", 52, 13),
+    ("walk", "left", 5, "Route8", 47, 13),
+    ("fight", "up", "Route8", 47, 12),
+    ("walk", "left", 5, "Route8", 42, 12),
+    ("walk", "up", 3, "Route8", 42, 9),
+    ("walk", "left", 1, "Route8", 41, 9),
+    ("walk", "up", 2, "Route8", 41, 7),
+    ("walk", "left", 1, "Route8", 40, 7),
+    ("walk", "up", 1, "Route8", 40, 6),
+    ("walk", "left", 11, "Route8", 29, 6),
+    ("walk", "down", 1, "Route8", 29, 7),
+    ("walk", "left", 6, "Route8", 23, 7),
+    ("walk", "down", 3, "Route8", 23, 10),
+    ("walk", "left", 1, "Route8", 22, 10),
+    ("walk", "down", 2, "Route8", 22, 12),
+    ("walk", "left", 8, "Route8", 14, 12),
+    ("walk", "up", 8, "Route8", 14, 4),
+    ("walk", "left", 1, "Route8", 13, 4),
+    ("warp", "up", "UndergroundPathRoute8", 5, 7),
+    ("walk", "up", 2, "UndergroundPathRoute8", 5, 5),
+    ("walk", "right", 1, "UndergroundPathRoute8", 6, 5),
+    ("warp", "up", "UndergroundPathWestEast", 47, 2),
+    ("walk", "left", 45, "UndergroundPathWestEast", 2, 2),
+    ("walk", "down", 2, "UndergroundPathWestEast", 2, 4),
+    ("warp", "down", "UndergroundPathRoute7", 6, 4),
+    ("walk", "down", 2, "UndergroundPathRoute7", 6, 6),
+    ("warp", "down", "Route7", 5, 14),
+    ("walk", "right", 3, "Route7", 8, 14),
+    ("walk", "up", 5, "Route7", 8, 9),
+    ("walk", "left", 4, "Route7", 4, 9),
+    ("walk", "up", 3, "Route7", 4, 6),
+    ("walk", "left", 2, "Route7", 2, 6),
+    ("walk", "up", 3, "Route7", 2, 3),
+    ("walk", "left", 2, "Route7", 0, 3),
+    ("conn", "left", "CeladonCity", 49, 11),
+    ("walk", "left", 8, "CeladonCity", 41, 11),
+    ("walk", "up", 1, "CeladonCity", 41, 10),
+    ("warp", "up", "CeladonPokecenter", 3, 7),
+    ("walk", "up", 4, "CeladonPokecenter", 3, 3),
+    ("heal", "CeladonPokecenter"),
+    ("walk", "down", 3, "CeladonPokecenter", 3, 6),
+    ("warp", "down", "CeladonCity", 41, 10),
+    ("walk", "left", 5, "CeladonCity", 36, 10),
+    ("walk", "down", 12, "CeladonCity", 36, 22),
+    ("walk", "left", 10, "CeladonCity", 26, 22),
+    ("walk", "down", 1, "CeladonCity", 26, 23),
+    ("walk", "left", 1, "CeladonCity", 25, 23),
+    ("walk", "down", 8, "CeladonCity", 25, 31),
+    ("walk", "right", 10, "CeladonCity", 35, 31),
+    ("cut", "down", "CeladonCity", 35, 31),
+    ("walk", "down", 3, "CeladonCity", 35, 34),
+    ("walk", "left", 30, "CeladonCity", 5, 34),
+    ("walk", "up", 5, "CeladonCity", 5, 29),
+    ("walk", "right", 7, "CeladonCity", 12, 29),
+    ("walk", "up", 1, "CeladonCity", 12, 28),
+    ("warp", "up", "CeladonGym", 5, 17),
+    ("walk", "left", 3, "CeladonGym", 2, 17),
+    ("walk", "up", 7, "CeladonGym", 2, 10),
+    ("walk", "left", 1, "CeladonGym", 1, 10),
+    ("walk", "up", 6, "CeladonGym", 1, 4),
+    ("walk", "right", 1, "CeladonGym", 2, 4),
+    ("cut", "right", "CeladonGym", 2, 4),
+    ("walk", "right", 1, "CeladonGym", 3, 4),
+    ("fight", "right", "CeladonGym", 4, 4),
+    ("walk", "right", 1, "CeladonGym", 5, 4),
+    ("erika",),
+]
+
+
+def _k_atoms():
+    x, y, where = 20, 12, "Route9"
+    atoms = []
+    for item in K_LINE:
+        kind = item[0]
+        if kind == "walk":
+            direction, count, place, end_x, end_y = item[1], item[2], item[3], item[4], item[5]
+        elif kind == "fight":
+            direction, count, place, end_x, end_y = item[1], 1, item[2], item[3], item[4]
+        if kind in ("walk", "fight"):
+            dx, dy = DELTAS[direction]
+            for _ in range(count):
+                x += dx
+                y += dy
+                atoms.append({"op": "step", "dir": direction, "map": where, "x": x, "y": y})
+            if (where, x, y) != (place, end_x, end_y):
+                raise RuntimeError(f"{item} landed {where} {x},{y}")
+        elif kind == "ledge":
+            atoms.append({"op": "ledge", "dir": item[1], "map": where, "x": item[-2], "y": item[-1]})
+            x, y = item[-2], item[-1]
+        elif kind in ("conn", "warp"):
+            where, x, y = item[2], item[3], item[4]
+            atoms.append({"op": kind, "dir": item[1], "map": where, "x": x, "y": y})
+        elif kind == "heal":
+            atoms.append({"op": "heal", "map": where, "x": x, "y": y})
+        elif kind == "cut":
+            atoms.append({"op": "cut", "dir": item[1], "map": where, "x": x, "y": y})
+        elif kind == "erika":
+            atoms.append({"op": "erika", "map": where, "x": x, "y": y})
+    return atoms
+
+
+def _k_trace():
+    opens = {}
+    extra = {}
+    for cell in [(14, 14), *[(xx, 14) for xx in range(15, 20)], (19, 13), (19, 12), (20, 12)]:
+        if cell not in route9_cells():
+            raise RuntimeError(f"rejoin closed {cell}")
+    x, y, where = 20, 12, "Route9"
+    for atom in _k_atoms():
+        if atom["map"] not in opens:
+            path, pad, width = K_FILES[atom["map"]]
+            opens[atom["map"]] = set(open_map(EAST / path, pad, width))
+        if atom["op"] == "cut":
+            dx, dy = DELTAS[atom["dir"]]
+            extra.setdefault(where, set()).add((x + dx, y + dy))
             continue
-        if status == "yield":
-            return "yield"
-        if status == "badge":
-            return
+        if atom["op"] in ("heal", "erika"):
+            continue
+        spot = (atom["x"], atom["y"])
+        if spot not in opens[atom["map"]] | extra.get(atom["map"], set()):
+            raise RuntimeError(f"closed {atom}")
+        x, y, where = atom["x"], atom["y"], atom["map"]
+    cuts = [atom for atom in _k_atoms() if atom["op"] == "cut" and atom["map"] == "CeladonGym"]
+    if len(cuts) != 1 or cuts[0]["dir"] != "right" or (cuts[0]["x"], cuts[0]["y"]) != (2, 4):
+        raise RuntimeError(f"gym cut {cuts}")
+
+
+def _k_here(player):
+    zone = str(player.state.get("zone"))
+    body = player.state.get("player") or {}
+    for name, key in K_ZONES.items():
+        if zone == key:
+            return name, body.get("x"), body.get("y")
+    return None, body.get("x"), body.get("y")
+
+
+def _k_clear(player, report):
+    if player.state.get("root") != "battle":
+        if not player.exploring():
+            player.dismiss_until_explore(limit=40)
+        return None
+    before = player.state.get("last_battle_outcome")
+    player.fight(limit=2500, potion_at=30, shift_to="pidgeotto")
+    player.dismiss_until_explore(limit=80)
+    if _lost(before, player.state.get("last_battle_outcome") or {}):
+        _note_blackout(report)
+        return "blackout"
+    _checkpoint(player, report, "saved_k_line")
+    return "yield"
+
+
+def _k_go(player, report, direction, place, end_x, end_y):
+    status = _k_clear(player, report)
+    if status:
+        return status
+    player.step(direction)
+    if player.state.get("root") == "battle":
+        landed = _k_here(player)
+        status = _k_clear(player, report)
+        if status == "blackout":
+            return status
+        if landed != (place, end_x, end_y):
+            raise RuntimeError(f"fight landed {landed} not {place} {end_x},{end_y}")
+        return status
+    if not player.exploring():
+        status = _k_clear(player, report)
+        if status:
+            return status
+    landed = _k_here(player)
+    if landed != (place, end_x, end_y):
+        block = (player.state.get("player") or {}).get("lastTraversalBlock")
+        raise RuntimeError(f"{direction} landed {landed} not {place} {end_x},{end_y} block {block}")
+    if place in ("LavenderTown", "CeladonCity") and (end_x, end_y) in ((9, 0), (49, 11)):
+        _checkpoint(player, report, "saved_" + place)
+    return None
+
+
+def _rejoin_route9(player, report):
+    while True:
+        name, x, y = _k_here(player)
+        if (name, x, y) == ("Route9", 20, 12):
+            return None
+        if name != "Route9":
+            raise RuntimeError(f"rejoin left Route 9 at {name} {x},{y}")
+        if y >= 15:
+            direction, end = "up", (x, y - 1)
+        elif y == 14 and x < 19:
+            direction, end = "right", (x + 1, y)
+        elif x == 19 and y > 12:
+            direction, end = "up", (x, y - 1)
+        elif y == 12 and x < 20:
+            direction, end = "right", (x + 1, y)
+        else:
+            raise RuntimeError(f"Route 9 shelf has no rejoin at {x},{y}")
+        status = _k_go(player, report, direction, "Route9", *end)
+        if status:
+            return status
+
+
+def _grind_route7(player, report):
+    species, mon = _bird(player)
+    if not species or (mon.get("level") or 0) >= 31:
+        return None
+    _lead(player, species)
+    status = _grind_bird(player, report, route7_cells(), (8, 2), (9, 2), set(ROUTE7_GATES) | {(5, 13)}, level=31, limit=6)
+    if status == "blackout":
+        return "blackout"
+    _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (5, 14), set(ROUTE7_GATES) | {(5, 13)})
+    _checkpoint(player, report, "saved_route7_grind")
+    _, mon = _bird(player)
+    if (mon.get("level") or 0) < 31:
+        return "yield"
+    return None
+
+
+def _face_erika(player, report, display, clips, output):
+    species, _ = _bird(player)
+    if species:
+        _lead(player, species)
+    facing = (player.state.get("player") or {}).get("facing")
+    if facing != "up":
+        player.press("up", wait=8)
+        player.wait(4)
+    def battle():
+        player.press("a", wait=8)
+        _fight_once(player, "Erika", 30, shift_to="pidgeotto")
+    if display is not None and clips is not None:
+        film(display, clips, output, "erika", battle, report)
+    else:
+        battle()
+    player.dismiss_until_explore(limit=40)
+    flags = player.state.get("flags") or {}
+    if flags.get("BADGE_RAINBOW") or flags.get("BADGE_RAINBOWBADGE"):
+        _checkpoint(player, report, "saved_rainbow")
+        return "badge"
+    raise RuntimeError("Erika ended without the Rainbow Badge: " + json.dumps(player.summary())[:500])
+
+
+def _follow_k(player, report, display, clips, output):
+    atoms = _k_atoms()
+    name, x, y = _k_here(player)
+    on_line = (name, x, y) == ("Route9", 20, 12) or any(
+        atom["op"] in ("step", "ledge", "conn", "warp") and (atom["map"], atom["x"], atom["y"]) == (name, x, y)
+        for atom in atoms)
+    if name == "Route9" and not on_line:
+        status = _rejoin_route9(player, report)
+        if status:
+            return status
+        name, x, y = _k_here(player)
+    if (name, x, y) == ("Route9", 20, 12):
+        start = 0
+    else:
+        hits = [index for index, atom in enumerate(atoms) if atom["op"] in ("step", "ledge", "conn", "warp") and (atom["map"], atom["x"], atom["y"]) == (name, x, y)]
+        if not hits:
+            raise RuntimeError(f"off K's line at {name} {x},{y}")
+        start = hits[-1] + 1
+    for atom in atoms[start:]:
+        if _k_here(player) == ("Route7", 5, 14):
+            status = _grind_route7(player, report)
+            if status:
+                return status
+        if atom["op"] in ("step", "ledge", "conn", "warp"):
+            status = _k_go(player, report, atom["dir"], atom["map"], atom["x"], atom["y"])
+            if status:
+                return status
+        elif atom["op"] == "cut":
+            _confirm_cut(player, atom["dir"])
+        elif atom["op"] == "heal":
+            talk_to(player, set(open_map(EAST / K_FILES[atom["map"]][0], *K_FILES[atom["map"]][1:])), K_NURSE[atom["map"]], set())
+            healed = player.state.get("pokemon") or {}
+            if (healed.get("hp") or 0) < 20:
+                raise RuntimeError("the nurse did not heal: " + json.dumps(player.summary())[:400])
+            _checkpoint(player, report, "saved_" + atom["map"])
+        elif atom["op"] == "erika":
+            return _face_erika(player, report, display, clips, output)
+    raise RuntimeError("K's line ended short of Erika")
+
+
+def _east_of_cerulean(player, report, display, clips, output):
+    """K's line from the Route 9 shelf to Erika. One battle ends the session."""
+    for _ in range(4):
+        status = _follow_k(player, report, display, clips, output)
+        if status in ("yield", None, "badge"):
+            return status if status != "badge" else None
+        if status != "blackout":
+            return status
+        zone = str(player.state.get("zone"))
+        if zone in EAST_RESUME or "rock_tunnel" in zone or "celadon" in zone or "lavender" in zone or "underground_path" in zone:
+            continue
+        return "restart"
     raise RuntimeError("the east road did not finish: " + json.dumps(summary(player.state)))
 
 
