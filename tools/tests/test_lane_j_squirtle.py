@@ -5775,7 +5775,7 @@ def _grind_route7(player, report):
     if not species or (mon.get("level") or 0) >= 31 or (mon.get("hp") or 0) <= 0:
         return None
     _lead(player, species)
-    status = _grind_bird(player, report, route7_cells(), (8, 2), (9, 2), set(ROUTE7_GATES) | {(5, 13)}, level=31, limit=2)
+    status = _grind_bird(player, report, route7_cells(), (8, 2), (9, 2), set(ROUTE7_GATES) | {(5, 13)}, level=31, limit=4)
     if status == "blackout":
         return "blackout"
     _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (5, 14), set(ROUTE7_GATES) | {(5, 13)})
