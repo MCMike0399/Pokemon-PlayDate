@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "34e0d4b1c94c2447e5648b754f575ae2f71b946d",
+    "source_sha256": "c09538f54b03738446fdbe6efe4d7709304499a0c0ce4cb72da00c8fd74f1005",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the learn box names the move and a fainted lead still gets the shift question. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 c498581c719ea01c23311c35fed94e2fec282c347d09f0a1b688b3ca7110d624.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "603aac90cbdbf5ef2b3b7784c950f3423afb0d00",
     "source_sha256": "c498581c719ea01c23311c35fed94e2fec282c347d09f0a1b688b3ca7110d624",
     "policy_date": "2026-11-20",
@@ -1716,6 +1727,7 @@
   
   }
   }}
+  }
   }
   }
   }
