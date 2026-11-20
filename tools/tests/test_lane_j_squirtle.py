@@ -512,6 +512,7 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7)))
         self.assertIsNotNone(route(moon_b1_cells(), (23, 4), (26, 3)))
         self.assertIsNotNone(route(route4_cells(), (24, 6), (59, 4)))
+        self.assertIsNone(route(route4_cells(), (24, 6), (11, 6)))
         self.assertIsNone(route(route4_cells(), (59, 4), (61, 4)))
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
@@ -1812,7 +1813,10 @@ def play_to_cerulean(player, report, display, clips, output):
         return
     if "route_4" in zone:
         report["resumed_route4"] = summary(player.state)
-        _from_route4(player, report, display, clips, output)
+        if (player.state.get("player") or {}).get("x", 0) >= 20:
+            _to_cerulean(player, report, display, clips, output)
+        else:
+            _from_route4(player, report, display, clips, output)
         return
     if "route_3" in zone:
         _cross_route3(player, report, display, clips, output)
@@ -1918,7 +1922,11 @@ def _to_cerulean(player, report, display, clips, output):
     """Route 4's east step, then the Cerulean Center and Misty."""
     if player.state.get("zone") != "kanto_route_4":
         raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
-    if _needs_heal(player):
+    if player.exploring():
+        report["saved_route4_exit"] = player.pause_save()
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    # The Center sits west of the x=20 wall. The cave exit is on the east side.
+    if _needs_heal(player) and route(route4_cells(), here, (11, 6)) is not None:
         _heal_in(player, report, route4_cells(), (11, 5),
                  "pokered:MT_MOON_POKECENTER:objects:1", moon_center_cells(), "moon_heal_after", "route_4")
     kind = player.travel(route4_cells(), (59, 4), set(), limit=20)
@@ -2121,7 +2129,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--east" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-23")
+            output = Path("/tmp/lane-j-squirtle-24")
             save_from = FOSSIL_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
             if digest != FOSSIL_SAVE_SHA:
