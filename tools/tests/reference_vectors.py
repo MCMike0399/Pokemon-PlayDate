@@ -40,7 +40,7 @@ printf("%d %d %d %d %d %d %d\\n",p.p[PKM_PARAM_MAX_HP],p.p[PKM_PARAM_ATTACK],p.p
  vectors=json.loads((P/'individuals/vectors.json').read_text());inputs=[]
  for v in vectors:
   inputs.append(' '.join(map(str,[v['level'],v['nature'],v['old_max'],v['hp']]+v['base']+v['iv']+v['ev'])))
- with tempfile.TemporaryDirectory(prefix='iv-ev-reference-',dir='/private/tmp')as tmp:
+ with tempfile.TemporaryDirectory(prefix='iv-ev-reference-')as tmp:
   src=Path(tmp)/'oracle.c';src.write_text(code);exe=Path(tmp)/'oracle';subprocess.run(['cc','-std=c99','-Wall','-Werror',str(src),'-o',str(exe)],check=True)
   rows=subprocess.check_output([str(exe)],input=('\n'.join(inputs)+'\n').encode()).decode().splitlines()
   actual=[list(map(int,row.split()))for row in rows]

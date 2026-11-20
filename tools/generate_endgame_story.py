@@ -23,7 +23,8 @@ PLAYER_STARTERS = {'charmander': 'STARTER2', 'squirtle': 'STARTER3', 'bulbasaur'
 
 def encoded(value):
     # Playdate's json.decode writes \u00XX as one Latin-1 byte, which utf8.len
-    # rejects. POKÉMANIAC stays raw UTF-8, the same way the other generators write.
+    # rejects. POKÉMANIAC and the trainer glyphs stay raw UTF-8, the same way
+    # the other generators write.
     return (json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + '\n').encode()
 
 
