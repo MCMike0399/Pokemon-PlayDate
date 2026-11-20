@@ -152,8 +152,9 @@ class VermilionPreparationTests(unittest.TestCase):
         self.assertEqual(cache['manifest_sha256'], g.digest(self.artifacts['proposed-source-maps.json']))
         old_tiles = accepted_source_json('data/sourceMapCache/tile-grids.json')['tiles']
         tiles = json.loads(self.artifacts['proposed-tile-grids.json'])['tiles']
+        from tools.flower_phase import same_cached_tile
         for key, value in old_tiles.items():
-            self.assertEqual(tiles[key], value)
+            self.assertTrue(same_cached_tile(key, tiles[key], value), key)
         for name, entry in additions.items():
             self.assertEqual(entry['profile'], 'source')
             self.assertEqual(entry['source_sha256'], g.digest(self.artifacts[name + '.json']))
@@ -175,6 +176,9 @@ class VermilionPreparationTests(unittest.TestCase):
                 self.assertEqual(d['layout_extent']['size'], 4)
             blockset = (self.ref / d['tileset']['blockset']).read_bytes()
             image = Image.open(self.ref / d['tileset']['graphics']).convert('L')
+            flower = None
+            if d['tileset'].get('animation') == 'TILEANIM_WATER_FLOWER':
+                flower = Image.open(self.ref / 'gfx/tilesets/flower/flower1.png').convert('L')
             width, height = d['dimensions']['cells']
             self.assertEqual(len(layout), width * height // 4)
             # Collision lists end at the sentinel, independently of generator.
@@ -191,9 +195,18 @@ class VermilionPreparationTests(unittest.TestCase):
                     self.assertEqual(grid['source_tile_ids'], ids)
                     self.assertEqual(d['collision'][y][x], int(ids[2] not in allowed))
             for grid in d['grids']:
-                expected = [''.join(shades[image.getpixel((tile % (image.width // 8) * 8 + x % 8,
-                    tile // (image.width // 8) * 8 + y % 8))]
-                    for x in range(16) for tile in [grid['source_tile_ids'][y // 8 * 2 + x // 8]]) for y in range(16)]
+                expected = []
+                for y in range(16):
+                    row = ''
+                    for x in range(16):
+                        tile = grid['source_tile_ids'][y // 8 * 2 + x // 8]
+                        if flower is not None and tile == 3:
+                            shade = flower.getpixel((x % 8, y % 8))
+                        else:
+                            shade = image.getpixel((tile % (image.width // 8) * 8 + x % 8,
+                                                    tile // (image.width // 8) * 8 + y % 8))
+                        row += shades[shade]
+                    expected.append(row)
                 self.assertEqual(grid['grid'], expected, name)
 
     def test_layout_continuation_is_explicit_bounded_and_default_still_rejects(self):

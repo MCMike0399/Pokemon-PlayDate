@@ -23,6 +23,7 @@
     "gfx/tilesets.asm": "6db7f6d5219788ba16251f16646c8c642704ed588f6ba1de6e67f881aa0dce03",
     "gfx/blocksets/overworld.bst": "c4f6d88cc7dea8196aa51d3aa059c6d1da0ea45718dd12870fcddee9f9304d50",
     "gfx/tilesets/overworld.png": "580a310bef9f446c62d75994db3197b3f511aeed5f055ded9f38c36c8a152bdb",
+    "gfx/tilesets/flower/flower1.png": "f5abb9daab65f3462bbae3653224ba6aec9d1722b4b801452a5af552d305788f",
     "data/tilesets/collision_tile_ids.asm": "15df9f5ad78dd176e91b78a85ef6ff9cf471d51a6222689d3d4902e58af4fc0a",
     "data/tilesets/warp_tile_ids.asm": "9784114c698ef80c12b3b21aa15ff65a917640a7a1f0d0cc07806afeb058cad5",
     "data/tilesets/water_tilesets.asm": "c37911107dc60805a56c1fd8718dd1aa95c2ae5ccd99b6fcb2620617d9f48d09",
