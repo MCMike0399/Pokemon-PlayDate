@@ -72,9 +72,15 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Lavender is healed. Sequence 90 is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `1e236e9e1b246cd95b7b2e7fa223be50ae7a2b32691c873feb2d288a97f2d394`, Lavender Pokémon Center (3, 3) facing up. Wartortle 29, Bellsprout 15, Pidgeotto 22, Dugtrio 27. Boulder, Cascade, and Thunder.
+WIP, stopped on request. The golden-path Simulator run is not running.
 
-Celadon was healed at sequence 123, sha256 `174b870facf610e1b1580b992dfd35709ae795bc79ace15c2834347ced0f3ae3`, center (3, 3). The live pause is sequence 141, `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `b8139c4ce10988bc6c2a15ee7f64be6156ad9e300606bc74bd4b1a100b9618b2`, Route 7 (5, 14). Pidgeotto 28, Bellsprout 15, Wartortle 31, Dugtrio 27. Boulder, Cascade, and Thunder. The bird is still grinding to 31, then the west gym tree and Erika.
+The live pause is sequence 160, Celadon City (49, 11) facing right. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `c5ff8e268eeccf8718722866a54a667915d3f978c137acaf74b3b5d04fb12932`. The other slot is sequence 159, Celadon Pokémon Center (3, 3) facing up, `adventure.a.json` sha256 `e716d22bfc5d6fb427134c457a7bc3bdea3bc06774c8351202de5e5b4614ec59`. The same two files are at `/opt/cursor/artifacts/lane-j/saves/route6-bird/`.
+
+Badges: Boulder, Cascade, and Thunder. Rainbow Badge is not set.
+
+Team: Pidgeotto 30 (77 HP; Gust, Sand Attack, Quick Attack, Whirlwind), Bellsprout 15 (40 HP; Vine Whip, Growth, Wrap, Cut), Wartortle 31 (81 HP; Tackle, Water Gun, Withdraw, Bite), Dugtrio 27 (60 HP; Scratch, Growl, Dig, Sand Attack).
+
+Rock Tunnel, Lavender, the Route 8 underground, and Route 7 are behind this pause. (49, 11) facing right is Celadon's east edge, on the way back to the Route 7 grass. Next step: grind Pidgeotto to 31 so it learns Wing Attack, then cut only the west tree in Celadon Gym and face Erika from (5, 4). Whirlwind is already in the moveset. No Erika attempt yet. The Route 9 clip `artifacts/lane-j/20261120T141526Z-route9.mp4` is untracked and is not in this commit.
 
 ## Blockers
 
