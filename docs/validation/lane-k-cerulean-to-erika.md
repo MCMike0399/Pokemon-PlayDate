@@ -8,7 +8,7 @@ The east road in Cerulean is a separate component until Cut. The Route 9 entranc
 
 Flash does not change a step. `fieldMoveIndex.json` lists both Rock Tunnel floors as dark maps so Flash is legal there. Walking uses the cavern collision either way.
 
-Heal at the Route 10 Center before the tunnel, at the Lavender Center, and at the Celadon Center. Each nurse is `(3, 1)` behind the counter. Stand on `(3, 3)` facing up. The seven sight fights below are the ones this line steps on. Their payouts are the chunk values: ¥360, ¥200, ¥440, ¥420, ¥735, ¥330, and ¥1820, then Erika ¥2871. The other trainers in the tables are on open rays this line does not use. Stepping on one of those cells starts that fight. The Fearow 34 sample in `lane-k-vermilion-to-celadon.md` is a different party.
+Heal at the Route 10 Center before the tunnel, at the Lavender Center, and at the Celadon Center. Each nurse is `(3, 1)` behind the counter. Stand on `(3, 3)` facing up. Ten sight fights are on this line. Their payouts are the chunk values: ¥360, ¥200, ¥1150, ¥1250, ¥440, ¥420, ¥735, ¥400, ¥330, and ¥1820, then Erika ¥2871. The other trainers in the tables are on open rays this line does not use. Stepping on one of those cells starts that fight. The Fearow 34 sample in `lane-k-vermilion-to-celadon.md` is a different party.
 
 Leave the Power Plant, the Pokémon Tower, and both Saffron gates. Route 5 south of Cerulean is the Saffron side. Route 12 is still closed by Snorlax.
 
@@ -111,65 +111,83 @@ The Jr. Trainer at `(7, 25)` faces left with range 3. Her open ray is `(6, 25)`,
 
 ## Rock Tunnel
 
-1F, missing every ray:
+`TilePairCollisionsLand` forbids four CAVERN crossings, in either direction: `$20`/`$05`, `$41`/`$05`, `$2A`/`$05`, and `$05`/`$21`. The installed floors also list the water pair `$14`/`$05`, and a land step across that pair is refused too. Both floors have no ledges. The other maps on this line have an empty pair table. Their ledge steps are the two-tile jumps already written above and below.
+
+Down from 1F `(31, 7)` is the first pair. That cell is foot `$20` and `(31, 8)` is foot `$05`. The east warp is on the far side of the Pokémaniac at `(23, 8)`. His open ray is `(22, 8)`, `(21, 8)`, and `(20, 8)`.
 
 1. Down 4, to `(15, 7)`.
-2. Right 16, to `(31, 7)`.
-3. Down 1, to `(31, 8)`.
-4. Right 3, to `(34, 8)`.
-5. Up 5, to `(34, 3)`.
-6. Right 2, to `(36, 3)`.
-7. Right, onto `(37, 3)`. B1F `(33, 25)`, facing right.
+2. Right 5, to `(20, 7)`.
+3. Down 1, to `(20, 8)`. Cubone 23, Slowpoke 23. ¥1150.
+4. Down 2, to `(20, 10)`.
+5. Right 14, to `(34, 10)`.
+6. Up 7, to `(34, 3)`.
+7. Right 2, to `(36, 3)`.
+8. Right, onto `(37, 3)`. B1F `(33, 25)`, facing right.
 
-B1F. The Hiker at `(33, 5)` faces right. Leave him by going left from the arrival.
+B1F. The old drop from `(27, 33)` to `(27, 34)` is another `$20`/`$05` pair, so the line turns into the Slowpoke ray instead.
 
 1. Left 5, to `(28, 25)`.
 2. Down 5, to `(28, 30)`.
 3. Left 1, to `(27, 30)`.
-4. Down 4, to `(27, 34)`.
-5. Left 2, to `(25, 34)`.
-6. Up 1, to `(25, 33)`.
-7. Left 8, to `(17, 33)`.
-8. Up 4, to `(17, 29)`.
-9. Up 1, to `(17, 28)`. The Jr. Trainer at `(14, 28)` faces right with range 4, so `(15, 28)` through `(18, 28)` are her ray. Oddish 22, Bulbasaur 22. ¥440.
-10. Up 4, to `(17, 24)`.
-11. Right 3, to `(20, 24)`.
-12. Up 2, to `(20, 22)`.
-13. Left 3, to `(17, 22)`.
-14. Up 1, to `(17, 21)`.
-15. Left 3, to `(14, 21)`.
-16. Up 3, to `(14, 18)`.
-17. Left 1, to `(13, 18)`.
-18. Up 1, to `(13, 17)`.
-19. Left 1, to `(12, 17)`.
-20. Left 1, to `(11, 17)`. The Jr. Trainer at `(11, 13)` faces down with range 4, so `(11, 14)` through `(11, 17)` are her ray. Jigglypuff 21, Pidgey 21, Meowth 21. ¥420.
-21. Left 3, to `(8, 17)`.
-22. Up 1, to `(8, 16)`.
-23. Left 1, to `(7, 16)`.
-24. Up 3, to `(7, 13)`.
-25. Left 1, to `(6, 13)`. The Hiker at `(6, 10)` faces down with range 3, so `(6, 11)` through `(6, 13)` are his ray. Geodude 21, Geodude 21, Graveler 21. ¥735.
-26. Left 2, to `(4, 13)`.
-27. Up 9, to `(4, 4)`.
-28. Left 1, to `(3, 4)`.
-29. Up, onto `(3, 3)`. 1F `(37, 17)`, facing up.
+4. Down 1, to `(27, 31)`.
+5. Left 1, to `(26, 31)`. The Pokémaniac at `(26, 30)` faces down. His ray is `(26, 31)` through `(26, 33)`. Slowpoke 25. ¥1250.
+6. Left 9, to `(17, 31)`.
+7. Up 2, to `(17, 29)`.
+8. Up 1, to `(17, 28)`. The Jr. Trainer at `(14, 28)` faces right. The open ray is `(15, 28)` through `(17, 28)`. `(18, 28)` is a pair, so the fourth cell never opens. Oddish 22, Bulbasaur 22. ¥440.
+9. Up 4, to `(17, 24)`.
+10. Right 3, to `(20, 24)`.
+11. Up 2, to `(20, 22)`.
+12. Right 5, to `(25, 22)`. The Charmander ray is `(21, 21)` through `(24, 21)`, the row above.
+13. Up 6, to `(25, 16)`.
+14. Right 7, to `(32, 16)`.
+15. Up 6, to `(32, 10)`.
+16. Right 2, to `(34, 10)`.
+17. Up 4, to `(34, 6)`.
+18. Right 3, to `(37, 6)`. The Hiker at `(33, 5)` faces right onto `(34, 5)` through `(36, 5)`. This row is under that ray.
+19. Up 2, to `(37, 4)`.
+20. Left 10, to `(27, 4)`.
+21. Up, onto `(27, 3)`. 1F `(5, 3)`, facing up.
 
-South to the Route 10 door, still on 1F:
+Across the west side of 1F, then back through B1F:
+
+1. Left 1, to `(4, 3)`.
+2. Down 18, to `(4, 21)`.
+3. Right 2, to `(6, 21)`.
+4. Up 3, to `(6, 18)`.
+5. Right 2, to `(8, 18)`.
+6. Up 4, to `(8, 14)`.
+7. Right 6, to `(14, 14)`.
+8. Up 3, to `(14, 11)`.
+9. Right 2, to `(16, 11)`.
+10. Right, onto `(17, 11)`. B1F `(23, 11)`, facing right.
+11. Left 9, to `(14, 11)`.
+12. Down 3, to `(14, 14)`.
+13. Left 2, to `(12, 14)`.
+14. Left 1, to `(11, 14)`. The Jr. Trainer at `(11, 13)` faces down onto `(11, 14)` through `(11, 17)`. Jigglypuff 21, Pidgey 21, Meowth 21. ¥420.
+15. Left 3, to `(8, 14)`.
+16. Up 1, to `(8, 13)`.
+17. Left 1, to `(7, 13)`.
+18. Left 1, to `(6, 13)`. The Hiker at `(6, 10)` faces down onto `(6, 11)` through `(6, 13)`. Geodude 21, Geodude 21, Graveler 21. ¥735.
+19. Left 2, to `(4, 13)`.
+20. Up 9, to `(4, 4)`.
+21. Left 1, to `(3, 4)`.
+22. Up, onto `(3, 3)`. 1F `(37, 17)`, facing up.
+
+South to the Route 10 door. The old steps from `(23, 27)` down to `(23, 29)` and from `(21, 29)` up to `(21, 27)` are `$20`/`$05` pairs.
 
 1. Left 5, to `(32, 17)`.
 2. Down 6, to `(32, 23)`.
-3. Right 5, to `(37, 23)`.
+3. Right 5, to `(37, 23)`. The Jr. Trainer at `(32, 24)` faces right on y=24. This row is above her.
 4. Down 2, to `(37, 25)`.
 5. Left 5, to `(32, 25)`.
 6. Down 3, to `(32, 28)`.
 7. Left 6, to `(26, 28)`.
 8. Up 1, to `(26, 27)`.
 9. Left 3, to `(23, 27)`.
-10. Down 2, to `(23, 29)`.
-11. Left 2, to `(21, 29)`.
-12. Up 2, to `(21, 27)`.
-13. Left 6, to `(15, 27)`.
-14. Down 5, to `(15, 32)`.
-15. Down, onto `(15, 33)`. Route 10's door is `(8, 53)`, foot `$58`, and the step-out is `(8, 54)` facing down.
+10. Left 1, to `(22, 27)`. The Jr. Trainer at `(22, 24)` faces down. The open ray is `(22, 25)` through `(22, 27)`. `(22, 28)` is a pair. Meowth 20, Oddish 20, Pidgey 20. ¥400.
+11. Left 7, to `(15, 27)`.
+12. Down 5, to `(15, 32)`.
+13. Down, onto `(15, 33)`. Route 10's door is `(8, 53)`, foot `$58`, and the step-out is `(8, 54)` facing down.
 
 1F rays this line does not use:
 
@@ -178,12 +196,8 @@ South to the Route 10 door, still on 1F:
 | Hiker `(7, 5)` down 4 | `(7, 6)` through `(7, 9)` | Geodude 19, Machop 19, Geodude 19, Geodude 19 |
 | Hiker `(5, 16)` down 4 | `(5, 17)` through `(5, 20)` | Onix 20, Onix 20, Geodude 20 |
 | Hiker `(17, 15)` left 3 | `(16, 15)` `(15, 15)` `(14, 15)` | Geodude 21, Graveler 21 |
-| Pokémaniac `(23, 8)` left 3 | `(22, 8)` `(21, 8)` `(20, 8)` | Cubone 23, Slowpoke 23 |
 | Jr. Trainer `(37, 21)` left 4 | `(36, 21)` through `(33, 21)` | Bellsprout 22, Clefairy 22 |
-| Jr. Trainer `(22, 24)` down 4 | `(22, 25)` through `(22, 28)` | Meowth 20, Oddish 20, Pidgey 20 |
 | Jr. Trainer `(32, 24)` right 4 | `(33, 24)` through `(36, 24)` | Pidgey 19, Rattata 19, Rattata 19, Bellsprout 19 |
-
-`(32, 23)` and `(37, 23)` are the row above that last ray. `(23, 27)` and `(21, 27)` are beside the down ray at x=22.
 
 B1F rays this line does not use:
 
@@ -193,9 +207,6 @@ B1F rays this line does not use:
 | Pokémaniac `(20, 21)` right 4 | `(21, 21)` through `(24, 21)` | Charmander 22, Cubone 22 |
 | Hiker `(30, 10)` down 3 | `(30, 11)` through `(30, 13)` | Geodude 25 |
 | Hiker `(33, 5)` right 3 | `(34, 5)` through `(36, 5)` | Machop 20, Onix 20 |
-| Pokémaniac `(26, 30)` down 3 | `(26, 31)` through `(26, 33)` | Slowpoke 25 |
-
-`(20, 22)` is the cell under the Charmander ray. The walk turns there and goes left.
 
 ## Lavender, Route 8, the underground, Route 7
 

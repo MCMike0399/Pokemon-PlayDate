@@ -50,9 +50,12 @@ TREES = (
 FIGHTS = (
     "pokered:ROUTE_9:objects:1",
     "pokered:ROUTE_9:objects:9",
+    "pokered:ROCK_TUNNEL_1F:objects:4",
+    "pokered:ROCK_TUNNEL_B1F:objects:8",
     "pokered:ROCK_TUNNEL_B1F:objects:6",
     "pokered:ROCK_TUNNEL_B1F:objects:1",
     "pokered:ROCK_TUNNEL_B1F:objects:2",
+    "pokered:ROCK_TUNNEL_1F:objects:6",
     "pokered:ROUTE_8:objects:9",
     "pokered:CELADON_GYM:objects:7",
 )
@@ -122,36 +125,51 @@ STEPS = [
     ('walk', 'right', 5, 'Route10', 8, 18),
     ('warp', 'RockTunnel1F', 15, 3),
     ('walk', 'down', 4, 'RockTunnel1F', 15, 7),
-    ('walk', 'right', 16, 'RockTunnel1F', 31, 7),
-    ('walk', 'down', 1, 'RockTunnel1F', 31, 8),
-    ('walk', 'right', 3, 'RockTunnel1F', 34, 8),
-    ('walk', 'up', 5, 'RockTunnel1F', 34, 3),
+    ('walk', 'right', 5, 'RockTunnel1F', 20, 7),
+    ('fight', 'down', 'RockTunnel1F', 20, 8, 'pokered:ROCK_TUNNEL_1F:objects:4'),
+    ('walk', 'down', 2, 'RockTunnel1F', 20, 10),
+    ('walk', 'right', 14, 'RockTunnel1F', 34, 10),
+    ('walk', 'up', 7, 'RockTunnel1F', 34, 3),
     ('walk', 'right', 2, 'RockTunnel1F', 36, 3),
     ('warp', 'RockTunnelB1F', 33, 25),
     ('walk', 'left', 5, 'RockTunnelB1F', 28, 25),
     ('walk', 'down', 5, 'RockTunnelB1F', 28, 30),
     ('walk', 'left', 1, 'RockTunnelB1F', 27, 30),
-    ('walk', 'down', 4, 'RockTunnelB1F', 27, 34),
-    ('walk', 'left', 2, 'RockTunnelB1F', 25, 34),
-    ('walk', 'up', 1, 'RockTunnelB1F', 25, 33),
-    ('walk', 'left', 8, 'RockTunnelB1F', 17, 33),
-    ('walk', 'up', 4, 'RockTunnelB1F', 17, 29),
+    ('walk', 'down', 1, 'RockTunnelB1F', 27, 31),
+    ('fight', 'left', 'RockTunnelB1F', 26, 31, 'pokered:ROCK_TUNNEL_B1F:objects:8'),
+    ('walk', 'left', 9, 'RockTunnelB1F', 17, 31),
+    ('walk', 'up', 2, 'RockTunnelB1F', 17, 29),
     ('fight', 'up', 'RockTunnelB1F', 17, 28, 'pokered:ROCK_TUNNEL_B1F:objects:6'),
     ('walk', 'up', 4, 'RockTunnelB1F', 17, 24),
     ('walk', 'right', 3, 'RockTunnelB1F', 20, 24),
     ('walk', 'up', 2, 'RockTunnelB1F', 20, 22),
-    ('walk', 'left', 3, 'RockTunnelB1F', 17, 22),
-    ('walk', 'up', 1, 'RockTunnelB1F', 17, 21),
-    ('walk', 'left', 3, 'RockTunnelB1F', 14, 21),
-    ('walk', 'up', 3, 'RockTunnelB1F', 14, 18),
-    ('walk', 'left', 1, 'RockTunnelB1F', 13, 18),
-    ('walk', 'up', 1, 'RockTunnelB1F', 13, 17),
-    ('walk', 'left', 1, 'RockTunnelB1F', 12, 17),
-    ('fight', 'left', 'RockTunnelB1F', 11, 17, 'pokered:ROCK_TUNNEL_B1F:objects:1'),
-    ('walk', 'left', 3, 'RockTunnelB1F', 8, 17),
-    ('walk', 'up', 1, 'RockTunnelB1F', 8, 16),
-    ('walk', 'left', 1, 'RockTunnelB1F', 7, 16),
-    ('walk', 'up', 3, 'RockTunnelB1F', 7, 13),
+    ('walk', 'right', 5, 'RockTunnelB1F', 25, 22),
+    ('walk', 'up', 6, 'RockTunnelB1F', 25, 16),
+    ('walk', 'right', 7, 'RockTunnelB1F', 32, 16),
+    ('walk', 'up', 6, 'RockTunnelB1F', 32, 10),
+    ('walk', 'right', 2, 'RockTunnelB1F', 34, 10),
+    ('walk', 'up', 4, 'RockTunnelB1F', 34, 6),
+    ('walk', 'right', 3, 'RockTunnelB1F', 37, 6),
+    ('walk', 'up', 2, 'RockTunnelB1F', 37, 4),
+    ('walk', 'left', 10, 'RockTunnelB1F', 27, 4),
+    ('warp', 'RockTunnel1F', 5, 3),
+    ('walk', 'left', 1, 'RockTunnel1F', 4, 3),
+    ('walk', 'down', 18, 'RockTunnel1F', 4, 21),
+    ('walk', 'right', 2, 'RockTunnel1F', 6, 21),
+    ('walk', 'up', 3, 'RockTunnel1F', 6, 18),
+    ('walk', 'right', 2, 'RockTunnel1F', 8, 18),
+    ('walk', 'up', 4, 'RockTunnel1F', 8, 14),
+    ('walk', 'right', 6, 'RockTunnel1F', 14, 14),
+    ('walk', 'up', 3, 'RockTunnel1F', 14, 11),
+    ('walk', 'right', 2, 'RockTunnel1F', 16, 11),
+    ('warp', 'RockTunnelB1F', 23, 11),
+    ('walk', 'left', 9, 'RockTunnelB1F', 14, 11),
+    ('walk', 'down', 3, 'RockTunnelB1F', 14, 14),
+    ('walk', 'left', 2, 'RockTunnelB1F', 12, 14),
+    ('fight', 'left', 'RockTunnelB1F', 11, 14, 'pokered:ROCK_TUNNEL_B1F:objects:1'),
+    ('walk', 'left', 3, 'RockTunnelB1F', 8, 14),
+    ('walk', 'up', 1, 'RockTunnelB1F', 8, 13),
+    ('walk', 'left', 1, 'RockTunnelB1F', 7, 13),
     ('fight', 'left', 'RockTunnelB1F', 6, 13, 'pokered:ROCK_TUNNEL_B1F:objects:2'),
     ('walk', 'left', 2, 'RockTunnelB1F', 4, 13),
     ('walk', 'up', 9, 'RockTunnelB1F', 4, 4),
@@ -166,10 +184,8 @@ STEPS = [
     ('walk', 'left', 6, 'RockTunnel1F', 26, 28),
     ('walk', 'up', 1, 'RockTunnel1F', 26, 27),
     ('walk', 'left', 3, 'RockTunnel1F', 23, 27),
-    ('walk', 'down', 2, 'RockTunnel1F', 23, 29),
-    ('walk', 'left', 2, 'RockTunnel1F', 21, 29),
-    ('walk', 'up', 2, 'RockTunnel1F', 21, 27),
-    ('walk', 'left', 6, 'RockTunnel1F', 15, 27),
+    ('fight', 'left', 'RockTunnel1F', 22, 27, 'pokered:ROCK_TUNNEL_1F:objects:6'),
+    ('walk', 'left', 7, 'RockTunnel1F', 15, 27),
     ('walk', 'down', 5, 'RockTunnel1F', 15, 32),
     ('warp', 'Route10', 8, 54),
     ('walk', 'right', 2, 'Route10', 10, 54),
@@ -321,6 +337,7 @@ class Board:
             src = json.loads((ROOT / "Source" / path).read_text(encoding="utf-8"))
             for rule in src.get("directional_rules", {}).get("ledges", []):
                 self.ledges.append((FACING[rule["facing"]], rule["standing_foot_tile"], rule["target_foot_tile"]))
+        self.pairs = {tuple(sorted(pair)) for pair in src.get("directional_rules", {}).get("forbidden_tile_pairs", [])}
         self.npcs = {(obj["x"] + self.pad, obj["y"]) for obj in src["events"]["objects"]}
         self.warps = {(warp["x"], warp["y"]): warp for warp in meta["warps"]}
         self.cuts = set()
@@ -369,6 +386,10 @@ def trainers_for(compact):
     return found
 
 
+def crosses_pair(board, x, y, nx, ny):
+    return tuple(sorted((board.foot_at(x, y), board.foot_at(nx, ny)))) in board.pairs
+
+
 def sees(board, trainer, x, y, defeated):
     if trainer["talk_only"] or trainer["sight_range_cells"] <= 0 or trainer["id"] in defeated:
         return False
@@ -384,7 +405,7 @@ def sees(board, trainer, x, y, defeated):
             return False
         px = trainer["x"] + board.pad + vx * (step - 1)
         py = trainer["y"] + vy * (step - 1)
-        if board.landing(px, py, vx, vy):
+        if board.landing(px, py, vx, vy) or crosses_pair(board, px, py, cx, cy):
             return False
     return True
 
@@ -465,7 +486,7 @@ class CeruleanToErikaTests(unittest.TestCase):
 
     def test_notes_name_the_cut_and_the_erika_cell(self):
         text = (ROOT / "docs/validation/lane-k-cerulean-to-erika.md").read_text(encoding="utf-8")
-        for needle in ("(0, 18)", "(19, 28)", "(5, 8)", "(35, 32)", "(3, 4)", "(8, 5)", "(6, 7)", "(5, 4)"):
+        for needle in ("(0, 18)", "(19, 28)", "(31, 7)", "(20, 8)", "(5, 8)", "(35, 32)", "(3, 4)", "(8, 5)", "(6, 7)", "(5, 4)"):
             self.assertIn(needle, text)
 
     def test_pokered_trees_and_feet_match_the_installed_maps(self):
@@ -510,6 +531,20 @@ class CeruleanToErikaTests(unittest.TestCase):
             grid = installed["grids"][installed["tile_ids"][y][x] - 1]
             self.assertEqual(grid["source_tile_ids"][2], foot)
 
+    def test_cavern_pairs_match_pokered(self):
+        rows = {tuple(sorted((int(a, 16), int(b, 16)))) for a, b in __import__("re").findall(
+            r"db\s+CAVERN,\s+\$([0-9A-Fa-f]+),\s+\$([0-9A-Fa-f]+)",
+            (self.ref / "data/tilesets/pair_collision_tile_ids.asm").read_text(encoding="utf-8"))}
+        self.assertIn((0x05, 0x20), rows)
+        for name in ("RockTunnel1F", "RockTunnelB1F"):
+            self.assertEqual(self.boards[name].pairs, rows)
+        floor = self.boards["RockTunnel1F"]
+        self.assertEqual((floor.foot_at(31, 7), floor.foot_at(31, 8)), (0x20, 0x05))
+        self.assertTrue(crosses_pair(floor, 31, 7, 31, 8))
+        for name, board in self.boards.items():
+            if name not in ("RockTunnel1F", "RockTunnelB1F"):
+                self.assertEqual(board.pairs, set(), name)
+
     def test_cerulean_east_road_opens_only_after_the_cut(self):
         board = self.boards["CeruleanCity"]
         self.assertIn((19, 28, 50, 109), [(x, y, b, r) for x, y, b, r in board.targets])
@@ -541,7 +576,7 @@ class CeruleanToErikaTests(unittest.TestCase):
         self.assertIn((39, 17), opened)
         self.assertIn((19, 28), opened)
 
-    def test_walk_reaches_erika_on_seven_sight_cells(self):
+    def test_walk_reaches_erika_without_a_pair_collision(self):
         boards = self.boards
         pos = START
         defeated = set()
@@ -561,6 +596,7 @@ class CeruleanToErikaTests(unittest.TestCase):
                     nx, ny = x + dx, y + dy
                     self.assertTrue(0 <= nx < board.w and 0 <= ny < board.h, (pos, direction))
                     self.assertFalse(board.is_solid(nx, ny), (name, nx, ny))
+                    self.assertFalse(crosses_pair(board, x, y, nx, ny), (name, x, y, nx, ny))
                     self.assertNotIn((nx, ny), board.npcs, (name, nx, ny))
                     self.assertNotIn((nx, ny), board.warps, (name, nx, ny))
                     seen = watchers(board, self.roster[name], nx, ny, defeated)
@@ -601,7 +637,7 @@ class CeruleanToErikaTests(unittest.TestCase):
                 for dx, dy in DELTA.values():
                     nx, ny = x + dx, y + dy
                     warp = board.warps.get((nx, ny))
-                    if not warp:
+                    if not warp or crosses_pair(board, x, y, nx, ny):
                         continue
                     dest_meta = warp["destination"]
                     if dest_meta["kind"] == "last_outdoor_map":
