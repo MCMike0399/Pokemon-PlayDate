@@ -582,6 +582,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(disabled_move("WARTORTLE's WATER GUN is disabled!", moves), "WATER GUN")
         self.assertIsNone(disabled_move("WARTORTLE is no longer disabled!", moves))
         self.assertIsNone(disabled_move("GRIMER used DISABLE!", moves))
+        self.assertFalse(_lost({"kind": "none"}, {"kind": "run", "won": False}))
+        self.assertTrue(_lost({"kind": "none"}, {"kind": "defeat", "won": False, "blackout": True}))
         self.assertEqual(preferred_move(moves, enemy_types=["water"])[1], "BITE")
         pallet = padded_open_cells("pallet_town")
         pallet.add((9, 0))
@@ -1061,7 +1063,7 @@ class Player:
                     self.fight(limit=2500, potion_at=potion_at)
                 self.dismiss_until_explore(limit=80)
                 after = self.state.get("last_battle_outcome") or {}
-                if after != before and after.get("won") is False:
+                if _lost(before, after):
                     return "blackout"
                 continue
             if root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event"):
@@ -1070,19 +1072,41 @@ class Player:
             return kind
         return "lost"
 
-    def fight(self, limit=700, potion_at=22, bite_only=False):
+    def fight(self, limit=700, potion_at=22, bite_only=False, shift_to=None, decline_moves=False, run_at=None):
         won = None
         rejected = set()
         for _ in range(limit):
             root = self.state.get("root")
             if root == "learning":
+                if decline_moves:
+                    _decline_new_move(self)
+                    continue
                 if not self.dismiss_until_explore(limit=80) and self.state.get("root") == "battle":
                     continue
                 if self.state.get("root") != "battle":
                     break
+            if root == "evolution":
+                self.dismiss_until_explore(limit=40)
+                continue
+            if root == "party":
+                _send_out(self, shift_to)
+                continue
+            if root == "dialog":
+                dialog = self.state.get("dialog") or {}
+                if dialog.get("ready"):
+                    self.press("a", wait=4)
+                else:
+                    self.send("wait 4")
+                continue
             if root != "battle":
                 break
             battle = self.state.get("battle") or {}
+            if battle.get("shift_choice"):
+                # The question stays up for 10 frames before YES/NO takes A.
+                self.send("wait 20", max_frames=80)
+                if (self.state.get("battle") or {}).get("shift_choice") and self.state.get("root") == "battle":
+                    self.press("a", wait=8)
+                continue
             phase = battle.get("phase")
             if phase == "ended":
                 enemy = (battle.get("enemy") or {}).get("hp")
@@ -1108,6 +1132,11 @@ class Player:
                 if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= ceiling
                         and player_hp < max_hp and self.use_potion()):
                     continue
+                if run_at and not battle.get("inMoveSelect") and 0 < player_hp <= run_at:
+                    options = (battle.get("menu") or {}).get("options") or []
+                    if "RUN" in options:
+                        self.choose("battle", "RUN")
+                        continue
                 if not battle.get("inMoveSelect"):
                     self.choose("battle", "FIGHT")
                 else:
@@ -1124,7 +1153,18 @@ class Player:
                     enemy_types = ((battle.get("enemy") or {}).get("types") or [])
                     if bite_only:
                         enemy_types = ["water"]
-                    index, _name = preferred_move(options, rejected, enemy_types)
+                    species = ((battle.get("player") or {}).get("species") or "")
+                    forced = {"pidgey": "GUST", "pidgeotto": "GUST", "spearow": "PECK",
+                              "fearow": "PECK", "diglett": "DIG", "dugtrio": "DIG"}.get(species)
+                    index = None
+                    if forced:
+                        for move_index, name in enumerate(options, start=1):
+                            letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
+                            if letters == forced and name not in rejected:
+                                index = move_index
+                                break
+                    if index is None:
+                        index, _name = preferred_move(options, rejected, enemy_types)
                     if index and selected != index:
                         self.press("down" if index > selected else "up", wait=2)
                     else:
@@ -3249,20 +3289,96 @@ def _through_scene(player, limit=6):
     raise RuntimeError("scene did not finish: " + json.dumps(summary(player.state)))
 
 
+def _lost(before, after):
+    """A run is not a blackout. Defeat is."""
+    if not after or after == before or after.get("kind") == "run":
+        return False
+    return after.get("won") is False or after.get("blackout") is True
+
+
+def _decline_new_move(player):
+    """NO on the learn question, then YES to abandon it. Whirlwind is 17 in B2W2."""
+    for _ in range(16):
+        if player.state.get("root") != "learning":
+            return
+        learning = player.state.get("learning") or {}
+        phase = learning.get("phase")
+        menu = learning.get("menu") or {}
+        if phase in (None, "message", "closed") or learning.get("dialog_ready"):
+            if learning.get("dialog_ready") or phase == "message":
+                player.press("a", wait=6)
+            else:
+                player.send("wait 6")
+        elif phase == "ask" and not menu.get("active"):
+            player.press("a", wait=6)
+        elif phase == "ask":
+            selected = menu.get("selected") or 1
+            if selected != 2:
+                player.press("down", wait=2)
+            else:
+                player.press("a", wait=6)
+        elif phase == "stop":
+            selected = menu.get("selected") or 1
+            if selected != 1:
+                player.press("up", wait=2)
+            else:
+                player.press("a", wait=6)
+        else:
+            player.press("b", wait=4)
+
+
+def _send_out(player, prefer):
+    phase = (player.state.get("party_ui") or {}).get("phase")
+    if phase == "notice":
+        player.press("a", wait=4)
+        return
+    slot = None
+    if prefer:
+        slot, mon = _member(player, prefer)
+        if mon and (mon.get("hp") or 0) <= 0:
+            slot = None
+        if slot is None and prefer == "pidgeotto":
+            slot, mon = _member(player, "pidgey")
+            if mon and (mon.get("hp") or 0) <= 0:
+                slot = None
+    if slot is None:
+        for index, mon in enumerate(((player.state.get("party") or {}).get("members") or []), start=1):
+            if (mon.get("hp") or 0) > 0:
+                slot = index
+                break
+    if slot is None:
+        raise RuntimeError("no pokemon to send: " + json.dumps(summary(player.state)))
+    _select_party(player, slot)
+    player.press("a", wait=8)
+
+
 def _settle_catch(player):
-    for _ in range(24):
+    """Dex page, nickname NO, then the battle's last page. B declines the nickname."""
+    for _ in range(80):
         if player.exploring():
             return
         root = player.state.get("root")
         if root == "naming":
-            # B declines the nickname. Down would toggle YES/NO.
             player.press("b", wait=8)
         elif root == "pokedex":
-            player.press("a", wait=6)
-        elif not player.dismiss_until_explore(limit=12):
-            continue
+            player.press("a", wait=8)
+        elif root == "dialog":
+            dialog = player.state.get("dialog") or {}
+            if dialog.get("ready"):
+                player.press("a", wait=6)
+            else:
+                player.send("wait 6")
+        elif root == "battle":
+            battle = player.state.get("battle") or {}
+            if battle.get("phase") in ("ended", "script") or battle.get("waiting"):
+                player.send("wait 8", "press a", max_frames=200)
+            else:
+                player.send("wait 4")
+        elif root == "learning":
+            _decline_new_move(player)
         else:
-            return
+            player.dismiss_until_explore(limit=8)
+    raise RuntimeError("catch did not return to the field: " + json.dumps(summary(player.state)))
 
 
 def _throw_ball(player):
@@ -3347,7 +3463,7 @@ def _catch_wild(player, species):
             before_outcome = player.state.get("last_battle_outcome")
             player.fight(limit=400, potion_at=34)
             after = player.state.get("last_battle_outcome") or {}
-            if after != before_outcome and after.get("won") is False:
+            if _lost(before_outcome, after):
                 raise RuntimeError("blackout while catching: " + json.dumps(summary(player.state)))
         player.dismiss_until_explore(limit=30)
     _settle_catch(player)
@@ -3395,7 +3511,7 @@ def _hunt(player, cells, left, right, species, limit=30):
         if player.state.get("root") != "overworld":
             player.dismiss_until_explore(limit=30)
         after = player.state.get("last_battle_outcome") or {}
-        if after != before and after.get("won") is False:
+        if _lost(before, after):
             raise RuntimeError(f"blackout hunting {species}: " + json.dumps(summary(player.state)))
     return _member(player, species)[0] is not None
 
@@ -3621,17 +3737,18 @@ def _solve_cans(player, report):
         raise RuntimeError("the gym cans stayed shut: " + json.dumps(report["cans"]))
 
 
-def _fight_once(player, label, potion_at):
+def _fight_once(player, label, potion_at, bite_only=False, shift_to=None, decline_moves=False):
     before = player.state.get("last_battle_outcome")
     if player.state.get("root") != "battle":
         _through_scene(player, 4)
     if player.state.get("root") != "battle":
         raise RuntimeError(f"{label} did not start: " + json.dumps(summary(player.state)))
-    won = player.fight(limit=2500, potion_at=potion_at)
+    won = player.fight(limit=2500, potion_at=potion_at, bite_only=bite_only,
+                       shift_to=shift_to, decline_moves=decline_moves)
     if player.state.get("root") != "overworld":
         player.dismiss_until_explore(limit=80)
     after = player.state.get("last_battle_outcome") or {}
-    if after != before and after.get("won") is False:
+    if _lost(before, after):
         raise RuntimeError(f"blackout at {label}: " + json.dumps(summary(player.state)))
     if won is not True and after.get("won") is not True:
         raise RuntimeError(f"{label} was not won: " + json.dumps(summary(player.state)))
@@ -3854,8 +3971,182 @@ def _rest(player, report, label, supers):
         _buy_vermilion(player, report, balls=8, supers=supers)
 
 
+def _pause(player, report, key):
+    if not player.exploring():
+        _settle_catch(player)
+    report[key] = player.pause_save() or player.pause_save()
+    if not report[key]:
+        raise RuntimeError(f"{key} did not save: " + json.dumps(summary(player.state)))
+
+
+def _to_route6_grass(player):
+    if "route_6" not in str(player.state.get("zone")):
+        if "vermilion_city" not in str(player.state.get("zone")):
+            _return_vermilion(player, "Route 6 return")
+        _leave(player, vermilion_cells(), [((19, 0), "up"), ((18, 0), "up")],
+               VERMILION_DOORS, "route_6", "Route 6")
+    _stand(player, route6_cells(), (12, 30), _route6_avoid(), "Route 6 grass")
+
+
+def _raise_pidgey(player, report):
+    """Gust wild battles to Pidgeotto 19. Decline Whirlwind; B2W2 offers it at 17."""
+    _lead(player, "pidgey")
+    left, right = (12, 30), (13, 30)
+    goal = right
+    battles = 0
+    for _ in range(700):
+        if not player.exploring():
+            root = player.state.get("root")
+            if root == "learning":
+                _decline_new_move(player)
+            elif root == "evolution":
+                player.dismiss_until_explore(limit=40)
+            else:
+                _settle_catch(player)
+            continue
+        _slot, bird = _member(player, "pidgeotto")
+        if bird is None:
+            _slot, bird = _member(player, "pidgey")
+        bird = bird or {}
+        level = bird.get("level") or 0
+        if bird.get("species") == "pidgeotto" and level >= 19:
+            break
+        if bird.get("species") == "pidgey" and level >= 21:
+            raise RuntimeError("Pidgey reached 21 before it evolved: " + json.dumps(_party(player)))
+        mon = player.state.get("pokemon") or {}
+        if mon.get("species") not in ("pidgey", "pidgeotto"):
+            _lead(player, bird.get("species") or "pidgey")
+            continue
+        hp = mon.get("hp") or 0
+        if hp < 8 or mon.get("status"):
+            _rest(player, report, "bird heal", 4)
+            _to_route6_grass(player)
+            _lead(player, "pidgeotto" if _member(player, "pidgeotto")[0] else "pidgey")
+            continue
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here == goal:
+            goal = left if goal == right else right
+        steps = route(route6_cells(), here, goal, set())
+        if not steps:
+            raise RuntimeError("lost the Route 6 grass: " + json.dumps(summary(player.state)))
+        kind = player.step(steps[0])
+        if kind not in ("overlay", "warp") and player.state.get("root") != "battle":
+            continue
+        if player.state.get("root") != "battle" and _through_scene(player, 4) != "battle":
+            continue
+        battles += 1
+        before = player.state.get("last_battle_outcome")
+        battle = player.state.get("battle") or {}
+        if battle.get("trainerName"):
+            player.fight(limit=800, potion_at=0, decline_moves=True)
+        else:
+            foe = battle.get("enemy") or {}
+            if (foe.get("level") or 99) > level + 3:
+                if not player.run_away():
+                    player.fight(limit=400, potion_at=0, decline_moves=True, run_at=8)
+            else:
+                player.fight(limit=500, potion_at=0, decline_moves=True, run_at=8)
+        if player.state.get("root") != "overworld":
+            _settle_catch(player)
+        if _lost(before, player.state.get("last_battle_outcome") or {}):
+            raise RuntimeError("blackout raising Pidgey: " + json.dumps(summary(player.state)))
+    mon = player.state.get("pokemon") or {}
+    report["bird"] = {"battles": battles, "party": _party(player), **summary(player.state)}
+    if mon.get("species") != "pidgeotto" or (mon.get("level") or 0) < 19:
+        raise RuntimeError("Pidgey did not reach Pidgeotto 19: " + json.dumps(report["bird"]))
+    _lead(player, "wartortle")
+
+
+def _cut_tree(player, report):
+    doors = set(VERMILION_DOORS)
+    _stand(player, vermilion_cells(), (15, 17), doors, "Cut tree")
+    if player.state["player"].get("facing") != "down":
+        player.press("down", wait=4)
+    if not player.exploring():
+        _close_menus(player)
+    player.press("b", wait=10)
+    player.choose("pause", _menu_label(player, "pause", "MON"))
+    slot, _mon = _member(player, "bellsprout")
+    _select_party(player, slot)
+    player.press("a", wait=6)
+    player.choose("party_ui", "CUT")
+    for _ in range(16):
+        if player.exploring():
+            break
+        if player.state.get("root") == "fieldMove":
+            phase = (player.state.get("field_move") or {}).get("phase")
+            if phase == "confirm":
+                player.choose("field_move", "YES")
+            elif phase == "announce":
+                player.press("a", wait=8)
+            else:
+                player.send("wait 8")
+        else:
+            player.press("b", wait=4)
+    _close_menus(player)
+    opened = set(vermilion_cells())
+    opened.add((15, 18))
+    kind = player.travel(opened, (15, 18), doors)
+    report["cut"] = {"kind": kind, **summary(player.state)}
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (15, 18):
+        raise RuntimeError("Cut did not open the Vermilion tree: " + json.dumps(summary(player.state)))
+    return opened
+
+
+def _raise_diglett(player, report):
+    """Catch a Diglett and bring it to 22. B2W2 Dig is 34, so TM28 teaches it."""
+    _enter(player, route11_cells(), (4, 5), route11_avoid() - {(4, 5)}, "up",
+           "digletts_cave_route_11", "Diglett's Cave")
+    kind = step_onto(player, diglett_house_cells(), (6, 4), {(4, 3)}, "up")
+    _settle_overlay(player)
+    if "digletts_cave" not in str(player.state.get("zone")) or "route_11" in str(player.state.get("zone")):
+        if player.state.get("zone") != "kanto_digletts_cave":
+            raise RuntimeError("the cave stairs did not open: " + json.dumps(summary(player.state)))
+    if not _member(player, "diglett")[0] and not _member(player, "dugtrio")[0]:
+        caught = _hunt(player, diglett_cave_cells(), (35, 31), (36, 31), "diglett", limit=16)
+        report["diglett"] = {"caught": bool(caught), "party": _party(player), **summary(player.state)}
+        if not caught:
+            raise RuntimeError("Diglett's Cave did not yield a Diglett: " + json.dumps(summary(player.state)))
+    _lead(player, "diglett")
+    left, right = (35, 31), (36, 31)
+    goal = right
+    for _ in range(500):
+        if not player.exploring():
+            _settle_catch(player)
+            continue
+        mon = player.state.get("pokemon") or {}
+        if (mon.get("level") or 0) >= 22:
+            break
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here not in diglett_cave_cells() and here != left and here != right:
+            break
+        if here == goal:
+            goal = left if goal == right else right
+        steps = route(diglett_cave_cells(), here, goal, set())
+        if not steps:
+            break
+        kind = player.step(steps[0])
+        if player.state.get("root") != "battle":
+            continue
+        before = player.state.get("last_battle_outcome")
+        player.fight(limit=400, potion_at=12, run_at=6)
+        if player.state.get("root") != "overworld":
+            _settle_catch(player)
+        if _lost(before, player.state.get("last_battle_outcome") or {}):
+            raise RuntimeError("blackout raising Diglett: " + json.dumps(summary(player.state)))
+    step_onto(player, diglett_cave_cells(), (37, 31), set(), "down")
+    _settle_overlay(player)
+    _leave(player, diglett_house_cells(), [((4, 7), "down"), ((5, 7), "down")],
+           {(4, 3)}, "route_11", "cave exit")
+    _leave(player, route11_cells(), [((0, 6), "left")], route11_avoid(), "vermilion_city", "Vermilion from Route 11")
+    mon = _member(player, "diglett")[1] or _member(player, "dugtrio")[1] or {}
+    report["diglett_level"] = {"species": mon.get("species"), "level": mon.get("level"), "moves": mon.get("moves")}
+    if (mon.get("level") or 0) < 22:
+        raise RuntimeError("Diglett is not L22 yet: " + json.dumps(report["diglett_level"]))
+
+
 def play_vermilion_prep(player, report, display, clips, output):
-    """Catch Bellsprout, grind toward L28, and pause. The rival waits for K."""
+    """K's Anne plan: Bellsprout, Pidgeotto 19, Bite then Gust, then HM01."""
     player.leave_title()
     if not player.exploring():
         player.dismiss_until_explore(limit=40)
@@ -3874,39 +4165,88 @@ def play_vermilion_prep(player, report, display, clips, output):
             raise RuntimeError("Route 6 did not yield a Bellsprout: " + json.dumps(summary(player.state)))
 
     film(display, clips, output, "bellsprout", report, "end", catch)
-    if not player.exploring():
-        _settle_catch(player)
-    report["saved_bellsprout"] = player.pause_save() or player.pause_save()
-    if not report["saved_bellsprout"]:
-        raise RuntimeError("the Bellsprout pause did not save: " + json.dumps(summary(player.state)))
-    if _member(player, "pidgey")[0] is None and _item_count(player, "pokeBall") >= 2:
-        report["pidgey"] = _hunt(player, route6_cells(), (12, 30), (13, 30), "pidgey", limit=12)
-    report["route6"] = _grind(player, route6_cells(), ROUTE6_GRIND, _route6_avoid(), "Route 6")
-    if ((player.state.get("pokemon") or {}).get("level") or 0) < 28:
-        if _member(player, "pidgey")[0] is None and _member(player, "spearow")[0] is None and _item_count(player, "pokeBall") >= 2:
-            _rest(player, report, "before Route 11", 4)
-            _leave(player, vermilion_cells(), [((39, 14), "right")],
-                   VERMILION_DOORS, "route_11", "Route 11")
-            _stand(player, route11_cells(), (14, 4),
-                   route11_avoid() | {(10, 5), (11, 5), (12, 5), (13, 5)}, "Route 11 grass")
-            report["spearow"] = _hunt(player, route11_cells(), (14, 4), (15, 4), "spearow", limit=12)
-        elif "route_11" not in str(player.state.get("zone")):
-            _rest(player, report, "before Route 11", 4)
-            _leave(player, vermilion_cells(), [((39, 14), "right")],
-                   VERMILION_DOORS, "route_11", "Route 11")
-        report["route11"] = _grind(player, route11_cells(), ROUTE11_GRIND, route11_avoid(), "Route 11")
-    _rest(player, report, "prep", 8)
-    report["prep"] = {
-        "party": _party(player),
-        "balls": _item_count(player, "pokeBall"),
-        "supers": _item_count(player, "superPotion"),
-        "hm01": _item_count(player, "hm01"),
-        "thunder": bool(_quest(player).get("BADGE_THUNDER")),
+    if _member(player, "pidgey")[0] is None:
+        caught = _hunt(player, route6_cells(), (12, 30), (13, 30), "pidgey", limit=24)
+        report["pidgey"] = {"caught": bool(caught), "party": _party(player), **summary(player.state)}
+        if not caught:
+            raise RuntimeError("Route 6 did not yield a Pidgey: " + json.dumps(summary(player.state)))
+    _pause(player, report, "saved_catches")
+    _raise_pidgey(player, report)
+    _rest(player, report, "before the rival", 4)
+    _lead(player, "wartortle")
+    _pause(player, report, "saved_before_rival")
+
+    def rival():
+        doors = set(VERMILION_DOORS)
+        _stand(player, vermilion_cells(), (18, 29), doors, "dock gate")
+        player.step("down")
+        if not player.exploring():
+            _through_scene(player, 4)
+        _enter(player, vermilion_cells(), (18, 31), doors, "down", "vermilion_dock", "Vermilion dock")
+        _enter(player, vermilion_dock_cells(), (14, 2), set(), "down", "ss_anne_1f", "S.S. Anne")
+        _enter(player, ss_anne_1f_cells(), (2, 6), ANNE1_SKIP, "up", "ss_anne_2f", "S.S. Anne 2F")
+        _stand(player, ss_anne_2f_cells(), (36, 9), ANNE2_SKIP, "rival trigger")
+        player.step("up")
+        _fight_once(player, "the S.S. Anne rival", 30, bite_only=True, shift_to="pidgeotto")
+        report["anne_rival"] = {"party": _party(player), **summary(player.state)}
+
+    film(display, clips, output, "ss-anne", report, "end", rival)
+    _enter(player, ss_anne_2f_cells(), (36, 4), ANNE2_SKIP - {(36, 4)}, "up", "captains_room", "captain")
+    _stand(player, captain_cells(), (7, 3), set(), "captain")
+    if player.state["player"].get("facing") != "up":
+        player.press("up", wait=4)
+    player.press("a", wait=8)
+    _through_scene(player, 6)
+    report["hm01"] = {
+        "count": _item_count(player, "hm01"),
+        "flag": bool(_quest(player).get("EVENT_GOT_HM01")),
         **summary(player.state),
     }
-    report["saved_prep"] = player.pause_save() or player.pause_save()
-    if not report["saved_prep"]:
-        raise RuntimeError("the prep pause did not save: " + json.dumps(summary(player.state)))
+    if report["hm01"]["count"] < 1 or not report["hm01"]["flag"]:
+        raise RuntimeError("the captain did not give HM01: " + json.dumps(report["hm01"]))
+    _teach(player, "hm01", "bellsprout", "cut")
+    _leave(player, captain_cells(), [((3, 7), "down")], set(), "ss_anne_2f", "captain exit")
+    _enter(player, ss_anne_2f_cells(), (2, 4), ANNE2_SKIP - {(36, 4)}, "up", "ss_anne_1f", "S.S. Anne stairs")
+    _stand(player, ss_anne_1f_cells(), (27, 0), ANNE1_SKIP, "ship exit")
+    player.step("up")
+    _through_scene(player, 4)
+    _pause(player, report, "saved_hm01")
+
+    _leave(player, vermilion_cells(), [((39, 14), "right"), ((39, 15), "right")],
+           VERMILION_DOORS, "route_11", "Route 11")
+    _raise_diglett(player, report)
+    _rest(player, report, "before Surge", 6)
+    _teach(player, "tm28", "diglett", "dig")
+    _lead(player, "diglett")
+    opened = _cut_tree(player, report)
+    _pause(player, report, "saved_before_surge")
+    gym_doors = set(VERMILION_DOORS)
+    gym_doors.discard((12, 19))
+    _stand(player, opened, (12, 20), gym_doors, "gym door")
+    player.step("up")
+    _settle_overlay(player)
+    if "vermilion_gym" not in str(player.state.get("zone")):
+        raise RuntimeError("the gym door did not open: " + json.dumps(summary(player.state)))
+    _solve_cans(player, report)
+
+    def surge():
+        _stand(player, vermilion_gym_cells(), (6, 2), set(), "Lt. Surge")
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        _fight_once(player, "Lt. Surge", 20)
+
+    film(display, clips, output, "gym-vermilion", report, "end", surge)
+    quest = _quest(player)
+    report["thunder"] = {
+        "badge": bool(quest.get("BADGE_THUNDER")),
+        "beat": bool(quest.get("EVENT_BEAT_LT_SURGE")),
+        "party": _party(player),
+        **summary(player.state),
+    }
+    if not report["thunder"]["badge"]:
+        raise RuntimeError("Lt. Surge did not give the Thunder Badge: " + json.dumps(report["thunder"]))
+    _pause(player, report, "saved_thunder")
 
 
 if __name__ == "__main__":
@@ -3916,7 +4256,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-45")
+            output = Path("/tmp/lane-j-squirtle-46")
             save_from = VERMILION_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
             if digest != VERMILION_SAVE_SHA:
