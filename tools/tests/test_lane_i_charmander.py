@@ -3628,6 +3628,9 @@ class CharmanderRun(BrockJourney):
             return False
         if starter["status"] not in {None, "none"}:
             return False
+        # Ice Beam is the Lance gate. Full Heals cover the return trip.
+        if not self._lapras_needs_ice_beam():
+            return True
         return (self.quantity("revive") >= 1 or self.quantity("maxRevive") >= 1
                 or self.quantity("fullRestore") >= 1)
 
