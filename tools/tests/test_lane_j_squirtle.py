@@ -679,7 +679,14 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNone(route(vermilion_cells(), (15, 17), (12, 20), VERMILION_DOORS - {(12, 19)}))
         self.assertIsNotNone(route(opened, (15, 17), (12, 20), VERMILION_DOORS - {(12, 19)}))
         self.assertIsNotNone(route(route6_cells(), (9, 35), (12, 30), ROUTE6_SKIP))
+        floor = {(x, y) for (x, y) in route6_cells() if y < 14}
+        bug = (set(ROUTE6_SKIP) | floor) - {(1, 15), (2, 15), (3, 15), (4, 15)}
+        self.assertIsNotNone(route(route6_cells(), (9, 35), (1, 15), bug))
         self.assertIsNotNone(route(route11_cells(), (0, 6), (4, 6)))
+        self.assertIsNotNone(route(route11_cells(), (0, 6), (10, 15), route11_avoid()))
+        self.assertIsNotNone(route(route11_cells(), (44, 16), (0, 6), route11_avoid()))
+        self.assertIsNotNone(route(route11_cells(), (0, 6), (14, 4), route11_avoid() | {(10, 5), (11, 5), (12, 5), (13, 5)}))
+        self.assertIsNotNone(route(vermilion_cells(), (11, 4), (39, 14), VERMILION_DOORS))
         self.assertEqual(_can_index({"VERMILION_SCENE_V1_FIRST_1": True, "VERMILION_SCENE_V1_FIRST_3": True}, "FIRST"), 10)
         self.assertEqual(VERMILION_CANS[10], (7, 9))
         self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
@@ -1036,7 +1043,7 @@ class Player:
                 self.send("wait 4")
         return self.state.get("root") != "battle"
 
-    def travel(self, open_cells, goal, avoid, limit=12, blocked_edges=()):
+    def travel(self, open_cells, goal, avoid, limit=12, blocked_edges=(), potion_at=30):
         started = self.state.get("zone")
         for _ in range(limit):
             if started and self.state.get("zone") != started:
@@ -1049,9 +1056,9 @@ class Player:
                 before = self.state.get("last_battle_outcome")
                 trainer = (self.state.get("battle") or {}).get("trainerName")
                 if trainer:
-                    self.fight(limit=2500, potion_at=30)
+                    self.fight(limit=2500, potion_at=potion_at)
                 elif not self.run_away():
-                    self.fight(limit=2500, potion_at=30)
+                    self.fight(limit=2500, potion_at=potion_at)
                 self.dismiss_until_explore(limit=80)
                 after = self.state.get("last_battle_outcome") or {}
                 if after != before and after.get("won") is False:
@@ -2258,6 +2265,26 @@ ROUTE6_SKIP = {
     (11, 31), (11, 30), (19, 26), (18, 26), (17, 26), (16, 26),
     (9, 1), (10, 1), (10, 7),
 }
+# Objects 4 and 5 were beaten on the way into Vermilion. Sight 0 is talk-only.
+ROUTE6_GRIND = (
+    {"id": "pokered:ROUTE_6:objects:3", "xy": (0, 15), "face": "RIGHT", "sight": 4},
+    {"id": "pokered:ROUTE_6:objects:1", "xy": (10, 21), "face": "RIGHT", "sight": 0},
+    {"id": "pokered:ROUTE_6:objects:2", "xy": (11, 21), "face": "LEFT", "sight": 0},
+    {"id": "pokered:ROUTE_6:objects:6", "xy": (19, 26), "face": "LEFT", "sight": 3},
+)
+# Water and normal trainers first. The three electric parties stay last.
+ROUTE11_GRIND = (
+    {"id": "pokered:ROUTE_11:objects:1", "xy": (10, 14), "face": "DOWN", "sight": 3},
+    {"id": "pokered:ROUTE_11:objects:3", "xy": (13, 5), "face": "LEFT", "sight": 3},
+    {"id": "pokered:ROUTE_11:objects:5", "xy": (22, 4), "face": "UP", "sight": 4},
+    {"id": "pokered:ROUTE_11:objects:10", "xy": (22, 12), "face": "UP", "sight": 4},
+    {"id": "pokered:ROUTE_11:objects:2", "xy": (26, 9), "face": "DOWN", "sight": 2},
+    {"id": "pokered:ROUTE_11:objects:8", "xy": (43, 5), "face": "RIGHT", "sight": 4},
+    {"id": "pokered:ROUTE_11:objects:7", "xy": (33, 3), "face": "UP", "sight": 3},
+    {"id": "pokered:ROUTE_11:objects:4", "xy": (36, 11), "face": "DOWN", "sight": 3},
+    {"id": "pokered:ROUTE_11:objects:6", "xy": (45, 7), "face": "DOWN", "sight": 3},
+    {"id": "pokered:ROUTE_11:objects:9", "xy": (45, 16), "face": "LEFT", "sight": 3},
+)
 ROUTE5_SKIP = {(9, 29), (10, 29), (10, 33), (10, 21)}
 VERMILION_DOORS = {(11, 3), (9, 13), (23, 13), (12, 19), (23, 19), (18, 31), (19, 31), (15, 13)}
 # Room doors and the lower stairs. The captain door stays closed until the rival leaves.
@@ -2283,14 +2310,14 @@ def _blackout(player, kind, label):
         raise RuntimeError(f"blackout at {label}: " + json.dumps(summary(player.state)))
 
 
-def _stand(player, cells, goal, avoid, label, limit=40):
+def _stand(player, cells, goal, avoid, label, limit=40, potion_at=30):
     # route() rejects a start or goal that is listed as blocked. The player can
     # already be standing on a door that the rest of the walk must not re-enter.
     avoid = set(avoid)
     here = (player.state["player"]["x"], player.state["player"]["y"])
     avoid.discard(here)
     avoid.discard(tuple(goal))
-    kind = player.travel(cells, goal, avoid, limit=limit)
+    kind = player.travel(cells, goal, avoid, limit=limit, potion_at=potion_at)
     _settle_overlay(player)
     _blackout(player, kind, label)
     here = (player.state["player"]["x"], player.state["player"]["y"])
@@ -3494,7 +3521,7 @@ def _shop_buy(player, item, price, target):
     return _item_count(player, item)
 
 
-def _buy_vermilion(player, report):
+def _buy_vermilion(player, report, balls=8, supers=6):
     doors = set(VERMILION_DOORS)
     doors.discard((23, 13))
     _enter(player, vermilion_cells(), (23, 13), doors, "up", "mart", "Vermilion Mart")
@@ -3519,10 +3546,10 @@ def _buy_vermilion(player, report):
         player.press("a", wait=8)
     if not opened and player.state.get("root") != "shop":
         raise RuntimeError("the Vermilion clerk did not open: " + json.dumps(summary(player.state)))
-    report["poke_balls"] = _shop_buy(player, "pokeBall", 200, 8)
-    report["super_potions"] = _shop_buy(player, "superPotion", 700, 6)
+    report["poke_balls"] = _shop_buy(player, "pokeBall", 200, balls)
+    report["super_potions"] = _shop_buy(player, "superPotion", 700, supers)
     report["mart_money"] = int((player.state.get("inventory") or {}).get("money") or 0)
-    if report["poke_balls"] < 4 or report["super_potions"] < 4:
+    if report["poke_balls"] < min(4, balls) or report["super_potions"] < min(4, supers):
         raise RuntimeError("Vermilion Mart did not sell balls and Super Potions: " + json.dumps(summary(player.state)))
     for _ in range(8):
         if player.state.get("root") != "shop":
@@ -3745,6 +3772,128 @@ def play_ss_anne(player, report, display, clips, output):
         report["saved_thunder"] = player.pause_save()
 
 
+def _route6_avoid():
+    # The north ledges hop downward. The grass and the remaining trainers are south of them.
+    return set(ROUTE6_SKIP) | {(x, y) for (x, y) in route6_cells() if y < 14}
+
+
+def route11_avoid():
+    # Diglett's door, both gates, and the Route 12 edge.
+    blocked = {(4, 5), (49, 8), (49, 9), (58, 8), (58, 9)}
+    blocked.update(cell for cell in route11_cells() if cell[0] >= 49)
+    return blocked
+
+
+def _sight_cells(trainer):
+    x, y = trainer["xy"]
+    dx, dy = DELTAS[{"RIGHT": "right", "LEFT": "left", "UP": "up", "DOWN": "down"}[trainer["face"]]]
+    return [(x + dx * step, y + dy * step) for step in range(1, trainer["sight"] + 1)]
+
+
+def _party(player):
+    return [
+        {"species": mon.get("species"), "level": mon.get("level"), "hp": mon.get("hp")}
+        for mon in ((player.state.get("party") or {}).get("members") or [])
+    ]
+
+
+def _grind(player, cells, trainers, avoid, label):
+    fought = []
+    for trainer in trainers:
+        if ((player.state.get("pokemon") or {}).get("level") or 0) >= 28:
+            break
+        name = f"{label} {trainer['id'].rsplit(':', 1)[-1]}"
+        local = set(avoid) - set(_sight_cells(trainer))
+        if trainer["sight"] == 0:
+            if talk_to(player, cells, trainer["id"], local) == "missing":
+                raise RuntimeError(f"missing {name}")
+            if player.state.get("root") == "battle":
+                _fight_once(player, name, 36)
+        else:
+            _stand(player, cells, _sight_cells(trainer)[0], local, name, potion_at=36)
+        fought.append({"id": trainer["id"], **summary(player.state)})
+    return fought
+
+
+def _return_vermilion(player, label):
+    zone = str(player.state.get("zone"))
+    if "route_6" in zone:
+        _stand(player, route6_cells(), (9, 35), _route6_avoid(), f"{label} south")
+        _leave(player, route6_cells(), [((9, 35), "down"), ((8, 35), "down")],
+               _route6_avoid(), "vermilion_city", label)
+    elif "route_11" in zone:
+        _stand(player, route11_cells(), (0, 6), route11_avoid(), f"{label} west")
+        _leave(player, route11_cells(), [((0, 6), "left")],
+               route11_avoid(), "vermilion_city", label)
+    if "vermilion_city" not in str(player.state.get("zone")):
+        raise RuntimeError(f"{label} did not reach Vermilion: " + json.dumps(summary(player.state)))
+
+
+def _rest(player, report, label, supers):
+    _return_vermilion(player, label)
+    doors = set(VERMILION_DOORS)
+    doors.discard((11, 3))
+    _heal_in(player, report, vermilion_cells(), (11, 3), VERMILION_NURSE,
+             vermilion_center_cells(), label, "vermilion_city", avoid=doors)
+    if _item_count(player, "superPotion") < supers:
+        _buy_vermilion(player, report, balls=8, supers=supers)
+
+
+def play_vermilion_prep(player, report, display, clips, output):
+    """Catch Bellsprout, grind toward L28, and pause. The rival waits for K."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["resumed"] = summary(player.state)
+    if "vermilion_city" not in str(player.state.get("zone")):
+        raise RuntimeError("the prep did not resume in Vermilion: " + json.dumps(summary(player.state)))
+    _buy_vermilion(player, report, balls=8, supers=4)
+
+    def catch():
+        _leave(player, vermilion_cells(), [((19, 0), "up"), ((18, 0), "up")],
+               VERMILION_DOORS, "route_6", "Route 6")
+        _stand(player, route6_cells(), (12, 30), _route6_avoid(), "Route 6 grass")
+        caught = _hunt(player, route6_cells(), (12, 30), (13, 30), "bellsprout", limit=20)
+        report["bellsprout"] = {"caught": bool(caught), "party": _party(player), **summary(player.state)}
+        if not caught:
+            raise RuntimeError("Route 6 did not yield a Bellsprout: " + json.dumps(summary(player.state)))
+
+    film(display, clips, output, "bellsprout", report, "end", catch)
+    if not player.exploring():
+        _settle_catch(player)
+    report["saved_bellsprout"] = player.pause_save() or player.pause_save()
+    if not report["saved_bellsprout"]:
+        raise RuntimeError("the Bellsprout pause did not save: " + json.dumps(summary(player.state)))
+    if _member(player, "pidgey")[0] is None and _item_count(player, "pokeBall") >= 2:
+        report["pidgey"] = _hunt(player, route6_cells(), (12, 30), (13, 30), "pidgey", limit=12)
+    report["route6"] = _grind(player, route6_cells(), ROUTE6_GRIND, _route6_avoid(), "Route 6")
+    if ((player.state.get("pokemon") or {}).get("level") or 0) < 28:
+        if _member(player, "pidgey")[0] is None and _member(player, "spearow")[0] is None and _item_count(player, "pokeBall") >= 2:
+            _rest(player, report, "before Route 11", 4)
+            _leave(player, vermilion_cells(), [((39, 14), "right")],
+                   VERMILION_DOORS, "route_11", "Route 11")
+            _stand(player, route11_cells(), (14, 4),
+                   route11_avoid() | {(10, 5), (11, 5), (12, 5), (13, 5)}, "Route 11 grass")
+            report["spearow"] = _hunt(player, route11_cells(), (14, 4), (15, 4), "spearow", limit=12)
+        elif "route_11" not in str(player.state.get("zone")):
+            _rest(player, report, "before Route 11", 4)
+            _leave(player, vermilion_cells(), [((39, 14), "right")],
+                   VERMILION_DOORS, "route_11", "Route 11")
+        report["route11"] = _grind(player, route11_cells(), ROUTE11_GRIND, route11_avoid(), "Route 11")
+    _rest(player, report, "prep", 8)
+    report["prep"] = {
+        "party": _party(player),
+        "balls": _item_count(player, "pokeBall"),
+        "supers": _item_count(player, "superPotion"),
+        "hm01": _item_count(player, "hm01"),
+        "thunder": bool(_quest(player).get("BADGE_THUNDER")),
+        **summary(player.state),
+    }
+    report["saved_prep"] = player.pause_save() or player.pause_save()
+    if not report["saved_prep"]:
+        raise RuntimeError("the prep pause did not save: " + json.dumps(summary(player.state)))
+
+
 if __name__ == "__main__":
     import sys
     if "--play" not in sys.argv:
@@ -3752,14 +3901,14 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-43")
+            output = Path("/tmp/lane-j-squirtle-44")
             save_from = VERMILION_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
             if digest != VERMILION_SAVE_SHA:
                 raise SystemExit(f"vermilion save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
-            raise SystemExit(play(output, clips, save_from=save_from, story=play_ss_anne))
+            raise SystemExit(play(output, clips, save_from=save_from, story=play_vermilion_prep))
         if "--west" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-25")
             save_from = CLIFF_SAVE
