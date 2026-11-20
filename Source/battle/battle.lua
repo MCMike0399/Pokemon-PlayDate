@@ -2010,13 +2010,35 @@ function Battle:useItem(id,partyIndex,moveSlot)
     if not self.player:isAlive() or not self.enemy:isAlive() then return false,"fainted" end
     if self.conditions:locked(self.player) then return false,"locked-move" end
     local item=type(id)=="string" and ItemData.definitions[id] or nil
-    local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}
+    local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true,statStage=true}
     if not item or not legal[item.effect] then return false,"unsupported-item-use" end
     partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
     if not partyIndex then return false,"invalid-index" end
     local target,problem=self.party:get(partyIndex)
     if not target then return false,problem end
     if Party._owner(target)~=self.party then return false,"stale-target" end
+    if item.effect == "statStage" then
+        local allowed = {atk=true,def=true,spa=true,spd=true,spe=true,acc=true,eva=true}
+        local stat = item.stat
+        if not allowed[stat] or item.stages ~= 1 then return false,"unsupported-item-use" end
+        local current = target.statStages and target.statStages[stat]
+        if type(current) ~= "number" or current >= 6 or current < -6 then return false,"no-effect" end
+        local consumed, why = Inventory.consume(self.session:inventory(), id, 1)
+        if not consumed then return false, why end
+        target.statStages[stat] = current + 1
+        local labels = {atk="ATTACK",def="DEFENSE",spa="SP.ATK",spd="SP.DEF",spe="SPEED",acc="ACCURACY",eva="EVASION"}
+        self.effects:beginRound()
+        self.selectionKind=nil
+        self:clearHitPresentation()
+        self:runScript(function()
+            self:say("RED used "..item.name.." on "..target.name.."!")
+            self:say(target.name.."'s "..labels[stat].." rose!")
+            local outcome=self:resolveTurn(self:enemyTurn())
+            if outcome and outcome~="replacement" then return outcome end
+            return self:finishRound()
+        end)
+        return true,{kind="statStage",stat=stat,before=current,after=current+1}
+    end
     local ok,result=Items.use(self.session:inventory(),id,target,moveSlot)
     if not ok then return false,result end
     self.effects:beginRound()

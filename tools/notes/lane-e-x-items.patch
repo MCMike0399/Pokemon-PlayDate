@@ -1,0 +1,81 @@
+diff --git a/Source/data/items.lua b/Source/data/items.lua
+index 4127b858..5467093c 100644
+--- a/Source/data/items.lua
++++ b/Source/data/items.lua
+@@ -35,7 +35,7 @@ ItemData = {
+         helixFossil = { ["id"] = "helixFossil", ["symbol"] = "HELIX_FOSSIL", ["numericId"] = 42, ["name"] = "HELIX FOSSIL", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+         secretKey = { ["id"] = "secretKey", ["symbol"] = "SECRET_KEY", ["numericId"] = 43, ["name"] = "SECRET KEY", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+         bikeVoucher = { ["id"] = "bikeVoucher", ["symbol"] = "BIKE_VOUCHER", ["numericId"] = 45, ["name"] = "BIKE VOUCHER", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+-        xAccuracy = { ["id"] = "xAccuracy", ["symbol"] = "X_ACCURACY", ["numericId"] = 46, ["name"] = "X ACCURACY", ["keyItem"] = false, ["price"] = 950, ["category"] = "item", ["effect"] = "unsupported", ["sellPrice"] = 475 },
++        xAccuracy = { ["id"] = "xAccuracy", ["symbol"] = "X_ACCURACY", ["numericId"] = 46, ["name"] = "X ACCURACY", ["keyItem"] = false, ["price"] = 950, ["category"] = "item", ["effect"] = "statStage", ["stat"] = "acc", ["stages"] = 1, ["sellPrice"] = 475 },
+         leafStone = { ["id"] = "leafStone", ["symbol"] = "LEAF_STONE", ["numericId"] = 47, ["name"] = "LEAF STONE", ["keyItem"] = false, ["price"] = 2100, ["category"] = "evolution", ["effect"] = "evolution", ["sellPrice"] = 1050 },
+         cardKey = { ["id"] = "cardKey", ["symbol"] = "CARD_KEY", ["numericId"] = 48, ["name"] = "CARD KEY", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+         nugget = { ["id"] = "nugget", ["symbol"] = "NUGGET", ["numericId"] = 49, ["name"] = "NUGGET", ["keyItem"] = false, ["price"] = 10000, ["category"] = "item", ["effect"] = "unsupported", ["sellPrice"] = 5000 },
+@@ -52,10 +52,10 @@ ItemData = {
+         lemonade = { ["id"] = "lemonade", ["symbol"] = "LEMONADE", ["numericId"] = 62, ["name"] = "LEMONADE", ["keyItem"] = false, ["price"] = 350, ["category"] = "medicine", ["effect"] = "heal", ["amount"] = 80, ["sellPrice"] = 175 },
+         ssTicket = { ["id"] = "ssTicket", ["symbol"] = "S_S_TICKET", ["numericId"] = 63, ["name"] = "S.S.TICKET", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+         goldTeeth = { ["id"] = "goldTeeth", ["symbol"] = "GOLD_TEETH", ["numericId"] = 64, ["name"] = "GOLD TEETH", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+-        xAttack = { ["id"] = "xAttack", ["symbol"] = "X_ATTACK", ["numericId"] = 65, ["name"] = "X ATTACK", ["keyItem"] = false, ["price"] = 500, ["category"] = "item", ["effect"] = "unsupported", ["sellPrice"] = 250 },
+-        xDefend = { ["id"] = "xDefend", ["symbol"] = "X_DEFEND", ["numericId"] = 66, ["name"] = "X DEFEND", ["keyItem"] = false, ["price"] = 550, ["category"] = "item", ["effect"] = "unsupported", ["sellPrice"] = 275 },
+-        xSpeed = { ["id"] = "xSpeed", ["symbol"] = "X_SPEED", ["numericId"] = 67, ["name"] = "X SPEED", ["keyItem"] = false, ["price"] = 350, ["category"] = "item", ["effect"] = "unsupported", ["sellPrice"] = 175 },
+-        xSpecial = { ["id"] = "xSpecial", ["symbol"] = "X_SPECIAL", ["numericId"] = 68, ["name"] = "X SPECIAL", ["keyItem"] = false, ["price"] = 350, ["category"] = "item", ["effect"] = "unsupported", ["sellPrice"] = 175 },
++        xAttack = { ["id"] = "xAttack", ["symbol"] = "X_ATTACK", ["numericId"] = 65, ["name"] = "X ATTACK", ["keyItem"] = false, ["price"] = 500, ["category"] = "item", ["effect"] = "statStage", ["stat"] = "atk", ["stages"] = 1, ["sellPrice"] = 250 },
++        xDefend = { ["id"] = "xDefend", ["symbol"] = "X_DEFEND", ["numericId"] = 66, ["name"] = "X DEFEND", ["keyItem"] = false, ["price"] = 550, ["category"] = "item", ["effect"] = "statStage", ["stat"] = "def", ["stages"] = 1, ["sellPrice"] = 275 },
++        xSpeed = { ["id"] = "xSpeed", ["symbol"] = "X_SPEED", ["numericId"] = 67, ["name"] = "X SPEED", ["keyItem"] = false, ["price"] = 350, ["category"] = "item", ["effect"] = "statStage", ["stat"] = "spe", ["stages"] = 1, ["sellPrice"] = 175 },
++        xSpecial = { ["id"] = "xSpecial", ["symbol"] = "X_SPECIAL", ["numericId"] = 68, ["name"] = "X SPECIAL", ["keyItem"] = false, ["price"] = 350, ["category"] = "item", ["effect"] = "statStage", ["stat"] = "spa", ["stages"] = 1, ["sellPrice"] = 175 },
+         coinCase = { ["id"] = "coinCase", ["symbol"] = "COIN_CASE", ["numericId"] = 69, ["name"] = "COIN CASE", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+         oaksParcel = { ["id"] = "oaksParcel", ["symbol"] = "OAKS_PARCEL", ["numericId"] = 70, ["name"] = "OAK's PARCEL", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+         itemfinder = { ["id"] = "itemfinder", ["symbol"] = "ITEMFINDER", ["numericId"] = 71, ["name"] = "ITEMFINDER", ["keyItem"] = true, ["price"] = 0, ["category"] = "key", ["effect"] = "unsupported", ["sellPrice"] = nil },
+diff --git a/Source/domain/items.lua b/Source/domain/items.lua
+index f831a56a..f248833c 100644
+--- a/Source/domain/items.lua
++++ b/Source/domain/items.lua
+@@ -73,6 +73,7 @@ function Items.planUse(id, mon, moveSlot)
+                 plan.ppRestored = plan.ppRestored+after-before
+             end
+         end
++    elseif item.effect == "statStage" then return nil,"battle-only"
+     else return nil,"unsupported-item-use" end
+     plan.hpRestored = plan.hpAfter-plan.hpBefore
+     if plan.clearStatus then plan.statusCured=mon.status end
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index a6001154..7e81171e 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1929,13 +1929,35 @@ function Battle:useItem(id,partyIndex,moveSlot)
+     if not self.player:isAlive() or not self.enemy:isAlive() then return false,"fainted" end
+     if self.conditions:locked(self.player) then return false,"locked-move" end
+     local item=type(id)=="string" and ItemData.definitions[id] or nil
+-    local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}
++    local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true,statStage=true}
+     if not item or not legal[item.effect] then return false,"unsupported-item-use" end
+     partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
+     if not partyIndex then return false,"invalid-index" end
+     local target,problem=self.party:get(partyIndex)
+     if not target then return false,problem end
+     if Party._owner(target)~=self.party then return false,"stale-target" end
++    if item.effect == "statStage" then
++        local allowed = {atk=true,def=true,spa=true,spd=true,spe=true,acc=true,eva=true}
++        local stat = item.stat
++        if not allowed[stat] or item.stages ~= 1 then return false,"unsupported-item-use" end
++        local current = target.statStages and target.statStages[stat]
++        if type(current) ~= "number" or current >= 6 or current < -6 then return false,"no-effect" end
++        local consumed, why = Inventory.consume(self.session:inventory(), id, 1)
++        if not consumed then return false, why end
++        target.statStages[stat] = current + 1
++        local labels = {atk="ATTACK",def="DEFENSE",spa="SP.ATK",spd="SP.DEF",spe="SPEED",acc="ACCURACY",eva="EVASION"}
++        self.effects:beginRound()
++        self.selectionKind=nil
++        self:clearHitPresentation()
++        self:runScript(function()
++            self:say("RED used "..item.name.." on "..target.name.."!")
++            self:say(target.name.."'s "..labels[stat].." rose!")
++            local outcome=self:resolveTurn(self:enemyTurn())
++            if outcome and outcome~="replacement" then return outcome end
++            return self:finishRound()
++        end)
++        return true,{kind="statStage",stat=stat,before=current,after=current+1}
++    end
+     local ok,result=Items.use(self.session:inventory(),id,target,moveSlot)
+     if not ok then return false,result end
+     self.effects:beginRound()
