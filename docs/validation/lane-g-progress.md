@@ -225,6 +225,10 @@ BlueBot rejected the 57499214 frames. The name box and the `#` to `POKé` mappin
 
 The r2 frames still drew `é` as a subscript, and the Venusaur credit showed only `POK` plus that mark. `MON` was under the silhouette's white fill. `tools/notes/lane-e-hof-credits-fidelity.patch` now places the `$BA` e-body on the lowercase baseline (2× tall, one letter wide, accent above the x-height) and draws `#MON` at column 2, so `POKéMON` stays left of the pic on the hold and on the Venusaur frame. The silhouette, the black bands, the black text, and the `PLAY TIME` / `0:00` spacing stay. The patched recapture is `artifacts/lane-g/hof-fidelity-r3/`. The new checks fail on the live tree. `Source/` is unchanged on this branch.
 
+## Round 28
+
+BlueBot approved the r3 card, dex rating, spacing, bands, black text, silhouette and `THE END`. The credits scroll did not match `ScrollCreditsMonLeft`: the text stayed still and the mon was drawn on top of it. `tools/notes/lane-e-hof-credits-fidelity.patch` now scrolls only the white middle. The pic starts at column 20, off the right edge, and shares `SCX` with the text. The black bands stay put. After the seven open steps, the window walks in from `$A7` and masks the wrap. Step 27 has the text gone and the mon at the left. One mon-hold frame is the step-27 frame, so the roll keeps its length. The patched recapture is `artifacts/lane-g/hof-fidelity-r4/`. The scroll check fails on the live tree. `Source/` is unchanged on this branch.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

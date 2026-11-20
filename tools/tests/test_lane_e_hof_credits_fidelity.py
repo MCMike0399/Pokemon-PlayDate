@@ -75,9 +75,9 @@ assert(early.windowGb == 160 and early.dx == -64, "early window")
 local late = EndgameStory.creditsScroll(12)
 assert(late.windowGb == 120, late.windowGb)
 local place = EndgameStory.creditsMonPlace(0)
-assert(place.gbX == 64 and place.gbY == 48)
+assert(place.gbX == 160 and place.gbY == 48, "mon starts off the right edge")
 local staff = EndgameStory.creditsLine("#MON", 1, "text")
-assert(staff.col == 2 and staff.row == 6, "mon line")
+assert(staff.col == 6 and staff.row == 6, "mon line")
 local textX = EndgameStory.hallPixel(staff.col * 8, staff.row * 8)
 assert(textX + 72 <= place.x, "POKéMON runs under the silhouette")
 local notice = EndgameStory.creditsLine("©'95.'96.'98 Nintendo", 1, "copyright")
@@ -166,6 +166,62 @@ io.write(box.inkTop, " ", box.inkBottom, " ", box.bodyHeight)
         self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
         story = (ROOT / "Source/game/endgameStory.lua").read_text()
         self.assertNotIn("getHeight() - EndgameStory.accentCell", story)
+
+    def test_credits_scroll_moves_the_middle_band_and_masks_the_wrap(self):
+        completed = subprocess.run(
+            [LUA, "-e", FONT + r"""
+json = {decodeFile = function()
+    return {glyphs = {["é"] = {rows = {"........"}}}, mons = {}}
+end}
+local drawn = {}
+playdate = {graphics = {
+    kColorBlack = 1, kColorClear = 0, kDrawModeCopy = 0,
+    getSystemFont = function() return font end,
+    setFont = function() end,
+    setImageDrawMode = function() end,
+    setColor = function() end,
+    fillRect = function() end,
+    setClipRect = function() end,
+    clearClipRect = function() end,
+    pushContext = function() end,
+    popContext = function() end,
+    drawText = function(text, x) drawn[#drawn + 1] = x end,
+    image = {new = function() return {draw = function() end} end},
+}}
+dofile("Source/game/endgameStory.lua")
+local scale = EndgameStory.hallView().scale
+for step = 0, 26 do
+    local motion = EndgameStory.creditsScroll(step)
+    assert(motion.topDx == 0 and motion.bottomDx == 0, "bands moved at " .. step)
+    assert(motion.dx == -step * 8 * scale, "middle offset " .. step)
+    local place = EndgameStory.creditsMonPlace(step)
+    assert(place.gbX == 160 - step * 8, "mon x " .. step .. " " .. tostring(place.gbX))
+end
+local start = EndgameStory.creditsMonPlace(0)
+assert(start.gbX >= 160, "step 0 mon is on screen")
+local finish = EndgameStory.creditsMonPlace(27)
+assert(finish.gbX < 0, "step 27 mon has not reached the left")
+assert(finish.gbX + finish.width > 0 and finish.gbX + finish.width <= 16, "step 27 mon is not at the left")
+assert(finish.x + finish.width * EndgameStory.hallView().scale > EndgameStory.hallView().x, "step 27 mon is not visible")
+local late = EndgameStory.creditsScroll(27)
+assert(late.dx == -26 * 8 * scale, "step 27 is the 27th displayed frame")
+assert(late.topDx == 0 and late.bottomDx == 0, "step 27 bands moved")
+local base = EndgameStory.hallPixel(8, 48)
+local wrapped = base + late.dx + late.wrap
+assert(wrapped >= late.windowX, "wrap is left of the window")
+EndgameStory.drawCredits(playdate.graphics, {
+    phase = "scroll", scroll = 27, lines = {"BLUE VERSION STAFF"}, mon = "venusaur",
+})
+assert(#drawn > 0, "no credit text")
+for index, x in ipairs(drawn) do
+    assert(x < late.windowX, "text drawn inside the window at " .. tostring(x))
+end
+assert(drawn[1] < 0, "text did not scroll off")
+io.write("scroll-ok")
+"""],
+            cwd=ROOT, check=False, capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
+        self.assertIn("scroll-ok", completed.stdout)
 
     def test_text_after_the_accent_still_draws(self):
         completed = subprocess.run(

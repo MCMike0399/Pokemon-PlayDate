@@ -880,10 +880,57 @@ new file mode 100644
 +    ]
 +  }
 +}
+diff --git a/Source/game/creditsPlayer.lua b/Source/game/creditsPlayer.lua
+--- a/Source/game/creditsPlayer.lua
++++ b/Source/game/creditsPlayer.lua
+@@ -14,6 +14,17 @@ local function scrollCount(timing)
+     return timing.scroll_tiles[1] + timing.scroll_tiles[2]
+ end
+ 
++-- The 7+20 loop displays SCX 0 through the frame after the last add. That
++-- last frame is step 27. It replaces one frame of the mon hold, so the roll
++-- stays the same length as the source timing.
++local function shownHold(timing, command)
++    local frames = timing.hold[command]
++    if command == FADE_MON or command == TEXT_MON then
++        frames = frames - 1
++    end
++    return frames
++end
++
+ local function begin(state)
+     local frame <const> = state.frames[state.index]
+     local command <const> = frame.command
+@@ -35,7 +46,7 @@ local function begin(state)
+         state.after_hold = "fade"
+     elseif command == TEXT_MON or command == TEXT then
+         state.phase = "hold"
+-        state.left = timing.hold[command]
++        state.left = shownHold(timing, command)
+         state.after_hold = command == TEXT_MON and "scroll" or "next"
+     else
+         error("unknown credits command: " .. tostring(command))
+@@ -109,14 +120,14 @@ function CreditsPlayer.advance(state)
+             return state
+         end
+         state.phase = "hold"
+-        state.left = timing.hold[state.command]
++        state.left = shownHold(timing, state.command)
+         return state
+     end
+     if state.phase == "hold" then
+         if state.after_hold == "scroll" then
+             state.phase = "scroll"
+             state.scroll = 0
+-            state.left = scrollCount(timing)
++            state.left = scrollCount(timing) + 1
+             return state
+         end
+         if state.after_hold == "fade" then
 diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 --- a/Source/game/endgameStory.lua
 +++ b/Source/game/endgameStory.lua
-@@ -1511,6 +1511,329 @@ local function photoImage(gfx, state, photo, which)
+@@ -1511,6 +1511,357 @@ local function photoImage(gfx, state, photo, which)
      return nil
  end
  
@@ -1006,31 +1053,46 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +    return {top = band(0, 4), middle = band(4, 14), bottom = band(14, 18), text = "black"}
 +end
 +
-+-- DisplayCreditsMon starts at hlcoord 8, 6. ScrollCreditsMonLeft adds 8 to
-+-- SCX, seven times, then twenty more while rWX starts at $A7 and drops by
-+-- 8. The window's visible edge is WX - 7.
++-- DisplayCreditsMon draws the pic at hlcoord 8, 6 and copies that tilemap to
++-- vBGMap0+$c, twelve columns to the right. The pic therefore starts at
++-- column 20, just off the right edge. ScrollCreditsMonLeft raises SCX by 8
++-- for LY $20-$70 only, so the white middle slides and the black bands stay.
++-- Seven steps, then twenty more. rWX starts at $A7 and drops by 8 on those
++-- twenty, and the window's visible edge is WX - 7. That edge masks the text
++-- as the 32-tile map wraps it back in on the right. Step 27 is the
++-- accumulator after the last add.
 +function EndgameStory.creditsScroll(scroll)
 +    scroll = math.floor(tonumber(scroll) or 0)
 +    if scroll < 0 then
 +        scroll = 0
 +    end
++    -- Each call displays the current SCX, then adds 8. The 27th call
++    -- therefore shows 26 tiles of scroll. One more add happens as the
++    -- routine returns and is not a frame. The window has dropped 19
++    -- times by that frame, so its edge is at x=8, level with the pic.
++    local shown <const> = math.min(scroll, 26)
 +    local windowGb = 160
-+    if scroll > 7 then
-+        windowGb = 160 - 8 * (scroll - 7)
++    if shown > 7 then
++        windowGb = 160 - 8 * (shown - 7)
 +    end
 +    local view <const> = EndgameStory.hallView()
++    local scx <const> = shown * 8
 +    return {
 +        scroll = scroll,
-+        scx = scroll * 8,
-+        dx = -scroll * 8 * view.scale,
++        scx = scx,
++        dx = -scx * view.scale,
++        topDx = 0,
++        bottomDx = 0,
 +        windowGb = windowGb,
 +        windowX = view.x + windowGb * view.scale,
++        wrap = 256 * view.scale,
 +    }
 +end
 +
 +function EndgameStory.creditsMonPlace(scroll)
 +    local motion <const> = EndgameStory.creditsScroll(scroll)
-+    local gbX = 64 - motion.scx
++    -- Column 8 plus the twelve-column copy. SCX then carries it left.
++    local gbX = 160 - motion.scx
 +    local gbY = 48
 +    local x, y = EndgameStory.hallPixel(gbX, gbY)
 +    return {gbX = gbX, gbY = gbY, x = x, y = y, scroll = motion.scroll, width = 56, height = 56}
@@ -1132,10 +1194,9 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +-- signed indent. <NEXT> then drops two rows. CopyrightTextString is its own
 +-- PlaceString at hlcoord 2, 7. THE END is hlcoord 4, 8.
 +local CREDIT_COLUMN <const> = {
-+    -- "#" is one tile in pokered, then MON. Expanded, POKéMON is wider than
-+    -- that tile, so column 6 puts MON under the 7x7 pic. Column 2 keeps the
-+    -- whole word to the left of the silhouette.
-+    ["#MON"] = 2, ["BLUE VERSION STAFF"] = 1,
++    -- CredMon is db -3 from hlcoord 9, 6. The pic starts off the right edge
++    -- and scrolls with this line, so the expanded word is not under it.
++    ["#MON"] = 6, ["BLUE VERSION STAFF"] = 1,
 +    ["DIRECTOR"] = 6, ["SATOSHI TAJIRI"] = 3,
 +    ["PROGRAMMERS"] = 4, ["TAKENORI OOTA"] = 3, ["SHIGEKI MORIMOTO"] = 2,
 +    ["TETSUYA WATANABE"] = 2, ["JUNICHI MASUDA"] = 3, ["SOUSUKE TAMADA"] = 3,
@@ -1186,7 +1247,12 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +        return
 +    end
 +    local motion <const> = EndgameStory.creditsScroll(view.phase == "scroll" and view.scroll or 0)
-+    gfx.setClipRect(0, bands.middle.y, math.max(0, motion.windowX), bands.middle.h)
++    -- The window covers everything from its edge rightward. The left clip is
++    -- the Game Boy screen; the side margins are not part of the scrolling map.
++    local viewBox <const> = EndgameStory.hallView()
++    local clipX <const> = viewBox.x
++    local clipW <const> = math.max(0, motion.windowX - clipX)
++    gfx.setClipRect(clipX, bands.middle.y, clipW, bands.middle.h)
 +    gfx.setColor(gfx.kColorBlack)
 +    local kind = view.ending and "ending" or (view.copyright and "copyright" or "text")
 +    local lines = view.lines or {}
@@ -1202,7 +1268,16 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +    for index, line in ipairs(lines) do
 +        local placed <const> = EndgameStory.creditsLine(line, index, kind)
 +        local x, y = EndgameStory.hallPixel(placed.col * 8, placed.row * 8)
-+        EndgameStory.drawPokeredText(gfx, placed.text, x + motion.dx, y)
++        local shown <const> = x + motion.dx
++        -- The 32-tile map brings a line back on the right. Draw it only while
++        -- it is still left of the window; the window itself is blank.
++        if shown < motion.windowX then
++            EndgameStory.drawPokeredText(gfx, placed.text, shown, y)
++        end
++        local wrapped <const> = shown + motion.wrap
++        if wrapped < motion.windowX then
++            EndgameStory.drawPokeredText(gfx, placed.text, wrapped, y)
++        end
 +    end
 +    if view.phase == "scroll" and view.mon then
 +        EndgameStory.drawCreditsMon(gfx, view.mon, view.scroll)
@@ -1213,7 +1288,7 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
  local function blitHallPic(gfx, image, gbX, gbY)
      if not image then
          return
-@@ -1568,7 +1891,7 @@ function EndgameStory.drawPhoto(gfx, state)
+@@ -1568,7 +1919,7 @@ function EndgameStory.drawPhoto(gfx, state)
          if row.text:find("¥", 1, true) then
              GbFont.drawMoneyLine(row.text, px, py)
          else
@@ -1222,7 +1297,7 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
          end
      end
      if photo.kind == "player" then
-@@ -1576,13 +1899,13 @@ function EndgameStory.drawPhoto(gfx, state)
+@@ -1576,13 +1927,13 @@ function EndgameStory.drawPhoto(gfx, state)
          local page <const> = pages[state.photo.page or 1]
          if page then
              local px, py = EndgameStory.hallPixel(8, 13 * 8)
