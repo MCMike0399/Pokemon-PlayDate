@@ -196,11 +196,12 @@ function TrainerEvents:launch(token)
     if not Specimen.isActiveSession(game.session) then return nil,"inactive-trainer-session" end
     local party=Party()
     local planned=RulesRNG.new(1);planned:restore(RulesRNG.snapshot())
-    for _,mon in ipairs(value.definition.party) do
+    for index, mon in ipairs(value.definition.party) do
         local created = assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))
-        -- B2W2 FIFO can still hold a Gen V id. Trainer send-out keeps only
-        -- pokered moves. An explicit party row, when one exists, replaces that.
-        created:usePartyMoves(Pokemon.trainerMovesFor(mon.species, mon.level))
+        -- WriteMonMoves, then LoneMoves or TeamMoves for this party slot.
+        -- An explicit party row, when one exists, replaces that.
+        local intro = game.session:getIntro()
+        created:usePartyMoves(Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.starter))
         local scriptedMoves = RedPartyMoves[value.definition.id]
         local scripted = scriptedMoves and scriptedMoves[mon.species]
         if scripted then created:usePartyMoves(scripted) end

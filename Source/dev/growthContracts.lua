@@ -62,13 +62,12 @@ function GrowthContracts.run()
         leveled, result = p:gainXP(1)
         equal(leveled,true); equal(p.level,6); equal(#result.moveChoices,0)
         leveled, result = p:gainXP(57)
-        equal(leveled,true); equal(p.level,7); equal(#result.moveChoices,1)
-        equal(result.moveChoices[1].move,"ember"); equal(p:hasMove("ember"),false)
-        equal(p:getPendingMoveChoices()[1].move,"ember")
+        equal(leveled,true); equal(p.level,7); equal(#result.moveChoices,0)
+        equal(p:hasMove("ember"),false)
     end)
     test("Exhausted learning IDs reject before XP stats PP or existing choices mutate", function()
-        local p = Pokemon("charmander",6)
-        p:gainXP(p:xpForLevel(7)-p.xp) -- Real pending Ember choice.
+        local p = Pokemon("charmander",8)
+        p:gainXP(p:xpForLevel(9)-p.xp) -- Real pending Ember choice.
         p.nextMoveChoiceId = 2147483647
         assert(PokemonCodec.encode(p), "MAX counter must remain codec-valid")
         p:usePP("scratch")
@@ -76,18 +75,18 @@ function GrowthContracts.run()
         local before = {}
         for _, key in ipairs({"xp","xpToNext","level","hp","maxHP","atk","def","spa","spd","spe","nextMoveChoiceId"}) do before[key]=p[key] end
         local scratchPP = p.pp.scratch
-        local ok, problem = pcall(function() p:gainXP(p:xpForLevel(10)-p.xp) end)
+        local ok, problem = pcall(function() p:gainXP(p:xpForLevel(15)-p.xp) end)
         equal(ok,false); assert(tostring(problem):find("move%-choice%-id%-exhausted"),tostring(problem))
         for key, value in pairs(before) do equal(p[key],value,"transactional " .. key) end
         equal(p.pendingMoveChoices,pending); equal(#pending,1); equal(pending[1],choice)
         equal(choice.id,1); equal(choice.move,"ember"); equal(p.moves,moves); equal(p.pp,pp); equal(p.pp.scratch,scratchPP)
-        -- No learning allocation is needed at8, so an exhausted counter is legal.
-        p:gainXP(p:xpForLevel(8)-p.xp); equal(p.level,8); equal(p.nextMoveChoiceId,2147483647)
+        -- No learning allocation is needed before Leer, so an exhausted counter is legal.
+        p:gainXP(p:xpForLevel(14)-p.xp); equal(p.level,14); equal(p.nextMoveChoiceId,2147483647)
         -- Exactly one remaining representable increment is accepted.
         p.nextMoveChoiceId=2147483646
-        p:gainXP(p:xpForLevel(10)-p.xp)
-        equal(p.level,10); equal(p.nextMoveChoiceId,2147483647)
-        equal(#pending,2); equal(pending[2].id,2147483646); equal(pending[2].move,"smokescreen")
+        p:gainXP(p:xpForLevel(15)-p.xp)
+        equal(p.level,15); equal(p.nextMoveChoiceId,2147483647)
+        equal(#pending,2); equal(pending[2].id,2147483646); equal(pending[2].move,"leer")
     end)
     test("Maximum native grant saturates without signed overflow", function()
         for _, species in ipairs({"rattata","clefairy","charmander","magikarp"}) do
