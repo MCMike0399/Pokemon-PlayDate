@@ -38,6 +38,9 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T085952Z-ss-anne.mp4` | 85.0s | `17ce2cf09faa8b9aeeef2de6cf1541208d2b3de17e08145bf7bc56b373c879f4` | The S.S. Anne rival win. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
 | `artifacts/lane-j/20261120T122228Z-gym-vermilion.mp4` | 85.0s | `499f042e3fc20a3b794b9c58ac9390db852392e89bccc092b45d9891fc534108` | Lt. Surge. 400x240, gbrp, 2550 frames, decoded luma only 0 and 255. |
 | `artifacts/lane-j/20261120T125308Z-route2.mp4` | 9.67s | `5e24de6ba48d559cf19742e1a91cb0bb21981657192323e917842812a19bf626` | The Route 2 step left from (11, 2). 400x240, gbrp, 290 frames. Eight sampled frames are luma 0 and 255 only. |
+| `artifacts/lane-j/20261120T131809Z-route2.mp4` | 33.0s | `7b3b3c81b27204e4b9aab5ba88430e8b4ed83be093bbac724f8d5c2c96ab5bff` | Cut at Route 2 (5, 10) and the north edge into Pewter. 400x240, gbrp, 990 frames. Sampled frames are luma 0 and 255 only. |
+| `artifacts/lane-j/20261120T131907Z-route3.mp4` | 47.5s | `7b4d7400739e477ccd9804ffe08323d4f6221855c0c9d04bd570bf41bf6693e1` | Pewter's east edge across Route 3. 400x240, gbrp, 1425 frames. Sampled frames are luma 0 and 255 only. |
+| `artifacts/lane-j/20261120T132807Z-mt-moon.mp4` | 61.1s | `0be8ce453bd227b5c7099f9b62754cc030f5cb1f9b593f702c7db700470db775` | Mt. Moon 1F on the crossing that reached Cerulean. 400x240, gbrp, 1833 frames. Sampled frames are luma 0 and 255 only. |
 
 ## Title intro
 
@@ -69,7 +72,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-The Thunder Badge is saved. K confirmed the Route 2 seam and the regrown Vermilion tree match pokered, so neither is a product red. Sequence 53 is Route 2 (11, 2). The next step is Cut at (5, 10) from (5, 11), then Pewter (18, 35), Route 3, Mt. Moon, Route 4, and Cerulean without another Misty fight. Main is `ea32b553` and is already merged.
+Cerulean is open again. Cut at Route 2 (5, 10) landed Pewter (18, 35). Route 3, Mt. Moon, and the Route 4 line landed Cerulean (0, 18). The pause is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `dc5d793037c2eb04e10984b05617ab8ff17b4d30b558471480b9d25681b720f2` (sequence 57). Wartortle 27, Bellsprout 15, Pidgeotto 20, Dugtrio 27. Boulder, Cascade, and Thunder are set. Misty was not fought again. The Dome Fossil was already held, so B2F walked to the exit stairs. Money is ¥321, with 3 Super Potions. Next is Route 9, Rock Tunnel, Lavender, the Route 8 underground, Route 7, and Celadon, then Fearow 34 and Erika. Main is `ea32b553` and is already merged.
 
 ## Blockers
 
