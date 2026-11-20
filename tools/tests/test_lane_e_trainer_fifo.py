@@ -1,9 +1,7 @@
-"""Trainer and wild parties must not send a move id past pokered NUM_ATTACKS.
+"""Wild and trainer moves come from pret/pokered WriteMonMoves.
 
-pret/pokered af519899 data/moves/moves.asm ends at STRUGGLE, const $a5
-(165). Bruno's Hitmonlee is the known case: the B2W2 FIFO puts Wide Guard
-and other later ids in the four slots. initialMovesFor now skips those
-ids for wild, gift, and trainer send-out. Wide Guard stays unimplemented.
+The B2W2 table stays in the species records for saves that already
+queued one of its choices. New moves use PokeredLearnsets.
 """
 
 import subprocess
@@ -21,12 +19,11 @@ class TrainerFifoTests(unittest.TestCase):
             "\nfunction ", 1)[0]
         player = pokemon.split("function Pokemon.initialMovesFor", 1)[1].split(
             "\nfunction ", 1)[0]
-        self.assertIn("entry.id <= POKERED_NUM_ATTACKS", player)
-        self.assertIn("POKERED_NUM_ATTACKS <const> = 165", pokemon)
-        self.assertIn("return Pokemon.initialMovesFor(species, level)", trainer)
+        self.assertIn("return PokeredLearnsets.movesAtLevel(species, level)", player)
+        self.assertIn("return PokeredLearnsets.trainerMoves(species, level, class, index, starter)", trainer)
         events = (ROOT / "Source/game/trainerEvents.lua").read_text(encoding="utf-8")
         self.assertIn(
-            "created:usePartyMoves(Pokemon.trainerMovesFor(mon.species, mon.level))",
+            "Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.starter)",
             events)
         self.assertIn("created:usePartyMoves(scripted)", events)
         completed = subprocess.run(
