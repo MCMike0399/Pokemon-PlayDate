@@ -1,6 +1,8 @@
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+index 3dfa3638..a8b75a7d 100644
 --- a/Source/game/endgameStory.lua
 +++ b/Source/game/endgameStory.lua
-@@ -1020,6 +1020,12 @@ function EndgameStory.applyRoom(game)
+@@ -1020,6 +1020,11 @@ function EndgameStory.applyRoom(game)
      end
      if zone.stableID == "pokered:LORELEIS_ROOM" then
          game.session:setQuestFlag(STARTED_ELITE_FOUR, true)
