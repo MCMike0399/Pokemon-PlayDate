@@ -374,6 +374,10 @@ def diglett_house_cells():
     return open_map(ROOT / "Source/data/vermilionPreparation/DiglettsCaveRoute11.json", 2, 13)
 
 
+def diglett_route2_house_cells():
+    return open_map(ROOT / "Source/data/vermilionPreparation/DiglettsCaveRoute2.json", 2, 13)
+
+
 def diglett_cave_cells():
     return open_map(ROOT / "Source/data/vermilionPreparation/DiglettsCave.json", 0, 40)
 
@@ -699,6 +703,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(TRASH_SECONDS[0], (0, 3))
         self.assertIn(0, TRASH_SECONDS[14])
         self.assertIsNotNone(route(route11_cells(), (0, 6), (10, 12), route11_avoid()))
+        self.assertIsNotNone(route(diglett_cave_cells(), (36, 31), (5, 6)))
+        self.assertIsNone(route(route2_cells(), (12, 10), (8, 0), {(12, 9)}))
         self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
         self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
@@ -4383,6 +4389,51 @@ def _raise_spearow(player, report):
         raise RuntimeError("Spearow did not become Fearow 34 with Drill Peck: " + json.dumps(report["fearow"]))
 
 
+def _toward_celadon(player, report):
+    """After the badge: Diglett's Cave to Route 2, then north toward Cerulean.
+
+    The static Route 2 grid keeps the cave door on the east path, apart from
+    Pewter's exit at (8, 0). The walk still tries that exit. A blocked step is
+    the report, after the Route 2 pause.
+    """
+    zone = str(player.state.get("zone"))
+    if "celadon" in zone:
+        _pause(player, report, "saved_celadon")
+        _keep_bird_save(report)
+        return
+    if zone != "kanto_digletts_cave":
+        if "route_11" not in zone and "digletts_cave_route_11" not in zone:
+            if "vermilion_city" not in zone:
+                _return_vermilion(player, "Route 2 return")
+            _leave(player, vermilion_cells(), [((39, 14), "right"), ((39, 15), "right")],
+                   VERMILION_DOORS, "route_11", "Route 11")
+        if "digletts_cave_route_11" not in str(player.state.get("zone")) and player.state.get("zone") != "kanto_digletts_cave":
+            _enter(player, route11_cells(), (4, 5), route11_avoid() - {(4, 5)}, "up",
+                   "digletts_cave_route_11", "Diglett's Cave")
+        if player.state.get("zone") != "kanto_digletts_cave":
+            step_onto(player, diglett_house_cells(), (6, 4), {(4, 3)}, "up")
+            _settle_overlay(player)
+    if player.state.get("zone") != "kanto_digletts_cave":
+        raise RuntimeError("the cave did not open for Route 2: " + json.dumps(summary(player.state)))
+    step_onto(player, diglett_cave_cells(), (5, 5), set(), "up")
+    _settle_overlay(player)
+    if "digletts_cave_route_2" not in str(player.state.get("zone")):
+        raise RuntimeError("the north stairs did not open: " + json.dumps(summary(player.state)))
+    _leave(player, diglett_route2_house_cells(), [((4, 7), "down"), ((5, 7), "down")],
+           {(4, 3)}, "route2", "Route 2")
+    _pause(player, report, "saved_route2")
+    _keep_bird_save(report)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    steps = route(route2_cells(), here, (8, 0), {(12, 9), (3, 11)})
+    if not steps:
+        raise RuntimeError("Route 2's cave side does not reach Pewter: " + json.dumps(summary(player.state)))
+    kind = leave_map(player, route2_cells(), (8, 0), {(12, 9), (3, 11)}, "up")
+    if "pewter" not in str(player.state.get("zone")):
+        raise RuntimeError(f"Route 2 did not reach Pewter: {kind} " + json.dumps(summary(player.state)))
+    _pause(player, report, "saved_pewter_return")
+    _keep_bird_save(report)
+
+
 def play_vermilion_prep(player, report, display, clips, output):
     """K's Anne plan: Bellsprout, Pidgeotto 19, Bite then Gust, then HM01."""
     player.leave_title()
@@ -4469,7 +4520,6 @@ def play_vermilion_prep(player, report, display, clips, output):
         _teach(player, "hm01", "bellsprout", "cut")
 
     _raise_diglett(player, report)
-    _raise_spearow(player, report)
     _rest(player, report, "before Surge", 4)
     _, mole = _mole(player)
     if "dig" not in (mole.get("moves") or []):
@@ -4504,6 +4554,8 @@ def play_vermilion_prep(player, report, display, clips, output):
     if not report["thunder"]["badge"]:
         raise RuntimeError("Lt. Surge did not give the Thunder Badge: " + json.dumps(report["thunder"]))
     _pause(player, report, "saved_thunder")
+    _keep_bird_save(report)
+    _toward_celadon(player, report)
 
 
 if __name__ == "__main__":
@@ -4513,7 +4565,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-57")
+            output = Path("/tmp/lane-j-squirtle-58")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
