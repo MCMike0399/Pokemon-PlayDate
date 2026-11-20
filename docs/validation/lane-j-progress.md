@@ -24,6 +24,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T011836Z-gym-pewter.mp4` | 45.37s | `341d2404b7f16eabd0f526dccc5dc5cb660a774360d9540157079efd6d0c6e58` | The Pewter Gym trainer battle that blacked out. This is not the Boulder Badge. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T012706Z-gym-pewter.mp4` | 70.93s | `1d3c2df84e1aeb53e5da03654da14a58756c6e2346c549ab10dd8bec87b9c6f7` | Brock, Geodude then Onix, and the Boulder Badge. Decoded frames are only 0 and 255. |
 | `artifacts/lane-j/20261120T020656Z-route3.mp4` | 80.73s | `8c25bf7a0134b25b5d0e77ca881ed771f53037c9d96e109ee747826fe4d5516a` | Leaving Pewter onto Route 3. Decoded frames are only 0 and 255. |
+| `artifacts/lane-j/20261120T023747Z-mt-moon.mp4` | 60.57s | `805cc8f940fa66a4139c6312c6eb80033ff72e0b6001edb1f41c62a5dc2894f9` | The Mt. Moon 1F stair walk. Decoded frames are only 0 and 255. |
 
 ## Title intro
 
@@ -41,9 +42,11 @@ The lab save walked out, filmed Route 1 (24.03s), and talked to the old man at (
 
 The gym pause walked east. Pewter's Center healed Squirtle before Route 3. The northern road is blocked by trainer sight, so the walk crossed four of them and returned to Pewter whenever HP fell under 22 or a status landed: the bug catcher at (10, 6), the youngster at (14, 4), the youngster at (19, 5), and the youngster at (24, 6). Their flags are `pokered:ROUTE_3:objects:2`, `:3`, `:5`, and `:8`. Water Gun replaced Tail Whip at level 13. Route 3's north edge at (59, 0) opened Route 4 at (9, 17). The pause there is sequence 8. A later step entered Mt. Moon and reached level 16; the evolution announcement was on screen and this driver never pressed A, so that cave progress was not saved. The Route 4 pause is the resume. The clip is `20261120T020656Z-route3.mp4` (80.73s).
 
+A second cave attempt used the pair-legal path. Foot tiles 32 and 5 cannot be stepped between, so the collision-only route west from (10, 22) is refused and the other stairs drop into a dead pocket. The legal path reached B2F. Squirtle evolved to Wartortle at level 16. The super nerd's battle then left Water Gun disabled, and the menu kept confirming that move, so the fight never advanced. That cave was not saved. The Route 4 pause above is still the resume. The clip is `20261120T023747Z-mt-moon.mp4` (60.57s).
+
 ## Next
 
-Route 4 is open. Next is the Mt. Moon stair chain, then the east road toward Cerulean. Resume from the sequence 8 pause above.
+Resume the sequence 8 pause, cross Mt. Moon again, and continue toward Cerulean. A disabled move is skipped for the rest of that battle.
 
 ## Blockers
 

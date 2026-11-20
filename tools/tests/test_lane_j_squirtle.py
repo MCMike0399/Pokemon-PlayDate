@@ -87,15 +87,18 @@ OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
 BROCK = "pokered:PEWTER_GYM:objects:1"
 
 
-def preferred_move(options):
-    """Water Gun, then Bubble. Tackle only when no water move is listed."""
+def preferred_move(options, skip=()):
+    """Water Gun, then Bubble, then Bite. Skip a move Disable has shut off."""
     named = []
+    skipped = set()
+    for name in skip or ():
+        skipped.add("".join(ch for ch in str(name).upper() if ch.isalpha()))
     for index, name in enumerate(options or [], start=1):
         letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
-        if letters in {"", "DASH"} or str(name).strip() in {"", "-"}:
+        if letters in {"", "DASH"} or str(name).strip() in {"", "-"} or letters in skipped:
             continue
         named.append((index, name, letters))
-    for want in ("WATERGUN", "BUBBLE"):
+    for want in ("WATERGUN", "BUBBLE", "BITE", "TACKLE"):
         for index, name, letters in named:
             if letters == want:
                 return index, name
@@ -280,7 +283,7 @@ def neighbor(cell, direction):
     return cell[0] + dx, cell[1] + dy
 
 
-def route(open_cells, start, goal, avoid=()):
+def route(open_cells, start, goal, avoid=(), blocked_edges=()):
     """Four-direction walk on open cells. The goal may be open. avoid is blocked.
 
     The start cell counts as open. Pallet's Route 1 seam (9, 0) is solid in
@@ -300,7 +303,7 @@ def route(open_cells, start, goal, avoid=()):
         cell = queue.pop(0)
         for direction in ("up", "down", "left", "right"):
             nxt = neighbor(cell, direction)
-            if nxt in previous or nxt not in open_cells or nxt in blocked:
+            if nxt in previous or nxt not in open_cells or nxt in blocked or (cell, nxt) in blocked_edges:
                 continue
             previous[nxt] = (cell, direction)
             if nxt == goal:
@@ -437,6 +440,7 @@ class SquirtleRouteTests(unittest.TestCase):
     def test_water_move_is_preferred_and_the_north_path_is_open(self):
         self.assertEqual(preferred_move(["TACKLE", "TAIL WHIP", "BUBBLE", "-"]), (3, "BUBBLE"))
         self.assertEqual(preferred_move(["TACKLE", "WATER GUN", "BUBBLE", "WITHDRAW"]), (2, "WATER GUN"))
+        self.assertEqual(preferred_move(["TACKLE", "WATER GUN", "BUBBLE", "BITE"], ["WATER GUN"]), (3, "BUBBLE"))
         self.assertEqual(preferred_move(["TACKLE", "-"])[1], "TACKLE")
         pallet = padded_open_cells("pallet_town")
         pallet.add((9, 0))
@@ -461,6 +465,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(route3_cells(), (0, 10), (59, 0), route3_avoid()))
         self.assertIsNotNone(route(route4_cells(), (9, 17), (18, 6)))
         self.assertIsNotNone(route(moon_cells(), (14, 35), (5, 6)))
+        self.assertIsNotNone(route(moon_cells(), (14, 35), (6, 5), moon_avoid()))
+        self.assertIsNotNone(route(moon_cells(), (14, 35), (6, 5), moon_avoid() | MOON_1F_SKIP, MOON_1F_EDGES))
+        self.assertIn(((10, 22), (9, 22)), MOON_1F_EDGES)
+        self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7), MOON_B2_AVOID))
         self.assertIsNotNone(route(moon_b1_cells(), (5, 6), (21, 16)))
         self.assertIsNotNone(route(moon_b2_cells(), (21, 17), (6, 7)))
         self.assertIsNotNone(route(moon_b1_cells(), (23, 4), (26, 3)))
@@ -761,7 +769,7 @@ class Player:
                 self.send("wait 10")
         raise RuntimeError(f"title did not start the game: {summary(self.state)}")
 
-    def follow(self, open_cells, goal, avoid):
+    def follow(self, open_cells, goal, avoid, blocked_edges=()):
         blocked = set(avoid)
         for _ in range(40):
             if not self.exploring():
@@ -769,7 +777,7 @@ class Player:
             cell = (self.state["player"]["x"], self.state["player"]["y"])
             if cell == goal:
                 return "arrived"
-            steps = route(open_cells, cell, goal, blocked)
+            steps = route(open_cells, cell, goal, blocked, blocked_edges)
             if not steps:
                 return "no-route"
             for direction in steps:
@@ -810,12 +818,12 @@ class Player:
                 self.send("wait 4")
         return self.state.get("root") != "battle"
 
-    def travel(self, open_cells, goal, avoid, limit=12):
+    def travel(self, open_cells, goal, avoid, limit=12, blocked_edges=()):
         started = self.state.get("zone")
         for _ in range(limit):
             if started and self.state.get("zone") != started:
                 return "warp"
-            kind = self.follow(open_cells, goal, avoid)
+            kind = self.follow(open_cells, goal, avoid, blocked_edges)
             if kind != "overlay":
                 return kind
             root = self.state.get("root")
@@ -835,6 +843,7 @@ class Player:
 
     def fight(self, limit=700):
         won = None
+        rejected = set()
         for _ in range(limit):
             root = self.state.get("root")
             if root == "learning":
@@ -862,8 +871,12 @@ class Player:
                     self.choose("battle", "FIGHT")
                 else:
                     move_menu = battle.get("moveMenu") or {}
-                    index, _name = preferred_move(move_menu.get("options"))
+                    options = move_menu.get("options") or []
                     selected = move_menu.get("selected") or 1
+                    message = battle.get("message") or ""
+                    if "disabled" in message.lower() and 1 <= selected <= len(options):
+                        rejected.add(options[selected - 1])
+                    index, _name = preferred_move(options, rejected)
                     if index and selected != index:
                         self.press("down" if index > selected else "up", wait=2)
                     else:
@@ -1297,12 +1310,12 @@ def npc_named(state, event_id):
     return None
 
 
-def step_onto(player, cells, goal, avoid, direction):
+def step_onto(player, cells, goal, avoid, direction, blocked_edges=()):
     """Walk to the cell before goal, then take one step onto it."""
     dx, dy = DELTAS[direction]
     before = (goal[0] - dx, goal[1] - dy)
     started = player.state.get("zone")
-    kind = player.travel(cells, before, avoid)
+    kind = player.travel(cells, before, avoid, blocked_edges=blocked_edges)
     if player.state.get("zone") != started:
         return "warp"
     if kind != "arrived":
@@ -1581,6 +1594,69 @@ ROUTE3_SKIP = (
 )
 
 
+def moon_avoid():
+    """Every Mt. Moon 1F trainer tile and sight line. The stairs stay open."""
+    delta = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
+    trainers = (
+        ((5, 6), "down", 2),
+        ((12, 16), "right", 3),
+        ((30, 4), "down", 3),
+        ((24, 31), "up", 3),
+        ((16, 23), "down", 3),
+        ((7, 22), "down", 3),
+        ((30, 27), "right", 3),
+    )
+    avoid = set()
+    for (x, y), facing, sight in trainers:
+        avoid.add((x, y))
+        dx, dy = delta[facing]
+        for step in range(1, sight + 1):
+            avoid.add((x + dx * step, y + dy * step))
+    return avoid
+
+
+# The fossil super nerd and the fossil he guards. The Rocket at (11, 16) still sees the stair path.
+MOON_B2_AVOID = {(12, 8), (13, 6)}
+# These stairs drop into a pocket that does not reach the exit.
+MOON_1F_SKIP = {(17, 11), (25, 15)}
+
+
+def pair_edges(filename):
+    """Steps the engine refuses because the two foot tiles are a forbidden pair."""
+    data = json.loads((ROOT / filename).read_text(encoding="utf-8"))
+    by_id = {grid["id"]: grid for grid in data["grids"]}
+    ids = data["tile_ids"]
+    collision = data["collision"]
+    forbidden = set()
+    for left, right in data["directional_rules"]["forbidden_tile_pairs"]:
+        forbidden.add((left, right))
+        forbidden.add((right, left))
+
+    def foot(x, y):
+        return by_id[ids[y][x]]["terrain"]["foot_tile"]
+
+    edges = set()
+    height = len(collision)
+    width = len(collision[0])
+    for y in range(height):
+        for x in range(width):
+            if collision[y][x] != 0:
+                continue
+            for dx, dy in ((1, 0), (0, 1)):
+                nx, ny = x + dx, y + dy
+                if nx >= width or ny >= height or collision[ny][nx] != 0:
+                    continue
+                if (foot(x, y), foot(nx, ny)) in forbidden:
+                    edges.add(((x, y), (nx, ny)))
+                    edges.add(((nx, ny), (x, y)))
+    return edges
+
+
+MOON_1F_EDGES = pair_edges("Source/data/sourceSlice/MtMoon1F.json")
+MOON_B1_EDGES = pair_edges("Source/data/sourceSlice/MtMoonB1F.json")
+MOON_B2_EDGES = pair_edges("Source/data/sourceSlice/MtMoonB2F.json")
+
+
 def route3_avoid():
     delta = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
     avoid = set(ROUTE3_FIGHT)
@@ -1720,18 +1796,29 @@ def _from_route3_north(player, report, display, clips, output):
 
 
 def _from_route4(player, report, display, clips, output):
-    if _needs_heal(player):
-        _heal_in(player, report, route4_cells(), (11, 5),
-                 "pokered:MT_MOON_POKECENTER:objects:1", moon_center_cells(), "moon_heal", "route_4")
-    kind = player.travel( route4_cells(), (18, 6), set(), limit=12)
-    report["cave_approach"] = kind
-    if kind != "arrived":
-        raise RuntimeError("could not reach Mt. Moon: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, route4_cells(), (18, 5), set(), "up")
-    report["moon_enter"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
-    if player.state.get("zone") != "kanto_mt_moon_1f":
-        raise RuntimeError("Mt. Moon entrance did not open: " + json.dumps(summary(player.state)))
-    _descend(player, report)
+    for attempt in range(3):
+        zone = str(player.state.get("zone"))
+        if "pewter" in zone or "route_3" in zone:
+            _cross_route3(player, report, display, clips, output)
+            kind = leave_map(player, route3_cells(), (59, 0), set(), "up")
+            report["route4_reenter"] = {"kind": kind, **summary(player.state)}
+        if "route_4" in str(player.state.get("zone")):
+            if _needs_heal(player):
+                _heal_in(player, report, route4_cells(), (11, 5),
+                         "pokered:MT_MOON_POKECENTER:objects:1", moon_center_cells(), "moon_heal", "route_4")
+            kind = player.travel(route4_cells(), (18, 6), set(), limit=12)
+            report["cave_approach"] = kind
+            if kind != "arrived":
+                raise RuntimeError("could not reach Mt. Moon: " + json.dumps(summary(player.state)))
+            kind = step_onto(player, route4_cells(), (18, 5), set(), "up")
+            report["moon_enter"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
+        if player.state.get("zone") != "kanto_mt_moon_1f":
+            raise RuntimeError("Mt. Moon entrance did not open: " + json.dumps(summary(player.state)))
+        if _descend(player, report, display, clips, output) != "blackout":
+            break
+        report[f"moon_blackout_{attempt}"] = summary(player.state)
+    else:
+        raise RuntimeError("Mt. Moon blacked out three times: " + json.dumps(summary(player.state)))
     if player.state.get("zone") != "kanto_route_4":
         raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
     kind = player.travel( route4_cells(), (59, 4), set(), limit=20)
@@ -1751,38 +1838,52 @@ def _from_route4(player, report, display, clips, output):
         + json.dumps(summary(player.state)))
 
 
-def _descend(player, report):
+def _descend(player, report, display, clips, output):
     """1F stairs, B1F to B2F, back up at the Route 4 exit stairs."""
-    kind = player.travel( moon_cells(), (5, 6), set(), limit=40)
-    report["moon_1f"] = kind
-    if kind != "arrived":
+    avoid = moon_avoid()
+
+    def cross_floor():
+        return player.travel(moon_cells(), (6, 5), avoid | MOON_1F_SKIP, limit=40, blocked_edges=MOON_1F_EDGES)
+
+    kind = film(display, clips, output, "mt-moon", report, "end", cross_floor)
+    report["moon_1f"] = {"kind": kind, **summary(player.state)}
+    if "pewter" in str(player.state.get("zone")):
+        return "blackout"
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (6, 5):
         raise RuntimeError("could not cross Mt. Moon 1F: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, moon_cells(), (5, 5), set(), "up")
+    kind = step_onto(player, moon_cells(), (5, 5), avoid | MOON_1F_SKIP, "left", MOON_1F_EDGES)
     report["moon_b1_enter"] = {"kind": kind, "zone": player.state.get("zone")}
     if player.state.get("zone") != "kanto_mt_moon_b1f":
         raise RuntimeError("1F stairs did not open B1F: " + json.dumps(summary(player.state)))
-    kind = player.travel( moon_b1_cells(), (21, 16), set(), limit=40)
+    kind = player.travel(moon_b1_cells(), (21, 16), set(), limit=40, blocked_edges=MOON_B1_EDGES)
     report["moon_b1"] = kind
+    if "pewter" in str(player.state.get("zone")):
+        return "blackout"
     if kind != "arrived":
         raise RuntimeError("could not cross Mt. Moon B1F: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, moon_b1_cells(), (21, 17), set(), "down")
+    kind = step_onto(player, moon_b1_cells(), (21, 17), set(), "down", MOON_B1_EDGES)
     report["moon_b2_enter"] = {"kind": kind, "zone": player.state.get("zone")}
     if player.state.get("zone") != "kanto_mt_moon_b2f":
         raise RuntimeError("B1F stairs did not open B2F: " + json.dumps(summary(player.state)))
-    kind = player.travel( moon_b2_cells(), (6, 7), set(), limit=40)
+    kind = player.travel(moon_b2_cells(), (6, 7), MOON_B2_AVOID, limit=40, blocked_edges=MOON_B2_EDGES)
     report["moon_b2"] = kind
+    if "pewter" in str(player.state.get("zone")):
+        return "blackout"
     if kind != "arrived":
         raise RuntimeError("could not cross Mt. Moon B2F: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, moon_b2_cells(), (5, 7), set(), "left")
+    kind = step_onto(player, moon_b2_cells(), (5, 7), MOON_B2_AVOID, "left", MOON_B2_EDGES)
     report["moon_exit_stairs"] = {"kind": kind, "zone": player.state.get("zone")}
     if player.state.get("zone") != "kanto_mt_moon_b1f":
         raise RuntimeError("B2F stairs did not return to B1F: " + json.dumps(summary(player.state)))
-    kind = player.travel( moon_b1_cells(), (26, 3), set(), limit=20)
+    kind = player.travel(moon_b1_cells(), (26, 3), set(), limit=20, blocked_edges=MOON_B1_EDGES)
     report["moon_exit_walk"] = kind
+    if "pewter" in str(player.state.get("zone")):
+        return "blackout"
     if kind != "arrived":
         raise RuntimeError("could not reach the cave exit: " + json.dumps(summary(player.state)))
-    kind = step_onto(player, moon_b1_cells(), (27, 3), set(), "right")
+    kind = step_onto(player, moon_b1_cells(), (27, 3), set(), "right", MOON_B1_EDGES)
     report["moon_exit"] = {"kind": kind, "zone": player.state.get("zone"), "at": summary(player.state)}
+    return "through"
 
 
 def play(output, clips, save_from=None, story=None):
@@ -1871,7 +1972,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--east" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-18")
+            output = Path("/tmp/lane-j-squirtle-21")
             save_from = ROUTE4_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != ROUTE4_SAVE_SHA:
