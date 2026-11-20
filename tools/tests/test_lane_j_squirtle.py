@@ -691,6 +691,8 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(opened, (15, 17), (12, 20), VERMILION_DOORS - {(12, 19)}))
         self.assertIsNone(route(vermilion_cells(), (12, 20), (11, 4), VERMILION_DOORS - {(11, 3)}))
         self.assertIsNotNone(route(opened, (12, 20), (11, 4), VERMILION_DOORS - {(11, 3)}))
+        self.assertIsNotNone(route(vermilion_cells(), (12, 20), (15, 19), VERMILION_DOORS))
+        self.assertIsNone(route(vermilion_cells(), (12, 20), (15, 17), VERMILION_DOORS))
         self.assertIsNotNone(route(route6_cells(), (9, 35), (12, 30), ROUTE6_SKIP))
         floor = {(x, y) for (x, y) in route6_cells() if y < 14}
         bug = (set(ROUTE6_SKIP) | floor) - {(1, 15), (2, 15), (3, 15), (4, 15)}
@@ -4219,17 +4221,10 @@ def _raise_pidgey(player, report):
     _lead(player, "wartortle")
 
 
-def _cut_tree(player, report):
-    doors = set(VERMILION_DOORS)
-    here = (player.state["player"]["x"], player.state["player"]["y"])
-    if "vermilion_city" in str(player.state.get("zone")) and here == (15, 18):
-        opened = set(vermilion_cells())
-        opened.add((15, 18))
-        report["cut"] = {"kind": "already", **summary(player.state)}
-        return opened
-    _stand(player, vermilion_cells(), (15, 17), doors, "Cut tree")
-    if player.state["player"].get("facing") != "down":
-        player.press("down", wait=4)
+def _use_cut(player, report, facing):
+    """Cut the tile being faced. The caller is already standing beside the tree."""
+    if player.state["player"].get("facing") != facing:
+        player.press(facing, wait=4)
     if not player.exploring():
         _close_menus(player)
     player.press("b", wait=10)
@@ -4254,11 +4249,23 @@ def _cut_tree(player, report):
     _close_menus(player)
     opened = set(vermilion_cells())
     opened.add((15, 18))
-    kind = player.travel(opened, (15, 18), doors)
-    report["cut"] = {"kind": kind, **summary(player.state)}
+    kind = player.travel(opened, (15, 18), set(VERMILION_DOORS))
+    report["cut"] = {"kind": kind, "facing": facing, **summary(player.state)}
     if (player.state["player"]["x"], player.state["player"]["y"]) != (15, 18):
         raise RuntimeError("Cut did not open the Vermilion tree: " + json.dumps(summary(player.state)))
     return opened
+
+
+def _cut_tree(player, report):
+    doors = set(VERMILION_DOORS)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if "vermilion_city" in str(player.state.get("zone")) and here == (15, 18):
+        opened = set(vermilion_cells())
+        opened.add((15, 18))
+        report["cut"] = {"kind": "already", **summary(player.state)}
+        return opened
+    _stand(player, vermilion_cells(), (15, 17), doors, "Cut tree")
+    return _use_cut(player, report, "down")
 
 
 def _mole(player):
@@ -4490,11 +4497,21 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
                GYM_SIGHT, "vermilion_city", "gym exit")
         zone = str(player.state.get("zone"))
     if "vermilion_city" in zone:
-        # The gym door lands south of the cut tree. Static collision still treats that tile as solid.
+        # The gym pause dropped the city cut. The south side is the side this door can reach.
         opened = set(vermilion_cells())
         opened.add((15, 18))
         doors = set(VERMILION_DOORS)
         doors.discard((11, 3))
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here != (15, 18) and route(vermilion_cells(), here, (11, 4), doors) is None:
+            _stand(player, vermilion_cells(), (15, 19), VERMILION_DOORS, "south of the tree")
+            if player.state["player"].get("facing") != "up":
+                player.press("up", wait=4)
+            player.step("up")
+            if (player.state["player"]["x"], player.state["player"]["y"]) != (15, 18):
+                opened = _use_cut(player, report, "up")
+            else:
+                report["cut"] = {"kind": "open", **summary(player.state)}
         _heal_in(player, report, opened, (11, 3), VERMILION_NURSE,
                  vermilion_center_cells(), "after Surge", "vermilion_city", avoid=doors)
         if (_item_count(player, "superPotion") < 4
@@ -4703,7 +4720,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-73")
+            output = Path("/tmp/lane-j-squirtle-74")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
