@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "dc58ecf00ec66eeecf007ce276609aa184837679",
+    "source_sha256": "953f14a6eb7976c400c901d12ddc4c3ed2f4b0c556d211537422413f5f48d482",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after Hall of Fame credits use pokered's black bands, white middle, black text, and a scrolling silhouette. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 1f1df2ff769219b1baa8cf63fb40d0258eae14d68c7f872ed43f63d3d32e0798.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "14ca320fee6ba4f6c704110480ba4f1fd64264e5",
     "source_sha256": "1f1df2ff769219b1baa8cf63fb40d0258eae14d68c7f872ed43f63d3d32e0798",
     "policy_date": "2026-11-20",
@@ -1870,6 +1881,7 @@
   
   }
   }}
+  }
   }
   }
   }
