@@ -75,6 +75,8 @@ MART_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/mart-a7df918d")
 MART_SAVE_SHA = "9a801867ea18179a35c24ced5379781cea0dc7a07fd796b741454c0c2b4a48f7"
 LAB_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/930683c875b3")
 LAB_SAVE_SHA = "846b901711349edf2b2f4abfea505fb3b66593d290e4e3170e0e354aad7ced3a"
+VIRIDIAN_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/00f0664cc5b5")
+VIRIDIAN_SAVE_SHA = "56f56cb938174c80ffc7465e41c75d83c76e7fbb1c311e7b0e64231638917122"
 OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
 BROCK = "pokered:PEWTER_GYM:objects:1"
 
@@ -401,10 +403,12 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn((6, 0), forest_south_cells())
         self.assertIn((6, 0), forest_north_cells())
         self.assertIsNotNone(route(route2_cells(), (3, 44), (3, 43), avoid={(12, 9), (3, 11)}))
-        self.assertIsNotNone(route(route2_cells(), (3, 10), (8, 0), avoid={(12, 9), (3, 11)}))
+        self.assertIsNotNone(route(route2_cells(), (3, 11), (8, 0), avoid={(12, 9)}))
+        self.assertIsNotNone(route(viridian_cells(), (17, 6), (18, 0), avoid=set(VIRIDIAN_WARPS)))
         self.assertIsNotNone(route(forest_cells(), (16, 47), (1, 1)))
         self.assertIn((5, 3), gym_cells())
         self.assertEqual(sha256_file(LAB_SAVE / "adventure.a.json"), LAB_SAVE_SHA)
+        self.assertEqual(sha256_file(VIRIDIAN_SAVE / "adventure.a.json"), VIRIDIAN_SAVE_SHA)
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -1294,14 +1298,7 @@ def talk_to(player, cells, event_id, avoid):
     return "silent"
 
 
-def play_to_brock(player, report, display=None, clips=None, output=None):
-    """Lab save to the Boulder Badge. Route 1 and Brock are filmed."""
-    player.leave_title()
-    if not player.exploring():
-        player.dismiss_until_explore(limit=40)
-    report["continued"] = summary(player.state)
-    if player.state.get("zone") != "oaks_lab":
-        raise RuntimeError("continue did not resume the lab: " + json.dumps(summary(player.state)))
+def _walk_from_lab(player, report, display, clips, output):
     lab = padded_open_cells("oaks_lab")
     kind = leave_map(player, lab, (6, 11), set(), "down")
     report["lab_exit"] = {"kind": kind, **summary(player.state)}
@@ -1326,15 +1323,14 @@ def play_to_brock(player, report, display=None, clips=None, output=None):
         if "route1" not in str(player.state.get("zone")):
             raise RuntimeError("Pallet north did not reach Route 1: " + json.dumps(summary(player.state)))
         route1 = route1_cells()
-        here = (player.state["player"]["x"], player.state["player"]["y"])
         kind = player.travel(route1, (11, 0), set(), limit=30)
         report["route1_north"] = {"kind": kind, **summary(player.state)}
         if kind != "arrived":
             raise RuntimeError("could not cross Route 1: " + json.dumps(summary(player.state)))
-        stepped = player.step("up")
+        player.step("up")
         player.settle(limit=80)
         player.dismiss_until_explore(limit=20)
-        report["viridian_enter"] = {"kind": stepped, **summary(player.state)}
+        report["viridian_enter"] = summary(player.state)
         if "viridian_city" not in str(player.state.get("zone")):
             raise RuntimeError("Route 1 did not reach Viridian: " + json.dumps(summary(player.state)))
 
@@ -1345,13 +1341,32 @@ def play_to_brock(player, report, display=None, clips=None, output=None):
     if player.exploring():
         report["saved_viridian"] = player.pause_save()
 
+
+def play_to_brock(player, report, display=None, clips=None, output=None):
+    """Lab save to the Boulder Badge. Route 1 and Brock are filmed."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["continued"] = summary(player.state)
+    zone = str(player.state.get("zone"))
+    if zone == "oaks_lab":
+        resume_in_viridian = False
+    elif "viridian_city" in zone:
+        resume_in_viridian = True
+    else:
+        raise RuntimeError("continue did not resume the lab or Viridian: " + json.dumps(summary(player.state)))
+    if resume_in_viridian:
+        report["resumed_viridian"] = summary(player.state)
+    else:
+        _walk_from_lab(player, report, display, clips, output)
     city = viridian_cells()
-    talked = talk_to(player, city, OLD_MAN, set(VIRIDIAN_WARPS))
-    report["old_man"] = {"result": talked, **summary(player.state)}
-    if talked != "talked":
-        raise RuntimeError("the old man did not open the north road: " + json.dumps(summary(player.state)))
-    if player.exploring():
-        report["saved_old_man"] = player.pause_save()
+    if not resume_in_viridian:
+        talked = talk_to(player, city, OLD_MAN, set(VIRIDIAN_WARPS))
+        report["old_man"] = {"result": talked, **summary(player.state)}
+        if talked != "talked":
+            raise RuntimeError("the old man did not open the north road: " + json.dumps(summary(player.state)))
+        if player.exploring():
+            report["saved_old_man"] = player.pause_save()
     kind = leave_map(player, city, (18, 0), set(VIRIDIAN_WARPS), "up")
     report["route2_enter"] = {"kind": kind, **summary(player.state)}
     if "route2" not in str(player.state.get("zone")):
@@ -1377,7 +1392,8 @@ def play_to_brock(player, report, display=None, clips=None, output=None):
     report["route2_north"] = {"kind": kind, **summary(player.state)}
     if not str(player.state.get("zone")).endswith("route2") and "route2" not in str(player.state.get("zone")):
         raise RuntimeError("the north gate did not return to Route 2: " + json.dumps(summary(player.state)))
-    kind = leave_map(player, route2, (8, 0), {(12, 9), (3, 11)}, "up")
+    # (3, 11) is the north-gate tile we are standing on. Avoiding it makes the route refuse to start.
+    kind = leave_map(player, route2, (8, 0), {(12, 9)}, "up")
     report["pewter_enter"] = {"kind": kind, **summary(player.state)}
     if "pewter_city" not in str(player.state.get("zone")):
         raise RuntimeError("Route 2 did not reach Pewter: " + json.dumps(summary(player.state)))
@@ -1513,11 +1529,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--north" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-8")
-            save_from = LAB_SAVE
+            output = Path("/tmp/lane-j-squirtle-9")
+            save_from = VIRIDIAN_SAVE
             digest = sha256_file(save_from / "adventure.a.json")
-            if digest != LAB_SAVE_SHA:
-                raise SystemExit(f"lab save hash {digest}")
+            if digest != VIRIDIAN_SAVE_SHA:
+                raise SystemExit(f"viridian save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_to_brock))
