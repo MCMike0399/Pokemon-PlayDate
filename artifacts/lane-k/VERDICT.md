@@ -73,3 +73,16 @@ Prior expected failures now pass on the live tree: gym tones, flower `$03`, iris
 The twelve assertion failures are the `6e4bc90f` thirteen minus `test_vermilion_preparation`, which now errors in `setUpClass` on the same new pin. Sixteen errors are new versus that baseline. All of them raise `unpinned consumed source: gfx/tilesets/flower/flower1.png`. That pin break arrives with the flower substitution in `a1740550`.
 
 No. Do not fast-forward `main` `6e4bc90f` to `56414b63`.
+
+## Round 5 — main FF call on 0aaf6e2a
+
+Host discover against `0aaf6e2ada599d2b4f352cc4db641ffa08a4fff6`, compared with main `9a33a835`: 1415 ran, 1335 passed, 14 failed, 55 errors, 11 skipped, 0 expected failures. Detail: `docs/validation/lane-k-suite-0aaf6e2a.md`.
+
+The `9a33a835` thirteen failures and fifty-one errors are all still present.
+
+New head-only reds:
+
+- `test_lane_e_battle_review...test_no_key_item_is_usable_in_battle` now fails. The X-item handoff added `statStage=true` to `local legal=` in `Source/battle/battle.lua`. This test passed on `9a33a835`.
+- Four new tests error on `/tmp/pokered` (evolution cancel, exp-points text, healing-machine balls, trainer victory text). The checkout used here is `/tmp/pokemon-host/pokered`.
+
+No. Do not fast-forward `main` `9a33a835` to `0aaf6e2a`.
