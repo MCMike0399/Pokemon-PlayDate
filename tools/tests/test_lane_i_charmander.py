@@ -3043,16 +3043,20 @@ class CharmanderRun(BrockJourney):
         self._field_item(item, index)
 
     def _needs_league_heal(self):
-        """A paralyzed or half-HP lead with no Full Restore cannot open Lance."""
+        """Leave for the nurse only when the bag cannot cover the next room.
+
+        A Revive or Full Restore is used in the battle. Walking back into
+        the lobby clears the Elite Four, so a stocked bag stays on the north door.
+        """
+        if (self.quantity("revive") or self.quantity("maxRevive")
+                or self.quantity("fullRestore") or self.quantity("maxPotion")):
+            return False
         starter = self._starter_mon()
         if starter is None or starter["hp"] <= 0:
-            return (self.quantity("revive") + self.quantity("maxRevive")
-                    + self.quantity("fullRestore")) < 1
+            return True
         if starter["status"] not in {None, "none"}:
-            return self.quantity("fullRestore") < 1
-        if starter["hp"] * 2 < starter["maxHP"]:
-            return self._healing_items() < 1
-        return False
+            return True
+        return starter["hp"] * 2 < starter["maxHP"]
 
     def _retreat_to_lobby(self):
         """Walk the south mats back to the Indigo nurse.
