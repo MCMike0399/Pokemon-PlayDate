@@ -184,7 +184,20 @@ Celadon Gym stands at `(6, 15)` facing down, camera `(8, 336)`. The planters on 
 
 BlueBot approved `celadon-gym.png` and `pewter-gym.png`. Those two stay. Do not re-shoot them unless Lane E commits a new gym atlas and asks for a confirmation capture.
 
-BlueBot did not approve `pallet-c-wide.png` or `pallet-c-street-lab.png`. Paths and lawns are still about 35% black. Mockup C / r19 is about 10–20% black, light stipple, and no heavy path pad. The two-stroke overlay is still only `tools/notes/lane-e-pallet-tones.patch`. Pallet stays on hold until Lane E lands that patch on `cursor/lane-e-integration`. The next capture is Pallet C only, same cameras: wide `(10, 7)` / `(136, 112)`, street/lab `(12, 12)` facing up / `(200, 272)`, under `artifacts/lane-g/r21/`. `origin/cursor/lane-e-integration` moved to `56414b63` after `51764017`, and that commit is the host-suite note plus the Champion continue check. `paintPalletField` is still absent. No Pallet re-shoot on this tip.
+BlueBot did not approve the r20 Pallet frames. Paths and lawns there were about 35% black. Those files stay as the rejected pair.
+
+## Round 21
+
+`origin/main` and `origin/cursor/lane-e-integration` are `9a33a835`. That tip contains `1b466640` (pinned flower1, the regenerated gym atlas, and the Pallet strokes). This branch merged it as `427ba5cd`. `Shade.LIGHT` is still `{0x55, 0xBB, 0x55, 0xFF, 0x55, 0xBB, 0x55, 0xFF}`. Celadon and Pewter were not re-shot.
+
+The painter runs only when `zone.stableID` is `pokered:PALLET_TOWN`. That is `kanto_pallet_town`. The authored key `pallet_town` keeps stable id `pallet_town`, so the r20 stand-in does not receive the strokes. The r21 frames use the imported town at the same stands: wide `(10, 7)` facing down, camera `(136, 112)`; street/lab `(12, 12)` facing up, camera `(200, 272)`. Playdate Simulator 3.1.2, 400×240.
+
+Grass cells fully inside the frame, player cell excluded, are 13.4% black in the wide view (37 cells) and 11.7% black in the street/lab view (39 cells). The `$2C` lawn cells in the street/lab view are 13.7% black. Whole frames are higher because roofs and fences stay.
+
+| Frame | sha256 |
+| --- | --- |
+| `artifacts/lane-g/r21/pallet-c-wide.png` | `f4c008a8924e06664feb583b2ed90adf18ce1e66d7f993b687bfe5fe7c1eefd9` |
+| `artifacts/lane-g/r21/pallet-c-street-lab.png` | `59490303a1701a6dd791cb561d971ff229e3f178b8c95b828b123bd2ac7996fc` |
 
 ## Blockers
 
