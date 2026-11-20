@@ -551,6 +551,7 @@ function EventState:draw()
         local view = CreditsPlayer.view(self.credits)
         gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
         -- Rows 0-3 and 14-17 are black. The middle is white and the text is black.
+        EndgameStory.ensureCreditsDraw()
         EndgameStory.drawCredits(gfx, view)
         gfx.popContext()
         return

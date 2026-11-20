@@ -51,7 +51,7 @@ io.write(tostring(y))
         block = draw[start:draw.index("gfx.popContext()", start)]
         self.assertIn("EndgameStory.drawCredits", block)
         self.assertNotIn("kDrawModeFillWhite", block)
-        story = (ROOT / "Source/game/endgameStory.lua").read_text()
+        story = (ROOT / "Source/game/creditsDraw.lua").read_text()
         body = story[story.index("function EndgameStory.drawCredits("):]
         self.assertIn("kColorBlack", body)
         self.assertIn("©'95.'96.'98 Nintendo", body)

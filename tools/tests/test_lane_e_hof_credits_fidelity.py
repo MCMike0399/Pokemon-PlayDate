@@ -164,7 +164,7 @@ io.write(box.inkTop, " ", box.inkBottom, " ", box.bodyHeight)
 """],
             cwd=ROOT, check=False, capture_output=True, text=True)
         self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
-        story = (ROOT / "Source/game/endgameStory.lua").read_text()
+        story = (ROOT / "Source/game/creditsDraw.lua").read_text()
         self.assertNotIn("getHeight() - EndgameStory.accentCell", story)
 
     def test_credits_scroll_moves_the_middle_band_and_masks_the_wrap(self):
@@ -299,7 +299,7 @@ end
         rows = build()["glyphs"]["é"]["rows"]
         self.assertEqual(len(rows), 8)
         self.assertTrue(all(len(row) == 8 for row in rows))
-        story = (ROOT / "Source/game/endgameStory.lua").read_text()
+        story = (ROOT / "Source/game/creditsDraw.lua").read_text()
         self.assertTrue("function EndgameStory.accentCell" in story, "accentCell is missing, so é is not the 8px generator cell")
         self.assertTrue("data/sourceText.json" in story, "é rows are not loaded from the font generator pin")
         self.assertNotIn("accentERows", story)
@@ -327,7 +327,7 @@ io.write(EndgameStory.accentRows()[1])
         block = draw[start:draw.index("gfx.popContext()", start)]
         self.assertIn("EndgameStory.drawCredits", block)
         self.assertNotIn("kDrawModeFillWhite", block)
-        story = (ROOT / "Source/game/endgameStory.lua").read_text()
+        story = (ROOT / "Source/game/creditsDraw.lua").read_text()
         body = story[story.index("function EndgameStory.drawCredits("):]
         self.assertIn("kColorBlack", body)
         self.assertNotIn("kDrawModeFillWhite", body)
@@ -336,7 +336,7 @@ io.write(EndgameStory.accentRows()[1])
         self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
 
     def test_credits_mon_is_a_silhouette_and_the_window_hides_the_text(self):
-        story = (ROOT / "Source/game/endgameStory.lua").read_text()
+        story = (ROOT / "Source/game/creditsDraw.lua").read_text()
         self.assertTrue("function EndgameStory.drawCreditsMon" in story, "drawCreditsMon is missing, so the credits pic is not a silhouette")
         image = story.index("function EndgameStory.drawCreditsMon")
         body = story[image:story.index("function EndgameStory.drawCredits(", image)]
