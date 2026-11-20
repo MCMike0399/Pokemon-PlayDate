@@ -1358,19 +1358,26 @@ class Player:
                 # Staryu's hits are about 9, so those turns stay on Bite.
                 foe = ((battle.get("enemy") or {}).get("species") or "")
                 ceiling = potion_at if bite_only or foe != "staryu" else min(potion_at, 18)
-                if (not battle.get("inMoveSelect") and potions > 0 and 0 < player_hp <= ceiling
+                menu = battle.get("menu") or {}
+                # Ability text, such as Intimidate, keeps command phase with the menu closed.
+                ready = bool(menu.get("active")) and not battle.get("inMoveSelect")
+                if (ready and potions > 0 and 0 < player_hp <= ceiling
                         and player_hp < max_hp and self.use_potion()):
                     continue
-                if run_at and not battle.get("inMoveSelect") and 0 < player_hp <= run_at:
-                    options = (battle.get("menu") or {}).get("options") or []
-                    if "RUN" in options:
-                        self.choose("battle", "RUN")
-                        continue
+                if ready and run_at and 0 < player_hp <= run_at and "RUN" in (menu.get("options") or []):
+                    self.choose("battle", "RUN")
+                    continue
                 if not battle.get("inMoveSelect"):
+                    if not ready or "FIGHT" not in (menu.get("options") or []):
+                        self.send("wait 4")
+                        continue
                     self.choose("battle", "FIGHT")
                 else:
                     move_menu = battle.get("moveMenu") or {}
                     options = move_menu.get("options") or []
+                    if not options:
+                        self.send("wait 4")
+                        continue
                     selected = move_menu.get("selected") or 1
                     message = battle.get("message") or ""
                     if "no longer disabled" in message.lower():
@@ -5609,7 +5616,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-77")
+            output = Path("/tmp/lane-j-squirtle-78")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
