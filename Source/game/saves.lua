@@ -153,11 +153,18 @@ local function loadHallContinue(candidate)
         return nil
     end
     local location = candidate:location()
-    if type(location) ~= "table" or location.zone_id ~= "pokered:HALL_OF_FAME" then
+    if type(location) ~= "table" then
         return nil
     end
     local record = type(candidate.hallOfFame) == "function" and candidate:hallOfFame() or nil
     local teams = type(record) == "table" and record.teams or nil
+    local hasTeam = type(teams) == "table" and #teams >= 1
+    -- The Hall cell is only the first continue. The ceremony moves RED to
+    -- Pallet, and that later save still has the team. A save with no team
+    -- never loads the chunk.
+    if location.zone_id ~= "pokered:HALL_OF_FAME" and not hasTeam then
+        return nil
+    end
     if type(teams) ~= "table" or #teams < 1 then
         return nil
     end
