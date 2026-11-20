@@ -520,6 +520,30 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(route4_cite(23, 6)["collision"], 1)
         self.assertEqual(route4_cite(20, 6)["foot_tile"], 0x27)
         self.assertIsNone(route(route4_cells(), (59, 4), (61, 4)))
+        line = route4_open_line()
+        self.assertEqual(line[0], ("down", (59, 5)))
+        self.assertEqual(line[1], ("down", (59, 6)))
+        self.assertIn(("right", (60, 6)), line)
+        self.assertIn(("down", (76, 8)), line)
+        self.assertIn(("down", (76, 10)), line)
+        self.assertEqual(line[-2], ("right", (89, 10)))
+        self.assertNotIn((60, 4), [cell for _direction, cell in line if cell != "cerulean"])
+        self.assertTrue(all(cell == "cerulean" or cell[0] >= 59 for _direction, cell in line))
+        self.assertEqual(route4_cite(60, 4)["foot_tile"], 0x27)
+        self.assertEqual(route4_cite(60, 4)["collision"], 1)
+        self.assertEqual(route4_cite(60, 6)["foot_tile"], 0x2C)
+        self.assertEqual(route4_cite(60, 6)["collision"], 0)
+        self.assertEqual(route4_cite(76, 6)["foot_tile"], 0x39)
+        self.assertEqual(route4_cite(76, 7)["foot_tile"], 0x36)
+        self.assertEqual(route4_cite(76, 7)["collision"], 1)
+        self.assertEqual(route4_cite(76, 8)["collision"], 0)
+        self.assertEqual(route4_cite(76, 9)["foot_tile"], 0x36)
+        self.assertEqual(route4_cite(76, 10)["foot_tile"], 0x39)
+        self.assertEqual(route4_cite(76, 10)["collision"], 0)
+        self.assertIn((0, 18), cerulean_cells())
+        self.assertIsNotNone(route(cerulean_cells(), (0, 18), (19, 18), CERULEAN_DOORS | {(15, 18)}))
+        self.assertIsNotNone(route(cerulean_gym_cells(), (5, 13), (6, 2), CERULEAN_GYM_AVOID))
+        self.assertIsNone(route(cerulean_gym_cells(), (5, 13), (6, 2), CERULEAN_GYM_AVOID | CERULEAN_LASS_SIGHT))
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -1617,8 +1641,8 @@ def _needs_heal(player):
     return hp < 28 or status not in ("none", "healthy", "")
 
 
-def _heal_in(player, report, city, door, nurse_id, inside, label, outdoors):
-    kind = step_onto(player, city, door, set(), "up")
+def _heal_in(player, report, city, door, nurse_id, inside, label, outdoors, avoid=()):
+    kind = step_onto(player, city, door, set(avoid), "up")
     report[label + "_door"] = {"kind": kind, **summary(player.state)}
     if "center" not in str(player.state.get("zone")):
         raise RuntimeError(f"{label} door did not open: " + json.dumps(summary(player.state)))
@@ -1803,6 +1827,15 @@ def _retreat_route3(player, avoid):
     leave_map(player, route3_cells(), (0, 10), blocked, "left")
 
 
+def play_route4_line(player, report, display, clips, output):
+    """Resume the (59, 4) pause and take the open line to Misty."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["resumed"] = summary(player.state)
+    _to_cerulean(player, report, display, clips, output)
+
+
 def play_to_cerulean(player, report, display, clips, output):
     """Leave the Boulder Badge save, cross Route 3 and Mt. Moon, then try Cerulean."""
     player.leave_title()
@@ -1883,6 +1916,31 @@ def _from_route4(player, report, display, clips, output):
     if player.state.get("zone") != "kanto_route_4":
         raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
     _to_cerulean(player, report, display, clips, output)
+
+
+def route4_open_line():
+    """(59, 4) goes down, east through (60, 6), then two ledge hops onto y=10.
+
+    (60, 4) is foot 0x27 and is not a step. The west mountain at x=23 is not a step.
+    The first down from (76, 6) hops the 0x39/0x36 pair onto (76, 8). The second
+    hops that pair again onto (76, 10). East from (89, 10) is Cerulean (0, 18).
+    """
+    steps = [("down", (59, 5)), ("down", (59, 6))]
+    for x in range(60, 77):
+        steps.append(("right", (x, 6)))
+    steps.append(("down", (76, 8)))
+    steps.append(("down", (76, 10)))
+    for x in range(77, 90):
+        steps.append(("right", (x, 10)))
+    steps.append(("right", "cerulean"))
+    return steps
+
+
+# Swimmer sight and body, the lass's body, Misty, and the guide. The lass's
+# sight row is the only way onto Misty's tile, so it stays walkable.
+CERULEAN_LASS_SIGHT = {(4, 3), (5, 3), (6, 3)}
+CERULEAN_GYM_AVOID = {(3, 3), (5, 2), (6, 7), (7, 7), (8, 7), (9, 7), (8, 10)}
+CERULEAN_DOORS = {(4, 11), (9, 9), (9, 11), (13, 15), (13, 25), (19, 17), (25, 25), (27, 9), (27, 11), (30, 19)}
 
 
 def route4_cite(x, y):
@@ -1971,41 +2029,77 @@ def _exit_moon(player, report):
     return "through"
 
 
-def _to_cerulean(player, report, display, clips, output):
-    """Route 4's east step, then the Cerulean Center and Misty."""
+def _follow_route4_line(player, report):
+    """Walk the open Route 4 line. Never step right on y=4 or west into x=23."""
     if player.state.get("zone") != "kanto_route_4":
-        raise RuntimeError("Mt. Moon did not return to Route 4: " + json.dumps(summary(player.state)))
-    if player.exploring():
-        report["saved_route4_exit"] = player.pause_save()
+        raise RuntimeError("Route 4 line did not resume the cliff: " + json.dumps(summary(player.state)))
     here = (player.state["player"]["x"], player.state["player"]["y"])
-    # The Center sits west of the x=20 wall. The cave exit is on the east side.
-    if _needs_heal(player) and route(route4_cells(), here, (11, 6)) is not None:
-        _heal_in(player, report, route4_cells(), (11, 5),
-                 "pokered:MT_MOON_POKECENTER:objects:1", moon_center_cells(), "moon_heal_after", "route_4")
-    kind = player.travel(route4_cells(), (59, 4), set(), limit=20)
-    report["cliff"] = {"kind": kind, "at": summary(player.state)}
-    if kind != "arrived":
-        raise RuntimeError("could not reach the Route 4 cliff: " + json.dumps(summary(player.state)))
-    blocked = player.step("right")
-    report["cliff_step"] = {"kind": blocked, "at": summary(player.state)}
-    if player.exploring():
-        report["saved_cliff"] = player.pause_save()
+    if here[0] < 24:
+        raise RuntimeError("refusing the west mountain at x=23: " + json.dumps(summary(player.state)))
+    report["line_start"] = summary(player.state)
+    for direction, expect in route4_open_line():
+        if not player.exploring():
+            if player.state.get("root") == "battle":
+                player.fight()
+            player.dismiss_until_explore(limit=40)
+        if player.state.get("zone") == "kanto_cerulean_city" and expect == "cerulean":
+            report["cerulean_entry"] = summary(player.state)
+            return
+        stood = (player.state["player"]["x"], player.state["player"]["y"])
+        if stood[1] == 4 and direction == "right":
+            raise RuntimeError("refusing the solid 0x27 step at (60,4)")
+        if direction == "left" or (isinstance(expect, tuple) and expect[0] < 59):
+            raise RuntimeError("refusing a west step off the open line")
+        kind = player.step(direction)
+        if kind == "overlay" or player.state.get("root") == "battle":
+            if player.state.get("root") == "battle":
+                player.fight()
+            player.dismiss_until_explore(limit=40)
+        if expect == "cerulean":
+            if player.state.get("zone") != "kanto_cerulean_city":
+                player.settle(limit=40)
+                if not player.exploring():
+                    player.dismiss_until_explore(limit=40)
+            report["cerulean_entry"] = {"kind": kind, **summary(player.state)}
+            if player.state.get("zone") != "kanto_cerulean_city":
+                raise RuntimeError("Route 4 east did not open Cerulean: " + json.dumps(summary(player.state)))
+            return
+        landed = (player.state["player"]["x"], player.state["player"]["y"])
+        if landed != expect or player.state.get("zone") != "kanto_route_4":
+            report["line_miss"] = {"direction": direction, "expect": expect, "kind": kind, **summary(player.state)}
+            raise RuntimeError(
+                f"Route 4 line missed {expect} after {direction}: " + json.dumps(summary(player.state)))
+    raise RuntimeError("Route 4 line ended before Cerulean")
+
+
+def _to_cerulean(player, report, display, clips, output):
+    """Route 4's open line, then the Cerulean Center and Misty."""
+    if player.state.get("zone") == "kanto_route_4":
+        if player.exploring() and (player.state["player"]["x"], player.state["player"]["y"]) != (59, 4):
+            report["saved_route4_exit"] = player.pause_save()
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here != (59, 4) and here[0] >= 24 and route(route4_cells(), here, (59, 4)) is not None:
+            kind = player.travel(route4_cells(), (59, 4), set(), limit=20)
+            report["cliff"] = {"kind": kind, "at": summary(player.state)}
+            if kind != "arrived":
+                raise RuntimeError("could not reach the Route 4 cliff: " + json.dumps(summary(player.state)))
+        _follow_route4_line(player, report)
     if player.state.get("zone") != "kanto_cerulean_city":
-        raise RuntimeError(
-            "Route 4's northern road is cut at (60,4) by foot tile 0x27; "
-            "Cerulean is on the far side and there is no other land exit: "
-            + json.dumps(summary(player.state)))
+        raise RuntimeError("Cerulean did not open: " + json.dumps(summary(player.state)))
     report["cerulean"] = summary(player.state)
-    _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
-             cerulean_center_cells(), "cerulean_heal", "cerulean_city")
-    avoid = {(4, 11), (27, 11), (13, 15), (13, 25), (25, 25)}
-    kind = step_onto(player, cerulean_cells(), (30, 19), avoid, "up")
+    if _needs_heal(player):
+        _heal_in(player, report, cerulean_cells(), (19, 17), CERULEAN_NURSE,
+                 cerulean_center_cells(), "cerulean_heal", "cerulean_city",
+                 avoid=CERULEAN_DOORS | {(15, 18)})
+    gym_doors = set(CERULEAN_DOORS)
+    gym_doors.discard((30, 19))
+    kind = step_onto(player, cerulean_cells(), (30, 19), gym_doors | {(15, 18)}, "up")
     report["cerulean_gym_door"] = {"kind": kind, **summary(player.state)}
     if "gym" not in str(player.state.get("zone")):
         raise RuntimeError("Cerulean did not enter the gym: " + json.dumps(summary(player.state)))
 
     def battle_misty():
-        talked = talk_to(player, cerulean_gym_cells(), MISTY, set())
+        talked = talk_to(player, cerulean_gym_cells(), MISTY, CERULEAN_GYM_AVOID)
         report["misty_talk"] = {"result": talked, **summary(player.state)}
         if player.state.get("root") == "battle" or talked == "talked":
             if player.state.get("root") != "battle":
@@ -2181,6 +2275,15 @@ if __name__ == "__main__":
         unittest.main()
     else:
         clips = ROOT / "artifacts" / "lane-j"
+        if "--line" in sys.argv:
+            output = Path("/tmp/lane-j-squirtle-26")
+            save_from = CLIFF_SAVE
+            digest = sha256_file(save_from / "adventure.a.json")
+            if digest != CLIFF_SAVE_SHA:
+                raise SystemExit(f"cliff save hash {digest}")
+            if output.exists():
+                raise SystemExit(f"{output} already exists")
+            raise SystemExit(play(output, clips, save_from=save_from, story=play_route4_line))
         if "--west" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-25")
             save_from = CLIFF_SAVE
