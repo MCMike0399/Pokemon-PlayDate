@@ -705,6 +705,9 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(route11_cells(), (0, 6), (10, 12), route11_avoid()))
         self.assertIsNotNone(route(diglett_cave_cells(), (36, 31), (5, 6)))
         self.assertIsNone(route(route2_cells(), (12, 10), (8, 0), {(12, 9)}))
+        self.assertIsNotNone(route(vermilion_gym_cells(), (5, 16), (2, 6), GYM_SIGHT))
+        self.assertIsNone(route(vermilion_gym_cells(), (5, 16), (2, 8), GYM_SIGHT))
+        self.assertIsNotNone(route(vermilion_gym_cells(), (5, 16), (6, 2), GYM_SIGHT))
         self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
         self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
@@ -2415,6 +2418,12 @@ VERMILION_CANS = (
     (1, 7), (1, 9), (1, 11), (3, 7), (3, 9), (3, 11), (5, 7), (5, 9), (5, 11),
     (7, 7), (7, 9), (7, 11), (9, 7), (9, 9), (9, 11),
 )
+# Runtime tiles. The rocker's left sight is the south side of can 0.
+GYM_SIGHT = {
+    (9, 6), (8, 6), (7, 6), (10, 6),
+    (3, 8), (2, 8), (4, 8),
+    (2, 10), (3, 10), (4, 10), (1, 10),
+}
 VERMILION_CLERK = "pokered:VERMILION_MART:objects:1"
 SS_RIVAL = "pokered:SS_ANNE_2F:objects:2"
 CAPTAIN = "pokered:SS_ANNE_CAPTAINS_ROOM:objects:1"
@@ -3810,10 +3819,19 @@ def _buy_vermilion(player, report, balls=8, supers=6):
 
 def _search_can(player, index):
     source_x, source_y = VERMILION_CANS[index]
-    stand = (source_x + 1, source_y + 1)
-    _stand(player, vermilion_gym_cells(), stand, set(), f"trash can {index}")
-    if player.state["player"].get("facing") != "up":
-        player.press("up", wait=4)
+    can = (source_x + 1, source_y)
+    cells = vermilion_gym_cells()
+    stand, face = None, "up"
+    for dx, dy, facing in ((0, 1, "up"), (0, -1, "down"), (-1, 0, "right"), (1, 0, "left")):
+        spot = (can[0] + dx, can[1] + dy)
+        if spot in cells and spot not in GYM_SIGHT:
+            stand, face = spot, facing
+            break
+    if stand is None:
+        raise RuntimeError(f"trash can {index} has no safe side")
+    _stand(player, cells, stand, GYM_SIGHT, f"trash can {index}")
+    if player.state["player"].get("facing") != face:
+        player.press(face, wait=4)
     player.press("a", wait=8)
     _through_scene(player, 4)
 
@@ -3998,7 +4016,7 @@ def play_ss_anne(player, report, display, clips, output):
     _solve_cans(player, report)
 
     def surge():
-        _stand(player, vermilion_gym_cells(), (6, 2), set(), "Lt. Surge")
+        _stand(player, vermilion_gym_cells(), (6, 2), GYM_SIGHT, "Lt. Surge")
         if player.state["player"].get("facing") != "up":
             player.press("up", wait=4)
         player.press("a", wait=8)
@@ -4598,9 +4616,15 @@ def play_vermilion_prep(player, report, display, clips, output):
     if "vermilion_gym" not in str(player.state.get("zone")):
         raise RuntimeError("the gym door did not open: " + json.dumps(summary(player.state)))
     _solve_cans(player, report)
+    if (_mole(player)[1].get("hp") or 0) <= 0:
+        _leave(player, vermilion_gym_cells(), [((5, 17), "down"), ((6, 17), "down")],
+               GYM_SIGHT, "vermilion_city", "gym heal")
+        _rest(player, report, "gym heal", 4)
+        _lead(player, "dugtrio")
+        _enter(player, opened, (12, 19), gym_doors, "up", "vermilion_gym", "Vermilion Gym")
 
     def surge():
-        _stand(player, vermilion_gym_cells(), (6, 2), set(), "Lt. Surge")
+        _stand(player, vermilion_gym_cells(), (6, 2), GYM_SIGHT, "Lt. Surge")
         if player.state["player"].get("facing") != "up":
             player.press("up", wait=4)
         player.press("a", wait=8)
@@ -4628,7 +4652,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-68")
+            output = Path("/tmp/lane-j-squirtle-69")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
