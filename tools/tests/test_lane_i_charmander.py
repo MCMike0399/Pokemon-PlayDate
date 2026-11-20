@@ -2827,6 +2827,9 @@ class CharmanderRun(BrockJourney):
             model = self.model()
             start = self.position()
             blocked = set(self.occupied()) | set(model.warps) | set(model.signs)
+            if self._on("VictoryRoad3F"):
+                # Standing here falls to 2F unless the hole boulder is on its switch.
+                blocked.add((23, 15))
             blocked.discard(start)
             queue, prev = deque([start]), {start: None}
             found = None
@@ -3339,8 +3342,42 @@ class CharmanderRun(BrockJourney):
             self._revive_fainted()
             steps += 1
 
+    def _party_needs_center(self):
+        """A fainted or half-health backup stops earning, and a low Charizard cannot cover."""
+        trainee = self._trainee_index()
+        for index, mon in enumerate(self.party(), 1):
+            if mon["hp"] <= 0:
+                return True
+            if trainee and index == trainee and mon["hp"] * 2 < mon["maxHP"]:
+                return True
+            if mon["species"] == "charizard" and mon["hp"] * 3 < mon["maxHP"]:
+                return True
+        return False
+
+    def _join_victory_floor(self):
+        """The Route 23 door opens into a walled pocket. Trainers are west of it.
+
+        (27, 7) climbs to 3F. (23, 6) on that floor steps back onto 2F (23, 7).
+        """
+        if not self._on("VictoryRoad2F") or self.position()[0] < 24:
+            return
+        if self.position() != (28, 7):
+            self._walk_avoiding_warps((28, 7))
+        self.send("press left", "wait 15")
+        self.drain()
+        if not self._on("VictoryRoad3F"):
+            raise ProtocolError("east stair stayed on " + self._map_name() + " " + str(self.position()))
+        self._walk_avoiding_warps((23, 6))
+        self.send("press down", "wait 15")
+        self.drain()
+        if not self._on("VictoryRoad2F"):
+            raise ProtocolError("3F return missed 2F: " + self._map_name() + " " + str(self.position()))
+        if self.position() == (23, 7):
+            self._step("left")
+
     def _grind_east_cave(self):
         self._enter_east_cave()
+        self._join_victory_floor()
         for trainer in (
             "pokered:VICTORY_ROAD_2F:objects:5",
             "pokered:VICTORY_ROAD_2F:objects:3",
@@ -3373,6 +3410,13 @@ class CharmanderRun(BrockJourney):
                 trained = len(self.summary.get("training") or [])
                 try:
                     self._lead_trainee()
+                    if self._party_needs_center():
+                        if not self._on("IndigoPlateauLobby"):
+                            self._reach_lobby()
+                        composition = (REPO / "Source/game/healingComposition.lua").read_text(encoding="utf-8")
+                        if "pokered:INDIGO_PLATEAU_LOBBY" in composition:
+                            self._heal_indigo()
+                        self._lead_trainee()
                     if self._on("IndigoPlateauLobby") or self._want_league_shop():
                         if not self._on("IndigoPlateauLobby"):
                             self._reach_lobby()
