@@ -764,7 +764,10 @@ function Battle:eligibleForcedReplacements(target)
     if type(target) ~= "table" or type(target.is) ~= "function" or not target:is("Pokemon") then
         return nil, "invalid-target"
     end
-    if self.outcome or self.effects.closed or not target:isAlive() then return nil, "inactive-target" end
+    -- A fainted active lead still has a bench. ChooseNextMon reads that
+    -- bench before ReplaceFaintedEnemyMon. Fainted bench members stay out
+    -- of the index list below. A closed battle has no bench to offer.
+    if self.outcome or self.effects.closed then return nil, "inactive-target" end
     local side = target == self.player and "player" or (target == self.enemy and "enemy" or nil)
     if not side then return nil, "foreign-target" end
     if not validSwitchSleep(target) then return nil, "invalid-sleep-duration" end
@@ -801,7 +804,9 @@ function Battle:forceSwitch(target)
         return nil
     end
     local choices, targetSide = self:eligibleForcedReplacements(target)
-    if not choices then
+    -- The bench query accepts a fainted lead. Whirlwind still fails on one:
+    -- a fainted target is not dragged out.
+    if not choices or not target:isAlive() then
         self:say("But it failed!")
         return nil
     end
