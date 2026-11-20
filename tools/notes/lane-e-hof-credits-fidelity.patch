@@ -883,7 +883,7 @@ new file mode 100644
 diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 --- a/Source/game/endgameStory.lua
 +++ b/Source/game/endgameStory.lua
-@@ -1511,6 +1511,298 @@ local function photoImage(gfx, state, photo, which)
+@@ -1511,6 +1511,329 @@ local function photoImage(gfx, state, photo, which)
      return nil
  end
  
@@ -898,6 +898,34 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +
 +function EndgameStory.accentCell()
 +    return 8
++end
++
++-- font.png char $BA. Rows 0-1 are the acute accent. Rows 2-6 are the same
++-- e body as lowercase e. The system font's e, measured on "Seen", has its
++-- ink on rows 6 through 14 of the draw cell. The body is stretched on Y
++-- only so it shares that baseline and x-height, and it stays one letter wide.
++function EndgameStory.lowercaseInk()
++    return 6, 14
++end
++
++function EndgameStory.accentBox(eTop, eBottom)
++    local scaleY <const> = 2
++    local bodyTop <const> = 2
++    local bodyBottom <const> = 6
++    local bodyInkBottom <const> = (bodyBottom + 1) * scaleY - 1
++    local y <const> = eBottom - bodyInkBottom
++    return {
++        y = y,
++        scaleX = 1,
++        scaleY = scaleY,
++        bodyTop = y + bodyTop * scaleY,
++        bodyBottom = y + bodyInkBottom,
++        bodyHeight = (bodyBottom - bodyTop + 1) * scaleY,
++        inkTop = y,
++        inkBottom = y + bodyInkBottom,
++        eTop = eTop,
++        eBottom = eBottom,
++    }
 +end
 +
 +function EndgameStory.accentRows()
@@ -1011,23 +1039,23 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +local accentEImage
 +
 +function EndgameStory.drawAccentE(gfx, x, y)
-+    local cell <const> = EndgameStory.accentCell()
++    local box <const> = EndgameStory.accentBox(EndgameStory.lowercaseInk())
 +    if not accentEImage then
 +        local rows <const> = EndgameStory.accentRows()
-+        accentEImage = gfx.image.new(cell, cell, gfx.kColorClear)
++        accentEImage = gfx.image.new(#rows[1] * box.scaleX, #rows * box.scaleY, gfx.kColorClear)
 +        gfx.pushContext(accentEImage)
 +        gfx.setImageDrawMode(gfx.kDrawModeCopy)
 +        gfx.setColor(gfx.kColorBlack)
 +        for row, bits in ipairs(rows) do
 +            for col = 1, #bits do
 +                if bits:sub(col, col) == "#" then
-+                    gfx.fillRect(col - 1, row - 1, 1, 1)
++                    gfx.fillRect((col - 1) * box.scaleX, (row - 1) * box.scaleY, box.scaleX, box.scaleY)
 +                end
 +            end
 +        end
 +        gfx.popContext()
 +    end
-+    accentEImage:draw(x, y)
++    accentEImage:draw(x, y + box.y)
 +end
 +
 +function EndgameStory.drawPokeredText(gfx, text, x, y)
@@ -1055,7 +1083,7 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +            local glyph = line:sub(index, nextIndex - 1)
 +            if glyph == "é" then
 +                flush()
-+                EndgameStory.drawAccentE(gfx, cursor, lineY + font:getHeight() - EndgameStory.accentCell())
++                EndgameStory.drawAccentE(gfx, cursor, lineY)
 +                cursor = cursor + EndgameStory.glyphAdvance(font, "e")
 +            else
 +                run = run .. glyph
@@ -1104,7 +1132,10 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
 +-- signed indent. <NEXT> then drops two rows. CopyrightTextString is its own
 +-- PlaceString at hlcoord 2, 7. THE END is hlcoord 4, 8.
 +local CREDIT_COLUMN <const> = {
-+    ["#MON"] = 6, ["BLUE VERSION STAFF"] = 1,
++    -- "#" is one tile in pokered, then MON. Expanded, POKéMON is wider than
++    -- that tile, so column 6 puts MON under the 7x7 pic. Column 2 keeps the
++    -- whole word to the left of the silhouette.
++    ["#MON"] = 2, ["BLUE VERSION STAFF"] = 1,
 +    ["DIRECTOR"] = 6, ["SATOSHI TAJIRI"] = 3,
 +    ["PROGRAMMERS"] = 4, ["TAKENORI OOTA"] = 3, ["SHIGEKI MORIMOTO"] = 2,
 +    ["TETSUYA WATANABE"] = 2, ["JUNICHI MASUDA"] = 3, ["SOUSUKE TAMADA"] = 3,
@@ -1182,7 +1213,7 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
  local function blitHallPic(gfx, image, gbX, gbY)
      if not image then
          return
-@@ -1568,7 +1860,7 @@ function EndgameStory.drawPhoto(gfx, state)
+@@ -1568,7 +1891,7 @@ function EndgameStory.drawPhoto(gfx, state)
          if row.text:find("¥", 1, true) then
              GbFont.drawMoneyLine(row.text, px, py)
          else
@@ -1191,7 +1222,7 @@ diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
          end
      end
      if photo.kind == "player" then
-@@ -1576,13 +1868,13 @@ function EndgameStory.drawPhoto(gfx, state)
+@@ -1576,13 +1899,13 @@ function EndgameStory.drawPhoto(gfx, state)
          local page <const> = pages[state.photo.page or 1]
          if page then
              local px, py = EndgameStory.hallPixel(8, 13 * 8)

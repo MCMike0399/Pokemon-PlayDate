@@ -6,8 +6,8 @@ tools/notes/lane-e-hof-credits-fidelity.patch is applied.
 
 1. Whole-string advances stay on the system font. A per-glyph draw drops
    the space and the colon.
-2. é is font.png char $BA from the font generator, one 8px cell, the same
-   height as the other lowercase letters.
+2. é is font.png char $BA from the font generator. Its e body shares the
+   lowercase baseline and x-height, and the letters after it still draw.
 3. Rows 0-3 and 14-17 are black. The middle is white and the text is black.
 4. The credits mon is a black silhouette. The window hides the text that
    would wrap in on the right.
@@ -77,7 +77,9 @@ assert(late.windowGb == 120, late.windowGb)
 local place = EndgameStory.creditsMonPlace(0)
 assert(place.gbX == 64 and place.gbY == 48)
 local staff = EndgameStory.creditsLine("#MON", 1, "text")
-assert(staff.col == 6 and staff.row == 6, "mon line")
+assert(staff.col == 2 and staff.row == 6, "mon line")
+local textX = EndgameStory.hallPixel(staff.col * 8, staff.row * 8)
+assert(textX + 72 <= place.x, "POKéMON runs under the silhouette")
 local notice = EndgameStory.creditsLine("©'95.'96.'98 Nintendo", 1, "copyright")
 assert(notice.col == 2 and notice.row == 7, "copyright line")
 assert(EndgameStory.accentCell() == 8)
@@ -135,6 +137,69 @@ io.write(box.col, " ", box.row, " ", box.width, " ", box.height, " ", top, " ", 
         self.assertEqual((name_col, asm_y), ("7", "-16"))
         self.assertEqual(name_row, "3")
         self.assertGreaterEqual(int(name_y), 0)
+
+    def test_accent_shares_the_lowercase_e_baseline_and_height(self):
+        from tools.generate_source_text import build
+        from PIL import Image as PILImage
+        rows = build()["glyphs"]["é"]["rows"]
+        font = PILImage.open(ROOT / "tools/references/source-text/gfx/font/font.png").convert("L")
+        # charmap e is $A4, tile 36. Its body is the same rows as é.
+        ex, ey = (36 % (font.width // 8)) * 8, (36 // (font.width // 8)) * 8
+        e_rows = ["".join("#" if font.getpixel((ex + i, ey + j)) < 128 else "." for i in range(8)) for j in range(8)]
+        self.assertEqual(rows[2:7], e_rows[2:7])
+        completed = subprocess.run(
+            [LUA, "-e", r"""
+json = {decodeFile = function() return {} end}
+playdate = {graphics = {}}
+dofile("Source/game/endgameStory.lua")
+local eTop, eBottom = EndgameStory.lowercaseInk()
+local box = EndgameStory.accentBox(eTop, eBottom)
+assert(box.inkBottom == eBottom, "é baseline " .. tostring(box.inkBottom))
+assert(box.bodyBottom == eBottom, "e body baseline")
+assert(math.abs(box.bodyHeight - (eBottom - eTop + 1)) <= 1, "é height " .. tostring(box.bodyHeight))
+assert(box.inkTop < eTop, "accent is inside the x-height")
+assert(box.scaleX == 1, "é is wider than a letter")
+assert(not tostring(box.y):find("-"), "subscript")
+io.write(box.inkTop, " ", box.inkBottom, " ", box.bodyHeight)
+"""],
+            cwd=ROOT, check=False, capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
+        story = (ROOT / "Source/game/endgameStory.lua").read_text()
+        self.assertNotIn("getHeight() - EndgameStory.accentCell", story)
+
+    def test_text_after_the_accent_still_draws(self):
+        completed = subprocess.run(
+            [LUA, "-e", FONT + r"""
+json = {decodeFile = function()
+    return {glyphs = {["é"] = {rows = {
+        "..##....", "##......", "..####..", ".#....#.",
+        ".######.", ".#......", "..#####.", "........",
+    }}}}
+end}
+local drawn = {}
+playdate = {graphics = {
+    kColorBlack = 1, kColorClear = 0, kDrawModeCopy = 0,
+    getSystemFont = function() return font end,
+    setImageDrawMode = function() end,
+    setColor = function() end,
+    fillRect = function() end,
+    pushContext = function() end,
+    popContext = function() end,
+    drawText = function(text, x, y) drawn[#drawn + 1] = text .. "@" .. tostring(x) end,
+    image = {new = function() return {draw = function() end} end},
+}}
+dofile("Source/game/endgameStory.lua")
+EndgameStory.drawPokeredText(playdate.graphics, "#MON", 10, 20)
+local pok, mon = drawn[1], drawn[#drawn]
+assert(pok == "POK@10", pok)
+assert(mon and mon:find("^MON@", 1), "text after é was dropped: " .. table.concat(drawn, " "))
+local monX = tonumber(mon:match("@(%-?%d+)$"))
+assert(monX > 10, "MON did not advance past POK")
+io.write(table.concat(drawn, " "))
+"""],
+            cwd=ROOT, check=False, capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
+        self.assertIn("MON@", completed.stdout)
 
     def test_glyph_advances_match_the_font_and_the_colon_renders(self):
         mapping = subprocess.run(

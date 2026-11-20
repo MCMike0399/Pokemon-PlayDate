@@ -221,6 +221,10 @@ BlueBot approved the hof-main layout and flagged the credits species names, the 
 
 BlueBot rejected the 57499214 frames. The name box and the `#` to `POKé` mapping stay. `tools/notes/lane-e-hof-credits-fidelity.patch` now keeps whole-string advances, so `You still have`, `PLAY TIME`, and `0:00` keep the system font's space and colon. `é` is font.png char `$BA` from the font generator, drawn as one 8px cell. Credits use black bands on rows 0–3 and 14–17, a white middle, and black text. The credits mon is a solid black silhouette at tile `(8, 6)`. It scrolls with the text, and `rWX` hides the part that wraps in from the right. The patched recapture is `artifacts/lane-g/hof-fidelity-r2/`. `Source/` is unchanged on this branch.
 
+## Round 27
+
+The r2 frames still drew `é` as a subscript, and the Venusaur credit showed only `POK` plus that mark. `MON` was under the silhouette's white fill. `tools/notes/lane-e-hof-credits-fidelity.patch` now places the `$BA` e-body on the lowercase baseline (2× tall, one letter wide, accent above the x-height) and draws `#MON` at column 2, so `POKéMON` stays left of the pic on the hold and on the Venusaur frame. The silhouette, the black bands, the black text, and the `PLAY TIME` / `0:00` spacing stay. The patched recapture is `artifacts/lane-g/hof-fidelity-r3/`. The new checks fail on the live tree. `Source/` is unchanged on this branch.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
