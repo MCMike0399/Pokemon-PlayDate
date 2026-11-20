@@ -1818,6 +1818,19 @@ function Battle:handleFaint(lastFaintedSide)
     return self:_resolveFaintCheckpoint(last)
 end
 
+local function shiftBenchOpen(self)
+    -- pokered ReplaceFaintedEnemyMon asks whenever the party has another
+    -- living member. A fainted lead is not the gate: ChooseNextMon may
+    -- already have run, and the question still comes before the next foe.
+    if not self.party then return false end
+    local members = self.party:members()
+    if #members < 2 then return false end
+    for _, mon in ipairs(members) do
+        if mon ~= self.player and mon:isAlive() then return true end
+    end
+    return false
+end
+
 function Battle:finishRound()
     local outcome = self:endOfRoundStatus()
     self.conditions:endRound()
@@ -1828,7 +1841,7 @@ function Battle:finishRound()
         if index then
             local incoming = self.enemyParty:get(index)
             if self.presentationAttached and GameOptions.battleStyle() == "SHIFT"
-                and self.player:isAlive() and self.party and #self:eligibleForcedReplacements(self.player) > 0 then
+                and shiftBenchOpen(self) then
                 -- pokered data/text/text_2.asm _TrainerAboutToUseText, shown
                 -- with TWO_OPTION_MENU (engine/battle/core.asm). The # glyph
                 -- is POKé. constants/charmap.asm maps é to $ba, and the
