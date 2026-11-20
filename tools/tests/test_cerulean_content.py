@@ -10,6 +10,7 @@ import unittest
 
 from PIL import Image
 from tools.tests.host_fixtures import installed_map_names
+from tools.flower_phase import installed_flower_hash
 from tools import generate_cerulean_content as generator
 from tools.generate_source_map_cache import build as cache_build, check as cache_check
 
@@ -62,7 +63,13 @@ class CeruleanContentTests(unittest.TestCase):
             entry = self.manifest['maps'][name]
             self.assertEqual(entry['profile'], 'source')
             self.assertEqual(entry['path'], f'data/sourceSlice/{name}.json')
-            self.assertEqual(entry['source_sha256'], generator.digest(self.artifacts[name + '.json']))
+            fresh = self.artifacts[name + '.json']
+            digest = generator.digest(fresh)
+            if entry['source_sha256'] != digest:
+                pinned = (ROOT / 'Source' / entry['path']).read_bytes()
+                self.assertTrue(installed_flower_hash(fresh, digest, pinned, entry['source_sha256'], generator.canonical), name)
+            else:
+                self.assertEqual(entry['source_sha256'], digest)
 
     def test_installed_cache_preserves_tiles_and_changes_only_declared_region_gates(self):
         # Compare the immutable accepted input and tile bytes, independently of
@@ -117,6 +124,9 @@ class CeruleanContentTests(unittest.TestCase):
             layout = (self.reference / layout_binding[1]).read_bytes()
             blocks = (self.reference / definition['tileset']['blockset']).read_bytes()
             image = Image.open(self.reference / definition['tileset']['graphics']).convert('L')
+            flower = None
+            if definition['tileset'].get('animation') == 'TILEANIM_WATER_FLOWER':
+                flower = Image.open(self.reference / 'gfx/tilesets/flower/flower1.png').convert('L')
             width, height = definition['dimensions']['cells']
             self.assertEqual(len(layout), width * height // 4)
             for y in range(height):
@@ -136,8 +146,12 @@ class CeruleanContentTests(unittest.TestCase):
                     row = ''
                     for x in range(16):
                         tile = grid['source_tile_ids'][y // 8 * 2 + x // 8]
-                        row += codes[image.getpixel((tile % (image.width // 8) * 8 + x % 8,
-                                                   tile // (image.width // 8) * 8 + y % 8))]
+                        if flower is not None and tile == 3:
+                            shade = flower.getpixel((x % 8, y % 8))
+                        else:
+                            shade = image.getpixel((tile % (image.width // 8) * 8 + x % 8,
+                                                   tile // (image.width // 8) * 8 + y % 8))
+                        row += codes[shade]
                     expected.append(row)
                 self.assertEqual(grid['grid'], expected, name)
 

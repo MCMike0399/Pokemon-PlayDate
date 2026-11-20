@@ -9,6 +9,10 @@
     {
       "path": "data/tilesets/warp_tile_ids.asm",
       "sha256": "9784114c698ef80c12b3b21aa15ff65a917640a7a1f0d0cc07806afeb058cad5"
+    },
+    {
+      "path": "gfx/tilesets/flower/flower1.png",
+      "sha256": "f5abb9daab65f3462bbae3653224ba6aec9d1722b4b801452a5af552d305788f"
     }
   ],
   "scope": [
