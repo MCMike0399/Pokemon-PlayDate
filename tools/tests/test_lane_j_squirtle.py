@@ -3346,10 +3346,16 @@ def _send_out(player, prefer):
             if mon and (mon.get("hp") or 0) <= 0:
                 slot = None
     if slot is None:
-        for index, mon in enumerate(((player.state.get("party") or {}).get("members") or []), start=1):
-            if (mon.get("hp") or 0) > 0:
-                slot = index
+        for want in ("wartortle", "blastoise", "squirtle"):
+            slot, mon = _member(player, want)
+            if mon and (mon.get("hp") or 0) > 0:
                 break
+            slot = None
+        if slot is None:
+            for index, mon in enumerate(((player.state.get("party") or {}).get("members") or []), start=1):
+                if (mon.get("hp") or 0) > 0:
+                    slot = index
+                    break
     if slot is None:
         raise RuntimeError("no pokemon to send: " + json.dumps(summary(player.state)))
     _select_party(player, slot)
@@ -3998,7 +4004,7 @@ def _raise_pidgey(player, report):
     left, right = (12, 30), (13, 30)
     goal = right
     battles = 0
-    for _ in range(700):
+    while battles < 60:
         if not player.exploring():
             root = player.state.get("root")
             if root == "learning":
@@ -4013,20 +4019,19 @@ def _raise_pidgey(player, report):
             _slot, bird = _member(player, "pidgey")
         bird = bird or {}
         level = bird.get("level") or 0
-        if bird.get("species") == "pidgeotto" and level >= 19:
+        name = bird.get("species") or "pidgey"
+        if name == "pidgeotto" and level >= 19:
             break
-        if bird.get("species") == "pidgey" and level >= 21:
+        if name == "pidgey" and level >= 21:
             raise RuntimeError("Pidgey reached 21 before it evolved: " + json.dumps(_party(player)))
-        mon = player.state.get("pokemon") or {}
-        if mon.get("species") not in ("pidgey", "pidgeotto"):
-            _lead(player, bird.get("species") or "pidgey")
-            continue
-        hp = mon.get("hp") or 0
-        status = str(mon.get("status") or "none").lower()
-        if hp < 8 or status not in ("none", "ok", ""):
+        # A fainted slot-1 bird is not the lead. firstUsable walks past it.
+        lead = (player.state.get("pokemon") or {}).get("species")
+        if lead != name or (bird.get("hp") or 0) < 12:
             _rest(player, report, "bird heal", 4)
             _to_route6_grass(player)
-            _lead(player, "pidgeotto" if _member(player, "pidgeotto")[0] else "pidgey")
+            _lead(player, name)
+            if (player.state.get("pokemon") or {}).get("species") != name:
+                raise RuntimeError("the bird is not leading: " + json.dumps(_party(player)))
             continue
         here = (player.state["player"]["x"], player.state["player"]["y"])
         if here == goal:
@@ -4050,7 +4055,7 @@ def _raise_pidgey(player, report):
                 if not player.run_away():
                     player.fight(limit=400, potion_at=0, decline_moves=True, run_at=8)
             else:
-                player.fight(limit=500, potion_at=0, decline_moves=True, run_at=8)
+                player.fight(limit=500, potion_at=16, decline_moves=True)
         if player.state.get("root") != "overworld":
             _settle_catch(player)
         if _lost(before, player.state.get("last_battle_outcome") or {}):
@@ -4265,7 +4270,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-47")
+            output = Path("/tmp/lane-j-squirtle-48")
             save_from = CATCH_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != CATCH_SAVE_SHA:
