@@ -99,6 +99,8 @@ CASCADE_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/ef2bcb5caf63")
 CASCADE_SAVE_SHA = "2ea6168fe10764c79740c173394672c21022f67591dbcc7de114570e696b7625"
 TICKET_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/191a86b9e4ed")
 TICKET_SAVE_SHA = "1363fe0f4563c44e931da1db5199022186790131dd7cd45f5cf87830838ae4ad"
+VERMILION_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/de26045b6d06")
+VERMILION_SAVE_SHA = "51ade10899094ca5582d70e13e6664bb0fe9adff6b95c19036ed86770c32a4e3"
 MISTY = "pokered:CERULEAN_GYM:objects:1"
 BILL_POKEMON = "pokered:BILLS_HOUSE:objects:1"
 BILL = "pokered:BILLS_HOUSE:objects:2"
@@ -631,6 +633,7 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(cerulean_cells(), (27, 9), (30, 9), set(CERULEAN_DOORS) - {(27, 9)} | {(15, 18)}))
         self.assertIsNone(route(cerulean_cells(), (27, 9), (30, 10), set(CERULEAN_DOORS) - {(27, 9)}))
         self.assertEqual(sha256_file(TICKET_SAVE / "adventure.b.json"), TICKET_SAVE_SHA)
+        self.assertEqual(sha256_file(VERMILION_SAVE / "adventure.a.json"), VERMILION_SAVE_SHA)
 
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
@@ -2290,6 +2293,17 @@ def play_bill_vermilion(player, report, display, clips, output):
     report["resumed"] = summary(player.state)
     report["outcome_stamp"] = _outcome_stamp(player)
     bridge_avoid = {(10, 5), (11, 15), (5, 20)}
+    if _item_count(player, "ssTicket") >= 1 and "vermilion_city" in str(player.state.get("zone")):
+        report["vermilion"] = summary(player.state)
+        report["vermilion_gym_path"] = route(
+            vermilion_cells(),
+            (player.state["player"]["x"], player.state["player"]["y"]),
+            (12, 20),
+            VERMILION_DOORS - {(12, 19)},
+        ) is not None
+        if player.exploring():
+            report["saved_vermilion"] = player.pause_save()
+        return
     if _item_count(player, "ssTicket") < 1:
         if "cerulean" not in str(player.state.get("zone")):
             raise RuntimeError("the ticket walk did not resume in Cerulean: " + json.dumps(summary(player.state)))
@@ -3104,11 +3118,11 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-41")
-            save_from = TICKET_SAVE
-            digest = sha256_file(save_from / "adventure.b.json")
-            if digest != TICKET_SAVE_SHA:
-                raise SystemExit(f"ticket save hash {digest}")
+            output = Path("/tmp/lane-j-squirtle-42")
+            save_from = VERMILION_SAVE
+            digest = sha256_file(save_from / "adventure.a.json")
+            if digest != VERMILION_SAVE_SHA:
+                raise SystemExit(f"vermilion save hash {digest}")
             if output.exists():
                 raise SystemExit(f"{output} already exists")
             raise SystemExit(play(output, clips, save_from=save_from, story=play_bill_vermilion))
