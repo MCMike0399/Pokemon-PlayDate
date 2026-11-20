@@ -99,6 +99,8 @@ function HealingCompositionContracts.run()
                 eq(mask:sample(x,y),opaque and gfx.kColorWhite or gfx.kColorBlack)
             end end
         end
+        -- rOBP1=$e0 paints OBJ color 1 white. The ball center and the monitor bar are that color.
+        eq(ball:sample(6,10),gfx.kColorWhite);eq(ball:sample(7,10),gfx.kColorWhite);eq(monitor:sample(2,4),gfx.kColorWhite)
         local original=assert(json.decodeFile("data/event-art.json"));eq(original.source_revision,"af519899719f0754965776faac0e836a3b906e6d")
     end)
     test("Native1/2/6-party compositions match source OAM over actual map and translated camera",function()

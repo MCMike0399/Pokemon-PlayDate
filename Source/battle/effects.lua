@@ -346,6 +346,12 @@ function BattleEffects.solarPolicy(weather)
 end
 function BattleEffects:basePower(move,power,attacker,defender)
     attacker,defender=attacker or self.battle.attacker,defender or self.battle.defender
+    -- Gen V Brine doubles at or below half HP. A missing onBasePower hook
+    -- must not fail the hit.
+    if move.name=="BRINE" and power>0 and defender and defender.maxHP
+        and defender.hp*2<=defender.maxHP then
+        power=power*2
+    end
     local ratio=4096
     if power>0 and attacker and defender and self:effectiveAbility(attacker)==79 then
         local a,d=attacker:getSex(),defender:getSex()

@@ -1,0 +1,30 @@
+diff --git a/Source/battle/effects.lua b/Source/battle/effects.lua
+index b34737a5..57d4012f 100644
+--- a/Source/battle/effects.lua
++++ b/Source/battle/effects.lua
+@@ -346,6 +346,12 @@ function BattleEffects.solarPolicy(weather)
+ end
+ function BattleEffects:basePower(move,power,attacker,defender)
+     attacker,defender=attacker or self.battle.attacker,defender or self.battle.defender
++    -- Gen V Brine doubles at or below half HP. A missing onBasePower hook
++    -- must not fail the hit.
++    if move.name=="BRINE" and power>0 and defender and defender.maxHP
++        and defender.hp*2<=defender.maxHP then
++        power=power*2
++    end
+     local ratio=4096
+     if power>0 and attacker and defender and self:effectiveAbility(attacker)==79 then
+         local a,d=attacker:getSex(),defender:getSex()
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index 1f3f0881..9643b5a4 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -301,7 +301,7 @@ MoveSupport.gaps.wakeUpSlap = "basePowerCallback, onHit"
+ MoveSupport.handlers.hammerArm = "standard-damage"
+ MoveSupport.gaps.gyroBall = "basePowerCallback"
+ MoveSupport.gaps.healingWish = "onTryHit, selfdestruct"
+-MoveSupport.gaps.brine = "onBasePower"
++MoveSupport.handlers.brine = "standard-damage"
+ MoveSupport.gaps.naturalGift = "onModifyType, onPrepareHit"
+ MoveSupport.handlers.feint = "engine-dsl"
+ MoveSupport.gaps.pluck = "onHit"
