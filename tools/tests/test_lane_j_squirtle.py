@@ -1108,10 +1108,16 @@ class Player:
                 break
             battle = self.state.get("battle") or {}
             if battle.get("shift_choice"):
-                # The question stays up for 10 frames before YES/NO takes A.
+                # The question stays up for 10 frames before YES/NO takes input.
+                # B declines. YES only after Kadabra, so the bird meets Ivysaur.
                 self.send("wait 20", max_frames=80)
-                if (self.state.get("battle") or {}).get("shift_choice") and self.state.get("root") == "battle":
-                    self.press("a", wait=8)
+                battle = self.state.get("battle") or {}
+                if battle.get("shift_choice") and self.state.get("root") == "battle":
+                    fainted = ((battle.get("enemy") or {}).get("species") or "")
+                    if shift_to and fainted == "kadabra":
+                        self.press("a", wait=8)
+                    else:
+                        self.press("b", wait=8)
                 continue
             phase = battle.get("phase")
             if phase == "ended":
@@ -1205,9 +1211,13 @@ class Player:
                 else:
                     self.press("a", wait=6)
             elif root == "party":
+                species = ((self.state.get("battle") or {}).get("player") or {}).get("species")
+                slot, mon = _member(self, species) if species else (None, None)
+                if not mon or (mon.get("hp") or 0) <= 0:
+                    slot = 1
                 selected = ((self.state.get("party_info") or {}).get("selected") or 1)
-                if selected != 1:
-                    self.press("up", wait=2)
+                if selected != slot:
+                    self.press("down" if slot > selected else "up", wait=2)
                 else:
                     self.press("a", wait=8)
             else:
@@ -4293,7 +4303,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-50")
+            output = Path("/tmp/lane-j-squirtle-51")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
