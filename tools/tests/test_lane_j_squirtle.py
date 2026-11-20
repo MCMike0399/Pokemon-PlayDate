@@ -73,6 +73,26 @@ def clip_path(folder, stamp, slug):
 
 MART_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/mart-a7df918d")
 MART_SAVE_SHA = "9a801867ea18179a35c24ced5379781cea0dc7a07fd796b741454c0c2b4a48f7"
+LAB_SAVE = Path("/opt/cursor/artifacts/lane-j/saves/930683c875b3")
+LAB_SAVE_SHA = "846b901711349edf2b2f4abfea505fb3b66593d290e4e3170e0e354aad7ced3a"
+OLD_MAN = "pokered:VIRIDIAN_CITY:objects:7"
+BROCK = "pokered:PEWTER_GYM:objects:1"
+
+
+def preferred_move(options):
+    """Bubble, then Water Gun. Tackle only when no water move is listed."""
+    named = []
+    for index, name in enumerate(options or [], start=1):
+        letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
+        if letters in {"", "DASH"} or str(name).strip() in {"", "-"}:
+            continue
+        named.append((index, name, letters))
+    for index, name, letters in named:
+        if letters in {"BUBBLE", "WATERGUN"}:
+            return index, name
+    if named:
+        return named[0][0], named[0][1]
+    return None, None
 
 
 def publish_clip(report, destination, duration, keep="end"):
@@ -142,6 +162,34 @@ def viridian_cells():
 
 def mart_cells():
     return open_map(ROOT / "Source/data/viridianSlice/ViridianMart.json", 2, 13)
+
+
+def route2_cells():
+    return open_map(ROOT / "Source/data/pewterSlice/Route2.json", 0, 20)
+
+
+def forest_cells():
+    return open_map(ROOT / "Source/data/pewterSlice/ViridianForest.json", 0, 34)
+
+
+def forest_south_cells():
+    return open_map(ROOT / "Source/data/pewterSlice/ViridianForestSouthGate.json", 1, 13)
+
+
+def forest_north_cells():
+    return open_map(ROOT / "Source/data/pewterSlice/ViridianForestNorthGate.json", 1, 13)
+
+
+def pewter_cells():
+    return open_map(ROOT / "Source/data/pewterSlice/PewterCity.json", 0, 40)
+
+
+def gym_cells():
+    return open_map(ROOT / "Source/data/pewterSlice/PewterGym.json", 1, 13)
+
+
+def center_cells():
+    return open_map(ROOT / "Source/data/pewterSlice/PewterPokecenter.json", 0, 14)
 
 
 # IntroMovie.SCENES. Copyright and the black bars ignore A. The shooting
@@ -343,6 +391,18 @@ class SquirtleRouteTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             assert_real_input([{"op": "fixture", "options": {}}])
 
+    def test_water_move_is_preferred_and_the_north_path_is_open(self):
+        self.assertEqual(preferred_move(["TACKLE", "TAIL WHIP", "BUBBLE", "-"]), (3, "BUBBLE"))
+        self.assertEqual(preferred_move(["TACKLE", "-"])[1], "TACKLE")
+        self.assertIn((11, 0), route1_cells())
+        self.assertIn((6, 0), forest_south_cells())
+        self.assertIn((6, 0), forest_north_cells())
+        self.assertIsNotNone(route(route2_cells(), (3, 44), (3, 43), avoid={(12, 9), (3, 11)}))
+        self.assertIsNotNone(route(route2_cells(), (3, 10), (8, 0), avoid={(12, 9), (3, 11)}))
+        self.assertIsNotNone(route(forest_cells(), (16, 47), (1, 1)))
+        self.assertIn((5, 3), gym_cells())
+        self.assertEqual(sha256_file(LAB_SAVE / "adventure.a.json"), LAB_SAVE_SHA)
+
     def test_mart_resume_and_pokedex_clip_are_named(self):
         source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
         self.assertIn("pokedex-lab", source)
@@ -536,12 +596,27 @@ class Player:
                     self.press("a", wait=6)
             elif root == "learning":
                 learning = self.state.get("learning") or {}
-                if learning.get("phase") not in (None, "message", "closed"):
-                    raise RuntimeError(f"learning needs a choice: {learning}")
-                if learning.get("dialog_ready") or learning.get("phase") == "message":
-                    self.press("a", wait=6)
+                phase = learning.get("phase")
+                if phase in (None, "message", "closed") or learning.get("dialog_ready"):
+                    if learning.get("dialog_ready") or phase == "message":
+                        self.press("a", wait=6)
+                    else:
+                        self.send("wait 6")
                 else:
-                    self.send("wait 6")
+                    # YES learns. The second move is Tail Whip, the one Bubble replaces.
+                    # The stop menu's second row returns to that question.
+                    selected = learning.get("selected") or 1
+                    target = {"ask": 1, "confirm": 1, "replace": 2, "stop": 2}.get(phase, 1)
+                    if selected == target:
+                        self.press("a", wait=6)
+                    else:
+                        self.press("down" if target > selected else "up", wait=2)
+            elif root == "tutorial-escort":
+                # The hurry menu opens on YES. A during the catch demo is ignored
+                # until the old man has already caught the Weedle.
+                self.press("a", wait=8)
+            elif root == "event":
+                self.press("a", wait=6)
             elif root == "title":
                 return False
             else:
@@ -671,8 +746,8 @@ class Player:
                     self.fight()
                 self.dismiss_until_explore(limit=30)
                 continue
-            if root in ("dialog", "learning", "oak", "naming"):
-                self.dismiss_until_explore(limit=30)
+            if root in ("dialog", "learning", "oak", "naming", "tutorial-escort", "event"):
+                self.dismiss_until_explore(limit=40)
                 continue
             return kind
         return "lost"
@@ -706,9 +781,12 @@ class Player:
                     self.choose("battle", "FIGHT")
                 else:
                     move_menu = battle.get("moveMenu") or {}
-                    if (move_menu.get("selected") or 1) != 1:
-                        self.press("up", wait=2)
-                    self.press("a", wait=4)
+                    index, _name = preferred_move(move_menu.get("options"))
+                    selected = move_menu.get("selected") or 1
+                    if index and selected != index:
+                        self.press("down" if index > selected else "up", wait=2)
+                    else:
+                        self.press("a", wait=4)
             else:
                 self.send("wait 4")
         return won
@@ -1112,6 +1190,238 @@ def play_deliver(player, report, display=None, clips=None, output=None):
         report["after_oak_save"] = summary(player.state)
 
 
+def film(display, clips, output, slug, report, keep, action):
+    import time
+    recorder = LcdRecorder(display)
+    stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+    destination = clip_path(clips, stamp, slug)
+    recorder.start(output / "clips" / f"{slug}.nut")
+    try:
+        return action()
+    finally:
+        duration = None
+        if recorder.process is not None:
+            try:
+                duration = recorder.stop(destination)
+            except Exception as error:
+                report["clip_error"] = str(error)
+        publish_clip(report, destination, duration, keep=keep)
+        report[slug] = {"path": str(destination), "duration": duration}
+
+
+def npc_named(state, event_id):
+    for npc in state.get("npcs") or []:
+        if npc.get("source_event_id") == event_id:
+            return npc
+    return None
+
+
+def step_onto(player, cells, goal, avoid, direction):
+    """Walk to the cell before goal, then take one step onto it."""
+    dx, dy = DELTAS[direction]
+    before = (goal[0] - dx, goal[1] - dy)
+    started = player.state.get("zone")
+    kind = player.travel(cells, before, avoid)
+    if player.state.get("zone") != started:
+        return "warp"
+    if kind != "arrived":
+        return kind
+    kind = player.step(direction)
+    if player.state.get("zone") != started:
+        return "warp"
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here == goal:
+        player.step(direction)
+        player.settle(limit=80)
+        if player.state.get("root") not in (None, "overworld"):
+            player.dismiss_until_explore(limit=20)
+        if player.state.get("zone") != started:
+            return "warp"
+    return kind
+
+
+def leave_map(player, cells, cell, avoid, direction):
+    """Stand on an edge cell and walk off the map."""
+    started = player.state.get("zone")
+    kind = player.travel(cells, cell, avoid)
+    if player.state.get("zone") != started:
+        return "warp"
+    if kind != "arrived":
+        return kind
+    player.step(direction)
+    player.settle(limit=80)
+    if player.state.get("root") not in (None, "overworld"):
+        player.dismiss_until_explore(limit=30)
+    if player.state.get("zone") != started:
+        return "warp"
+    return "stayed"
+
+
+def talk_to(player, cells, event_id, avoid):
+    blocked = set(avoid)
+    for _ in range(8):
+        if not player.exploring():
+            player.dismiss_until_explore(limit=40)
+        npc = npc_named(player.state, event_id)
+        if npc is None:
+            return "missing"
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        spots = []
+        for direction, (dx, dy) in DELTAS.items():
+            spot = (npc["x"] - dx, npc["y"] - dy)
+            if spot in cells and spot not in blocked and spot != (npc["x"], npc["y"]):
+                spots.append((abs(spot[0] - here[0]) + abs(spot[1] - here[1]), spot, direction))
+        if not spots:
+            player.send("wait 10")
+            continue
+        _distance, spot, direction = min(spots)
+        kind = player.travel(cells, spot, blocked | {(npc["x"], npc["y"])})
+        if kind == "warp":
+            return "warp"
+        if not player.exploring():
+            continue
+        if (player.state["player"]["x"], player.state["player"]["y"]) != spot:
+            continue
+        if player.state["player"].get("facing") != direction:
+            player.press(direction, wait=4)
+        player.press("a", wait=8)
+        if not player.exploring():
+            player.dismiss_until_explore(limit=100)
+            return "talked"
+    return "silent"
+
+
+def play_to_brock(player, report, display=None, clips=None, output=None):
+    """Lab save to the Boulder Badge. Route 1 and Brock are filmed."""
+    player.leave_title()
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    report["continued"] = summary(player.state)
+    if player.state.get("zone") != "oaks_lab":
+        raise RuntimeError("continue did not resume the lab: " + json.dumps(summary(player.state)))
+    lab = padded_open_cells("oaks_lab")
+    kind = leave_map(player, lab, (6, 11), set(), "down")
+    report["lab_exit"] = {"kind": kind, **summary(player.state)}
+    if player.state.get("zone") != "pallet_town":
+        player.settle(limit=80)
+        player.dismiss_until_explore(limit=20)
+    if player.state.get("zone") != "pallet_town":
+        raise RuntimeError("lab door did not reach Pallet: " + json.dumps(summary(player.state)))
+    pallet = padded_open_cells("pallet_town")
+    kind = player.travel(pallet, (9, 0), {(5, 5), (13, 5), (12, 11)})
+    report["pallet_north"] = {"kind": kind, **summary(player.state)}
+    if kind != "arrived":
+        raise RuntimeError("could not reach Pallet's north seam: " + json.dumps(summary(player.state)))
+
+    def walk_route1():
+        player.press("up", wait=12)
+        player.settle(limit=80)
+        player.dismiss_until_explore(limit=20)
+        report["route1_enter"] = summary(player.state)
+        if "route1" not in str(player.state.get("zone")):
+            raise RuntimeError("Pallet north did not reach Route 1: " + json.dumps(summary(player.state)))
+        route1 = route1_cells()
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        kind = player.travel(route1, (11, 0), set(), limit=30)
+        report["route1_north"] = {"kind": kind, **summary(player.state)}
+        if kind != "arrived":
+            raise RuntimeError("could not cross Route 1: " + json.dumps(summary(player.state)))
+        stepped = player.step("up")
+        player.settle(limit=80)
+        player.dismiss_until_explore(limit=20)
+        report["viridian_enter"] = {"kind": stepped, **summary(player.state)}
+        if "viridian_city" not in str(player.state.get("zone")):
+            raise RuntimeError("Route 1 did not reach Viridian: " + json.dumps(summary(player.state)))
+
+    if display and clips and output:
+        film(display, clips, output, "route1", report, "start", walk_route1)
+    else:
+        walk_route1()
+    if player.exploring():
+        report["saved_viridian"] = player.pause_save()
+
+    city = viridian_cells()
+    talked = talk_to(player, city, OLD_MAN, set(VIRIDIAN_WARPS))
+    report["old_man"] = {"result": talked, **summary(player.state)}
+    if talked != "talked":
+        raise RuntimeError("the old man did not open the north road: " + json.dumps(summary(player.state)))
+    if player.exploring():
+        report["saved_old_man"] = player.pause_save()
+    kind = leave_map(player, city, (18, 0), set(VIRIDIAN_WARPS), "up")
+    report["route2_enter"] = {"kind": kind, **summary(player.state)}
+    if "route2" not in str(player.state.get("zone")):
+        raise RuntimeError("Viridian north did not reach Route 2: " + json.dumps(summary(player.state)))
+    route2 = route2_cells()
+    route2_avoid = {(12, 9), (15, 19), (16, 35), (15, 39), (3, 11)}
+    kind = step_onto(player, route2, (3, 43), route2_avoid, "up")
+    report["forest_gate"] = {"kind": kind, **summary(player.state)}
+    if "forest_south" not in str(player.state.get("zone")) and "south_gate" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 2 did not enter the forest gate: " + json.dumps(summary(player.state)))
+    south = forest_south_cells()
+    kind = step_onto(player, south, (6, 0), set(), "up")
+    report["forest_enter"] = {"kind": kind, **summary(player.state)}
+    if player.state.get("zone") != "kanto_viridian_forest":
+        raise RuntimeError("the south gate did not enter the forest: " + json.dumps(summary(player.state)))
+    forest = forest_cells()
+    kind = step_onto(player, forest, (1, 0), set(), "up")
+    report["forest_north"] = {"kind": kind, **summary(player.state)}
+    if "north_gate" not in str(player.state.get("zone")):
+        raise RuntimeError("the forest did not reach its north gate: " + json.dumps(summary(player.state)))
+    north = forest_north_cells()
+    kind = step_onto(player, north, (6, 0), set(), "up")
+    report["route2_north"] = {"kind": kind, **summary(player.state)}
+    if not str(player.state.get("zone")).endswith("route2") and "route2" not in str(player.state.get("zone")):
+        raise RuntimeError("the north gate did not return to Route 2: " + json.dumps(summary(player.state)))
+    kind = leave_map(player, route2, (8, 0), {(12, 9), (3, 11)}, "up")
+    report["pewter_enter"] = {"kind": kind, **summary(player.state)}
+    if "pewter_city" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 2 did not reach Pewter: " + json.dumps(summary(player.state)))
+    if player.exploring():
+        report["saved_pewter"] = player.pause_save()
+    hp = (player.state.get("pokemon") or {}).get("hp") or 0
+    if hp < 15:
+        pewter = pewter_cells()
+        kind = step_onto(player, pewter, (13, 25), set(), "up")
+        report["center"] = {"kind": kind, **summary(player.state)}
+        if "center" in str(player.state.get("zone")):
+            talk_to(player, center_cells(), "pokered:PEWTER_POKECENTER:objects:1", set())
+            report["healed"] = summary(player.state)
+            step_onto(player, center_cells(), (3, 7), set(), "down")
+    pewter = pewter_cells()
+    gym_avoid = {(14, 7), (19, 5), (29, 13), (23, 17), (7, 29), (13, 25)}
+    kind = step_onto(player, pewter, (16, 17), gym_avoid, "up")
+    report["gym_door"] = {"kind": kind, **summary(player.state)}
+    if "gym" not in str(player.state.get("zone")):
+        raise RuntimeError("Pewter did not enter the gym: " + json.dumps(summary(player.state)))
+    gym = gym_cells()
+
+    def battle_brock():
+        talked = talk_to(player, gym, BROCK, set())
+        report["brock_talk"] = {"result": talked, **summary(player.state)}
+        if player.state.get("root") == "battle" or talked == "talked":
+            if player.state.get("root") != "battle":
+                player.dismiss_until_explore(limit=20)
+            if player.state.get("root") == "battle":
+                report["brock_won"] = player.fight(limit=900)
+        else:
+            raise RuntimeError("Brock did not battle: " + json.dumps(summary(player.state)))
+        player.dismiss_until_explore(limit=120)
+        report["after_brock"] = summary(player.state)
+
+    if display and clips and output:
+        film(display, clips, output, "gym-pewter", report, "end", battle_brock)
+    else:
+        battle_brock()
+    outcome = player.state.get("last_battle_outcome") or {}
+    report["brock_outcome"] = outcome
+    quantities = (player.state.get("inventory") or {}).get("quantities") or {}
+    report["tm34"] = quantities.get("tm34") or 0
+    if outcome.get("won") is not True:
+        raise RuntimeError("Brock was not won: " + json.dumps(summary(player.state)))
+    if player.exploring():
+        report["saved_badge"] = player.pause_save()
+
+
 def play(output, clips, save_from=None, story=None):
     import sys
     import uuid
@@ -1197,6 +1507,15 @@ if __name__ == "__main__":
         unittest.main()
     else:
         clips = ROOT / "artifacts" / "lane-j"
+        if "--north" in sys.argv:
+            output = Path("/tmp/lane-j-squirtle-7")
+            save_from = LAB_SAVE
+            digest = sha256_file(save_from / "adventure.a.json")
+            if digest != LAB_SAVE_SHA:
+                raise SystemExit(f"lab save hash {digest}")
+            if output.exists():
+                raise SystemExit(f"{output} already exists")
+            raise SystemExit(play(output, clips, save_from=save_from, story=play_to_brock))
         if "--deliver" in sys.argv:
             output = Path("/tmp/lane-j-squirtle-6")
             save_from = MART_SAVE
