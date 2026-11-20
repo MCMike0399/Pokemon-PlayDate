@@ -433,6 +433,14 @@ class ParcelJourney(Journey):
                     self.await_value("battle.menu.active", True, frames=60)
                     continue
                 options = lookup(self.state, "battle.menu.options")
+                player = lookup(self.state, "battle.player") or {}
+                if (player.get("hp") or 0) <= 0 and options is not None:
+                    # A fainted lead has no RUN. Send the next conscious mon, then run.
+                    switch = [i for i, value in enumerate(options, 1) if value in ("POKEMON", "POKéMON")]
+                    if len(switch) == 1:
+                        self.select("battle.menu.selected", switch[0])
+                        self.send("press a")
+                        continue
                 run_index = 2  # Compatibility with the original confirmed FIGHT/RUN menu.
                 if options is not None:
                     options = sequence(options, "battle.menu.options")

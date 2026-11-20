@@ -3403,9 +3403,12 @@ class CharmanderRun(BrockJourney):
             "pokered:VICTORY_ROAD_2F:objects:5",
             "pokered:VICTORY_ROAD_2F:objects:1",
         ):
-            if self.inventory()["money"] >= 1500 and self._lorelei_bench_ready():
+            if self.inventory()["money"] >= 1500 and (
+                self._lorelei_bench_ready() or self._party_needs_center()
+            ):
                 return
-            self._fight_if_here(trainer)
+            if self._fight_if_here(trainer):
+                self.save()
 
     def _join_victory_floor(self):
         """The Route 23 door opens into a walled pocket. Trainers are past it.
