@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "14ca320fee6ba4f6c704110480ba4f1fd64264e5",
+    "source_sha256": "1f1df2ff769219b1baa8cf63fb40d0258eae14d68c7f872ed43f63d3d32e0798",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Hall continue check stays out of the boot chunk and publish loads from a standalone pdz. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 6694ce56b42d7cf1ece05e0cee044de58e1e6ce0e92f4ebbbd654cdd73ea12b5.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "540d5adb9dbca7e50bb3ee5d4afb0a5777d53b11",
     "source_sha256": "6694ce56b42d7cf1ece05e0cee044de58e1e6ce0e92f4ebbbd654cdd73ea12b5",
     "policy_date": "2026-11-20",
@@ -1859,6 +1870,7 @@
   
   }
   }}
+  }
   }
   }
   }
