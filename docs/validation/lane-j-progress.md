@@ -74,7 +74,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 Lavender is healed. Sequence 90 is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `1e236e9e1b246cd95b7b2e7fa223be50ae7a2b32691c873feb2d288a97f2d394`, Lavender Pokémon Center (3, 3) facing up. Wartortle 29, Bellsprout 15, Pidgeotto 22, Dugtrio 27. Boulder, Cascade, and Thunder.
 
-Celadon is reached. Sequence 123 is `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `174b870facf610e1b1580b992dfd35709ae795bc79ace15c2834347ced0f3ae3`, Celadon Pokémon Center (3, 3) facing up. Pidgeotto 26, Bellsprout 15, Wartortle 31, Dugtrio 27, healed. Boulder, Cascade, and Thunder. K's tunnel fights and the Route 10 exit are done. The bird returns to Route 7 until 31, then the west gym tree and Erika.
+Celadon was healed at sequence 123, sha256 `174b870facf610e1b1580b992dfd35709ae795bc79ace15c2834347ced0f3ae3`, center (3, 3). The live pause is sequence 130, `/opt/cursor/artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `38f8a645d7e40bb569f51e60e7cd3803dca5e2df77bf9aae01f77931bf6f52ee`, Route 7 (5, 14). Pidgeotto 27, Bellsprout 15, Wartortle 31, Dugtrio 27. Boulder, Cascade, and Thunder. The bird is still grinding to 31, then the west gym tree and Erika.
 
 ## Blockers
 
