@@ -19,7 +19,7 @@ int main(){Data d;int field,value;while(scanf("%d%d%d%d%d%d%d%d",&d.hpEV,&d.atkE
  # Literal expectations, in NATIVE hp/atk/def/spe/spa/spd order.
  rows=[([0,0,0,0,0,0],0,255,[255,0,0,0,0,0]),([254,0,0,0,0,0],0,257,[255,0,0,0,0,0]),([255,254,0,0,0,0],2,2,[255,254,1,0,0,0]),([255,255,0,0,0,0],5,3,[255,255,0,0,0,0]),([255,255,0,0,0,0],0,250,[250,255,0,0,0,0]),([250,255,0,0,0,0],3,6,[250,255,0,5,0,0]),([0,0,0,0,0,0],5,3,[0,0,0,0,0,3])]
  inputs='\n'.join(' '.join(map(str,old+[field,value]))for old,field,value,expected in rows)+'\n'
- with tempfile.TemporaryDirectory(prefix='ev-setter-reference-',dir='/private/tmp')as tmp:
+ with tempfile.TemporaryDirectory(prefix='ev-setter-reference-')as tmp:
   c=Path(tmp)/'oracle.c';c.write_text(code);exe=Path(tmp)/'oracle';subprocess.run(['cc','-std=c99','-Wall','-Werror',str(c),'-o',str(exe)],check=True);lines=subprocess.check_output([str(exe)],input=inputs.encode()).decode().splitlines()
  assert len(lines)==len(rows)
  for line,row in zip(lines,rows):assert list(map(int,line.split()))==row[3],(row,line)
