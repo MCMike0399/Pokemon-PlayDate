@@ -1169,6 +1169,12 @@ class Player:
                     if bite_only:
                         enemy_types = ["water"]
                     species = ((battle.get("player") or {}).get("species") or "")
+                    pp = ((battle.get("player") or {}).get("pp") or {})
+                    for name in options:
+                        letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
+                        for key, left in pp.items():
+                            if "".join(ch for ch in str(key).upper() if ch.isalpha()) == letters and left == 0:
+                                rejected.add(name)
                     forced = {
                         "pidgey": ("GUST",), "pidgeotto": ("GUST",),
                         "spearow": ("DRILLPECK", "PECK"), "fearow": ("DRILLPECK", "PECK"),
@@ -4266,7 +4272,8 @@ def _raise_diglett(player, report):
             _keep_bird_save(report)
             paused = level
         lead = (player.state.get("pokemon") or {}).get("species")
-        if lead != name or (mon.get("hp") or 0) < 12:
+        dig_pp = (mon.get("pp") or {}).get("dig")
+        if lead != name or (mon.get("hp") or 0) < 12 or dig_pp == 0:
             _leave_diglett_cave(player)
             _rest(player, report, "mole heal", 4, buy=False)
             _enter_diglett_cave(player)
@@ -4339,7 +4346,10 @@ def _raise_spearow(player, report):
             _keep_bird_save(report)
             paused = level
         lead = (player.state.get("pokemon") or {}).get("species")
-        if lead != name or (bird.get("hp") or 0) < 16:
+        bird_pp = bird.get("pp") or {}
+        peck_empty = bird_pp.get("drillPeck") == 0 or (
+            "drillPeck" not in moves and bird_pp.get("peck") == 0)
+        if lead != name or (bird.get("hp") or 0) < 16 or peck_empty:
             if "route_11" in str(player.state.get("zone")):
                 _return_vermilion(player, "spearow heal")
             _rest(player, report, "spearow heal", 4, buy=False)
@@ -4503,7 +4513,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-56")
+            output = Path("/tmp/lane-j-squirtle-57")
             save_from = BIRD_SAVE if list(BIRD_SAVE.glob("adventure*.json")) else CATCH_SAVE
             if save_from == CATCH_SAVE:
                 digest = sha256_file(save_from / "adventure.b.json")
