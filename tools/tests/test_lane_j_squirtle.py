@@ -2125,11 +2125,17 @@ def _follow_route4_line(player, report):
 CERULEAN_CLERK = "pokered:CERULEAN_MART:objects:1"
 
 
+def _item_count(player, item):
+    return int(((player.state.get("inventory") or {}).get("quantities") or {}).get(item) or 0)
+
+
 def _buy_cerulean_potions(player, report):
-    """Cerulean Mart sells Potion. Five of them cover the Lass and Misty."""
-    have = int(((player.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
-    if have >= 5:
-        report["potions"] = have
+    """Buy Potions, sell TM34, and buy what that pays for.
+
+    Starmie's Recover outlasts five Potions. TM34 is Bide and sells for 1000.
+    """
+    if _item_count(player, "potion") >= 8 and _item_count(player, "tm34") == 0:
+        report["potions"] = _item_count(player, "potion")
         return
     doors = set(CERULEAN_DOORS)
     doors.discard((25, 25))
@@ -2186,10 +2192,77 @@ def _buy_cerulean_potions(player, report):
             player.press("a", wait=4)
         else:
             player.send("wait 4")
-    have = int(((player.state.get("inventory") or {}).get("quantities") or {}).get("potion") or 0)
-    report["potions"] = have
+    have = _item_count(player, "potion")
     if have < 5:
         raise RuntimeError("the mart did not sell five Potions: " + json.dumps(summary(player.state)))
+    if _item_count(player, "tm34") >= 1:
+        armed = False
+        for _ in range(24):
+            if _item_count(player, "tm34") == 0:
+                break
+            shop = player.state.get("shop") or {}
+            phase = shop.get("phase")
+            if phase == "browse" and not armed:
+                player.press("b", wait=4)
+            elif phase == "mode":
+                player.choose("shop", "SELL")
+                armed = True
+            elif phase == "browse":
+                if shop.get("item") == "tm34":
+                    player.press("a", wait=4)
+                else:
+                    player.press("down", wait=2)
+            elif phase == "quantity":
+                if (shop.get("quantity") or 1) == 1 and shop.get("item") == "tm34":
+                    player.press("a", wait=4)
+                else:
+                    player.press("b", wait=4)
+            elif phase == "confirm":
+                player.choose("shop", "YES")
+            elif phase == "result":
+                player.press("a", wait=4)
+            else:
+                player.send("wait 4")
+        if _item_count(player, "tm34") != 0:
+            raise RuntimeError("TM34 did not sell: " + json.dumps(summary(player.state)))
+        buying = False
+        for _ in range(24):
+            shop = player.state.get("shop") or {}
+            phase = shop.get("phase")
+            have = _item_count(player, "potion")
+            money = int((player.state.get("inventory") or {}).get("money") or 0)
+            if (have >= 8 or money < 300) and phase in ("browse", "mode") and buying:
+                break
+            if phase == "mode":
+                player.choose("shop", "BUY")
+                buying = True
+            elif phase == "browse" and not buying:
+                player.press("b", wait=4)
+            elif phase == "browse":
+                if shop.get("item") == "potion":
+                    player.press("a", wait=4)
+                else:
+                    player.press("down", wait=2)
+            elif phase == "quantity":
+                want = min(8 - have, money // 300)
+                quantity = shop.get("quantity") or 1
+                if want < 1:
+                    player.press("b", wait=4)
+                elif quantity < want:
+                    player.press("up", wait=2)
+                else:
+                    player.press("a", wait=4)
+            elif phase == "confirm":
+                player.choose("shop", "YES")
+            elif phase == "result":
+                player.press("a", wait=4)
+            else:
+                player.send("wait 4")
+    have = _item_count(player, "potion")
+    report["potions"] = have
+    report["money"] = int((player.state.get("inventory") or {}).get("money") or 0)
+    if have < 8:
+        raise RuntimeError("the mart did not stock eight Potions: " + json.dumps(summary(player.state)))
     for _ in range(8):
         if player.state.get("root") != "shop":
             break
@@ -2439,7 +2512,7 @@ if __name__ == "__main__":
     else:
         clips = ROOT / "artifacts" / "lane-j"
         if "--line" in sys.argv:
-            output = Path("/tmp/lane-j-squirtle-28")
+            output = Path("/tmp/lane-j-squirtle-29")
             save_from = POTION_SAVE
             digest = sha256_file(save_from / "adventure.b.json")
             if digest != POTION_SAVE_SHA:
