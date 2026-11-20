@@ -377,15 +377,7 @@ class ParcelJourney(Journey):
 
     def select(self, path, index, bound=24):
         if path == "battle.menu.selected" and lookup(self.state, "battle.menu.active") is False:
-            # Wrap and other between-turn text keep the command menu closed.
-            for _ in range(6):
-                if lookup(self.state, "battle.menu.active") is True:
-                    break
-                if (self.state.get("battle") or {}).get("message"):
-                    self.send("press a", "wait 6")
-                else:
-                    self.send("wait 4")
-            self.await_value("battle.menu.active", True, frames=180)
+            self.await_value("battle.menu.active", True, frames=120)
         visited = set()
         for _ in range(bound):
             current = lookup(self.state, path)
