@@ -59,4 +59,4 @@ Do not hand-edit. Regenerate with the owning generator after the Source change l
 
 Ready: `tools/notes/lane-e-fly-release-before-build.patch` on `79fbcba5`, together with the harness snapshot change in `Source/dev/harness.lua` on this branch. Proof is `test_viridian_fly_to_fuchsia_stays_under_budget` and `test_every_visited_city_can_fly` in `tools/tests/test_lane_e_fly_memory.py`.
 
-Still open on E's tip, with or without the patch: the field-travel contract that ensures Pewter while Cerulean is live.
+The field-travel contract that died while Cerulean was still live is fixed separately in `tools/notes/lane-e-fly-contract-release.patch`. See `docs/validation/lane-k-harness-and-contract.md`.
