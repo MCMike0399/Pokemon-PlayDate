@@ -59,7 +59,9 @@ class LaneEUIFidelityTests(unittest.TestCase):
         self.assertIn("GbFont.drawCharAt(TitleIdle.CURSOR, 5 * TitleIdle.COL, nameY)", text)
         self.assertNotIn('"> "', text)
         self.assertIn("local textRow = TitleIdle.ROW * 2", text)
-        self.assertIn("local nameY = TitleIdle.ROW + n * textRow * 2", text)
+        self.assertIn("local ruleInset = TitleIdle.ROW - 9", text)
+        self.assertIn("local nameOrigin = TitleIdle.ROW + textRow - ruleInset", text)
+        self.assertIn("local nameY = nameOrigin + n * textRow * 2", text)
         self.assertIn("local quantityY = nameY + textRow", text)
         self.assertIn("GbFont.drawStringAt(label, 6 * TitleIdle.COL, nameY)", text)
         self.assertIn("local quantityCol = 19 - GbFont.tiles(quantity)", text)
@@ -72,7 +74,9 @@ class LaneEUIFidelityTests(unittest.TestCase):
         self.assertNotIn("14, quantityRow", text)
         self.assertIn("local window = 4", text)
         self.assertIn('GbFont.drawStringAt("CANCEL", 6 * TitleIdle.COL, nameY)', text)
-        self.assertIn("h = 17 * TitleIdle.ROW", text)
+        self.assertIn("local bottomY = lastQuantity + TitleIdle.ROW - ruleInset", text)
+        self.assertNotIn("h = 17 * TitleIdle.ROW", text)
+        self.assertNotIn("gfx.drawText(hint", text)
         self.assertNotIn("boxCol, boxRow, boxRight, boxBottom = 4, 2, 19, 12", text)
         self.assertIn("item.sourceName or item.name", text)
         self.assertIn("return count + 1", text)
@@ -123,6 +127,8 @@ class LaneEUIFidelityTests(unittest.TestCase):
         self.assertFalse(self.quantity_on_its_own_row(frames / "battle-bag-r5.png"))
         self.assertTrue(self.quantity_on_its_own_row(frames / "bag-r6.png"))
         self.assertTrue(self.quantity_on_its_own_row(frames / "battle-bag-r6.png"))
+        self.assertTrue(self.quantity_on_its_own_row(frames / "bag-r7.png"))
+        self.assertTrue(self.quantity_on_its_own_row(frames / "battle-bag-r7.png"))
 
     def painted_height(self, path, x, y, w, h):
         image = Image.open(path).convert("L")
@@ -144,6 +150,34 @@ class LaneEUIFidelityTests(unittest.TestCase):
         self.assertEqual(battle, dex)
         self.assertNotEqual(squashed, dex)
         self.assertLess(squashed, dex)
+
+    def rule_rows(self, path, y0, y1):
+        image = Image.open(path).convert("L")
+        return [y for y in range(y0, y1)
+                if sum(1 for x in range(310, 340) if image.getpixel((x, y)) < 128) >= 20]
+
+    def borders_clear(self, path):
+        # LIST_MENU_BOX leaves one text row between the top rule and the
+        # first name, and the bottom rule sits below CANCEL. A text row is
+        # two 13px cells. r6 starts the name on the top rule.
+        text_row = 26
+        top = self.rule_rows(path, 0, 24)
+        names = self.ink_bands(path, 120, 300, (top[-1] + 1) if top else 0, 236)
+        bottom = self.rule_rows(path, 200, 240)
+        if not top or not names or not bottom:
+            return False
+        bottom_top = bottom[0]
+        for previous, y in zip(bottom, bottom[1:]):
+            if y - previous > 6:
+                bottom_top = y
+        return names[0][0] >= top[-1] + text_row and names[-1][1] < bottom_top
+
+    def test_bag_items_clear_the_box_borders(self):
+        frames = ROOT / "artifacts/lane-g/ui-fidelity"
+        self.assertFalse(self.borders_clear(frames / "bag-r6.png"))
+        self.assertFalse(self.borders_clear(frames / "battle-bag-r6.png"))
+        self.assertTrue(self.borders_clear(frames / "bag-r7.png"))
+        self.assertTrue(self.borders_clear(frames / "battle-bag-r7.png"))
 
     def test_trainer_card_draws_red_and_badges(self):
         text = (ROOT / "Source/game/pauseState.lua").read_text(encoding="utf-8")

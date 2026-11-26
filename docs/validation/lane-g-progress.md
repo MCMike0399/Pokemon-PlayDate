@@ -257,6 +257,10 @@ The r3 bag frames were the r2 bytes. A full 13px tile on the quantity row shares
 
 The r4 bag glyphs were 8px tall in the 13px cell, so they looked short and wide next to the Pokédex. The bag now uses `GbFont.drawString` and `GbFont.drawChar`, the same 20 by 13 cell as the list. The quantity stays on the next row, right-aligned, so the full cells do not meet. `test_bag_glyph_height_matches_the_pokedex_list` measures the painted height in the Simulator frames. r4 is shorter than CONTENTS. The r5 frames match. `Source/` is unchanged.
 
+## Round 37
+
+`LIST_MENU_BOX` (`data/text_boxes.asm`) keeps the top border on its own row and the first name one row below it. The r6 box started at y=0, so `▶POTION` sat on that rule. The list now clears the rule by one text row (26px) and the bottom rule sits below `CANCEL`. The list menu has no A/B footer, so the hint is not drawn. `test_bag_items_clear_the_box_borders` measures the painted ink and fails on the r6 frames. The r7 frames, from the patch applied to `79fbcba5`, are `artifacts/lane-g/ui-fidelity/bag-r7.png` and `battle-bag-r7.png`. `Source/` is unchanged.
+
 ## Round 36
 
 `PrintListMenuEntries` prints four names (`ld b, 4`). A full glyph is 12px, so a 13px row leaves the quantity in the crack above the next name. A text row is now two cells, the Pokédex list pitch, and the box is 17 cells tall so four slots still fit. `test_bag_drawn_rows_keep_each_quantity_on_its_own_line` measures the painted y in the frame and fails on the r5 frames. The r6 frames are `artifacts/lane-g/ui-fidelity/bag-r6.png`, `battle-bag-r6.png`, and `pokedex-list-r6.png`. `Source/` is unchanged.
