@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "d62414d2571463b47e6e22081c8ce9b3daec28c2",
+    "source_sha256": "36a2232c88fb50e7c8ca37f403a9de200f6754dd3f99695e621d2816706a907b",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after Fly releases the origin before the destination is built, and a finished harness command keeps a settled player and zone. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 392755063c0d7345e5d45d8736b3d8aa20c9dce5c56121c5c6c0bac3f94eacb4.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "4323a996831422b9225316ce3e39dea88c7e0e39",
     "source_sha256": "392755063c0d7345e5d45d8736b3d8aa20c9dce5c56121c5c6c0bac3f94eacb4",
     "policy_date": "2026-11-20",
@@ -1947,6 +1958,7 @@
   
   }
   }}
+  }
   }
   }
   }
