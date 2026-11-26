@@ -6799,7 +6799,8 @@ def _toward_snorlax(player, report):
     present = _present_ids(player)
     people = {(obj["x"], obj["y"]) for obj in blob["events"]["objects"]
               if obj.get("kind") != "item" and obj["id"] in present}
-    people.add((10, 62))
+    if not _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
+        people.add((10, 62))
     misses = 0
     for _ in range(40):
         _name, x, y = _k_here(player)
