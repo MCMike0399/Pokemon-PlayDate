@@ -73,7 +73,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 214, Celadon Pokémon Center (3, 3) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The party is healed.
+Rainbow Badge is set. The pause is sequence 215, Celadon City (41, 10) facing down, outside the Center. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The party is healed.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 

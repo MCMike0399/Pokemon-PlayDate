@@ -6326,6 +6326,9 @@ def _with_scope(player, report):
                 return status
             player.step("right")
             player.settle(limit=80)
+            if "celadon_city" in str(player.state.get("zone")) and _k_here(player)[1] == 49:
+                player.step("right")
+                player.settle(limit=80)
             if "route_7" not in str(player.state.get("zone")):
                 raise RuntimeError("Route 7 did not open: " + json.dumps(summary(player.state)))
             _checkpoint(player, report, "saved_route7")
