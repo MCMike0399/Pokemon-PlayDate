@@ -24,6 +24,13 @@ FONT = ROOT / "Source/game/gbFont.lua"
 
 PROBE = r"""
 json = { decodeFile = function() return visual end }
+-- pdc wants a file-scope import. Host Lua has no import, so this loads the
+-- same module the patch names. pokered data/types/names.asm prints PSYCHIC.
+function import(path)
+    if path == "game/drawnText" then
+        dofile(drawn_path)
+    end
+end
 local handle = io.open(drawn_path, "r")
 if handle then
     handle:close()

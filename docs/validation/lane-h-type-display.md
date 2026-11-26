@@ -45,6 +45,12 @@ OK
 
 `tools.tests.test_battle_path` still passed on that applied tree.
 
+## Lane E tip 4bac3bdf
+
+Throwaway checkout `/tmp/e-tip` at `4bac3bdff34ee3a23f7d2d6b7d2cd0b5a2081ffe`. Not committed. Applied `tools/notes/lane-e-type-display-names.patch`, then `tools/notes/lane-k-premerge-type-display-import.patch` from `cursor/lane-k-qa` `9caaed5e` (file-scope `import "game/drawnText"`), then the sleepy-heap patch. The gift patch does not apply: that tip already has `tryGift`, `giveMew`, and `giveLinkCable`. The boot-import patch does not apply: `loadHallContinue` still `playdate.file.run`s the chunk and calls `relocateContinue`.
+
+Host Lua has no `import`. The test now defines one that dofiles `game/drawnText` before the story file. On this unpatched tree the Mewtwo TYPE1 row is still `PSYCHIC_TYPE` and both tests fail. On the patched E tip both tests pass: TYPE1 is `PSYCHIC`, from pokered `data/types/names.asm` (`af519899`). `MallocPoolSize` stayed `16645684`.
+
 ## Postgame
 
 Waiting. `origin/main` does not contain `PostgameStory.releaseContinueData` or `SourceMaps.releaseRetainedExcept`. `tools/notes/lane-e-hof-continue-release.patch` is not on main yet. Cerulean Cave, the Mewtwo encounter, and the Mew gift stay unrun until it is.
