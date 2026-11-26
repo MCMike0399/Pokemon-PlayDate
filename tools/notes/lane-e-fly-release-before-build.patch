@@ -276,28 +276,8 @@ index a3045f69..ea9ba8a4 100644
      end
  end
  
-diff --git a/Source/game/sourceEvents.lua b/Source/game/sourceEvents.lua
-index 15d5aace..e822a645 100644
---- a/Source/game/sourceEvents.lua
-+++ b/Source/game/sourceEvents.lua
-@@ -20,6 +20,15 @@ local contentFields = weakValues()
- -- still drops only this reference. An active descriptor remains valid.
- local recent, recentOrder = {}, {}
- local RECENT_CONTENT <const> = 96
-+
-+-- A departure has already dropped the map that decoded these chunks.
-+-- Ninety-six of them stay live into the next definition and the next bed.
-+function SourceEvents.releaseRecentContent()
-+    for index = #recentOrder, 1, -1 do
-+        recent[recentOrder[index]] = nil
-+        recentOrder[index] = nil
-+    end
-+end
- local function yieldIfDue()
-     if GameBootstrap then
-         GameBootstrap.yieldIfDue()
 diff --git a/Source/world/overworld.lua b/Source/world/overworld.lua
-index 92df5fc7..305f6a83 100644
+index 308cef4a..6f363e4e 100644
 --- a/Source/world/overworld.lua
 +++ b/Source/world/overworld.lua
 @@ -60,10 +60,17 @@ function WorldView:init(zone, options)

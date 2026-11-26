@@ -25,11 +25,22 @@ from tools.harness.run import ProtocolError, sdk_path
 from tools.measure_boot_budget import LUA_PEAK_BUDGET_KIB
 
 PATCH = ROOT / "tools/notes/lane-e-fly-release-before-build.patch"
-ORIGIN = "kanto_viridian_city"
-DEST_ID = "pokered:FUCHSIA_CITY"
-DEST_ZONE = "kanto_fuchsia_city"
-DEST_PHASE = "map.FuchsiaCity.zone.end"
-ARRIVAL = (19, 28)
+# origin key, destination id, destination key, zone.end phase,
+# origin tile, arrival tile, downs to the destination in fly-list order.
+FLIGHTS = (
+    ("kanto_viridian_city", "pokered:FUCHSIA_CITY", "kanto_fuchsia_city",
+     "map.FuchsiaCity.zone.end", 23, 26, 19, 28, 1),
+    ("kanto_cerulean_city", "pokered:FUCHSIA_CITY", "kanto_fuchsia_city",
+     "map.FuchsiaCity.zone.end", 19, 18, 19, 28, 1),
+    ("kanto_lavender_town", "pokered:FUCHSIA_CITY", "kanto_fuchsia_city",
+     "map.FuchsiaCity.zone.end", 3, 6, 19, 28, 1),
+    ("kanto_celadon_city", "pokered:SAFFRON_CITY", "kanto_saffron_city",
+     "map.SaffronCity.zone.end", 41, 10, 9, 30, 1),
+    ("kanto_fuchsia_city", "pokered:SAFFRON_CITY", "kanto_saffron_city",
+     "map.SaffronCity.zone.end", 19, 28, 9, 30, 1),
+    ("kanto_saffron_city", "pokered:FUCHSIA_CITY", "kanto_fuchsia_city",
+     "map.FuchsiaCity.zone.end", 9, 30, 19, 28, 0),
+)
 HARNESS_ANCHOR = (
     '    elseif op == "warp" then valid = integer(args[1], 0, 10000) '
     'and integer(args[2], 0, 10000) and #args == 2\n'
@@ -101,8 +112,8 @@ def _inject_visitfly(root):
     return saved
 
 
-def fly_commands():
-    ox, oy = 23, 26
+def fly_commands(flight):
+    origin, dest_id, dest_zone, _phase, ox, oy, _dx, _dy, downs = flight
     commands = [
         {
             "op": "fixture",
@@ -110,7 +121,7 @@ def fly_commands():
                 "intro": "skip",
                 "opening": False,
                 "seed": 11,
-                "zone": ORIGIN,
+                "zone": origin,
                 "entry": {"x": ox, "y": oy, "facing": "down"},
                 "quest_flags": {"BADGE_THUNDER": True},
                 "player_pokemon": {
@@ -125,7 +136,7 @@ def fly_commands():
         },
         "wait 4",
         "encounters off",
-        f"visitfly {DEST_ID}",
+        f"visitfly {dest_id}",
         "wait 1",
         f"warp {ox} {oy}",
         "wait 1",
@@ -137,8 +148,10 @@ def fly_commands():
         "wait 1",
         "press a",
         "wait 1",
-        "press down",
-        "wait 1",
+    ]
+    for _ in range(downs):
+        commands.extend(("press down", "wait 1"))
+    commands.extend((
         "press a",
         "wait 1",
         "press down",
@@ -147,19 +160,19 @@ def fly_commands():
         "wait 1",
         "press a",
         "wait 30",
-        {"op": "await", "path": "zone", "equals": DEST_ZONE, "frames": 40},
-    ]
+        {"op": "await", "path": "zone", "equals": dest_zone, "frames": 40},
+    ))
     return commands
 
 
-def run_fly(root, output):
+def run_fly(root, output, flight):
     sdk = sdk_path(os.environ.get("PLAYDATE_SDK_PATH"))
     output = Path(output)
     if output.exists():
         shutil.rmtree(output)
     scenario_dir = Path(tempfile.mkdtemp(prefix="lane-k-fly-scenario-"))
     scenario = scenario_dir / "scenario.json"
-    scenario.write_text(json.dumps({"commands": fly_commands()}))
+    scenario.write_text(json.dumps({"commands": fly_commands(flight)}))
     saved = _inject_visitfly(root)
     try:
         proc = subprocess.run(
@@ -198,7 +211,8 @@ class FlyMemoryTest(unittest.TestCase):
         self.assertIn("diff --git a/Source/game/fieldTravelRuntime.lua", text)
         self.assertIn("diff --git a/Source/world/overworld.lua", text)
         self.assertIn("releaseFlyOrigin", text)
-        self.assertIn("function SourceEvents.releaseRecentContent()", text)
+        self.assertIn("SourceEvents.releaseRecentContent()", text)
+        self.assertNotIn("function SourceEvents.releaseRecentContent()", text)
         self.assertIn("function TileRegistry:releaseRenderedImages()", text)
         self.assertIn("consumeMissedBed", text)
         self.assertIn("table.create", text)
@@ -216,11 +230,26 @@ class FlyMemoryTest(unittest.TestCase):
             "LANE_K_FLY_OUTPUT",
             tempfile.mkdtemp(prefix="lane-k-fly-"),
         ))
-        proc, outcome, rows, result = run_fly(ROOT, output)
-        phase = next((row for row in rows if row["phase"] == DEST_PHASE), None)
+        self.arrive(output, FLIGHTS[0])
+
+    def test_every_visited_city_can_fly(self):
+        try:
+            sdk_path(os.environ.get("PLAYDATE_SDK_PATH"))
+        except ProtocolError as error:
+            raise RuntimeError(str(error)) from error
+        root = Path(os.environ.get("LANE_K_FLY_OUTPUT", tempfile.mkdtemp(prefix="lane-k-fly-")))
+        root.mkdir(parents=True, exist_ok=True)
+        for flight in FLIGHTS:
+            self.arrive(root / flight[0], flight)
+
+    def arrive(self, output, flight):
+        origin, dest_id, dest_zone, phase_name, _ox, _oy, dx, dy, _downs = flight
+        proc, outcome, rows, result = run_fly(ROOT, output, flight)
+        phase = next((row for row in rows if row["phase"] == phase_name), None)
         snapshot = result.get("snapshot") or {}
         player = snapshot.get("player") or {}
         detail = json.dumps({
+            "origin": origin,
             "ok": outcome.get("ok"),
             "error": outcome.get("error"),
             "zone": snapshot.get("zone"),
@@ -234,9 +263,9 @@ class FlyMemoryTest(unittest.TestCase):
         self.assertTrue(outcome.get("ok"), detail)
         self.assertIsNotNone(phase, detail)
         self.assertLessEqual(phase["peak_kib"], LUA_PEAK_BUDGET_KIB, detail)
-        self.assertEqual(snapshot.get("zone"), DEST_ZONE, detail)
-        self.assertEqual(snapshot.get("zone_id"), DEST_ID, detail)
-        self.assertEqual((player.get("x"), player.get("y")), ARRIVAL, detail)
+        self.assertEqual(snapshot.get("zone"), dest_zone, detail)
+        self.assertEqual(snapshot.get("zone_id"), dest_id, detail)
+        self.assertEqual((player.get("x"), player.get("y")), (dx, dy), detail)
 
 
 if __name__ == "__main__":
