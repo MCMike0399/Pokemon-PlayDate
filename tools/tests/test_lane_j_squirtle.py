@@ -6259,6 +6259,10 @@ def _leave_hideout(player, report):
             return status
         player.step("down")
         player.settle(limit=80)
+        if _k_here(player)[:1] == ("GameCorner",) and _k_here(player)[2] == 17:
+            # The street door is an edge mat: land on it, then walk down.
+            player.step("down")
+            player.settle(limit=80)
         if "celadon" not in str(player.state.get("zone")):
             raise RuntimeError("the Game Corner door stayed shut: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_celadon")
