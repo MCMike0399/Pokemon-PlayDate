@@ -3583,6 +3583,9 @@ def _through_scene(player, limit=6):
         elif "captains" in zone or "CAPTAINS_ROOM" in str(event.get("id") or ""):
             # Rub, the recovery, and the HM01 pages run longer than a sign.
             step = 160
+        elif "gym" in zone:
+            # Erika's greeting is nineteen lines. Forty presses stop on line 11.
+            step = 160
         else:
             step = 40
         if not player.dismiss_until_explore(limit=step) and player.state.get("root") == "battle":
@@ -4086,7 +4089,7 @@ def _fight_once(player, label, potion_at, bite_only=False, shift_to=None, declin
     won = player.fight(limit=2500, potion_at=potion_at, bite_only=bite_only,
                        shift_to=shift_to, decline_moves=decline_moves)
     if player.state.get("root") != "overworld":
-        player.dismiss_until_explore(limit=80)
+        player.dismiss_until_explore(limit=160)
     after = player.state.get("last_battle_outcome") or {}
     if _lost(before, after):
         raise RuntimeError(f"blackout at {label}: " + json.dumps(summary(player.state)))
