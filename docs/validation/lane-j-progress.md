@@ -73,11 +73,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 262, Route 12 (10, 22) facing down, on the south side of the gate. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. `EVENT_BEAT_ROUTE12_SNORLAX` is set. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. Pidgeotto evolved to Pidgeot on this road. The Lavender Center healed the party after Snorlax. TM21 is in the bag. There are no potions. The Saffron gate was not used. Next is south on Route 12 toward Route 13 and Fuchsia.
+Rainbow Badge is set. The pause is sequence 265, Route 12 (14, 73) facing right, south of Snorlax's empty tile. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `EVENT_BEAT_ROUTE12_SNORLAX` is set. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. Pidgeotto evolved to Pidgeot on this road. A fight on the south walk fainted Pidgeot. The way back to the Lavender Center is open now that his empty tile is not treated as a wall. TM21 is in the bag. There are no potions. The Saffron gate was not used. After the heal, the walk continues south through Route 13, 14, and 15 into Fuchsia.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Pidgeot 36 (105 HP), Bellsprout 15 (40 HP), Wartortle 32 (84 HP), Dugtrio 28 (62 HP). Snorlax on Route 12 is gone. Next is south toward Fuchsia. Route 16 stays the other Snorlax.
+Team: Pidgeot 36 (0 HP), Bellsprout 15 (40 HP), Wartortle 32 (84 HP), Dugtrio 28 (62 HP). Snorlax on Route 12 is gone. Next is the Lavender Center, then south toward Fuchsia and Koga. Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 

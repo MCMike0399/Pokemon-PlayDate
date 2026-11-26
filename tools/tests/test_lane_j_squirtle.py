@@ -5388,6 +5388,13 @@ K_ZONES = {
     "Route8": "kanto_route_8",
     "Route12": "kanto_route_12",
     "Route12Gate1F": "kanto_route_12_gate_1f",
+    "Route13": "kanto_route_13",
+    "Route14": "kanto_route_14",
+    "Route15": "kanto_route_15",
+    "Route15Gate1F": "kanto_route_15_gate_1f",
+    "FuchsiaCity": "kanto_fuchsia_city",
+    "FuchsiaPokecenter": "kanto_fuchsia_pokecenter",
+    "FuchsiaGym": "kanto_fuchsia_gym",
     "UndergroundPathRoute8": "kanto_underground_path_route_8",
     "UndergroundPathWestEast": "kanto_underground_path_west_east",
     "UndergroundPathRoute7": "kanto_underground_path_route_7",
@@ -5423,6 +5430,16 @@ K_NURSE = {
     "RockTunnelPokecenter": "pokered:ROCK_TUNNEL_POKECENTER:objects:1",
     "LavenderPokecenter": "pokered:LAVENDER_POKECENTER:objects:1",
     "CeladonPokecenter": "pokered:CELADON_POKECENTER:objects:1",
+    "FuchsiaPokecenter": "pokered:FUCHSIA_POKECENTER:objects:1",
+}
+SOUTH_IDS = {
+    "Route12": "pokered:ROUTE_12",
+    "Route13": "pokered:ROUTE_13",
+    "Route14": "pokered:ROUTE_14",
+    "Route15": "pokered:ROUTE_15",
+    "Route15Gate1F": "pokered:ROUTE_15_GATE_1F",
+    "FuchsiaCity": "pokered:FUCHSIA_CITY",
+    "FuchsiaGym": "pokered:FUCHSIA_GYM",
 }
 K_LINE = [
     ("walk", "up", 1, "Route9", 20, 11),
@@ -6734,11 +6751,86 @@ def _through_route12_gate(player, report):
     return "yield"
 
 
+def _present_people(player, filename, map_id, pad=0):
+    """Authored tiles of people who are still on the map, plus the cells they watch."""
+    blob = json.loads((SOUTH / filename).read_text())
+    present = _present_ids(player)
+    people, items = set(), set()
+    for obj in blob["events"]["objects"]:
+        if obj["id"] not in present:
+            continue
+        cell = (obj["x"] + pad, obj["y"])
+        if obj.get("kind") == "item":
+            items.add(cell)
+        else:
+            people.add(cell)
+    sight = set()
+    if map_id:
+        trainers = json.loads((SOUTH / "trainers.json").read_text())["trainers"]
+        for trainer in trainers.values():
+            if trainer.get("map_id") != map_id or trainer["id"] not in present:
+                continue
+            dx, dy = TOWER_FACE[trainer["facing_source"]]
+            for step in range(1, int(trainer["sight_range_cells"]) + 1):
+                sight.add((trainer["x"] + pad + dx * step, trainer["y"] + dy * step))
+    return people, items, sight
+
+
+def _route_leg(player, report, filename, pad, width, place, goal, extra, key, limit=40):
+    """Walk up to `limit` steps. Sight is skipped when another path remains."""
+    cells = set(open_map(SOUTH / filename, pad, width))
+    misses = 0
+    for _ in range(limit):
+        _name, x, y = _k_here(player)
+        if (x, y) == goal:
+            return None
+        people, items, sight = _present_people(player, filename, SOUTH_IDS.get(place), pad)
+        live = {(npc.get("x"), npc.get("y")) for npc in player.state.get("npcs") or []}
+        steps = None
+        for block in (sight, set()):
+            avoid = set(people) | set(items) | set(live) | set(extra) | set(block)
+            avoid.discard((x, y))
+            avoid.discard(goal)
+            steps = route(cells, (x, y), goal, avoid)
+            if steps:
+                break
+        if not steps:
+            misses += 1
+            if misses > 6:
+                raise RuntimeError(f"no {place} path {(x, y)} -> {goal}")
+            player.send("wait 30")
+            continue
+        misses = 0
+        nxt = neighbor((x, y), steps[0])
+        status = _k_go(player, report, steps[0], place, nxt[0], nxt[1])
+        if status:
+            return status
+    _checkpoint(player, report, key)
+    return "yield"
+
+
+def _leave_edge(player, report, place, direction, expect, key):
+    player.step(direction)
+    player.settle(limit=80)
+    if _k_here(player)[0] == place:
+        player.step(direction)
+        player.settle(limit=80)
+    if str(player.state.get("zone")) != K_ZONES[expect]:
+        raise RuntimeError(f"{place} {direction} stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, key)
+    return "yield"
+
+
 def _snorlax_to_gate(player, report):
-    blob = json.loads((SOUTH / "Route12.json").read_text())
-    avoid = {(obj["x"], obj["y"]) for obj in blob["events"]["objects"] if obj.get("kind") != "item"}
-    avoid.update({(10, 21), (11, 21)})
-    status = _grid_walk(player, report, SOUTH, "Route12.json", 0, 20, "Route12", (10, 22), avoid)
+    species, mon = _bird(player)
+    if mon and (mon.get("hp") or 0) > 0:
+        _lead(player, species)
+    else:
+        _slot, water = _member(player, "wartortle")
+        if water and (water.get("hp") or 0) > 0:
+            _lead(player, "wartortle")
+    status = _route_leg(player, report, "Route12.json", 0, 20, "Route12", (10, 22),
+                        {(10, 21), (11, 21)}, "saved_route12")
     if status:
         return status
     player.step("up")
@@ -6871,6 +6963,152 @@ def _to_pokemon_tower(player, report):
     return "yield"
 
 
+def _route13(player, report):
+    if _needs_center(player):
+        status = _route_leg(player, report, "Route13.json", 0, 60, "Route13", (50, 0), set(), "saved_route13")
+        if status:
+            return status
+        return _leave_edge(player, report, "Route13", "up", "Route12", "saved_route12")
+    status = _route_leg(player, report, "Route13.json", 0, 60, "Route13", (0, 10), set(), "saved_route13")
+    if status:
+        return status
+    return _leave_edge(player, report, "Route13", "left", "Route14", "saved_route14")
+
+
+def _route14(player, report):
+    if _needs_center(player):
+        status = _route_leg(player, report, "Route14.json", 0, 20, "Route14", (19, 10), set(), "saved_route14")
+        if status:
+            return status
+        return _leave_edge(player, report, "Route14", "right", "Route13", "saved_route13")
+    status = _route_leg(player, report, "Route14.json", 0, 20, "Route14", (0, 44), set(), "saved_route14")
+    if status:
+        return status
+    return _leave_edge(player, report, "Route14", "left", "Route15", "saved_route15")
+
+
+def _route15(player, report):
+    _name, x, _y = _k_here(player)
+    doors = {(14, 8), (14, 9), (7, 8), (7, 9)}
+    if x < 10:
+        status = _route_leg(player, report, "Route15.json", 0, 60, "Route15", (1, 8), doors, "saved_route15")
+        if status:
+            return status
+        return _leave_edge(player, report, "Route15", "left", "FuchsiaCity", "saved_fuchsia")
+    status = _route_leg(player, report, "Route15.json", 0, 60, "Route15", (15, 8), doors, "saved_route15")
+    if status:
+        return status
+    player.step("left")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "Route15":
+        player.step("left")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "Route15Gate1F":
+        raise RuntimeError("the Route 15 gate stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route15_gate")
+    return "yield"
+
+
+def _through_route15_gate(player, report):
+    avoid = {(6, 1), (9, 4), (9, 5), (2, 4), (2, 5), (8, 8)}
+    status = _route_leg(player, report, "Route15Gate1F.json", 2, 13, "Route15Gate1F", (3, 4),
+                        avoid, "saved_route15_gate")
+    if status:
+        return status
+    return _leave_edge(player, report, "Route15Gate1F", "left", "Route15", "saved_route15")
+
+
+def _fuchsia_doors():
+    blob = json.loads((SOUTH / "FuchsiaCity.json").read_text())
+    return {(warp["x"], warp["y"]) for warp in blob["events"]["warps"]}
+
+
+def _fuchsia_city(player, report):
+    if _needs_center(player):
+        status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (19, 28),
+                            _fuchsia_doors(), "saved_fuchsia")
+        if status:
+            return status
+        player.step("up")
+        player.settle(limit=80)
+        if _k_here(player)[0] == "FuchsiaCity":
+            player.step("up")
+            player.settle(limit=80)
+        if _k_here(player)[0] != "FuchsiaPokecenter":
+            raise RuntimeError("the Fuchsia Center stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_fuchsia_center")
+        return "yield"
+    status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (5, 28),
+                        _fuchsia_doors(), "saved_fuchsia")
+    if status:
+        return status
+    player.step("up")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "FuchsiaCity":
+        player.step("up")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "FuchsiaGym":
+        raise RuntimeError("the Fuchsia Gym stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_fuchsia_gym")
+    return "yield"
+
+
+def _fuchsia_center(player, report):
+    avoid = {(2, 3), (6, 5), (11, 2), (3, 1), (3, 7), (4, 7)}
+    if _needs_center(player):
+        status = _route_leg(player, report, "FuchsiaPokecenter.json", 0, 14, "FuchsiaPokecenter",
+                            (3, 3), avoid, "saved_fuchsia_center")
+        if status:
+            return status
+        cells = set(open_map(SOUTH / "FuchsiaPokecenter.json", 0, 14))
+        talk_to(player, cells, K_NURSE["FuchsiaPokecenter"], avoid)
+        if _needs_center(player):
+            raise RuntimeError("the Fuchsia nurse did not heal: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_fuchsia_healed")
+        return "yield"
+    status = _route_leg(player, report, "FuchsiaPokecenter.json", 0, 14, "FuchsiaPokecenter",
+                        (3, 6), avoid, "saved_fuchsia_center")
+    if status:
+        return status
+    player.step("down")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "FuchsiaPokecenter":
+        player.step("down")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "FuchsiaCity":
+        raise RuntimeError("the Fuchsia Center door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_fuchsia")
+    return "yield"
+
+
+def _koga(player, report):
+    """The gym walls are the collision grid. Koga stands at runtime (5, 10) and does not watch a tile."""
+    if _quest(player).get("BADGE_SOUL"):
+        _checkpoint(player, report, "saved_soul")
+        return "yield"
+    status = _route_leg(player, report, "FuchsiaGym.json", 1, 13, "FuchsiaGym", (5, 9),
+                        {(5, 17), (6, 17)}, "saved_fuchsia_gym")
+    if status:
+        return status
+    if player.state["player"].get("facing") != "down":
+        player.press("down", wait=4)
+    player.press("a", wait=8)
+    for _ in range(30):
+        root = player.state.get("root")
+        if root == "battle":
+            return _k_clear(player, report)
+        if root in ("dialog", "bag", "pause") or not player.exploring():
+            player.press("a", wait=8)
+            continue
+        break
+    if player.state.get("root") == "battle":
+        return _k_clear(player, report)
+    if _quest(player).get("BADGE_SOUL"):
+        _checkpoint(player, report, "saved_soul")
+        return "yield"
+    raise RuntimeError("Koga did not battle: " + json.dumps(summary(player.state)))
+
+
 def _with_scope(player, report):
     """Heal, then the underground to Lavender. The Saffron gate stays shut."""
     place = _k_here(player)[0]
@@ -6934,6 +7172,20 @@ def _with_scope(player, report):
         return _flute_lavender(player, report)
     if place == "Route12":
         return _toward_snorlax(player, report)
+    if place == "Route13":
+        return _route13(player, report)
+    if place == "Route14":
+        return _route14(player, report)
+    if place == "Route15":
+        return _route15(player, report)
+    if place == "Route15Gate1F":
+        return _through_route15_gate(player, report)
+    if place == "FuchsiaCity":
+        return _fuchsia_city(player, report)
+    if place == "FuchsiaPokecenter":
+        return _fuchsia_center(player, report)
+    if place == "FuchsiaGym":
+        return _koga(player, report)
     if place == "Route12Gate1F":
         if _needs_center(player) and _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
             return _gate_to_lavender(player, report)
