@@ -1,6 +1,138 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "4323a996831422b9225316ce3e39dea88c7e0e39",
+    "source_sha256": "392755063c0d7345e5d45d8736b3d8aa20c9dce5c56121c5c6c0bac3f94eacb4",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Cerulean and Vermilion journey pins record the lazy postgame source hashes. Projected bodies are unchanged. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f0b074af0e897a41a2e0e8c173a2ed2b22e10964cc333a8b87c6c28c0da4088d.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "8e39bc2a1f82ab5cdaa170cc685615670e3f767f",
+    "source_sha256": "f0b074af0e897a41a2e0e8c173a2ed2b22e10964cc333a8b87c6c28c0da4088d",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a normal field install leaves the postgame runtime unloaded. A Hall continue and the Hall ceremony load it, and a large save read drops the live tilemap only while the file inflates. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f81d5bd07148e57dd4f85f500dcc784afd7e291a39288ceaa50cadcfc5457db4.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "95554e0743fe5e9e3f0aadefbba0824f34cfb36f",
+    "source_sha256": "f81d5bd07148e57dd4f85f500dcc784afd7e291a39288ceaa50cadcfc5457db4",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after switchZone releases the departing world, event chunks, and map bed before the next map is built. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 b30c882924ab9baa2b8bc99c1af79bd4e198b67b32b4db41e73df9e80da68c4e.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "68fc1f80755928fc1266704dbd608ce90b9209b5",
+    "source_sha256": "b30c882924ab9baa2b8bc99c1af79bd4e198b67b32b4db41e73df9e80da68c4e",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a Hall continue releases the Hall definition and the postgame JSON before the player steps out of Pallet. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 8c86d2cbfcdeb1613a8ef3963ad0a53c9ff55bb77733a8ffb14908e3f689cae2.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "45d1022790674d67ecb804c9780b1aacf6b7ab78",
+    "source_sha256": "8c86d2cbfcdeb1613a8ef3963ad0a53c9ff55bb77733a8ffb14908e3f689cae2",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a Hall team loads postgame hooks even when the save is already in Pallet. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 51492114fadd7348ae34dea7d35b2ead870dd821aa35295c3675fb5697dc4b6f.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "51832ff4ab1095ed5bd0dd27964b4313d58a0197",
+    "source_sha256": "51492114fadd7348ae34dea7d35b2ead870dd821aa35295c3675fb5697dc4b6f",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the credits draw path loads on first use and stays out of the boot chunk. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 953f14a6eb7976c400c901d12ddc4c3ed2f4b0c556d211537422413f5f48d482.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "dc58ecf00ec66eeecf007ce276609aa184837679",
+    "source_sha256": "953f14a6eb7976c400c901d12ddc4c3ed2f4b0c556d211537422413f5f48d482",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after Hall of Fame credits use pokered's black bands, white middle, black text, and a scrolling silhouette. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 1f1df2ff769219b1baa8cf63fb40d0258eae14d68c7f872ed43f63d3d32e0798.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "14ca320fee6ba4f6c704110480ba4f1fd64264e5",
+    "source_sha256": "1f1df2ff769219b1baa8cf63fb40d0258eae14d68c7f872ed43f63d3d32e0798",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Hall continue check stays out of the boot chunk and publish loads from a standalone pdz. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 6694ce56b42d7cf1ece05e0cee044de58e1e6ce0e92f4ebbbd654cdd73ea12b5.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "540d5adb9dbca7e50bb3ee5d4afb0a5777d53b11",
+    "source_sha256": "6694ce56b42d7cf1ece05e0cee044de58e1e6ce0e92f4ebbbd654cdd73ea12b5",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a Hall of Fame continue loads its module only for a recorded Hall team and enters Pallet Town at (5, 6) facing down. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 2ece0fd60ebecee11bd560b0e32430ab6940cba6cf233acb438bdacbde6da37b.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "43ee0ceba48d50ea47e63634fd6fca912d5ad4a7",
+    "source_sha256": "2ece0fd60ebecee11bd560b0e32430ab6940cba6cf233acb438bdacbde6da37b",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a Hall of Fame continue loads its module only for the Hall cell and enters Pallet Town at (5, 6) facing down. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 880476e9cd5b3f8e3f6695df6a00ae975cfa72cfe21529dad4b3ce88cc77541c.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "8f09c598d25a24c28bc5966348f32a2f2573e53e",
+    "source_sha256": "880476e9cd5b3f8e3f6695df6a00ae975cfa72cfe21529dad4b3ce88cc77541c",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Hall of Fame continue module loads once GameSaves exists and enters Pallet Town at (5, 6) facing down. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f2b9180b80a20c4a127bb43024d41c26546be1ee1da29032c29f3c24d33760ad.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
+    "commit": "ff0daa6e3c904e7a77f31c328a16166bcd8fee4b",
+    "source_sha256": "f2b9180b80a20c4a127bb43024d41c26546be1ee1da29032c29f3c24d33760ad",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a Hall of Fame continue enters Pallet Town at (5, 6) facing down, and a failed relocation does not install the Hall cell. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 9f81fa6caf276dfa1642a97306a8ab9fc2c1427dc52ed12a2dc9a89cd26cb157.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "edcbe2884eb84b4b4c3b56e115961c2147bac062",
     "source_sha256": "9f81fa6caf276dfa1642a97306a8ab9fc2c1427dc52ed12a2dc9a89cd26cb157",
     "policy_date": "2026-11-20",
@@ -1815,6 +1947,18 @@
   
   }
   }}
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
+  }
   }
   }
   }

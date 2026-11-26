@@ -4,10 +4,9 @@
 pret/pokered af519899 saves while the player is still in the Hall, then
 Init. Continue of that save, when wNumHoFTeams is not zero, special-warps
 to Pallet Town (5, 6) facing down. The ceremony walk leaves our save at
-HALL_OF_FAME (5, 2). postgameStory.boot() tries to install the continue
-wrapper at import, and a cached load before GameSaves exists does not
-install it. KantoScenes.install does not retry, so the title continue
-keeps the Hall cell.
+HALL_OF_FAME (5, 2). The chunk loads during Continue, after GameSaves
+exists, so boot() installs the Pallet wrapper. KantoScenes.install does
+not load the chunk.
 
 tools/notes/lane-e-hof-continue.patch.
 """
@@ -47,10 +46,6 @@ json = {
         return { schema = 1, source_revision = "af519899719f0754965776faac0e836a3b906e6d", texts = {} }
     end,
 }
--- The simulator caches this import before GameSaves exists.
-local source = assert(io.open(root .. "/Source/game/postgameStory.lua")):read("a")
-assert(load(source, "@postgameStory.lua"))()
-
 GameSession = {
     _copy = function(value)
         if type(value) ~= "table" then return value end
@@ -74,13 +69,15 @@ function GameSaves:continuePreparedTitle()
     return GameContext:installSession(self.candidate)
 end
 local before = GameSaves.continuePreparedTitle
-io.write("BOOT_WRAPPED 0\n")
+-- Continue loads the standalone chunk here, with GameSaves already live.
+local source = assert(io.open(root .. "/Source/game/postgameStory.lua")):read("a")
+assert(load(source, "@postgameStory.lua"))()
+local bootWrapped = GameSaves.continuePreparedTitle ~= before and 1 or 0
+io.write("BOOT_WRAPPED " .. bootWrapped .. "\n")
 local scenes = assert(io.open(root .. "/Source/game/kantoScenes.lua")):read("a")
 local window = assert(scenes:match("function KantoScenes.install%(%)(.-)\n    installed = true"))
-local retries = window:find("PostgameStory.ensureRuntime()", 1, true) ~= nil
-if retries then
-    PostgameStory.ensureRuntime()
-end
+local retries = window:find("ensureRuntime", 1, true) ~= nil
+io.write(string.format("SCENE_RETRY %d\n", retries and 1 or 0))
 local loc = { zone_id = "pokered:HALL_OF_FAME", x = 5, y = 2, facing = "up" }
 local candidate = {
     location = function()
@@ -103,9 +100,16 @@ SourceActors = { describe = function() return { ok = true } end }
 WorldMotionData = { reconcile = function() return {} end }
 GameSaves.continuePreparedTitle({ candidate = candidate })
 local wrapped = GameSaves.continuePreparedTitle ~= before and 1 or 0
-io.write(string.format("SCENE_RETRY %d\n", retries and 1 or 0))
 io.write(string.format("WRAPPED %d\n", wrapped))
 io.write(string.format("PLACE %s %d %d %s\n", place.zone_id, place.x, place.y, place.facing))
+-- A missing actor descriptor must not install the Hall cell.
+loc = { zone_id = "pokered:HALL_OF_FAME", x = 5, y = 2, facing = "up" }
+place = { zone_id = "unchanged", x = 0, y = 0, facing = "none" }
+SourceActors.describe = function() return nil end
+local refused, why = GameSaves.continuePreparedTitle({ candidate = candidate })
+io.write("REFUSED " .. tostring(refused) .. "\n")
+io.write("WHY " .. tostring(why) .. "\n")
+io.write(string.format("STAY %s %d %d %s\n", place.zone_id, place.x, place.y, place.facing))
 """
 
 
@@ -188,10 +192,15 @@ class HallContinuePalletTests(unittest.TestCase):
         for line in completed.stdout.splitlines():
             key, _, rest = line.partition(" ")
             facts[key] = rest
-        self.assertEqual(facts["BOOT_WRAPPED"], "0", completed.stdout)
+        self.assertEqual(facts["BOOT_WRAPPED"], "1", completed.stdout)
+        self.assertEqual(facts["SCENE_RETRY"], "0", completed.stdout)
         zone, x, y, facing = facts["PLACE"].split()
         self.assertEqual((zone, int(x), int(y), facing), SPAWN, completed.stdout)
         self.assertNotEqual((zone, int(x), int(y), facing), HALL)
+        self.assertEqual(facts["REFUSED"], "false", completed.stdout)
+        self.assertEqual(facts["WHY"], "pallet-actors-unavailable", completed.stdout)
+        stay = facts["STAY"].split()
+        self.assertEqual(tuple(stay), ("unchanged", "0", "0", "none"), completed.stdout)
 
 
 if __name__ == "__main__":
