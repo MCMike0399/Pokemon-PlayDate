@@ -73,11 +73,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 281, Route 13 (51, 10) facing down. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `EVENT_BEAT_ROUTE12_SNORLAX` is set. The south edge of Route 12 opened Route 13 at (50, 0). The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. The Lavender Center healed the party before this crossing. TM21 is in the bag. There are no potions. The Saffron gate was not used. Next is west across Route 13, then Route 14 and Route 15 into Fuchsia.
+Rainbow Badge is set. The pause is sequence 283, Route 12 (10, 107) facing up, on the way back to the Lavender Center. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `EVENT_BEAT_ROUTE12_SNORLAX` is set. Route 13 opened at (50, 0). The first two trainers there fainted Pidgeot and raised Wartortle to 33. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The Saffron gate was not used. Next is the Lavender Center, then back across Route 13 toward Fuchsia.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Pidgeot 37 (14 HP), Bellsprout 15 (40 HP), Wartortle 32 (84 HP), Dugtrio 28 (62 HP). Snorlax on Route 12 is gone. Next is Fuchsia and Koga. Route 16 stays the other Snorlax.
+Team: Pidgeot 37 (0 HP), Bellsprout 15 (40 HP), Wartortle 33 (55 HP), Dugtrio 28 (62 HP). Snorlax on Route 12 is gone. Next is the heal, then Fuchsia and Koga. Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
