@@ -103,6 +103,28 @@ Flags set true, citing the scripts named in the generator: `EVENT_GOT_OAKS_PARCE
 
 Test: `tools/tests/test_lane_e_hall_continue_fixture.py`, `test_fixture_matches_the_generator_and_has_the_dex`. `tools/tests/test_lane_e_hof_continue_releases_hall.py` pins the new sha256.
 
+## Walk on 79fbcba5 with the champion fixture
+
+Scratch `/tmp/e-continue` at `79fbcba560e34945a130d7e1788ab44be5aa8d77`, plus `tools/notes/lane-e-viridian-sleepy-retrigger-heap.patch` so the retrigger retain does not pile up on a long session. No boot import. The save is the regenerated Hall fixture. Wild encounters off. Trainer sight on. `MallocPoolSize` stayed `16645684`. No inflate and no out-of-memory line in the simulator log.
+
+Continue lands on Pallet (5, 6) down. Heap 13326.3 KiB. `Continue` observed peak 13737.9 KiB. `EVENT_GOT_POKEDEX` is set, so Viridian (19, 9) does not start the sleepy scene. RED walks through to the forest.
+
+The route graph treats `kind == "item"` as open. The live Antidote ball `pokered:VIRIDIAN_FOREST:objects:5` at (25, 11) is solid. Pressing A takes it. Later trainers who walk onto the path and stay there, such as the Route 3 lass at (20, 4) after her battle, are not on the graph's home cell. The walk stepped around that cell.
+
+| point | heap KiB | observed peak KiB |
+| --- | ---: | ---: |
+| Continue, Pallet (5, 6) | 13326.3 | 13737.9 |
+| Viridian (19, 26) | 13388.0 | 13737.9 |
+| Viridian Forest (25, 32) | 13403.4 | 13737.9 |
+| Pewter (19, 20) | 13827.1 | 14173.6 |
+| Route 3 (1, 9) | 14032.6 | 14264.6 |
+| Route 3 after the lass | 13846.3 | 14538.6 |
+| Route 4 (12, 9) | 14006.9 | 14538.6 |
+| Mt Moon 1F (16, 22) | 14264.3 | 14538.6 |
+| Mt Moon 1F (30, 7), battle | 14732.5 | 14809.8 |
+
+The walk stops in the battle with `pokered:MT_MOON_1F:objects:3`. The message is still `Go! BLASTOISE!`, the move menu is open on SURF, and Oddish is still 32/32. Further A input does not select the move. Cerulean Cave, the Mew gift, and Mewtwo are not reached. No new patch for that stall. No frame: the run stops before the cave shots.
+
 ## Main
 
 `git fetch origin main` left origin/main at `ea32b55388038021812142a69b107f035b7c1da3`. That commit has the variable import and does not have `releaseContinueData`. The Hall-continue path on unmodified main stays waiting.
