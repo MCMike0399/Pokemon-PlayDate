@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "8e39bc2a1f82ab5cdaa170cc685615670e3f767f",
+    "source_sha256": "f0b074af0e897a41a2e0e8c173a2ed2b22e10964cc333a8b87c6c28c0da4088d",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after a normal field install leaves the postgame runtime unloaded. A Hall continue and the Hall ceremony load it, and a large save read drops the live tilemap only while the file inflates. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f81d5bd07148e57dd4f85f500dcc784afd7e291a39288ceaa50cadcfc5457db4.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "95554e0743fe5e9e3f0aadefbba0824f34cfb36f",
     "source_sha256": "f81d5bd07148e57dd4f85f500dcc784afd7e291a39288ceaa50cadcfc5457db4",
     "policy_date": "2026-11-20",
@@ -1925,6 +1936,7 @@
   
   }
   }}
+  }
   }
   }
   }
