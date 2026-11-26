@@ -6371,7 +6371,10 @@ def _with_scope(player, report):
             return status
         player.step("down")
         player.settle(limit=80)
-        if "route_8" not in str(player.state.get("zone")):
+        if _k_here(player)[0] == "UndergroundPathRoute8":
+            player.step("down")
+            player.settle(limit=80)
+        if str(player.state.get("zone")) != "kanto_route_8":
             raise RuntimeError("the Route 8 stair stayed shut: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_route8")
         return "yield"

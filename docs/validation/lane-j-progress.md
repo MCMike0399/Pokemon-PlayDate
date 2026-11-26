@@ -73,7 +73,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 216, Route 7 (0, 2) facing right. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The party is healed. Next is the underground stair at (5, 13), not the Saffron gate.
+Rainbow Badge is set. The pause is sequence 221, Underground Path Route 8 (5, 7) facing down, on the surface stair. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The party is healed. The Saffron gate was not used. Next is Route 8 toward Lavender.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
