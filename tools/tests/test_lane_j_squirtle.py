@@ -5856,19 +5856,21 @@ HIDEOUT_FLOORS = {
     "RocketHideoutB1F": {
         "file": "RocketHideoutB1F.json", "width": 30, "goal": (23, 2), "next": "b2f",
         "zone": "pokered:ROCKET_HIDEOUT_B1F",
-        "warps": {(21, 2), (24, 19), (21, 24), (25, 19)},
+        "warps": {(21, 2), (23, 2), (24, 19), (21, 24), (25, 19)},
         "blocked": {(26, 8), (12, 6), (18, 17), (15, 25), (28, 18), (11, 14), (9, 17)},
     },
     "RocketHideoutB2F": {
         "file": "RocketHideoutB2F.json", "width": 30, "goal": (21, 8), "next": "b3f",
         "zone": "pokered:ROCKET_HIDEOUT_B2F",
-        "warps": {(27, 8), (24, 19), (21, 22), (25, 19)},
+        "warps": {(27, 8), (21, 8), (24, 19), (21, 22), (25, 19)},
+        "up": (27, 8), "up_next": "b1f",
         "blocked": {(20, 12), (1, 11), (16, 8), (6, 12), (3, 21)},
     },
     "RocketHideoutB3F": {
         "file": "RocketHideoutB3F.json", "width": 30, "goal": (19, 18), "next": "b4f",
         "zone": "pokered:ROCKET_HIDEOUT_B3F",
-        "warps": {(25, 6)},
+        "warps": {(25, 6), (19, 18)},
+        "up": (25, 6), "up_next": "b2f",
         "blocked": {(10, 22), (26, 12), (26, 17), (20, 14)},
     },
 }
@@ -5942,10 +5944,11 @@ def _hideout_spin(player, report, direction, place, landed):
     raise RuntimeError(f"arrow stopped at {_k_here(player)} not {place} {landed}")
 
 
-def _hideout_stairs(player, report, place):
+def _hideout_stairs(player, report, place, upward=False):
     spec = HIDEOUT_FLOORS[place]
     _name, x, y = _k_here(player)
-    goal = spec["goal"]
+    goal = spec["up"] if upward else spec["goal"]
+    expect = spec["up_next"] if upward else spec["next"]
     if (x, y) == goal:
         for direction in DELTAS:
             nxt = neighbor(goal, direction)
@@ -5968,7 +5971,7 @@ def _hideout_stairs(player, report, place):
                 if status:
                     return status
             zone = str(player.state.get("zone"))
-            if spec["next"] not in zone:
+            if expect not in zone:
                 raise RuntimeError("the stair did not change floors: " + json.dumps(summary(player.state)))
             _checkpoint(player, report, "saved_hideout")
             return "yield"
@@ -6040,16 +6043,19 @@ def _hideout_b4(player, report):
             raise RuntimeError("the lift key was not taken: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_lift_key")
         return "yield"
-    # (21, 10) is a real wall. The other floor-to-floor seam is (19, 14).
-    status = _b4_walk(player, report, (18, 14), avoid)
+    # The stair side does not connect to Giovanni. The lift does, from B1F.
+    _name, x, y = _k_here(player)
+    if x >= 22:
+        _checkpoint(player, report, "saved_hideout_east")
+        return "yield"
+    status = _b4_walk(player, report, (19, 11), avoid)
     if status:
         return status
-    player.step("right")
-    player.settle(limit=20)
-    if _k_here(player)[1] == 18:
-        block = (player.state.get("player") or {}).get("lastTraversalBlock")
-        raise RuntimeError("B4F (19, 14) stayed shut: " + json.dumps(block))
-    _checkpoint(player, report, "saved_hideout_b4")
+    player.step("up")
+    player.settle(limit=80)
+    if "b3f" not in str(player.state.get("zone")):
+        raise RuntimeError("the B4F stair did not go up: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_hideout")
     return "yield"
 
 
@@ -6068,12 +6074,43 @@ def _holding(player, item):
 
 
 def _through_hideout(player, report):
-    place = _k_here(player)[0]
+    place, x, _y = _k_here(player)
+    upward = _holding(player, "liftKey") and not _holding(player, "silphScope")
+    if place == "RocketHideoutB1F" and upward:
+        return _hideout_elevator(player, report)
     if place in HIDEOUT_FLOORS:
-        return _hideout_stairs(player, report, place)
+        return _hideout_stairs(player, report, place, upward=upward and place != "RocketHideoutB1F")
     if place == "RocketHideoutB4F":
         return _hideout_b4(player, report)
+    if place == "RocketHideoutElevator":
+        _checkpoint(player, report, "saved_elevator")
+        return "yield"
     raise RuntimeError("off the Hideout floors: " + json.dumps(summary(player.state)))
+
+
+def _hideout_elevator(player, report):
+    """B1F's lift is the way onto Giovanni's side once the key is in the bag."""
+    cells = set(open_map(EAST / "RocketHideoutB1F.json", 0, 30))
+    avoid = {(21, 2), (23, 2), (21, 24), (26, 8), (12, 6), (18, 17), (15, 25), (28, 18), (11, 14), (9, 17)}
+    for _ in range(50):
+        _name, x, y = _k_here(player)
+        if (x, y) in {(24, 19), (25, 19)}:
+            break
+        blocked = set(avoid)
+        blocked.discard((x, y))
+        steps = route(cells, (x, y), (24, 18), blocked)
+        if not steps:
+            raise RuntimeError(f"no B1F lift path {(x, y)}")
+        nxt = neighbor((x, y), steps[0])
+        status = _k_go(player, report, steps[0], "RocketHideoutB1F", nxt[0], nxt[1])
+        if status:
+            return status
+    player.step("down")
+    player.settle(limit=40)
+    if "elevator" not in str(player.state.get("zone")):
+        raise RuntimeError("the lift door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_elevator")
+    return "yield"
 
 
 def _rocket_stairs(player, report):
