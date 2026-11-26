@@ -14,18 +14,54 @@ index bda29285..95835a18 100644
          copy(request.observed), copy(plan))
      request.status = called and accepted and "complete" or "failed"
 diff --git a/Source/game/fieldTravelRuntime.lua b/Source/game/fieldTravelRuntime.lua
-index 4c1ef5eb..97fe6b27 100644
+index 4c1ef5eb..3e40fb36 100644
 --- a/Source/game/fieldTravelRuntime.lua
 +++ b/Source/game/fieldTravelRuntime.lua
-@@ -65,6 +65,45 @@ local function removePlayer(player)
+@@ -1,6 +1,15 @@
+ -- Couples existing traversal/session owners to completed runtime movement.
+ FieldTravelRuntime = {}
+ local gfx <const> = playdate.graphics
++local missedBed = false
++
++-- The next map-bed start may find no inflate window after the destination
++-- atlas. One following enterMap may keep that miss quiet. Later beds still raise.
++function FieldTravelRuntime.consumeMissedBed()
++    local value = missedBed
++    missedBed = false
++    return value
++end
+ local directions <const> = {up = {0, -1}, down = {0, 1}, left = {-1, 0}, right = {1, 0}}
+ 
+ local function copy(value)
+@@ -65,6 +74,70 @@ local function removePlayer(player)
      player.exitArrow:remove()
  end
  
 +-- The destination definition does not fit beside a live city. Drop the origin
 +-- definition, view bitmap, event chunks and map bed first. The same player,
 +-- npc manager and view object stay so a failed capture can reattach them.
-+local function releaseFlyOrigin(owner, previous, sprites)
++local function releaseFlyOrigin(game, owner, previous, sprites)
 +    local zone = previous.zone
++    -- Stacked field travel (and any other live state) keeps the origin object
++    -- after the cache and the prepared request have dropped it.
++    local held = {}
++    if zone then
++        local function drop(holder)
++            if type(holder) == "table" and holder.zone == zone then
++                held[#held + 1] = holder
++                holder.zone = nil
++            end
++        end
++        local machine = game.machine
++        if machine then
++            for _, state in ipairs(machine.stack) do drop(state) end
++            local world = machine:get("overworld")
++            if world and world.sub then
++                for _, state in ipairs(world.sub.stack) do drop(state) end
++            end
++        end
++    end
++    previous.heldZones = held
 +    local view = previous.view
 +    if view and zone and zone.detachView then zone:detachView(view) end
 +    if view and view.sprite then sprites[view.sprite] = nil end
@@ -57,13 +93,18 @@ index 4c1ef5eb..97fe6b27 100644
 +    if WorldDeltas.disposeImportedCache then WorldDeltas.disposeImportedCache() end
 +    if SourceEvents and SourceEvents.releaseRecentContent then SourceEvents.releaseRecentContent() end
 +    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
++    gfx.sprite.removeAll()
++    if WorldTiles and WorldTiles.releaseRenderedImages then
++        WorldTiles:releaseRenderedImages()
++    end
++    zone = nil
 +    previous.scoreReleased = true
 +end
 +
  -- Destination construction happens while the authoritative session still holds
  -- the departing location. No root coroutine, input or sprite tick can run here.
  -- The old view/actors/player remain available until captureTraversal succeeds.
-@@ -81,34 +120,43 @@ function FieldTravelRuntime.fly(game, expected, plan)
+@@ -81,38 +154,58 @@ function FieldTravelRuntime.fly(game, expected, plan)
      local previous = {zone = currentZone, player = game.player, manager = game.npcManager,
          view = getOverworldView(), cameraX = game.camera.x, cameraY = game.camera.y,
          builtZone = owner.builtZone, builtSession = owner.builtSession,
@@ -88,7 +129,7 @@ index 4c1ef5eb..97fe6b27 100644
 +        originKey = previous.zone and previous.zone.key
 +        originID = previous.zone and previous.zone.stableID
 +        released = true
-+        releaseFlyOrigin(owner, previous, sprites)
++        releaseFlyOrigin(game, owner, previous, sprites)
 +        local stale = undoRuntime
 +        undoRuntime = WorldDeltas.checkpointRuntime()
 +        stale = nil
@@ -96,6 +137,10 @@ index 4c1ef5eb..97fe6b27 100644
 +        collectgarbage("collect")
 +        undoWorld = WorldDeltas.apply(world)
          target = assert(WorldDeltas.ensureZone(key))
++        -- releaseInactive keeps whichever city currentZone names. The origin
++        -- is already gone, so the destination has to be current before that
++        -- pass or the cache drop frees the zone that was just built.
++        currentZone = target
          target:assertEnterable()
          -- The departing view stays referenced for rollback. Pin the destination
          -- so the inactive release can drop every other cached city first.
@@ -114,9 +159,23 @@ index 4c1ef5eb..97fe6b27 100644
 -        -- destination inflate fails while both bitmaps are live.
 -        if previous.view and previous.view.releaseBitmaps then previous.view:releaseBitmaps() end
          collectgarbage("collect")
-         currentZone = target
-         view = setmetatable({}, WorldView)
-@@ -157,18 +205,41 @@ function FieldTravelRuntime.fly(game, expected, plan)
+-        currentZone = target
+-        view = setmetatable({}, WorldView)
+-        view:init(target)
++        -- Generational GC lets the tile atlas spike past the pool. Incremental
++        -- collection during that build stays under it, then the session mode
++        -- returns.
++        collectgarbage("incremental", 110, 200, 13)
++        local viewOk, viewErr = pcall(function()
++            view = setmetatable({}, WorldView)
++            view:init(target)
++        end)
++        collectgarbage("generational")
++        if not viewOk then error(viewErr, 0) end
+         manager = NPCManager(game)
+         player = Player(plan.location.x, plan.location.y, target.collision, manager)
+         player.facing = plan.location.facing
+@@ -157,18 +250,54 @@ function FieldTravelRuntime.fly(game, expected, plan)
                  pcall(sprite.remove, sprite)
              end
          end
@@ -136,12 +195,22 @@ index 4c1ef5eb..97fe6b27 100644
 -        if previous.view and not previous.view.disposed then
 +        local zone = previous.zone
 +        if zone == nil and released and originKey then
-+            zone = WorldDeltas.ensureZone(originKey)
++            local rebuilt, restored = pcall(WorldDeltas.ensureZone, originKey)
++            if rebuilt then
++                zone = restored
++            end
 +        end
-+        currentZone = zone
++        if zone then currentZone = zone end
 +        owner.builtZone = zone or previous.builtZone
 +        if previous.player and zone then
 +            previous.player.collisionMap = zone.collision
++            if previous.player.add then previous.player:add() end
++            if previous.player.grassOverlay and previous.player.grassOverlay.add then
++                previous.player.grassOverlay:add()
++            end
++            if previous.player.exitArrow and previous.player.exitArrow.add then
++                previous.player.exitArrow:add()
++            end
 +        end
 +        if previous.savedPos and zone then previous.savedPos.zone = zone end
 +        if previous.visit then
@@ -158,12 +227,15 @@ index 4c1ef5eb..97fe6b27 100644
 +            zone:spawnNPCs(previous.manager)
 +            previous.manager.motion:attach(game, zone, nil, false)
 +        end
++        if zone and previous.heldZones then
++            for _, holder in ipairs(previous.heldZones) do holder.zone = zone end
++        end
 +        if previous.scoreReleased and originID and KantoAudio and KantoAudio.enterMap then
 +            pcall(KantoAudio.enterMap, originID)
          end
          game.camera:apply()
          return false, tostring(result)
-@@ -181,5 +252,11 @@ function FieldTravelRuntime.fly(game, expected, plan)
+@@ -181,5 +310,13 @@ function FieldTravelRuntime.fly(game, expected, plan)
      pcall(previous.view.dispose, previous.view)
      owner.savedPos, owner.savedActors, owner.savedActorsSession = nil, nil, nil
      owner.fieldArrival = {fromID = expected.position.zone_id, kind = "fly"}
@@ -172,14 +244,83 @@ index 4c1ef5eb..97fe6b27 100644
 +    if previous.scoreReleased and originID and target and target.stableID == originID
 +        and KantoAudio and KantoAudio.enterMap then
 +        pcall(KantoAudio.enterMap, originID)
++    elseif previous.scoreReleased and target and originID and target.stableID ~= originID then
++        missedBed = true
 +    end
      return true, result
  end
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index a3045f69..ea9ba8a4 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -30,7 +30,21 @@ function KantoAudio.enterMap(zone)
+     local id = type(zone) == "table" and zone.stableID or zone
+     mapScore = KantoEvents.mapScore(id)
+     if not inBattle then
+-        KantoSynth.music(KantoEvents.fieldBed(traversal, mapScore), true)
++        local bed = KantoEvents.fieldBed(traversal, mapScore)
++        local tolerate = FieldTravelRuntime and FieldTravelRuntime.consumeMissedBed
++            and FieldTravelRuntime.consumeMissedBed()
++        if not tolerate then
++            KantoSynth.music(bed, true)
++        else
++            -- The destination atlas can leave no contiguous inflate window.
++            -- A missed bed stays silent; the map entry still stands.
++            local ok, err = pcall(KantoSynth.music, bed, true)
++            local text = tostring(err)
++            if not ok and err ~= nil and not text:find("out of memory", 1, true)
++                and not text:find("inflate", 1, true) then
++                error(err, 0)
++            end
++        end
+     end
+ end
+ 
+diff --git a/Source/game/sourceEvents.lua b/Source/game/sourceEvents.lua
+index 15d5aace..e822a645 100644
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -20,6 +20,15 @@ local contentFields = weakValues()
+ -- still drops only this reference. An active descriptor remains valid.
+ local recent, recentOrder = {}, {}
+ local RECENT_CONTENT <const> = 96
++
++-- A departure has already dropped the map that decoded these chunks.
++-- Ninety-six of them stay live into the next definition and the next bed.
++function SourceEvents.releaseRecentContent()
++    for index = #recentOrder, 1, -1 do
++        recent[recentOrder[index]] = nil
++        recentOrder[index] = nil
++    end
++end
+ local function yieldIfDue()
+     if GameBootstrap then
+         GameBootstrap.yieldIfDue()
 diff --git a/Source/world/overworld.lua b/Source/world/overworld.lua
-index 92df5fc7..2eba0dd6 100644
+index 92df5fc7..305f6a83 100644
 --- a/Source/world/overworld.lua
 +++ b/Source/world/overworld.lua
-@@ -243,7 +243,8 @@ end
+@@ -60,10 +60,17 @@ function WorldView:init(zone, options)
+     self.tilemap = gfx.tilemap.new()
+     self.tilemap:setImageTable(self.images)
+     self.tilemap:setSize(zone.width, zone.height)
+-    local tileIDs = {}
++    -- Growing a city index by doubling needs a second copy while the first
++    -- is still live. That copy is the allocation Fly loses after the
++    -- destination atlas. Maps past 1024 cells allocate the final size once.
++    local count = zone.width * zone.height
++    local tileIDs = count > 1024 and table.create(count, 0) or {}
++    local index = 0
+     for y = 1, zone.height do
++        local row = zone.tiles[y]
+         for x = 1, zone.width do
+-            tileIDs[#tileIDs + 1] = zone.tiles[y][x]
++            index = index + 1
++            tileIDs[index] = row[x]
+         end
+         if GameBootstrap then
+             GameBootstrap.yieldIfDue()
+@@ -243,7 +250,8 @@ end
  function WorldView:dispose()
      if self.disposed then return end
      if self.sprite then self.sprite:remove() end
@@ -189,3 +330,18 @@ index 92df5fc7..2eba0dd6 100644
      -- The sprite and tilemap own the map's bitmap. Drop those references
      -- before the next city allocates its own, or both images sit in the pool.
      self.sprite = nil
+diff --git a/Source/world/tileRegistry.lua b/Source/world/tileRegistry.lua
+index afbb7074..141f9bb2 100644
+--- a/Source/world/tileRegistry.lua
++++ b/Source/world/tileRegistry.lua
+@@ -391,6 +391,10 @@ end
+ function TileRegistry:registerBatch(entries)
+     return self:registerPreparedBatch(self:prepareBatch(entries))
+ end
++function TileRegistry:releaseRenderedImages()
++    local store = stores[self]
++    if store then store.images = {} end
++end
+ function TileRegistry:renderImported(value, renderer)
+     local id = self:id(value)
+     assert(id > BASE_COUNT, "base images are provided by TileFactory")
