@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """A live Cerulean must survive a run of one-frame harness commands.
 
-Each finished command keeps a real diagnostics snapshot. Frames inside a
-wait do not: once the heap is at least 13000 KiB those frames used to be
-the allocation that never returned. An empty completion snapshot encodes
-as an array, so a non-final move or wait loses its player. The fix is
-tools/notes/lane-e-harness-trace-handle.patch. Both runs apply that patch
-to a private worktree. Source on this branch stays unchanged.
+Each finished command keeps a settled player and zone. Frames inside a
+wait stay stubs once the heap is at least 13000 KiB. An empty table
+encodes as an array, so a non-final move or wait would lose its player.
+The landed record is the completion snapshot in Source/dev/harness.lua.
+tools/notes/lane-e-harness-trace-handle.patch stays held and is not
+reapplied: those hunks are already the parent of the snapshot, and a
+second apply does not fit.
 """
 
 import json
@@ -102,46 +103,30 @@ def run_cerulean(root, output, script):
 
 
 class HarnessTraceTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.tree = Path(tempfile.mkdtemp(prefix="lane-k-harness-tree-"))
-        cls.tree.rmdir()
-        added = subprocess.run(
-            ["git", "worktree", "add", "--detach", str(cls.tree), "HEAD"],
-            cwd=ROOT, check=False, text=True, capture_output=True)
-        if added.returncode != 0:
-            raise RuntimeError(added.stderr or added.stdout)
-        applied = subprocess.run(
-            ["git", "apply", str(PATCH)],
-            cwd=cls.tree, check=False, text=True, capture_output=True)
-        if applied.returncode != 0:
-            subprocess.run(["git", "worktree", "remove", "--force", str(cls.tree)], cwd=ROOT)
-            raise RuntimeError(applied.stderr or applied.stdout)
-
-    @classmethod
-    def tearDownClass(cls):
-        tree = getattr(cls, "tree", None)
-        if tree and tree.exists():
-            subprocess.run(
-                ["git", "worktree", "remove", "--force", str(tree)],
-                cwd=ROOT, check=False)
-
     def test_patch_is_a_diff_and_does_not_raise_the_pool(self):
         text = PATCH.read_text()
         self.assertIn("diff --git a/Source/dev/harness.lua", text)
         self.assertIn("local traceFile", text)
         self.assertIn("heapNow < 13000", text)
-        self.assertIn("elseif complete", text)
-        self.assertIn("settledCommandSnapshot", text)
-        self.assertNotIn("lastCommand", text)
+        self.assertIn("local lastCommand", text)
+        self.assertNotIn("settledCommandSnapshot", text)
         follow = FOLLOWUP.read_text()
         self.assertIn("diff --git a/Source/dev/harness.lua", follow)
         self.assertIn("settledCommandSnapshot", follow)
+        self.assertIn("elseif complete", follow)
         self.assertIn("-    local lastCommand", follow)
         self.assertNotIn("skip", follow.lower())
+        self.assertNotIn("MallocPoolSize", follow)
         self.assertNotIn("MallocPoolSize", text)
         self.assertNotIn("xfail", text.lower())
         self.assertNotIn("skip", text.lower())
+        source = (ROOT / "Source/dev/harness.lua").read_text()
+        self.assertIn("local function settledCommandSnapshot", source)
+        self.assertNotIn("local lastCommand", source)
+        held = subprocess.run(
+            ["git", "apply", "--check", str(PATCH)],
+            cwd=ROOT, check=False, text=True, capture_output=True)
+        self.assertNotEqual(held.returncode, 0, "held trace-handle patch must not reapply")
 
     def test_cerulean_command_snapshots_return(self):
         try:
@@ -149,7 +134,7 @@ class HarnessTraceTest(unittest.TestCase):
         except ProtocolError as error:
             raise RuntimeError(str(error)) from error
         output = Path(tempfile.mkdtemp(prefix="lane-k-harness-"))
-        proc, outcome, result, heartbeat = run_cerulean(self.tree, output, forty_waits())
+        proc, outcome, result, heartbeat = run_cerulean(ROOT, output, forty_waits())
         snapshot = result.get("snapshot") or {}
         detail = json.dumps({
             "ok": outcome.get("ok"),
@@ -170,7 +155,7 @@ class HarnessTraceTest(unittest.TestCase):
             raise RuntimeError(str(error)) from error
         output = Path(tempfile.mkdtemp(prefix="lane-k-harness-player-"))
         proc, outcome, result, heartbeat = run_cerulean(
-            self.tree, output, one_wait_then_quiesce())
+            ROOT, output, one_wait_then_quiesce())
         rows = result.get("results") or []
         waits = [row for row in rows if row.get("op") == "wait"]
         detail = json.dumps({
