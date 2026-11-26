@@ -4,14 +4,9 @@ Measured on lane E tip `79fbcba5`. Pool size is unchanged (`MallocPoolSize` 1664
 
 ## Harness trace handle
 
-`tools/notes/lane-e-harness-trace-handle.patch` is the `Source/dev/harness.lua` change already on this branch. Each finished command kept a full diagnostics snapshot and opened `trace.jsonl` again. On Cerulean a snapshot is about 30 KiB, so forty `wait 1` commands climbed 13365.6, 13488.2, 13634.8, 13781.0, 13927.2 KiB and the runtime raised `not enough memory`. The heartbeat stayed at tick 15. The product was idle on `kanto_cerulean_city`.
+`tools/notes/lane-e-harness-trace-handle.patch` is held. It is not applied on this tip. Each finished command kept a full diagnostics snapshot and opened `trace.jsonl` again. On Cerulean a snapshot is about 30 KiB, so forty `wait 1` commands climbed 13365.6, 13488.2, 13634.8, 13781.0, 13927.2 KiB and the runtime raised `not enough memory`. The heartbeat stayed at tick 15. The product was idle on `kanto_cerulean_city`.
 
-The patch keeps one trace handle, opened while the boot heap still has a hole, and skips the full snapshot once `collectgarbage("count")` is at least 13000 except on tick 1 and the last command. With it, the same script finishes in 17.935s. Intermediate snapshots are empty. The last snapshot is Cerulean at 13424.6 KiB.
-
-`tools/tests/test_lane_e_harness_trace.py`:
-
-- `HarnessTraceTest.test_patch_is_a_diff_and_does_not_raise_the_pool` passes.
-- `HarnessTraceTest.test_cerulean_command_snapshots_return` fails on `79fbcba5` and passes on this branch.
+The patch keeps one trace handle and skips the full snapshot once `collectgarbage("count")` is at least 13000 except on tick 1 and the last command. That empty snapshot is encoded as `[]`, and `test_hall_continue_matches_pallet_and_walks_four` then fails reading the player. K is fixing the patch so a completed command a host test reads still keeps a real snapshot. Intermediate `wait` frames can stay stubs.
 
 ## Fly visited-cities contract
 

@@ -18,7 +18,7 @@ Fly is the party-menu field move. The 12-frame shade fade is unchanged. The rele
 
 Cerulean → Fuchsia and Lavender → Fuchsia stopped on the first menu A because `Harness.afterFrame` wrote a full diagnostics snapshot and opened `trace.jsonl` on every frame. On Cerulean the heap at `actors.end` was about 13457 KiB. The frame whose tick was a multiple of 15 then sat inside the snapshot encode or `playdate.file.open`. Shifting the script so that heartbeat landed on a `wait` instead of A moved the stall with the heartbeat, so the button had been delivered. The product menu was not stuck.
 
-`Source/dev/harness.lua` now opens one `trace.jsonl` handle on an early frame and reuses it, closes it in `finish`, and skips the full snapshot when `collectgarbage("count")` is at least 13000 except on tick 1 and the last command. The last command still records the settled world. With that change, Cerulean → Fuchsia, Lavender → Fuchsia, and Celadon → Saffron all arrive.
+Those six flights were measured with the harness trace patch as well. That patch is held: its empty snapshots break the Hall continue walk. It is not applied on this tip. Without it, `test_every_visited_city_can_fly` times out on the Cerulean menu. Viridian to Fuchsia still stays under the budget. K is fixing the harness so a completed command still keeps a real snapshot.
 
 ## Before and after
 
@@ -57,6 +57,6 @@ Do not hand-edit. Regenerate with the owning generator after the Source change l
 
 ## Ready for RedBot
 
-Ready: `tools/notes/lane-e-fly-release-before-build.patch` on `79fbcba5`, together with the harness snapshot change in `Source/dev/harness.lua` on this branch. Proof is `test_viridian_fly_to_fuchsia_stays_under_budget` and `test_every_visited_city_can_fly` in `tools/tests/test_lane_e_fly_memory.py`.
+Ready: `tools/notes/lane-e-fly-release-before-build.patch` on `79fbcba5`. The harness snapshot change is held. Proof is `test_viridian_fly_to_fuchsia_stays_under_budget` and `test_every_visited_city_can_fly` in `tools/tests/test_lane_e_fly_memory.py`.
 
 The field-travel contract that died while Cerulean was still live is fixed separately in `tools/notes/lane-e-fly-contract-release.patch`. See `docs/validation/lane-k-harness-and-contract.md`.
