@@ -1,5 +1,5 @@
 diff --git a/Source/game/partyState.lua b/Source/game/partyState.lua
-index 4a951eee..60b13a82 100644
+index 4a951eee..80266157 100644
 --- a/Source/game/partyState.lua
 +++ b/Source/game/partyState.lua
 @@ -261,20 +261,5 @@ function PartyState:_paintScreen(party)
@@ -25,13 +25,60 @@ index 4a951eee..60b13a82 100644
 -        gfx.drawText("A: STATS  B: Back",12,222)
 +        self:drawSummary(mon)
      else
-@@ -329,2 +314,94 @@ end
+@@ -329,2 +314,140 @@ end
  
++
 +-- status_screen.asm StatusScreen and StatusScreen2. The name is
 +-- hlcoord 9, 1. StatsText is ATTACK / DEFENSE / SPEED / SPECIAL, two
 +-- rows apart, inside the box at hlcoord 0, 8. SPECIAL is that one
 +-- line; the figure is the special attack. StatusScreen2 prints the
 +-- moves at hlcoord 2, 9 and PP one row below each move.
++-- Text uses the same uniform 12/8 scale as the party list.
++local STATUS_FIT <const> = 12
++
++local function statusFitTile(sheetName, index)
++    local sheet = GbFont.load()[sheetName]
++    local columns = sheetName == "ed" and 1 or 16
++    local sx = (index % columns) * 8
++    local sy = math.floor(index / columns) * 8
++    local image = gfx.image.new(STATUS_FIT, STATUS_FIT, gfx.kColorWhite)
++    gfx.pushContext(image)
++    gfx.setDrawOffset(0, 0)
++    gfx.setColor(gfx.kColorBlack)
++    for y = 0, STATUS_FIT - 1 do
++        local sourceY = sy + math.floor(y * 8 / STATUS_FIT)
++        for x = 0, STATUS_FIT - 1 do
++            local sourceX = sx + math.floor(x * 8 / STATUS_FIT)
++            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
++                gfx.drawPixel(x, y)
++            end
++        end
++    end
++    gfx.popContext()
++    return image
++end
++
++local function statusFitAt(sheetName, index, col, row)
++    local ox = math.floor((TitleIdle.COL - STATUS_FIT) / 2)
++    local oy = TitleIdle.ROW - STATUS_FIT
++    statusFitTile(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
++end
++
++local function statusFitChar(char, col, row)
++    local sheetName, index = TitleIdle.glyph(char)
++    statusFitAt(sheetName, index, col, row)
++end
++
++local function statusFitString(text, col, row)
++    local cursor, index = 0, 1
++    while index <= #text do
++        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
++        statusFitAt(sheetName, glyph, col + cursor, row)
++        cursor = cursor + 1
++        index = nextIndex
++    end
++end
++
 +local STATUS_CONDITION <const> = {poison="PSN", badPoison="PSN", burn="BRN", paralyze="PAR", sleep="SLP", freeze="FRZ"}
 +
 +local function statusPad(value, digits)
@@ -56,7 +103,6 @@ index 4a951eee..60b13a82 100644
 +    if fill > 0 then gfx.fillRect(x + 1, y + 1, fill, h - 2) end
 +end
 +
-+-- DrawLineBox: a vertical │ run, a ┘, then a ─ run back to the left.
 +local function statusLineBox(col, row, down, across)
 +    for i = 0, down - 1 do GbFont.drawChar("│", col, row + i) end
 +    GbFont.drawChar("┘", col, row + down)
@@ -67,21 +113,21 @@ index 4a951eee..60b13a82 100644
 +    import "game/gbFont"
 +    statusFront(mon)
 +    statusLineBox(19, 1, 6, 10)
-+    GbFont.drawString(mon.name, 9, 1)
-+    GbFont.drawString("L" .. string.format("%2d", mon.level), 14, 2)
-+    GbFont.drawString(string.format("%03d", mon.dex or 0), 3, 7)
++    statusFitString(mon.name, 9, 1)
++    statusFitString("L" .. string.format("%2d", mon.level), 14, 2)
++    statusFitString(string.format("%03d", mon.dex or 0), 3, 7)
 +    statusHpBar(11, 3, 6, mon.hp, mon.maxHP)
-+    GbFont.drawString(statusPad(mon.hp, 3) .. "/" .. statusPad(mon.maxHP, 3), 12, 4)
-+    GbFont.drawString("STATUS/", 9, 6)
-+    GbFont.drawString(STATUS_CONDITION[mon.status] or "OK", 16, 6)
++    statusFitString(statusPad(mon.hp, 3) .. "/" .. statusPad(mon.maxHP, 3), 12, 4)
++    statusFitString("STATUS/", 9, 6)
++    statusFitString(STATUS_CONDITION[mon.status] or "OK", 16, 6)
 +    statusLineBox(19, 9, 8, 6)
-+    GbFont.drawString("TYPE1/", 10, 9)
-+    GbFont.drawString("TYPE2/", 10, 11)
-+    GbFont.drawString("IDNo/", 10, 13)
-+    GbFont.drawString("OT/", 10, 15)
-+    GbFont.drawString(string.upper(mon.type or ""), 11, 10)
-+    if mon.type2 then GbFont.drawString(string.upper(mon.type2), 11, 12) end
-+    GbFont.drawString(Story.playerName(self.game), 12, 16)
++    statusFitString("TYPE1/", 10, 9)
++    statusFitString("TYPE2/", 10, 11)
++    statusFitString("IDNo/", 10, 13)
++    statusFitString("OT/", 10, 15)
++    statusFitString(string.upper(mon.type or ""), 11, 10)
++    if mon.type2 then statusFitString(string.upper(mon.type2), 11, 12) end
++    statusFitString(Story.playerName(self.game), 12, 16)
 +    GbFont.drawBox(TitleIdle.textBox(0, 8, 8, 8))
 +    local stats = {
 +        {"ATTACK", mon.atk}, {"DEFENSE", mon.def},
@@ -89,8 +135,8 @@ index 4a951eee..60b13a82 100644
 +    }
 +    for index, stat in ipairs(stats) do
 +        local row = 9 + (index - 1) * 2
-+        GbFont.drawString(stat[1], 1, row)
-+        GbFont.drawString(statusPad(stat[2], 3), 6, row + 1)
++        statusFitString(stat[1], 1, row)
++        statusFitString(statusPad(stat[2], 3), 6, row + 1)
 +    end
 +end
 +
@@ -98,24 +144,24 @@ index 4a951eee..60b13a82 100644
 +    import "game/gbFont"
 +    statusFront(mon)
 +    statusLineBox(19, 1, 6, 10)
-+    GbFont.drawString(mon.name, 9, 1)
-+    GbFont.drawString("EXP POINTS", 9, 3)
-+    GbFont.drawString("LEVEL UP", 9, 5)
-+    GbFont.drawString(statusPad(mon.xp or 0, 7), 12, 4)
++    statusFitString(mon.name, 9, 1)
++    statusFitString("EXP POINTS", 9, 3)
++    statusFitString("LEVEL UP", 9, 5)
++    statusFitString(statusPad(mon.xp or 0, 7), 12, 4)
 +    local remain = math.max(0, (mon.xpToNext or 0) - (mon.xp or 0))
-+    GbFont.drawString(statusPad(remain, 7), 7, 6)
++    statusFitString(statusPad(remain, 7), 7, 6)
 +    -- <to> is one tile at column 14 (status_screen.asm). The dex font
 +    -- has no <to> tile, so the two letters fill column 14 and the blank
 +    -- column before PrintLevel at column 16.
-+    GbFont.drawString("to", 14, 6)
-+    GbFont.drawString("L" .. string.format("%2d", math.min(100, mon.level + 1)), 16, 6)
++    statusFitString("to", 14, 6)
++    statusFitString("L" .. string.format("%2d", math.min(100, mon.level + 1)), 16, 6)
 +    GbFont.drawBox(TitleIdle.textBox(0, 8, 18, 8))
 +    for index, key in ipairs(mon.moves) do
 +        local row = 9 + (index - 1) * 2
 +        local move = moveData[key]
-+        GbFont.drawString(string.upper(move.name), 2, row)
-+        GbFont.drawString("PP", 11, row + 1)
-+        GbFont.drawString(statusPad(mon.pp[key] or 0, 2) .. "/" .. statusPad(move.maxPP or move.pp or 0, 2), 14, row + 1)
++        statusFitString(string.upper(move.name), 2, row)
++        statusFitString("PP", 11, row + 1)
++        statusFitString(statusPad(mon.pp[key] or 0, 2) .. "/" .. statusPad(move.maxPP or move.pp or 0, 2), 14, row + 1)
 +    end
 +end
 +

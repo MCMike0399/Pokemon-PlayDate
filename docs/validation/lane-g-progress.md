@@ -275,6 +275,10 @@ The r4 bag glyphs were 8px tall in the 13px cell, so they looked short and wide 
 
 The unreviewed field and battle pages are in `docs/validation/lane-g-ui-unreviewed.md`, with the Simulator frames in `artifacts/lane-g/ui-unreviewed/`. Pokered pin `af519899719f0754965776faac0e836a3b906e6d`. The notes record source diffs and leave the visual call to BlueBot. The Viridian Mart clerk stays unreachable from a walkable tile, so the buy list is the aisle frame only.
 
+## Round 40
+
+Fidelity sweep r2. The four screen patches still apply on top of `Source/` and do not change the 20 by 13 cell. Text on those screens is a uniform 12/8 scale of the 8x8 tile, with the top pixel of the cell left clear. The party list starts on tile row 1, two rows per mon. Summary PP stays on the row under the move name. The save YES box still covers the T of TIME; `home/text.asm` `TextBoxBorder` plus `engine/menus/save.asm` `SaveTheGame_YesOrNo` put that border on column 5 row 8. Trainer badges are the 1-bit tiles from `gfx/trainer_card/badges.png`, `badge_numbers.png`, and `circle_tile.png`. START is unchanged. `tools/tests/test_lane_e_fidelity_sweep.py`: 10 tests pass. Frames are the r2 captures under `artifacts/lane-g/fidelity-sweep/`.
+
 ## Round 39
 
 YellowBot: `git diff --name-only origin/main...HEAD` still touched `Source/`. Those six paths are now `tools/notes/lane-e-screen-font.patch` (`titleIdle.lua`, `gameOptions.lua`, `optionsState.lua`, `namingState.lua`, `titleState.lua`, `images/title/font/hud.png`). `tools/tests/test_lane_e_screen_font.py` fails on the live tree and passes after `git apply`. `Source/` matches `origin/main` again. `MallocPoolSize` is unchanged.

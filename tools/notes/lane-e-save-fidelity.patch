@@ -1,5 +1,5 @@
 diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
-index 340349c3..764117fe 100644
+index 340349c3..3daa732a 100644
 --- a/Source/game/pauseState.lua
 +++ b/Source/game/pauseState.lua
 @@ -78,4 +78,4 @@ function PauseState:draw()
@@ -9,13 +9,65 @@ index 340349c3..764117fe 100644
 +            gfx.clear(gfx.kColorWhite)
 +            self:drawSave()
          else
-@@ -108 +108,35 @@ function PauseState:resume()
+@@ -108 +108,87 @@ function PauseState:resume()
  end
 +
 +-- engine/menus/main_menu.asm PrintSaveScreenText draws the info box at
-+-- hlcoord 4, 0. SaveScreenInfoText starts at hlcoord 5, 2 and <NEXT> is
-+-- two rows. The yes/no box is DisplayTwoOptionMenu at hlcoord 0, 7 with
-+-- the cursor at column 1, row 8 (engine/menus/text_box.asm).
++-- hlcoord 4, 0 with b = 8 and c = 14. SaveScreenInfoText starts at
++-- hlcoord 5, 2 and <NEXT> is two rows, so TIME is column 5 row 8.
++-- engine/menus/save.asm SaveTheGame_YesOrNo then calls DisplayTextBoxID
++-- TWO_OPTION_MENU at hlcoord 0, 7 with cursor Y = 8 and X = 1.
++-- home/text.asm TextBoxBorder writes c inner tiles and then the right
++-- border, so data/yes_no_menu_strings.asm YES_NO (width 4, height 3,
++-- no blank line) occupies columns 0-5 and rows 7-11. That right border
++-- is the same tile as the T of TIME. The later box covers it. YES is
++-- border + SCREEN_WIDTH + 2, column 2 row 8, and NO is the next row.
++-- Text uses the uniform 12/8 scale. The covered T stays covered.
++local SAVE_FIT <const> = 12
++
++local function saveFitTile(sheetName, index)
++    local sheet = GbFont.load()[sheetName]
++    local columns = sheetName == "ed" and 1 or 16
++    local sx = (index % columns) * 8
++    local sy = math.floor(index / columns) * 8
++    local image = gfx.image.new(SAVE_FIT, SAVE_FIT, gfx.kColorWhite)
++    gfx.pushContext(image)
++    gfx.setDrawOffset(0, 0)
++    gfx.setColor(gfx.kColorBlack)
++    for y = 0, SAVE_FIT - 1 do
++        local sourceY = sy + math.floor(y * 8 / SAVE_FIT)
++        for x = 0, SAVE_FIT - 1 do
++            local sourceX = sx + math.floor(x * 8 / SAVE_FIT)
++            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
++                gfx.drawPixel(x, y)
++            end
++        end
++    end
++    gfx.popContext()
++    return image
++end
++
++local function saveFitAt(sheetName, index, col, row)
++    local ox = math.floor((TitleIdle.COL - SAVE_FIT) / 2)
++    local oy = TitleIdle.ROW - SAVE_FIT
++    saveFitTile(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
++end
++
++local function saveFitChar(char, col, row)
++    local sheetName, index = TitleIdle.glyph(char)
++    saveFitAt(sheetName, index, col, row)
++end
++
++local function saveFitString(text, col, row)
++    local cursor, index = 0, 1
++    while index <= #text do
++        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
++        saveFitAt(sheetName, glyph, col + cursor, row)
++        cursor = cursor + 1
++        index = nextIndex
++    end
++end
++
 +function PauseState:drawSave()
 +    local session = self.game.session
 +    local clock = session:playTime()
@@ -28,20 +80,20 @@ index 340349c3..764117fe 100644
 +        if session:questFlag(id) == true then badges = badges + 1 end
 +    end
 +    GbFont.drawBox(TitleIdle.textBox(4, 0, 14, 8))
-+    GbFont.drawString("PLAYER", 5, 2)
-+    GbFont.drawString(Story.playerName(self.game), 12, 2)
-+    GbFont.drawString("BADGES", 5, 4)
-+    GbFont.drawString(string.format("%2d", badges), 17, 4)
-+    GbFont.drawString("POKéDEX", 5, 6)
-+    GbFont.drawString(string.format("%3d", owned), 16, 6)
-+    GbFont.drawString("TIME", 5, 8)
-+    GbFont.drawString(TitleIdle.playTimeText(clock.hours, clock.minutes), 13, 8)
++    saveFitString("PLAYER", 5, 2)
++    saveFitString(Story.playerName(self.game), 12, 2)
++    saveFitString("BADGES", 5, 4)
++    saveFitString(string.format("%2d", badges), 17, 4)
++    saveFitString("POKéDEX", 5, 6)
++    saveFitString(string.format("%3d", owned), 16, 6)
++    saveFitString("TIME", 5, 8)
++    saveFitString(TitleIdle.playTimeText(clock.hours, clock.minutes), 13, 8)
 +    GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
-+    GbFont.drawString("Would you like to", 1, 14)
-+    GbFont.drawString("SAVE the game?", 1, 16)
++    saveFitString("Would you like to", 1, 14)
++    saveFitString("SAVE the game?", 1, 16)
 +    GbFont.drawBox(TitleIdle.textBox(0, 7, 4, 3))
 +    local cursorRow = self.menu.selectedIndex == 2 and 10 or 8
-+    GbFont.drawChar(TitleIdle.CURSOR, 1, cursorRow)
-+    GbFont.drawString("YES", 2, 8)
-+    GbFont.drawString("NO", 2, 10)
++    saveFitChar(TitleIdle.CURSOR, 1, cursorRow)
++    saveFitString("YES", 2, 8)
++    saveFitString("NO", 2, 10)
 +end

@@ -45,6 +45,96 @@ def blank(path, x0, x1, y0, y1):
                    for y in range(y0, y1) for x in range(x0, x1))
 
 
+SPRITE = (0, 0, 140, 100)
+TRAINER_PIC = (280, 0, 400, 120)
+
+
+def badge_rects():
+    rects = []
+    for index in range(8):
+        col = 2 + (index % 4) * 4
+        row = 11 if index < 4 else 14
+        x = (col + 1) * 20 + 8
+        y = (row + 1) * 13 + 1
+        rects.append((x, y, x + 24, y + 24))
+    return rects
+
+
+BADGE_RECTS = badge_rects()
+BADGE_UNION = (
+    min(rect[0] for rect in BADGE_RECTS),
+    min(rect[1] for rect in BADGE_RECTS),
+    max(rect[2] for rect in BADGE_RECTS),
+    max(rect[3] for rect in BADGE_RECTS),
+)
+
+
+def hits(cell, rects):
+    x0, y0, x1, y1 = cell
+    for rx0, ry0, rx1, ry1 in rects:
+        if x0 < rx1 and rx0 < x1 and y0 < ry1 and ry0 < y1:
+            return True
+    return False
+
+
+def glyph_issues(path, skip):
+    """Text ink is at most 12 by 12 and keeps a pixel of air from its neighbor.
+
+    Full-cell borders and the HP bar are not text. Sprite and badge art is
+    passed in skip. A problem list is empty only when every text cell fits.
+    """
+    image = Image.open(path).convert("L")
+    cells = {}
+    issues = []
+    for row in range(240 // 13):
+        for col in range(400 // 20):
+            x0, y0 = col * 20, row * 13
+            if hits((x0, y0, x0 + 20, y0 + 13), skip):
+                continue
+            minx, maxx, miny, maxy = 20, -1, 13, -1
+            row_count = [0] * 13
+            for dy in range(13):
+                for dx in range(20):
+                    if image.getpixel((x0 + dx, y0 + dy)) < 128:
+                        minx, maxx = min(minx, dx), max(maxx, dx)
+                        miny, maxy = min(miny, dy), max(maxy, dy)
+                        row_count[dy] += 1
+            if maxx < 0:
+                continue
+            width, height = maxx - minx + 1, maxy - miny + 1
+            # A full-cell border stroke or corner runs at least 14px across.
+            # A fitted glyph is 12px, so it cannot.
+            if max(row_count) >= 14:
+                continue
+            if width >= 16 and height <= 8:
+                continue
+            if height >= 13 and width <= 10:
+                continue
+            cells[(col, row)] = (minx, maxx, miny, maxy)
+            if width > 12 or height > 12:
+                issues.append((col, row, width, height))
+    for (col, row), box in cells.items():
+        right = cells.get((col + 1, row))
+        if right is not None and (20 - box[1] - 1) + right[0] < 1:
+            issues.append(("h", col, row))
+        below = cells.get((col, row + 1))
+        if below is not None and (13 - box[3] - 1) + below[2] < 1:
+            issues.append(("v", col, row))
+    return issues
+
+
+def ink_count(path, x0, y0, x1, y1):
+    image = Image.open(path).convert("L")
+    return sum(1 for y in range(y0, y1) for x in range(x0, x1) if image.getpixel((x, y)) < 128)
+
+
+def same_ink(left, right, x0, y0, x1, y1):
+    a = Image.open(left).convert("L")
+    b = Image.open(right).convert("L")
+    return all((a.getpixel((x, y)) < 128) == (b.getpixel((x, y)) < 128)
+               for y in range(y0, y1) for x in range(x0, x1))
+
+
 class LaneEFidelitySweepTests(unittest.TestCase):
     def test_patches_apply_alone_and_stacked(self):
         for patch in PATCHES.values():
@@ -54,8 +144,27 @@ class LaneEFidelitySweepTests(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stderr)
             text = patch.read_text(encoding="utf-8", errors="replace")
             self.assertNotIn("MallocPoolSize", text)
-            self.assertIn("GbFont.drawString", text)
             self.assertNotIn("drawTight", text)
+            self.assertIn("math.floor(y * 8 /", text)
+            self.assertIn("math.floor(x * 8 /", text)
+            self.assertIn("_FIT <const> = 12", text)
+        party = PATCHES["party"].read_text(encoding="utf-8", errors="replace")
+        self.assertIn("row = 1 + (i - 1) * 2", party)
+        status = PATCHES["status"].read_text(encoding="utf-8", errors="replace")
+        self.assertIn('statusFitString("PP", 11, row + 1)', status)
+        self.assertIn("local row = 9 + (index - 1) * 2", status)
+        trainer = PATCHES["trainer"].read_text(encoding="utf-8", errors="replace")
+        self.assertIn("gfx/trainer_card/badges.png", trainer)
+        self.assertIn("gfx/trainer_card/badge_numbers.png", trainer)
+        self.assertIn("gfx/trainer_card/circle_tile.png", trainer)
+        self.assertIn("hlcoord 2, 11", trainer)
+        self.assertIn("hlcoord 2, 14", trainer)
+        save = PATCHES["save"].read_text(encoding="utf-8", errors="replace")
+        self.assertIn("engine/menus/save.asm SaveTheGame_YesOrNo", save)
+        self.assertIn("home/text.asm TextBoxBorder", save)
+        self.assertIn("engine/menus/main_menu.asm PrintSaveScreenText", save)
+        self.assertIn("column 5 row 8", save)
+        self.assertIn("columns 0-5 and rows 7-11", save)
         # --check of two files does not stack them. Apply the pair, then
         # put the tree back. Source/ stays unchanged after the test.
         try:
@@ -86,13 +195,13 @@ class LaneEFidelitySweepTests(unittest.TestCase):
             self.assertTrue(cursor and cursor[0][0] >= 26)
 
     def party_rows(self, path):
-        # RedrawPartyMenu_ names at row 0, 2, 4. The cursor is on the HP
-        # row, one cell below the name (PartyMenuInit Y = 1).
-        names = ink_bands(path, 24, 90, 0, 120)
-        cursor = ink_bands(path, 0, 16, 0, 40, 6)
+        # The first name is tile row 1. Each mon takes two rows, and the
+        # cursor sits on the HP row under that name.
+        names = ink_bands(path, 70, 160, 0, 180)
+        cursor = ink_bands(path, 0, 20, 20, 55, 6)
         if len(names) < 2 or not cursor:
             return False
-        return (names[0][0] <= 2
+        return (13 <= names[0][0] <= 16
                 and names[1][0] - names[0][0] >= 26
                 and cursor[0][0] >= names[0][1])
 
@@ -142,7 +251,7 @@ class LaneEFidelitySweepTests(unittest.TestCase):
 
     def test_trainer_card_labels_start_on_row_two(self):
         self.assertFalse(self.trainer_rows(FRAMES / "trainer-before.png"))
-        self.assertTrue(self.trainer_rows(FRAMES / "trainer-after.png"))
+        self.assertTrue(self.trainer_rows(FRAMES / "trainer-0.png"))
 
     def save_rows(self, path):
         # PrintSaveScreenText PLAYER at row 2. YES is row 8 and NO is
@@ -158,6 +267,56 @@ class LaneEFidelitySweepTests(unittest.TestCase):
     def test_save_screen_puts_player_on_row_two(self):
         self.assertFalse(self.save_rows(FRAMES / "save-before.png"))
         self.assertTrue(self.save_rows(FRAMES / "save-after.png"))
+
+    def test_save_yes_box_covers_the_time_tile(self):
+        # home/text.asm TextBoxBorder writes c inner tiles and then the
+        # right border. data/yes_no_menu_strings.asm YES_NO is width 4,
+        # height 3, with no blank line. engine/menus/save.asm
+        # SaveTheGame_YesOrNo draws that box at hlcoord 0, 7, so it
+        # occupies columns 0-5 and rows 7-11. engine/menus/main_menu.asm
+        # PrintSaveScreenText places TIME at column 5 row 8. The later
+        # border is that same tile, so the T stays covered.
+        def full_height(path):
+            image = Image.open(path).convert("L")
+            x0, y0 = 5 * 20, 8 * 13
+            top = any(image.getpixel((x0 + x, y0)) < 128 for x in range(20))
+            bottom = any(image.getpixel((x0 + x, y0 + 12)) < 128 for x in range(20))
+            return top and bottom
+
+        self.assertFalse(full_height(FRAMES / "save-before.png"))
+        self.assertTrue(full_height(FRAMES / "save-after.png"))
+
+    def test_trainer_card_draws_faces_and_badges(self):
+        # draw_badges.asm: unearned is the face, earned is the badge four
+        # tiles later. gfx/trainer_card/badges.png. Each 2x2 graphic is
+        # empty on the unpatched card, drawn for 0 badges, and different
+        # when all eight badges are earned.
+        before = FRAMES / "trainer-before.png"
+        faces = FRAMES / "trainer-0.png"
+        earned = FRAMES / "trainer-8.png"
+        for rect in BADGE_RECTS:
+            self.assertLess(ink_count(before, *rect), 80)
+            self.assertGreater(ink_count(faces, *rect), 100)
+            self.assertGreater(ink_count(earned, *rect), 100)
+            self.assertFalse(same_ink(faces, earned, *rect))
+
+    def test_glyph_ink_stays_in_its_cell_and_does_not_touch(self):
+        before = [
+            "party-before.png", "status-before.png", "summary-before.png",
+            "save-before.png", "trainer-before.png",
+        ]
+        after = {
+            "party-after.png": [],
+            "status-after.png": [SPRITE],
+            "summary-after.png": [SPRITE],
+            "save-after.png": [],
+            "trainer-0.png": [TRAINER_PIC, *BADGE_RECTS],
+            "trainer-8.png": [TRAINER_PIC, *BADGE_RECTS],
+        }
+        for name in before:
+            self.assertTrue(glyph_issues(FRAMES / name, []), name)
+        for name, skip in after.items():
+            self.assertEqual(glyph_issues(FRAMES / name, skip), [], name)
 
 
 if __name__ == "__main__":
