@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "4323a996831422b9225316ce3e39dea88c7e0e39",
+    "source_sha256": "392755063c0d7345e5d45d8736b3d8aa20c9dce5c56121c5c6c0bac3f94eacb4",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after the Cerulean and Vermilion journey pins record the lazy postgame source hashes. Projected bodies are unchanged. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 f0b074af0e897a41a2e0e8c173a2ed2b22e10964cc333a8b87c6c28c0da4088d.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "8e39bc2a1f82ab5cdaa170cc685615670e3f767f",
     "source_sha256": "f0b074af0e897a41a2e0e8c173a2ed2b22e10964cc333a8b87c6c28c0da4088d",
     "policy_date": "2026-11-20",
@@ -1936,6 +1947,7 @@
   
   }
   }}
+  }
   }
   }
   }
