@@ -244,4 +244,68 @@ The song sweep (`tools/tests/test_audio_fidelity_sweep.py`, 19 tests on F) was n
 
 ### Go / no-go
 
-No-go for RedBot. City switches, Lavender, Cerulean Cave, individual-stats, and the six fidelity tests fit. Field-travel does not: clean E scores 3/0, and this tree scores 2/1. That is a new failure. The three pin tests are expected and are not the reason for the no-go.
+No-go against E `4bac3bdf`. That tip already scored field-travel 3/0, and F's tree dropped it to 2/1. The base below replaces that comparison.
+
+## Main `93c15d86` plus F `18c166e3`
+
+`git ls-remote` still has `origin/cursor/lane-f-audio` at `18c166e302361db85531ed4a51bdcb6458d867b6`. F had not rebased when these runs finished. `origin/main` is `93c15d86eaa497baa944e39cdc7e364dcc7df739`. The scope check is F's own commits, `git diff origin/main...18c166e3`: still 562 files, `9615` insertions, `22089` deletions, because the merge-base is still `ea32b553`. No path is outside `Source/audio/**`, `Source/game/kantoAudio.lua`, `tools/`, `docs/`, and `artifacts/`. No file deletions. The non-score line deletions are the same seven `kantoAudio.lua` lines, the progress note, the audio generators, the flute hunk removed from `lane-e-audio-hooks.patch`, and nine lines in `test_audio_events.py`.
+
+### Already landed on this main
+
+Do not reapply these. They are in `93c15d86`:
+
+- Switch-zone release, `95554e07`.
+- Hall continue release, `68fc1f80`.
+- Lazy postgame load, `8e39bc2a`. The runtime chunk loads only for a Hall continue or the ceremony.
+- Cerulean and Vermilion journey source hashes, `4323a996`.
+
+Not landed. E has them; main does not:
+
+- Fly origin release, `d1167fa5`.
+- The harness trace change. E held it back out of `Source/` at `291da851`.
+
+### Apply order
+
+`pdc` compiles after this order. `MallocPoolSize` stayed `16645684`.
+
+| Order | Patch | On main `93c15d86` |
+| --- | --- | --- |
+| 1 | F audio tree, `18c166e3` | `git checkout 18c166e3 -- Source/audio Source/game/kantoAudio.lua`. |
+| 2 | `lane-e-fly-release-before-build.patch` | Applies in full, including `kantoAudio.lua`, because the Fly release is not on main. |
+| 3 | `lane-e-harness-trace-handle.patch` | Applies. The settled-player revision. `lane-e-harness-completion-snapshot.patch` does not apply. |
+| 4 | `lane-e-fly-contract-release.patch` | Applies. Not contained. |
+| 5 | `lane-e-type-display-names.patch` | Applies. |
+| 6 | `lane-k-premerge-type-display-import.patch` | Applies after type-display. |
+| 7 | `lane-k-premerge-hof-dex-rating.patch` | Applies on the lazy postgame file. |
+| 8 | `lane-e-audio-badge-item.patch` | Applies on F's `events.lua`. |
+| 9 | `lane-e-audio-heal-count.patch` | Applies. |
+| 10 | `lane-e-audio-pokedex-cry.patch` | Applies. |
+| 11 | `lane-e-audio-source-cries.patch` | Applies. |
+| 12 | `lane-e-audio-movesfx-import.patch` | Applies. |
+| 13 | `lane-e-audio-player-faint-cry.patch` | Applies after that import. |
+| 14 | `lane-e-credits-audio-snapshot-test.patch` | Copy `tools/tests/test_lane_e_coverage_fingerprint.py` from `18c166e3` first. Do not apply `lane-e-coverage-fingerprint.patch`. It writes an old hash into `coverage-current.json`. |
+
+Copy `tools/tests/test_lane_e_audio_fidelity.py` from `18c166e3` with that last step. It is not a patch.
+
+### Results
+
+| Check | Main `93c15d86` | Main plus F `18c166e3` and the patches |
+| --- | --- | --- |
+| `contracts field-travel` | 0 passed, 3 failed, `13243.2` KiB. Surf and expired Surf inflate at `fieldTravelContracts.lua:91`. Fly is `not enough memory` at the same line. | 3 passed, 0 failed, `12825.2` KiB, twice (15.042s and 14.422s). |
+| `contracts individual-stats-v1` | 17 passed, 0 failed, `12923.9` KiB | 17 passed, 0 failed, `12953.2` KiB |
+| Viridian switch, including Lavender | passed in the host suite | passed, 37.312s with the cave test. Lavender `zone.end` `13094.5` KiB, peak `13499.9`. Fuchsia arrived. No nil error. |
+| Cerulean Cave warp | passed in the host suite | passed. `zone.end` `13291.1` KiB, peak `13417.2`. |
+| Six audio fidelity tests | not on main | 6 passed |
+| Host suite | 1429 tests, 212.456s, 36 failures, 75 errors, 11 skipped | 1436 tests, 216.111s, 39 failures, 75 errors, 11 skipped |
+
+The seven added host tests are the six fidelity tests, which passed, and the credits fingerprint test, which failed. No failure from clean main disappeared. The three new failures are pins:
+
+1. `test_coverage_matrix` `test_complete_source_indices_without_completion_promotion`. `matrix stale: Source fingerprint differs`.
+2. `test_lane_e_coverage_fingerprint` `test_snapshot_records_the_credits_path_audio`. Pinned `392755063c0d7345e5d45d8736b3d8aa20c9dce5c56121c5c6c0bac3f94eacb4`. Live `6e7b2a0b479d70cf46226174922056f193508215036349acd274e82f4ac65c64`.
+3. `test_cerulean_observations` `test_deterministic_projection_matches_consumed_source_bytes`. `lane-e-audio-source-cries.patch` changes `game/eventState.lua` after `4323a996` refreshed the journey hashes.
+
+Regenerate `docs/validation/coverage-current.json` and `Source/dev/ceruleanJourney.json`. Do not hand-edit them.
+
+### Go / no-go
+
+Go for RedBot, on main `93c15d86`, with that pin regeneration. Field-travel, individual-stats, Lavender, the rest of the city switch, Cerulean Cave, and the six fidelity tests pass. The earlier no-go was the audio tree on E `4bac3bdf`, where field-travel was already 3/0 and then dropped a test. On this main the Fly release is not landed, clean field-travel fails all three, and the same contract scores 3/0 after the audio tree and the patches above.
