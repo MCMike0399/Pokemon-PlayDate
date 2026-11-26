@@ -209,3 +209,29 @@ Resident Lua heap, same fixture (Viridian idle, then a wild Rattata, then the Ha
 | Hall `actors.end` | 13318.7 | 13051.6 |
 
 The Hall row is the map. `hall_of_fame` still plays only from the ceremony, not from zone entry.
+
+## Fidelity sweep against pokered `af519899`
+
+Lane E's tip for the Simulator receipts is `4bac3bdff34ee3a23f7d2d6b7d2cd0b5a2081ffe`. The audio tree on that scratch is this branch. Champion, Hall of Fame, and credits playback are out of this sweep.
+
+`POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_audio_fidelity_sweep tools.tests.test_audio_events` ran 19 tests and passed. The sweep parses `data/maps/songs.asm` and `constants/music_constants.asm`, and compares every map with `Source/audio/eventMaps.lua`. It parses `data/trainers/encounter_types.asm` and every `trainer_const`, then asks `KantoEvents.trainerJingle` for gym leader 0 and 1. Rivals stay silent. Evil and female classes use those lists. Every other class uses the male jingle. A non-zero `wGymLeaderNo` stays silent, which is `PlayTrainerMusic` returning before the lists. Bike and surf replace the map bed with `MUSIC_BIKE_RIDING` and `MUSIC_SURFING` (`home/audio.asm`). Walking restores the map song.
+
+The cue rows match the pokered token that plays them: heal (`MUSIC_PKMN_HEALED` after `SFX_HEALING_MACHINE`), item (`SFX_GET_ITEM_1`), key item and badge (`SFX_GET_KEY_ITEM`), evolution (`SFX_TINK` then `MUSIC_SAFARI_ZONE`), caught (`SFX_CAUGHT_MON`), level up (`SFX_LEVEL_UP`), the four PC sounds, door (`SFX_GO_INSIDE` / `SFX_GO_OUTSIDE`), ledge (`SFX_LEDGE`), bump (`SFX_COLLISION`), and the menu sounds (`SFX_START_MENU`, `SFX_PRESS_AB`). Badge scripts name the key-item opcode. The item-fanfare change is already `tools/notes/lane-e-audio-badge-item.patch` with `LaneEAudioFidelityTests.test_boulder_and_earth_badges_play_the_item_fanfare`. No new gap turned up, so this sweep adds no patch.
+
+Simulator receipts are the music name `KantoAudio` requested on a real zone change. The logger and the `switchzone` / `traverse` commands lived only on the scratch. Sessions:
+
+| Transition | Requested bed | Session |
+| --- | --- | --- |
+| Viridian, then Pewter | `cities1`, then `cities1` | `ee39a17c81cc4693a18429a11f93a4aa` |
+| Route 1 | `route1` | same |
+| Pewter Gym, and later Cinnabar Gym | `gym` | same, and `e1cfe80346484dc288859975e5a86897` |
+| Mt. Moon | `dungeon3` | `ee39a17c` |
+| Cerulean Cave | `dungeon1` | same |
+| Pokémon Tower | `tower` | `5d4cb5d921844212a6f727515cf79a94` |
+| Silph Co. 1F and 11F | `silph`, then `silph` | same |
+| Safari Zone center and east | `safari`, then `safari` | `b0809f24905d4105b3c4592cfe63fc88` |
+| Fuchsia | `cities2` | `e1cfe803` |
+| Surf, then bike, then walk | `surfing`, `bicycle`, `cities2` | same |
+| Celadon, then Vermilion | `celadon`, `vermilion` | same |
+
+Rock Tunnel is `dungeon3` in the table, the same bed Mt. Moon played. The longer tours ran out of memory while inflating a later map. Those crashes are the scratch logger loading every score, not a wrong song. The finished Fuchsia tour is session `e1cfe803`.

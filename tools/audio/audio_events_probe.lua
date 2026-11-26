@@ -1,8 +1,17 @@
 -- Host probe. Lua 5.4 loads the data table and select.lua; Playdate is not required.
 local root = arg[1]
 assert(root and root ~= "", "pass the repository root")
+-- eventMaps.lua is a file.run target. The probe loads it the same way.
+playdate = {
+    file = {
+        run = function(path)
+            dofile(root .. "/Source/" .. path .. ".lua")
+        end,
+    },
+}
 dofile(root .. "/Source/audio/events.lua")
 dofile(root .. "/Source/audio/select.lua")
+KantoEvents.ensureMaps()
 
 local function show(key, value)
     if value == nil then
