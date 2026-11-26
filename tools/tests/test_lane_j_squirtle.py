@@ -5857,7 +5857,9 @@ HIDEOUT_FLOORS = {
         "file": "RocketHideoutB1F.json", "width": 30, "goal": (23, 2), "next": "b2f",
         "zone": "pokered:ROCKET_HIDEOUT_B1F",
         "warps": {(21, 2), (23, 2), (24, 19), (21, 24), (25, 19)},
-        "blocked": {(26, 8), (12, 6), (18, 17), (15, 25), (28, 18), (11, 14), (9, 17)},
+        "up": (23, 2), "up_next": "b2f",
+        # The $54 door stays shut until the Rocket behind it falls. His side is the lift.
+        "blocked": {(26, 8), (12, 6), (18, 17), (15, 25), (28, 18), (11, 14), (9, 17), (24, 16), (25, 16)},
     },
     "RocketHideoutB2F": {
         "file": "RocketHideoutB2F.json", "width": 30, "goal": (21, 8), "next": "b3f",
@@ -6043,11 +6045,10 @@ def _hideout_b4(player, report):
             raise RuntimeError("the lift key was not taken: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_lift_key")
         return "yield"
-    # The stair side does not connect to Giovanni. The lift does, from B1F.
+    # The stair side does not connect to Giovanni. The B2F lift does.
     _name, x, y = _k_here(player)
     if x >= 22:
-        _checkpoint(player, report, "saved_hideout_east")
-        return "yield"
+        return _hideout_east(player, report)
     status = _b4_walk(player, report, (19, 11), avoid)
     if status:
         return status
@@ -6073,43 +6074,128 @@ def _holding(player, item):
     return walk(player.state.get("session") or {})
 
 
+def _beaten(player, event_id):
+    flags = (player.state.get("session") or {}).get("trainerFlags") or {}
+    if isinstance(flags, dict):
+        return bool(flags.get(event_id))
+    return event_id in flags
+
+
 def _through_hideout(player, report):
-    place, x, _y = _k_here(player)
+    place, _x, _y = _k_here(player)
     upward = _holding(player, "liftKey") and not _holding(player, "silphScope")
-    if place == "RocketHideoutB1F" and upward:
+    if place == "RocketHideoutElevator":
+        return _hideout_floor(player, report)
+    if place == "RocketHideoutB2F" and upward:
         return _hideout_elevator(player, report)
     if place in HIDEOUT_FLOORS:
-        return _hideout_stairs(player, report, place, upward=upward and place != "RocketHideoutB1F")
+        return _hideout_stairs(player, report, place, upward=upward)
     if place == "RocketHideoutB4F":
         return _hideout_b4(player, report)
-    if place == "RocketHideoutElevator":
-        _checkpoint(player, report, "saved_elevator")
-        return "yield"
     raise RuntimeError("off the Hideout floors: " + json.dumps(summary(player.state)))
 
 
 def _hideout_elevator(player, report):
-    """B1F's lift is the way onto Giovanni's side once the key is in the bag."""
-    cells = set(open_map(EAST / "RocketHideoutB1F.json", 0, 30))
-    avoid = {(21, 2), (23, 2), (21, 24), (26, 8), (12, 6), (18, 17), (15, 25), (28, 18), (11, 14), (9, 17)}
-    for _ in range(50):
-        _name, x, y = _k_here(player)
-        if (x, y) in {(24, 19), (25, 19)}:
-            break
-        blocked = set(avoid)
-        blocked.discard((x, y))
-        steps = route(cells, (x, y), (24, 18), blocked)
-        if not steps:
-            raise RuntimeError(f"no B1F lift path {(x, y)}")
-        nxt = neighbor((x, y), steps[0])
-        status = _k_go(player, report, steps[0], "RocketHideoutB1F", nxt[0], nxt[1])
-        if status:
-            return status
+    """B2F's lift opens onto Giovanni. B1F's door stays shut until the far Rocket falls."""
+    goal = (24, 18)
+    _name, x, y = _k_here(player)
+    if (x, y) != goal:
+        for direction, kind, landed in _hideout_route("RocketHideoutB2F", (x, y), goal):
+            if kind == "spin":
+                status = _hideout_spin(player, report, direction, "RocketHideoutB2F", landed)
+            else:
+                status = _k_go(player, report, direction, "RocketHideoutB2F", landed[0], landed[1])
+            if status:
+                return status
+    status = _k_clear(player, report)
+    if status:
+        return status
     player.step("down")
-    player.settle(limit=40)
+    player.settle(limit=80)
     if "elevator" not in str(player.state.get("zone")):
         raise RuntimeError("the lift door stayed shut: " + json.dumps(summary(player.state)))
+    return _hideout_floor(player, report)
+
+
+def _hideout_floor(player, report):
+    """The panel is the wall left of the cabin exits. B4F is the third row."""
+    _name, x, y = _k_here(player)
+    if y != 1:
+        status = _k_go(player, report, "up", "RocketHideoutElevator", x, 1)
+        if status:
+            return status
+        _name, x, y = _k_here(player)
+    if x != 5:
+        status = _k_go(player, report, "left" if x > 5 else "right", "RocketHideoutElevator", 5, 1)
+        if status:
+            return status
+    if (player.state.get("player") or {}).get("facing") != "left":
+        player.press("left", wait=8)
+    player.press("a", wait=8)
+    for _ in range(12):
+        options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+        if "B4F" in options:
+            player.choose("event", "B4F")
+            player.settle(limit=20)
+            break
+        if player.exploring():
+            raise RuntimeError("the lift panel did not open: " + json.dumps(summary(player.state)))
+        player.press("a", wait=8)
+    else:
+        raise RuntimeError("the lift never offered B4F: " + json.dumps(summary(player.state)))
+    if not player.exploring():
+        if not player.dismiss_until_explore(limit=40):
+            raise RuntimeError("the lift menu stayed up: " + json.dumps(summary(player.state)))
+    player.step("down")
+    player.settle(limit=30)
+    player.step("up")
+    player.settle(limit=80)
+    if "b4f" not in str(player.state.get("zone")):
+        raise RuntimeError("the lift did not reach B4F: " + json.dumps(summary(player.state)))
     _checkpoint(player, report, "saved_elevator")
+    return "yield"
+
+
+def _hideout_east(player, report):
+    """The two sightless Rockets open the office door. Giovanni is the talk after that."""
+    cells = set(open_map(EAST / "RocketHideoutB4F.json", 0, 30))
+    quest = _quest(player)
+    rockets = (
+        "pokered:ROCKET_HIDEOUT_B4F:objects:2",
+        "pokered:ROCKET_HIDEOUT_B4F:objects:3",
+    )
+    door_open = quest.get("EVENT_ROCKET_HIDEOUT_4_DOOR_UNLOCKED") or all(_beaten(player, event_id) for event_id in rockets)
+    door = set() if door_open else {(24, 11), (25, 11)}
+    avoid = {(19, 10), (24, 15), (25, 15), (25, 2), (10, 2), (11, 2), (9, 4), (10, 12), (12, 20)} | door
+    for event_id in rockets:
+        if _beaten(player, event_id):
+            continue
+        talked = talk_to(player, cells, event_id, avoid)
+        if player.state.get("root") == "battle" or not player.exploring():
+            return _k_clear(player, report)
+        if talked != "talked":
+            raise RuntimeError(f"{event_id} did not battle: " + json.dumps(summary(player.state)))
+    if not _beaten(player, "pokered:ROCKET_HIDEOUT_B4F:objects:1"):
+        talked = talk_to(player, cells, "pokered:ROCKET_HIDEOUT_B4F:objects:1", avoid)
+        if player.state.get("root") == "battle" or not player.exploring():
+            return _k_clear(player, report)
+        if talked != "talked":
+            raise RuntimeError("Giovanni did not battle: " + json.dumps(summary(player.state)))
+    if not _holding(player, "silphScope"):
+        avoid.discard((25, 2))
+        status = _b4_walk(player, report, (26, 2), avoid | {(25, 3)})
+        if status:
+            return status
+        if (player.state.get("player") or {}).get("facing") != "left":
+            player.press("left", wait=8)
+        player.press("a", wait=8)
+        if not _settle_hideout_scene(player, 30):
+            raise RuntimeError("the Silph Scope text did not finish: " + json.dumps(summary(player.state)))
+        if not _holding(player, "silphScope"):
+            raise RuntimeError("the Silph Scope was not taken: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_scope")
+        return "yield"
+    _checkpoint(player, report, "saved_hideout_east")
     return "yield"
 
 
