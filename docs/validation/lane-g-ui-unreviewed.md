@@ -114,18 +114,14 @@ Opened from the battle `BAG` command. `ITEM`, `$1234`, `Registered: NONE`, `POTI
 
 Opened from the battle `POKEMON` command. `SQUIRTLE Lv16 40/40` and `CATERPIE Lv5 19/19`, with the prompt `Choose a POKEMON!`.
 
-## Mart
+## Mart, rechecked
 
-![Viridian Mart aisle](../../artifacts/lane-g/ui-unreviewed/mart-aisle.png)
+A facing the counter does open the shop. The player has to stand on the walkable cell in front of the counter, `(4, 5)` on `kanto_viridian_mart`, facing left. That cell faces grid `(3, 5)`, whose foot tile is a mart counter (`pokered:MART:cell:0e-0f-1e-1f`, `terrain.counter` true). `KantoWorld.tryInteract` then looks one cell further and finds the clerk at `(2, 5)`. With `EVENT_OAK_GOT_PARCEL` the event is the shop. The captured menu is `artifacts/lane-g/ui-fidelity/mart-shop-after.png`: `POKE MART`, the yen figure, `Hi there! May I help you?`, and `BUY` / `SELL` / `QUIT`. The aisle frame below is the earlier stand at `(3, 7)`, which does not face the counter. There is no `lane-e-mart-counter-talk` patch.
 
-The buy list was not reached. `shop.phase` stayed `closed`.
+![Viridian Mart aisle](../../artifacts/lane-g/ui-fidelity/mart-aisle-before.png)
 
-The only shop events in `Source/data/sourceEvents.json` are `pokered:VIRIDIAN_MART:objects:1` and `pokered:PEWTER_MART:objects:1`. The Viridian clerk is `object_event 0, 5` in pokered `data/maps/objects/ViridianMart.asm`. On the imported map that actor is grid `(2, 5)` (`TEXT_VIRIDIANMART_CLERK`). Source collision in `Source/data/viridianSlice/ViridianMart.json` row `y=5` is `[0, 1, 0, 0, 0, 0, 0, 0]`: the clerk cell is walkable, the cell to its right is blocked, the cell above (`y=4`, `x=0`) is blocked, and the cell below (`y=6`, `x=0`) is blocked. A fixture entry on the counter cell `(3, 5)` fails with `imported location blocked`. The player at `(3, 7)` facing left is on a walkable tile and is not beside the clerk, so A leaves the shop closed. This frame is that aisle.
-
-pokered `DisplayPokemartDialogue_` in `engine/events/pokemart.asm` draws the money box and `BUY_SELL_QUIT_MENU`. The greeting is `_PokemartGreetingText` in `data/text/text_4.asm` (`Hi there!` / `May I help you?`). `Source/game/shopState.lua` draws `POKE MART`, a yen money line, `BUY` / `SELL` / `QUIT`, and that greeting. None of that was on screen.
-
-Pewter Mart uses the same counter object layout, so it was not forced open either.
+![Viridian Mart shop](../../artifacts/lane-g/ui-fidelity/mart-shop-after.png)
 
 ## Still not captured
 
-The learning-move overlay, the evolution result line, and the mart buy list.
+The learning-move overlay and the evolution result line. The mart item list behind BUY was not shot; the greeting menu above is the screen A opens.

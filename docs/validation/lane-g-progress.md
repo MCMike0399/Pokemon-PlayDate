@@ -235,6 +235,12 @@ BlueBot approved the r3 card, dex rating, spacing, bands, black text, silhouette
 
 A normal boot leaves `game/creditsDraw` out of `main.pdz`. It is a standalone `game/creditsDraw.pdz`. On the title screen and in Pallet, and while Oak's Hall dialog is up, `EndgameStory.drawCredits` is nil. Ten frames after that dialog closes, the Hall photo has loaded it. The roll then draws the same frames as r4.
 
+## Round 31
+
+The Viridian clerk already answers A from the tile in front of the counter. `KantoWorld.tryInteract` and `PewterWorld.tryInteract` step one cell past `terrain.counter`, which is the foot tile in the tileset counter list (`tools/generate_kanto_maps.py`). Standing at `(4, 5)` facing left, with `EVENT_OAK_GOT_PARCEL`, opens `shop.phase = mode`: `Hi there! May I help you?` and `BUY` / `SELL` / `QUIT`. The earlier aisle frame was the player at `(3, 7)`, which does not face the counter. No counter patch. The pair is `artifacts/lane-g/ui-fidelity/mart-aisle-before.png` and `mart-shop-after.png`.
+
+`tools/notes/lane-e-ui-fidelity.patch` is the BlueBot UI set, except the Gen V stat split. `tools/tests/test_lane_e_ui_fidelity.py` fails on this tree and passes after `git apply`. The before/after frames are in `artifacts/lane-g/ui-fidelity/`. `origin/main` is still `ea32b553`, so the credits recheck is still waiting.
+
 ## Round 30
 
 `origin/main` is still `ea32b553`. The credits recheck is waiting on a main commit past that SHA. No merge.
