@@ -6167,6 +6167,17 @@ def _hideout_east(player, report):
     door_open = quest.get("EVENT_ROCKET_HIDEOUT_4_DOOR_UNLOCKED") or all(_beaten(player, event_id) for event_id in rockets)
     door = set() if door_open else {(24, 11), (25, 11)}
     avoid = {(19, 10), (24, 15), (25, 15), (25, 2), (10, 2), (11, 2), (9, 4), (10, 12), (12, 20)} | door
+    _name, x, y = _k_here(player)
+    if (x, y) in avoid:
+        for direction, (dx, dy) in DELTAS.items():
+            nxt = (x + dx, y + dy)
+            if nxt in cells and nxt not in avoid:
+                status = _k_go(player, report, direction, "RocketHideoutB4F", nxt[0], nxt[1])
+                if status:
+                    return status
+                break
+        else:
+            raise RuntimeError("boxed in on the east side: " + json.dumps(summary(player.state)))
     for event_id in rockets:
         if _beaten(player, event_id):
             continue

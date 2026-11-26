@@ -73,13 +73,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 197, Rocket Hideout B1F (25, 8) facing down. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `4ddcd22ee9e00410d217f693929cfee3bb3641b56924726632813288e58235ce`. The Lift Key is in the bag. `EVENT_ROCKET_DROPPED_LIFT_KEY` is set. TM21 is in the bag. There are no potions.
+Rainbow Badge is set. The pause is sequence 199, Rocket Hideout B4F (25, 15) facing up, on Giovanni's side of the wall. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. The Lift Key is in the bag. `EVENT_ROCKET_DROPPED_LIFT_KEY` is set. TM21 is in the bag. There are no potions.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
 Team: Pidgeotto 33 (51 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-The stair side of B4F does not connect to Giovanni. B1F's door at (24, 16) and (25, 16) is the closed $54 block until the Rocket at (28, 18) falls, and he stands on the far side of it. The B2F lift at (24, 19) is the open way across. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
+The stair side of B4F does not connect to Giovanni. B1F's door at (24, 16) and (25, 16) is the closed $54 block until the Rocket at (28, 18) falls, and he stands on the far side of it. The B2F lift reached this side. Next is the two Rockets at (23, 12) and (26, 12), then Giovanni. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
 ## Blockers
 
