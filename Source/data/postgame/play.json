@@ -372,6 +372,121 @@
       ],
       "source": "data/text/text_1.asm"
     },
+    "_PostgameGiftIntroText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1,
+          "text": "I kept something"
+        },
+        {
+          "op": "line",
+          "source_line": 2,
+          "text": "from the ceremony."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 3
+        }
+      ],
+      "source": "miguel-approved-deviation"
+    },
+    "_PostgameGiftNotChampionText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1,
+          "text": "Come back after"
+        },
+        {
+          "op": "line",
+          "source_line": 2,
+          "text": "the HALL OF FAME."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 3
+        }
+      ],
+      "source": "miguel-approved-deviation"
+    },
+    "_PostgameLinkCableFullText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1,
+          "text": "Your bag is full."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 2
+        }
+      ],
+      "source": "miguel-approved-deviation"
+    },
+    "_PostgameLinkCableText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1,
+          "text": "LINK CABLE!"
+        },
+        {
+          "op": "line",
+          "source_line": 2,
+          "text": "Use it like a stone."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 3
+        }
+      ],
+      "source": "miguel-approved-deviation"
+    },
+    "_PostgameMewAlreadyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1,
+          "text": "MEW already went"
+        },
+        {
+          "op": "line",
+          "source_line": 2,
+          "text": "with you."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 3
+        }
+      ],
+      "source": "miguel-approved-deviation"
+    },
+    "_PostgameMewGiftText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1,
+          "text": "This is MEW."
+        },
+        {
+          "op": "line",
+          "source_line": 2,
+          "text": "Level 5. One only."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 3
+        }
+      ],
+      "source": "miguel-approved-deviation"
+    },
     "_PowerPlantVoltorbBattleText": {
       "recipe": [
         {

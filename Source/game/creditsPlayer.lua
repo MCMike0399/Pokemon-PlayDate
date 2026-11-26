@@ -14,6 +14,17 @@ local function scrollCount(timing)
     return timing.scroll_tiles[1] + timing.scroll_tiles[2]
 end
 
+-- The 7+20 loop displays SCX 0 through the frame after the last add. That
+-- last frame is step 27. It replaces one frame of the mon hold, so the roll
+-- stays the same length as the source timing.
+local function shownHold(timing, command)
+    local frames = timing.hold[command]
+    if command == FADE_MON or command == TEXT_MON then
+        frames = frames - 1
+    end
+    return frames
+end
+
 local function begin(state)
     local frame <const> = state.frames[state.index]
     local command <const> = frame.command
@@ -35,7 +46,7 @@ local function begin(state)
         state.after_hold = "fade"
     elseif command == TEXT_MON or command == TEXT then
         state.phase = "hold"
-        state.left = timing.hold[command]
+        state.left = shownHold(timing, command)
         state.after_hold = command == TEXT_MON and "scroll" or "next"
     else
         error("unknown credits command: " .. tostring(command))
@@ -109,14 +120,14 @@ function CreditsPlayer.advance(state)
             return state
         end
         state.phase = "hold"
-        state.left = timing.hold[state.command]
+        state.left = shownHold(timing, state.command)
         return state
     end
     if state.phase == "hold" then
         if state.after_hold == "scroll" then
             state.phase = "scroll"
             state.scroll = 0
-            state.left = scrollCount(timing)
+            state.left = scrollCount(timing) + 1
             return state
         end
         if state.after_hold == "fade" then

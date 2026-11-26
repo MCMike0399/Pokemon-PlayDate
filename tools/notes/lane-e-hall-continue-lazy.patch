@@ -1,0 +1,97 @@
+diff --git a/Source/game/kantoScenes.lua b/Source/game/kantoScenes.lua
+index 9e1dfe9d..6cdc90fd 100644
+--- a/Source/game/kantoScenes.lua
++++ b/Source/game/kantoScenes.lua
+@@ -2,9 +2,6 @@
+ -- Import after EventState; install after ordinary Cerulean content registration.
+ import "game/ceruleanStory"
+ import "game/lateKantoStory"
+--- A variable call does not run the chunk, so PostgameStory stays nil.
+--- main.lua imports game/saves.lua before this file, so boot() can wrap Continue.
+-import "game/postgameStory"
+ import "game/ceruleanRoutes"
+ import "game/ceruleanRoutesState"
+ import "game/tutorialEscort"
+@@ -38,9 +35,11 @@ KantoScenes.reconcileActors = CeruleanStory.reconcileActors
+ 
+ function KantoScenes.install()
+     assert(not installed, "Kanto scenes already installed")
+-    -- postgameStory.boot() runs at import. A cached load before GameSaves
+-    -- exists leaves the Hall continue wrapper uninstalled.
+-    PostgameStory.ensureRuntime()
++    -- The chunk is not part of this boot. A Hall continue loads the
++    -- standalone pdz. A boot that already ran it still retries the wrap.
++    if PostgameStory then
++        PostgameStory.ensureRuntime()
++    end
+     -- Qualified owners declare membership here. World callbacks remain cheap
+     -- boot wiring; they do not imply that scene/text data has been prepared.
+     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})
+diff --git a/Source/game/lateKantoStory.lua b/Source/game/lateKantoStory.lua
+index 74a01f2a..ffd7e89a 100644
+--- a/Source/game/lateKantoStory.lua
++++ b/Source/game/lateKantoStory.lua
+@@ -2,11 +2,9 @@
+ -- Power Plant, Cerulean Cave and the other remainder maps are installed.
+ -- This module reads the pinned plan. It does not write badges, write a
+ -- save, or place Mew.
+--- pdc 3.1.2 treats the import name as a file request, even inside type().
++-- pdc 3.1.2 treats a literal import name as a file request, even inside type().
++-- postgameStory is left unreferenced so it stays a standalone pdz.
+ local importer = import
+-if type(importer) == "function" then
+-    importer "game/postgameStory"
+-end
+ LateKantoStory = {}
+ local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
+ local cached
+diff --git a/Source/game/saves.lua b/Source/game/saves.lua
+index 45b467d9..01d9d2d5 100644
+--- a/Source/game/saves.lua
++++ b/Source/game/saves.lua
+@@ -180,6 +180,34 @@ function GameSaves:prepareTitle()
+     return nil, {reason="stale-title-preparation"}
+ end
+ 
++-- A literal import compiles the module into main.pdz and runs boot() on
++-- every contract shard. file.run loads the standalone pdz for this save.
++local function loadHallContinue(candidate)
++    if PostgameStory ~= nil or type(candidate) ~= "table" or type(candidate.location) ~= "function" then
++        return nil
++    end
++    local location = candidate:location()
++    if type(location) ~= "table" or location.zone_id ~= "pokered:HALL_OF_FAME" then
++        return nil
++    end
++    local record = type(candidate.hallOfFame) == "function" and candidate:hallOfFame() or nil
++    local teams = type(record) == "table" and record.teams or nil
++    if type(teams) ~= "table" or #teams < 1 then
++        return nil
++    end
++    if playdate == nil or playdate.file == nil or type(playdate.file.run) ~= "function" then
++        return false, "postgame-story-unavailable"
++    end
++    local folder, name = "game/", "postgameStory"
++    playdate.file.run(folder .. name)
++    if PostgameStory == nil or type(PostgameStory.relocateContinue) ~= "function" then
++        return false, "postgame-story-unavailable"
++    end
++    local moved, reason = PostgameStory.relocateContinue(candidate)
++    if moved == false then return false, reason or "hall-continue-not-relocated" end
++    return true
++end
++
+ local function continueGame(self, prepared)
+     if prepared and prepared.generation ~= self._titleGeneration then prepared = nil end
+     if BootTrace then
+@@ -206,6 +234,10 @@ local function continueGame(self, prepared)
+     end
+     local candidate, payload = prepared.candidate, prepared.payload
+     metadata = prepared.metadata
++    local loaded, why = loadHallContinue(candidate)
++    if loaded == false then
++        return false, {reason = why or "hall-continue-not-relocated"}
++    end
+     if BootTrace then
+         BootTrace.mark("Continue.map.begin")
+     end

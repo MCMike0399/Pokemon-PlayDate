@@ -165,10 +165,26 @@ function SaveStore.sdkFilesystem()
             local size=sdkFile.getSize(path)
             if not integer(size,0,SaveStore.MAX_FILE) then return nil,"file-size-invalid" end
             if size==0 then return "" end
+            -- A live city tilemap and this inflate share the pool. Drop the
+            -- bitmap for the read, then put the same view back. The save
+            -- menu keeps its frame once the bitmap returns.
+            local view = getOverworldView and getOverworldView() or nil
+            local released = false
+            if size >= 4096 and view and view.releaseBitmaps and not view.disposed then
+                view:releaseBitmaps()
+                released = true
+                if SourceMaps and SourceMaps._releaseTileGrids then
+                    SourceMaps._releaseTileGrids()
+                end
+                collectgarbage("collect")
+            end
             local file,err=sdkFile.open(path,sdkFile.kFileRead)
             if not file then return nil,err or "open-failed" end
             local ok,bytes,count=pcall(function() return file:read(size) end)
             local closed=pcall(function() file:close() end)
+            if released and view and view.ensureBitmaps and not view.disposed then
+                view:ensureBitmaps()
+            end
             if not ok or not closed or type(bytes)~="string" or #bytes~=size or count~=size then return nil,"read-failed" end
             return bytes
         end,

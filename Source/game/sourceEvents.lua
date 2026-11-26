@@ -20,6 +20,15 @@ local contentFields = weakValues()
 -- still drops only this reference. An active descriptor remains valid.
 local recent, recentOrder = {}, {}
 local RECENT_CONTENT <const> = 96
+
+-- A city switch has already dropped the map that decoded these chunks.
+-- Ninety-six of them stay live into the next definition and the next bed.
+function SourceEvents.releaseRecentContent()
+    for index = #recentOrder, 1, -1 do
+        recent[recentOrder[index]] = nil
+        recentOrder[index] = nil
+    end
+end
 local function yieldIfDue()
     if GameBootstrap then
         GameBootstrap.yieldIfDue()

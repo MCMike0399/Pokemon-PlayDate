@@ -1151,7 +1151,42 @@ function getCurrentZoneKey()
     return zoneList[1]
 end
 
+-- Drop the departing presentation before the next definition is decoded.
+-- Door fades already hold a copy of the settled frame. This runs inside the
+-- existing load, so the fade frame count stays where it is.
+local function releaseDepartingWorld()
+    local world = game and game.machine and game.machine:get("overworld") or nil
+    if world then
+        world.releasedZoneID = world.builtZone and world.builtZone.stableID or nil
+        world.builtZone = nil
+        world.builtView = nil
+        world.presentationVisit = nil
+        world.savedPos = nil
+    end
+    if releaseOverworldView then releaseOverworldView() end
+    if game then
+        if game.player and game.player.remove then game.player:remove() end
+        game.player = nil
+        if game.npcManager and game.npcManager.clear then game.npcManager:clear() end
+    end
+    playdate.graphics.sprite.removeAll()
+    if SourceMaps and SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
+    if SourceMaps and SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+    currentZone = nil
+    if WorldDeltas.disposeImportedCache then WorldDeltas.disposeImportedCache() end
+    if SourceEvents and SourceEvents.releaseRecentContent then
+        SourceEvents.releaseRecentContent()
+    end
+    -- A playing map bed is hundreds of KiB and stays live across music()
+    -- until the next map's score replaces it. Drop it before the next
+    -- definition, or the bed and the destination city are in the pool together.
+    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
+    collectgarbage("collect")
+    collectgarbage("collect")
+end
+
 function switchZone(key)
+    releaseDepartingWorld()
     local zone=WorldDeltas.ensureZone(key)
     if zone then currentZone=zone end
 end

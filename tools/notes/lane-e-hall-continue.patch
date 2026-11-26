@@ -1,0 +1,10 @@
+--- a/Source/game/kantoScenes.lua
++++ b/Source/game/kantoScenes.lua
+@@ -35,6 +35,7 @@ end
+ 
+ function KantoScenes.install()
+     assert(not installed, "Kanto scenes already installed")
++    PostgameStory.ensureRuntime()
+     -- Qualified owners declare membership here. World callbacks remain cheap
+     -- boot wiring; they do not imply that scene/text data has been prepared.
+     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})
