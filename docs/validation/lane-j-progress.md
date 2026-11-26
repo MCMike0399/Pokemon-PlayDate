@@ -73,13 +73,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 180, Game Corner (15, 17) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `7979c5a5c32d228d99669b08117fb042090ba0dfc96417c1e186cc3965eced58`. `EVENT_BEAT_ERIKA` is set. TM21 is in the bag.
+Rainbow Badge is set. The pause is sequence 183, Rocket Hideout B1F (21, 2) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `fce7eb423bde803978af6bcba63ce46f291d7e00759b191bde0fefcf1052cf99`. `EVENT_BEAT_ERIKA`, `EVENT_FOUND_ROCKET_HIDEOUT`, and `ROCKET_HIDEOUT_SCENE_V1_GUARD_LEFT` are set. TM21 is in the bag. The bag has no potions.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Pidgeotto 32 (82 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
+Team: Pidgeotto 32 (60 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-Pokered's Rocket at (9, 5) is talk-only, sight 0. The next press faces him from the side and presses A. Stepping onto his tile is refused, which is not the battle. After he leaves, the poster at (9, 4) is faced from (9, 5).
+The Game Corner Rocket is talk-only. Facing him and pressing A started the battle, he left, and the poster at (9, 4) opened the stair. The next walk is B1F (23, 2) down to B2F, then the B3F arrows, then Giovanni. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
 ## Blockers
 

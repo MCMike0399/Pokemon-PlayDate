@@ -1,9 +1,12 @@
-# Game Corner stairs do not open
+# Game Corner stairs open after the Rocket
 
-Real input from sequence 180, Game Corner (15, 17) facing up. Pidgeotto 32, Bellsprout 15, Wartortle 31, Dugtrio 27. Boulder, Cascade, Thunder, and Rainbow are set.
+The first walk pressed the stair at (17, 4) and tried to step onto the Rocket at (9, 5). Both misses match pokered. The stair is a wall until `EVENT_FOUND_ROCKET_HIDEOUT`. The Rocket is talk-only, sight 0, so a step onto (9, 5) is `occupied-next-cell`.
 
-The walk reached (17, 5) and pressed up. The player stayed on (17, 5) facing up. The map did not change. `GameCorner.json` warp 3 is that north tile, source (17, 4), destination `ROCKET_HIDEOUT_B1F`. It did not fire.
+The real sequence, from sequence 180, Game Corner (15, 17):
 
-The poster is background event `pokered:GAME_CORNER:background_events:1` at (9, 4), text `TEXT_GAMECORNER_POSTER`. It is not in `Source/data/midgameEast/events.json` or that file's signs. `Source/data/midgameEast/reservations.json` still reserves Game Corner for "Rocket/poster/hidden stairs and coins/slots". Rocket `pokered:GAME_CORNER:objects:11` stands on (9, 5). A step left from (10, 5) onto that tile was refused: `occupied-next-cell`. There is no event program for that Rocket.
+1. Stand at (9, 6) facing up and press A. `GameCornerRocketText` starts. Party is Raticate 20, Zubat 20.
+2. After the win his script walks him off and sets `ROCKET_HIDEOUT_SCENE_V1_GUARD_LEFT`.
+3. Stand at (9, 5), face up, and press A. The poster sets `EVENT_FOUND_ROCKET_HIDEOUT` and opens the stair.
+4. Step onto (17, 4). The player arrives at Rocket Hideout B1F (21, 2).
 
-Session `/tmp/lane-j-squirtle-99`. The save stayed sequence 180 because the walk raised before the checkpoint. Hideout, Silph Scope, the Pokémon Tower, the Poké Flute, and Koga are behind this door.
+The first Hideout save is sequence 181. The pause on that stair is sequence 183. No patch. The Hideout story owner already plans the guard, the poster, and `entrance-open`.

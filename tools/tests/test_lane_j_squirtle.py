@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from collections import deque
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -5383,6 +5384,10 @@ K_ZONES = {
     "CeladonGym": "kanto_celadon_gym",
     "GameCorner": "kanto_game_corner",
     "RocketHideoutB1F": "kanto_rocket_hideout_b1f",
+    "RocketHideoutB2F": "kanto_rocket_hideout_b2f",
+    "RocketHideoutB3F": "kanto_rocket_hideout_b3f",
+    "RocketHideoutB4F": "kanto_rocket_hideout_b4f",
+    "RocketHideoutElevator": "kanto_rocket_hideout_elevator",
 }
 K_FILES = {
     "Route9": ("Route9.json", 0, 60),
@@ -5847,11 +5852,149 @@ def _settle_hideout_scene(player, limit=80):
     return player.exploring()
 
 
+HIDEOUT_FLOORS = {
+    "RocketHideoutB1F": {
+        "file": "RocketHideoutB1F.json", "width": 30, "goal": (23, 2), "next": "b2f",
+        "zone": "pokered:ROCKET_HIDEOUT_B1F",
+        "warps": {(21, 2), (24, 19), (21, 24), (25, 19)},
+        "blocked": {(26, 8), (12, 6), (18, 17), (15, 25), (28, 18), (11, 14), (9, 17)},
+    },
+    "RocketHideoutB2F": {
+        "file": "RocketHideoutB2F.json", "width": 30, "goal": (21, 8), "next": "b3f",
+        "zone": "pokered:ROCKET_HIDEOUT_B2F",
+        "warps": {(27, 8), (24, 19), (21, 22), (25, 19)},
+        "blocked": {(20, 12), (1, 11), (16, 8), (6, 12), (3, 21)},
+    },
+    "RocketHideoutB3F": {
+        "file": "RocketHideoutB3F.json", "width": 30, "goal": (19, 18), "next": "b4f",
+        "zone": "pokered:ROCKET_HIDEOUT_B3F",
+        "warps": {(25, 6)},
+        "blocked": {(10, 22), (26, 12), (26, 17), (20, 14)},
+    },
+}
+
+
+def _spinner_ends(zone_id):
+    data = json.loads((ROOT / "Source/data/rocketHideoutStory/scenes.json").read_text(encoding="utf-8"))
+    ends = {}
+    for spinner in data["scenes"]["spinners"].get(zone_id, []):
+        x, y = spinner["x"], spinner["y"]
+        for direction in spinner["path"]:
+            x, y = neighbor((x, y), direction)
+        ends[(spinner["x"], spinner["y"])] = (x, y)
+    return ends
+
+
+def _hideout_route(place, start, goal):
+    """Open-floor walk. An arrow tile is one step that finishes at the script's end cell."""
+    spec = HIDEOUT_FLOORS[place]
+    cells = set(open_map(EAST / spec["file"], 0, spec["width"]))
+    cells.add(start)
+    spins = _spinner_ends(spec["zone"])
+    avoid = set(spec["warps"]) | set(spec["blocked"])
+    avoid.discard(start)
+    avoid.discard(goal)
+    previous = {start: None}
+    queue = deque([start])
+    while queue:
+        here = queue.popleft()
+        if here == goal:
+            break
+        for direction in DELTAS:
+            nxt = neighbor(here, direction)
+            if nxt not in cells or nxt in avoid or nxt in previous:
+                continue
+            if nxt in spins and nxt != goal:
+                landed = spins[nxt]
+                if landed in previous or landed in avoid:
+                    continue
+                previous[landed] = (here, direction, "spin", landed)
+                queue.append(landed)
+            else:
+                kind = "warp" if nxt == goal else "step"
+                previous[nxt] = (here, direction, kind, nxt)
+                queue.append(nxt)
+    if goal not in previous:
+        raise RuntimeError(f"no {place} path {start} -> {goal}")
+    steps = []
+    cursor = goal
+    while cursor != start:
+        came, direction, kind, landed = previous[cursor]
+        steps.append((direction, kind, landed))
+        cursor = came
+    steps.reverse()
+    return steps
+
+
+def _hideout_spin(player, report, direction, place, landed):
+    status = _k_clear(player, report)
+    if status:
+        return status
+    player.step(direction)
+    if player.state.get("root") == "battle":
+        return _k_clear(player, report)
+    for _ in range(40):
+        if player.exploring() and _k_here(player) == (place, landed[0], landed[1]):
+            return None
+        if not _settle_hideout_scene(player, 4):
+            if player.state.get("root") == "battle":
+                return _k_clear(player, report)
+    raise RuntimeError(f"arrow stopped at {_k_here(player)} not {place} {landed}")
+
+
+def _hideout_stairs(player, report, place):
+    spec = HIDEOUT_FLOORS[place]
+    _name, x, y = _k_here(player)
+    goal = spec["goal"]
+    if (x, y) == goal:
+        for direction in DELTAS:
+            nxt = neighbor(goal, direction)
+            cells = set(open_map(EAST / spec["file"], 0, spec["width"]))
+            if nxt in cells and nxt not in spec["blocked"] and nxt not in spec["warps"]:
+                status = _k_go(player, report, direction, place, nxt[0], nxt[1])
+                return status or "yield"
+        raise RuntimeError("standing on the stair with no step off")
+    for direction, kind, landed in _hideout_route(place, (x, y), goal):
+        if kind == "warp":
+            status = _k_clear(player, report)
+            if status:
+                return status
+            player.step(direction)
+            player.settle(limit=80)
+            if player.state.get("root") == "battle":
+                return _k_clear(player, report)
+            if not player.exploring():
+                status = _k_clear(player, report)
+                if status:
+                    return status
+            zone = str(player.state.get("zone"))
+            if spec["next"] not in zone:
+                raise RuntimeError("the stair did not change floors: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_hideout")
+            return "yield"
+        if kind == "spin":
+            status = _hideout_spin(player, report, direction, place, landed)
+        else:
+            status = _k_go(player, report, direction, place, landed[0], landed[1])
+        if status:
+            return status
+    raise RuntimeError("the stair walk ended on the same floor")
+
+
+def _through_hideout(player, report):
+    place = _k_here(player)[0]
+    if place in HIDEOUT_FLOORS:
+        return _hideout_stairs(player, report, place)
+    if place == "RocketHideoutB4F":
+        _checkpoint(player, report, "saved_hideout_b4")
+        return "yield"
+    raise RuntimeError("off the Hideout floors: " + json.dumps(summary(player.state)))
+
+
 def _rocket_stairs(player, report):
     """Face the poster Rocket and press A. After he leaves, the poster opens the stairs."""
     if "rocket_hideout" in str(player.state.get("zone")):
-        _checkpoint(player, report, "saved_hideout")
-        return "yield"
+        return _through_hideout(player, report)
     if _k_here(player)[0] != "GameCorner":
         raise RuntimeError("off the Game Corner: " + json.dumps(summary(player.state)))
     avoid = {(15, 17), (16, 17), (17, 4), (9, 5)}
