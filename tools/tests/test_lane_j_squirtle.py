@@ -6197,8 +6197,7 @@ def _hideout_east(player, report):
         if talked != "talked":
             raise RuntimeError("Giovanni did not battle: " + json.dumps(summary(player.state)))
     if not _holding(player, "silphScope"):
-        avoid.discard((25, 2))
-        status = _b4_walk(player, report, (26, 2), avoid | {(25, 3)})
+        status = _b4_walk(player, report, (26, 2), avoid)
         if status:
             return status
         if (player.state.get("player") or {}).get("facing") != "left":
