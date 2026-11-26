@@ -1,4 +1,14 @@
-# Postgame scratch on origin/main
+# Postgame scratch
+
+## Lane E tip 79fbcba5, no local patches
+
+`origin/cursor/lane-e-integration` `79fbcba560e34945a130d7e1788ab44be5aa8d77` already contains the Hall release `68fc1f80` and the switchZone release `95554e07`. It does not import `game/postgameStory` at boot. `loadHallContinue` in `Source/game/saves.lua` runs the standalone `game/postgameStory.pdz` only when the save has a Hall team, then calls `PostgameStory.relocateContinue` before `installSession`. A literal boot import is what that tip removed, because it kept the story table on every boot and OOM'd the Hall continue. `tools/notes/lane-e-hof-postgame-import.patch` would put that import back.
+
+Scratch worktree `/tmp/e-continue`, detached at that commit, no patches. SDK 3.1.2. `MallocPoolSize` stayed `16645684`. The bundle contains `game/postgameStory.pdz`. Hall save `tools/tests/fixtures/lane-h-hall-continue-8e72131f.json`. Same Continue buttons as `tools/tests/test_lane_e_hof_continue_releases_hall.py`. `--recent-interval 18000`. One fresh Simulator process.
+
+Continue reaches Pallet. Root `overworld`, zone `kanto_pallet_town`, (5, 6) facing down. The harness result status is ok. Ready heap 12715.5 KiB. Snapshot heap after Continue 13305.3 KiB. `Continue.end` is 13067.8 KiB. Observed peak on that boot is 13744.7 KiB, at `Continue.map.end`. The simulator log has no inflate failure and no out-of-memory error. The continue is not stuck at Hall (7, 2). No new patch.
+
+## Earlier scratch on origin/main
 
 Evidence only. The scratch worktree is `/tmp/postgame-scratch`, detached at origin/main `ea32b55388038021812142a69b107f035b7c1da3`. It has `tools/notes/lane-e-hof-continue-release.patch` applied, and then the literal imports from `tools/notes/lane-e-hof-postgame-import.patch`. Those Source edits are not committed. K's `lane-e-switchzone-release-before-build.patch` is not applied. SDK 3.1.2. `MallocPoolSize` stayed `16645684`. Wild encounters were off. Trainer sight stayed on. Saves were the Hall fixture `tools/tests/fixtures/lane-h-hall-continue-8e72131f.json`, sha256 `8e72131fa1b88f59d3192a82a2e2d3da856ccf3b725b6860ccc69dcbc95d1cc1`.
 
