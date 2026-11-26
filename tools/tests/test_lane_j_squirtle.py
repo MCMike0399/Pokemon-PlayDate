@@ -6325,6 +6325,58 @@ def _scope_walk(player, report, filename, pad, width, place, goal, avoid):
     raise RuntimeError(f"the {place} walk stalled at " + json.dumps(summary(player.state)))
 
 
+OPPOSITE = {"up": "down", "down": "up", "left": "right", "right": "left"}
+
+
+def _back_along_route8(player, report):
+    """Retrace K's Route 8 atoms from the basement stair to Lavender."""
+    atoms = _k_atoms()
+    start = next(i for i, atom in enumerate(atoms) if atom["op"] == "conn" and atom["map"] == "Route8")
+    end = next(i for i, atom in enumerate(atoms)
+               if atom["op"] == "step" and atom["map"] == "Route8" and (atom["x"], atom["y"]) == (13, 4))
+    backs = []
+    for atom in reversed(atoms[start + 1:end + 1]):
+        dx, dy = DELTAS[atom["dir"]]
+        backs.append((OPPOSITE[atom["dir"]], atom["x"] - dx, atom["y"] - dy))
+    _name, x, y = _k_here(player)
+    door = (atoms[start]["x"], atoms[start]["y"])
+    if (x, y) == (13, 4):
+        begin = 0
+    elif (x, y) == door:
+        begin = len(backs)
+    else:
+        hits = [i for i, step in enumerate(backs) if (step[1], step[2]) == (x, y)]
+        if not hits:
+            raise RuntimeError(f"off the Route 8 return at {(x, y)}")
+        begin = hits[0] + 1
+    species, _mon = _bird(player)
+    if species:
+        _lead(player, species)
+    for direction, nx, ny in backs[begin:]:
+        status = _k_go(player, report, direction, "Route8", nx, ny)
+        if status:
+            return status
+    player.step("right")
+    player.settle(limit=80)
+    if "lavender" not in str(player.state.get("zone")):
+        raise RuntimeError("Lavender did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_lavender")
+    return "yield"
+
+
+def _to_pokemon_tower(player, report):
+    status = _scope_walk(player, report, "LavenderTown.json", 0, 20,
+                         "LavenderTown", (14, 6), set(LAVENDER_DOORS))
+    if status:
+        return status
+    player.step("up")
+    player.settle(limit=80)
+    if "tower" not in str(player.state.get("zone")):
+        raise RuntimeError("the tower door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_tower")
+    return "yield"
+
+
 def _with_scope(player, report):
     """Heal, then the underground to Lavender. The Saffron gate stays shut."""
     place = _k_here(player)[0]
@@ -6378,6 +6430,10 @@ def _with_scope(player, report):
             raise RuntimeError("the Route 8 stair stayed shut: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_route8")
         return "yield"
+    if place == "Route8":
+        return _back_along_route8(player, report)
+    if place == "LavenderTown":
+        return _to_pokemon_tower(player, report)
     if place in ("RocketHideoutB1F", "RocketHideoutB2F", "RocketHideoutB3F", "RocketHideoutB4F", "RocketHideoutElevator", "GameCorner"):
         return _leave_hideout(player, report)
     if place == "CeladonCity":

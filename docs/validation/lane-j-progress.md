@@ -73,11 +73,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 221, Underground Path Route 8 (5, 7) facing down, on the surface stair. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The party is healed. The Saffron gate was not used. Next is Route 8 toward Lavender.
+Rainbow Badge is set. The pause is sequence 222, Route 8 (13, 4) facing down, on the surface above the basement stair. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The party is healed. The Saffron gate was not used. Next is east on Route 8 to Lavender and the Pokémon Tower.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Pidgeotto 33 (84 HP), Bellsprout 15 (40 HP), Wartortle 32 (84 HP), Dugtrio 28 (62 HP). Next is east toward Route 7. Route 16 stays the Snorlax road.
+Team: Pidgeotto 33 (84 HP), Bellsprout 15 (40 HP), Wartortle 32 (84 HP), Dugtrio 28 (62 HP). Next is east on Route 8 to Lavender. Route 16 stays the Snorlax road.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
