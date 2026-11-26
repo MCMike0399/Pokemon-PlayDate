@@ -221,6 +221,16 @@ function CeruleanCatalogContracts.run()
         assert(ok, problem)
         assert(CatalogRuntime.same(before, CatalogRuntime.snapshot()), "BLUE runtime witness leaked live state")
     end)
+    -- Map reads that do not fit unload every score, including the title.
+    -- Drop it so the city can build. The harness does not inflate it again
+    -- while publishing the reply.
+    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
+    if getOverworldView then
+        local view = getOverworldView()
+        if view and view.releaseBitmaps then view:releaseBitmaps() end
+    end
+    collectgarbage("collect")
+    if SourceMaps._pinTileGrids then SourceMaps._pinTileGrids() end
     for _, name in ipairs(SourceMaps.names("source")) do
         test("Private unvisited map terrain and collision: " .. name, function()
             local before = CatalogRuntime.snapshot()
@@ -230,28 +240,40 @@ function CeruleanCatalogContracts.run()
                 assert(zone.registry ~= WorldTiles)
                 eq(zone.width, descriptor.width); eq(zone.height, descriptor.height)
                 eq(#zone.npcDefs, #SourceMaps.padded(name).events.objects)
-                local view = WorldView(zone, {attach=false})
+                -- Sample the tile image directly. An imagetable per map is
+                -- the malloc that fragments the pool before the last houses.
+                local images = {}
                 local ok, problem = pcall(function()
-                    local image = view:render()
                     for y = 0, zone.height-1 do
                         for x = 0, zone.width-1 do
                             local cell = SourceMaps.cell(name, x, y)
                             eq(zone.collision[y+1][x+1], cell.collision)
-                            eq(zone.registry:key(zone.tiles[y+1][x+1]), cell.key)
-                            local grid = SourceMaps.tile(cell.key).grid
+                            local id = zone.tiles[y+1][x+1]
+                            eq(zone.registry:key(id), cell.key)
+                            local grid = SourceMaps.sharedTile(cell.key).grid
+                            local image = images[id]
+                            if not image then
+                                image = TileFactory.image(zone.registry, id)
+                                images[id] = image
+                            end
                             for _, point in ipairs({{0,0}, {15,15}, {16,16}, {31,31}}) do
                                 local px, py = point[1], point[2]
-                                eq(image:sample(x*32+px,y*32+py), color(grid[py//2+1]:sub(px//2+1,px//2+1),px,py,true))
+                                eq(image:sample(px,py), color(grid[py//2+1]:sub(px//2+1,px//2+1),px,py,true))
                             end
                         end
                     end
                 end)
-                view:dispose()
+                images = nil
                 assert(ok, problem)
             end)
             assert(CatalogRuntime.same(before, CatalogRuntime.snapshot()), "isolated map touched live state")
+            -- The weak definition cache keeps a city until the next collection.
+            -- A full city bitmap is gone; the definition still has to leave
+            -- before the next house builds its zone.
+            collectgarbage("collect")
         end)
     end
+    if SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
     test("Native named writer exports actual source pixels, poses, masks and all map layers without installation", function()
         local before = CatalogRuntime.snapshot()
         local forbidden = function() error("catalog attempted runtime installation or progression") end
@@ -357,5 +379,6 @@ function CeruleanCatalogContracts.run()
         assert(CatalogRuntime.same(before, CatalogRuntime.snapshot()), "failed writer leaked state")
         rejects(function() VisualCatalog.runExporter("unknown-cerulean", function() end) end, "unknown exporter")
     end)
+    collectgarbage("collect")
     return report
 end

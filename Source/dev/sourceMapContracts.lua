@@ -35,6 +35,7 @@ local function scope(fn, factory)
     end)
     context.npcManager:clear()
     provider:disposeCache()
+    SourceMaps.releaseRetainedRuntime()
     zoneRegistry, zoneList, currentZone = oldRegistry, oldList, oldZone
     if GameSession.activeRNGSession() == context.session then context.session:deactivateRNG() end
     if oldOwner then oldOwner:activateRNG() else RulesRNG.restoreData(oldRng) end
@@ -257,7 +258,9 @@ function SourceMapContracts.run()
         end
         local ok, problem = pcall(function()
             SourceMaps._withRecords(records, function()
-                equal(#SourceMaps.names(), before + 1)
+                -- Route 22 and the school house replace installed maps. The
+                -- extension does not add a 223rd manifest name.
+                equal(#SourceMaps.names(), before)
                 local profiles = SourceMaps.legacyProfiles({ dispatch = function() error("fixture cannot dispatch") end,
                     questFlag = function() return false end, sourceFlag = function() return false end })
                 -- Test content adapter supplies only inert NPC data. Geometry,
@@ -274,7 +277,7 @@ function SourceMapContracts.run()
                 zoneRegistry, zoneList, currentZone = {}, {}, nil
                 local provider = SourceMaps.createProvider(profiles, TileRegistry())
                 local loaded, failure = pcall(function()
-                    equal(#provider:inventory(), before + 1)
+                    equal(#provider:inventory(), before)
                     local school = provider:ensure("fixture_ViridianSchoolHouse")
                     local route = provider:ensure("fixture_Route22")
                     equal(school.width, 13)
@@ -283,7 +286,7 @@ function SourceMapContracts.run()
                     local definition = SourceMaps.padded("ViridianCity")
                     local warp = SourceMaps.warpSpec("ViridianCity", definition.events.warps[3])
                     equal(warp.to, "fixture_ViridianSchoolHouse")
-                    equal(warp.toX, school.spawn.x + records["dev/source-map-extension/ViridianSchoolHouse.json"].events.warps[1].x)
+                    equal(warp.toX, school.spawn.x + records.extensions["dev/source-map-extension/ViridianSchoolHouse.json"].events.warps[1].x)
                     local door = assert(school:getEdgeDoorAt(4,7,"down"))
                     assert(school:getEdgeDoorAt(5,7,"down"))
                     equal(door.to, "kanto_viridian_city")
@@ -626,7 +629,11 @@ function SourceMapContracts.run()
                     if field == "blocked" and original.id == "pokered:PEWTER_CITY" then
                         expected = GameSession._copy(expected)
                         for cell, id in pairs(expected) do
-                            if id == "pokered:PEWTER_CITY:warps:1" or id == "pokered:PEWTER_CITY:warps:2" then
+                            -- Museum doors, the Nidoran house, and the speech
+                            -- house now bind installed maps.
+                            if id == "pokered:PEWTER_CITY:warps:1" or id == "pokered:PEWTER_CITY:warps:2"
+                                or id == "pokered:PEWTER_CITY:warps:4"
+                                or id == "pokered:PEWTER_CITY:warps:6" then
                                 expected[cell] = nil
                             end
                         end

@@ -51,6 +51,12 @@ function WorldView:init(zone, options)
     self.imageCount = zone.registry:maxID()
     self.animTiles = animatedTiles()
     self.animTick, self.animStep = 0, 0
+    -- Cell probes sample the image table. A full tilemap bitmap is the
+    -- malloc that large isolated maps cannot pay for beside the catalogue.
+    if options.cellsOnly then
+        zone:attachView(self)
+        return
+    end
     self.tilemap = gfx.tilemap.new()
     self.tilemap:setImageTable(self.images)
     self.tilemap:setSize(zone.width, zone.height)
@@ -64,13 +70,41 @@ function WorldView:init(zone, options)
         end
     end
     self.tilemap:setTiles(tileIDs, zone.width)
-    self.sprite = gfx.sprite.new()
-    self.sprite:setTilemap(self.tilemap)
-    self.sprite:setCenter(0, 0)
-    self.sprite:moveTo(0, 0)
-    self.sprite:setZIndex(-1)
+    self:_attachSprite()
     zone:attachView(self)
     if self.attached then
+        self.sprite:add()
+    end
+end
+function WorldView:releaseBitmaps()
+    if self.disposed or not self.tilemap then return end
+    -- The sprite retains the tilemap bitmap. Remove it before the next
+    -- city's atlas inflates, and keep this view object for rollback.
+    if self.sprite then
+        self.sprite:remove()
+        self.sprite = nil
+    end
+    self.tilemap = nil
+    self.images = nil
+    self.cellScratch = nil
+end
+function WorldView:ensureBitmaps()
+    if self.disposed or self.tilemap then return end
+    self.images = generateTileImages(self.zone.registry)
+    self.imageCount = self.zone.registry:maxID()
+    self.animTiles = self.animTiles or animatedTiles()
+    self.tilemap = gfx.tilemap.new()
+    self.tilemap:setImageTable(self.images)
+    self.tilemap:setSize(self.zone.width, self.zone.height)
+    local tileIDs = {}
+    for y = 1, self.zone.height do
+        for x = 1, self.zone.width do
+            tileIDs[#tileIDs + 1] = self.zone.tiles[y][x]
+        end
+    end
+    self.tilemap:setTiles(tileIDs, self.zone.width)
+    self:_attachSprite()
+    if self.attached ~= false then
         self.sprite:add()
     end
 end
@@ -127,6 +161,7 @@ function WorldView:applyTiles(plan)
         end
         self.images, self.imageCount = oldImages, oldCount
         self.tilemap:setImageTable(oldImages)
+        self:_composePalletField()
         self.sprite:markDirty()
     end
     local ok, problem = pcall(function()
@@ -137,6 +172,7 @@ function WorldView:applyTiles(plan)
         for _, change in ipairs(plan) do
             self.tilemap:setTileAtPosition(change.x + 1, change.y + 1, change.id)
         end
+        self:_composePalletField()
         self.sprite:markDirty()
     end)
     if not ok then
@@ -152,18 +188,83 @@ function WorldView:render()
     gfx.setDrawOffset(0, 0)
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
     self.tilemap:draw(0, 0)
+    self.zone.registry:paintPalletField(self)
+    gfx.popContext()
+    return image
+end
+function WorldView:_attachSprite()
+    self.sprite = gfx.sprite.new()
+    self.sprite:setCenter(0, 0)
+    self.sprite:moveTo(0, 0)
+    self.sprite:setZIndex(-1)
+    if self.zone.stableID == "pokered:PALLET_TOWN" then
+        -- One image per tile key cannot vary by cell. The sprite image is the
+        -- tilemap with grass quadrants painted per cell. Tile ids stay put,
+        -- and roofs, doors, walls and rooms are not repainted.
+        self:_composePalletField()
+    else
+        self.sprite:setTilemap(self.tilemap)
+    end
+end
+function WorldView:_composePalletField()
+    if self.zone.stableID ~= "pokered:PALLET_TOWN" or not self.tilemap or not self.sprite then return end
+    local image = gfx.image.new(self.zone.width * TILE_SIZE, self.zone.height * TILE_SIZE, gfx.kColorWhite)
+    local ox, oy = gfx.getDrawOffset()
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    self.tilemap:draw(0, 0)
+    self.zone.registry:paintPalletField(self)
+    gfx.popContext()
+    gfx.setDrawOffset(ox, oy)
+    self.sprite:setImage(image)
+end
+-- One cell, not the whole city. image.new of a 40x36 map is about 180 KiB
+-- and returns "out of memory" once the 16 MiB pool is holding the tilemap.
+-- The tilemap is a grid of these images, so the cell is that tile.
+function WorldView:renderCell(x, y)
+    assert(not self.disposed, "world view disposed")
+    assert(type(x) == "number" and type(y) == "number" and x % 1 == 0 and y % 1 == 0
+        and x >= 0 and y >= 0 and x < self.zone.width and y < self.zone.height,
+        "world view cell is outside the map")
+    local image = self.cellScratch
+    if not image then
+        image = gfx.image.new(TILE_SIZE, TILE_SIZE, gfx.kColorWhite)
+        self.cellScratch = image
+    end
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.clear(gfx.kColorWhite)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    self.images:getImage(self.zone.tiles[y + 1][x + 1]):draw(0, 0)
     gfx.popContext()
     return image
 end
 function WorldView:dispose()
     if self.disposed then return end
-    self.sprite:remove()
+    if self.sprite then self.sprite:remove() end
     self.zone:detachView(self)
+    -- The sprite and tilemap own the map's bitmap. Drop those references
+    -- before the next city allocates its own, or both images sit in the pool.
+    self.sprite = nil
+    self.tilemap = nil
+    self.images = nil
+    self.cellScratch = nil
     self.disposed = true
 end
 function setupOverworld()
     currentZone:assertEnterable()
-    if activeView then activeView:dispose() end
+    -- A door keeps the source city in the two-slot cache until the destination
+    -- view is built. That city is no longer on screen. Release it, and the
+    -- source view, before the destination tilemap asks for its bitmap.
+    if WorldDeltas and WorldDeltas.releaseInactiveZones then
+        WorldDeltas.releaseInactiveZones()
+    end
+    if activeView then
+        if not activeView.disposed then activeView:dispose() end
+        activeView = nil
+    end
+    collectgarbage("collect")
     activeView = WorldView(currentZone)
 end
 function getOverworldView() return activeView end

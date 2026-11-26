@@ -1,0 +1,15 @@
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -667,7 +667,10 @@
+         if self.messageDialog.lines and self.messageDialog.lines[1] then
+             self.messageDialog:draw(true)
+         end
+         self.shiftMenu:draw(300, boxY + 4, 92, 52)
+-    elseif self.battle:isAwaitingCommand() then
++    -- pret/pokered af519899 finishes the HP bar before the command list.
++    -- updateVitals has already run on the resume that applies the damage
++    -- and returns command, so this frame would paint FIGHT on the old HP.
++    elseif self.battle:isAwaitingCommand() and not self:isVitalsBlocking() then
+         -- Draw text area on left
+         self:_text("what-will", "What will", gfx.getSystemFont()).image:draw(14, boxY + 10)
+         local name = self.battle.player.name

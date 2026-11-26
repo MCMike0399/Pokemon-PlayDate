@@ -2,7 +2,23 @@
 import "game/coastStory"
 Class("GameContext")
 local TRANSITION_LOG_MAX <const> = 12
-local function startLocation() return {zone_id="reds_house_2f",x=5,y=3,facing="up"} end
+-- New Game stands in Red's room and heals outside his door. Those registry
+-- keys are the padded pokered maps. test_zone remains the fallback until
+-- AuthoredMaps has registered them.
+local BEDROOM <const> = {zone_id="reds_house_2f",x=5,y=3,facing="up"}
+local HEAL <const> = {zone_id="pallet_town",x=5,y=6,facing="down"}
+local BOOT <const> = {zone_id="test_zone",x=6,y=7,facing="down"}
+local function palletReady()
+    return zoneRegistry.reds_house_2f ~= nil and zoneRegistry.pallet_town ~= nil
+end
+local function startLocation()
+    if palletReady() then return BEDROOM end
+    return BOOT
+end
+local function healLocation()
+    if palletReady() then return HEAL end
+    return BOOT
+end
 local function zoneKey(stableID)
     for key,zone in pairs(zoneRegistry) do if zone.stableID==stableID then return key end end
     local provided=WorldDeltas.zoneKey(stableID)
@@ -10,7 +26,7 @@ local function zoneKey(stableID)
     error("unknown stable session zone: "..tostring(stableID))
 end
 local function newModel(context,seed)
-    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint={zone_id="pallet_town",x=5,y=6,facing="down"},seed=seed or 1})
+    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint=healLocation(),seed=seed or 1})
     assert(session:inventory():credit(3000)) -- pinned Blue InitPlayerData START_MONEY.
     -- OakSpeech places one Potion in the item PC, not in the bag. This freshly
     -- constructed model has not been published; loading never calls newModel.

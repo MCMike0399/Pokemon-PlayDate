@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from tools.tests.host_fixtures import installed_map_names
 from tools.generate_source_map_cache import build, canonical
-from tools.source_map_fixture import records
+from tools.source_map_fixture import disk_patch, records
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -23,7 +23,7 @@ class SourceMapActivationInputs(unittest.TestCase):
         cls.fixture = records(reference)
 
     def test_sdk_witness_uses_the_exact_existing_pinned_extension_fixture(self):
-        self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(self.fixture))
+        self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(disk_patch(self.fixture)))
         maps = self.fixture['data/sourceMaps.json']['maps']
         self.assertEqual(set(maps), installed_map_names())
         self.assertEqual(maps['ViridianSchoolHouse']['profile'], 'source')

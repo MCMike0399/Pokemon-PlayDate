@@ -135,6 +135,18 @@ class FossilRevivalServiceTests(unittest.TestCase):
                 {'op': 'talk'},
                 {'op': 'talk'},
             ]},
+            {'name': 'moon-choice', 'revival': cls.revival, 'steps': [
+                {'op': 'moon', 'flags': {}},
+                {'op': 'moon', 'flags': {'EVENT_GOT_DOME_FOSSIL': True}},
+                {'op': 'moon', 'flags': {'EVENT_GOT_HELIX_FOSSIL': True}},
+                {'op': 'moon', 'flags': {'EVENT_GOT_DOME_FOSSIL': True, 'EVENT_GOT_HELIX_FOSSIL': True}},
+            ]},
+            {'name': 'fossil-byte', 'revival': cls.revival, 'steps': [
+                {'op': 'byte'},
+                {'op': 'add', 'symbol': cls.dome['item']},
+                {'op': 'confirm', 'item': cls.dome['item'], 'accepted': False},
+                {'op': 'byte'},
+            ]},
             {'name': 'continue-box-full', 'revival': cls.revival, 'steps': [
                 {'op': 'fill', 'partyOnly': False},
                 {'op': 'add', 'symbol': cls.amber['item']},
@@ -177,10 +189,12 @@ class FossilRevivalServiceTests(unittest.TestCase):
         host_text = HOST.read_text()
         self.assertIn('SessionCodec.encode', host_text)
         self.assertIn('SessionCodec.decode', host_text)
+        codec = (ROOT / 'Source/domain/sessionCodec.lua').read_text()
+        self.assertIn('wFossilItem', codec)
+        self.assertIn('if data.wFossilItem~=nil then', codec)
         for relative in (
             'Source/main.lua',
             'Source/data/sourceMaps.json',
-            'Source/domain/sessionCodec.lua',
             'Source/domain/gameSession.lua',
             'Source/domain/saveStore.lua',
         ):
@@ -306,7 +320,7 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertEqual(self.flags(chosen), (False, False, False))
         continued = steps[2]
         self.assertEqual(continued['result']['status'], 'continued')
-        self.assertEqual(continued['result']['codec'], 4)
+        self.assertEqual(continued['result']['codec'], 5)
         self.assertNotEqual(continued['state']['process'], chosen['state']['process'])
         self.assertEqual(continued['state']['pending'], chosen['state']['pending'])
         self.assertEqual(continued['state']['choice'], self.choice_ids(self.dome['item'], self.dome['species']))
@@ -323,7 +337,7 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertEqual(given['state']['items'][self.dome['item']], 0)
         continued = steps[2]
         self.assertEqual(continued['result']['status'], 'continued')
-        self.assertEqual(continued['result']['codec'], 4)
+        self.assertEqual(continued['result']['codec'], 5)
         self.assertNotEqual(continued['state']['process'], given['state']['process'])
         self.assertEqual(continued['state']['pending'], {'item': self.dome['item'], 'species': self.dome['species']})
         self.assertEqual(continued['state']['choice'], self.choice_ids(self.dome['item'], self.dome['species']))
@@ -365,7 +379,7 @@ class FossilRevivalServiceTests(unittest.TestCase):
         continued = steps[6]
         ids = self.choice_ids(self.amber['item'], self.amber['species'])
         self.assertEqual(continued['result']['status'], 'continued')
-        self.assertEqual(continued['result']['codec'], 4)
+        self.assertEqual(continued['result']['codec'], 5)
         self.assertNotEqual(continued['state']['process'], failed['state']['process'])
         self.assertEqual(continued['state']['party'], 6)
         self.assertEqual(continued['state']['box'], 20)
@@ -418,6 +432,39 @@ class FossilRevivalServiceTests(unittest.TestCase):
         self.assertEqual(revived['result']['level'], self.patched['level'])
         self.assertEqual(revived['state']['counts'][chosen['species']], 1)
         self.assertNotIn(self.dome['species'], revived['state']['counts'])
+
+    def test_mt_moon_offers_one_fossil_and_hides_both_objects(self):
+        steps = self.scenario('moon-choice')
+        either, dome, helix, both = (step['result'] for step in steps)
+        self.assertEqual(either, {'ok': True, 'status': 'either', 'dome_visible': True, 'helix_visible': True})
+        self.assertEqual(dome['status'], 'dome')
+        self.assertEqual(dome['taken'], 'DOME_FOSSIL')
+        self.assertFalse(dome['dome_visible'])
+        self.assertFalse(dome['helix_visible'])
+        self.assertEqual(helix['taken'], 'HELIX_FOSSIL')
+        self.assertEqual(both, {'ok': False, 'status': 'both-fossils'})
+        moon = (REFERENCE / 'scripts/MtMoonB2F.asm').read_text()
+        self.assertIn('SetEvent EVENT_GOT_DOME_FOSSIL', moon)
+        self.assertIn('SetEvent EVENT_GOT_HELIX_FOSSIL', moon)
+        self.assertIn('CheckEitherEventSet EVENT_GOT_DOME_FOSSIL, EVENT_GOT_HELIX_FOSSIL', moon)
+        cerulean = (ROOT / 'Source/game/ceruleanStory.lua').read_text()
+        self.assertIn('id == "pokered:MT_MOON_B2F:objects:6" or id == "pokered:MT_MOON_B2F:objects:7"', cerulean)
+        self.assertIn('EVENT_GOT_DOME_FOSSIL",equals=false', cerulean.replace(' ', ''))
+        self.assertIn('EVENT_GOT_HELIX_FOSSIL",equals=false', cerulean.replace(' ', ''))
+
+    def test_stored_fossil_byte_matches_the_item_constant(self):
+        steps = self.scenario('fossil-byte')
+        self.assertEqual(steps[0]['result'], {'ok': True, 'status': 'stored', 'value': 0})
+        self.assertEqual(steps[2]['result']['status'], 'cancelled')
+        self.assertEqual(steps[3]['result'], {'ok': True, 'status': 'stored', 'value': 41})
+        constants = (REFERENCE / 'constants/item_constants.asm').read_text()
+        self.assertRegex(constants, r'const OLD_AMBER\s+; \$1F')
+        self.assertRegex(constants, r'const DOME_FOSSIL\s+; \$29')
+        self.assertRegex(constants, r'const HELIX_FOSSIL\s+; \$2A')
+
+    def test_continue_round_trips_the_fossil_item_byte(self):
+        record = json.loads(self.scenario('continue-choice')[2]['result']['bytes'])
+        self.assertEqual(record['wFossilItem'], 41)
 
 
 if __name__ == '__main__':

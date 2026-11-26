@@ -1,0 +1,91 @@
+diff --git a/Source/game/learningState.lua b/Source/game/learningState.lua
+index b872e99c..d945edda 100644
+--- a/Source/game/learningState.lua
++++ b/Source/game/learningState.lua
+@@ -164,6 +164,24 @@ function LearningState:showAsk()
+     -- forget list and item 1 (NO) returns carry to AbandonLearning.
+     self.prompt = mon .. " is\ntrying to learn\n" .. name
+         .. "!\n\nBut, " .. mon .. "\ncan't learn more\nthan 4 moves!\n\nDelete an older\nmove to make room\nfor " .. name .. "?"
++    -- pokered PlaceString uses a two-line box. <CONT> waits and scrolls,
++    -- <PARA> waits and clears, and TryingToLearn opens YES/NO only after
++    -- PrintText returns on the last page. The full prompt stays in
++    -- self.prompt so the existing contract can still read every sentence.
++    -- The box draws one page. The menu stays inactive until that last page,
++    -- and a mash cannot turn a page that has not been up for 10 frames.
++    self.askPages = {
++        mon .. " is\ntrying to learn",
++        "trying to learn\n" .. name .. "!",
++        "But, " .. mon .. "\ncan't learn more",
++        "can't learn more\nthan 4 moves!",
++        "Delete an older\nmove to make room",
++        "move to make room\nfor " .. name .. "?",
++    }
++    self.askPage = 1
++    self.askShown = false
++    self.askFrames = 0
++    self.askHold = 0
+     self.menu.columns = 1
+     self.menu:show({"YES", "NO"}, self:guard(function(index)
+         if index == 1 then
+@@ -172,6 +190,7 @@ function LearningState:showAsk()
+             self:showStopConfirmation()
+         end
+     end), self:guard(function() self:showStopConfirmation() end))
++    self.menu.isActive = false
+ end
+ 
+ function LearningState:showStopConfirmation()
+@@ -245,6 +264,31 @@ function LearningState:update()
+     if self.requestedClose and self:isTop() then self:finish(self.requestedClose) end
+ end
+ 
++function LearningState:turnAskPage()
++    -- Same hold as the battle-message patch. The frame that reveals a page
++    -- does not accept A, and the page stays up for 10 frames. A hold that
++    -- began earlier has to last 12 frames after that before it turns the page.
++    if not self.askShown then
++        self.askShown = true
++        self.askFrames = 0
++        self.askHold = 0
++        return
++    end
++    self.askFrames = self.askFrames + 1
++    if self.askFrames < 10 then return end
++    local held = playdate.buttonIsPressed(playdate.kButtonA)
++    self.askHold = held and self.askHold + 1 or 0
++    if not playdate.buttonJustPressed(playdate.kButtonA) and self.askHold < 12 then return end
++    self.askPage = self.askPage + 1
++    self.askShown = false
++    self.askFrames = 0
++    self.askHold = 0
++    -- Leave viewGeneration alone. Bumping it invalidates the YES/NO
++    -- callback showAsk just installed, so NO on the last page does nothing.
++    gfx.sprite.addDirtyRect(0, 0, 400, 240)
++    if self.askPage >= #self.askPages then self.menu.isActive = true end
++end
++
+ function LearningState:handleInput()
+     if not self.active then return end
+     if self.waitForRelease then
+@@ -253,7 +297,9 @@ function LearningState:handleInput()
+         end
+         return
+     end
+-    if self.phase == "message" then self.dialog:handleInput() else self.menu:handleInput() end
++    if self.phase == "message" then self.dialog:handleInput()
++    elseif self.phase == "ask" and self.askPages and self.askPage < #self.askPages then self:turnAskPage()
++    else self.menu:handleInput() end
+     if self.requestedAdvance and self.active then self:nextChoice() end
+     if self.requestedClose and self.active then self:finish(self.requestedClose) end
+ end
+@@ -316,7 +362,9 @@ function LearningState:draw()
+         self.menu:draw(80, 84, 308, 88)
+         battleText(self.prompt, 360)
+     elseif self.phase ~= "idle" and self.phase ~= "closed" then
+-        battleText(self.prompt, 270)
++        local spoken = self.prompt
++        if self.phase == "ask" and self.askPages then spoken = self.askPages[self.askPage] end
++        battleText(spoken, 270)
+         self.menu:draw(300, 184, 92, 52)
+     end
+     gfx.setFont(font)

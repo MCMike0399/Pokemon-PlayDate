@@ -250,7 +250,14 @@ function BattleScriptPhase:advance()
         self.waiting = true
         self.messageTimer = 0
     elseif kind == "shift" then
-        self.battle.shiftChoice = {incoming = value}
+        local incoming = value
+        if type(value) == "table" and value.text then
+            incoming = value.incoming
+            self.battle.message = value.text
+            self.messageSerial = (self.messageSerial or 0) + 1
+            self.messageTimer = 0
+        end
+        self.battle.shiftChoice = {incoming = incoming}
         self.waiting = false
     elseif kind == "learning" then
         assert(value and value:is("Pokemon") and #value:getPendingMoveChoices() > 0, "invalid learning yield")
@@ -270,14 +277,17 @@ function BattleScriptPhase:update()
 end
 
 function BattleScriptPhase:handleInput()
+    -- The 10-frame floor is not the print. PrintLetterDelay may still be
+    -- revealing the line, and a held A is not WaitForTextScrollButtonPress.
+    -- Only a new A after that wait installs the next queued say.
     if self.waiting and self.messageTimer > MESSAGE_MIN_FRAMES
-       and (playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonIsPressed(playdate.kButtonA)) then
+       and playdate.buttonJustPressed(playdate.kButtonA) then
         self.waiting = false
         self:advance()
     end
 end
 
--- ended: terminal message ("You won the battle!" / "You blacked out...");
+-- ended: terminal message (victory, or the pokered blackout page);
 -- A hands control back to whoever owns the battle via the battleEnd signal
 Class("BattleEndedPhase"):extends(State)
 
@@ -754,7 +764,10 @@ function Battle:eligibleForcedReplacements(target)
     if type(target) ~= "table" or type(target.is) ~= "function" or not target:is("Pokemon") then
         return nil, "invalid-target"
     end
-    if self.outcome or self.effects.closed or not target:isAlive() then return nil, "inactive-target" end
+    -- A fainted active lead still has a bench. ChooseNextMon reads that
+    -- bench before ReplaceFaintedEnemyMon. Fainted bench members stay out
+    -- of the index list below. A closed battle has no bench to offer.
+    if self.outcome or self.effects.closed then return nil, "inactive-target" end
     local side = target == self.player and "player" or (target == self.enemy and "enemy" or nil)
     if not side then return nil, "foreign-target" end
     if not validSwitchSleep(target) then return nil, "invalid-sleep-duration" end
@@ -791,7 +804,9 @@ function Battle:forceSwitch(target)
         return nil
     end
     local choices, targetSide = self:eligibleForcedReplacements(target)
-    if not choices then
+    -- The bench query accepts a fainted lead. Whirlwind still fails on one:
+    -- a fainted target is not dragged out.
+    if not choices or not target:isAlive() then
         self:say("But it failed!")
         return nil
     end
@@ -880,11 +895,23 @@ function Battle:chooseParty(index)
             if outcome~="replacement" then return outcome end
             return self:finishRound()
         end
-        if forced then return "command" end
+        -- The foe is still the fainted one. ReplaceFaintedEnemyMon prints
+        -- the SHIFT question before TrainerSentOutText.
+        if forced then
+            if not self.enemy:isAlive() then
+                self.resumeFaintedEnemy = true
+                return self:finishRound()
+            end
+            return "command"
+        end
         local outcome=not pursuit and self:resolveTurn(enemyTurn) or nil
         if outcome and outcome~="replacement" then return outcome end
         return self:finishRound()
     end)
+    -- Pursuit defers commitActiveMember until after the strike, so this
+    -- return used to leave selectionKind set. The party choice is already
+    -- accepted. BattleScene:completeSelection asserts otherwise.
+    self.selectionKind = nil
     return true
 end
 function Battle:availableBalls()
@@ -908,6 +935,9 @@ function Battle:throwBall(ballId)
     local context={pokemon=self.enemy,wild=true}
     local dex=self.session:pokedex()
     local caughtCount=0;for _,owned in pairs(dex.owned) do if owned then caughtCount=caughtCount+1 end end
+    -- ItemUseBall tests wPokedexOwned before it sets the flag. Recruit below
+    -- marks the species owned, so the "new dex data" choice is recorded now.
+    local newDex=dex.owned[self.enemy.species]~=true
     local parameters,problem=Capture.parameters(context,ballId,caughtCount)
     if not parameters then return false,problem end
     local storage=self.session:storage()
@@ -928,6 +958,7 @@ function Battle:throwBall(ballId)
         assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
     end
     if result.caught then
+        if newDex then self.dexPageAdded = self.enemy.species end
         self.enemy:resetStages()
         self:clearHitPresentation()
         if not self.sourceEncounter then
@@ -936,6 +967,7 @@ function Battle:throwBall(ballId)
             result.destination=destination
         end
         self.caughtPokemon=self.enemy
+        self.caughtNewDex=newDex
     end
     self.effects:beginRound()
     self.captureResult=result
@@ -946,6 +978,10 @@ function Battle:throwBall(ballId)
         if result.caught then
             self:say("Gotcha! " .. self.enemy.name .. " was caught!")
             self.message=self.enemy.name .. " was caught!"
+            -- engine/pokemon/add_mon.asm _AddPartyMon calls AskName after the
+            -- caught line and, when the species was new, after ShowPokedexData.
+            self.pendingNickname={mon=self.enemy, speciesName=self.enemy.name}
+            self.nicknameReady=true
             return "caught" -- Catching grants no XP in Gen V.
         end
         if result.source_blocked then
@@ -1016,6 +1052,10 @@ function Battle:resolveRound(turns)
     self.effects:beginRound(turns)
     for _, turn in ipairs(turns) do
         local outcome = self:resolveTurn(turn)
+        -- replacement means a bench can still fight. The later queued move
+        -- still resolves: a fainted actor skips before PP, and a living actor
+        -- spends PP before a fainted target reports no target. Residuals and
+        -- the forced switch happen after the queue.
         if outcome and outcome ~= "replacement" then return outcome end
     end
     return self:finishRound()
@@ -1158,6 +1198,12 @@ function Battle:resolveTurn(turn)
         if not key or not attacker:usePP(key) then
             self:say(attacker.name .. " has no PP left for that move!")
             return interrupted()
+        end
+        -- Pressure on the living target spends one extra PP when any remains.
+        -- The move still resolves after the first point. Struggle has no PP.
+        if key ~= "struggle" and self:targetsFoe(turn.move)
+            and self.effects:livingAbility(self.defender, 46) then
+            attacker:usePP(key)
         end
     end
     -- Committed action: PP and the interrupt gates have already passed.
@@ -1413,6 +1459,13 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
        and opponentTargets[move.targetId or 10]
        and (self:typeMatchup(move.type,defender)==0
             or self.effects:groundImmune(attacker, defender, move)) then
+        -- Lightning Rod still draws Electric moves that Ground would ignore.
+        if move.type=="electric" and self.effects:livingAbility(defender,31) then
+            self.effects:absorbsMove(attacker,defender,move)
+            resetFury()
+            self.conditions:moveFinished(move,false)
+            return nil
+        end
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         resetFury()
         self:say("It doesn't affect " .. defender.name .. "...")
@@ -1672,8 +1725,11 @@ function Battle:_registerFaints(lastFaintedSide)
         if not pokemon:isAlive() and not self.faintAnnounced[side] then
             self.faintAnnounced[side] = true
             changed=true
-            self:say(pokemon.name .. " fainted!")
+            -- present() does not start the slide until isVitalsBlocking() is false,
+            -- which is the bar reaching the authoritative HP. The line is
+            -- printed only after the drain and the slide.
             self:present("faint", {side = side, pokemon = pokemon})
+            self:say(pokemon.name .. " fainted!")
         end
     end
     return lastFaintedSide,changed
@@ -1699,7 +1755,9 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
         for _,entry in ipairs(awarded)do
             local mon,row=entry.mon,entry.row
             if row.xp>0 then
-                self:say(mon.name .. " gained " .. row.xp .. " EXP!")
+                -- pokered data/text/text_2.asm _GainedText then _ExpPointsText.
+                -- row.xp stays the Gen V award.
+                self:say(mon.name .. " gained\n" .. row.xp .. " EXP. Points!")
                 self:present("experience", {pokemon = mon, fromXP = beforeXP[mon], fromLevel = row.fromLevel})
                 local shown,why=BattleRewards.acknowledge(self,receipt.id,row.index);assert(shown,why)
                 if row.leveled then
@@ -1725,11 +1783,45 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
     local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
     local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
     if won then
-        self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
+        local title = self.session and self.session:title()
+        local playerName = self.playerName or (title and title.playerName) or "RED"
+        local coins = self.payDayCoins or 0
+        if coins > 0 then
+            -- data/text/text_2.asm _PickUpPayDayMoneyText. The scatter line is
+            -- text_3.asm; this page is the yen total, once, on a win.
+            self:say(playerName .. " picked up\n¥" .. coins .. "!")
+        end
+        if self.trainerName then
+            -- pokered engine/battle/core.asm TrainerBattleVictory prints
+            -- TrainerDefeatedText, then PrintEndBattleText, then
+            -- MoneyForWinningText, and only then returns to the map.
+            -- endBattleLines and prizeLine are the source pages for that
+            -- trainer, resolved when the battle is attached.
+            self:say(playerName .. " defeated " .. self.trainerName .. "!")
+            for _, line in ipairs(self.endBattleLines or {}) do
+                self:say(line)
+            end
+            if self.prizeLine then
+                self:say(self.prizeLine)
+            end
+            self.message = self.prizeLine or (playerName .. " defeated " .. self.trainerName .. "!")
+        else
+            self.message = "You won the battle!"
+        end
         return "victory"
     end
     if not playerTeamAlive then
-        self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
+        -- pret/pokered text/text_2.asm _PlayerBlackedOutText2. OaksLab is the
+        -- one loss that prints the rival's line and does not black out.
+        local intro = self.session and self.session:getIntro()
+        if intro and intro.stage == "rival_fight" then
+            self.message = "You lost the battle!"
+        else
+            local title = self.session and self.session:title()
+            local playerName = title and title.playerName or "RED"
+            self.message = playerName .. " is out of\nuseable POKéMON!\n\n"
+                .. playerName .. " blacked\nout!"
+        end
         return "defeat"
     end
     return "replacement"
@@ -1744,25 +1836,45 @@ function Battle:handleFaint(lastFaintedSide)
 end
 
 function Battle:finishRound()
-    local outcome = self:endOfRoundStatus()
-    self.conditions:endRound()
-    if outcome and outcome ~= "replacement" then return outcome end
+    local resume = self.resumeFaintedEnemy
+    self.resumeFaintedEnemy = nil
+    if not resume then
+        local outcome = self:endOfRoundStatus()
+        self.conditions:endRound()
+        if outcome and outcome ~= "replacement" then return outcome end
+        -- HandleEnemyMonFainted calls ChooseNextMon before
+        -- ReplaceFaintedEnemyMon. The fainted foe stays active until the
+        -- player has sent a living mon.
+        if not self.player:isAlive() and self:hasUsablePlayer() then
+            self.message = "Choose a POKEMON!"
+            return "forcedSwitch"
+        end
+    end
     -- Gen V replaces fainted battlers after residual effects, not mid-move.
     while not self.enemy:isAlive() and self.enemyParty and self.enemyParty:firstUsable() do
         local index = self.enemyParty:firstUsable()
         if index then
             local incoming = self.enemyParty:get(index)
+            -- Party count, not eligibleForcedReplacements: that query
+            -- rejects a fainted lead, and after ChooseNextMon the old lead
+            -- is the fainted bench. pokered still asks when wPartyCount > 1.
             if self.presentationAttached and GameOptions.battleStyle() == "SHIFT"
-                and self.player:isAlive() and self.party and #self:eligibleForcedReplacements(self.player) > 0 then
+                and self.player:isAlive() and self.party and self.party:count() > 1 then
                 -- pokered data/text/text_2.asm _TrainerAboutToUseText, shown
                 -- with TWO_OPTION_MENU (engine/battle/core.asm). The # glyph
                 -- is POKé. constants/charmap.asm maps é to $ba, and the
                 -- battle text draws that source glyph.
                 local title = self.session and self.session:title()
                 local playerName = title and title.playerName or "RED"
-                self:say(self.trainerName .. " is about to use " .. incoming.name
-                    .. "!\nWill " .. playerName .. " change POKéMON?")
-                coroutine.yield("shift", incoming)
+                -- "about to use" is its own page. pokered then prints
+                -- "Will <PLAYER>" / "change #MON?" with TWO_OPTION_MENU.
+                -- One say() of both typed the question with no menu, and B
+                -- sent the foe out.
+                self:say(self.trainerName .. " is about to use " .. incoming.name .. "!")
+                coroutine.yield("shift", {
+                    incoming = incoming,
+                    text = "Will " .. playerName .. "\nchange POKéMON?",
+                })
                 local selected = self.shiftSelected
                 self.shiftSelected = nil
                 if selected then
@@ -1929,6 +2041,38 @@ function Battle:useItem(id,partyIndex,moveSlot)
     if not self.player:isAlive() or not self.enemy:isAlive() then return false,"fainted" end
     if self.conditions:locked(self.player) then return false,"locked-move" end
     local item=type(id)=="string" and ItemData.definitions[id] or nil
+    -- X Accuracy/Attack/Defend/Speed/Special raise one stage. They are not
+    -- medicine, and a key item never enters this branch. Guard Spec. and
+    -- Dire Hit stay unsupported.
+    if item and item.effect == "statStage" then
+        if item.keyItem then return false,"unsupported-item-use" end
+        local xItems = {xAccuracy=true,xAttack=true,xDefend=true,xSpeed=true,xSpecial=true}
+        local allowed = {atk=true,def=true,spa=true,spd=true,spe=true,acc=true,eva=true}
+        local stat = item.stat
+        if not xItems[id] or not allowed[stat] or item.stages ~= 1 then return false,"unsupported-item-use" end
+        partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
+        if not partyIndex then return false,"invalid-index" end
+        local target,problem=self.party:get(partyIndex)
+        if not target then return false,problem end
+        if Party._owner(target)~=self.party then return false,"stale-target" end
+        local current = target.statStages and target.statStages[stat]
+        if type(current) ~= "number" or current >= 6 or current < -6 then return false,"no-effect" end
+        local consumed, why = Inventory.consume(self.session:inventory(), id, 1)
+        if not consumed then return false, why end
+        target.statStages[stat] = current + 1
+        local labels = {atk="ATTACK",def="DEFENSE",spa="SP.ATK",spd="SP.DEF",spe="SPEED",acc="ACCURACY",eva="EVASION"}
+        self.effects:beginRound()
+        self.selectionKind=nil
+        self:clearHitPresentation()
+        self:runScript(function()
+            self:say("RED used "..item.name.." on "..target.name.."!")
+            self:say(target.name.."'s "..labels[stat].." rose!")
+            local outcome=self:resolveTurn(self:enemyTurn())
+            if outcome and outcome~="replacement" then return outcome end
+            return self:finishRound()
+        end)
+        return true,{kind="statStage",stat=stat,before=current,after=current+1}
+    end
     local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}
     if not item or not legal[item.effect] then return false,"unsupported-item-use" end
     partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil

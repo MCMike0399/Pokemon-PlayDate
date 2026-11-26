@@ -163,8 +163,15 @@ local function eevee(state)
         labels[#labels + 1] = "_SentToBoxText"
     end
     state:source(labels, function()
-        CeladonServices.reconcileActors(state.game)
-        state:finish()
+        local function leave()
+            CeladonServices.reconcileActors(state.game)
+            state:finish()
+        end
+        if Story and Story.promptNickname and result.mon then
+            Story.promptNickname(state.game, result.mon, "EEVEE", leave)
+        else
+            leave()
+        end
     end)
 end
 local function coins(state)
@@ -315,6 +322,7 @@ local function elevator(state)
         menu(state, { "1F", "2F", "3F", "4F", "5F" }, function(index)
             local accepted, reason = CeladonServices.selectFloor(state.session, index)
             if accepted then
+                state.game.lastElevator = {place = "celadon", floor = index}
                 state:finish()
             else
                 state:fail(reason)
@@ -543,7 +551,7 @@ function CeladonServicesController.draw(state)
     gfx.fillRect(196, 4, 200, 44)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawRect(196, 4, 200, 44)
-    gfx.drawText("MONEY  ¥" .. state.session:inventory():money(), 204, 8)
+    GbFont.drawMoneyLine("MONEY  ¥" .. state.session:inventory():money(), 204, 8)
     if type(state.session.coins) == "function" then
         gfx.drawText("COIN   " .. state.session:coins(), 204, 27)
     end

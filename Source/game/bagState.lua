@@ -208,6 +208,8 @@ function BagState:use(id, index, moveSlot)
     local mon = self.game.session:party():get(index)
     local ok, result = Items.use(self.game.session:inventory(), id, mon, moveSlot)
     if ok then
+        self.game.lastItemUse = {effect = ItemData.definitions[id].effect,
+            hpRestored = result.hpRestored or 0, statusCured = result.statusCured}
         self:showMessage(ItemData.definitions[id].name .. " was used on " .. mon.name .. ".")
     elseif result == "no-effect" then
         self:showMessage("It won't have any effect.")
@@ -482,6 +484,10 @@ function BagState:battleUse(id,index,slot,mon,moveKey)
         or (slot and mon.moves[slot]~=moveKey) then self:battleMessage("stale-selection");return false,"stale-selection" end
     local ok,result=self.options.trySelect(id,index,slot)
     if ok then self.machine:pop() else self:battleMessage(result) end
+    if ok and type(result) == "table" then
+        self.game.lastItemUse = {effect = ItemData.definitions[id].effect,
+            hpRestored = result.hpRestored or 0, statusCured = result.statusCured}
+    end
     return ok,result
 end
 function BagState:chooseBattleTarget(id)

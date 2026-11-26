@@ -158,7 +158,13 @@ function KantoServicesState:magikarp()
             if ok then
                 self.committed = true
                 self.plan.ram = {wNameBuffer="MAGIKARP", wBoxMonNicks="MAGIKARP", wStringBuffer=tostring(result.box or 1)}
-                self:serviceText({result.destination == "storage" and "_SentToBoxText" or "_GotMonText"})
+                self:serviceText({result.destination == "storage" and "_SentToBoxText" or "_GotMonText"}, function()
+                    if Story and Story.promptNickname and result.mon then
+                        Story.promptNickname(self.game, result.mon, "MAGIKARP", function() self:finish() end)
+                    else
+                        self:finish()
+                    end
+                end)
             elseif result == "insufficient-money" then self:serviceText({prefix .. "NoMoneyText"})
             elseif result == "box-full" then self:serviceText({"_BoxIsFullText"})
             else self:fail(result) end
@@ -212,7 +218,7 @@ function KantoServicesState:draw()
         gfx.setColor(gfx.kColorBlack)
         gfx.drawRect(236, 4, 160, 46)
         gfx.drawText("MONEY", 246, 8)
-        gfx.drawText("¥" .. self.session:inventory():money(), 246, 27)
+        GbFont.drawMoneyLine("¥" .. self.session:inventory():money(), 246, 27)
         gfx.popContext()
     end
     if self:valid() and self.phase == "service-choice" then

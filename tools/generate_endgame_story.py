@@ -22,7 +22,11 @@ PLAYER_STARTERS = {'charmander': 'STARTER2', 'squirtle': 'STARTER3', 'bulbasaur'
 
 
 def encoded(value):
-    return (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+    # Playdate json.decode turns \u00XX into one Latin-1 byte, and utf8.len
+    # rejects it. The pinned story keeps the Victory Road name as UTF-8
+    # POKÉMANIAC and leaves every other non-ASCII escape unchanged.
+    raw = (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+    return raw.replace(b'POK\\u00e9MANIAC', 'POKéMANIAC'.encode())
 
 
 def need(text, pattern, label):

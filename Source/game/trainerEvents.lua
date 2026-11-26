@@ -1,3 +1,4 @@
+import "data/redPartyMoves"
 -- Cohesive trainer progression/temporary encounter owner. Session owns all
 -- durable flags/money; native EventState owns the bounded approach lifecycle.
 Class("TrainerEvents")
@@ -54,7 +55,7 @@ end
 local function definition(self,id)
     local owner=owners[self]
     if id==LAB then
-        if owner.game.session:getIntro().stage~="rival_fight" or currentZone.stableID~="oaks_lab" then return nil end
+        if owner.game.session:getIntro().stage~="rival_fight" or not currentZone or currentZone.stableID~="pokered:OAKS_LAB" then return nil end
         return {id=LAB,payout=175,initial_lab=true,talk_only=true,party={{species=assert(owner.game.session:getIntro().rivalStarter),level=5}},name="BLUE"}
     end
     local d = owner.lookup(id)
@@ -195,8 +196,16 @@ function TrainerEvents:launch(token)
     if not Specimen.isActiveSession(game.session) then return nil,"inactive-trainer-session" end
     local party=Party()
     local planned=RulesRNG.new(1);planned:restore(RulesRNG.snapshot())
-    for _,mon in ipairs(value.definition.party) do
-        assert(party:add(assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))))
+    for index, mon in ipairs(value.definition.party) do
+        local created = assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))
+        -- WriteMonMoves, then LoneMoves or TeamMoves for this party slot.
+        -- An explicit party row, when one exists, replaces that.
+        local intro = game.session:getIntro()
+        created:usePartyMoves(Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.starter))
+        local scriptedMoves = RedPartyMoves[value.definition.id]
+        local scripted = scriptedMoves and scriptedMoves[mon.species]
+        if scripted then created:usePartyMoves(scripted) end
+        assert(party:add(created))
     end
     RulesRNG.restore(planned:snapshot()) -- Entire detached team succeeded.
     if value.lease then value.motion:releaseScript(value.lease); value.lease = nil end
@@ -206,6 +215,20 @@ end
 function TrainerEvents:attachBattle(token,battle)
     local value,reason=info(self,token);if not value then return false,reason end
     if value.phase~="battle" or not battle:is("Battle") or battle.enemyParty~=value.party or battle.party~=value.session:party() or battle.trainerName~=value.definition.name then return false,"wrong-trainer-battle" end
+    local descriptor = SourceEvents.has(value.definition.id) and SourceEvents.descriptor(value.definition.id) or nil
+    if descriptor and descriptor.kind == "trainer" and descriptor.won then
+        local title = value.session:title()
+        local playerName = title and title.playerName or "RED"
+        local ram = {player = playerName, wAmountMoneyWon = value.definition.payout}
+        local lines = {}
+        for _, page in ipairs(SourceEvents.pages(value.definition.id, descriptor.won, ram)) do
+            lines[#lines + 1] = page.text
+        end
+        local money = SourceEvents.pages(value.definition.id, {"_MoneyForWinningText"}, ram)
+        battle.playerName = playerName
+        battle.endBattleLines = lines
+        battle.prizeLine = money[1].text
+    end
     value.battle=battle;return true
 end
 function TrainerEvents:currentBattleToken(npc)

@@ -18,13 +18,31 @@ from PIL import Image
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.generate_kanto_maps import encode_png
-from tools.terrain_atlases.pixels import render
+from tools.terrain_atlases.pixels import bit, render
 from tools.generate_source_map_cache import build as build_cache, canonical, require
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / 'Source/terrainAtlases'
 PIXEL_COMMIT = '5a03fc3aab025418f80f06ab523a4ec8f3510d72'
 SHADES = '.12#'
+
+
+def quadrant_tones(key, overrides):
+    """Per-quadrant {'light','dark'} for an overridden tileset, else None."""
+    parts = key.split(':')
+    if len(parts) != 4 or parts[0] != 'pokered' or parts[1] not in overrides['tilesets']:
+        return None
+    spec = overrides['tilesets'][parts[1]]
+    ids = parts[3].split('-')
+    require(len(ids) == 4, 'cell key requires four tile ids: ' + key)
+    return [dict(spec['default'], **spec['tiles'].get(tile, {})) for tile in ids]
+
+
+def tone_suffix(tones):
+    if tones is None:
+        return ''
+    code = lambda p: 'w' if p == 'white' else ''.join(f'{b:02x}' for b in p)
+    return '~' + '/'.join(code(t['light']) + code(t['dark']) for t in tones)
 
 
 def identity(rows, policy):
@@ -53,6 +71,9 @@ def build():
                            light=[85, 187, 85, 255, 85, 187, 85, 255],
                            dark=[0, 170, 68, 170, 0, 170, 68, 170]),
             'exact approved 31.25/68.75 fixed-phase Bayer bytes required')
+    overrides = read('Source/data/terrainToneOverrides.json')
+    require(overrides.get('schema') == 1 and isinstance(overrides.get('tilesets'), dict),
+            'terrain tone overrides schema 1 required')
     manifest = read('Source/data/sourceMaps.json')
     for entry in manifest['maps'].values():
         read('Source/' + entry['path'])
@@ -67,8 +88,9 @@ def build():
     groups, used, skipped = {}, set(), []
     for inventory in (grids['tiles'], replacements['tiles']):
         for key, tile in sorted(inventory.items()):
-            name = identity(tile['grid'], policy)
-            raw = render(tile['grid'], policy)
+            tones = quadrant_tones(key, overrides)
+            name = identity(tile['grid'], policy) + tone_suffix(tones)
+            raw = render(tile['grid'], policy, tones)
             require(name not in pixels or pixels[name] == raw, 'terrain identity collision: ' + key)
             pixels[name] = raw
             used.add(name)
@@ -98,17 +120,19 @@ def build():
         indices = {name: i + 1 for i, name in enumerate(names)}
         table = dict(schema=1, tileset=tileset, source_revision=grids['source_revision'],
                      policy=policy, frame_count=len(names),
+                     **({'tone_overrides': overrides['tilesets'][tileset]}
+                        if tileset in overrides['tilesets'] else {}),
                      entries={key: dict(index=indices[value['pixel']], grid=value['grid'])
                               for key, value in sorted(entries.items())})
         artifacts[stem + '.json'] = canonical(table)
         # Check the assembled atlas cells independently against current source/patterns.
         image = Image.open(io.BytesIO(artifacts[png_name]))
         for key, entry in table['entries'].items():
+            rows = [entry['grid'][i:i + 16] for i in range(0, 256, 16)]
+            tones = quadrant_tones(key, overrides)
             for y in range(32):
                 for x in range(32):
-                    shade = entry['grid'][(y // 2) * 16 + x // 2]
-                    expected = 1 if shade == '.' else 0 if shade == '#' else (
-                        policy['light' if shade == '1' else 'dark'][y % 8] >> (7 - x % 8)) & 1
+                    expected = bit(rows, policy, x, y, tones)
                     require(int(image.getpixel((x, (entry['index'] - 1) * 32 + y)) != 0) == expected,
                             'atlas pixel differs from approved source/pattern: ' + key)
         summaries[tileset] = dict(keys=len(entries), frames=len(names),

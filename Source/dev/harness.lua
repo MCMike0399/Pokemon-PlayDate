@@ -6,6 +6,7 @@ if not playdate.isSimulator or not HarnessBuild.enabled then return end
 
 local config = HarnessBuild
 local tick, request, commands, index, started, complete, failure = 0, nil, nil, 1, 0, false, nil
+local contractResultPublished = false
 local entries, seen = {}, {}
 local transitions = {}
 local watched = setmetatable({}, { __mode = "k" })
@@ -282,11 +283,11 @@ local function normalize(value)
         valid = true
     elseif op == "battle" then valid = pokemonData[args[1]] and integer(args[2], 1, 100) and #args == 2
     elseif op == "warp" then valid = integer(args[1], 0, 10000) and integer(args[2], 0, 10000) and #args == 2
-    elseif op == "contracts" then
+    elseif op == "contracts" or op == "catalog" then
         valid = #args == 0 or (#args == 1 and type(args[1]) == "string"
             and args[1]:match("^[%w_%-]+$") ~= nil)
     elseif op == "snapshot" or op == "gamestate" or op == "state" or op == "pokemon"
-        or op == "dismiss" or op == "atlas" or op == "catalog" or op == "quiesce" then
+        or op == "dismiss" or op == "atlas" or op == "quiesce" then
         valid = #args == 0
     end
     assert(valid, "invalid command: " .. op)
@@ -430,6 +431,27 @@ local function poll(game)
     if not ok then finish(game, "error", tostring(problem)) end
 end
 
+local scoreReplyGuarded = false
+local function keepMissingScores()
+    if scoreReplyGuarded or not KantoSynth or not playdate.file or not playdate.file.run then return end
+    scoreReplyGuarded = true
+    local run = playdate.file.run
+    playdate.file.run = function(path, ...)
+        if type(path) == "string" and path:sub(1, 12) == "audio/score/"
+            and not (KantoScores and KantoScores[path:sub(13)]) then
+            return
+        end
+        return run(path, ...)
+    end
+    local music = KantoSynth.music
+    KantoSynth.music = function(name, keepJingle)
+        if name and not (KantoScores and KantoScores[name]) then
+            return
+        end
+        return music(name, keepJingle)
+    end
+end
+
 function Harness.beforeFrame(game)
     tick = tick + 1
     HarnessCapture.tick, HarnessCapture.phase = tick - 1, "previous-completed-frame"
@@ -482,7 +504,7 @@ function Harness.beforeFrame(game)
         elseif command.op == "snapshot" or command.op == "shot" then complete = true
         elseif command.op == "catalog" then
             assert(VisualCatalog, "visual catalog unavailable")
-            Autopilot.catalog = VisualCatalog.write(config.output_dir)
+            Autopilot.catalog = VisualCatalog.write(config.output_dir, command.parts[2])
             complete = true
         elseif command.op == "contracts" then
             assert(Contracts, "contracts unavailable")
@@ -495,14 +517,59 @@ function Harness.beforeFrame(game)
         end
     end)
     if not ok then failure = tostring(problem); complete = true end
+    local finished = commands and commands[index]
+    if finished and finished.contracts then
+        -- The suite dropped the title score to fit. The frame that publishes
+        -- the reply would file.run it into a fragmented pool and the result
+        -- would never be written. Leave a missing score unloaded.
+        keepMissingScores()
+        -- Publish before the rest of this frame. The failure capture and the
+        -- trace snapshot run after beforeFrame and can stall until timeout.
+        if failure and request then
+            publish("result.json", {
+                id = request.id, status = "error", error = failure, snapshot = {},
+                results = {{ command = index, op = finished.op, tick = tick, status = "error",
+                    outcome = "ok", messages = {}, contracts = finished.contracts }},
+            })
+            contractResultPublished = true
+            playdate.update = function() end
+            request, commands, complete, failure = nil, nil, false, nil
+            entries = {}
+        end
+    end
 end
 
 function Harness.afterFrame(game, runtimeError)
     HarnessCapture.tick, HarnessCapture.phase = tick, runtimeError and "partial-error" or "completed"
+    if contractResultPublished then
+        playdate.update = function() end
+        return
+    end
     if runtimeError then
         -- Preserve the first game failure. A partially completed transition
         -- must not execute again and overwrite it with secondary errors.
         playdate.update = function() end
+        local command = commands and commands[index]
+        if request and complete and command and command.contracts then
+            -- The suite already returned its report. A later compressed read
+            -- must not replace that report with an empty runtime error.
+            entries[#entries + 1] = {
+                command = index, op = command.op, tick = tick, status = "error",
+                outcome = "ok", messages = {}, contracts = command.contracts,
+            }
+            local published = pcall(function()
+                publish("result.json", {
+                    id = request.id, status = "error", error = failure or runtimeError,
+                    results = entries, snapshot = {},
+                })
+            end)
+            if published then
+                request, commands, complete, failure = nil, nil, false, nil
+                entries = {}
+                return
+            end
+            entries[#entries] = nil
+        end
         publish("runtime-error.json", { error = runtimeError, snapshot = HarnessDiagnostics.snapshot(game) })
         if request then finish(game, "error", runtimeError) end
         return
@@ -546,6 +613,20 @@ function Harness.afterFrame(game, runtimeError)
         if outcome ~= (command.expect or "ok") then failure = "unexpected outcome: " .. outcome end
         if command.op == "shot" then
             HarnessCapture.write(command.args[1])
+        end
+        if failure and command.contracts then
+            -- The report is already scored. A failure capture and a second
+            -- full snapshot are the allocations that stall the reply until
+            -- the host times out, so the names never reach result.json.
+            publish("result.json", {
+                id = request.id, status = "error", error = failure, snapshot = {},
+                results = {{ command = index, op = command.op, tick = tick, status = "error",
+                    outcome = outcome, messages = messages, contracts = command.contracts }},
+            })
+            playdate.update = function() end
+            request, commands, complete, failure = nil, nil, false, nil
+            entries = {}
+            return
         end
         entries[#entries + 1] = { command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
             outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts, observation = command.observation }

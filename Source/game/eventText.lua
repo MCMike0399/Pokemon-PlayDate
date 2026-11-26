@@ -1,4 +1,6 @@
--- Source recipes produce semantic paragraphs; Dialog owns measured pagination.
+-- text, line, and next fill the two rows of the message box. cont scrolls
+-- the second row up and keeps writing. para clears the box. Dialog draws
+-- those rows; it does not join them back into a paragraph.
 EventText = {}
 local cached
 local function source()
@@ -16,31 +18,50 @@ function EventText.pagesFrom(labels, resolver, ram)
     local pages = {}
     for _, label in ipairs(labels) do
         local record = assert(resolver(label), "missing source dialogue: " .. tostring(label))
-        local raw, space = "", false
-        local function flush()
-            if #raw > 0 then
-                local player = ram and ram.player or "RED"
-                local receipt = raw:find(player .. " got", 1, true)
-                    or raw:find(player .. " received", 1, true)
-                    or raw:find(player .. " delivered", 1, true)
-                pages[#pages + 1] = {label = label, text = raw, receipt = receipt ~= nil, source = record.source}
-            end
-            raw, space = "", false
+        local line1, line2, slot, ending = "", "", 1, nil
+        local function pageText()
+            if line1 == "" and line2 == "" then return nil end
+            if line2 == "" then return line1 end
+            return line1 .. "\n" .. line2
+        end
+        local function close(reason)
+            local text = pageText()
+            local use = reason or ending or "done"
+            ending = nil
+            if not text then return end
+            local player = ram and ram.player or "RED"
+            local flat = text:gsub("\n", " ")
+            local receipt = flat:find(player .. " got", 1, true)
+                or flat:find(player .. " received", 1, true)
+                or flat:find(player .. " delivered", 1, true)
+            pages[#pages + 1] = {label = label, text = text, ending = use,
+                receipt = receipt ~= nil, source = record.source}
+        end
+        local function append(text)
+            if text == "" then return end
+            if slot == 1 then line1 = line1 .. text else line2 = line2 .. text end
+        end
+        local function breakLine()
+            slot = 2
         end
         for _, row in ipairs(record.recipe) do
             if row.op == "para" then
-                flush()
-                raw = SourceText.expand(row.text, ram)
-            elseif row.op == "line" or row.op == "cont" or row.op == "next" then
-                -- Original 18-column line breaks reflow to Playdate words.
-                -- A terminator-only line reserves separation for dynamic RAM.
-                if row.text == "@" then
-                    space = true
-                else
-                    raw = raw .. (#raw > 0 and " " or "") .. SourceText.expand(row.text, ram)
-                end
+                -- Paragraph places ▼, waits, then clears the box.
+                close("para")
+                line1, line2, slot = "", "", 1
+                if row.text ~= "@" then append(SourceText.expand(row.text, ram)) end
+            elseif row.op == "cont" then
+                -- _ContText places ▼, waits, then scrolls the second row up.
+                local kept = line2
+                close("cont")
+                line1, line2, slot = kept, "", 2
+                if row.text ~= "@" then append(SourceText.expand(row.text, ram)) end
+            elseif row.op == "line" or row.op == "next" then
+                -- <LINE> and <NEXT> both land on the second row without waiting.
+                breakLine()
+                if row.text ~= "@" then append(SourceText.expand(row.text, ram)) end
             elseif row.op == "text" then
-                raw = raw .. SourceText.expand(row.text, ram)
+                append(SourceText.expand(row.text, ram))
             elseif row.op == "text_ram" then
                 local supplied = ram and ram[row.symbol]
                 if supplied == nil then
@@ -51,22 +72,23 @@ function EventText.pagesFrom(labels, resolver, ram)
                 assert(type(supplied) == "string" and utf8.len(supplied) and #supplied <= 128,
                     "bounded source text RAM value required")
                 -- Resolved RAM is literal display text, never another program.
-                raw = raw .. (space and " " or "") .. supplied
-                space = false
+                append(supplied)
             elseif row.op == "control" then
                 if row.source:match("^text_decimal%s") or row.source:match("^text_bcd%s") then
-                    raw = raw .. (space and " " or "") .. SourceText.number(row.source, ram)
-                    space = false
+                    append(SourceText.number(row.source, ram))
+                elseif row.source == "prompt" then
+                    ending = "prompt"
+                elseif row.source == "done" or row.source == "text_end" then
+                    ending = "done"
                 else
-                    assert(row.source == "done" or row.source == "prompt"
-                        or row.source == "text_end" or row.source == "text_start",
+                    assert(row.source == "text_start",
                         "unsupported event text control: " .. tostring(row.source))
                 end
             else
                 error("unsupported source text operation: " .. tostring(row.op))
             end
         end
-        flush()
+        close()
     end
     assert(#pages <= 64, "event dialogue page limit")
     return pages

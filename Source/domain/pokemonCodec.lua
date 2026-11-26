@@ -52,7 +52,15 @@ local function checked(record)
     end
     if record.version==3 then assert(record.pendingEvolution==nil,"legacy-evolution-field") end
     assert(type(record.species)=="string" and pokemonData[record.species],"unknown-species")
-    assert(type(record.name)=="string" and #record.name>=1 and #record.name<=10 and not record.name:find("[^ -~]"),"invalid-name")
+    -- constants/text_constants.asm NAME_LENGTH is 11, including the terminator.
+    -- constants/charmap.asm: printable ASCII, plus × ($f1), ♂ ($ef), and ♀ ($f5).
+    assert(type(record.name)=="string" and utf8.len(record.name)~=nil,"invalid-name")
+    local nameCount=0
+    for _,code in utf8.codes(record.name) do
+        assert((code>=32 and code<=126) or code==0x00D7 or code==0x2642 or code==0x2640,"invalid-name")
+        nameCount=nameCount+1
+    end
+    assert(nameCount>=1 and nameCount<=10,"invalid-name")
     assert(integer(record.level,1,100),"invalid-level")
     assert(integer(record.xp,xpForLevel(record.level, record.species),xpForLevel(100, record.species)),"invalid-xp")
     assert(record.level==100 or record.xp<xpForLevel(record.level+1, record.species),"xp-level-mismatch")
@@ -79,9 +87,20 @@ local function checked(record)
         assert(type(choice.move)=="string" and moveData[choice.move] and not seenMoves[choice.move],"unknown-or-duplicate-choice-move")
         assert(integer(choice.level,1,record.level),"invalid-choice-level")
         local found=false
-        for _,entry in ipairs(pokemonData[record.species].learnset) do
-            if entry.move==choice.move and entry.level==choice.level and entry.id==choice.sourceMoveId
-                and entry.order==choice.sourceOrder then found=true; break end
+        local function matches(entry)
+            return entry.move==choice.move and entry.level==choice.level and entry.id==choice.sourceMoveId
+                and entry.order==choice.sourceOrder
+        end
+        for _,entry in ipairs(PokeredLearnsets.entriesBetween(record.species, choice.level, choice.level)) do
+            if matches(entry) then found=true; break end
+        end
+        -- Settled saves keep the moves they already know. A pending choice
+        -- written from the B2W2 table still has to load; new choices match
+        -- the pokered row above.
+        if not found then
+            for _,entry in ipairs(pokemonData[record.species].learnset) do
+                if matches(entry) then found=true; break end
+            end
         end
         assert(found,"choice-source-mismatch")
         pending[i]={id=choice.id,move=choice.move,level=choice.level,sourceOrder=choice.sourceOrder,
@@ -216,6 +235,12 @@ function PokemonCodec.encode(mon)
     end
     snapshots[mon] = Party._primitive(data)
     return data
+end
+function PokemonCodec.releaseSnapshot(mon)
+    snapshots[mon] = nil
+end
+function PokemonCodec.releaseSnapshots()
+    for mon in pairs(snapshots) do snapshots[mon] = nil end
 end
 
 -- Internal read-only snapshot for repeated field freshness checks. Canonical

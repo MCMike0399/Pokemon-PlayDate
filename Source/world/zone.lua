@@ -761,6 +761,11 @@ function WorldDeltas._withDefinitionProvider(provider,callback)
     if not ok then error(a,0) end;return a,b
 end
 function WorldDeltas.disposeImportedCache() if definitionProvider then definitionProvider:disposeCache() end end
+function WorldDeltas.releaseInactiveZones()
+    if definitionProvider and definitionProvider.releaseInactive then
+        definitionProvider:releaseInactive()
+    end
+end
 function WorldDeltas.zoneKey(stableID)
     for key,zone in pairs(zoneRegistry) do if zone.stableID==stableID then return key end end
     return definitionProvider and definitionProvider:keyForID(stableID)

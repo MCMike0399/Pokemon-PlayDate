@@ -1,0 +1,168 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -946,6 +946,9 @@
+         if result.caught then
+             self:say("Gotcha! " .. self.enemy.name .. " was caught!")
+             self.message=self.enemy.name .. " was caught!"
++            -- engine/events/battle.asm AskName, after the caught line.
++            self.pendingNickname={mon=self.enemy, speciesName=self.enemy.name}
++            self.nicknameReady=true
+             return "caught" -- Catching grants no XP in Gen V.
+         end
+         if result.source_blocked then
+diff --git a/Source/game/battleState.lua b/Source/game/battleState.lua
+--- a/Source/game/battleState.lua
++++ b/Source/game/battleState.lua
+@@ -189,6 +189,7 @@
+     local battle = self.battle
+     battle:update()
+     if self.battle ~= battle then return end
++    self:openPendingNickname()
+     if self.scene then self.scene:update() end
+     self:openPendingLearning()
+     self:openSelection()
+@@ -205,6 +206,20 @@
+     if self.scene then self.scene:draw() end
+ end
+ 
++-- engine/events/battle.asm AskName. NamingState is registered by TitleState.
++function BattleState:openPendingNickname()
++    local battle = self.battle
++    local pending = battle and battle.pendingNickname
++    if not pending or not battle.nicknameReady or self.nicknameOpen then return end
++    if not (Story and Story.promptNickname) then return end
++    self.nicknameOpen = true
++    Story.promptNickname(self.game, pending.mon, pending.speciesName, function()
++        battle.pendingNickname = nil
++        battle.nicknameReady = nil
++        self.nicknameOpen = nil
++    end)
++end
++
+ -- Present the real learning overlay without returning/replacing this battle.
+ function BattleState:openPendingLearning()
+     if not self:isTop() or not self.battle or self.learningRequest then return false end
+diff --git a/Source/game/fossilRevival.lua b/Source/game/fossilRevival.lua
+--- a/Source/game/fossilRevival.lua
++++ b/Source/game/fossilRevival.lua
+@@ -222,7 +222,7 @@
+     return pack(true, "reviving")
+ end
+ 
+-local function handover(session, revival)
++local function handover(session, revival, game)
+     local gave, still, handing, level = identity(revival)
+     assert(session:questFlag(gave) and not session:questFlag(still), "fossil is not ready")
+     local record = durableChoice(session)
+@@ -253,11 +253,14 @@
+     end
+     clearChoice(session)
+     RulesRNG.restore(stream:snapshot())
++    if game and Story and Story.promptNickname then
++        Story.promptNickname(game, mon, record.species)
++    end
+     return pack(true, "revived", {destination = result.destination, box = result.box,
+-        species = record.species, level = level, index = result.index})
++        species = record.species, level = level, index = result.index, mon = mon})
+ end
+ 
+-function FossilRevival.talk(session, revival)
++function FossilRevival.talk(session, revival, game)
+     revival = bind(revival)
+     local gave, still = identity(revival)
+     if not session:questFlag(gave) then
+@@ -270,7 +273,7 @@
+     if session:questFlag(still) then
+         return pack(true, "still-reviving")
+     end
+-    return handover(session, revival)
++    return handover(session, revival, game)
+ end
+ 
+ -- Cinnabar Island's map script clears only the still-reviving flag.
+diff --git a/Source/game/silphStoryController.lua b/Source/game/silphStoryController.lua
+--- a/Source/game/silphStoryController.lua
++++ b/Source/game/silphStoryController.lua
+@@ -244,7 +244,11 @@
+             state.plan.ram = {wNameBuffer = "LAPRAS", wBoxMonNicks = "LAPRAS", wStringBuffer = tostring(result.box or 1)}
+             state:source({result.destination == "storage" and "_SentToBoxText" or "_GotMonText",
+                 "_SilphCo7FSilphWorkerM1LaprasDescriptionText"}, function()
+-                state:advance()
++                if Story and Story.promptNickname and result.mon then
++                    Story.promptNickname(state.game, result.mon, "LAPRAS", function() state:advance() end)
++                else
++                    state:advance()
++                end
+             end)
+         end)
+     elseif script == "nurse" then
+diff --git a/Source/game/midgameGymStoryController.lua b/Source/game/midgameGymStoryController.lua
+--- a/Source/game/midgameGymStoryController.lua
++++ b/Source/game/midgameGymStoryController.lua
+@@ -53,7 +53,12 @@
+             state.plan.ram = {wNameBuffer = state.plan.species:upper(),
+                 wBoxMonNicks = state.plan.species:upper(), wStringBuffer = tostring(result.box or 1)}
+             state:source({result.destination == "storage" and "_SentToBoxText" or "_GotMonText"}, function()
+-                state:finish()
++                local species = state.plan.species
++                if Story and Story.promptNickname and result.mon then
++                    Story.promptNickname(state.game, result.mon, species, function() state:finish() end)
++                else
++                    state:finish()
++                end
+             end)
+         end)
+     end)
+diff --git a/Source/game/celadonServicesController.lua b/Source/game/celadonServicesController.lua
+--- a/Source/game/celadonServicesController.lua
++++ b/Source/game/celadonServicesController.lua
+@@ -163,8 +163,15 @@
+         labels[#labels + 1] = "_SentToBoxText"
+     end
+     state:source(labels, function()
+-        CeladonServices.reconcileActors(state.game)
+-        state:finish()
++        local function leave()
++            CeladonServices.reconcileActors(state.game)
++            state:finish()
++        end
++        if Story and Story.promptNickname and result.mon then
++            Story.promptNickname(state.game, result.mon, "EEVEE", leave)
++        else
++            leave()
++        end
+     end)
+ end
+ local function coins(state)
+diff --git a/Source/game/kantoServices.lua b/Source/game/kantoServices.lua
+--- a/Source/game/kantoServices.lua
++++ b/Source/game/kantoServices.lua
+@@ -158,7 +158,13 @@
+             if ok then
+                 self.committed = true
+                 self.plan.ram = {wNameBuffer="MAGIKARP", wBoxMonNicks="MAGIKARP", wStringBuffer=tostring(result.box or 1)}
+-                self:serviceText({result.destination == "storage" and "_SentToBoxText" or "_GotMonText"})
++                self:serviceText({result.destination == "storage" and "_SentToBoxText" or "_GotMonText"}, function()
++                    if Story and Story.promptNickname and result.mon then
++                        Story.promptNickname(self.game, result.mon, "MAGIKARP", function() self:finish() end)
++                    else
++                        self:finish()
++                    end
++                end)
+             elseif result == "insufficient-money" then self:serviceText({prefix .. "NoMoneyText"})
+             elseif result == "box-full" then self:serviceText({"_BoxIsFullText"})
+             else self:fail(result) end
+diff --git a/Source/game/sourceEventHandlers.lua b/Source/game/sourceEventHandlers.lua
+--- a/Source/game/sourceEventHandlers.lua
++++ b/Source/game/sourceEventHandlers.lua
+@@ -1,5 +1,9 @@
+ -- Bespoke scenes only. Ordinary source interactions live in data/sourceEvents.json.
+ SourceEventHandlers = {}
++-- scripts/NameRatersHouse.asm NameRaterScript.
++-- The reserved gap is pokered:NAME_RATERS_HOUSE:objects:1.
++-- NameRater in Source/game/namingState.lua owns the YES/NO, the OT
++-- mismatch (impeccable, no rename), and the rename keyboard.
+ local function flag(state, id) return state.flags[id] == true end
+ local function item(state, id) return state.items[id] or 0 end
+ local function dialogue(...) return { op = "dialog", labels = { ... } } end

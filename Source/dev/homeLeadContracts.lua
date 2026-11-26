@@ -1,6 +1,9 @@
 HomeLeadContracts={}
 local gfx=playdate.graphics
 local function eq(a,b)assert(a==b,"expected "..tostring(b)..", got "..tostring(a))end
+local function spoken(g)
+    return table.concat(g.machine:get("dialog").dialog.lines," "):gsub("%s+"," ")
+end
 local function same(a,b)
     if type(a)~=type(b)then return false end;if type(a)~="table"then return a==b end
     for k,v in pairs(a)do if not same(v,b[k])then return false end end
@@ -120,7 +123,9 @@ function HomeLeadContracts.run()
         scene("home",function(g)
             local mon=g:getPlayerPokemon();mon.hp=1;assert(g.session:setIntro({stage="pre_oak"}))
             assert(HomeRest.tryInteract(g));eq(g.machine:getCurrent(),"dialog")
-            assert(g.machine:get("dialog").dialog.lines[1]:find("All boys leave",1,true))
+            local wake=spoken(g)
+            assert(wake:find("All boys leave home some day. It said so on TV.",1,true),wake)
+            assert(wake:find("PROF.OAK, next door, is looking for you.",1,true),wake)
             closeDialog(g);eq(g.machine:getCurrent(),"overworld");eq(mon.hp,1)
         end)
     end)
@@ -134,7 +139,8 @@ function HomeLeadContracts.run()
             rest:update();eq(rest.phase,"white");eq(first.hp,first.maxHP);eq(first.status,nil);eq(reserve.hp,reserve.maxHP);assert(reserve.pp[reserve.moves[1]]>0)
             local tick=rest.tick;g.machine:get("overworld"):flushPendingPresentation();g.machine:draw();write("home-mom-white");rest:draw();rest:draw();eq(rest.tick,tick)
             for i=1,24 do rest:update()end;eq(g.machine:getCurrent(),"dialog")
-            assert(g.machine:get("dialog").dialog.lines[1]:find("looking great",1,true));closeDialog(g)
+            local rested=spoken(g)
+            assert(rested:find("MOM: Oh good! You and your POKEMON are looking great! Take care now!",1,true),rested);closeDialog(g)
             eq(g.machine:getCurrent(),"overworld");eq(g.session:party():active(),reserve)
             assert(same(cp,g.session:checkpoint()));assert(same(flags,g.session:flags()));eq(g.session:inventory():money(),money)
             assert(same(rules,RulesRNG.toData()));assert(same(world,g.session:worldRngData()))

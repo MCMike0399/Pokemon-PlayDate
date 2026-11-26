@@ -50,6 +50,10 @@ function FieldGearState:showResult(labels, ram)
     end
     if self.plan.kind == "bicycle" then
         lines = {table.concat(lines, " ")}
+    else
+        for index, page in ipairs(pages) do
+            lines[index] = {text = page.text, ending = page.ending}
+        end
     end
     self.phase = "result"
     self.dialog:show(lines, function()
@@ -79,6 +83,9 @@ function FieldGearState:complete()
     self.game.lastFieldGear = {kind=result.kind, item=self.id,
         receipt=result.receipt and GameSession._copy(result.receipt) or nil}
     if result.kind == "bicycle" then
+        if KantoAudio and KantoAudio.setTraversal then
+            KantoAudio.setTraversal(result.mode)
+        end
         local label = result.mode == "bicycle" and "GotOn" or "GotOff"
         self:showResult({"_" .. label .. "BicycleText1", "_" .. label .. "BicycleText2"},
             {wStringBuffer=ItemData.definitions.bicycle.name})

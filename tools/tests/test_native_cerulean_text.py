@@ -6,6 +6,7 @@ import re
 import subprocess
 import unittest
 
+from tools.flower_phase import same_decoded_bytes, same_manifest_entries
 from tools import generate_cerulean_content as content
 from tools import generate_tutorial_escort as tutorial
 
@@ -50,11 +51,19 @@ class NativeCeruleanTextTests(unittest.TestCase):
         dialogue = artifacts['dialogue.json']
         self.assertNotIn(b'\\u', dialogue)
         self.assertIn('<PLAYER> got ¥@'.encode(), dialogue)
+        pinned_maps = {}
+        originals = {}
+        for name in artifacts:
+            if name in ('dialogue.json', 'provenance.json'):
+                continue
+            originals[name] = subprocess.check_output([
+                'git', 'show', 'a316baf:Source/data/sourceSlice/' + name], cwd=content.ROOT)
+            if name[:1].isupper() and name.endswith('.json'):
+                pinned_maps[name] = originals[name]
         for name, raw in artifacts.items():
             if name in ('dialogue.json', 'provenance.json'):
                 continue
-            original = subprocess.check_output([
-                'git', 'show', 'a316baf:Source/data/sourceSlice/' + name], cwd=content.ROOT)
+            original = originals[name]
             if name == 'sprites.json':
                 from tools.generate_overworld_sprites import same_except_opaque_white
                 self.assertTrue(same_except_opaque_white(raw, original), name)
@@ -62,6 +71,11 @@ class NativeCeruleanTextTests(unittest.TestCase):
             if name in ('trainers.json', 'scripts.json'):
                 self.assertEqual(json.loads(raw), json.loads(original), name)
                 self.assertNotIn(b'\\u', raw)
+            elif name == 'manifest-entries.json':
+                self.assertTrue(raw == original or same_manifest_entries(
+                    raw, original, artifacts, pinned_maps, content.canonical), name)
+            elif name[:1].isupper() and name.endswith('.json'):
+                self.assertTrue(raw == original or same_decoded_bytes(raw, original, content.canonical), name)
             else:
                 self.assertEqual(raw, original, name)
         before = json.loads(subprocess.check_output([

@@ -53,7 +53,12 @@ function MidgameGymStoryController.afterDisplay(state)
             state.plan.ram = {wNameBuffer = state.plan.species:upper(),
                 wBoxMonNicks = state.plan.species:upper(), wStringBuffer = tostring(result.box or 1)}
             state:source({result.destination == "storage" and "_SentToBoxText" or "_GotMonText"}, function()
-                state:finish()
+                local species = state.plan.species
+                if Story and Story.promptNickname and result.mon then
+                    Story.promptNickname(state.game, result.mon, species, function() state:finish() end)
+                else
+                    state:finish()
+                end
             end)
         end)
     end)

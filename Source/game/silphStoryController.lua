@@ -216,6 +216,7 @@ local function prepare(state)
                 end
                 local ok, reason = SilphStoryWorld.selectFloor(state.session, index)
                 if ok then
+                    state.game.lastElevator = {place = "silph", floor = index}
                     state:finish()
                 else
                     state:fail(reason)
@@ -244,7 +245,11 @@ local function prepare(state)
             state.plan.ram = {wNameBuffer = "LAPRAS", wBoxMonNicks = "LAPRAS", wStringBuffer = tostring(result.box or 1)}
             state:source({result.destination == "storage" and "_SentToBoxText" or "_GotMonText",
                 "_SilphCo7FSilphWorkerM1LaprasDescriptionText"}, function()
-                state:advance()
+                if Story and Story.promptNickname and result.mon then
+                    Story.promptNickname(state.game, result.mon, "LAPRAS", function() state:advance() end)
+                else
+                    state:advance()
+                end
             end)
         end)
     elseif script == "nurse" then
