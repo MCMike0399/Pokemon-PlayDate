@@ -252,17 +252,21 @@ function WorldView:dispose()
     self.cellScratch = nil
     self.disposed = true
 end
+function releaseOverworldView()
+    if not activeView then return end
+    if not activeView.disposed then activeView:dispose() end
+    activeView.zone = nil
+    activeView = nil
+end
 function setupOverworld()
     currentZone:assertEnterable()
-    -- A door keeps the source city in the two-slot cache until the destination
-    -- view is built. That city is no longer on screen. Release it, and the
-    -- source view, before the destination tilemap asks for its bitmap.
+    -- switchZone already dropped the departing view and collected. The
+    -- destination definition stays. Releasing it here decodes the map again
+    -- beside the new tilemap, and field Cut copies the screen in that same
+    -- gap. Fade length stays on DoorWarpSubstate.
+    releaseOverworldView()
     if WorldDeltas and WorldDeltas.releaseInactiveZones then
         WorldDeltas.releaseInactiveZones()
-    end
-    if activeView then
-        if not activeView.disposed then activeView:dispose() end
-        activeView = nil
     end
     collectgarbage("collect")
     activeView = WorldView(currentZone)

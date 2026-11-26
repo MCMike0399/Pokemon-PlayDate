@@ -6,9 +6,11 @@ local CONTENT <const> = "postgame"
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local cached, playCached
 local eventsInstalled, planWrapped, hookRegistered, sceneWrapped, continueWrapped = false, false, false, false, false
+local giftHookRegistered = false
 local entering = false
 local continueDepth = 0
 local hallEnteredSet, hallHandled = false, false
+local hallZone, islandZone, islandMap, caveHide
 local previousInstall, previousContinue, previousPrepared
 
 local function copy(value)
@@ -45,6 +47,17 @@ end
 
 function PostgameStory.story()
     return story()
+end
+
+local function rememberPlaces()
+    if hallZone then
+        return
+    end
+    local data <const> = story()
+    hallZone = data.rematch.hall_zone
+    islandZone = data.fossil.island_zone
+    islandMap = data.fossil.island_map
+    caveHide = data.cave.hide
 end
 
 function PostgameStory.text(label)
@@ -168,7 +181,7 @@ function PostgameStory.relocateContinue(candidate)
     end
     local spot <const> = PostgameStory.continueDecision(candidate:location(), teamCount(candidate))
     if not spot then
-        return false
+        return nil
     end
     local ok, saved, reason = pcall(function()
         local world <const> = candidate:worldData()
@@ -185,7 +198,10 @@ function PostgameStory.relocateContinue(candidate)
     if not ok then
         return false, tostring(saved)
     end
-    return saved, reason
+    if not saved then
+        return false, reason or "hall-continue-not-relocated"
+    end
+    return true
 end
 
 function PostgameStory._duringContinue(method, self, ...)
@@ -211,7 +227,12 @@ function PostgameStory.installContinue()
     previousPrepared = GameSaves.continuePreparedTitle
     function GameContext:installSession(candidate)
         if continueDepth > 0 then
-            PostgameStory.relocateContinue(candidate)
+            local moved, reason = PostgameStory.relocateContinue(candidate)
+            -- A Hall save that cannot take the Pallet fly warp must not
+            -- install the Hall cell. A non-Hall continue returns nil.
+            if moved == false then
+                return false, reason or "hall-continue-not-relocated"
+            end
         end
         return previousInstall(self, candidate)
     end
@@ -259,9 +280,42 @@ function PostgameStory.installEvents()
     SourceEventHandlers[scientist.id] = function()
         return PostgameStory.fossilPlan(scientist.id)
     end
+    local giver <const> = data.deviations and data.deviations.mew and data.deviations.mew.npc
+    if type(giver) == "table" and type(giver.id) == "string" then
+        events[giver.id] = {kind = "bespoke", content = CONTENT}
+        SourceEventHandlers[giver.id] = function()
+            return PostgameStory.giftPlan(giver.id)
+        end
+        local dispatchId <const> = giver.dispatch_id
+        if type(dispatchId) == "string" then
+            events[dispatchId] = {kind = "bespoke", content = CONTENT}
+            SourceEventHandlers[dispatchId] = function()
+                return PostgameStory.giftPlan(dispatchId)
+            end
+            if SourceEvents.registerWorldHooks and not giftHookRegistered then
+                SourceEvents.registerWorldHooks(dispatchId, {interact = PostgameStory.tryGift})
+                giftHookRegistered = true
+            end
+        end
+    end
+    -- registerEventSource rejects the postgame: map id. The script id is the
+    -- one A starts. Handlers for the map id stay on SourceEventHandlers.
+    local accepted = {}
+    for id, descriptor in pairs(events) do
+        local stable = id:match("^pokered:[^:]+:objects:%d+$")
+            or id:match("^pokered:[^:]+:background_events:%d+$")
+            or id:match("^pokered:[^:]+:hidden_events:%d+$")
+            or id:match("^pokered:[^:]+:script:[%w%-]+$")
+        if stable and not SourceEvents.has(id) then
+            accepted[id] = descriptor
+        end
+    end
     SourceEvents.registerTextSource(CONTENT, PostgameStory.text)
-    SourceEvents.registerEventSource(CONTENT, events)
+    if next(accepted) then
+        SourceEvents.registerEventSource(CONTENT, accepted)
+    end
     eventsInstalled = true
+    rememberPlaces()
     return true
 end
 
@@ -323,6 +377,82 @@ function PostgameStory.fossilAnswer(session, symbol, accepted)
         "_CinnabarLabFossilRoomScientist1GoForAWalkText2"}}
 end
 
+local function championReady(session)
+    local gift <const> = story().deviations.mew
+    if session:questFlag(gift.requires_flag) ~= true then
+        return false
+    end
+    if gift.requires_hall_team ~= true then
+        return true
+    end
+    local record <const> = session:hallOfFame()
+    return type(record) == "table" and type(record.teams) == "table" and #record.teams >= 1
+end
+
+function PostgameStory.giftPlan(id)
+    local npc <const> = story().deviations.mew.npc
+    assert(id == npc.id or id == npc.dispatch_id, "gift plan id")
+    return {status = "ready", scene = "postgame", scene_script = "gift", steps = {}}
+end
+
+-- The scientist sprite keeps postgame:CERULEAN_CAVE_1F:mew-gift. tryInteract
+-- asks world hooks before that id, and the hook dispatches the script id.
+function PostgameStory.tryGift(game)
+    local npc <const> = story().deviations.mew.npc
+    local dispatchId <const> = npc.dispatch_id
+    if not currentZone or currentZone.stableID ~= npc.zone_id or type(dispatchId) ~= "string" then
+        return false
+    end
+    local player <const> = game and game.player
+    if not player or type(player.getFacingTile) ~= "function" then
+        return false
+    end
+    if player.isMoving or player.pendingEdgeDoor then
+        return false
+    end
+    local fx, fy = player:getFacingTile()
+    if fx ~= npc.x or fy ~= npc.y then
+        return false
+    end
+    if not (SourceEvents and SourceEvents.has and SourceEvents.has(dispatchId) and SourceEvents.dispatch) then
+        return false
+    end
+    return SourceEvents.dispatch(game, dispatchId)
+end
+
+function PostgameStory.giveMew(session)
+    local gift <const> = story().deviations.mew
+    if not championReady(session) then
+        return {ok = false, status = "not-champion", labels = {"_PostgameGiftNotChampionText"}}
+    end
+    if session:questFlag(gift.flag) == true then
+        return {ok = false, status = "already-complete", labels = {"_PostgameMewAlreadyText"}}
+    end
+    local accepted, result = session:purchaseGiftPokemon({
+        species = gift.species, level = gift.level, price = gift.price, flag = gift.flag,
+        guard_flags = {[gift.requires_flag] = true},
+    }, session:inventory():money())
+    if not accepted then
+        return {ok = false, status = tostring(result)}
+    end
+    return {ok = true, status = "received", species = gift.species, level = gift.level,
+        destination = result.destination, labels = {"_PostgameMewGiftText"}}
+end
+
+function PostgameStory.giveLinkCable(session)
+    local cable <const> = story().deviations.link_cable
+    if not championReady(session) then
+        return {ok = false, status = "not-champion", labels = {"_PostgameGiftNotChampionText"}}
+    end
+    local accepted, reason = session:inventory():add(cable.id, 1)
+    if not accepted then
+        local full <const> = reason == "bag-full" or reason == "stack-limit"
+        return {ok = false, status = tostring(reason),
+            labels = {full and "_PostgameLinkCableFullText" or "_PostgameLinkCableText"}}
+    end
+    return {ok = true, status = "received", item = cable.id, labels = {"_PostgameLinkCableText"}}
+end
+
 local function showFossilLabels(state, labels, done)
     state:source(labels, function()
         if done then
@@ -330,6 +460,28 @@ local function showFossilLabels(state, labels, done)
         else
             state:finish()
         end
+    end)
+end
+
+function PostgameStory.presentGift(state)
+    if not championReady(state.session) then
+        showFossilLabels(state, {"_PostgameGiftNotChampionText"})
+        return
+    end
+    showFossilLabels(state, {"_PostgameGiftIntroText"}, function()
+        state.menu:show({"MEW", "LINK CABLE"}, state:guard(function(index)
+            state.menu:hide()
+            local result <const> = index == 1 and PostgameStory.giveMew(state.session)
+                or PostgameStory.giveLinkCable(state.session)
+            if not result.labels then
+                state:fail(result.status or "gift-failed")
+                return
+            end
+            showFossilLabels(state, result.labels)
+        end), function()
+            state.menu:hide()
+            state:finish()
+        end)
     end)
 end
 
@@ -380,17 +532,18 @@ function PostgameStory.presentFossil(state)
 end
 
 function PostgameStory.onEnter(game)
-    local fossil <const> = story().fossil
-    if FossilRevival and currentZone and currentZone.stableID == fossil.island_zone then
-        FossilRevival.onMapLoad(game.session, fossil.island_map)
+    rememberPlaces()
+    if FossilRevival and currentZone and currentZone.stableID == islandZone then
+        FossilRevival.onMapLoad(game.session, islandMap)
     end
-    local rematch <const> = story().rematch
-    if currentZone and currentZone.stableID == rematch.hall_zone then
-        hallEnteredSet = game.session:questFlag(story().cave.hide) == true
+    if currentZone and currentZone.stableID == hallZone then
+        hallEnteredSet = game.session:questFlag(caveHide) == true
         hallHandled = false
-    else
-        hallEnteredSet, hallHandled = false, false
+        return
     end
+    -- Pallet and the rest of the field do not keep the decoded postgame tables.
+    hallEnteredSet, hallHandled = false, false
+    PostgameStory.releaseContinueData()
 end
 
 local function noteLiveParty(game)
@@ -406,9 +559,10 @@ end
 -- The first visit is still EndgameStory.check, while the guard flag is clear.
 -- A later entry finds the flag already set, so that check does not run again.
 function PostgameStory.checkHall(game)
-    local rematch <const> = story().rematch
-    if not currentZone or currentZone.stableID ~= rematch.hall_zone then
+    rememberPlaces()
+    if not currentZone or currentZone.stableID ~= hallZone then
         hallEnteredSet, hallHandled = false, false
+        PostgameStory.releaseContinueData()
         return false
     end
     if not hallEnteredSet or hallHandled then
@@ -416,7 +570,7 @@ function PostgameStory.checkHall(game)
     end
     hallHandled = true
     noteLiveParty(game)
-    return SourceEvents.dispatch(game, rematch.oak_id)
+    return SourceEvents.dispatch(game, story().rematch.oak_id)
 end
 
 function PostgameStory.installHall()
@@ -464,6 +618,14 @@ function PostgameStory.advanceScene(state)
                 KantoScenes.reconcileActors(state.game)
             end
             state:finish()
+            return true
+        end
+        if state.plan.scene_script == "gift" then
+            state.postgameScene.phase = "wait"
+            local ok, problem = pcall(PostgameStory.presentGift, state)
+            if not ok then
+                state:fail(tostring(problem))
+            end
             return true
         end
         if state.plan.scene_script == "fossil" then
@@ -522,6 +684,15 @@ end
 
 function PostgameStory.boot()
     PostgameStory.ensureRuntime()
+end
+
+-- story() and play() stay decoded after the continue hooks are installed.
+-- The next postgame script loads them again. A Hall continue does not need
+-- those tables while the player is walking out of Pallet.
+function PostgameStory.releaseContinueData()
+    local held = cached ~= nil or playCached ~= nil
+    cached, playCached = nil, nil
+    return held
 end
 
 PostgameStory.boot()

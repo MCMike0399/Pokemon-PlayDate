@@ -1,0 +1,141 @@
+diff --git a/Source/game/overworldState.lua b/Source/game/overworldState.lua
+index 5b1aa1f0..5487b17f 100644
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -610,21 +610,26 @@ function OverworldState:enter(opts)
+ 
+     -- Opted in by root only. A retained visit returns from battle unchanged;
+     -- real entries/reloads restore source blocks before constructing the view.
++    -- switchZone releases the departing Zone before the destination is built.
++    -- The id is kept so this reload still sees the map the player left.
++    local departing = self.builtZone
++    local fromID = departing and departing.stableID or self.releasedZoneID
+     if game.fieldWorld and not (opts and opts.fieldRestore)
+-        and self.builtSession == game.session and self.builtZone
+-        and (self.builtZone ~= currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
++        and self.builtSession == game.session and fromID
++        and (departing ~= currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
+         local actors = opts and opts.actors
+-        if not actors and self.builtZone == currentZone then
++        if not actors and departing == currentZone then
+             actors = game.npcManager.motion:snapshot()
+         end
+-        local reason = opts and opts.fieldReloadReason or (self.builtZone == currentZone and "reload" or "map")
++        local reason = opts and opts.fieldReloadReason or (departing == currentZone and "reload" or "map")
+         BootTrace.mark("overworld.field_reload.begin")
+-        local accepted, problem = game.fieldWorld.enter(game, self.builtZone.stableID,
++        local accepted, problem = game.fieldWorld.enter(game, fromID,
+             {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
+             actors or WorldMotionData.empty(), reason)
+         assert(accepted, problem)
+         BootTrace.mark("overworld.field_reload.end")
+     end
++    self.releasedZoneID = nil
+     BootTrace.mark("overworld.field_prepare.begin")
+     FieldMoveState.prepareMap(currentZone.stableID)
+     BootTrace.mark("overworld.field_prepare.end")
+diff --git a/Source/game/sourceEvents.lua b/Source/game/sourceEvents.lua
+index 15d5aace..ea1b8b4b 100644
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -20,6 +20,15 @@ local contentFields = weakValues()
+ -- still drops only this reference. An active descriptor remains valid.
+ local recent, recentOrder = {}, {}
+ local RECENT_CONTENT <const> = 96
++
++-- A city switch has already dropped the map that decoded these chunks.
++-- Ninety-six of them stay live into the next definition and the next bed.
++function SourceEvents.releaseRecentContent()
++    for index = #recentOrder, 1, -1 do
++        recent[recentOrder[index]] = nil
++        recentOrder[index] = nil
++    end
++end
+ local function yieldIfDue()
+     if GameBootstrap then
+         GameBootstrap.yieldIfDue()
+diff --git a/Source/world/overworld.lua b/Source/world/overworld.lua
+index 92df5fc7..308cef4a 100644
+--- a/Source/world/overworld.lua
++++ b/Source/world/overworld.lua
+@@ -252,17 +252,27 @@ function WorldView:dispose()
+     self.cellScratch = nil
+     self.disposed = true
+ end
++function releaseOverworldView()
++    if not activeView then return end
++    if not activeView.disposed then activeView:dispose() end
++    activeView.zone = nil
++    activeView = nil
++end
+ function setupOverworld()
+     currentZone:assertEnterable()
+-    -- A door keeps the source city in the two-slot cache until the destination
+-    -- view is built. That city is no longer on screen. Release it, and the
+-    -- source view, before the destination tilemap asks for its bitmap.
++    -- switchZone already dropped the departing view, actors, definition and
++    -- tile-grid cache. Collect again here so the destination tilemap bitmap
++    -- is allocated after that release, not beside it. Fade length is owned
++    -- by DoorWarpSubstate and is not part of this build.
++    releaseOverworldView()
+     if WorldDeltas and WorldDeltas.releaseInactiveZones then
+         WorldDeltas.releaseInactiveZones()
+     end
+-    if activeView then
+-        if not activeView.disposed then activeView:dispose() end
+-        activeView = nil
++    if SourceMaps and SourceMaps.releaseRetainedRuntime then
++        SourceMaps.releaseRetainedRuntime()
++    end
++    if SourceMaps and SourceMaps._releaseTileGrids then
++        SourceMaps._releaseTileGrids()
+     end
+     collectgarbage("collect")
+     activeView = WorldView(currentZone)
+diff --git a/Source/world/zone.lua b/Source/world/zone.lua
+index fdc0a305..d4c326b9 100644
+--- a/Source/world/zone.lua
++++ b/Source/world/zone.lua
+@@ -1151,7 +1151,42 @@ function getCurrentZoneKey()
+     return zoneList[1]
+ end
+ 
++-- Drop the departing presentation before the next definition is decoded.
++-- Door fades already hold a copy of the settled frame. This runs inside the
++-- existing load, so the fade frame count stays where it is.
++local function releaseDepartingWorld()
++    local world = game and game.machine and game.machine:get("overworld") or nil
++    if world then
++        world.releasedZoneID = world.builtZone and world.builtZone.stableID or nil
++        world.builtZone = nil
++        world.builtView = nil
++        world.presentationVisit = nil
++        world.savedPos = nil
++    end
++    if releaseOverworldView then releaseOverworldView() end
++    if game then
++        if game.player and game.player.remove then game.player:remove() end
++        game.player = nil
++        if game.npcManager and game.npcManager.clear then game.npcManager:clear() end
++    end
++    playdate.graphics.sprite.removeAll()
++    if SourceMaps and SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
++    if SourceMaps and SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
++    currentZone = nil
++    if WorldDeltas.disposeImportedCache then WorldDeltas.disposeImportedCache() end
++    if SourceEvents and SourceEvents.releaseRecentContent then
++        SourceEvents.releaseRecentContent()
++    end
++    -- A playing map bed is hundreds of KiB and stays live across music()
++    -- until the next map's score replaces it. Drop it before the next
++    -- definition, or the bed and the destination city are in the pool together.
++    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
++    collectgarbage("collect")
++    collectgarbage("collect")
++end
++
+ function switchZone(key)
++    releaseDepartingWorld()
+     local zone=WorldDeltas.ensureZone(key)
+     if zone then currentZone=zone end
+ end
