@@ -6290,17 +6290,18 @@ def _city_walk(player, report, goal):
 
 
 def _center_heal(player, report):
+    if not _needs_center(player):
+        return None
+    for y in (6, 5, 4, 3):
+        if _k_here(player) == ("CeladonPokecenter", 3, y):
+            break
+        status = _one_step(player, report, "up", "CeladonPokecenter", 3, y)
+        if status:
+            return status
+    cells = set(open_map(EAST / K_FILES["CeladonPokecenter"][0], *K_FILES["CeladonPokecenter"][1:]))
+    talk_to(player, cells, K_NURSE["CeladonPokecenter"], set())
     if _needs_center(player):
-        for y in (6, 5, 4, 3):
-            if _k_here(player) == ("CeladonPokecenter", 3, y):
-                break
-            status = _one_step(player, report, "up", "CeladonPokecenter", 3, y)
-            if status:
-                return status
-        cells = set(open_map(EAST / K_FILES["CeladonPokecenter"][0], *K_FILES["CeladonPokecenter"][1:]))
-        talk_to(player, cells, K_NURSE["CeladonPokecenter"], set())
-        if _needs_center(player):
-            raise RuntimeError("the nurse did not heal: " + json.dumps(summary(player.state)))
+        raise RuntimeError("the nurse did not heal: " + json.dumps(summary(player.state)))
     _checkpoint(player, report, "saved_scope_healed")
     return "yield"
 
@@ -6330,14 +6331,20 @@ def _with_scope(player, report):
             _checkpoint(player, report, "saved_route7")
             return "yield"
     if _k_here(player)[0] == "CeladonPokecenter":
-        if not _needs_center(player) and _k_here(player)[2] == 7:
-            player.step("down")
-            player.settle(limit=80)
-            if "celadon_city" not in str(player.state.get("zone")):
-                raise RuntimeError("the Center door stayed shut: " + json.dumps(summary(player.state)))
-            _checkpoint(player, report, "saved_scope_healed")
-            return "yield"
-        return _center_heal(player, report)
+        status = _center_heal(player, report)
+        if status:
+            return status
+        y = _k_here(player)[2]
+        for step_y in range(y + 1, 8):
+            status = _one_step(player, report, "down", "CeladonPokecenter", 3, step_y)
+            if status:
+                return status
+        player.step("down")
+        player.settle(limit=80)
+        if "celadon_city" not in str(player.state.get("zone")):
+            raise RuntimeError("the Center door stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_scope_healed")
+        return "yield"
     raise RuntimeError("off the scope road: " + json.dumps(summary(player.state)))
 
 
