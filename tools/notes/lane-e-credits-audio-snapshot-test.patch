@@ -1,0 +1,33 @@
+diff --git a/tools/tests/test_lane_e_coverage_fingerprint.py b/tools/tests/test_lane_e_coverage_fingerprint.py
+index def506f4..e177204e 100644
+--- a/tools/tests/test_lane_e_coverage_fingerprint.py
++++ b/tools/tests/test_lane_e_coverage_fingerprint.py
+@@ -1,20 +1,23 @@
+-"""The coverage snapshot still names the tree from before this lane's audio.
++"""The coverage snapshot must name this Source tree.
+ 
+-This fails until lane E regenerates the snapshot. Do not relabel the matrix
+-from this lane, and do not hand-edit the pin.
++Lane E sets snapshot.source_sha256 from tools.harness.run.fingerprint and
++nests the previous snapshot. Do not relabel the matrix from this lane, and
++do not hand-edit the pin. Any Source change, including the credits-path
++audio, fails this check until that pin is regenerated.
+ """
+ import json
+ import unittest
+ from pathlib import Path
+ 
++from tools.harness.run import fingerprint
++
+ ROOT = Path(__file__).resolve().parents[2]
+-CREDITS_AUDIO_FINGERPRINT = 'aee32b591b3202898ab28d254ee376750c0ea6a58793735a495dde4f24016e27'
+ 
+ 
+ class LaneECoverageFingerprintTests(unittest.TestCase):
+     def test_snapshot_records_the_credits_path_audio(self):
+         data = json.loads((ROOT / 'docs/validation/coverage-current.json').read_text())
+-        self.assertEqual(data['snapshot']['source_sha256'], CREDITS_AUDIO_FINGERPRINT)
++        self.assertEqual(data['snapshot']['source_sha256'], fingerprint(ROOT))
+ 
+ 
+ if __name__ == '__main__':

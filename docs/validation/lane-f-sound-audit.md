@@ -304,3 +304,26 @@ Each patch is unapplied. Its test fails on this tree and passes after `git apply
 
 Other catalogued cues (collision, fly, the PC, move rows, and the rest of `Source/audio/events.lua`) play the track named on their citation. Those citations are the ones `test_cue_citations_are_in_the_pinned_files` checks. They are not a second copy of this table.
 
+## Credits snapshot pin
+
+`tools/notes/lane-e-credits-audio-snapshot-test.patch` makes `LaneECoverageFingerprintTests.test_snapshot_records_the_credits_path_audio` compare `docs/validation/coverage-current.json` `snapshot.source_sha256` with `tools.harness.run.fingerprint`. The check has no skip, no expected failure, and no second acceptable hash. It fails while the recorded pin is not the fingerprint of this `Source` tree, including when the credits-path audio changes and the pin is left as it was.
+
+Regenerate the pin from the repository root after the `Source` tree to be pinned is the one on disk. Do not hand-edit the hash, and do not relabel a row.
+
+1. Print the pin:
+
+```bash
+python3 -c "from pathlib import Path; from tools.harness.run import fingerprint; print(fingerprint(Path('.')))"
+```
+
+2. Nest the snapshot the way `ea32b553` did. Insert a new `snapshot` object in front of the current one, and add the matching closing brace so the current object becomes `previous_snapshot`. Set `source_sha256` to the printed fingerprint. Set `commit` to the commit whose `Source` that fingerprint describes. Keep `policy_date`, `source_revision`, `acceptance_context`, and `review_document`. Set `scope` to name this tree only, and end it with `Previous snapshot source_sha256` plus the hash that was just nested. Leave every row, evidence entry, and `accepted_milestone_rows` unchanged. Do not reformat the file with a JSON dump.
+
+3. Confirm both of these exit 0:
+
+```bash
+python3 tools/check_coverage_matrix.py --project . --matrix docs/validation/coverage-current.json
+python3 -m unittest tools.tests.test_lane_e_coverage_fingerprint.LaneECoverageFingerprintTests.test_snapshot_records_the_credits_path_audio
+```
+
+`check_coverage_matrix.py` asserts the same `fingerprint(project) == snapshot.source_sha256` comparison. The unit test is that comparison and nothing weaker.
+
