@@ -5384,6 +5384,8 @@ K_ZONES = {
     "PokemonTower7F": "kanto_pokemon_tower_7f",
     "MrFujisHouse": "kanto_mr_fujis_house",
     "Route8": "kanto_route_8",
+    "Route12": "kanto_route_12",
+    "Route12Gate1F": "kanto_route_12_gate_1f",
     "UndergroundPathRoute8": "kanto_underground_path_route_8",
     "UndergroundPathWestEast": "kanto_underground_path_west_east",
     "UndergroundPathRoute7": "kanto_underground_path_route_7",
@@ -6555,9 +6557,202 @@ def _rescue_fuji(player, report):
     return "yield"
 
 
+def _grid_walk(player, report, folder, filename, pad, width, place, goal, avoid):
+    cells = set(open_map(folder / filename, pad, width))
+    for _ in range(40):
+        _name, x, y = _k_here(player)
+        if (x, y) == goal:
+            return None
+        blocked = set(avoid)
+        blocked.discard((x, y))
+        blocked.discard(goal)
+        steps = route(cells, (x, y), goal, blocked)
+        if not steps:
+            raise RuntimeError(f"no {place} path {(x, y)} -> {goal}")
+        nxt = neighbor((x, y), steps[0])
+        status = _k_go(player, report, steps[0], place, nxt[0], nxt[1])
+        if status:
+            return status
+    raise RuntimeError(f"the {place} walk stalled at " + json.dumps(summary(player.state)))
+
+
+def _house_avoid():
+    blob = json.loads((EAST / "MrFujisHouse.json").read_text())
+    avoid = set()
+    for obj in blob["events"]["objects"]:
+        avoid.add((obj["x"] + 2, obj["y"]))
+    for warp in blob["events"]["warps"]:
+        avoid.add((warp["x"] + 2, warp["y"]))
+    return avoid
+
+
+def _leave_fujis_house(player, report):
+    status = _grid_walk(player, report, EAST, "MrFujisHouse.json", 2, 13,
+                        "MrFujisHouse", (4, 6), _house_avoid())
+    if status:
+        return status
+    player.step("down")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "MrFujisHouse" and _k_here(player)[2] == 7:
+        player.step("down")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "LavenderTown":
+        raise RuntimeError("Fuji's door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_flute_out")
+    return "yield"
+
+
+def _lavender_center(player, report):
+    avoid = {(5, 3), (2, 6), (11, 2), (3, 1), (3, 7), (4, 7)}
+    if _needs_center(player):
+        status = _grid_walk(player, report, EAST, "LavenderPokecenter.json", 0, 14,
+                            "LavenderPokecenter", (3, 3), avoid)
+        if status:
+            return status
+        cells = set(open_map(EAST / "LavenderPokecenter.json", 0, 14))
+        talk_to(player, cells, K_NURSE["LavenderPokecenter"], avoid)
+        if _needs_center(player):
+            raise RuntimeError("the Lavender nurse did not heal: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_lavender_healed")
+        return "yield"
+    status = _grid_walk(player, report, EAST, "LavenderPokecenter.json", 0, 14,
+                        "LavenderPokecenter", (3, 6), avoid)
+    if status:
+        return status
+    player.step("down")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "LavenderPokecenter":
+        player.step("down")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "LavenderTown":
+        raise RuntimeError("the Center door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_lavender_healed")
+    return "yield"
+
+
+def _flute_lavender(player, report):
+    if _needs_center(player):
+        status = _grid_walk(player, report, EAST, "LavenderTown.json", 0, 20,
+                            "LavenderTown", (3, 6), set(LAVENDER_DOORS))
+        if status:
+            return status
+        player.step("up")
+        player.settle(limit=80)
+        if _k_here(player)[0] != "LavenderPokecenter":
+            raise RuntimeError("the Center door stayed shut: " + json.dumps(summary(player.state)))
+        return _lavender_center(player, report)
+    status = _grid_walk(player, report, EAST, "LavenderTown.json", 0, 20,
+                        "LavenderTown", (8, 16), set(LAVENDER_DOORS) | {(8, 17), (9, 17)})
+    if status:
+        return status
+    player.step("down")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "LavenderTown" and _k_here(player)[2] == 17:
+        player.step("down")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "Route12":
+        raise RuntimeError("Route 12 did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route12")
+    return "yield"
+
+
+def _play_flute(player, report):
+    if not player.exploring():
+        player.dismiss_until_explore(limit=20)
+    player.press("b", wait=10)
+    player.choose("pause", _menu_label(player, "pause", "ITEM"))
+    for _ in range(24):
+        if player.state.get("root") != "bag":
+            break
+        bag = player.state.get("bag") or {}
+        if bag.get("phase") == "actions":
+            player.choose("bag", "USE")
+            continue
+        if bag.get("phase") not in (None, "list", "closed"):
+            player.press("a", wait=4)
+            continue
+        slots = (player.state.get("inventory") or {}).get("slots") or []
+        index = next((i for i, entry in enumerate(slots, start=1) if entry.get("id") == "pokeFlute"), None)
+        if index is None:
+            raise RuntimeError("the Poké Flute is not in the bag")
+        selected = bag.get("selected") or 1
+        if selected != index:
+            player.press("down" if index > selected else "up", wait=2)
+        else:
+            player.press("a", wait=6)
+    if player.state.get("root") == "battle" or not player.exploring():
+        return _k_clear(player, report)
+    raise RuntimeError("the flute did nothing: " + json.dumps(summary(player.state)))
+
+
+def _route12_gate(player, report):
+    status = _grid_walk(player, report, SOUTH, "Route12.json", 0, 20, "Route12", (10, 14), {(10, 15), (11, 15)})
+    if status:
+        return status
+    player.step("down")
+    player.settle(limit=80)
+    if _k_here(player) == ("Route12", 10, 15) or _k_here(player) == ("Route12", 11, 15):
+        player.step("down")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "Route12Gate1F":
+        raise RuntimeError("the Route 12 gate stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route12_gate")
+    return "yield"
+
+
+def _through_route12_gate(player, report):
+    avoid = {(2, 3), (5, 0), (6, 0), (5, 7), (6, 7)}
+    status = _grid_walk(player, report, SOUTH, "Route12Gate1F.json", 1, 13, "Route12Gate1F", (5, 6), avoid)
+    if status:
+        return status
+    player.step("down")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "Route12Gate1F" and _k_here(player)[2] == 7:
+        player.step("down")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "Route12":
+        raise RuntimeError("the south side of Route 12 stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route12_south")
+    return "yield"
+
+
+def _toward_snorlax(player, report):
+    _place, _x, y = _k_here(player)
+    if y < 20:
+        return _route12_gate(player, report)
+    species, _mon = _bird(player)
+    if species and not _needs_center(player):
+        _lead(player, species)
+    goal = (10, 62) if _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX") else (10, 61)
+    blob = json.loads((SOUTH / "Route12.json").read_text())
+    present = _present_ids(player)
+    people = {(obj["x"], obj["y"]) for obj in blob["events"]["objects"]
+              if obj.get("kind") != "item" and obj["id"] in present}
+    people.add((10, 62))
+    for _ in range(40):
+        _name, x, y = _k_here(player)
+        if (x, y) == goal and not _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
+            return _play_flute(player, report)
+        if (x, y) == goal:
+            raise RuntimeError("Snorlax is gone; Route 13 is next: " + json.dumps(summary(player.state)))
+        cells = set(open_map(SOUTH / "Route12.json", 0, 20))
+        avoid = set(people)
+        avoid.discard((x, y))
+        avoid.discard(goal)
+        steps = route(cells, (x, y), goal, avoid)
+        if not steps:
+            raise RuntimeError(f"no Route 12 path {(x, y)} -> {goal}")
+        nxt = neighbor((x, y), steps[0])
+        status = _k_go(player, report, steps[0], "Route12", nxt[0], nxt[1])
+        if status:
+            return status
+    _checkpoint(player, report, "saved_route12")
+    return "yield"
+
+
 def _take_flute(player, report):
     if _holding(player, "pokeFlute"):
-        raise RuntimeError("the Poké Flute is already in the bag: " + json.dumps(summary(player.state)))
+        return _leave_fujis_house(player, report)
     cells = set(open_map(EAST / "MrFujisHouse.json", 2, 13))
     blob = json.loads((EAST / "MrFujisHouse.json").read_text())
     avoid = set()
@@ -6642,12 +6837,20 @@ def _with_scope(player, report):
         return "yield"
     if place == "Route8":
         return _back_along_route8(player, report)
+    if place == "MrFujisHouse":
+        return _take_flute(player, report)
+    if place == "LavenderPokecenter" and _holding(player, "pokeFlute"):
+        return _lavender_center(player, report)
+    if place == "LavenderTown" and _holding(player, "pokeFlute"):
+        return _flute_lavender(player, report)
+    if place == "Route12":
+        return _toward_snorlax(player, report)
+    if place == "Route12Gate1F":
+        return _through_route12_gate(player, report)
     if place == "LavenderTown":
         return _to_pokemon_tower(player, report)
     if place in TOWER_UP or place == "PokemonTower7F":
         return _climb_tower(player, report)
-    if place == "MrFujisHouse":
-        return _take_flute(player, report)
     if place in ("RocketHideoutB1F", "RocketHideoutB2F", "RocketHideoutB3F", "RocketHideoutB4F", "RocketHideoutElevator", "GameCorner"):
         return _leave_hideout(player, report)
     if place == "CeladonCity":
