@@ -1,8 +1,8 @@
 """Hall of Fame draw on E's tip, from the lane G dry run.
 
-pokered af519899 shows the copyright notice, THE END, white credits glyphs,
-and the player name on the card. These checks fail on the live tree.
-tools/notes/lane-e-hall-of-fame-draw.patch is the unapplied fix.
+pokered af519899 shows the copyright notice, THE END, black credits
+glyphs on the white middle band, and the player name on the card.
+tools/notes/lane-e-hof-credits-fidelity.patch is the layout.
 """
 
 import os
@@ -47,20 +47,18 @@ io.write(tostring(y))
 
     def test_credits_draw_shows_the_notice_and_the_end(self):
         draw = (ROOT / "Source/game/eventState.lua").read_text()
-        story = (ROOT / "Source/game/endgameStory.lua").read_text()
         start = draw.index("local view = CreditsPlayer.view(self.credits)")
         block = draw[start:draw.index("gfx.popContext()", start)]
-        shown = block + "\n" + story
-        if "EndgameStory.drawCredits" in block:
-            self.assertIn("creditsBands", story)
-            self.assertIn('text = "black"', story)
-        else:
-            self.assertIn("kDrawModeFillWhite", block)
-        self.assertIn("©'95.'96.'98 Nintendo", shown)
-        self.assertIn("©'95.'96.'98 Creatures inc.", shown)
-        self.assertIn("©'95.'96.'98 GAME FREAK inc.", shown)
-        self.assertNotIn('view.ending and view.phase == "done"', shown)
-        self.assertIn("if view.ending then", shown)
+        self.assertIn("EndgameStory.drawCredits", block)
+        self.assertNotIn("kDrawModeFillWhite", block)
+        story = (ROOT / "Source/game/creditsDraw.lua").read_text()
+        body = story[story.index("function EndgameStory.drawCredits("):]
+        self.assertIn("kColorBlack", body)
+        self.assertIn("©'95.'96.'98 Nintendo", body)
+        self.assertIn("©'95.'96.'98 Creatures inc.", body)
+        self.assertIn("©'95.'96.'98 GAME FREAK inc.", body)
+        self.assertIn('"THE END"', body)
+        self.assertNotIn("kDrawModeFillWhite", body)
 
     def test_dry_run_credits_frames_show_text(self):
         blank = []

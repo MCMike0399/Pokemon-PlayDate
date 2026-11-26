@@ -156,6 +156,7 @@ function KantoScenesContracts.run()
         end)
     end)
     test("receipt rebuild restores rival pose while static metadata stays pure",function()
+        collectgarbage("collect")
         local scenes = CeruleanRoutes.scenes()
         local trigger = scenes.triggers.cerulean[1]
         CeruleanRoutesContracts.withScene("CeruleanCity",{x=trigger.x,y=trigger.y},function(g)

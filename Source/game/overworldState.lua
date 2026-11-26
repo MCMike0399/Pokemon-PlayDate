@@ -610,21 +610,26 @@ function OverworldState:enter(opts)
 
     -- Opted in by root only. A retained visit returns from battle unchanged;
     -- real entries/reloads restore source blocks before constructing the view.
+    -- switchZone releases the departing Zone before the destination is built.
+    -- The id is kept so this reload still sees the map the player left.
+    local departing = self.builtZone
+    local fromID = departing and departing.stableID or self.releasedZoneID
     if game.fieldWorld and not (opts and opts.fieldRestore)
-        and self.builtSession == game.session and self.builtZone
-        and (self.builtZone ~= currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
+        and self.builtSession == game.session and fromID
+        and (departing ~= currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
         local actors = opts and opts.actors
-        if not actors and self.builtZone == currentZone then
+        if not actors and departing == currentZone then
             actors = game.npcManager.motion:snapshot()
         end
-        local reason = opts and opts.fieldReloadReason or (self.builtZone == currentZone and "reload" or "map")
+        local reason = opts and opts.fieldReloadReason or (departing == currentZone and "reload" or "map")
         BootTrace.mark("overworld.field_reload.begin")
-        local accepted, problem = game.fieldWorld.enter(game, self.builtZone.stableID,
+        local accepted, problem = game.fieldWorld.enter(game, fromID,
             {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
             actors or WorldMotionData.empty(), reason)
         assert(accepted, problem)
         BootTrace.mark("overworld.field_reload.end")
     end
+    self.releasedZoneID = nil
     BootTrace.mark("overworld.field_prepare.begin")
     FieldMoveState.prepareMap(currentZone.stableID)
     BootTrace.mark("overworld.field_prepare.end")
