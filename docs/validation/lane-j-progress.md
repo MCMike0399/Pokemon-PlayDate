@@ -72,13 +72,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 169, Celadon Gym (5, 4) facing up, in front of Erika. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `aae3e000ea16c0ae2002732ae3b9d366bfc9e6bb5fa43d3d637a0eef85db74b3`. `EVENT_BEAT_ERIKA` is set. TM21 is in the bag.
+Rainbow Badge is set. The pause is sequence 178, Celadon Pokémon Center (3, 3) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `f5462b88babd2179815d111baecae040dad6f44bb4c881b028cca064f5312ccf`. The gym exit is Celadon (12, 28). `EVENT_BEAT_ERIKA` is set. TM21 is in the bag.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Pidgeotto 32 (3 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
+Team: Pidgeotto 32 (82 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-Next step: leave the gym, heal at the Celadon Center, then the Game Corner and the Rocket Hideout.
+Next step: the Game Corner door at (28, 19), then the poster stairs into the Rocket Hideout.
 
 ## Blockers
 

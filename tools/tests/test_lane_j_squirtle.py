@@ -5789,7 +5789,144 @@ def _grind_route7(player, report):
     return None
 
 
+def _one_step(player, report, direction, place, x, y, cut=False):
+    """One real step. A tree on the known path is cut once, then stepped through."""
+    status = _k_clear(player, report)
+    if status:
+        return status
+    player.step(direction)
+    if player.state.get("root") == "battle":
+        return _k_clear(player, report)
+    if _k_here(player) != (place, x, y) and cut:
+        _confirm_cut(player, direction)
+        player.step(direction)
+        if player.state.get("root") == "battle":
+            return _k_clear(player, report)
+    landed = _k_here(player)
+    if landed != (place, x, y):
+        block = (player.state.get("player") or {}).get("lastTraversalBlock")
+        raise RuntimeError(f"{direction} landed {landed} not {place} {x},{y} block {block}")
+    return None
+
+
+def _after_rainbow(player, report):
+    """Leave Erika, heal the bird, and open the Game Corner door."""
+    if _k_here(player)[0] == "CeladonGym":
+        for direction, x, y, cut in (
+            ("left", 4, 4, False),
+            ("left", 3, 4, True),
+            ("left", 2, 4, False),
+            ("left", 1, 4, False),
+            ("down", 1, 5, False),
+            ("down", 1, 6, False),
+            ("down", 1, 7, False),
+            ("down", 1, 8, False),
+            ("down", 1, 9, False),
+            ("down", 1, 10, False),
+            ("right", 2, 10, False),
+            ("down", 2, 11, False),
+            ("down", 2, 12, False),
+            ("down", 2, 13, False),
+            ("down", 2, 14, False),
+            ("down", 2, 15, False),
+            ("down", 2, 16, False),
+            ("down", 2, 17, False),
+            ("right", 3, 17, False),
+            ("right", 4, 17, False),
+            ("right", 5, 17, False),
+        ):
+            status = _one_step(player, report, direction, "CeladonGym", x, y, cut)
+            if status:
+                return status
+        player.step("down")
+        player.settle(limit=80)
+        if not player.exploring():
+            player.dismiss_until_explore(limit=40)
+        if "celadon_city" not in str(player.state.get("zone")):
+            raise RuntimeError("the gym door stayed shut: " + json.dumps(summary(player.state)))
+    # The south road is the one that already reached the gym. The tree regrows.
+    road = [(12, 28), (12, 29)]
+    road += [(x, 29) for x in range(11, 4, -1)]
+    road += [(5, y) for y in range(30, 35)]
+    road += [(x, 34) for x in range(6, 36)]
+    road += [(35, 33), (35, 32), (35, 31)]
+    road += [(x, 31) for x in range(34, 24, -1)]
+    road += [(25, y) for y in range(30, 22, -1)]
+    road += [(26, 23), (26, 22)]
+    road += [(x, 22) for x in range(27, 37)]
+    road += [(36, y) for y in range(21, 9, -1)]
+    road += [(x, 10) for x in range(37, 42)]
+    here = _k_here(player)
+    if here[0] == "CeladonCity":
+        if (here[1], here[2]) not in road:
+            raise RuntimeError("off the gym road: " + json.dumps(summary(player.state)))
+        start = road.index((here[1], here[2])) + 1
+        names = {"left": (-1, 0), "right": (1, 0), "up": (0, -1), "down": (0, 1)}
+        for x, y in road[start:]:
+            dx, dy = x - here[1], y - here[2]
+            direction = next(name for name, delta in names.items() if delta == (dx, dy))
+            status = _one_step(player, report, direction, "CeladonCity", x, y, cut=(x, y) == (35, 32))
+            if status:
+                return status
+            here = _k_here(player)
+        status = _one_step(player, report, "up", "CeladonPokecenter", 3, 7)
+        if status:
+            return status
+    if _k_here(player)[0] == "CeladonPokecenter":
+        _, mon = _bird(player)
+        if (mon.get("hp") or 0) < 20:
+            for y in (6, 5, 4, 3):
+                if _k_here(player) == ("CeladonPokecenter", 3, y):
+                    break
+                status = _one_step(player, report, "up", "CeladonPokecenter", 3, y)
+                if status:
+                    return status
+            cells = set(open_map(EAST / K_FILES["CeladonPokecenter"][0], *K_FILES["CeladonPokecenter"][1:]))
+            talk_to(player, cells, K_NURSE["CeladonPokecenter"], set())
+            healed = player.state.get("pokemon") or {}
+            if (healed.get("hp") or 0) < 20:
+                raise RuntimeError("the nurse did not heal: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_after_erika")
+        # The east-west street at y=10 reaches the north-south street at x=36.
+        # The Game Corner door is (28, 19), faced from (28, 20).
+        for y in range(_k_here(player)[2] + 1, 8):
+            status = _one_step(player, report, "down", "CeladonPokecenter", 3, y)
+            if status:
+                return status
+        player.step("down")
+        player.settle(limit=80)
+        if "celadon_city" not in str(player.state.get("zone")):
+            raise RuntimeError("the Center door stayed shut: " + json.dumps(summary(player.state)))
+        city = _k_here(player)
+        report["center_exit"] = {"at": [city[1], city[2]], **summary(player.state)}
+        if (city[1], city[2]) != (41, 10):
+            raise RuntimeError("Center exit landed off (41, 10): " + json.dumps(summary(player.state)))
+        for x in range(40, 35, -1):
+            status = _one_step(player, report, "left", "CeladonCity", x, 10)
+            if status:
+                return status
+        for y in range(11, 21):
+            status = _one_step(player, report, "down", "CeladonCity", 36, y)
+            if status:
+                return status
+        for x in range(35, 27, -1):
+            status = _one_step(player, report, "left", "CeladonCity", x, 20)
+            if status:
+                return status
+        player.step("up")
+        player.settle(limit=80)
+        if not player.exploring():
+            player.dismiss_until_explore(limit=40)
+        if "game_corner" not in str(player.state.get("zone")):
+            raise RuntimeError("the Game Corner door stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_game_corner")
+        return "yield"
+    raise RuntimeError("the Center is not open: " + json.dumps(summary(player.state)))
+
+
 def _face_erika(player, report, display, clips, output):
+    if _quest(player).get("BADGE_RAINBOW"):
+        return _after_rainbow(player, report)
     species, _ = _bird(player)
     if species:
         _lead(player, species)
