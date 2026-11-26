@@ -125,6 +125,20 @@ The route graph treats `kind == "item"` as open. The live Antidote ball `pokered
 
 The walk stops in the battle with `pokered:MT_MOON_1F:objects:3`. The message is still `Go! BLASTOISE!`, the move menu is open on SURF, and Oddish is still 32/32. Further A input does not select the move. Cerulean Cave, the Mew gift, and Mewtwo are not reached. No new patch for that stall. No frame: the run stops before the cave shots.
 
-## Main
+## Main continue does not leave the Hall
 
-`git fetch origin main` left origin/main at `ea32b55388038021812142a69b107f035b7c1da3`. That commit has the variable import and does not have `releaseContinueData`. The Hall-continue path on unmodified main stays waiting.
+`git fetch origin main` left `origin/main` at `ea32b55388038021812142a69b107f035b7c1da3`. This branch's `Source/` matches that tree. `GameSaves.continueGame` installs the saved location. It has no `loadHallContinue` and no `PostgameStory.relocateContinue`. The fixture's location is `pokered:HALL_OF_FAME`.
+
+Real input on that Source, same CONTINUE presses as the Hall test, save `tools/tests/fixtures/lane-h-hall-continue-8e72131f.json`. `MallocPoolSize` stayed `16645684`. The simulator log has no inflate and no out-of-memory line.
+
+| point | heap KiB | observed peak KiB |
+| --- | ---: | ---: |
+| ready | 12711.8 | |
+| Continue.end | 13294.4 | 13294.4 |
+| settled overworld | 13068.2 | |
+
+The player is still in `kanto_hall_of_fame` at (7, 2) facing up. pokered `data/maps/special_warps.asm` `.PalletTown` is the Hall continue spawn, and this continue never takes it. Cerulean Cave, the Mew gift, and Mewtwo are not reached. Mewtwo remains pokered `data/maps/objects/CeruleanCaveB1F.asm` object 1. Mew is not an object in `data/maps/objects/CeruleanCave1F.asm`.
+
+The Psychic card is a separate handoff. `tools/notes/lane-e-type-display-names.patch` maps the constant through pokered `data/types/names.asm` (`af519899`), which prints `PSYCHIC`, and doubles `_` and `*` before `drawText`. `tools/tests/test_lane_e_type_display_names.py` fails on this tree: the Mewtwo TYPE1 row is `PSYCHIC_TYPE`. `pdc` still needs K's file-scope import after that patch.
+
+A later scratch of lane E `79fbcba5` did leave the Hall and walked as far as Route 24. Door heaps on that scratch, not on main: Route 1 13267.2, Viridian 13525.6, Pewter 13973.4, Route 3 14036.4, Route 4 14020.1, Mt Moon 1F 14484.2, Cerulean 14500.3 (peak 14811.7), Route 24 14303.2. Every move was then at 0 PP. Struggle's recoil fainted the only Pokémon on the winning blow, and the blackout returned to the fixture checkpoint, Pallet (3, 17) up. The cave, the gift, and Mewtwo were not reached there either.
