@@ -288,6 +288,7 @@ def cerulean_cells():
 
 
 EAST = ROOT / "Source/data/midgameEast"
+SOUTH = ROOT / "Source/data/midgameSouth"
 
 
 def route9_cells():
@@ -5374,6 +5375,14 @@ K_ZONES = {
     "RockTunnelB1F": "kanto_rock_tunnel_b1f",
     "LavenderTown": "kanto_lavender_town",
     "LavenderPokecenter": "kanto_lavender_pokecenter",
+    "PokemonTower1F": "kanto_pokemon_tower_1f",
+    "PokemonTower2F": "kanto_pokemon_tower_2f",
+    "PokemonTower3F": "kanto_pokemon_tower_3f",
+    "PokemonTower4F": "kanto_pokemon_tower_4f",
+    "PokemonTower5F": "kanto_pokemon_tower_5f",
+    "PokemonTower6F": "kanto_pokemon_tower_6f",
+    "PokemonTower7F": "kanto_pokemon_tower_7f",
+    "MrFujisHouse": "kanto_mr_fujis_house",
     "Route8": "kanto_route_8",
     "UndergroundPathRoute8": "kanto_underground_path_route_8",
     "UndergroundPathWestEast": "kanto_underground_path_west_east",
@@ -6364,6 +6373,147 @@ def _back_along_route8(player, report):
     return "yield"
 
 
+TOWER_UP = {
+    "PokemonTower1F": ("PokemonTower2F", (18, 9)),
+    "PokemonTower2F": ("PokemonTower3F", (3, 9)),
+    "PokemonTower3F": ("PokemonTower4F", (18, 9)),
+    "PokemonTower4F": ("PokemonTower5F", (3, 9)),
+    "PokemonTower5F": ("PokemonTower6F", (18, 9)),
+    "PokemonTower6F": ("PokemonTower7F", (9, 16)),
+}
+TOWER_FACE = {"LEFT": (-1, 0), "RIGHT": (1, 0), "UP": (0, -1), "DOWN": (0, 1)}
+
+
+def _tower_layers(name):
+    blob = json.loads((SOUTH / f"{name}.json").read_text())
+    people, warps = set(), set()
+    for obj in blob["events"]["objects"]:
+        if obj.get("kind") != "item":
+            people.add((obj["x"], obj["y"]))
+    for warp in blob["events"]["warps"]:
+        warps.add((warp["x"], warp["y"]))
+    sight = set()
+    trainers = json.loads((SOUTH / "trainers.json").read_text())["trainers"]
+    for trainer in trainers.values():
+        floor = name[len("PokemonTower"):]
+        if trainer.get("map_id") != f"pokered:POKEMON_TOWER_{floor}":
+            continue
+        dx, dy = TOWER_FACE[trainer["facing_source"]]
+        for step in range(1, int(trainer["sight_range_cells"]) + 1):
+            sight.add((trainer["x"] + dx * step, trainer["y"] + dy * step))
+    return people, warps, sight
+
+
+def _tower_route(name, here, goal):
+    cells = set(open_map(SOUTH / f"{name}.json", 0, 20))
+    people, warps, sight = _tower_layers(name)
+    for extra in (sight, set()):
+        avoid = set(people) | set(warps) | set(extra)
+        avoid.discard(here)
+        avoid.discard(goal)
+        steps = route(cells, here, goal, avoid)
+        if steps:
+            return cells, steps
+    return cells, None
+
+
+def _tower_move(player, report, direction, place, nx, ny, nxt):
+    status = _k_clear(player, report)
+    if status:
+        return status
+    player.step(direction)
+    if player.state.get("root") == "battle" or not player.exploring():
+        status = _k_clear(player, report)
+        if status:
+            return status
+    landed = _k_here(player)[0]
+    if landed != place:
+        if landed != nxt:
+            raise RuntimeError(f"{direction} left {place} for {landed}, wanted {nxt}: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_tower")
+        return "yield"
+    if _k_here(player) != (place, nx, ny):
+        block = (player.state.get("player") or {}).get("lastTraversalBlock")
+        raise RuntimeError(f"{direction} landed {_k_here(player)} not {place} {nx},{ny} block {block}")
+    return None
+
+
+def _climb_tower(player, report):
+    place = _k_here(player)[0]
+    if place == "PokemonTower7F":
+        return _rescue_fuji(player, report)
+    nxt, goal = TOWER_UP[place]
+    _name, x, y = _k_here(player)
+    if (x, y) == goal:
+        people, warps, _sight = _tower_layers(place)
+        cells = set(open_map(SOUTH / f"{place}.json", 0, 20))
+        for direction, (dx, dy) in DELTAS.items():
+            spot = (x + dx, y + dy)
+            if spot in cells and spot not in people and spot not in warps:
+                status = _tower_move(player, report, direction, place, spot[0], spot[1], place)
+                if status:
+                    return status
+                break
+        else:
+            raise RuntimeError(f"no step off the {place} stair")
+    for _ in range(40):
+        _name, x, y = _k_here(player)
+        _cells, steps = _tower_route(place, (x, y), goal)
+        if not steps:
+            raise RuntimeError(f"no {place} stair from {(x, y)}")
+        direction = steps[0]
+        nx, ny = neighbor((x, y), direction)
+        status = _tower_move(player, report, direction, place, nx, ny, nxt if (nx, ny) == goal else place)
+        if status:
+            return status
+        if _k_here(player)[0] != place:
+            return "yield"
+    raise RuntimeError(f"the {place} stair stayed out of reach: " + json.dumps(summary(player.state)))
+
+
+def _rescue_fuji(player, report):
+    for _ in range(20):
+        _name, x, y = _k_here(player)
+        if (x, y) == (10, 4):
+            break
+        _cells, steps = _tower_route("PokemonTower7F", (x, y), (10, 4))
+        if not steps:
+            raise RuntimeError(f"no path to Fuji from {(x, y)}")
+        direction = steps[0]
+        nx, ny = neighbor((x, y), direction)
+        status = _tower_move(player, report, direction, "PokemonTower7F", nx, ny, "PokemonTower7F")
+        if status:
+            return status
+    cells = set(open_map(SOUTH / "PokemonTower7F.json", 0, 20))
+    people, warps, _sight = _tower_layers("PokemonTower7F")
+    result = talk_to(player, cells, "pokered:POKEMON_TOWER_7F:objects:4", people | warps)
+    if result != "talked":
+        raise RuntimeError("Fuji did not answer: " + result + " " + json.dumps(summary(player.state)))
+    if _k_here(player)[0] != "MrFujisHouse":
+        raise RuntimeError("Fuji stayed in the tower: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_fuji")
+    return "yield"
+
+
+def _take_flute(player, report):
+    if _holding(player, "pokeFlute"):
+        raise RuntimeError("the Poké Flute is already in the bag: " + json.dumps(summary(player.state)))
+    cells = set(open_map(EAST / "MrFujisHouse.json", 2, 13))
+    blob = json.loads((EAST / "MrFujisHouse.json").read_text())
+    avoid = set()
+    for obj in blob["events"]["objects"]:
+        avoid.add((obj["x"] + 2, obj["y"]))
+    for warp in blob["events"]["warps"]:
+        avoid.add((warp["x"] + 2, warp["y"]))
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    result = talk_to(player, cells, "pokered:MR_FUJIS_HOUSE:objects:5", avoid)
+    if result != "talked" or not _holding(player, "pokeFlute"):
+        raise RuntimeError("the Poké Flute was not given: " + str(result) + " " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_flute")
+    return "yield"
+
+
 def _to_pokemon_tower(player, report):
     status = _scope_walk(player, report, "LavenderTown.json", 0, 20,
                          "LavenderTown", (14, 6), set(LAVENDER_DOORS))
@@ -6434,6 +6584,10 @@ def _with_scope(player, report):
         return _back_along_route8(player, report)
     if place == "LavenderTown":
         return _to_pokemon_tower(player, report)
+    if place in TOWER_UP or place == "PokemonTower7F":
+        return _climb_tower(player, report)
+    if place == "MrFujisHouse":
+        return _take_flute(player, report)
     if place in ("RocketHideoutB1F", "RocketHideoutB2F", "RocketHideoutB3F", "RocketHideoutB4F", "RocketHideoutElevator", "GameCorner"):
         return _leave_hideout(player, report)
     if place == "CeladonCity":
