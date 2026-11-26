@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """A live Cerulean must survive a run of one-frame harness commands.
 
-Each finished command keeps the diagnostics snapshot. On Cerulean those
-snapshots are about 30 KiB, so a string of wait 1 commands climbs from the
-city's resting heap through 13927 KiB and the runtime raises not enough
-memory. The product is idle on the overworld. The fix is
-tools/notes/lane-e-harness-trace-handle.patch: one trace handle, and no full
-snapshot once the heap is at least 13000 KiB except the first and last
-frames. This test fails on Source that does not contain that fix.
+Each finished command keeps a real diagnostics snapshot. Frames inside a
+wait do not: once the heap is at least 13000 KiB those frames used to be
+the allocation that never returned. An empty completion snapshot encodes
+as an array, so a non-final move or wait loses its player. The fix is
+tools/notes/lane-e-harness-trace-handle.patch. Both runs apply that patch
+to a private worktree. Source on this branch stays unchanged.
 """
 
 import json
@@ -25,44 +24,50 @@ sys.path.insert(0, str(ROOT))
 from tools.harness.run import ProtocolError, sdk_path
 
 PATCH = ROOT / "tools/notes/lane-e-harness-trace-handle.patch"
+FOLLOWUP = ROOT / "tools/notes/lane-e-harness-completion-snapshot.patch"
 
 
-def commands():
-    script = [
-        {
-            "op": "fixture",
-            "options": {
-                "intro": "skip",
-                "opening": False,
-                "seed": 11,
-                "zone": "kanto_cerulean_city",
-                "entry": {"x": 19, "y": 18, "facing": "down"},
-                "quest_flags": {"BADGE_THUNDER": True},
-                "player_pokemon": {
-                    "species": "blastoise",
-                    "level": 65,
-                    "nature_id": 0,
-                    "ability_slot": "first",
-                    "held_item": "none",
-                    "moves": ["fly"],
-                },
+def cerulean_fixture():
+    return {
+        "op": "fixture",
+        "options": {
+            "intro": "skip",
+            "opening": False,
+            "seed": 11,
+            "zone": "kanto_cerulean_city",
+            "entry": {"x": 19, "y": 18, "facing": "down"},
+            "quest_flags": {"BADGE_THUNDER": True},
+            "player_pokemon": {
+                "species": "blastoise",
+                "level": 65,
+                "nature_id": 0,
+                "ability_slot": "first",
+                "held_item": "none",
+                "moves": ["fly"],
             },
         },
-        "encounters off",
-    ]
+    }
+
+
+def forty_waits():
+    script = [cerulean_fixture(), "encounters off"]
     script.extend(["wait 1"] * 40)
     script.append({"op": "quiesce"})
     return script
 
 
-def run_cerulean(root, output):
+def one_wait_then_quiesce():
+    return [cerulean_fixture(), "encounters off", "wait 1", {"op": "quiesce"}]
+
+
+def run_cerulean(root, output, script):
     sdk = sdk_path(os.environ.get("PLAYDATE_SDK_PATH"))
     output = Path(output)
     if output.exists():
         shutil.rmtree(output)
     scenario_dir = Path(tempfile.mkdtemp(prefix="lane-k-harness-scenario-"))
     scenario = scenario_dir / "scenario.json"
-    scenario.write_text(json.dumps({"commands": commands()}))
+    scenario.write_text(json.dumps({"commands": script}))
     try:
         proc = subprocess.run(
             [
@@ -87,6 +92,9 @@ def run_cerulean(root, output):
         "ok": False, "error": proc.stderr or proc.stdout or "no outcome",
     }
     result_path = output / "runtime-data" / "result.json"
+    if not result_path.is_file():
+        found = sorted(output.glob("*result.json"))
+        result_path = found[-1] if found else result_path
     result = json.loads(result_path.read_text()) if result_path.is_file() else {}
     heartbeat_path = output / "runtime-data" / "heartbeat.json"
     heartbeat = json.loads(heartbeat_path.read_text()) if heartbeat_path.is_file() else {}
@@ -94,11 +102,43 @@ def run_cerulean(root, output):
 
 
 class HarnessTraceTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tree = Path(tempfile.mkdtemp(prefix="lane-k-harness-tree-"))
+        cls.tree.rmdir()
+        added = subprocess.run(
+            ["git", "worktree", "add", "--detach", str(cls.tree), "HEAD"],
+            cwd=ROOT, check=False, text=True, capture_output=True)
+        if added.returncode != 0:
+            raise RuntimeError(added.stderr or added.stdout)
+        applied = subprocess.run(
+            ["git", "apply", str(PATCH)],
+            cwd=cls.tree, check=False, text=True, capture_output=True)
+        if applied.returncode != 0:
+            subprocess.run(["git", "worktree", "remove", "--force", str(cls.tree)], cwd=ROOT)
+            raise RuntimeError(applied.stderr or applied.stdout)
+
+    @classmethod
+    def tearDownClass(cls):
+        tree = getattr(cls, "tree", None)
+        if tree and tree.exists():
+            subprocess.run(
+                ["git", "worktree", "remove", "--force", str(tree)],
+                cwd=ROOT, check=False)
+
     def test_patch_is_a_diff_and_does_not_raise_the_pool(self):
         text = PATCH.read_text()
         self.assertIn("diff --git a/Source/dev/harness.lua", text)
         self.assertIn("local traceFile", text)
         self.assertIn("heapNow < 13000", text)
+        self.assertIn("elseif complete", text)
+        self.assertIn("settledCommandSnapshot", text)
+        self.assertNotIn("lastCommand", text)
+        follow = FOLLOWUP.read_text()
+        self.assertIn("diff --git a/Source/dev/harness.lua", follow)
+        self.assertIn("settledCommandSnapshot", follow)
+        self.assertIn("-    local lastCommand", follow)
+        self.assertNotIn("skip", follow.lower())
         self.assertNotIn("MallocPoolSize", text)
         self.assertNotIn("xfail", text.lower())
         self.assertNotIn("skip", text.lower())
@@ -108,11 +148,8 @@ class HarnessTraceTest(unittest.TestCase):
             sdk_path(os.environ.get("PLAYDATE_SDK_PATH"))
         except ProtocolError as error:
             raise RuntimeError(str(error)) from error
-        output = Path(os.environ.get(
-            "LANE_K_HARNESS_OUTPUT",
-            tempfile.mkdtemp(prefix="lane-k-harness-"),
-        ))
-        proc, outcome, result, heartbeat = run_cerulean(ROOT, output)
+        output = Path(tempfile.mkdtemp(prefix="lane-k-harness-"))
+        proc, outcome, result, heartbeat = run_cerulean(self.tree, output, forty_waits())
         snapshot = result.get("snapshot") or {}
         detail = json.dumps({
             "ok": outcome.get("ok"),
@@ -124,6 +161,37 @@ class HarnessTraceTest(unittest.TestCase):
         }, sort_keys=True)
         self.assertTrue(outcome.get("ok"), detail)
         self.assertEqual(result.get("status"), "ok", detail)
+        self.assertEqual(snapshot.get("zone"), "kanto_cerulean_city", detail)
+
+    def test_nonfinal_command_snapshot_has_a_player(self):
+        try:
+            sdk_path(os.environ.get("PLAYDATE_SDK_PATH"))
+        except ProtocolError as error:
+            raise RuntimeError(str(error)) from error
+        output = Path(tempfile.mkdtemp(prefix="lane-k-harness-player-"))
+        proc, outcome, result, heartbeat = run_cerulean(
+            self.tree, output, one_wait_then_quiesce())
+        rows = result.get("results") or []
+        waits = [row for row in rows if row.get("op") == "wait"]
+        detail = json.dumps({
+            "ok": outcome.get("ok"),
+            "error": outcome.get("error"),
+            "status": result.get("status"),
+            "ops": [row.get("op") for row in rows],
+            "wait_snapshot_type": type(waits[0].get("snapshot")).__name__ if waits else None,
+            "heartbeat_tick": heartbeat.get("tick") or heartbeat.get("status"),
+            "returncode": proc.returncode,
+        }, sort_keys=True)
+        self.assertTrue(outcome.get("ok"), detail)
+        self.assertTrue(waits, detail)
+        self.assertNotEqual(waits[0].get("command"), rows[-1].get("command"), detail)
+        snapshot = waits[0].get("snapshot")
+        self.assertIsInstance(snapshot, dict, detail)
+        player = snapshot.get("player")
+        self.assertIsInstance(player, dict, detail)
+        self.assertIsInstance(player.get("x"), int, detail)
+        self.assertIsInstance(player.get("y"), int, detail)
+        self.assertTrue(player.get("settled"), detail)
         self.assertEqual(snapshot.get("zone"), "kanto_cerulean_city", detail)
 
 

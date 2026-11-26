@@ -18,7 +18,7 @@ Fly is the party-menu field move. The 12-frame shade fade is unchanged. The rele
 
 Cerulean → Fuchsia and Lavender → Fuchsia stopped on the first menu A because `Harness.afterFrame` wrote a full diagnostics snapshot and opened `trace.jsonl` on every frame. On Cerulean the heap at `actors.end` was about 13457 KiB. The frame whose tick was a multiple of 15 then sat inside the snapshot encode or `playdate.file.open`. Shifting the script so that heartbeat landed on a `wait` instead of A moved the stall with the heartbeat, so the button had been delivered. The product menu was not stuck.
 
-`tools/notes/lane-e-harness-trace-handle.patch` opens one `trace.jsonl` handle on an early frame and reuses it, closes it in `finish`, and skips the full snapshot when `collectgarbage("count")` is at least 13000 except on tick 1 and the last command. The last command still records the settled world. With that patch applied, Cerulean → Fuchsia, Lavender → Fuchsia, and Celadon → Saffron all arrive. The patch is not in `Source/` on this branch.
+`tools/notes/lane-e-harness-trace-handle.patch` opens one `trace.jsonl` handle on an early frame and reuses it, closes it in `finish`, and keeps the settled player and zone when a command completes. Above 13000 KiB that record is not the full party/session snapshot. Frames inside a wait stay stubs at that heap. With that patch applied, Cerulean → Fuchsia, Lavender → Fuchsia, and Celadon → Saffron all arrive. The patch is not in `Source/` on this branch.
 
 ## Before and after
 

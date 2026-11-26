@@ -24,20 +24,43 @@ index c777f248..7df7118b 100644
      local interruptedSnapshot
      if status == "cancelled" or status == "timeout" then
          interruptedSnapshot = HarnessDiagnostics.snapshot(game)
-@@ -590,14 +598,34 @@ function Harness.afterFrame(game, runtimeError)
+@@ -590,14 +598,57 @@ function Harness.afterFrame(game, runtimeError)
          and (not request or commands[index]) and tick % 30 ~= 0 then
          return
      end
 -    local snapshot = HarnessDiagnostics.snapshot(game)
 +    -- A full party/session snapshot is the allocation a heavy city cannot
 +    -- pay for beside an open menu. The malloc then sits instead of raising,
-+    -- and the frame never returns. Intermediate frames keep a stub. The
-+    -- last command still records the settled world.
++    -- and the frame never returns. A finished command still records the
++    -- settled player and zone, including a move that is not the last
++    -- command. An empty table encodes as an array and that move loses its
++    -- player. Frames inside a wait keep a stub once the heap is at least
++    -- 13000 KiB.
++    local function settledCommandSnapshot(worldGame)
++        local player = worldGame.player
++        local root = worldGame.machine
++        local world = root:get("overworld")
++        return {
++            root = root:getCurrent(),
++            overworld = world and world.sub and world.sub:getCurrent() or nil,
++            zone = getCurrentZoneKey(),
++            zone_id = currentZone and currentZone.stableID,
++            player = player and {
++                x = player.gridX, y = player.gridY,
++                facing = player.facing, moving = player.isMoving,
++                settled = not player.isMoving,
++                pendingEdgeDoor = player.pendingEdgeDoor ~= nil,
++            } or { present = false },
++            performance = { heap_kib = collectgarbage("count") },
++        }
++    end
 +    local heapNow = collectgarbage("count")
-+    local lastCommand = commands and index == #commands
 +    local snapOk, snapshot = false, {}
-+    if tick == 1 or heapNow < 13000 or (complete and lastCommand) then
++    if tick == 1 or heapNow < 13000 then
 +        snapOk, snapshot = pcall(HarnessDiagnostics.snapshot, game)
++        if not snapOk then snapshot = {} end
++    elseif complete then
++        snapOk, snapshot = pcall(settledCommandSnapshot, game)
 +        if not snapOk then snapshot = {} end
 +    end
      local event = envelope({ active_id = request and request.id, command = request and index,
