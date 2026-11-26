@@ -171,6 +171,14 @@ def text_record(text, label, source):
     return dict(recipe=recipe, source=source)
 
 
+def deviation_text(lines):
+    recipe = []
+    for index, line in enumerate(lines, start=1):
+        recipe.append(dict(op='text' if index == 1 else 'line', source_line=index, text=line))
+    recipe.append(dict(op='control', source='done', source_line=len(lines) + 1))
+    return dict(recipe=recipe, source='miguel-approved-deviation')
+
+
 def indigo_events(text):
     body = text.split('DEF INDIGO_PLATEAU_EVENTS_START EQU const_value', 1)[1]
     body = body.split('DEF INDIGO_PLATEAU_EVENTS_END EQU const_value - 1', 1)[0]
@@ -401,6 +409,41 @@ def build(reference):
             roster=champion_roster(sources),
             continue_spawn=continue_spawn(sources),
         ),
+        deviations=dict(
+            approved_at='2026-11-12T09:43:00-06:00',
+            approved_by='Miguel',
+            mew=dict(
+                deviation='Miguel-approved. Not a pokered wild slot or object. Level 5 matches the original event distribution. One per save.',
+                flag='EVENT_GOT_MEW',
+                kind='gift',
+                level=5,
+                npc=dict(
+                    dispatch_id='pokered:CERULEAN_CAVE_1F:script:mew-gift',
+                    facing='right',
+                    id='postgame:CERULEAN_CAVE_1F:mew-gift',
+                    map='CeruleanCave1F',
+                    sprite='SPRITE_SCIENTIST',
+                    talk=dict(facing='left', x=24, y=16),
+                    x=23, y=16,
+                    zone_id='pokered:CERULEAN_CAVE_1F',
+                ),
+                once=True,
+                price=0,
+                requires_flag='TOGGLE_CERULEAN_CAVE_GUY',
+                requires_hall_team=True,
+                species='mew',
+            ),
+            link_cable=dict(
+                deviation='Miguel-approved. Not a pokered item. The Gen5 trade rules stay.',
+                id='linkCable',
+                name='LINK CABLE',
+                numeric_id=251,
+                once=False,
+                source='npc-gift',
+                symbol='LINK_CABLE',
+                text='Use like a stone.',
+            ),
+        ),
     )
     play = dict(
         schema=1, source_revision=REVISION,
@@ -439,6 +482,12 @@ def build(reference):
             '_CinnabarLabFossilRoomScientist1ComeAgainText': text_record(
                 sources['text/CinnabarLabFossilRoom.asm'], '_CinnabarLabFossilRoomScientist1ComeAgainText',
                 'text/CinnabarLabFossilRoom.asm'),
+            '_PostgameGiftIntroText': deviation_text(['I kept something', 'from the ceremony.']),
+            '_PostgameGiftNotChampionText': deviation_text(['Come back after', 'the HALL OF FAME.']),
+            '_PostgameLinkCableFullText': deviation_text(['Your bag is full.']),
+            '_PostgameLinkCableText': deviation_text(['LINK CABLE!', 'Use it like a stone.']),
+            '_PostgameMewAlreadyText': deviation_text(['MEW already went', 'with you.']),
+            '_PostgameMewGiftText': deviation_text(['This is MEW.', 'Level 5. One only.']),
         },
     )
     return {

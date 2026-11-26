@@ -466,6 +466,9 @@ function EventState:update()
         CreditsPlayer.advance(self.credits)
         if self.credits.done then
             assert(self.credits.return_to == "title", "credits must return to the title")
+            if PostgameStory and PostgameStory.releaseContinueData then
+                PostgameStory.releaseContinueData()
+            end
             self.phase = "running"
             self:advance()
         end
@@ -550,18 +553,9 @@ function EventState:draw()
     if self.phase=="credits" then
         local view = CreditsPlayer.view(self.credits)
         gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
-        gfx.setFont(gfx.getSystemFont());gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        gfx.setColor(gfx.kColorBlack);gfx.fillRect(0,0,400,240)
-        gfx.setColor(gfx.kColorWhite)
-        if view.phase ~= "preamble" then
-            local text = table.concat(view.lines or {}, "\n")
-            if view.ending and view.phase == "done" then
-                text = "THE END"
-            elseif view.mon then
-                text = text .. "\n" .. view.mon
-            end
-            gfx.drawText(text, 120, 80)
-        end
+        -- Rows 0-3 and 14-17 are black. The middle is white and the text is black.
+        EndgameStory.ensureCreditsDraw()
+        EndgameStory.drawCredits(gfx, view)
         gfx.popContext()
         return
     end
