@@ -6726,14 +6726,67 @@ def _through_route12_gate(player, report):
     return "yield"
 
 
+def _snorlax_to_gate(player, report):
+    blob = json.loads((SOUTH / "Route12.json").read_text())
+    avoid = {(obj["x"], obj["y"]) for obj in blob["events"]["objects"] if obj.get("kind") != "item"}
+    avoid.update({(10, 21), (11, 21)})
+    status = _grid_walk(player, report, SOUTH, "Route12.json", 0, 20, "Route12", (10, 22), avoid)
+    if status:
+        return status
+    player.step("up")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "Route12":
+        player.step("up")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "Route12Gate1F":
+        raise RuntimeError("the Route 12 gate stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route12_gate")
+    return "yield"
+
+
+def _gate_to_lavender(player, report):
+    avoid = {(2, 3), (5, 0), (6, 0), (5, 7), (6, 7)}
+    status = _grid_walk(player, report, SOUTH, "Route12Gate1F.json", 1, 13, "Route12Gate1F", (5, 1), avoid)
+    if status:
+        return status
+    player.step("up")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "Route12Gate1F":
+        player.step("up")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "Route12":
+        raise RuntimeError("the north side of Route 12 stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route12")
+    return "yield"
+
+
+def _route12_to_lavender(player, report):
+    status = _grid_walk(player, report, SOUTH, "Route12.json", 0, 20, "Route12", (8, 1), {(8, 0), (9, 0), (10, 15), (11, 15)})
+    if status:
+        return status
+    player.step("up")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "Route12":
+        player.step("up")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "LavenderTown":
+        raise RuntimeError("Lavender did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_lavender")
+    return "yield"
+
+
 def _toward_snorlax(player, report):
     _place, _x, y = _k_here(player)
+    if _needs_center(player) and _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
+        if y > 20:
+            return _snorlax_to_gate(player, report)
+        return _route12_to_lavender(player, report)
     if y < 20:
         return _route12_gate(player, report)
     species, _mon = _bird(player)
     if species and not _needs_center(player):
         _lead(player, species)
-    goal = (10, 62) if _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX") else (10, 61)
+    goal = (10, 106) if _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX") else (10, 61)
     blob = json.loads((SOUTH / "Route12.json").read_text())
     present = _present_ids(player)
     people = {(obj["x"], obj["y"]) for obj in blob["events"]["objects"]
@@ -6745,8 +6798,16 @@ def _toward_snorlax(player, report):
         if (x, y) == goal and not _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
             _checkpoint(player, report, "saved_snorlax")
             return _play_flute(player, report)
-        if (x, y) == goal:
-            raise RuntimeError("Snorlax is gone; Route 13 is next: " + json.dumps(summary(player.state)))
+        if (x, y) == goal and _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
+            player.step("down")
+            player.settle(limit=80)
+            if _k_here(player)[0] == "Route12":
+                player.step("down")
+                player.settle(limit=80)
+            if "route_13" not in str(player.state.get("zone")):
+                raise RuntimeError("Route 13 did not open: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_route13")
+            return "yield"
         cells = set(open_map(SOUTH / "Route12.json", 0, 20))
         avoid = set(people)
         for npc in player.state.get("npcs") or []:
@@ -6865,6 +6926,8 @@ def _with_scope(player, report):
     if place == "Route12":
         return _toward_snorlax(player, report)
     if place == "Route12Gate1F":
+        if _needs_center(player) and _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
+            return _gate_to_lavender(player, report)
         return _through_route12_gate(player, report)
     if place == "LavenderTown":
         return _to_pokemon_tower(player, report)
