@@ -1,0 +1,62 @@
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+index bde108bb..0b4edb1e 100644
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -538,6 +538,43 @@ function EndgameStory.playerHallPages(stats)
+     }
+ end
+ 
++-- One drawText of a multi-line rating is taller than the hall clip under
++-- the label (y=160, clip bottom 240), so Playdate drops the paragraph.
++-- Each line is its own draw. # in the pokered text is already POKé.
++-- A 20px pitch matches the system font. Five-line ratings use a shorter
++-- pitch only so the last glyph stays inside the clip.
++function EndgameStory.hallPageLines(text)
++    local lines = {}
++    local start = 1
++    text = text or ""
++    while start <= #text + 1 do
++        local found = text:find("\n", start, true)
++        if not found then
++            lines[#lines + 1] = text:sub(start)
++            break
++        end
++        lines[#lines + 1] = text:sub(start, found - 1)
++        start = found + 1
++    end
++    local x <const>, y <const> = EndgameStory.hallPixel(8, 13 * 8)
++    local glyph <const> = 14
++    local clipBottom <const> = 240
++    local step = 20
++    if #lines > 1 then
++        local room <const> = clipBottom - 1 - y - glyph
++        local maxStep <const> = math.floor(room / (#lines - 1))
++        if step > maxStep then
++            step = maxStep
++        end
++    end
++    local placed = {}
++    for index, line in ipairs(lines) do
++        local lineY <const> = y + (index - 1) * step
++        placed[index] = {text = line, x = x, y = lineY, bottom = lineY + glyph}
++    end
++    return placed
++end
++
+ -- The HALL OF FAME box is drawn inside the party loop only, after the
+ -- 80-frame hold. HoFDisplayPlayerStats never draws it.
+ function EndgameStory.hallShowsCaption(photo, stage, clock)
+@@ -1575,8 +1612,11 @@ function EndgameStory.drawPhoto(gfx, state)
+         local pages <const> = EndgameStory.playerHallPages(photo.stats)
+         local page <const> = pages[state.photo.page or 1]
+         if page then
+-            local px, py = EndgameStory.hallPixel(8, 13 * 8)
+-            gfx.drawText(page.text, px, py)
++            for _, line in ipairs(EndgameStory.hallPageLines(page.text)) do
++                if line.text ~= "" then
++                    gfx.drawText(line.text, line.x, line.y)
++                end
++            end
+         end
+     elseif EndgameStory.hallShowsCaption(photo, stage, state.photo.clock) then
+         local caption <const> = EndgameStory.hallCaptionRow()
