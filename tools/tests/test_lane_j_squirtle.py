@@ -6682,7 +6682,15 @@ def _play_flute(player, report):
             player.press("down" if index > selected else "up", wait=2)
         else:
             player.press("a", wait=6)
-    if player.state.get("root") == "battle" or not player.exploring():
+    for _ in range(40):
+        root = player.state.get("root")
+        if root == "battle":
+            return _k_clear(player, report)
+        if root in ("dialog", "bag", "pause") or not player.exploring():
+            player.press("a", wait=8)
+            continue
+        break
+    if player.state.get("root") == "battle":
         return _k_clear(player, report)
     raise RuntimeError("the flute did nothing: " + json.dumps(summary(player.state)))
 
@@ -6735,6 +6743,7 @@ def _toward_snorlax(player, report):
     for _ in range(40):
         _name, x, y = _k_here(player)
         if (x, y) == goal and not _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
+            _checkpoint(player, report, "saved_snorlax")
             return _play_flute(player, report)
         if (x, y) == goal:
             raise RuntimeError("Snorlax is gone; Route 13 is next: " + json.dumps(summary(player.state)))
