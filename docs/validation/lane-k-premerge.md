@@ -84,7 +84,65 @@ New on the integrated tree:
 
 ## F's heap, not rerun yet
 
-`origin/cursor/lane-f-audio` is still `53ad2f815679421dabeb8c6708fc8d3a5144108d`. F is working on the audio tree's heap. This check is not rerun until that branch moves. After the check above, E moved to `855122548deed18b53e4390870a7a6f47041a4d2` (`Release the Fly origin before the destination is built`, then `Nest the coverage snapshot after the Fly origin release`). That tip already contains the previous harness patch, so `lane-e-harness-trace-handle.patch` no longer applies there. The follow-up is `tools/notes/lane-e-harness-completion-snapshot.patch`.
+`origin/cursor/lane-f-audio` is still `53ad2f815679421dabeb8c6708fc8d3a5144108d`. F is working on the audio tree's heap. The integrated check is not rerun until that branch moves.
+
+## Pending against E `85512254`
+
+QA of `855122548deed18b53e4390870a7a6f47041a4d2` (`Nest the coverage snapshot after the Fly origin release`). Compared with `79fbcba5`. `MallocPoolSize` stayed `16645684`. After this commit, E's branch moved again to `4bac3bdf` (`Hold the harness trace patch`, which takes the trace change back out of `Source/`). The list below is `85512254`, not that later tip.
+
+Already contained. `git apply --reverse --check` succeeds, and the lane K files match the copies E committed:
+
+- `tools/notes/lane-e-fly-release-before-build.patch`
+- `tools/notes/lane-e-fly-contract-release.patch`
+- The previous revision of `tools/notes/lane-e-harness-trace-handle.patch` (one trace handle, full snapshot only for tick 1, heap under 13000 KiB, or the last command). The updated file does not apply on top of that revision.
+
+Still apply on the clean tip:
+
+| Patch | On `85512254` |
+| --- | --- |
+| `tools/notes/lane-e-harness-completion-snapshot.patch` | Applies. This is the hall-continue fix. |
+| `tools/notes/lane-e-type-display-names.patch` (H `2e849fa3`) | Applies. |
+| `tools/notes/lane-k-premerge-hof-dex-rating.patch` | Applies, including after type-display. |
+| `tools/notes/lane-k-premerge-audio-badge-item.patch` | Applies. |
+| `tools/notes/lane-e-audio-heal-count.patch` | Applies textually. `playSequence` is still only in F's `kantoAudio.lua`. |
+| `tools/notes/lane-e-audio-pokedex-cry.patch` | Applies. |
+| `tools/notes/lane-e-audio-source-cries.patch` | Applies. |
+| `tools/notes/lane-e-audio-movesfx-import.patch` | Applies textually on E's `kantoAudio.lua`. |
+
+Apply only after the same dependency as on `79fbcba5`:
+
+- `tools/notes/lane-k-premerge-type-display-import.patch` applies after type-display, not on the clean file.
+- F's audio tree is still a checkout of `Source/audio` and `Source/game/kantoAudio.lua` from `53ad2f81`. It is not contained. Checking it out replaces E's `kantoAudio.lua`, so the Fly hunk has to be applied again with `git apply --include=Source/game/kantoAudio.lua` of the Fly patch. That hunk applies. After it, heal-count, movesfx-import, the original badge patch, and the faint cry all apply.
+- `tools/notes/lane-e-audio-badge-item.patch` still fails on E's own alphabetical cue table (`events.lua:310`).
+- `tools/notes/lane-e-audio-player-faint-cry.patch` does not apply on E's `kantoAudio.lua`. The faint block it edits is in F's file. It applies once that file and the Fly hunk are in place.
+- `tools/notes/lane-e-credits-audio-snapshot-test.patch` still needs F's `tools/tests/test_lane_e_coverage_fingerprint.py` copied in first.
+
+Left out, same as before:
+
+- H's `lane-e-hof-dex-rating.patch` on `2e849fa3` is a superseded note, not a diff. The `df18a2df` diff still fails at `endgameStory.lua:1575` because E draws with `drawPokeredText`.
+- `lane-e-hof-postgame-import` still does not apply.
+- `lane-e-mew-gift-dispatch` is still not a diff.
+
+### Host suite
+
+`POKERED_REFERENCE_DIR=/tmp/pokemon-host/pokered KANTO_REFERENCE=/tmp/pokemon-host/pokered PLAYDATE_SDK_PATH=/tmp/pd-sdk/PlaydateSDK-3.1.2 python3 -m unittest discover -s tools/tests`
+
+| Tree | Tests | Time | Failures | Errors | Skipped |
+| --- | --- | --- | --- | --- | --- |
+| `79fbcba5` | 1428 | 216.072s | 36 | 74 | 11 |
+| `85512254` | 1435 | 400.560s | 36 | 75 | 11 |
+
+The seven added tests are the Fly contract, Fly memory, and harness-trace tests. All seven passed. No failure from `79fbcba5` disappeared. One test that passed on `79fbcba5` now errors:
+
+`test_lane_e_hof_continue_releases_hall` `test_hall_continue_matches_pallet_and_walks_four`. `move["snapshot"]["player"]` raised `TypeError: list indices must be integers or slices, not str`. The landed trace patch stores `{}` for a non-final command once the heap is at least 13000 KiB, and Playdate encodes that as `[]`. The four-step move is not the last command. This is a product regression from landing that revision.
+
+`tools/notes/lane-e-harness-completion-snapshot.patch` records the settled player and zone for every finished command. `CheckoutHarnessSnapshotTest.test_checkout_nonfinal_command_keeps_a_player` runs against the checkout. On `85512254` the wait snapshot is `[]` and the test fails in 17.552s. After the patch, the same test passes in 17.879s. On this branch the checkout still has main's harness, so the test passes in the 52.983s four-test run.
+
+### Contracts
+
+`contracts field-travel` on `85512254` scored 3 passed, 0 failed, heap `12795.7` KiB, 16.403s. On `79fbcba5` the same suite was 2 passed, 1 failed: Fly ran out of memory at `fieldTravelContracts.lua:91`. Surf and expired Surf passed there, and all three pass here. The release that landed in this tip is what the Fly scene was missing.
+
+`contracts individual-stats-v1` scored 17 passed, 0 failed on both tips. Heap `12931.9` KiB here, `12922.8` KiB on `79fbcba5`.
 
 ## Contracts
 

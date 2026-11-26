@@ -15,6 +15,7 @@ The patch keeps one trace handle, opened while the boot heap still has a hole. A
 - `HarnessTraceTest.test_patch_is_a_diff_and_does_not_raise_the_pool` passes.
 - `HarnessTraceTest.test_cerulean_command_snapshots_return` applies the patch on a private worktree and requires the forty `wait 1` run to finish on Cerulean.
 - `HarnessTraceTest.test_nonfinal_command_snapshot_has_a_player` uses the same tree. The `wait 1` before quiesce must publish a snapshot whose `player` has integer `x` and `y`. No skip and no expected failure.
+- `CheckoutHarnessSnapshotTest.test_checkout_nonfinal_command_keeps_a_player` runs against the checkout itself. It passes on main. On E `85512254`, which landed the last-command revision, the same snapshot is `[]` and the test fails until `tools/notes/lane-e-harness-completion-snapshot.patch` is applied.
 
 ## Fly visited-cities contract
 

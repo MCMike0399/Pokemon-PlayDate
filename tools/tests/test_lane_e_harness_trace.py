@@ -195,5 +195,47 @@ class HarnessTraceTest(unittest.TestCase):
         self.assertEqual(snapshot.get("zone"), "kanto_cerulean_city", detail)
 
 
+def assert_nonfinal_wait_has_player(test, root):
+    try:
+        sdk_path(os.environ.get("PLAYDATE_SDK_PATH"))
+    except ProtocolError as error:
+        raise RuntimeError(str(error)) from error
+    output = Path(tempfile.mkdtemp(prefix="lane-k-harness-checkout-"))
+    proc, outcome, result, heartbeat = run_cerulean(root, output, one_wait_then_quiesce())
+    rows = result.get("results") or []
+    waits = [row for row in rows if row.get("op") == "wait"]
+    detail = json.dumps({
+        "ok": outcome.get("ok"),
+        "error": outcome.get("error"),
+        "status": result.get("status"),
+        "ops": [row.get("op") for row in rows],
+        "wait_snapshot_type": type(waits[0].get("snapshot")).__name__ if waits else None,
+        "heartbeat_tick": heartbeat.get("tick") or heartbeat.get("status"),
+        "returncode": proc.returncode,
+    }, sort_keys=True)
+    test.assertTrue(outcome.get("ok"), detail)
+    test.assertTrue(waits, detail)
+    test.assertNotEqual(waits[0].get("command"), rows[-1].get("command"), detail)
+    snapshot = waits[0].get("snapshot")
+    test.assertIsInstance(snapshot, dict, detail)
+    player = snapshot.get("player")
+    test.assertIsInstance(player, dict, detail)
+    test.assertIsInstance(player.get("x"), int, detail)
+    test.assertIsInstance(player.get("y"), int, detail)
+    test.assertTrue(player.get("settled"), detail)
+    test.assertEqual(snapshot.get("zone"), "kanto_cerulean_city", detail)
+
+
+class CheckoutHarnessSnapshotTest(unittest.TestCase):
+    def test_checkout_nonfinal_command_keeps_a_player(self):
+        """The tree under test must publish a player for a non-final command.
+
+        Main snapshots every frame, so this passes there. 85512254 landed the
+        earlier trace patch, which stores [] for that command, and this fails
+        until tools/notes/lane-e-harness-completion-snapshot.patch is applied.
+        """
+        assert_nonfinal_wait_has_player(self, ROOT)
+
+
 if __name__ == "__main__":
     unittest.main()
