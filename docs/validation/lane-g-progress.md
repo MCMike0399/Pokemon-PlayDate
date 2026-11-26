@@ -241,6 +241,14 @@ The Viridian clerk already answers A from the tile in front of the counter. `Kan
 
 `tools/notes/lane-e-ui-fidelity.patch` is the BlueBot UI set, except the Gen V stat split. `tools/tests/test_lane_e_ui_fidelity.py` fails on this tree and passes after `git apply`. The before/after frames are in `artifacts/lane-g/ui-fidelity/`. `origin/main` is still `ea32b553`, so the credits recheck is still waiting.
 
+## Round 32
+
+BlueBot passed the Mart, the PC, and the trainer card on `46797f61`. The r2 of `tools/notes/lane-e-ui-fidelity.patch` matches `HandlePokedexListMenu` in `engine/menus/pokedex.asm`: `CONTENTS` at (1,1), `SEEN` at (16,2) with the count at (16,3), `OWN` at (16,5) with the count at (16,6), the vertical divider at column 14, and `DATA` / `CRY` / `AREA` / `QUIT` at (16,10). The `No.%03d` line and the list-screen mon stay on the DATA page.
+
+The field bag and the battle bag use the ▶ tile, `×` quantities, a `CANCEL` row, and `POKé BALL` through `sourceName`. Pokered prints no money on either bag. `StartMenu_Item` zeros `wPrintItemPrices` at `engine/menus/start_sub_menus.asm:315`, and `DisplayBagMenu` does the same at `engine/battle/core.asm:2226`. `PrintListMenuEntries` (`home/list_menu.asm:411`) prints a price only when that flag is set, so the yen line is gone. The list box is `LIST_MENU_BOX` at `data/text_boxes.asm:13` (`4, 2, 19, 12`). The A/B footers stay.
+
+`test_patch_applies` passes on this tree. The other five checks in `tools/tests/test_lane_e_ui_fidelity.py` fail here and pass after `git apply`. The r2 frames are `artifacts/lane-g/ui-fidelity/pokedex-list-r2.png`, `bag-r2.png`, and `battle-bag-r2.png`. `Source/` is unchanged.
+
 ## Round 30
 
 `origin/main` is still `ea32b553`. The credits recheck is waiting on a main commit past that SHA. No merge.

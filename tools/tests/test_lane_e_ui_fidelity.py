@@ -28,16 +28,46 @@ class LaneEUIFidelityTests(unittest.TestCase):
     def test_pokedex_side_menu_uses_the_cursor_tile(self):
         text = (ROOT / "Source/game/pokedexState.lua").read_text(encoding="utf-8")
         self.assertIn('PokedexState.SIDE = {"DATA", "CRY", "AREA", "QUIT"}', text)
-        self.assertIn("GbFont.drawTight(TitleIdle.CURSOR", text)
+        self.assertIn("GbFont.drawChar(TitleIdle.CURSOR", text)
         self.assertNotIn('i==self.selected and ">"', text)
         self.assertIn('self.phase, self.menuIndex = "menu", 1', text)
 
-    def test_bag_uses_yen_and_drops_registered_and_sort(self):
+    def test_pokedex_list_panel_matches_the_menu(self):
+        text = (ROOT / "Source/game/pokedexState.lua").read_text(encoding="utf-8")
+        self.assertIn("function PokedexState:drawList()", text)
+        listed, entry = text.split("function PokedexState:drawList()", 1)[1].split(
+            "function PokedexState:drawEntry", 1)
+        self.assertIn('GbFont.drawString("CONTENTS", 1, 1)', listed)
+        self.assertNotIn("POKEDEX", listed)
+        self.assertIn('GbFont.drawString("SEEN", 16, 2)', listed)
+        self.assertIn('GbFont.drawString(string.format("%3d", seen), 16, 3)', listed)
+        self.assertIn('GbFont.drawString("OWN", 16, 5)', listed)
+        self.assertIn('GbFont.drawString(string.format("%3d", owned), 16, 6)', listed)
+        self.assertIn('GbFont.drawChar("│", 14, row)', listed)
+        self.assertIn("local row=10+index-1", listed)
+        self.assertIn("GbFont.drawString(label, 16, row)", listed)
+        self.assertNotIn("drawFront", listed)
+        self.assertNotIn("No.%03d", listed)
+        self.assertIn("drawFront", entry)
+        self.assertIn("No.%03d", entry)
+
+    def test_bag_list_matches_the_item_menu(self):
         text = (ROOT / "Source/game/bagState.lua").read_text(encoding="utf-8")
-        self.assertIn('GbFont.drawMoneyRight("¥"', text)
+        self.assertIn("GbFont.drawChar(TitleIdle.CURSOR, 5, row)", text)
+        self.assertNotIn('"> "', text)
+        self.assertIn('GbFont.drawString("×" .. slot.quantity, 14, row + 1)', text)
+        self.assertIn('GbFont.drawString("CANCEL", 6, row)', text)
+        self.assertIn("item.sourceName or item.name", text)
+        self.assertIn("return count + 1", text)
+        self.assertIn("boxCol, boxRow, boxRight, boxBottom = 4, 2, 19, 12", text)
+        self.assertIn("start_sub_menus.asm:315", text)
+        self.assertIn("core.asm:2226", text)
+        self.assertNotIn("drawMoneyRight", text)
+        self.assertNotIn("¥", text)
+        self.assertNotIn('"$"', text)
         self.assertNotIn("Registered:", text)
         self.assertNotIn("SORT BAG", text)
-        self.assertNotIn('"$"', text)
+        self.assertIn('"A: Choose  B: Back"', text)
 
     def test_trainer_card_draws_red_and_badges(self):
         text = (ROOT / "Source/game/pauseState.lua").read_text(encoding="utf-8")

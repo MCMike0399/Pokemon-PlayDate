@@ -1,5 +1,5 @@
 diff --git a/Source/game/bagState.lua b/Source/game/bagState.lua
-index c28713e0..ae4f4fde 100644
+index c28713e0..a8ce6636 100644
 --- a/Source/game/bagState.lua
 +++ b/Source/game/bagState.lua
 @@ -1,3 +1,4 @@
@@ -7,38 +7,40 @@ index c28713e0..ae4f4fde 100644
  local gfx <const> = playdate.graphics
  Class("BagState"):extends(State)
  
-@@ -90,11 +91,7 @@ function BagState:sortBag()
- end
+@@ -91,10 +92,8 @@ end
  
  function BagState:listCount()
--    local count = #self:visibleSlots()
+     local count = #self:visibleSlots()
 -    if self.active and self.options and not self.options.mode and not self.options.trySelect and not self.battle and count > 1 then
 -        return count + 1
 -    end
 -    return count
-+    return #self:visibleSlots()
++    if self.options and self.options.mode == "held" then return count end
++    return count + 1
  end
  
  function BagState:init(game)
-@@ -377,10 +374,6 @@ function BagState:handleInput()
+@@ -377,8 +376,10 @@ function BagState:handleInput()
          if playdate.buttonJustPressed(playdate.kButtonUp) then self.selected = (self.selected - 2) % count + 1
          elseif playdate.buttonJustPressed(playdate.kButtonDown) then self.selected = self.selected % count + 1
          elseif playdate.buttonJustPressed(playdate.kButtonA) then
 -            if self.selected > #slots then
 -                self:sortBag()
--                return
--            end
++            if not slots[self.selected] then
++                if self.options.mode=="held" then
++                    local callback=self.options.onCancel;self.machine:pop();if callback then callback() end
++                elseif not self.options.tryCancel or self.options.tryCancel() then self.machine:pop() end
+                 return
+             end
              local id = slots[self.selected].id
-             if self.options.mode=="held" then self:selectHeld(id)
-             elseif self.options.trySelect then
-@@ -410,29 +403,16 @@ function BagState:draw()
+@@ -409,29 +410,37 @@ function BagState:draw()
+     gfx.setDrawOffset(0, 0)
      gfx.clear(gfx.kColorWhite)
      gfx.setColor(gfx.kColorBlack)
-     gfx.drawText(self.options and self.options.mode=="held" and ("GIVE: "..self.options.holder.name) or "ITEM", 12, 8)
+-    gfx.drawText(self.options and self.options.mode=="held" and ("GIVE: "..self.options.holder.name) or "ITEM", 12, 8)
 -    gfx.drawText("$" .. self.game.session:inventory():money(), 286, 8)
-+    GbFont.drawMoneyRight("¥" .. self.game.session:inventory():money(), 388, 8)
-     local slots = self:visibleSlots()
-     local first = math.max(1, self.selected - 6)
+-    local slots = self:visibleSlots()
+-    local first = math.max(1, self.selected - 6)
 -    if not self.options.mode then
 -        local id = GameOptions.registeredItem()
 -        local item = id and ItemData.definitions[id]
@@ -47,23 +49,47 @@ index c28713e0..ae4f4fde 100644
 -            label = label .. " (missing)"
 -        end
 -        gfx.drawText("Registered: " .. label, 12, 27)
--    end
-     if #slots == 0 then gfx.drawText(self.options and self.options.mode=="held" and "No holdable items in your bag." or "Your bag is empty.", 16, 64) end
-     for i = first, math.min(self:listCount(), first + 6) do
++    -- Neither bag prints money. StartMenu_Item zeros wPrintItemPrices at
++    -- engine/menus/start_sub_menus.asm:315 before DisplayListMenuID.
++    -- DisplayBagMenu does the same at engine/battle/core.asm:2226.
++    -- PrintListMenuEntries (home/list_menu.asm:411) prints a price only
++    -- when that flag is set. LIST_MENU_BOX is data/text_boxes.asm:13.
++    if self.options and self.options.mode=="held" then
++        gfx.drawText("GIVE: "..self.options.holder.name, 12, 0)
+     end
+-    if #slots == 0 then gfx.drawText(self.options and self.options.mode=="held" and "No holdable items in your bag." or "Your bag is empty.", 16, 64) end
+-    for i = first, math.min(self:listCount(), first + 6) do
++    local boxCol, boxRow, boxRight, boxBottom = 4, 2, 19, 12
++    GbFont.drawBox({
++        x = boxCol * TitleIdle.COL, y = boxRow * TitleIdle.ROW,
++        w = (boxRight - boxCol + 1) * TitleIdle.COL,
++        h = (boxBottom - boxRow + 1) * TitleIdle.ROW,
++    })
++    local slots = self:visibleSlots()
++    local count = self:listCount()
++    local window = 4
++    local first = count > window and math.max(1, math.min(self.selected - window + 1, count - window + 1)) or 1
++    for n = 0, math.min(window, count) - 1 do
++        local i = first + n
++        if i > count then break end
++        local row = 4 + n * 2
++        if i == self.selected then GbFont.drawChar(TitleIdle.CURSOR, 5, row) end
          local slot = slots[i]
-         local top = 50 + (i - first) * 21
-         local prefix = i == self.selected and "> " or "  "
--        if slot then
+-        local top = 50 + (i - first) * 21
+-        local prefix = i == self.selected and "> " or "  "
+         if slot then
 -            gfx.drawText(prefix .. ItemData.definitions[slot.id].name, 12, top)
 -            gfx.drawText("x" .. slot.quantity, 328, top)
--        else
++            local item = ItemData.definitions[slot.id]
++            local label = item.sourceName or item.name
++            GbFont.drawString(label, 6, row)
++            if not item.keyItem then GbFont.drawString("×" .. slot.quantity, 14, row + 1) end
+         else
 -            gfx.drawText(prefix .. "SORT BAG", 12, top)
--        end
-+        gfx.drawText(prefix .. ItemData.definitions[slot.id].name, 12, top)
-+        gfx.drawText("x" .. slot.quantity, 328, top)
++            GbFont.drawString("CANCEL", 6, row)
+         end
      end
      local hint = self.options.mode == "held" and "A: Give  B: Back" or "A: Choose  B: Back"
-     if GameOptions.crankScrolling() and self:listCount() >= 5 then
 diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
 index 340349c3..efffa993 100644
 --- a/Source/game/pauseState.lua
@@ -183,7 +209,7 @@ index 7ae53d48..e9454810 100644
      elseif self.phase=="storage" then self.menu:draw(18,42,256,140)
      elseif self.phase=="box-confirm" then
 diff --git a/Source/game/pokedexState.lua b/Source/game/pokedexState.lua
-index bf7d55f6..fb468bb2 100644
+index bf7d55f6..e027f7f3 100644
 --- a/Source/game/pokedexState.lua
 +++ b/Source/game/pokedexState.lua
 @@ -1,8 +1,11 @@
@@ -275,48 +301,98 @@ index bf7d55f6..fb468bb2 100644
  end
  function PokedexState:drawFront(species,cx,cy)
      local image=self.fronts[species]
-@@ -105,7 +145,7 @@ function PokedexState:draw()
+@@ -100,45 +140,56 @@ function PokedexState:drawFront(species,cx,cy)
+     -- Every original pixel is an integer 2x2 block; never fit to a fractional scale.
+     image:drawScaled(cx-w,cy-h,2)
+ end
++-- engine/menus/pokedex.asm HandlePokedexListMenu. Coordinates are hlcoord
++-- cells: CONTENTS (1,1), SEEN (16,2), the seen count (16,3), OWN (16,5),
++-- the owned count (16,6), the divider at column 14, and the side menu at (16,10).
++function PokedexState:drawList()
++    local dex=self.game.session:pokedex();local seen,owned=0,0
++    for _,entry in ipairs(PokedexData) do
++        if dex.seen[entry.species] then seen=seen+1 end
++        if dex.owned[entry.species] then owned=owned+1 end
++    end
++    local top=math.max(1,math.min(145,self.selected-3))
++    for i=top,math.min(151,top+6) do
++        local e=PokedexData[i];local row=3+(i-top)*2
++        if self.phase=="list" and i==self.selected then GbFont.drawChar(TitleIdle.CURSOR, 0, row) end
++        GbFont.drawString(string.format("%03d",i), 1, row)
++        GbFont.drawString(dex.seen[e.species] and e.name or "----------", 5, row)
++    end
++    for row=0,17 do GbFont.drawChar("│", 14, row) end
++    for col=15,19 do GbFont.drawChar("─", col, 8) end
++    GbFont.drawString("CONTENTS", 1, 1)
++    GbFont.drawString("SEEN", 16, 2)
++    GbFont.drawString(string.format("%3d", seen), 16, 3)
++    GbFont.drawString("OWN", 16, 5)
++    GbFont.drawString(string.format("%3d", owned), 16, 6)
++    for index, label in ipairs(PokedexState.SIDE) do
++        local row=10+index-1
++        if self.phase=="menu" and index==self.menuIndex then GbFont.drawChar(TitleIdle.CURSOR, 15, row) end
++        GbFont.drawString(label, 16, row)
++    end
++end
++function PokedexState:drawEntry(view)
++    gfx.drawText(string.format("No.%03d  %s",view.dex,view.name),12,6)
++    self:drawFront(view.species,330,80)
++    if view.details then
++        local e=view.details
++        gfx.drawText(e.category.." POKEMON",12,32)
++        gfx.drawText(string.format("HT %d'%02d\"",e.heightFeet,e.heightInches),12,55)
++        gfx.drawText(string.format("WT %d.%d lb",e.weightTenthsLb//10,e.weightTenthsLb%10),12,78)
++        for i,line in ipairs(e.lines) do gfx.drawText(line,12,104+(i-1)*16) end
++    else
++        gfx.drawText("NOT YET OWNED",12,55)
++        gfx.drawText("Catch this POKEMON to record",12,146)
++        gfx.drawText("its full encyclopedia entry.",12,168)
++    end
++    gfx.drawText("B: Back",12,221)
++end
+ function PokedexState:draw()
+     if self.phase=="closed" then return end
      local x,y=gfx.getDrawOffset();local previousFont=gfx.getFont()
      gfx.setDrawOffset(0,0);gfx.setFont(font);gfx.clear(gfx.kColorWhite);gfx.setColor(gfx.kColorBlack)
      local view=self:entryView()
 -    if self.phase=="list" then
-+    if self.phase=="list" or self.phase=="menu" then
-         local dex=self.game.session:pokedex();local seen,owned=0,0
-         for _,entry in ipairs(PokedexData) do if dex.seen[entry.species] then seen=seen+1 end;if dex.owned[entry.species] then owned=owned+1 end end
-         gfx.drawText("POKEDEX",12,6);gfx.drawText("SEEN "..seen.."  OWN "..owned,196,6)
-@@ -113,7 +153,7 @@ function PokedexState:draw()
-         local top=math.max(1,math.min(144,self.selected-3))
-         for i=top,math.min(151,top+7) do
-             local e=PokedexData[i];local row=34+(i-top)*22
+-        local dex=self.game.session:pokedex();local seen,owned=0,0
+-        for _,entry in ipairs(PokedexData) do if dex.seen[entry.species] then seen=seen+1 end;if dex.owned[entry.species] then owned=owned+1 end end
+-        gfx.drawText("POKEDEX",12,6);gfx.drawText("SEEN "..seen.."  OWN "..owned,196,6)
+-        gfx.drawLine(216,31,216,211)
+-        local top=math.max(1,math.min(144,self.selected-3))
+-        for i=top,math.min(151,top+7) do
+-            local e=PokedexData[i];local row=34+(i-top)*22
 -            gfx.drawText(i==self.selected and ">" or " ",8,row)
-+            if i==self.selected then GbFont.drawTight(TitleIdle.CURSOR, 4, row) end
-             gfx.drawText(string.format("%03d",i),24,row)
-             gfx.drawText(dex.seen[e.species] and e.name or "----------",65,row)
-             if dex.owned[e.species] then gfx.fillCircleAtPoint(204,row+8,3) end
-@@ -121,9 +161,20 @@ function PokedexState:draw()
-         gfx.drawText(string.format("No.%03d",view.dex),244,39)
-         gfx.drawText(view.name,232,62)
-         if view.seen then self:drawFront(view.species,306,143) else gfx.drawText("?",300,133) end
+-            gfx.drawText(string.format("%03d",i),24,row)
+-            gfx.drawText(dex.seen[e.species] and e.name or "----------",65,row)
+-            if dex.owned[e.species] then gfx.fillCircleAtPoint(204,row+8,3) end
+-        end
+-        gfx.drawText(string.format("No.%03d",view.dex),244,39)
+-        gfx.drawText(view.name,232,62)
+-        if view.seen then self:drawFront(view.species,306,143) else gfx.drawText("?",300,133) end
 -        gfx.drawText("A: Data",250,202)
 -        gfx.drawText("UP/DOWN: Scroll  LEFT/RIGHT: Page",12,219)
 -        gfx.drawText("B: Back",315,219)
-+        if self.phase=="menu" then
-+            gfx.setColor(gfx.kColorWhite)
-+            gfx.fillRect(210, 146, 180, 88)
-+            gfx.setColor(gfx.kColorBlack)
-+            for index, label in ipairs(PokedexState.SIDE) do
-+                local sideRow = 150 + (index - 1) * 20
-+                if index == self.menuIndex then GbFont.drawTight(TitleIdle.CURSOR, 214, sideRow) end
-+                gfx.drawText(label, 236, sideRow)
-+            end
-+        else
-+            gfx.drawText("A: Data",250,202)
-+            gfx.drawText("UP/DOWN: Scroll  LEFT/RIGHT: Page",12,219)
-+            gfx.drawText("B: Back",315,219)
-+        end
-     else
-         gfx.drawText(string.format("No.%03d  %s",view.dex,view.name),12,6)
-         self:drawFront(view.species,330,80)
+-    else
+-        gfx.drawText(string.format("No.%03d  %s",view.dex,view.name),12,6)
+-        self:drawFront(view.species,330,80)
+-        if view.details then
+-            local e=view.details
+-            gfx.drawText(e.category.." POKEMON",12,32)
+-            gfx.drawText(string.format("HT %d'%02d\"",e.heightFeet,e.heightInches),12,55)
+-            gfx.drawText(string.format("WT %d.%d lb",e.weightTenthsLb//10,e.weightTenthsLb%10),12,78)
+-            for i,line in ipairs(e.lines) do gfx.drawText(line,12,104+(i-1)*16) end
+-        else
+-            gfx.drawText("NOT YET OWNED",12,55)
+-            gfx.drawText("Catch this POKEMON to record",12,146)
+-            gfx.drawText("its full encyclopedia entry.",12,168)
+-        end
+-        gfx.drawText("B: Back",12,221)
+-    end
++    if self.phase=="list" or self.phase=="menu" then self:drawList() else self:drawEntry(view) end
+     gfx.setFont(previousFont);gfx.setDrawOffset(x,y)
+ end
 diff --git a/Source/game/titleIdle.lua b/Source/game/titleIdle.lua
 index 3084f665..64657a42 100644
 --- a/Source/game/titleIdle.lua
