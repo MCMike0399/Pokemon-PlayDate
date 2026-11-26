@@ -1,27 +1,13 @@
-Lane E tip d010ec62678d53f41e33e2d83ba1fe946d310fa4.
+Superseded by lane E 79fbcba560e34945a130d7e1788ab44be5aa8d77.
 
-A on the Cerulean Cave 1F scientist does not give Mew. Fresh harness
-session, fixture zone kanto_cerulean_cave_1f, entry (24, 16) facing left,
-then A. Snapshot player.lastTraversalBlock:
+K's pre-merge check, docs/validation/lane-k-premerge.md on
+cursor/lane-k-qa at 8600ea0b, reports this file is not a valid diff.
+git apply finds no patches. On that tip PostgameStory.installEvents
+already registers the Cerulean Cave gift: the giver id, the dispatch id
+pokered:CERULEAN_CAVE_1F:script:mew-gift, and registerWorldHooks.
+Do not add a second registration.
 
-  kind = unimplemented-source-event
-  id   = postgame:CERULEAN_CAVE_1F:mew-gift
-
-Session 181de250fb4449d3b86a7a7c383b3489 was not a Hall continue, so
-game/postgameStory.lua never ran. Lane E only file.runs that chunk from
-GameSaves.loadHallContinue when the save zone is pokered:HALL_OF_FAME.
-E's PostgameStory.installEvents still has no gift registration: no
-tryGift, no dispatch id pokered:CERULEAN_CAVE_1F:script:mew-gift, no
-world hook. KantoWorld.tryInteract therefore hits
-
-  if not SourceEvents.has(id) then block(..., "unimplemented-source-event", id)
-
-even after a Hall continue that does load the chunk. The map object id
-stays postgame:CERULEAN_CAVE_1F:mew-gift.
-
-This branch already registers the gift from PostgameStory.installEvents
-(events[giver.id], the script id, and registerWorldHooks to tryGift).
-Do not edit Source here. On E, install that same registration inside
-installEvents, and install the chunk on every continue of a save whose
-hallOfFame.teams is non-empty, including a later continue whose location
-is already pokered:PALLET_TOWN. MallocPoolSize stays 16645684.
+The scientist is not an object in pokered data/maps/objects/CeruleanCave1F.asm.
+The level-5 gift remains the Miguel-approved deviation. The real diff
+against origin/main is tools/notes/lane-e-mew-link-cable-gift.patch.
+MallocPoolSize stays 16645684.

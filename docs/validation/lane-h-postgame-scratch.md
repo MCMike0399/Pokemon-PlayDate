@@ -60,7 +60,7 @@ Not reached from the Hall continue. The sleepy gate closed the only graph path t
 
 ## Mew gift
 
-Not reached from the Hall continue. The scientist is Cerulean Cave 1F (23, 16). origin/main's `postgameStory.lua` has no `presentGift`, `giveMew`, or `tryGift`. The gift registration is already handed in `tools/notes/lane-e-mew-gift-dispatch.patch`. No new patch.
+Not reached from the Hall continue. The scientist is Cerulean Cave 1F (23, 16). origin/main's `postgameStory.lua` has no `presentGift`, `giveMew`, or `tryGift`. `tools/notes/lane-e-mew-gift-dispatch.patch` is superseded. `79fbcba5` already registers the gift inside `PostgameStory.installEvents`. The remaining gift diff against main is `tools/notes/lane-e-mew-link-cable-gift.patch`.
 
 ## Heap along the continue
 

@@ -24,7 +24,8 @@ class LaneEPostgameAfterContinueTests(unittest.TestCase):
             "lane E " + E_TIP + " session 181de250fb4449d3b86a7a7c383b3489: "
             "A at CeruleanCave1F (24, 16) facing left blocked with "
             "unimplemented-source-event postgame:CERULEAN_CAVE_1F:mew-gift. "
-            "See tools/notes/lane-e-mew-gift-dispatch.patch."
+            "tools/notes/lane-e-mew-gift-dispatch.patch is superseded: "
+            "79fbcba5 already registers the gift in installEvents."
         )
 
     def test_mewtwo_talk_starts_the_battle(self):

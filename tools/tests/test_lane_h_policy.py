@@ -49,6 +49,11 @@ def talk_prefix():
 class PolicyGiftTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        if "deviations" not in STORY:
+            cls.host = None
+            cls.steps = None
+            cls.npc = None
+            return
         cls.steps, cls.npc = talk_prefix()
         talk = cls.npc["talk"]
         payload = {
@@ -67,6 +72,8 @@ class PolicyGiftTests(unittest.TestCase):
         cls.host = json.loads(completed.stdout)
 
     def test_deviations_are_the_level_5_gift_and_link_cable(self):
+        if "deviations" not in STORY:
+            self.fail("Mew and LINK CABLE are in tools/notes/lane-e-mew-link-cable-gift.patch")
         mew = STORY["deviations"]["mew"]
         cable = STORY["deviations"]["link_cable"]
         self.assertEqual(STORY["deviations"]["approved_by"], "Miguel")
@@ -90,6 +97,8 @@ class PolicyGiftTests(unittest.TestCase):
             self.assertEqual(PLAY["texts"][label]["source"], "miguel-approved-deviation")
 
     def test_continue_walks_to_the_giver_and_receives_one_mew(self):
+        if self.host is None:
+            self.fail("Mew and LINK CABLE are in tools/notes/lane-e-mew-link-cable-gift.patch")
         host = self.host
         talk = self.npc["talk"]
         self.assertEqual(host["actor_snapshot"], "fixture-empty")
@@ -128,6 +137,8 @@ class PolicyGiftTests(unittest.TestCase):
             self.assertIn("invalid-stone", host["kadabra"]["error"])
 
     def test_link_cable_evolves_kadabra_and_not_squirtle(self):
+        if self.host is None:
+            self.fail("Mew and LINK CABLE are in tools/notes/lane-e-mew-link-cable-gift.patch")
         host = self.host
         self.assertTrue(host["cable"]["ok"])
         self.assertEqual(host["cable"]["item"], "linkCable")

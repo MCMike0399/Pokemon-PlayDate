@@ -1,3 +1,11 @@
+# pdc 3.1.2 rejects the endgameStory guard `if type(import) == "function"`.
+# It reads that import as a file named function: No such file: function.
+# After this patch, apply tools/notes/lane-k-premerge-type-display-import.patch
+# from cursor/lane-k-qa 8600ea0b. That patch is a file-scope
+# `import "game/drawnText"`, the same form battleScene.lua already uses.
+# File-scope imports only. pokered data/types/names.asm (af519899) prints PSYCHIC.
+# MallocPoolSize stays 16645684.
+
 diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
 index aadfc149..f34279b0 100644
 --- a/Source/battle/battleScene.lua

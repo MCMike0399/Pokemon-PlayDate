@@ -6,7 +6,11 @@ wDexRatingText, and HoFPrintTextAndDelay waits 120 frames after each.
 DisplayDexRating's hall branch copies DexRatingsTable. The live tree draws
 that paragraph as one drawText under the label, and the block is tall
 enough that the rating text never appears. This fails on the live tree and
-passes once tools/notes/lane-e-hof-dex-rating.patch is applied.
+passes once K's tools/notes/lane-k-premerge-hof-dex-rating.patch is applied.
+That patch is on cursor/lane-k-qa at 8600ea0b. It keeps these lines and
+draws each one with EndgameStory.drawPokeredText. The patch under
+tools/notes/lane-e-hof-dex-rating.patch is superseded: E no longer calls
+gfx.drawText for the hall page, so that diff does not apply.
 """
 
 import os

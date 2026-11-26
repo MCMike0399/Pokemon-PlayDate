@@ -14,6 +14,8 @@ The Mewtwo Hall card draws the pokered constant `PSYCHIC_TYPE`. `EndgameStory.mo
 
 `tools/notes/lane-e-type-display-names.patch`
 
+`pdc` 3.1.2 rejects the `if type(import) == "function"` guard in that patch. It treats `import` as a file named `function`. K's `tools/notes/lane-k-premerge-type-display-import.patch` on `cursor/lane-k-qa` at `8600ea0b` replaces the guard with a file-scope `import "game/drawnText"`. Apply that after the type-display patch. Later imports stay at file scope.
+
 `DrawnText` maps `PSYCHIC_TYPE` and `psychic` to `PSYCHIC`, keeps the other pokered display names, and adds `DARK` and `STEEL`. `EndgameStory.monTypes` uses that table when the module is loaded. The battle TYPE box calls `DrawnText.typeName(move.type)`. `DrawnText.install` wraps `drawText`, `drawTextInRect`, `drawTextAligned`, and `getTextSize`, doubling each `_` and `*`. `drawTextInRect` and `drawTextAligned` call the raw `drawText`, so a mark is escaped once. `GbFont` installs the wrapper, and the module installs itself when `playdate.graphics` exists. A host probe that dofiles `endgameStory.lua` without the module still sees the `visual.json` constants, so Charmander stays `FIRE` and Pikachu stays `ELECTRIC`.
 
 `tools/tests/test_lane_e_type_display_names.py`
