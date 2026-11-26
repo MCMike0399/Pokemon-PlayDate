@@ -249,6 +249,10 @@ The field bag and the battle bag use the ▶ tile, `×` quantities, a `CANCEL` r
 
 `test_patch_applies` passes on this tree. The other five checks in `tools/tests/test_lane_e_ui_fidelity.py` fail here and pass after `git apply`. The r2 frames are `artifacts/lane-g/ui-fidelity/pokedex-list-r2.png`, `bag-r2.png`, and `battle-bag-r2.png`. `Source/` is unchanged.
 
+## Round 33
+
+`PlaceString` `<NEXT>` in `home/text.asm` steps two tile rows unless `BIT_SINGLE_SPACED_LINES` is set, and `PrintListMenuEntries` advances `2 * SCREEN_WIDTH` (`home/list_menu.asm:512`). The r3 of `tools/notes/lane-e-ui-fidelity.patch` draws `DATA` / `CRY` / `AREA` / `QUIT` at rows 10, 12, 14 and 16. Each bag entry uses a name row and the next row for `×` at column 14. The list box still holds four entries, and `CANCEL` follows the last item. The new assertions fail on the live tree and on the r2 strings (`10+index-1`, `local row = 4 + n * 2`, `14, row + 1`). The r3 frames are `artifacts/lane-g/ui-fidelity/pokedex-list-r3.png`, `bag-r3.png`, and `battle-bag-r3.png`. `Source/` is unchanged.
+
 ## Round 30
 
 `origin/main` is still `ea32b553`. The credits recheck is waiting on a main commit past that SHA. No merge.

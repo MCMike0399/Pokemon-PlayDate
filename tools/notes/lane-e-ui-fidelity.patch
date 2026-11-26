@@ -1,5 +1,5 @@
 diff --git a/Source/game/bagState.lua b/Source/game/bagState.lua
-index c28713e0..a8ce6636 100644
+index c28713e0..79cb22db 100644
 --- a/Source/game/bagState.lua
 +++ b/Source/game/bagState.lua
 @@ -1,3 +1,4 @@
@@ -33,7 +33,7 @@ index c28713e0..a8ce6636 100644
                  return
              end
              local id = slots[self.selected].id
-@@ -409,29 +410,37 @@ function BagState:draw()
+@@ -409,29 +410,41 @@ function BagState:draw()
      gfx.setDrawOffset(0, 0)
      gfx.clear(gfx.kColorWhite)
      gfx.setColor(gfx.kColorBlack)
@@ -54,6 +54,9 @@ index c28713e0..a8ce6636 100644
 +    -- DisplayBagMenu does the same at engine/battle/core.asm:2226.
 +    -- PrintListMenuEntries (home/list_menu.asm:411) prints a price only
 +    -- when that flag is set. LIST_MENU_BOX is data/text_boxes.asm:13.
++    -- Four names start at (6,4) and each entry is 2*SCREEN_WIDTH apart
++    -- (list_menu.asm:364 and :512). The × quantity is one row down and
++    -- eight columns right (list_menu.asm:479). CANCEL is the next entry.
 +    if self.options and self.options.mode=="held" then
 +        gfx.drawText("GIVE: "..self.options.holder.name, 12, 0)
      end
@@ -72,8 +75,9 @@ index c28713e0..a8ce6636 100644
 +    for n = 0, math.min(window, count) - 1 do
 +        local i = first + n
 +        if i > count then break end
-+        local row = 4 + n * 2
-+        if i == self.selected then GbFont.drawChar(TitleIdle.CURSOR, 5, row) end
++        local nameRow = 4 + n * 2
++        local quantityRow = nameRow + 1
++        if i == self.selected then GbFont.drawChar(TitleIdle.CURSOR, 5, nameRow) end
          local slot = slots[i]
 -        local top = 50 + (i - first) * 21
 -        local prefix = i == self.selected and "> " or "  "
@@ -82,11 +86,11 @@ index c28713e0..a8ce6636 100644
 -            gfx.drawText("x" .. slot.quantity, 328, top)
 +            local item = ItemData.definitions[slot.id]
 +            local label = item.sourceName or item.name
-+            GbFont.drawString(label, 6, row)
-+            if not item.keyItem then GbFont.drawString("×" .. slot.quantity, 14, row + 1) end
++            GbFont.drawString(label, 6, nameRow)
++            if not item.keyItem then GbFont.drawString("×" .. slot.quantity, 14, quantityRow) end
          else
 -            gfx.drawText(prefix .. "SORT BAG", 12, top)
-+            GbFont.drawString("CANCEL", 6, row)
++            GbFont.drawString("CANCEL", 6, nameRow)
          end
      end
      local hint = self.options.mode == "held" and "A: Give  B: Back" or "A: Choose  B: Back"
@@ -209,7 +213,7 @@ index 7ae53d48..e9454810 100644
      elseif self.phase=="storage" then self.menu:draw(18,42,256,140)
      elseif self.phase=="box-confirm" then
 diff --git a/Source/game/pokedexState.lua b/Source/game/pokedexState.lua
-index bf7d55f6..e027f7f3 100644
+index bf7d55f6..72749c97 100644
 --- a/Source/game/pokedexState.lua
 +++ b/Source/game/pokedexState.lua
 @@ -1,8 +1,11 @@
@@ -301,13 +305,15 @@ index bf7d55f6..e027f7f3 100644
  end
  function PokedexState:drawFront(species,cx,cy)
      local image=self.fronts[species]
-@@ -100,45 +140,56 @@ function PokedexState:drawFront(species,cx,cy)
+@@ -100,45 +140,59 @@ function PokedexState:drawFront(species,cx,cy)
      -- Every original pixel is an integer 2x2 block; never fit to a fractional scale.
      image:drawScaled(cx-w,cy-h,2)
  end
 +-- engine/menus/pokedex.asm HandlePokedexListMenu. Coordinates are hlcoord
 +-- cells: CONTENTS (1,1), SEEN (16,2), the seen count (16,3), OWN (16,5),
 +-- the owned count (16,6), the divider at column 14, and the side menu at (16,10).
++-- PlaceString next (home/text.asm) steps two tile rows unless
++-- BIT_SINGLE_SPACED_LINES is set. DATA/CRY/AREA/QUIT are rows 10, 12, 14, 16.
 +function PokedexState:drawList()
 +    local dex=self.game.session:pokedex();local seen,owned=0,0
 +    for _,entry in ipairs(PokedexData) do
@@ -328,8 +334,9 @@ index bf7d55f6..e027f7f3 100644
 +    GbFont.drawString(string.format("%3d", seen), 16, 3)
 +    GbFont.drawString("OWN", 16, 5)
 +    GbFont.drawString(string.format("%3d", owned), 16, 6)
++    local sideRows={10,12,14,16}
 +    for index, label in ipairs(PokedexState.SIDE) do
-+        local row=10+index-1
++        local row=sideRows[index]
 +        if self.phase=="menu" and index==self.menuIndex then GbFont.drawChar(TitleIdle.CURSOR, 15, row) end
 +        GbFont.drawString(label, 16, row)
 +    end
