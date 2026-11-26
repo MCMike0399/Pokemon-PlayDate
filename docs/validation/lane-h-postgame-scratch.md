@@ -8,7 +8,7 @@ Scratch worktree `/tmp/e-continue`, detached at that commit, no patches. SDK 3.1
 
 Continue reaches Pallet. Root `overworld`, zone `kanto_pallet_town`, (5, 6) facing down. The harness result status is ok. Ready heap 12715.5 KiB. Snapshot heap after Continue 13305.3 KiB. `Continue.end` is 13067.8 KiB. Observed peak on that boot is 13744.7 KiB, at `Continue.map.end`. The simulator log has no inflate failure and no out-of-memory error. The continue is not stuck at Hall (7, 2). No new patch.
 
-`tools/notes/lane-e-hof-postgame-import.patch` is a superseded notice. `git apply` reports no valid patches. `tools/tests/test_lane_e_hof_postgame_import.py` is deleted. The historical diff remains in commit `9a75ff5d`.
+`tools/notes/lane-e-hof-postgame-import.patch` is the real diff of that boot import against origin/main, with `tools/tests/test_lane_e_hof_postgame_import.py`. It fails on main and passes after `git apply`. Do not apply it on `79fbcba5`.
 
 ## Earlier scratch on origin/main
 
@@ -30,7 +30,7 @@ Replacing both calls with literal `import` statements, still on top of the relea
 
 Frame: `artifacts/lane-h/postgame-continue-pallet.png` (sha256 `96b12a29249db38257940ec0e4e94f28f9509a66b4041e1339fc0e606a1b9020`). RED is on the Pallet dirt south of the lab.
 
-That literal import is not the handoff. `79fbcba5` loads the chunk lazily, and applying the old diff puts the boot import back. The file is now a superseded notice. The test that required the literal import is deleted.
+That literal import is `tools/notes/lane-e-hof-postgame-import.patch` again, because the Source edit cannot stay on this branch. `79fbcba5` loads the chunk lazily. Applying the patch there puts the boot import back.
 
 ## Cerulean Cave access
 

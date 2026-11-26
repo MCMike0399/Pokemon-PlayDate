@@ -8,8 +8,7 @@
 -- This file does not edit sessionCodec.lua.
 import "domain/party"
 import "domain/storage"
--- LateKantoStory is assigned by game/lateKantoStory, which imports this file.
--- Importing it here loops the Simulator: this file would re-enter that module.
+import "game/lateKantoStory"
 
 FossilRevival = {}
 local ITEM_PREFIX = "wFossilItem:"
