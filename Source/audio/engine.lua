@@ -79,11 +79,69 @@ local function liveScoreNames()
     return names
 end
 
--- file.run builds the note tables on first play and KantoScores keeps them.
--- A map bed is hundreds of KiB. Main kept every score in one import. Head
--- loads them while zones are built, and the old beds were still live at the
--- next map, which is the out-of-memory on the cerulean and vermilion suites.
--- Drop every score the synth is not playing before the next file.run.
+-- file.run builds one packed score on first play and KantoScores keeps it.
+-- A map bed used to be hundreds of KiB of note tables. Main kept every score
+-- in one import. Head loads them while zones are built, and the old beds were
+-- still live at the next map, which is the out-of-memory on the cerulean and
+-- vermilion suites. Drop every score the synth is not playing before the next
+-- file.run, and drop wave samples that score no longer uses.
+local function scoreWaves(score, into)
+    if type(score) ~= "table" then
+        return
+    end
+    if type(score.waves) == "table" then
+        for _, key in ipairs(score.waves) do
+            into[key] = true
+        end
+    end
+    if score.parts then
+        for _, part in ipairs(score.parts) do
+            scoreWaves(part, into)
+        end
+    end
+    if score.notes then
+        for _, note in ipairs(score.notes) do
+            if type(note) == "table" then
+                for index = #note, 8, -1 do
+                    if type(note[index]) == "string" then
+                        into[note[index]] = true
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function releaseUnusedWaves()
+    local needed = {}
+    if type(KantoScores) == "table" then
+        for _, score in pairs(KantoScores) do
+            scoreWaves(score, needed)
+        end
+    end
+    local cry = layers.cry
+    if type(cry) == "table" and cry.score then
+        scoreWaves(cry.score, needed)
+    end
+    for key in pairs(waveSamples) do
+        if not needed[key] then
+            waveSamples[key] = nil
+        end
+    end
+    if currentWave and not needed[currentWave] then
+        currentWave = nil
+    end
+end
+
+local function releaseCryCatalogs()
+    KantoCryPrograms = nil
+    KantoCryHeaders = nil
+    KantoCryBases = nil
+    KantoCrySpecies = nil
+    KantoCryMusicBanks = nil
+end
+
 local function releaseIdleScores(keep)
     if type(KantoScores) ~= "table" then
         return
@@ -97,22 +155,71 @@ local function releaseIdleScores(keep)
             KantoScores[name] = nil
         end
     end
+    releaseUnusedWaves()
     collectgarbage("collect")
 end
 
 function KantoSynth.unloadAll()
-    layers.music, layers.jingle, layers.sfx = nil, nil, nil
+    layers.music, layers.jingle, layers.sfx, layers.cry, layers.alarm = nil, nil, nil, nil, nil
+    rendered = {}
+    waveSamples = {}
+    currentWave = nil
     if type(KantoScores) == "table" then
         for name in pairs(KantoScores) do
             KantoScores[name] = nil
         end
     end
+    releaseCryCatalogs()
+    -- Imported stubs stay in the main chunk. The tables are file.run targets.
+    KantoMoveSfx = nil
+    KantoPacked = nil
+    if type(KantoEvents) == "table" then
+        KantoEvents.fieldReceipts = nil
+        KantoEvents.maps = nil
+        KantoEvents.aliases = nil
+    end
     collectgarbage("collect")
+end
+
+-- The record decoder lives in audio/packed.lua so unloadAll can drop it
+-- before the next city inflates. Cries and the host stub still use note tables.
+local function packedApi()
+    if not KantoPacked then
+        playdate.file.run("audio/packed")
+    end
+    return KantoPacked
+end
+
+local function bindPacked(score)
+    return packedApi().bind(score)
+end
+
+local function noteCount(score)
+    return packedApi().count(score)
+end
+
+local function noteAt(score, index)
+    return packedApi().noteAt(score, index)
+end
+
+local function nowSeconds(now)
+    if now ~= nil then
+        return now
+    end
+    local current = sound.getCurrentTime()
+    if current == nil then
+        return 0
+    end
+    return current
+end
+
+local function runScoreFile(scorePath)
+    playdate.file.run(scorePath)
 end
 
 local function ensureScore(name)
     if KantoScores and KantoScores[name] then
-        return KantoScores[name]
+        return bindPacked(KantoScores[name])
     end
     KantoScores = KantoScores or {}
     releaseIdleScores(name)
@@ -120,8 +227,19 @@ local function ensureScore(name)
     -- literal "audio/score/" prefix as a file request. file.run loads the
     -- compiled score pdz the first time that score plays.
     local scorePath = "audio/score/" .. name
-    playdate.file.run(scorePath)
-    return assert(KantoScores[name], "unknown Kanto score")
+    -- The score file calls KantoPacked.words while it loads.
+    packedApi()
+    local ok, err = pcall(runScoreFile, scorePath)
+    local score = KantoScores[name]
+    if not score then
+        -- A failed constructor can throw nil once the pool cannot hold the
+        -- error string. Always surface a string so the harness can record it.
+        if not ok and type(err) == "string" and err ~= "" then
+            error(err, 0)
+        end
+        error("unknown Kanto score " .. tostring(name), 0)
+    end
+    return bindPacked(score)
 end
 
 local function init()
@@ -150,10 +268,15 @@ local function track(name, now, score)
     local firstLoop = 1
 
     if score.loop then
-        while firstLoop <= #score.notes and score.notes[firstLoop][1] < score.loop do
+        local count = noteCount(score)
+        while firstLoop <= count do
+            local note = noteAt(score, firstLoop)
+            if not note or note[1] >= score.loop then
+                break
+            end
             firstLoop = firstLoop + 1
         end
-        assert(firstLoop <= #score.notes, "empty score loop")
+        assert(firstLoop <= count, "empty score loop")
     end
 
     return {
@@ -169,7 +292,7 @@ local function track(name, now, score)
 end
 
 local function layer(name, now, score)
-    score = score or ensureScore(name)
+    score = bindPacked(score or ensureScore(name))
     -- Channels whose pokered labels do not share a joint period.
     if score.parts then
         local parts = {}
@@ -222,7 +345,7 @@ local function advance(playing, now)
     end
 
     while true do
-        local note = score.notes[track.cursor]
+        local note = noteAt(score, track.cursor)
         if note and note[1] + track.offset <= tick then
             track.active[note[2]] = {
                 note = note,
@@ -294,7 +417,7 @@ function KantoSynth.update(now)
         return
     end
 
-    now = now or sound.getCurrentTime()
+    now = nowSeconds(now)
     for key, track in pairs(layers) do
         layers[key] = advance(track, now)
     end
@@ -370,13 +493,13 @@ function KantoSynth.music(name, keepJingle)
     -- Drop the old bed before ensureScore so its note tables can be collected
     -- before the next score is built.
     layers.music = nil
-    layers.music = name and layer(name, sound.getCurrentTime()) or nil
+    layers.music = name and layer(name, nowSeconds()) or nil
     KantoSynth.update()
 end
 
 function KantoSynth.jingle(name)
     init()
-    local now = sound.getCurrentTime()
+    local now = nowSeconds()
     layers.jingle = layer(name, now)
     KantoSynth.update(now)
     return true
@@ -404,7 +527,7 @@ end
 
 function KantoSynth.sfx(name)
     init()
-    local now = sound.getCurrentTime()
+    local now = nowSeconds()
     layers.sfx = advance(layers.sfx, now)
 
     if name == "heal" then
@@ -426,14 +549,17 @@ function KantoSynth.cry(species)
     if not KantoCries then
         playdate.file.run("audio/cries")
     end
+    -- The bank table is only needed to pick the family. score() drops it.
+    KantoCries.ensureData()
     local bed = layers.jingle or layers.music
-    local family = bed and KantoCryMusicBanks[bed.name] or 1
+    local banks = KantoCryMusicBanks
+    local family = bed and banks and banks[bed.name] or 1
     local score, reason = KantoCries.score(species, family)
     if not score then
         return false, reason
     end
     init()
-    local now = sound.getCurrentTime()
+    local now = nowSeconds()
     layers.cry = layer("cry:" .. species, now, score)
     KantoSynth.update(now)
     return true
@@ -442,7 +568,7 @@ end
 function KantoSynth.lowHP(flag)
     init()
     if flag and not layers.alarm then
-        layers.alarm = layer("alarm", sound.getCurrentTime())
+        layers.alarm = layer("alarm", nowSeconds())
     elseif not flag then
         layers.alarm = nil
     end
@@ -450,6 +576,7 @@ function KantoSynth.lowHP(flag)
 end
 
 function KantoSynth.stop()
+    KantoSynth.unloadAll()
     layers = {}
     rendered = {}
     for _, synth in ipairs(voices) do

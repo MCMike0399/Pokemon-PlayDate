@@ -2,6 +2,7 @@
 """Small native-synth scores and single-cycle wave assets from the pinned parser."""
 from __future__ import annotations
 import argparse
+import base64
 from collections import defaultdict
 import hashlib
 import io
@@ -10,6 +11,7 @@ import math
 import os
 import re
 from pathlib import Path
+import subprocess
 import sys
 import struct
 import wave
@@ -529,11 +531,152 @@ def _note_literals(notes, shapes):
     return lines
 
 
+# 32-byte little-endian records. Source/audio/engine.lua unpacks the same layout.
+# Hz, amplitude, and duty are stored as round(value * 10000) so playback matches
+# KantoShape's 4-decimal rounding. A float32 would not.
+NOTE_STRUCT = struct.Struct('<HHBBIHHBBHHHHHBBBBBB')
+assert NOTE_STRUCT.size == 32
+FLAG_SHAPE = 1
+FLAG_SLIDE = 2
+FLAG_VIBRATO = 4
+FLAG_DECREASING = 8
+FLAG_DIRECTION = 16
+FLAG_WAVE = 32
+
+
+def _quantize(value, quantized):
+    if quantized:
+        return int(value)
+    return int(math.floor(float(value) * 10000 + 0.5))
+
+
+def _split_note(note, shape):
+    body = list(note)
+    if shape is None and body and isinstance(body[-1], dict):
+        shape = body.pop()
+    wave_name = None
+    if body and isinstance(body[-1], str):
+        wave_name = body.pop()
+    if len(body) != 7:
+        raise AudioError(f'note has {len(body)} fields: {note!r}')
+    return body, wave_name, shape
+
+
+def _pack_notes(notes, shapes=None, quantized=False):
+    notes, shapes = _aligned(notes, shapes)
+    waves = []
+    index = {}
+    blob = bytearray()
+    for note, shape in zip(notes, shapes):
+        body, wave_name, shape = _split_note(note, shape)
+        tick, voice, gate, hz, amp, duty, env = body
+        flags = 0
+        wave_index = 0
+        if wave_name:
+            flags |= FLAG_WAVE
+            wave_index = index.get(wave_name)
+            if wave_index is None:
+                waves.append(wave_name)
+                wave_index = len(waves)
+                index[wave_name] = wave_index
+        period = 0
+        slide = (0, 0, 0, 0, 0)
+        vibrato = (0, 0, 0, 0, 0)
+        if shape:
+            flags |= FLAG_SHAPE
+            period = int(shape['p'])
+            if 's' in shape:
+                flags |= FLAG_SLIDE
+                slide = tuple(int(item) for item in shape['s'])
+                if slide[4]:
+                    flags |= FLAG_DECREASING
+            if 'v' in shape:
+                flags |= FLAG_VIBRATO
+                vibrato = tuple(int(item) for item in shape['v'])
+                if vibrato[4]:
+                    flags |= FLAG_DIRECTION
+        blob += NOTE_STRUCT.pack(
+            int(tick), int(gate), int(voice), flags,
+            _quantize(hz, quantized), _quantize(amp, quantized), _quantize(duty, quantized),
+            int(env), wave_index,
+            period, slide[0], slide[1], slide[2], slide[3], slide[4],
+            vibrato[0], vibrato[1], vibrato[2], vibrato[3], vibrato[4],
+        )
+    return bytes(blob), waves
+
+
+def unpack_notes(blob, waves):
+    """Inverse of _pack_notes. Notes match the tables the synth builds."""
+    if len(blob) % NOTE_STRUCT.size != 0:
+        raise AudioError(f'packed score length {len(blob)} is not a multiple of 32')
+    notes = []
+    for offset in range(0, len(blob), NOTE_STRUCT.size):
+        (tick, gate, voice, flags, hz, amp, duty, env, wave_index, period,
+         s1, s2, s3, s4, s5, v1, v2, v3, v4, v5) = NOTE_STRUCT.unpack_from(blob, offset)
+        note = [tick, voice, gate, hz / 10000, amp / 10000, duty / 10000, env]
+        if flags & FLAG_WAVE:
+            note.append(waves[wave_index - 1])
+        if flags & FLAG_SHAPE:
+            shape = {'p': period}
+            if flags & FLAG_SLIDE:
+                shape['s'] = [s1, s2, s3, s4, s5]
+            if flags & FLAG_VIBRATO:
+                shape['v'] = [v1, v2, v3, v4, v5]
+            note.append(shape)
+        notes.append(note)
+    return notes
+
+
+def _lua_b64(blob):
+    # Lua long strings drop one leading newline. Base64 has no brackets.
+    text = base64.b64encode(blob).decode('ascii')
+    lines = [text[index:index + 76] for index in range(0, len(text), 76)]
+    return '[[\n' + '\n'.join(lines) + '\n]]'
+
+
+def _lua_waves(waves):
+    if not waves:
+        return ''
+    return ',waves={' + ','.join(json.dumps(name) for name in waves) + '}'
+
+
+def _lua_packed_fields(score, quantized, name, chunks):
+    blob, waves = _pack_notes(score['notes'], score.get('shapes'), quantized)
+    at = sum(len(chunk) for chunk in chunks)
+    chunks.append(blob)
+    loop = score.get('loop')
+    loop_text = 'nil' if loop is None else str(int(loop))
+    # The record bytes live in a sibling file. A base64 or integer-table
+    # constant stays on the Lua heap after the pdz is collected.
+    return (
+        f'{{ticks={int(score["ticks"])},loop={loop_text},count={len(blob) // 32}'
+        f'{_lua_waves(waves)},bin="audio/score/{name}.bin",at={at},bytes={len(blob)}}}'
+    )
+
+
+def score_blobs(text):
+    """Packed records and wave lists, in source order."""
+    blobs = []
+    cache = {}
+    for match in re.finditer(
+        r'bin="(audio/score/[^"]+\.bin)",at=(\d+),bytes=(\d+)',
+        text,
+    ):
+        relative, at, size = match.group(1), int(match.group(2)), int(match.group(3))
+        window = text[max(0, match.start() - 800):match.start()]
+        wave_match = re.search(r'waves=\{([^}]*)\}\s*,\s*$', window)
+        waves = re.findall(r'"([^"]+)"', wave_match.group(1)) if wave_match else []
+        if relative not in cache:
+            cache[relative] = (ROOT / 'Source' / relative).read_bytes()
+        blobs.append((waves, cache[relative][at:at + size]))
+    return blobs
+
+
 def emit_score(name, score):
     lines = [
         '-- Generated by tools/audio/scores.py; do not hand edit.',
         f'-- {score["asset"]}',
-        '-- notes: tick, voice, gate ticks, Hz, amplitude, duty, envelope, optional wave key',
+        '-- packed: 32-byte records in the sibling .bin. tick, voice, gate, Hz, amplitude, duty, envelope, optional wave',
         '-- shape, when present: {p=attack period, s={current,target,step,fraction,decreasing}, v={delay,depth,rate,low,direction}}',
         '-- s is Audio1_InitPitchSlideVars; v is the Audio1 vibrato counters at note-on',
     ]
@@ -549,19 +692,18 @@ def emit_score(name, score):
     if score.get('loop_basis') == 'parts':
         lines.append('-- each channel loops at its own pokered sound_loop 0 label')
     lines.append('KantoScores = KantoScores or {}')
+    quantized = bool(score.get('quantized'))
+    chunks = []
     if score.get('parts'):
         lines.append(f'KantoScores.{name} = {{ticks={score["ticks"]}, parts={{')
         for part in score['parts']:
-            lines.append(f'{{ticks={part["ticks"]}, loop={part["loop"]}, notes={{')
-            lines.extend(_note_literals(part['notes'], part.get('shapes')))
-            lines.append('}},')
+            part = dict(part, quantized=quantized)
+            lines.append(_lua_packed_fields(part, quantized, name, chunks) + ',')
         lines.append('}}')
     else:
-        loop = 'nil' if score['loop'] is None else str(score['loop'])
-        lines.append(f'KantoScores.{name} = {{ticks={score["ticks"]}, loop={loop}, notes={{')
-        lines.extend(_note_literals(score['notes'], score.get('shapes')))
-        lines.append('}}')
+        lines.append(f'KantoScores.{name} = {_lua_packed_fields(score, quantized, name, chunks)}')
     lines.append('')
+    emit_score.bins = {f'Source/audio/score/{name}.bin': b''.join(chunks)}
     return '\n'.join(lines).encode()
 
 
@@ -651,6 +793,8 @@ def move_sfx_plan(catalog):
 
 
 def emit_move_sfx(mapping):
+    # The imported module stays empty. pdc keeps an imported file in the main
+    # chunk, so the table itself is a file.run target and can be dropped.
     lines = [
         '-- Generated by tools/audio/scores.py; do not hand edit.',
         '-- data/moves/sfx.asm via GetMoveSound. Loaded the first time a move plays.',
@@ -661,6 +805,14 @@ def emit_move_sfx(mapping):
     lines.append('}')
     lines.append('')
     return '\n'.join(lines).encode()
+
+
+def emit_move_sfx_stub():
+    return '\n'.join([
+        '-- Generated by tools/audio/scores.py; do not hand edit.',
+        '-- The move table is audio/moveSfxData.lua so importing this file stays empty.',
+        '',
+    ]).encode()
 
 
 def _trace_retarget(catalog, asset, entries, label_pcs, loop_pcs, cited):
@@ -750,6 +902,7 @@ def generate(source):
     files = {}
     for name, score in scores.items():
         files[f'Source/audio/score/{name}.lua'] = emit_score(name, score)
+        files.update(emit_score.bins)
     stub = '\n'.join([
         '-- Generated by tools/audio/scores.py; do not hand edit.',
         '-- Note rows load from audio/score/<name>.lua the first time that score plays.',
@@ -765,7 +918,8 @@ def generate(source):
         '',
     ]
     files['Source/audio/scores.lua'] = stub
-    files['Source/audio/moveSfx.lua'] = emit_move_sfx(move_mapping)
+    files['Source/audio/moveSfx.lua'] = emit_move_sfx_stub()
+    files['Source/audio/moveSfxData.lua'] = emit_move_sfx(move_mapping)
     files['Source/audio/routes.lua'] = '\n'.join(route_lines).encode()
     wave_assets = {f'Source/audio/waves/{key}.wav': wave_asset(data)
                    for key, data in sorted(waves.items())}
@@ -778,7 +932,7 @@ def generate(source):
                       if score.get('approximation')}
     digest = hashlib.sha256()
     for path in sorted(files):
-        if path.endswith('.lua'):
+        if path.endswith('.lua') or path.endswith('.bin'):
             digest.update(path.encode())
             digest.update(files[path])
     manifest = {'schema': 3, 'revision': REVISION, 'target': 'Playdate synth adaptation',
@@ -804,11 +958,237 @@ def generate(source):
     return files
 
 
+_DUMP_LUA = r'''
+local root = os.getenv("SCORE_DIR")
+local function q(n)
+  return math.floor(n * 10000 + 0.5)
+end
+local function jstr(s)
+  return '"' .. s:gsub('\\', '\\\\'):gsub('"', '\\"') .. '"'
+end
+local function enc(v)
+  local kind = type(v)
+  if kind == "number" then
+    if math.type(v) == "integer" then return string.format("%d", v) end
+    return string.format("%.17g", v)
+  elseif kind == "string" then
+    return jstr(v)
+  elseif kind == "table" then
+    if v.p ~= nil then
+      local parts = {string.format('"p":%d', v.p)}
+      if v.s then parts[#parts + 1] = '"s":' .. enc(v.s) end
+      if v.v then parts[#parts + 1] = '"v":' .. enc(v.v) end
+      return "{" .. table.concat(parts, ",") .. "}"
+    end
+    local parts = {}
+    for i = 1, #v do parts[i] = enc(v[i]) end
+    return "[" .. table.concat(parts, ",") .. "]"
+  end
+  error("cannot encode " .. kind)
+end
+local function note_row(note)
+  local count = #note
+  local shape
+  if type(note[count]) == "table" then
+    shape = note[count]
+    count = count - 1
+  end
+  local wave
+  if type(note[count]) == "string" then
+    wave = note[count]
+    count = count - 1
+  end
+  if count ~= 7 then
+    error("note fields " .. count)
+  end
+  local row = {
+    note[1], note[2], note[3], q(note[4]), q(note[5]), q(note[6]), note[7],
+  }
+  if wave then row[#row + 1] = wave end
+  if shape then row[#row + 1] = shape end
+  return enc(row)
+end
+local function dump_score(score)
+  local bits = {string.format('"ticks":%d', score.ticks)}
+  if score.loop == nil then
+    bits[#bits + 1] = '"loop":null'
+  else
+    bits[#bits + 1] = string.format('"loop":%d', score.loop)
+  end
+  if score.parts then
+    local parts = {}
+    for _, part in ipairs(score.parts) do
+      local notes = {}
+      for _, note in ipairs(part.notes) do notes[#notes + 1] = note_row(note) end
+      parts[#parts + 1] = string.format(
+        '{"ticks":%d,"loop":%s,"notes":[%s]}',
+        part.ticks, part.loop == nil and "null" or string.format("%d", part.loop),
+        table.concat(notes, ","))
+    end
+    bits[#bits + 1] = '"parts":[' .. table.concat(parts, ",") .. ']'
+  else
+    local notes = {}
+    for _, note in ipairs(score.notes) do notes[#notes + 1] = note_row(note) end
+    bits[#bits + 1] = '"notes":[' .. table.concat(notes, ",") .. ']'
+  end
+  return "{" .. table.concat(bits, ",") .. "}"
+end
+local names = {}
+local pipe = io.popen('find "' .. root .. '" -name "*.lua" -print')
+for path in pipe:lines() do names[#names + 1] = path end
+pipe:close()
+table.sort(names)
+io.write("{")
+for index, path in ipairs(names) do
+  KantoScores = nil
+  dofile(path)
+  local name, score
+  for key, value in pairs(KantoScores) do
+    name, score = key, value
+  end
+  if index > 1 then io.write(",") end
+  io.write(jstr(name) .. ":" .. dump_score(score))
+end
+io.write("}")
+'''
+
+
+def _header_meta(text):
+    lines = text.splitlines()
+    meta = {'asset': lines[1][3:]}
+    for line in lines:
+        if line.startswith('-- channel entry '):
+            meta['retarget'] = line[len('-- channel entry '):]
+        match = re.match(r'-- pitch modifier (\d+) tempo modifier (\d+)', line)
+        if match:
+            meta['pitch'] = int(match.group(1))
+            meta['tempo'] = int(match.group(2))
+        if line.startswith('-- adapted:'):
+            meta['adapted'] = True
+        if line.startswith('-- each channel loops'):
+            meta['loop_basis'] = 'parts'
+        if line.startswith('KantoScores.'):
+            break
+    return meta
+
+
+def _same_note(packed, original):
+    if packed[0] != original[0] or packed[1] != original[1] or packed[2] != original[2]:
+        return False
+    if packed[6] != original[6]:
+        return False
+    for index in (3, 4, 5):
+        if int(math.floor(packed[index] * 10000 + 0.5)) != original[index]:
+            return False
+    packed_extra = packed[7:]
+    original_extra = original[7:]
+    if len(packed_extra) != len(original_extra):
+        return False
+    for left, right in zip(packed_extra, original_extra):
+        if left != right:
+            return False
+    return True
+
+
+def repack_shipped(root=None):
+    """Rewrite Source/audio/score through emit_score from the notes already shipped.
+
+    The tracer is unchanged. Packing the current tables keeps playback, and
+    emit_score is the only writer.
+    """
+    folder = Path(root or ROOT) / 'Source/audio/score'
+    dump = subprocess.run(
+        ['lua', '-e', _DUMP_LUA],
+        check=True, capture_output=True,
+        env=dict(os.environ, SCORE_DIR=str(folder)),
+    )
+    if dump.stderr:
+        sys.stderr.buffer.write(dump.stderr)
+    shipped = json.loads(dump.stdout)
+    mismatches = []
+    pending = []
+    for path in sorted(folder.glob('*.lua')):
+        name = path.stem
+        payload = shipped[name]
+        meta = _header_meta(path.read_text())
+        meta['quantized'] = True
+        meta['ticks'] = payload['ticks']
+        meta['loop'] = payload['loop']
+        if payload.get('parts'):
+            meta['parts'] = payload['parts']
+        else:
+            meta['notes'] = payload['notes']
+        encoded = emit_score(name, meta)
+        text = encoded.decode()
+        blobs = score_blobs(text)
+        originals = payload['parts'] if payload.get('parts') else [payload]
+        if len(blobs) != len(originals):
+            mismatches.append(f'{name}: packed {len(blobs)} sections, dumped {len(originals)}')
+            continue
+        file_bad = False
+        for (waves, blob), section in zip(blobs, originals):
+            unpacked = unpack_notes(blob, waves)
+            notes = section['notes']
+            if len(unpacked) != len(notes):
+                mismatches.append(f'{name}: {len(unpacked)} notes, expected {len(notes)}')
+                file_bad = True
+                break
+            for index, (got, want) in enumerate(zip(unpacked, notes)):
+                if not _same_note(got, want):
+                    mismatches.append(f'{name} note {index}: {got!r} != {want!r}')
+                    file_bad = True
+                    break
+            if file_bad:
+                break
+        if not file_bad:
+            pending.append((path, encoded, dict(emit_score.bins)))
+    if mismatches:
+        raise AudioError('packed scores do not round-trip: ' + '; '.join(mismatches[:8]))
+    for path, encoded, bins in pending:
+        path.write_bytes(encoded)
+        for relative, blob in bins.items():
+            (score_root / relative).write_bytes(blob)
+    digest = hashlib.sha256()
+    score_root = Path(root or ROOT)
+    lua_paths = [
+        'Source/audio/scores.lua',
+        'Source/audio/moveSfx.lua',
+        'Source/audio/moveSfxData.lua',
+        'Source/audio/routes.lua',
+        *sorted(
+            path.relative_to(score_root).as_posix()
+            for path in folder.glob('*.lua')
+        ),
+        *sorted(
+            path.relative_to(score_root).as_posix()
+            for path in folder.glob('*.bin')
+        ),
+    ]
+    for relative in sorted(lua_paths):
+        digest.update(relative.encode())
+        digest.update((score_root / relative).read_bytes())
+    manifest_path = score_root / 'tools/audio/score-manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    manifest['score_sha256'] = digest.hexdigest()
+    manifest['tools_sha256']['tools/audio/scores.py'] = hashlib.sha256(
+        (score_root / 'tools/audio/scores.py').read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+    print(f'repacked {len(shipped)} scores')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', default=os.environ.get('POKERED_REFERENCE_DIR'))
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--repack', action='store_true',
+                        help='pack the shipped note tables through emit_score')
     args = parser.parse_args()
+    if args.repack:
+        if args.check or args.source:
+            parser.error('--repack does not take --check or --source')
+        repack_shipped()
+        return
     if not args.source: parser.error('--source or POKERED_REFERENCE_DIR required')
     payloads = generate(args.source)
     owned_dirs = ('Source/audio/score', 'Source/audio/waves')

@@ -1,7 +1,15 @@
 -- Battle, map, jingle, and HP decisions. No Playdate and no gameplay state.
 -- KantoEvents is the generated table from audio/events.lua.
 
+function KantoEvents.ensureMaps()
+    if type(KantoEvents.maps) == "table" then
+        return
+    end
+    playdate.file.run("audio/eventMaps")
+end
+
 function KantoEvents.mapScore(id)
+    KantoEvents.ensureMaps()
     if type(id) ~= "string" then
         return nil
     end

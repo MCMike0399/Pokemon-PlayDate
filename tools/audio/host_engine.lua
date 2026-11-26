@@ -20,8 +20,31 @@ playdate = {
     -- engine.lua loads each score with playdate.file.run. The path is the
     -- pdz name without ".lua", the same string import() accepts.
     file = {
+        kFileRead = "r",
+        kSeekSet = "set",
         run = function(path)
             import(path)
+        end,
+        open = function(path)
+            local handle = io.open(sourceRoot .. "/" .. path, "rb")
+            if not handle then
+                return nil
+            end
+            local file = {}
+            function file:seek(offset)
+                return handle:seek("set", offset or 0)
+            end
+            function file:read(count)
+                local data = handle:read(count)
+                if not data then
+                    return nil, "eof"
+                end
+                return data, #data
+            end
+            function file:close()
+                handle:close()
+            end
+            return file
         end,
     },
     sound = {

@@ -183,3 +183,29 @@ Both tests are plain failures. No skip and no expectedFailure.
 - `LaneEAudioFidelityTests.test_move_sfx_table_is_imported_at_file_scope` fails until `lane-e-audio-movesfx-import.patch`.
 
 Together, before either patch: `FAILED (failures=2)`. After both: `OK`. After reversing both: `FAILED (failures=2)`.
+
+## Memory fit against lane E `85512254`
+
+`MallocPoolSize` stayed `16645684`. Score records are 32-byte little-endian rows in `Source/audio/score/<name>.bin`. The lua file is only the header (`ticks`, `loop`, `count`, waves, file offset). `KantoPacked` reads that slice on first play and `KantoSynth.unloadAll` drops it, along with the map table, receipt labels, move-SFX table, and decoder. Those four load through `playdate.file.run`, not an import, so they are not part of the main chunk. Cry catalogs are built for one cry and released. Playback is the same packed layout the host tests unpack.
+
+Checked on a scratch of `855122548deed18b53e4390870a7a6f47041a4d2` plus this audio tree and lane K's batch, in K's order. The six `LaneEAudioFidelityTests` passed after those patches. They are not applied on this branch.
+
+| Check | Result |
+| --- | --- |
+| `test_live_viridian_switch_stays_under_budget` | Pass. Fuchsia `zone.end` 13471.9 KiB, peak 13583.6. Session output `/tmp/lane-f-switch7`. |
+| `test_cerulean_cave_warp_stays_under_budget` | Pass. Same run, 36.7s for both tests. |
+| `individual-stats-v1` | 17 passed, 0 failed. Heap 12944.9 KiB. `/tmp/lane-f-stats`. |
+| `field-travel` | 2 passed, 1 failed. The failure is `expired Surf takes input before held traversal`: `pd_readcompressed inflate failed, out of memory`. `/tmp/lane-f-field`. |
+| Clean tip `85512254`, same contract | 2 passed, 1 failed, the same Surf inflate. `/tmp/lane-e-field`. Fuchsia `zone.end` there is 13310.4; this tree is 13391.5. |
+
+Resident Lua heap, same fixture (Viridian idle, then a wild Rattata, then the Hall of Fame), before the packed bins and after:
+
+| Scene | Before (fat note tables) | After |
+| --- | --- | --- |
+| Viridian idle `zone.end` | 13456.3 | 13319.5 |
+| Viridian idle `actors.end` | 13300.1 | 13163.3 |
+| Battle `battle.start.end` | 13493.5 | 13133.1 |
+| Hall `zone.end` | 13273.0 | 13005.9 |
+| Hall `actors.end` | 13318.7 | 13051.6 |
+
+The Hall row is the map. `hall_of_fame` still plays only from the ceremony, not from zone entry.

@@ -32,53 +32,14 @@ def clip(kind):
 
 
 def _score_parts(text):
-    """Part tables, ignoring a trailing shape table inside a note."""
+    """One packed record list per channel. The voice is the first note's."""
+    from tools.audio.scores import score_blobs, unpack_notes
+    headers = re.findall(r'\{ticks=(\d+),loop=(\d+),count=\d+', text)
+    blobs = score_blobs(text)
     parts = {}
-    for match in re.finditer(r'\{ticks=(\d+), loop=(\d+), notes=\{', text):
-        ticks, loop = int(match.group(1)), int(match.group(2))
-        depth = 1
-        index = match.end()
-        while depth:
-            if text[index] == '{':
-                depth += 1
-            elif text[index] == '}':
-                depth -= 1
-            index += 1
-        body = text[match.end():index - 1]
-        rows = []
-        cursor = 0
-        while True:
-            start = body.find('{', cursor)
-            if start < 0:
-                break
-            depth = 0
-            end = start
-            while end < len(body):
-                if body[end] == '{':
-                    depth += 1
-                elif body[end] == '}':
-                    depth -= 1
-                    if depth == 0:
-                        break
-                end += 1
-            literal = body[start + 1:end]
-            nested = literal.find('{')
-            head = literal if nested < 0 else literal[:nested]
-            values = []
-            for item in head.split(','):
-                item = item.strip()
-                if not item:
-                    continue
-                if item.startswith('"'):
-                    values.append(item.strip('"'))
-                elif '.' in item:
-                    values.append(float(item))
-                else:
-                    values.append(int(item))
-            if values and isinstance(values[0], int):
-                rows.append(values)
-            cursor = end + 1
-        parts[rows[0][1]] = {'ticks': ticks, 'loop': loop, 'notes': rows}
+    for (ticks, loop), (waves, blob) in zip(headers, blobs):
+        notes = unpack_notes(blob, waves)
+        parts[notes[0][1]] = {'ticks': int(ticks), 'loop': int(loop), 'notes': notes}
     return parts
 
 
@@ -220,8 +181,12 @@ class HostRendererTests(unittest.TestCase):
         self.assertNotIn('envelopeTime', engine_src)
 
     def test_heal_score_stores_the_glide_instead_of_the_target(self):
+        from tools.audio.scores import score_blobs, unpack_notes
         text = (ROOT / 'Source/audio/score/heal.lua').read_text()
-        self.assertIn('s={2039,1915,9,12,1}', text)
+        waves, blob = score_blobs(text)[0]
+        notes = unpack_notes(blob, waves)
+        glide = next(note[-1]['s'] for note in notes if isinstance(note[-1], dict) and 's' in note[-1])
+        self.assertEqual(glide, [2039, 1915, 9, 12, 1])
         self.assertNotRegex(text, r'\{13,1,14,985\.5038,')
 
 

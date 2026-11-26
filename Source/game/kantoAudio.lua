@@ -251,7 +251,9 @@ end
 
 local function moveScore(key)
     if not KantoMoveSfx then
-        import "audio/moveSfx"
+        -- import inside a function is not compiled, and an imported module
+        -- stays in the main chunk. The table is a separate file.run target.
+        playdate.file.run("audio/moveSfxData")
     end
     return KantoMoveSfx[key]
 end
@@ -447,6 +449,9 @@ function KantoAudio.updateGame(game)
             KantoAudio.stop()
         end
         return
+    end
+    if KantoEvents.ensureMaps then
+        KantoEvents.ensureMaps()
     end
 
     if observer.game ~= game or observer.session ~= game.session then
@@ -774,6 +779,9 @@ function KantoAudio.updateGame(game)
             end
             if receiptDialog and receiptDialog ~= observer.receiptDialog then
                 observer.receiptDialog = receiptDialog
+                if not KantoEvents.fieldReceipts then
+                    playdate.file.run("audio/fieldReceipts")
+                end
                 local fanfare = KantoEvents.fieldReceipts[event.waiting]
                 if fanfare then
                     KantoAudio.playCue(fanfare)
