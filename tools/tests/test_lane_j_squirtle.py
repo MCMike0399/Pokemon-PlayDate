@@ -5811,48 +5811,89 @@ def _one_step(player, report, direction, place, x, y, cut=False):
     return None
 
 
+def _corner_walk(player, report, goal, avoid):
+    """Follow open Game Corner floor tiles. The Rocket's own tile stays closed."""
+    cells = set(open_map(EAST / "GameCorner.json", 0, 20))
+    for _ in range(40):
+        _name, x, y = _k_here(player)
+        if (x, y) == goal:
+            return None
+        steps = route(cells, (x, y), goal, avoid)
+        if not steps:
+            raise RuntimeError(f"no Game Corner path {(x, y)} -> {goal}")
+        dx, dy = DELTAS[steps[0]]
+        status = _one_step(player, report, steps[0], "GameCorner", x + dx, y + dy)
+        if status:
+            return status
+    raise RuntimeError("the Game Corner walk stalled at " + json.dumps(summary(player.state)))
+
+
+def _settle_hideout_scene(player, limit=80):
+    """Dialog takes A. The Rocket's walk finishes on its own."""
+    for _ in range(limit):
+        if player.exploring():
+            return True
+        if player.state.get("root") == "battle":
+            return False
+        phase = (player.state.get("event") or {}).get("phase")
+        if phase in ("move-npc", "move"):
+            player.send("wait 12")
+            continue
+        dialog = player.state.get("dialog") or {}
+        if player.state.get("root") == "dialog" and not dialog.get("ready"):
+            player.send("wait 6")
+        else:
+            player.press("a", wait=6)
+    return player.exploring()
+
+
 def _rocket_stairs(player, report):
-    """The Game Corner's north stairs are the Hideout door. The poster is the fallback."""
+    """Face the poster Rocket and press A. After he leaves, the poster opens the stairs."""
     if "rocket_hideout" in str(player.state.get("zone")):
         _checkpoint(player, report, "saved_hideout")
         return "yield"
-    if _k_here(player) != ("GameCorner", 15, 17):
-        raise RuntimeError("off the Game Corner door: " + json.dumps(summary(player.state)))
-    for y in range(16, 7, -1):
-        status = _one_step(player, report, "up", "GameCorner", 15, y)
+    if _k_here(player)[0] != "GameCorner":
+        raise RuntimeError("off the Game Corner: " + json.dumps(summary(player.state)))
+    avoid = {(15, 17), (16, 17), (17, 4), (9, 5)}
+    _name, x, y = _k_here(player)
+    if y == 17 and x in (15, 16):
+        status = _one_step(player, report, "up", "GameCorner", x, 16)
         if status:
             return status
-    for x in range(14, 9, -1):
-        status = _one_step(player, report, "left", "GameCorner", x, 8)
-        if status:
-            return status
-    for y in (7, 6, 5):
-        status = _one_step(player, report, "up", "GameCorner", 10, y)
-        if status:
-            return status
-    for x in range(11, 18):
-        status = _one_step(player, report, "right", "GameCorner", x, 5)
-        if status:
-            return status
+    guard = "pokered:GAME_CORNER:objects:11"
+    if npc_named(player.state, guard):
+        species, _mon = _bird(player)
+        if species:
+            _lead(player, species)
+        cells = set(open_map(EAST / "GameCorner.json", 0, 20))
+        talked = talk_to(player, cells, guard, avoid)
+        report["corner_rocket"] = {"talked": talked, **summary(player.state)}
+        if player.state.get("root") == "battle" or not player.exploring():
+            _fight_once(player, "the Game Corner Rocket", 30, shift_to="pidgeotto")
+        elif talked != "talked":
+            raise RuntimeError("the poster Rocket did not battle: " + json.dumps(summary(player.state)))
+        if not _settle_hideout_scene(player, 80):
+            raise RuntimeError("the Rocket did not leave: " + json.dumps(summary(player.state)))
+    if npc_named(player.state, guard):
+        raise RuntimeError("the Rocket is still guarding the poster: " + json.dumps(summary(player.state)))
+    avoid.discard((9, 5))
+    status = _corner_walk(player, report, (9, 5), avoid)
+    if status:
+        return status
+    if (player.state.get("player") or {}).get("facing") != "up":
+        player.press("up", wait=8)
+    player.press("a", wait=8)
+    if not _settle_hideout_scene(player, 40):
+        raise RuntimeError("the poster did not finish: " + json.dumps(summary(player.state)))
+    status = _corner_walk(player, report, (17, 5), avoid)
+    if status:
+        return status
     player.step("up")
     player.settle(limit=80)
     if not player.exploring():
-        player.dismiss_until_explore(limit=40)
+        _settle_hideout_scene(player, 20)
     if "rocket_hideout" not in str(player.state.get("zone")):
-        # The stairs tile stayed closed. Face the poster from the open row.
-        for x in range(16, 8, -1):
-            status = _one_step(player, report, "left", "GameCorner", x, 5)
-            if status:
-                return status
-        if (player.state.get("player") or {}).get("facing") != "up":
-            player.press("up", wait=8)
-        player.press("a", wait=8)
-        if not player.exploring():
-            player.dismiss_until_explore(limit=80)
-        player.step("up")
-        player.settle(limit=40)
-        if "rocket_hideout" not in str(player.state.get("zone")):
-            raise RuntimeError("the poster did not open the stairs: " + json.dumps(summary(player.state)))
+        raise RuntimeError("the poster did not open the stairs: " + json.dumps(summary(player.state)))
     _checkpoint(player, report, "saved_hideout")
     return "yield"
 

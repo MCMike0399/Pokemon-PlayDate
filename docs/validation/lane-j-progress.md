@@ -41,6 +41,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T131809Z-route2.mp4` | 33.0s | `7b3b3c81b27204e4b9aab5ba88430e8b4ed83be093bbac724f8d5c2c96ab5bff` | Cut at Route 2 (5, 10) and the north edge into Pewter. 400x240, gbrp, 990 frames. Sampled frames are luma 0 and 255 only. |
 | `artifacts/lane-j/20261120T131907Z-route3.mp4` | 47.5s | `7b4d7400739e477ccd9804ffe08323d4f6221855c0c9d04bd570bf41bf6693e1` | Pewter's east edge across Route 3. 400x240, gbrp, 1425 frames. Sampled frames are luma 0 and 255 only. |
 | `artifacts/lane-j/20261120T132807Z-mt-moon.mp4` | 61.1s | `0be8ce453bd227b5c7099f9b62754cc030f5cb1f9b593f702c7db700470db775` | Mt. Moon 1F on the crossing that reached Cerulean. 400x240, gbrp, 1833 frames. Sampled frames are luma 0 and 255 only. |
+| `artifacts/lane-j/20261126T190623Z-erika.mp4` | 85.0s | `6bef85855b6e72490368a04122a8bb1fe42a8ac5fee0e670c81d9cb5f48a980f` | Erika, then the Rainbow Badge. 400x240, gbrp, 2549 frames. |
 
 ## Title intro
 
@@ -78,7 +79,7 @@ Badges: Boulder, Cascade, Thunder, and Rainbow.
 
 Team: Pidgeotto 32 (82 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-The stairs are the blocker. Up from (17, 5) stayed in the Game Corner. The poster at (9, 4) has no event, and the Rocket on (9, 5) refuses the step. Handoff: `tools/notes/lane-e-game-corner-stairs.md`. Hideout, Scope, the Tower, the Flute, and Koga wait on that door.
+Pokered's Rocket at (9, 5) is talk-only, sight 0. The next press faces him from the side and presses A. Stepping onto his tile is refused, which is not the battle. After he leaves, the poster at (9, 4) is faced from (9, 5).
 
 ## Blockers
 
