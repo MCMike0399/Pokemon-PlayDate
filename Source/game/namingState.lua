@@ -497,7 +497,6 @@ if Class then
                 local line = self.pageDialog.lines and self.pageDialog.lines[1]
                 if line then self.pageDialog.charIndex = #line end
             end
-            self.pageDialog.compact = true
             self.pageDialog:draw()
         end
         local menu = NamingScreen.yesNoBox()
@@ -519,9 +518,7 @@ if Class then
             return
         end
         gfx.clear(gfx.kColorWhite)
-        -- 18 GB rows at 16px are taller than the screen. The keyboard is
-        -- already placed in pixels, so the frame is the 400 by 240 screen.
-        GbFont.drawBox({x = 0, y = 0, w = 400, h = 240, tile = GbFont.TILE})
+        GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
         -- A yes/no prompt is the question itself. The header would print it
         -- a second time and drawTight would run it through the border.
         if not (screen.phase == "ask" and screen.kind == "yesno") then
@@ -676,13 +673,12 @@ if Class then
                 picture:draw(slot.x + dx, slot.y)
             end
         end
-        local box = TitleIdle.messageBox()
+        local box = TitleIdle.textBox(0, 12, 18, 4)
         GbFont.drawBox(box)
         local first = (self.page - 1) * OakSpeech.LINES_PER_PAGE + 1
-        local rows = {box.textY1, box.textY2}
         for offset = 0, OakSpeech.LINES_PER_PAGE - 1 do
             local line = self.lines[first + offset]
-            if line then GbFont.line(GbFont.clip(line, box.columns), box.textX, rows[offset + 1]) end
+            if line then GbFont.drawString(line, 1, 13 + offset) end
         end
         gfx.setDrawOffset(x, y)
     end

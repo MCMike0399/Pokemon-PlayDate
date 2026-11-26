@@ -1,0 +1,441 @@
+diff --git a/Source/game/gameOptions.lua b/Source/game/gameOptions.lua
+index 9a833728..91498032 100644
+--- a/Source/game/gameOptions.lua
++++ b/Source/game/gameOptions.lua
+@@ -20,13 +20,15 @@ GameOptions.rows = {
+     {key = "crankScrolling", label = "CRANK SCROLL", choices = {"OFF", "ON"}},
+ }
+ GameOptions.cancelLabel = "CANCEL"
+--- The three source boxes occupy rows 0-4, 5-9 and 10-14. CANCEL is its
+--- own row, under the crank row, with a blank row between them.
+-GameOptions.CRANK_ROW = 15
+-GameOptions.CANCEL_ROW = 17
++-- The three source boxes are label + choices. At 16px a blank row inside
++-- each box plus the crank and cancel would leave the screen, so that
++-- inner blank shrinks to nothing. The blank between crank and cancel
++-- stays one 16px tile. The boxes occupy rows 0-3, 4-7 and 8-11.
++GameOptions.CRANK_ROW = 12
++GameOptions.CANCEL_ROW = 14
+ 
+ function GameOptions.lastBox()
+-    return TitleIdle.textBox(0, 10, 18, 3)
++    return TitleIdle.textBox(0, 8, 18, 2)
+ end
+ 
+ function GameOptions.crankPlace(choiceIndex)
+@@ -35,7 +37,7 @@ function GameOptions.crankPlace(choiceIndex)
+ end
+ 
+ function GameOptions.crankRect()
+-    return TitleIdle.cellRect(1, GameOptions.CRANK_ROW, 18, 1)
++    return TitleIdle.fontRect(1, GameOptions.CRANK_ROW, 18, 1)
+ end
+ 
+ function GameOptions.cancelPlace(selected)
+@@ -43,7 +45,7 @@ function GameOptions.cancelPlace(selected)
+ end
+ 
+ function GameOptions.cancelRect()
+-    return TitleIdle.cellRect(1, GameOptions.CANCEL_ROW, 8, 1)
++    return TitleIdle.fontRect(1, GameOptions.CANCEL_ROW, 8, 1)
+ end
+ 
+ local function registeredKey(id)
+diff --git a/Source/game/namingState.lua b/Source/game/namingState.lua
+index b74d5299..44a0f493 100644
+--- a/Source/game/namingState.lua
++++ b/Source/game/namingState.lua
+@@ -497,6 +497,7 @@ if Class then
+                 local line = self.pageDialog.lines and self.pageDialog.lines[1]
+                 if line then self.pageDialog.charIndex = #line end
+             end
++            self.pageDialog.compact = true
+             self.pageDialog:draw()
+         end
+         local menu = NamingScreen.yesNoBox()
+@@ -518,7 +519,9 @@ if Class then
+             return
+         end
+         gfx.clear(gfx.kColorWhite)
+-        GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
++        -- 18 GB rows at 16px are taller than the screen. The keyboard is
++        -- already placed in pixels, so the frame is the 400 by 240 screen.
++        GbFont.drawBox({x = 0, y = 0, w = 400, h = 240, tile = GbFont.TILE})
+         -- A yes/no prompt is the question itself. The header would print it
+         -- a second time and drawTight would run it through the border.
+         if not (screen.phase == "ask" and screen.kind == "yesno") then
+@@ -673,12 +676,13 @@ if Class then
+                 picture:draw(slot.x + dx, slot.y)
+             end
+         end
+-        local box = TitleIdle.textBox(0, 12, 18, 4)
++        local box = TitleIdle.messageBox()
+         GbFont.drawBox(box)
+         local first = (self.page - 1) * OakSpeech.LINES_PER_PAGE + 1
++        local rows = {box.textY1, box.textY2}
+         for offset = 0, OakSpeech.LINES_PER_PAGE - 1 do
+             local line = self.lines[first + offset]
+-            if line then GbFont.drawString(line, 1, 13 + offset) end
++            if line then GbFont.line(GbFont.clip(line, box.columns), box.textX, rows[offset + 1]) end
+         end
+         gfx.setDrawOffset(x, y)
+     end
+diff --git a/Source/game/optionsState.lua b/Source/game/optionsState.lua
+index 6ede7c1b..891a9016 100644
+--- a/Source/game/optionsState.lua
++++ b/Source/game/optionsState.lua
+@@ -67,9 +67,9 @@ function OptionsState:draw()
+     gfx.setDrawOffset(0, 0)
+     gfx.clear(gfx.kColorWhite)
+     local boxes = {
+-        {origin = 0, labelRow = 1, choiceRow = 3, cols = {1, 7, 14}},
+-        {origin = 5, labelRow = 6, choiceRow = 8, cols = {1, 10}},
+-        {origin = 10, labelRow = 11, choiceRow = 13, cols = {1, 10}},
++        {origin = 0, labelRow = 1, choiceRow = 2, cols = {1, 7, 14}},
++        {origin = 4, labelRow = 5, choiceRow = 6, cols = {1, 10}},
++        {origin = 8, labelRow = 9, choiceRow = 10, cols = {1, 10}},
+     }
+     for index, row in ipairs(GameOptions.rows) do
+         local current = GameOptions.get(row.key)
+@@ -80,7 +80,7 @@ function OptionsState:draw()
+         local marker = index == self.selected and TitleIdle.CURSOR or TitleIdle.MARK
+         if boxes[index] then
+             local spec = boxes[index]
+-            GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 3))
++            GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 2))
+             GbFont.drawString(row.label, 1, spec.labelRow)
+             for cursor, value in ipairs(row.choices) do
+                 local col = spec.cols[cursor] or (1 + (cursor - 1) * 8)
+diff --git a/Source/game/titleIdle.lua b/Source/game/titleIdle.lua
+index 5f13cd89..3084f665 100644
+--- a/Source/game/titleIdle.lua
++++ b/Source/game/titleIdle.lua
+@@ -135,7 +135,9 @@ TitleIdle.BADGE_FLAGS = {
+     "BADGE_SOUL", "BADGE_MARSH", "BADGE_VOLCANO", "BADGE_EARTH",
+ }
+ -- 400x240 placement. Logo and version stay at the approved scale. Red uses
+--- playerRect(), the same 20-by-13 cells as the copyright row.
++-- playerRect(), the same 20-by-13 cells as the copyright row. Text tiles
++-- are a separate 16px grid (GbFont), so a glyph is never stretched into
++-- one of these cells.
+ TitleIdle.LAYOUT = {
+     logo = {x = 8, y = 4, scale = 2},
+     version = {x = 24, y = 112, scale = 2},
+@@ -199,29 +201,42 @@ end
+ -- home/text.asm TextBoxBorder. The border adds one tile on every side,
+ -- so a box at hlcoord col,row with inner size c,b occupies
+ -- (c + 2) by (b + 2) tiles.
+--- The battle UI maps a GB column to 20px (400 / 20). Eighteen rows at
+--- 13px stay on the 240px screen (18 * 13 = 234). Tile (0, 0) is the
+--- top-left, which is where main_menu.asm draws the main menu. The
+--- start menu is the same map at hlcoord 10, 0.
++-- Sprites, the copyright row, and Red stay on the 20px by 13px cells.
++-- Text is TitleIdle.FONT (16px), the integer 2x of an 8px GB tile.
++-- Eighteen glyphs are 288px. Tile (0, 0) is the top-left, which is where
++-- main_menu.asm draws the main menu.
+ TitleIdle.COL = 20
+ TitleIdle.ROW = 13
++TitleIdle.FONT = 16
++
++function TitleIdle.fontRect(col, row, cols, rows)
++    local tile = TitleIdle.FONT
++    return {
++        x = col * tile,
++        y = row * tile,
++        w = (cols or 1) * tile,
++        h = (rows or 1) * tile,
++    }
++end
+ 
+ function TitleIdle.textBox(col, row, innerW, innerH)
++    local tile = TitleIdle.FONT
+     return {
+-        col = col, row = row, innerW = innerW, innerH = innerH,
+-        x = col * TitleIdle.COL,
+-        y = row * TitleIdle.ROW,
+-        w = (innerW + 2) * TitleIdle.COL,
+-        h = (innerH + 2) * TitleIdle.ROW,
++        col = col, row = row, innerW = innerW, innerH = innerH, tile = tile,
++        x = col * tile,
++        y = row * tile,
++        w = (innerW + 2) * tile,
++        h = (innerH + 2) * tile,
+     }
+ end
+ 
+ function TitleIdle.boxInterior(box)
++    local tile = box.tile or TitleIdle.FONT
+     return {
+-        x = box.x + TitleIdle.COL,
+-        y = box.y + TitleIdle.ROW,
+-        w = box.w - 2 * TitleIdle.COL,
+-        h = box.h - 2 * TitleIdle.ROW,
++        x = box.x + tile,
++        y = box.y + tile,
++        w = box.w - 2 * tile,
++        h = box.h - 2 * tile,
+     }
+ end
+ 
+@@ -251,9 +266,20 @@ TitleIdle.CONTINUE_TEXT = {
+     {label = "TIME", labelCol = 5, row = 15, valueCol = 13},
+ }
+ 
++-- The GB box is hlcoord 4, 7, inner 14 by 8. At 16px that is 160px tall
++-- and leaves the screen. The four text rows stay 16px. Only the blank
++-- row between them shrinks, to 8px, so the box ends on y 240.
+ function TitleIdle.continueBox()
+     local spec = TitleIdle.CONTINUE_BOX_SPEC
+-    return TitleIdle.textBox(spec.col, spec.row, spec.innerW, spec.innerH)
++    local tile = TitleIdle.FONT
++    return {
++        col = spec.col, row = spec.row, innerW = spec.innerW, innerH = spec.innerH,
++        tile = tile,
++        x = spec.col * tile,
++        y = spec.row * tile,
++        w = (spec.innerW + 2) * tile,
++        h = 128,
++    }
+ end
+ 
+ function TitleIdle.continueCells(name, badges, owned, timeText)
+@@ -263,14 +289,23 @@ function TitleIdle.continueCells(name, badges, owned, timeText)
+         string.format("%3d", owned),
+         timeText,
+     }
++    local tile = TitleIdle.FONT
++    local textY = {136, 160, 184, 208}
+     local cells = {}
+     for index, spec in ipairs(TitleIdle.CONTINUE_TEXT) do
+         local value = values[index]
++        local y = textY[index]
+         cells[#cells + 1] = {
+             label = spec.label,
+             value = value,
+-            labelRect = TitleIdle.cellRect(spec.labelCol, spec.row, utf8.len(spec.label), 1),
+-            valueRect = TitleIdle.cellRect(spec.valueCol, spec.row, utf8.len(value), 1),
++            labelRect = {
++                x = spec.labelCol * tile, y = y,
++                w = utf8.len(spec.label) * tile, h = tile,
++            },
++            valueRect = {
++                x = spec.valueCol * tile, y = y,
++                w = utf8.len(value) * tile, h = tile,
++            },
+         }
+     end
+     return cells
+@@ -291,33 +326,174 @@ function TitleIdle.mainMenuCells(labels)
+         cells[#cells + 1] = {
+             label = label,
+             row = row,
+-            cursor = TitleIdle.cellRect(1, row, 1, 1),
+-            text = TitleIdle.cellRect(2, row, utf8.len(label), 1),
++            cursor = TitleIdle.fontRect(1, row, 1, 1),
++            text = TitleIdle.fontRect(2, row, utf8.len(label), 1),
+         }
+     end
+     return cells
+ end
+ 
+ -- DrawStartMenu: hlcoord 10, 0. With the dex, b = 14; without, b = 12.
+--- Items start at hlcoord 12, 2. The cursor column is $0b.
++-- Items start at hlcoord 12, 2. The cursor column is $0b. A blank row
++-- between seven 16px items would run past y 240, so those gaps shrink
++-- to nothing and the glyphs stay 16px.
+ function TitleIdle.startMenuBox(hasDex)
+-    return TitleIdle.textBox(10, 0, 8, hasDex and 14 or 12)
++    local items = hasDex and 7 or 6
++    local tile = TitleIdle.FONT
++    return {
++        col = 10, row = 0, innerW = 8, innerH = items, tile = tile,
++        x = 10 * tile, y = 0, w = 10 * tile, h = (items + 2) * tile,
++    }
+ end
+ 
+ function TitleIdle.startMenuCells(labels)
+     local cells = {}
+     for index, label in ipairs(labels) do
+-        local row = 2 + (index - 1) * 2
++        local row = index
+         cells[#cells + 1] = {
+             label = label,
+             row = row,
+-            cursor = TitleIdle.cellRect(11, row, 1, 1),
+-            text = TitleIdle.cellRect(12, row, utf8.len(label), 1),
++            cursor = TitleIdle.fontRect(11, row, 1, 1),
++            text = TitleIdle.fontRect(12, row, utf8.len(label), 1),
+         }
+     end
+     return cells
+ end
+ 
++-- data/text_boxes.asm MESSAGE_BOX is columns 0,12 through 19,17.
++-- Text is bccoord 1,14 and hlcoord 1,16. Row 13 is the pad under the
++-- top border. Row 15 is the blank tile between the two text rows.
++-- The Playdate screen is 400px, so the horizontal border run is 25
++-- tiles and the right corner moves to x=384. Text stays one column in
++-- from the left border, and the arrow stays at column 18. compact
++-- drops the pad and the blank row (AskName, where the YES/NO box
++-- occupies rows 7-11) and uses the same width.
++function TitleIdle.messageBox(compact)
++    local tile = TitleIdle.FONT
++    local width = 25 * tile
++    if compact then
++        local height = 4 * tile
++        local y = 240 - height
++        return {
++            x = 0, y = y, w = width, h = height, tile = tile, columns = 18,
++            textX = tile, textY1 = y + tile, textY2 = y + 2 * tile,
++            arrowX = 18 * tile, arrowY = y + 2 * tile,
++        }
++    end
++    local height = 6 * tile
++    local y = 240 - height
++    return {
++        x = 0, y = y, w = width, h = height, tile = tile, columns = 18,
++        textX = tile, textY1 = y + 2 * tile, textY2 = y + 4 * tile,
++        arrowX = 18 * tile, arrowY = y + 4 * tile,
++    }
++end
++
++-- data/text_boxes.asm line 31:
++--   text_box_text BATTLE_MENU_TEMPLATE, 8, 12, 19, 17, BattleMenuText, 10, 14
++-- DisplayBattleMenu restores the screen, then that template covers columns
++-- 8-19. The cursor is hlcoord 9, 14 and the text is column 10. The port's
++-- labels are FIGHT / BAG / POKEMON / RUN. "POKEMON RUN" plus the cursor
++-- and both borders is 14 tiles, so the menu is wider than columns 8-19
++-- and is right-aligned to the 400px edge. The left box keeps its border
++-- and stays empty: pokered has no "What will" prompt.
++function TitleIdle.commandBoxes()
++    local message = TitleIdle.messageBox(false)
++    local tile = TitleIdle.FONT
++    local menuW = 14 * tile
++    local menuX = 400 - menuW
++    local left = {
++        x = 0, y = message.y, w = menuX, h = message.h, tile = tile,
++        columns = math.floor(menuX / tile) - 2,
++    }
++    local menu = {
++        x = menuX, y = message.y, w = menuW, h = message.h, tile = tile,
++        cursorX = menuX + tile,
++        textX = menuX + 2 * tile,
++        textX2 = menuX + 10 * tile,
++        textY1 = message.textY1, textY2 = message.textY2,
++    }
++    return {message = message, left = left, menu = menu}
++end
++
++-- DrawEnemyHUDAndHPBar / DrawPlayerHUDAndHPBar (engine/battle/core.asm).
++-- Enemy: name hlcoord 1,0, level 4,1, bar 2,2, d=6. A 4px margin keeps the
++-- name off the screen edge, and the level and bar move down with it.
++-- PlaceEnemyHUDTiles (draw_hud_pokeball_gfx.asm) puts $73 at column 1 of
++-- the bar row, $74 under it, eight $76 tiles, then $78.
++-- Player: name hlcoord 10,7, level 14,8, bar 10,9. The level shares the
++-- name row and 19/19 shares the bar row. PlacePlayerHUDTiles puts the $73
++-- vertical on the right and the $77 corner into a full $76 rule that ends
++-- at $6F. Two 16px rows plus that rule are 48px, so the block starts at
++-- y=96, under the enemy platform (y=84-93), and ends on the message box.
++function TitleIdle.battleHud(side, info)
++    info = info or {}
++    local tile = TitleIdle.FONT
++    local name = info.name or ""
++    local levelText = tostring(info.level or 0)
++    local status = info.status
++    local segments = 6
++    local barTiles = 2 + segments + 1
++    local levelTiles = status and utf8.len(status) or (1 + #levelText)
++    if side == "enemy" then
++        local margin = 4
++        local nameX, nameY = tile, margin
++        local levelX, levelY = 4 * tile, tile + margin
++        local barX, barY = 2 * tile, 2 * tile + margin
++        local ruleY = barY + tile
++        local right = math.max(
++            nameX + utf8.len(name) * tile,
++            levelX + levelTiles * tile,
++            barX + barTiles * tile)
++        local tiles = {
++            {name = "hudVertical", x = nameX, y = barY},
++            {name = "hudCornerLeft", x = nameX, y = ruleY},
++        }
++        for index = 0, 7 do
++            tiles[#tiles + 1] = {name = "hudRule", x = barX + index * tile, y = ruleY}
++        end
++        tiles[#tiles + 1] = {name = "hudEndRight", x = barX + 8 * tile, y = ruleY}
++        return {
++            x = nameX, y = nameY, w = right - nameX, h = ruleY + tile - nameY, tile = tile,
++            name = name, nameX = nameX, nameY = nameY,
++            levelText = levelText, status = status,
++            levelX = levelX, levelY = levelY,
++            barX = barX, barY = barY,
++            hp = info.hp or 0, maxHp = info.maxHp or 0,
++            segments = segments,
++            bracket = {clipBottom = 84, tiles = tiles},
++        }
++    end
++    local nameX, nameY = 10 * tile, 6 * tile
++    local levelX, levelY = nameX + (utf8.len(name) + 1) * tile, nameY
++    local barX, barY = nameX, nameY + tile
++    local numbers = tostring(info.hp or 0) .. "/" .. tostring(info.maxHp or 0)
++    local numbersX = barX + barTiles * tile
++    local right = math.max(levelX + levelTiles * tile, numbersX + utf8.len(numbers) * tile)
++    local ruleY = barY + tile
++    local ruleCount = math.floor((right - barX) / tile)
++    local tiles = {
++        {name = "hudVertical", x = right, y = nameY},
++        {name = "hudVertical", x = right, y = barY},
++        {name = "hudCornerRight", x = right, y = ruleY},
++        {name = "hudEndLeft", x = barX - tile, y = ruleY},
++    }
++    for index = 0, ruleCount - 1 do
++        tiles[#tiles + 1] = {name = "hudRule", x = barX + index * tile, y = ruleY}
++    end
++    return {
++        x = nameX, y = nameY, w = right - nameX, h = 3 * tile, tile = tile,
++        name = name, nameX = nameX, nameY = nameY,
++        levelText = levelText, status = status,
++        levelX = levelX, levelY = levelY,
++        barX = barX, barY = barY,
++        numbers = numbers, numbersX = numbersX, numbersY = barY,
++        hp = info.hp or 0, maxHp = info.maxHp or 0,
++        segments = segments,
++        bracket = {clipBottom = TitleIdle.messageBox(false).y, tiles = tiles},
++    }
++end
++
+ -- gfx/font/font.png tiles are (code - $80). font_extra.png is (code - $60).
+ -- constants/charmap.asm. The filled cursor is ▶ and the hollow one is ▷.
+ function TitleIdle.titleMonSlot()
+diff --git a/Source/game/titleState.lua b/Source/game/titleState.lua
+index 2869b351..7ed812f6 100644
+--- a/Source/game/titleState.lua
++++ b/Source/game/titleState.lua
+@@ -477,12 +477,8 @@ function TitleState:draw()
+         local cells = TitleIdle.continueCells(
+             self.info[1].value, tonumber(self.info[2].value), tonumber(self.info[3].value), self.info[4].value)
+         for _, cell in ipairs(cells) do
+-            local spec = nil
+-            for _, row in ipairs(TitleIdle.CONTINUE_TEXT) do
+-                if row.label == cell.label then spec = row end
+-            end
+-            GbFont.drawString(cell.label, spec.labelCol, spec.row)
+-            GbFont.drawString(cell.value, spec.valueCol, spec.row)
++            GbFont.line(cell.label, cell.labelRect.x, cell.labelRect.y)
++            GbFont.line(cell.value, cell.valueRect.x, cell.valueRect.y)
+         end
+     end
+ end
+diff --git a/Source/images/title/font/hud.png b/Source/images/title/font/hud.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..a034271b482ba90c96b70b936bb609160c56dddd
+GIT binary patch
+literal 161
+zcmeAS@N?(olHy`uVBq!ia0vp^Gk}<b5lArT-se6Kq%u5R978JRB>y?zz@RT7p%Uj|
+zU|_g_xqZKn{xU0rLk!G7aJW_9hh5^+|LeC;f8K0tY-D2aCne-ZQRB&nhgnp5nRsOC
+zWhJKX?-gt5v`L?k00I?1<QeDL{|5t~A_*~L28L@2>gs<({M<lxd%F6$taD0e0su9d
+BHuwMl
+
+literal 0
+HcmV?d00001
+
