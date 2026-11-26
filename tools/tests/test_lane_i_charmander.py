@@ -4931,6 +4931,9 @@ class CharmanderRun(BrockJourney):
         self._earned_saves = index
         label = earned_save_label(self.state, index)
         note = publish_save(self.client.data, self.evidence / "saves" / label, self.state)
+        store = archive_agent_save(self.client.data, self.state)
+        if store is not None:
+            note["store"] = store.get("files")
         self.summary.setdefault("earned_saves", []).append({"label": label, **note})
 
 
@@ -5196,6 +5199,22 @@ def publish_save(data_dir, destination, state):
     lines = [f"{item['sha256']}  {item['file']}" for item in copied]
     (destination / "SHA256SUMS").write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
     return note
+
+
+def archive_agent_save(data_dir, state):
+    """Keep one folder per adventure sequence outside the VM's temporary disk."""
+    data_dir = Path(data_dir)
+    sequences = []
+    for path in data_dir.glob("adventure*.json"):
+        try:
+            sequences.append(int(json.loads(path.read_text(encoding="utf-8")).get("sequence")))
+        except (OSError, ValueError, TypeError):
+            continue
+    if not sequences:
+        return None
+    destination = (Path("/cursor/stores/self/artifacts/lane-i/charmander-8/saves")
+                   / ("seq-%03d" % max(sequences)))
+    return publish_save(data_dir, destination, state)
 
 
 def _window():
@@ -5482,6 +5501,9 @@ def play(output, probe=False, resume_save=None):
             finally:
                 if run is not None and run.state:
                     note = publish_save(data, saves / "latest", run.state)
+                    store = archive_agent_save(data, run.state)
+                    if store is not None:
+                        note["store"] = str(Path("/cursor/stores/self/artifacts/lane-i/charmander-8/saves"))
                     summary["save"] = note
                 summary["clips"] = recorder.close()
                 artifact = Path("/opt/cursor/artifacts/lane-i") / output.parent.name / output.name / "clips"
