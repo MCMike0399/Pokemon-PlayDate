@@ -6306,9 +6306,75 @@ def _center_heal(player, report):
     return "yield"
 
 
+def _scope_walk(player, report, filename, pad, width, place, goal, avoid):
+    cells = set(open_map(EAST / filename, pad, width))
+    for _ in range(60):
+        _name, x, y = _k_here(player)
+        if (x, y) == goal:
+            return None
+        blocked = set(avoid)
+        blocked.discard((x, y))
+        blocked.discard(goal)
+        steps = route(cells, (x, y), goal, blocked)
+        if not steps:
+            raise RuntimeError(f"no {place} path {(x, y)} -> {goal}")
+        nxt = neighbor((x, y), steps[0])
+        status = _k_go(player, report, steps[0], place, nxt[0], nxt[1])
+        if status:
+            return status
+    raise RuntimeError(f"the {place} walk stalled at " + json.dumps(summary(player.state)))
+
+
 def _with_scope(player, report):
-    """Heal, then take Celadon's east road. Route 16 is the Snorlax."""
+    """Heal, then the underground to Lavender. The Saffron gate stays shut."""
     place = _k_here(player)[0]
+    if place == "Route7":
+        species, _mon = _bird(player)
+        if species:
+            _lead(player, species)
+        status = _scope_walk(player, report, "Route7.json", 0, 20, "Route7", (5, 14),
+                             {(18, 9), (18, 10), (11, 9), (11, 10), (5, 13)})
+        if status:
+            return status
+        player.step("up")
+        player.settle(limit=80)
+        if "underground" not in str(player.state.get("zone")):
+            raise RuntimeError("the Route 7 stair stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_underground")
+        return "yield"
+    if place == "UndergroundPathRoute7":
+        status = _scope_walk(player, report, "UndergroundPathRoute7.json", 2, 13,
+                             "UndergroundPathRoute7", (6, 5), {(5, 7), (6, 7), (6, 4)})
+        if status:
+            return status
+        player.step("up")
+        player.settle(limit=80)
+        if "west_east" not in str(player.state.get("zone")):
+            raise RuntimeError("the west passage stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_underground")
+        return "yield"
+    if place == "UndergroundPathWestEast":
+        status = _scope_walk(player, report, "UndergroundPathWestEast.json", 0, 50,
+                             "UndergroundPathWestEast", (46, 2), {(47, 2), (2, 5)})
+        if status:
+            return status
+        player.step("right")
+        player.settle(limit=80)
+        if "route_8" not in str(player.state.get("zone")) and "underground" not in str(player.state.get("zone")):
+            raise RuntimeError("the east passage stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_underground")
+        return "yield"
+    if place == "UndergroundPathRoute8":
+        status = _scope_walk(player, report, "UndergroundPathRoute8.json", 2, 13,
+                             "UndergroundPathRoute8", (5, 6), {(5, 7), (6, 7), (6, 4)})
+        if status:
+            return status
+        player.step("down")
+        player.settle(limit=80)
+        if "route_8" not in str(player.state.get("zone")):
+            raise RuntimeError("the Route 8 stair stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_route8")
+        return "yield"
     if place in ("RocketHideoutB1F", "RocketHideoutB2F", "RocketHideoutB3F", "RocketHideoutB4F", "RocketHideoutElevator", "GameCorner"):
         return _leave_hideout(player, report)
     if place == "CeladonCity":
