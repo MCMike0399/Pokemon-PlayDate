@@ -1,6 +1,17 @@
 {
   "schema_version": 1,
   "snapshot": {
+    "commit": "291da851d757068357a8a2c5e0587e02c9eea93b",
+    "source_sha256": "82f0db63419e67d7accf54b30771b9a0c5258f30eb70f3760d450552bec99d4e",
+    "policy_date": "2026-11-20",
+    "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "scope": "Source identity after Fly releases the origin city before the destination is built. The harness trace patch is not applied. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 500ead983d7817e60f67a3e32ef95cf917e164b13106ea6cf7609603be9c69f0.",
+    "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
+    "review_document": {
+      "path": "docs/validation/main-named-contracts-20261104.json",
+      "sha256": "a705dd86405dd4c75d0c2d5ed929db2244e500b9fcc9717677fef8d429aa73fc"
+    },
+    "previous_snapshot": {
     "commit": "d1167fa56a9f95258f58ebbd4ddff1f50503952f",
     "source_sha256": "500ead983d7817e60f67a3e32ef95cf917e164b13106ea6cf7609603be9c69f0",
     "policy_date": "2026-11-20",
@@ -1936,6 +1947,7 @@
   
   }
   }}
+  }
   }
   }
   }
