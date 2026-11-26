@@ -6027,25 +6027,41 @@ def _hideout_b4(player, report):
         if not (_quest(player) or {}).get("EVENT_ROCKET_DROPPED_LIFT_KEY"):
             raise RuntimeError("the lift-key talk did not set the flag: " + json.dumps(summary(player.state)))
     avoid.discard((10, 2))
-    if "liftKey" not in json.dumps(player.state.get("session") or {}):
+    if not _holding(player, "liftKey"):
         status = _b4_walk(player, report, (10, 2), avoid)
         if status:
             return status
         if not player.exploring():
             _settle_hideout_scene(player, 20)
+        if not _holding(player, "liftKey"):
+            raise RuntimeError("the lift key was not taken: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_lift_key")
         return "yield"
-    status = _b4_walk(player, report, (20, 10), avoid)
+    # (21, 10) is a real wall. The other floor-to-floor seam is (19, 14).
+    status = _b4_walk(player, report, (18, 14), avoid)
     if status:
         return status
     player.step("right")
     player.settle(limit=20)
-    landed = _k_here(player)
-    if landed[1] == 20:
+    if _k_here(player)[1] == 18:
         block = (player.state.get("player") or {}).get("lastTraversalBlock")
-        raise RuntimeError("B4F (21, 10) stayed shut: " + json.dumps(block))
+        raise RuntimeError("B4F (19, 14) stayed shut: " + json.dumps(block))
     _checkpoint(player, report, "saved_hideout_b4")
     return "yield"
+
+
+def _holding(player, item):
+    def walk(value):
+        if isinstance(value, dict):
+            if value.get("id") == item and value.get("quantity", 0) > 0:
+                return True
+            if isinstance(value.get(item), (int, float)) and value[item] > 0:
+                return True
+            return any(walk(child) for child in value.values())
+        if isinstance(value, list):
+            return any(walk(child) for child in value)
+        return False
+    return walk(player.state.get("session") or {})
 
 
 def _through_hideout(player, report):
