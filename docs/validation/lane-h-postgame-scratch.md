@@ -8,6 +8,8 @@ Scratch worktree `/tmp/e-continue`, detached at that commit, no patches. SDK 3.1
 
 Continue reaches Pallet. Root `overworld`, zone `kanto_pallet_town`, (5, 6) facing down. The harness result status is ok. Ready heap 12715.5 KiB. Snapshot heap after Continue 13305.3 KiB. `Continue.end` is 13067.8 KiB. Observed peak on that boot is 13744.7 KiB, at `Continue.map.end`. The simulator log has no inflate failure and no out-of-memory error. The continue is not stuck at Hall (7, 2). No new patch.
 
+`tools/notes/lane-e-hof-postgame-import.patch` is a superseded notice. `git apply` reports no valid patches. `tools/tests/test_lane_e_hof_postgame_import.py` is deleted. The historical diff remains in commit `9a75ff5d`.
+
 ## Earlier scratch on origin/main
 
 Evidence only. The scratch worktree is `/tmp/postgame-scratch`, detached at origin/main `ea32b55388038021812142a69b107f035b7c1da3`. It has `tools/notes/lane-e-hof-continue-release.patch` applied, and then the literal imports from `tools/notes/lane-e-hof-postgame-import.patch`. Those Source edits are not committed. K's `lane-e-switchzone-release-before-build.patch` is not applied. SDK 3.1.2. `MallocPoolSize` stayed `16645684`. Wild encounters were off. Trainer sight stayed on. Saves were the Hall fixture `tools/tests/fixtures/lane-h-hall-continue-8e72131f.json`, sha256 `8e72131fa1b88f59d3192a82a2e2d3da856ccf3b725b6860ccc69dcbc95d1cc1`.
@@ -28,7 +30,7 @@ Replacing both calls with literal `import` statements, still on top of the relea
 
 Frame: `artifacts/lane-h/postgame-continue-pallet.png` (sha256 `96b12a29249db38257940ec0e4e94f28f9509a66b4041e1339fc0e606a1b9020`). RED is on the Pallet dirt south of the lab.
 
-Handoff: `tools/notes/lane-e-hof-postgame-import.patch`. Test: `tools/tests/test_lane_e_hof_postgame_import.py`, `test_postgame_and_fossil_chunks_are_literal_imports`. It fails on origin/main's `lateKantoStory.lua` and passes after `git apply`. This branch's Source already has those two literal imports, so the test passes here.
+That literal import is not the handoff. `79fbcba5` loads the chunk lazily, and applying the old diff puts the boot import back. The file is now a superseded notice. The test that required the literal import is deleted.
 
 ## Cerulean Cave access
 
@@ -75,6 +77,31 @@ Session `55e38aae6824b2dcb6f04e36f33f81c6`, release patch plus literal import.
 | sleepy dialog, Viridian (19, 9) | 24749.7 | 14385.4 |
 
 The 24749.7 KiB reading is the highest snapshot while the sleepy scene was being retriggered. The boot trace did not mark during that loop, so its observed peak stayed 14385.4 KiB. The process was still answering at 24749.7 KiB when it was stopped. There is no settled reading after the loop ended. Frame: `artifacts/lane-h/postgame-viridian-sleepy.png` (sha256 `f6f54ff4a2692c169aa6454cefcecb0f44cb60dab327236f2ed94bf3deedbb96`).
+
+## Sleepy retrigger heap
+
+The 24749.7 KiB climb is the full harness, not a live retainer in the sleepy scene. On `79fbcba5`, four separate retriggers of Viridian (19, 9) with no major collection:
+
+| request | settled heap KiB |
+| --- | ---: |
+| cycle 1 | 13225.4 |
+| cycle 2 | 13308.3 |
+| cycle 3 | 13391.4 |
+| cycle 4 | 13474.6 |
+
+About 83 KiB per request. A `collectgarbage("collect")` before `collectgarbage("count")` holds the same scene at 13216–13217 KiB across eight retriggers, and a lone snapshot after that is 13158.9 KiB. Sprites stay at 10. `GameBootstrap` switches to generational collection, and the frame loop only steps once. `Harness.finish` major-collected only when `journey_profile` was set, after `json.encodeToFile` had kept the request graph alive long enough to tenure it.
+
+`tools/notes/lane-e-viridian-sleepy-retrigger-heap.patch` drops that graph and collects on every request. The same four retriggers then read 13225.4, 13243.6, 13244.4, 13244.2 KiB. A snapshot after the fourth request is 13179.7 KiB. Test: `tools/tests/test_lane_e_viridian_sleepy_retrigger_heap.py`, `test_retriggers_stay_near_the_first_heap`. It fails while the collect stays inside the journey-profile branch.
+
+## Hall fixture
+
+No lane B or lane J save in the repo is an endgame file. Lane J's published save is the Route 6 bird continue. The Hall fixture was introduced as raw bytes in `0eed8277`, with no generator. `tools/generate_hall_continue_fixture.py` keeps that envelope, sets the champion flags, and recomputes `SaveStore`'s FNV-1a checksum. The written file is that output.
+
+sha256 `45e3561a263ee2844da599e1862d27b973fae1622d6dd8728b22546c4b94bd8d` (3920 bytes). Checksum `2c16b842`. The previous pin was sha256 `8e72131f…`, checksum `1c43d824`. The bag was empty; the generator also puts one stack of 20 POKé Balls in it so a catch can be thrown. That is not a story flag.
+
+Flags set true, citing the scripts named in the generator: `EVENT_GOT_OAKS_PARCEL`, `EVENT_OAK_GOT_PARCEL`, `EVENT_GOT_POKEDEX` (this is also the awake old man), `EVENT_GOT_TOWN_MAP`, `TOGGLE_CERULEAN_ROCKET`, `EVENT_GOT_SS_TICKET`, `EVENT_MET_BILL`, `EVENT_MET_BILL_2`, `EVENT_LEFT_BILLS_HOUSE_AFTER_HELPING`, `EVENT_GOT_DOME_FOSSIL`, `EVENT_BEAT_VIRIDIAN_GYM_GIOVANNI`, and the eight badges. Brock's trainer id `pokered:PEWTER_GYM:objects:1` is defeated, so the Pewter escort does not block. `EVENT_BEAT_LANCE` stays false because the Hall reset clears that range. `TOGGLE_CERULEAN_CAVE_GUY` was already true.
+
+Test: `tools/tests/test_lane_e_hall_continue_fixture.py`, `test_fixture_matches_the_generator_and_has_the_dex`. `tools/tests/test_lane_e_hof_continue_releases_hall.py` pins the new sha256.
 
 ## Main
 
