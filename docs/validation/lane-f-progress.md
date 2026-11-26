@@ -160,3 +160,26 @@ Still missing:
 - Hall of Fame cries and the flute, spinner, and denied cues still need the lane E import. `tools/notes/lane-e-audio-gaps.patch` and `tools/notes/lane-e-audio-main-path.patch` are unapplied. The coverage-matrix fingerprint is `tools/notes/lane-e-coverage-fingerprint.patch` (`aee32b591b3202898ab28d254ee376750c0ea6a58793735a495dde4f24016e27`). This lane does not rewrite that snapshot.
 - Field Dig and field Teleport are not a ported command, so they do not set `lastFieldItem`. The escape rope uses their pokered sound sequence.
 - The fight intro is still not drawn. `MUSIC_INTRO_BATTLE`, `SFX_INTRO_HIP`, `SFX_INTRO_HOP`, and `SFX_INTRO_RAISE` stay silent with it. Museum Guy, Jigglypuff's song, the slot machine, the trade machine, and Oak's intro shrink are the other sites left out of this pass.
+
+## Done-path receipts
+
+Simulator on a scratch worktree of `origin/cursor/lane-e-integration` at `79fbcba560e34945a130d7e1788ab44be5aa8d77`, with this branch's `Source/audio` and `Source/game/kantoAudio.lua` checked out on top. Lane E already imports `game/kantoAudio`. Playdate SDK 3.1.2. `MallocPoolSize` stayed `16645684`. Pokered is `af519899719f0754965776faac0e836a3b906e6d`. The harness was `tools/harness/run.py` with fixture saves and real A presses. A scratch logger wrote each `KantoSynth` call to `runtime-data/audio-receipts.txt`. That logger is not on this branch.
+
+| Check | Trigger | Track or SFX | Evidence | Pokered |
+| --- | --- | --- | --- | --- |
+| Champion battle | `pokered:CHAMPIONS_ROOM:objects:1` after the rival intro. Battle info `class=OPP_RIVAL3 wild=false zone=pokered:CHAMPIONS_ROOM`. | music `final` (`Source/audio/score/final.lua`, `audio2:Music_FinalBattle`). Match. | Session `4e8060388d41487b8dfb2d2299242979`, `/tmp/done-audio/champion6`. Receipt `AUDIO music final`. Battle file `AUDIO battle class=OPP_RIVAL3 wild=false zone=pokered:CHAMPIONS_ROOM`. Snapshot root `battle`, message `PIDGEOT used WING ATTACK!`. | `audio/play_battle_music.asm:19` `cp OPP_RIVAL3`, `:29` `ld a, MUSIC_FINAL_BATTLE`. Score `audio/music/finalbattle.asm:1` `Music_FinalBattle_Ch1`. |
+| Hall of Fame | Entered `kanto_hall_of_fame`. Oak `pokered:HALL_OF_FAME:objects:1`, phase `hall-photo`. | music `hall_of_fame` (`audio3:Music_HallOfFame`), then cry `charmander` for the party species. The receipt notes the bed twice because `EndgameStory.beginPhotos` and the observer both call `playCue`; the engine keeps the same bed. Match. | Session `f341d00e95b74bb09829b746e5707916`, `/tmp/done-audio/hall1`, outcome ok. | `engine/movie/hall_of_fame.asm:37` `MUSIC_HALL_OF_FAME`. Score `audio/music/halloffame.asm:1` `Music_HallOfFame_Ch1`. Cry `engine/movie/hall_of_fame.asm:178` `jp PlayCry`. |
+| Credits | Same Hall session, after the photos. Final snapshot `event.phase` `credits`, id `pokered:HALL_OF_FAME:objects:1`. | music `credits` (`audio3:Music_Credits`). Match. | Same hall1 receipt, `AUDIO music credits`. | `engine/movie/credits.asm:27` `ld a, MUSIC_CREDITS`. Score `audio/music/credits.asm:1` `Music_Credits_Ch1`. |
+| Low-HP alarm | Wild Onix against Charmander at 1/18 HP. The bar is red, then the mon faints. | alarm `true`, then alarm `false` when HP hit 0. Score `alarm` is `audio2:low-health` (`Music_DoLowHealthAlarm`). Match. | Session `4bacd704f01549589bf4f4adb50addf4`, `/tmp/done-audio/lowhp1`. Message `CHARMANDER fainted!`. | `engine/battle/core.asm:1860` `cp HP_BAR_RED`, `:1871` `.setLowHealthAlarm`, clear on faint at `:1863`. Score `audio/low_health_alarm.asm:1` `Music_DoLowHealthAlarm`. |
+| Player faint | Same battle. Charmander fainted after Onix's Bind. | `sfx faint` (`audio2:SFX_Faint_Thud`). The earlier `cry charmander` is the send-out, before `sfx move_bind`. No cry at the faint. Gap. | lowhp1: `AUDIO sfx move_bind`, `AUDIO alarm false`, `AUDIO sfx faint`. | `engine/battle/core.asm:1041` `ld a, [wBattleMonSpecies]`, `:1042` `call PlayCry`. Enemy fall and thud stay `:782` and `:788`. |
+
+The champion battle then stopped: `game/kantoAudio.lua:267: attempt to index a nil value (global 'KantoMoveSfx')`. `pdc` does not compile `import "audio/moveSfx"` from inside `moveScore`. The champion bundle's `main.pdz` contains the path and not the `KantoMoveSfx` table. The low-HP run used a scratch file-scope import so the move could finish. That import is `tools/notes/lane-e-audio-movesfx-import.patch`. The alarm line itself is before the move lookup.
+
+`tools/notes/lane-e-audio-player-faint-cry.patch` cries `battle.player.species` after the move row, and leaves the enemy fall and thud alone. Applied only on the scratch tree, the same battle cried Charmander. Session `f04554bdfca24936b41e1ed113331035`, `/tmp/done-audio/lowhp2`: `AUDIO sfx move_bind`, `AUDIO alarm false`, `AUDIO cry charmander`, message `CHARMANDER fainted!`. The patch is not applied on this branch.
+
+Both tests are plain failures. No skip and no expectedFailure.
+
+- `LaneEAudioFidelityTests.test_player_faint_plays_the_battle_mon_cry` fails until `lane-e-audio-player-faint-cry.patch`.
+- `LaneEAudioFidelityTests.test_move_sfx_table_is_imported_at_file_scope` fails until `lane-e-audio-movesfx-import.patch`.
+
+Together, before either patch: `FAILED (failures=2)`. After both: `OK`. After reversing both: `FAILED (failures=2)`.

@@ -33,6 +33,23 @@ class LaneEAudioFidelityTests(unittest.TestCase):
             events)
         self.assertIn("('badge', 'item', 'jingle', 'home/text.asm', 'SFX_GET_ITEM_1')", generator)
 
+    def test_player_faint_plays_the_battle_mon_cry(self):
+        # engine/battle/core.asm:1042 PlayCry of wBattleMonSpecies.
+        # tools/notes/lane-e-audio-player-faint-cry.patch
+        text = (ROOT / 'Source/game/kantoAudio.lua').read_text()
+        self.assertIn('observer.pendingCry = species', text)
+        self.assertIn('KantoAudio.playCry(observer.pendingCry)', text)
+        self.assertNotIn('playSequence({moveCue, "faint"})', text)
+        self.assertNotIn("The player's own faint is the thud alone.", text)
+
+    def test_move_sfx_table_is_imported_at_file_scope(self):
+        # pdc compiles import strings it can see at file scope. The lazy
+        # import inside moveScore leaves KantoMoveSfx nil and the first
+        # move crashes. tools/notes/lane-e-audio-movesfx-import.patch
+        text = (ROOT / 'Source/game/kantoAudio.lua').read_text()
+        head = text.split('function KantoAudio', 1)[0]
+        self.assertIn('import "audio/moveSfx"', head)
+
 
 if __name__ == '__main__':
     unittest.main()
