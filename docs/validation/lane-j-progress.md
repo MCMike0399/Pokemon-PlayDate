@@ -73,7 +73,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 294, Route 12 (10, 22) facing down, on the south side of the gate. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. `EVENT_BEAT_ROUTE12_SNORLAX` is set. Route 13 opened at (50, 0). The Lavender Center healed the party after the arrival trainers fainted Pidgeot. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The Saffron gate was not used. Next is south through Route 13, 14, and 15 into Fuchsia.
+Rainbow Badge is set. The pause is sequence 297, Route 12 (7, 83) facing right, south of Snorlax's empty tile. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `EVENT_BEAT_ROUTE12_SNORLAX` is set. Route 13 opened at (50, 0). The Lavender Center healed the party after the arrival trainers fainted Pidgeot. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions. The Saffron gate was not used. Next is south through Route 13, 14, and 15 into Fuchsia.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
