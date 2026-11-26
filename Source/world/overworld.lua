@@ -260,19 +260,13 @@ function releaseOverworldView()
 end
 function setupOverworld()
     currentZone:assertEnterable()
-    -- switchZone already dropped the departing view, actors, definition and
-    -- tile-grid cache. Collect again here so the destination tilemap bitmap
-    -- is allocated after that release, not beside it. Fade length is owned
-    -- by DoorWarpSubstate and is not part of this build.
+    -- switchZone already dropped the departing view and collected. The
+    -- destination definition stays. Releasing it here decodes the map again
+    -- beside the new tilemap, and field Cut copies the screen in that same
+    -- gap. Fade length stays on DoorWarpSubstate.
     releaseOverworldView()
     if WorldDeltas and WorldDeltas.releaseInactiveZones then
         WorldDeltas.releaseInactiveZones()
-    end
-    if SourceMaps and SourceMaps.releaseRetainedRuntime then
-        SourceMaps.releaseRetainedRuntime()
-    end
-    if SourceMaps and SourceMaps._releaseTileGrids then
-        SourceMaps._releaseTileGrids()
     end
     collectgarbage("collect")
     activeView = WorldView(currentZone)

@@ -1157,6 +1157,7 @@ function EndgameStory.check(game)
         end
     elseif currentZone.stableID == "pokered:HALL_OF_FAME"
         and not game.session:questFlag(data.hall_of_fame.hides[1]) and not armed.hall then
+        EndgameStory.ensurePostgame()
         local party <const> = game.session:party()
         local members = {}
         for index = 1, party:count() do
@@ -1352,6 +1353,7 @@ function EndgameStory.skipBlockedMove(state, advance)
 end
 
 function EndgameStory.beginPhotos(state, advance)
+    EndgameStory.ensurePostgame()
     state.photoAdvance = advance
     state.photo = {index = 1, clock = 0, stage = "preamble"}
     state.phase = "hall-photo"
@@ -1509,6 +1511,27 @@ local function photoImage(gfx, state, photo, which)
         end
     end
     return nil
+end
+
+-- The postgame chunk stays a standalone pdz. The Hall ceremony and a
+-- Hall-team Continue are the loads. Field install never calls this.
+function EndgameStory.ensurePostgame()
+    if PostgameStory and PostgameStory.ensureRuntime then
+        PostgameStory.ensureRuntime()
+        return true
+    end
+    if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+        local folder, name = "game/", "postgameStory"
+        playdate.file.run(folder .. name)
+    else
+        local folder, name = "Source/game/", "postgameStory.lua"
+        dofile(folder .. name)
+    end
+    if PostgameStory and PostgameStory.ensureRuntime then
+        PostgameStory.ensureRuntime()
+        return true
+    end
+    return false
 end
 
 -- The draw path stays a standalone pdz. A Hall photo or the credits roll

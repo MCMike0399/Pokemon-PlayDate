@@ -298,10 +298,8 @@ local bootAccepted, bootProblem = pcall(function()
             BootTrace.mark("HideoutTowerContent.install.begin")
             HideoutTowerContent.install()
             CoastStoryWorld.install()
-            -- The Hall continue module loads on a Hall save, not at this boot.
-            if PostgameStory then
-                PostgameStory.ensureRuntime()
-            end
+            -- The Hall chunk stays unloaded. Continue and the ceremony
+            -- load it, then release the decoded tables when they leave.
             CopycatService.install()
             BootTrace.mark("HideoutTowerContent.install.end")
             BootTrace.mark("MidgameServices.install.begin")

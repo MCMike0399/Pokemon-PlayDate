@@ -10,6 +10,7 @@ local giftHookRegistered = false
 local entering = false
 local continueDepth = 0
 local hallEnteredSet, hallHandled = false, false
+local hallZone, islandZone, islandMap, caveHide
 local previousInstall, previousContinue, previousPrepared
 
 local function copy(value)
@@ -46,6 +47,17 @@ end
 
 function PostgameStory.story()
     return story()
+end
+
+local function rememberPlaces()
+    if hallZone then
+        return
+    end
+    local data <const> = story()
+    hallZone = data.rematch.hall_zone
+    islandZone = data.fossil.island_zone
+    islandMap = data.fossil.island_map
+    caveHide = data.cave.hide
 end
 
 function PostgameStory.text(label)
@@ -303,6 +315,7 @@ function PostgameStory.installEvents()
         SourceEvents.registerEventSource(CONTENT, accepted)
     end
     eventsInstalled = true
+    rememberPlaces()
     return true
 end
 
@@ -519,17 +532,18 @@ function PostgameStory.presentFossil(state)
 end
 
 function PostgameStory.onEnter(game)
-    local fossil <const> = story().fossil
-    if FossilRevival and currentZone and currentZone.stableID == fossil.island_zone then
-        FossilRevival.onMapLoad(game.session, fossil.island_map)
+    rememberPlaces()
+    if FossilRevival and currentZone and currentZone.stableID == islandZone then
+        FossilRevival.onMapLoad(game.session, islandMap)
     end
-    local rematch <const> = story().rematch
-    if currentZone and currentZone.stableID == rematch.hall_zone then
-        hallEnteredSet = game.session:questFlag(story().cave.hide) == true
+    if currentZone and currentZone.stableID == hallZone then
+        hallEnteredSet = game.session:questFlag(caveHide) == true
         hallHandled = false
-    else
-        hallEnteredSet, hallHandled = false, false
+        return
     end
+    -- Pallet and the rest of the field do not keep the decoded postgame tables.
+    hallEnteredSet, hallHandled = false, false
+    PostgameStory.releaseContinueData()
 end
 
 local function noteLiveParty(game)
@@ -545,9 +559,10 @@ end
 -- The first visit is still EndgameStory.check, while the guard flag is clear.
 -- A later entry finds the flag already set, so that check does not run again.
 function PostgameStory.checkHall(game)
-    local rematch <const> = story().rematch
-    if not currentZone or currentZone.stableID ~= rematch.hall_zone then
+    rememberPlaces()
+    if not currentZone or currentZone.stableID ~= hallZone then
         hallEnteredSet, hallHandled = false, false
+        PostgameStory.releaseContinueData()
         return false
     end
     if not hallEnteredSet or hallHandled then
@@ -555,7 +570,7 @@ function PostgameStory.checkHall(game)
     end
     hallHandled = true
     noteLiveParty(game)
-    return SourceEvents.dispatch(game, rematch.oak_id)
+    return SourceEvents.dispatch(game, story().rematch.oak_id)
 end
 
 function PostgameStory.installHall()

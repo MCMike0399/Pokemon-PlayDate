@@ -59,9 +59,8 @@ function LateKantoStory.caveEntry(flags)
 end
 
 function LateKantoStory.actorMetadata(id)
-    if PostgameStory and PostgameStory.ensureRuntime then
-        PostgameStory.ensureRuntime()
-    end
+    -- A field install has not loaded the postgame chunk. Visibility is read
+    -- only after a Hall continue or the ceremony has installed it.
     local rule <const> = LateKantoStory.scenes().cerulean_cave
     if PostgameStory and PostgameStory.visibility then
         local extra <const> = PostgameStory.visibility(id)

@@ -466,6 +466,9 @@ function EventState:update()
         CreditsPlayer.advance(self.credits)
         if self.credits.done then
             assert(self.credits.return_to == "title", "credits must return to the title")
+            if PostgameStory and PostgameStory.releaseContinueData then
+                PostgameStory.releaseContinueData()
+            end
             self.phase = "running"
             self:advance()
         end
