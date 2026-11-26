@@ -72,13 +72,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Pidgeotto learned Wing Attack. The pause is sequence 168, Celadon Gym (4, 4) facing right, the cell after the west-tree Beauty. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `4d0a00a0a522833308e546e8f393345a1acdced8a44d9c5f93bcf75b50397d3f`. Sequence 167 is the Celadon Center heal, `adventure.a.json` sha256 `491f6ec198a07f47c244e1e2a2d7714256c4b18fd3758716eabfcf409ce3a493`.
+Rainbow Badge is set. The pause is sequence 169, Celadon Gym (5, 4) facing up, in front of Erika. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `aae3e000ea16c0ae2002732ae3b9d366bfc9e6bb5fa43d3d637a0eef85db74b3`. `EVENT_BEAT_ERIKA` is set. TM21 is in the bag.
 
-Badges: Boulder, Cascade, and Thunder. Rainbow Badge is not set.
+Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Pidgeotto 31 (70 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
+Team: Pidgeotto 32 (3 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-Next step: walk to (5, 4), face up, and fight Erika. The first attempt reached (5, 4) facing up and stopped in the driver before A, so Erika has not been battled.
+Next step: leave the gym, heal at the Celadon Center, then the Game Corner and the Rocket Hideout.
 
 ## Blockers
 
