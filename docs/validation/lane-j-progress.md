@@ -78,7 +78,7 @@ Badges: Boulder, Cascade, Thunder, and Rainbow.
 
 Team: Pidgeotto 32 (82 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-Next step: the stairs at (17, 4). If that tile stays closed, press the poster and write the handoff.
+The stairs are the blocker. Up from (17, 5) stayed in the Game Corner. The poster at (9, 4) has no event, and the Rocket on (9, 5) refuses the step. Handoff: `tools/notes/lane-e-game-corner-stairs.md`. Hideout, Scope, the Tower, the Flute, and Koga wait on that door.
 
 ## Blockers
 
