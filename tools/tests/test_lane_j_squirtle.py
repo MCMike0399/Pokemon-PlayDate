@@ -6009,16 +6009,23 @@ def _hideout_b4(player, report):
     if not quest.get("EVENT_ROCKET_HIDEOUT_4_DOOR_UNLOCKED"):
         avoid.update({(24, 11), (25, 11)})
     if not quest.get("EVENT_ROCKET_DROPPED_LIFT_KEY"):
-        status = _b4_walk(player, report, (11, 3), avoid)
-        if status:
-            return status
-        if player.state.get("root") != "battle":
-            if (player.state.get("player") or {}).get("facing") != "up":
-                player.press("up", wait=8)
-            player.press("a", wait=8)
-        if player.state.get("root") == "battle" or not player.exploring():
-            return _k_clear(player, report) or "yield"
-        raise RuntimeError("the lift-key Rocket did not battle: " + json.dumps(summary(player.state)))
+        _name, x, y = _k_here(player)
+        if (x, y) != (11, 3):
+            status = _b4_walk(player, report, (11, 3), avoid)
+            if status:
+                return status
+        if player.state.get("root") == "battle":
+            return _k_clear(player, report)
+        # The drop is the second talk, after the receipt is gone.
+        if (player.state.get("player") or {}).get("facing") != "up":
+            player.press("up", wait=8)
+        player.press("a", wait=8)
+        if player.state.get("root") == "battle":
+            return _k_clear(player, report)
+        if not _settle_hideout_scene(player, 40):
+            raise RuntimeError("the lift key was not dropped: " + json.dumps(summary(player.state)))
+        if not (_quest(player) or {}).get("EVENT_ROCKET_DROPPED_LIFT_KEY"):
+            raise RuntimeError("the lift-key talk did not set the flag: " + json.dumps(summary(player.state)))
     avoid.discard((10, 2))
     if "liftKey" not in json.dumps(player.state.get("session") or {}):
         status = _b4_walk(player, report, (10, 2), avoid)
