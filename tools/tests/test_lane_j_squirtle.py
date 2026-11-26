@@ -3646,8 +3646,10 @@ def _send_out(player, prefer):
         if mon and (mon.get("hp") or 0) <= 0:
             slot = None
         if slot is None and prefer == "pidgeotto":
-            slot, mon = _member(player, "pidgey")
-            if mon and (mon.get("hp") or 0) <= 0:
+            for evolved in ("pidgeot", "pidgey"):
+                slot, mon = _member(player, evolved)
+                if mon and (mon.get("hp") or 0) > 0:
+                    break
                 slot = None
     if slot is None:
         for want in ("wartortle", "blastoise", "squirtle"):
@@ -4880,7 +4882,7 @@ def summary_safe(report):
 
 
 def _bird(player):
-    for species in ("fearow", "pidgeotto", "spearow", "pidgey"):
+    for species in ("pidgeot", "fearow", "pidgeotto", "spearow", "pidgey"):
         slot, mon = _member(player, species)
         if slot:
             return species, mon or {}
@@ -6729,6 +6731,7 @@ def _toward_snorlax(player, report):
     people = {(obj["x"], obj["y"]) for obj in blob["events"]["objects"]
               if obj.get("kind") != "item" and obj["id"] in present}
     people.add((10, 62))
+    misses = 0
     for _ in range(40):
         _name, x, y = _k_here(player)
         if (x, y) == goal and not _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
@@ -6737,11 +6740,18 @@ def _toward_snorlax(player, report):
             raise RuntimeError("Snorlax is gone; Route 13 is next: " + json.dumps(summary(player.state)))
         cells = set(open_map(SOUTH / "Route12.json", 0, 20))
         avoid = set(people)
+        for npc in player.state.get("npcs") or []:
+            avoid.add((npc.get("x"), npc.get("y")))
         avoid.discard((x, y))
         avoid.discard(goal)
         steps = route(cells, (x, y), goal, avoid)
         if not steps:
-            raise RuntimeError(f"no Route 12 path {(x, y)} -> {goal}")
+            misses += 1
+            if misses > 6:
+                raise RuntimeError(f"no Route 12 path {(x, y)} -> {goal}")
+            player.send("wait 30")
+            continue
+        misses = 0
         nxt = neighbor((x, y), steps[0])
         status = _k_go(player, report, steps[0], "Route12", nxt[0], nxt[1])
         if status:

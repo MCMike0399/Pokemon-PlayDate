@@ -73,11 +73,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 242, Mr. Fuji's house (5, 2) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. The Poké Flute is in the bag (`pokeFlute` 1, `EVENT_BEAT_GHOST_MAROWAK`). The Silph Scope, the Lift Key, and the Rare Candy from Tower 6F are in the bag. Giovanni is beaten. The rival on 2F has left. The 7F rockets are beaten and Fuji warped home. TM21 is in the bag. There are no potions. The Saffron gate was not used. Next is the Lavender Center, then Route 12 and Snorlax.
+Rainbow Badge is set. The pause is sequence 250, Route 12 (5, 35) facing left, on the south side of the gate. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. The Poké Flute is in the bag (`pokeFlute` 1, `EVENT_BEAT_GHOST_MAROWAK`). The Silph Scope, the Lift Key, and the Rare Candy from Tower 6F are in the bag. Giovanni is beaten. Fuji warped home and the Lavender Center healed the party. Pidgeotto evolved to Pidgeot on this road. TM21 is in the bag. There are no potions. The Saffron gate was not used. Next is Snorlax at (10, 62). A wandering trainer was standing on (5, 36).
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Pidgeotto 35 (0 HP), Bellsprout 15 (0 HP), Wartortle 32 (37 HP), Dugtrio 28 (62 HP). Next is a Lavender heal, then the flute on Route 12. Route 16 stays the other Snorlax.
+Team: Pidgeot 36 (84 HP), Bellsprout 15 (40 HP), Wartortle 32 (84 HP), Dugtrio 28 (62 HP). Next is the flute in front of Snorlax. Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
