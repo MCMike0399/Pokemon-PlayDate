@@ -30,7 +30,21 @@ function KantoAudio.enterMap(zone)
     local id = type(zone) == "table" and zone.stableID or zone
     mapScore = KantoEvents.mapScore(id)
     if not inBattle then
-        KantoSynth.music(KantoEvents.fieldBed(traversal, mapScore), true)
+        local bed = KantoEvents.fieldBed(traversal, mapScore)
+        local tolerate = FieldTravelRuntime and FieldTravelRuntime.consumeMissedBed
+            and FieldTravelRuntime.consumeMissedBed()
+        if not tolerate then
+            KantoSynth.music(bed, true)
+        else
+            -- The destination atlas can leave no contiguous inflate window.
+            -- A missed bed stays silent; the map entry still stands.
+            local ok, err = pcall(KantoSynth.music, bed, true)
+            local text = tostring(err)
+            if not ok and err ~= nil and not text:find("out of memory", 1, true)
+                and not text:find("inflate", 1, true) then
+                error(err, 0)
+            end
+        end
     end
 end
 
