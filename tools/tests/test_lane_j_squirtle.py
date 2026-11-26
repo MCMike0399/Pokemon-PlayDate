@@ -6455,6 +6455,41 @@ def _tower_move(player, report, direction, place, nx, ny, nxt):
     return None
 
 
+def _pickup_item(player, report, place, item_id):
+    """Face a floor item from an open neighbor. The ball's own tile is solid to a step."""
+    present = _present_ids(player)
+    people, warps, sight, items = _tower_layers(place, present)
+    cell = next(item_cell for item, item_cell in items if item == item_id)
+    cells = set(open_map(SOUTH / f"{place}.json", 0, 20))
+    avoid = set(people) | set(warps) | set(sight) | {item_cell for _item, item_cell in items}
+    _name, x, y = _k_here(player)
+    spots = []
+    for direction, (dx, dy) in DELTAS.items():
+        spot = (cell[0] - dx, cell[1] - dy)
+        if spot in cells and (spot not in avoid or spot == (x, y)):
+            spots.append((abs(spot[0] - x) + abs(spot[1] - y), spot, direction))
+    if not spots:
+        raise RuntimeError(f"no open side of {item_id}")
+    _distance, spot, direction = min(spots)
+    if (x, y) != spot:
+        blocked = set(avoid)
+        blocked.discard((x, y))
+        blocked.discard(spot)
+        steps = route(cells, (x, y), spot, blocked)
+        if not steps:
+            raise RuntimeError(f"no path beside {item_id} from {(x, y)}")
+        nx, ny = neighbor((x, y), steps[0])
+        return _tower_move(player, report, steps[0], place, nx, ny, place)
+    if player.state["player"].get("facing") != direction:
+        player.press(direction, wait=4)
+    player.press("a", wait=8)
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    if npc_named(player.state, item_id):
+        raise RuntimeError(f"{item_id} stayed on the floor")
+    return None
+
+
 def _climb_tower(player, report):
     place = _k_here(player)[0]
     if place == "PokemonTower7F":
@@ -6480,12 +6515,9 @@ def _climb_tower(player, report):
         _name, x, y = _k_here(player)
         cells, steps, item_id = _tower_route(place, (x, y), goal, present)
         if item_id:
-            people, warps, sight, items = _tower_layers(place, present)
-            avoid = set(people) | set(warps) | set(sight) | {cell for _item, cell in items}
-            avoid.discard((x, y))
-            result = talk_to(player, cells, item_id, avoid)
-            if result != "talked" or npc_named(player.state, item_id):
-                raise RuntimeError(f"{item_id} stayed on the floor: {result}")
+            status = _pickup_item(player, report, place, item_id)
+            if status:
+                return status
             continue
         if not steps:
             raise RuntimeError(f"no {place} stair from {(x, y)}")
