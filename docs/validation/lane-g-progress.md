@@ -253,6 +253,10 @@ The field bag and the battle bag use the ▶ tile, `×` quantities, a `CANCEL` r
 
 The r3 bag frames were the r2 bytes. A full 13px tile on the quantity row shares its ink with the next name, and column 14 sits under a nine-tile name. `GbFont.drawOpenString` paints the native 8px height at the top of the 13px cell, and the quantity is right-aligned against the column-19 border. `test_bag_drawn_rows_keep_each_quantity_on_its_own_line` measures those ink rows. It fails on the live tree and on r3, and passes after this patch. The Simulator frames, from the patch applied to `79fbcba5`, are `artifacts/lane-g/ui-fidelity/bag-r4.png` and `battle-bag-r4.png`. `Source/` is unchanged.
 
+## Round 35
+
+The r4 bag glyphs were 8px tall in the 13px cell, so they looked short and wide next to the Pokédex. The bag now uses `GbFont.drawString` and `GbFont.drawChar`, the same 20 by 13 cell as the list. The quantity stays on the next row, right-aligned, so the full cells do not meet. `test_bag_glyph_height_matches_the_pokedex_list` measures the painted height in the Simulator frames. r4 is shorter than CONTENTS. The r5 frames match. `Source/` is unchanged.
+
 ## Round 33
 
 `PlaceString` `<NEXT>` in `home/text.asm` steps two tile rows unless `BIT_SINGLE_SPACED_LINES` is set, and `PrintListMenuEntries` advances `2 * SCREEN_WIDTH` (`home/list_menu.asm:512`). The r3 of `tools/notes/lane-e-ui-fidelity.patch` draws `DATA` / `CRY` / `AREA` / `QUIT` at rows 10, 12, 14 and 16. Each bag entry uses a name row and the next row for `×` at column 14. The list box still holds four entries, and `CANCEL` follows the last item. The new assertions fail on the live tree and on the r2 strings (`10+index-1`, `local row = 4 + n * 2`, `14, row + 1`). The r3 frames are `artifacts/lane-g/ui-fidelity/pokedex-list-r3.png`, `bag-r3.png`, and `battle-bag-r3.png`. `Source/` is unchanged.

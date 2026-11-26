@@ -1,5 +1,5 @@
 diff --git a/Source/game/bagState.lua b/Source/game/bagState.lua
-index c28713e0..7de9b13b 100644
+index c28713e0..ce7ed15b 100644
 --- a/Source/game/bagState.lua
 +++ b/Source/game/bagState.lua
 @@ -1,3 +1,4 @@
@@ -55,10 +55,10 @@ index c28713e0..7de9b13b 100644
 +    -- PrintListMenuEntries (home/list_menu.asm:411) prints a price only
 +    -- when that flag is set. LIST_MENU_BOX is data/text_boxes.asm:13.
 +    -- Four names start at (6,4) and each entry is 2*SCREEN_WIDTH apart
-+    -- (list_menu.asm:364 and :512). The × quantity is the second row of
-+    -- that entry, drawn short of the cell so it does not share ink with
-+    -- the next name, and right-aligned against the column-19 border.
-+    -- CANCEL is the entry after the last item.
++    -- (list_menu.asm:364 and :512), the same full 20 by 13 cell the
++    -- Pokédex list uses. The × quantity is the second row of that entry,
++    -- right-aligned against the column-19 border so it does not meet the
++    -- next name. CANCEL is the entry after the last item.
 +    if self.options and self.options.mode=="held" then
 +        gfx.drawText("GIVE: "..self.options.holder.name, 12, 0)
      end
@@ -79,7 +79,7 @@ index c28713e0..7de9b13b 100644
 +        if i > count then break end
 +        local nameRow = 4 + n * 2
 +        local quantityRow = nameRow + 1
-+        if i == self.selected then GbFont.drawOpenString(TitleIdle.CURSOR, 5, nameRow) end
++        if i == self.selected then GbFont.drawChar(TitleIdle.CURSOR, 5, nameRow) end
          local slot = slots[i]
 -        local top = 50 + (i - first) * 21
 -        local prefix = i == self.selected and "> " or "  "
@@ -88,31 +88,26 @@ index c28713e0..7de9b13b 100644
 -            gfx.drawText("x" .. slot.quantity, 328, top)
 +            local item = ItemData.definitions[slot.id]
 +            local label = item.sourceName or item.name
-+            GbFont.drawOpenString(label, 6, nameRow)
++            GbFont.drawString(label, 6, nameRow)
 +            if not item.keyItem then
 +                local quantity = "×" .. slot.quantity
 +                local quantityCol = 19 - GbFont.tiles(quantity)
-+                GbFont.drawOpenString(quantity, quantityCol, quantityRow)
++                GbFont.drawString(quantity, quantityCol, quantityRow)
 +            end
          else
 -            gfx.drawText(prefix .. "SORT BAG", 12, top)
-+            GbFont.drawOpenString("CANCEL", 6, nameRow)
++            GbFont.drawString("CANCEL", 6, nameRow)
          end
      end
      local hint = self.options.mode == "held" and "A: Give  B: Back" or "A: Choose  B: Back"
 diff --git a/Source/game/gbFont.lua b/Source/game/gbFont.lua
-index b7653c8c..de97aea3 100644
+index b7653c8c..ff9a8c90 100644
 --- a/Source/game/gbFont.lua
 +++ b/Source/game/gbFont.lua
-@@ -61,6 +61,46 @@ function GbFont.drawString(text, col, row)
+@@ -61,6 +61,16 @@ function GbFont.drawString(text, col, row)
      end
  end
  
-+-- List rows are 13px and a stretched tile fills all 13, so a quantity on
-+-- the next row shares ink with the following name. Keep the native 8px
-+-- height at the top of the cell and leave the bottom of the row blank.
-+GbFont.OPEN_ROWS = 8
-+
 +function GbFont.tiles(text)
 +    local count, index = 0, 1
 +    while index <= #text do
@@ -121,31 +116,6 @@ index b7653c8c..de97aea3 100644
 +        index = nextIndex
 +    end
 +    return count
-+end
-+
-+function GbFont.drawOpenString(text, col, row)
-+    local cursor, index = 0, 1
-+    local sheets = GbFont.load()
-+    gfx.setColor(gfx.kColorBlack)
-+    while index <= #text do
-+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
-+        local sheet = sheets[sheetName]
-+        local sx = (glyph % 16) * 8
-+        local sy = math.floor(glyph / 16) * 8
-+        local originX = (col + cursor) * TitleIdle.COL
-+        local originY = row * TitleIdle.ROW
-+        for py = 0, GbFont.OPEN_ROWS - 1 do
-+            local sourceY = sy + math.floor(py * 8 / GbFont.OPEN_ROWS)
-+            for px = 0, TitleIdle.COL - 1 do
-+                local sourceX = sx + math.floor(px * 8 / TitleIdle.COL)
-+                if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
-+                    gfx.drawPixel(originX + px, originY + py)
-+                end
-+            end
-+        end
-+        cursor = cursor + 1
-+        index = nextIndex
-+    end
 +end
 +
  function GbFont.drawBox(box)
