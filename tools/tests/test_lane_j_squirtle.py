@@ -6384,37 +6384,54 @@ TOWER_UP = {
 TOWER_FACE = {"LEFT": (-1, 0), "RIGHT": (1, 0), "UP": (0, -1), "DOWN": (0, 1)}
 
 
-def _tower_layers(name):
+def _present_ids(player):
+    return {npc.get("source_event_id") for npc in (player.state.get("npcs") or [])}
+
+
+def _tower_layers(name, present):
     blob = json.loads((SOUTH / f"{name}.json").read_text())
-    people, warps = set(), set()
+    people, warps, items = set(), set(), []
     for obj in blob["events"]["objects"]:
-        if obj.get("kind") != "item":
-            people.add((obj["x"], obj["y"]))
+        if obj["id"] not in present:
+            continue
+        cell = (obj["x"], obj["y"])
+        if obj.get("kind") == "item":
+            items.append((obj["id"], cell))
+        else:
+            people.add(cell)
     for warp in blob["events"]["warps"]:
         warps.add((warp["x"], warp["y"]))
     sight = set()
     trainers = json.loads((SOUTH / "trainers.json").read_text())["trainers"]
+    floor = name[len("PokemonTower"):]
     for trainer in trainers.values():
-        floor = name[len("PokemonTower"):]
-        if trainer.get("map_id") != f"pokered:POKEMON_TOWER_{floor}":
+        if trainer.get("map_id") != f"pokered:POKEMON_TOWER_{floor}" or trainer["id"] not in present:
             continue
         dx, dy = TOWER_FACE[trainer["facing_source"]]
         for step in range(1, int(trainer["sight_range_cells"]) + 1):
             sight.add((trainer["x"] + dx * step, trainer["y"] + dy * step))
-    return people, warps, sight
+    return people, warps, sight, items
 
 
-def _tower_route(name, here, goal):
+def _tower_route(name, here, goal, present):
     cells = set(open_map(SOUTH / f"{name}.json", 0, 20))
-    people, warps, sight = _tower_layers(name)
+    people, warps, sight, items = _tower_layers(name, present)
+    item_cells = {cell for _item, cell in items}
     for extra in (sight, set()):
-        avoid = set(people) | set(warps) | set(extra)
+        avoid = set(people) | set(warps) | set(item_cells) | set(extra)
         avoid.discard(here)
         avoid.discard(goal)
         steps = route(cells, here, goal, avoid)
         if steps:
-            return cells, steps
-    return cells, None
+            return cells, steps, None
+    for extra in (sight, set()):
+        for item_id, cell in items:
+            avoid = set(people) | set(warps) | (item_cells - {cell}) | set(extra)
+            avoid.discard(here)
+            avoid.discard(goal)
+            if route(cells, here, goal, avoid):
+                return cells, None, item_id
+    return cells, None, None
 
 
 def _tower_move(player, report, direction, place, nx, ny, nxt):
@@ -6443,13 +6460,15 @@ def _climb_tower(player, report):
     if place == "PokemonTower7F":
         return _rescue_fuji(player, report)
     nxt, goal = TOWER_UP[place]
+    present = _present_ids(player)
     _name, x, y = _k_here(player)
     if (x, y) == goal:
-        people, warps, _sight = _tower_layers(place)
+        people, warps, _sight, items = _tower_layers(place, present)
+        taken = {cell for _item, cell in items}
         cells = set(open_map(SOUTH / f"{place}.json", 0, 20))
         for direction, (dx, dy) in DELTAS.items():
             spot = (x + dx, y + dy)
-            if spot in cells and spot not in people and spot not in warps:
+            if spot in cells and spot not in people and spot not in warps and spot not in taken:
                 status = _tower_move(player, report, direction, place, spot[0], spot[1], place)
                 if status:
                     return status
@@ -6457,8 +6476,17 @@ def _climb_tower(player, report):
         else:
             raise RuntimeError(f"no step off the {place} stair")
     for _ in range(40):
+        present = _present_ids(player)
         _name, x, y = _k_here(player)
-        _cells, steps = _tower_route(place, (x, y), goal)
+        cells, steps, item_id = _tower_route(place, (x, y), goal, present)
+        if item_id:
+            people, warps, sight, items = _tower_layers(place, present)
+            avoid = set(people) | set(warps) | set(sight) | {cell for _item, cell in items}
+            avoid.discard((x, y))
+            result = talk_to(player, cells, item_id, avoid)
+            if result != "talked" or npc_named(player.state, item_id):
+                raise RuntimeError(f"{item_id} stayed on the floor: {result}")
+            continue
         if not steps:
             raise RuntimeError(f"no {place} stair from {(x, y)}")
         direction = steps[0]
@@ -6476,16 +6504,16 @@ def _rescue_fuji(player, report):
         _name, x, y = _k_here(player)
         if (x, y) == (10, 4):
             break
-        _cells, steps = _tower_route("PokemonTower7F", (x, y), (10, 4))
-        if not steps:
-            raise RuntimeError(f"no path to Fuji from {(x, y)}")
+        _cells, steps, item_id = _tower_route("PokemonTower7F", (x, y), (10, 4), _present_ids(player))
+        if item_id or not steps:
+            raise RuntimeError(f"no path to Fuji from {(x, y)} item {item_id}")
         direction = steps[0]
         nx, ny = neighbor((x, y), direction)
         status = _tower_move(player, report, direction, "PokemonTower7F", nx, ny, "PokemonTower7F")
         if status:
             return status
     cells = set(open_map(SOUTH / "PokemonTower7F.json", 0, 20))
-    people, warps, _sight = _tower_layers("PokemonTower7F")
+    people, warps, _sight, _items = _tower_layers("PokemonTower7F", _present_ids(player))
     result = talk_to(player, cells, "pokered:POKEMON_TOWER_7F:objects:4", people | warps)
     if result != "talked":
         raise RuntimeError("Fuji did not answer: " + result + " " + json.dumps(summary(player.state)))
