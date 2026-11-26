@@ -6249,7 +6249,10 @@ def _leave_hideout(player, report):
             if status:
                 return status
             _name, x, y = _k_here(player)
-        avoid = {(17, 4), (15, 17), (16, 17), (9, 5)}
+        avoid = {
+            (17, 4), (15, 17), (16, 17), (9, 5),
+            (2, 6), (5, 6), (2, 10), (2, 13), (5, 11), (8, 11), (8, 14), (11, 15), (14, 11), (17, 13),
+        }
         avoid.discard((x, y))
         status = _corner_walk(player, report, (15, 16), avoid)
         if status:

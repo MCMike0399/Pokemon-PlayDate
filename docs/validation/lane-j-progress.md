@@ -73,7 +73,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 204, Rocket Hideout B2F (25, 19) facing up, on the lift landing. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions.
+Rainbow Badge is set. The pause is sequence 206, Game Corner (17, 5) facing down, just off the Hideout stair. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
