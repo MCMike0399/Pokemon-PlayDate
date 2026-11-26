@@ -6028,11 +6028,14 @@ def _hideout_b4(player, report):
             raise RuntimeError("the lift-key talk did not set the flag: " + json.dumps(summary(player.state)))
     avoid.discard((10, 2))
     if not _holding(player, "liftKey"):
-        status = _b4_walk(player, report, (10, 2), avoid)
+        status = _b4_walk(player, report, (10, 3), avoid)
         if status:
             return status
-        if not player.exploring():
-            _settle_hideout_scene(player, 20)
+        if (player.state.get("player") or {}).get("facing") != "up":
+            player.press("up", wait=8)
+        player.press("a", wait=8)
+        if not _settle_hideout_scene(player, 30):
+            raise RuntimeError("the lift key text did not finish: " + json.dumps(summary(player.state)))
         if not _holding(player, "liftKey"):
             raise RuntimeError("the lift key was not taken: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_lift_key")
