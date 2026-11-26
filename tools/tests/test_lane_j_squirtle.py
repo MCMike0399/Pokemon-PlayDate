@@ -5381,6 +5381,8 @@ K_ZONES = {
     "CeladonCity": "kanto_celadon_city",
     "CeladonPokecenter": "kanto_celadon_pokecenter",
     "CeladonGym": "kanto_celadon_gym",
+    "GameCorner": "kanto_game_corner",
+    "RocketHideoutB1F": "kanto_rocket_hideout_b1f",
 }
 K_FILES = {
     "Route9": ("Route9.json", 0, 60),
@@ -5809,6 +5811,52 @@ def _one_step(player, report, direction, place, x, y, cut=False):
     return None
 
 
+def _rocket_stairs(player, report):
+    """The Game Corner's north stairs are the Hideout door. The poster is the fallback."""
+    if "rocket_hideout" in str(player.state.get("zone")):
+        _checkpoint(player, report, "saved_hideout")
+        return "yield"
+    if _k_here(player) != ("GameCorner", 15, 17):
+        raise RuntimeError("off the Game Corner door: " + json.dumps(summary(player.state)))
+    for y in range(16, 7, -1):
+        status = _one_step(player, report, "up", "GameCorner", 15, y)
+        if status:
+            return status
+    for x in range(14, 9, -1):
+        status = _one_step(player, report, "left", "GameCorner", x, 8)
+        if status:
+            return status
+    for y in (7, 6, 5):
+        status = _one_step(player, report, "up", "GameCorner", 10, y)
+        if status:
+            return status
+    for x in range(11, 18):
+        status = _one_step(player, report, "right", "GameCorner", x, 5)
+        if status:
+            return status
+    player.step("up")
+    player.settle(limit=80)
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    if "rocket_hideout" not in str(player.state.get("zone")):
+        # The stairs tile stayed closed. Face the poster from the open row.
+        for x in range(16, 8, -1):
+            status = _one_step(player, report, "left", "GameCorner", x, 5)
+            if status:
+                return status
+        if (player.state.get("player") or {}).get("facing") != "up":
+            player.press("up", wait=8)
+        player.press("a", wait=8)
+        if not player.exploring():
+            player.dismiss_until_explore(limit=80)
+        player.step("up")
+        player.settle(limit=40)
+        if "rocket_hideout" not in str(player.state.get("zone")):
+            raise RuntimeError("the poster did not open the stairs: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_hideout")
+    return "yield"
+
+
 def _after_rainbow(player, report):
     """Leave Erika, heal the bird, and open the Game Corner door."""
     if _k_here(player)[0] == "CeladonGym":
@@ -6051,6 +6099,8 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
     from (5, 11). Cascade is already set, so Cerulean does not mean Misty.
     """
     zone = str(player.state.get("zone"))
+    if "game_corner" in zone or "rocket_hideout" in zone:
+        return _rocket_stairs(player, report)
     if zone == "kanto_route2":
         _cut_route2_to_pewter(player, report, display, clips, output)
         _continue_kanto(player, report, display, clips, output)
