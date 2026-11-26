@@ -2325,23 +2325,46 @@ class CharmanderRun(BrockJourney):
             raise ProtocolError("Viridian Gym path missed " + str(landing) + " at " + str(self.position()))
 
     def _walk_viridian_gym(self):
-        """Stay off the arrow tiles. Two sight lines are the real door into Giovanni's room."""
+        """Ride the east arrows and fight the corridor blackbelt from his side.
+
+        He watches every tile of the only walk to Giovanni. A fight from the
+        south leaves him standing on that door. The top arrow stops on his
+        east side, so the battle keeps him on his own tile.
+        """
         if self.position() != (16, 17):
             raise ProtocolError("Viridian Gym door landed at " + str(self.position()))
-        # The guide stands on (16, 15). The column beside him reaches the two sight lines.
         for direction, count, landing in (
             ("up", 1, (16, 16)),
-            ("left", 2, (14, 16)),
-            ("up", 7, (14, 9)),
+            ("right", 1, (17, 16)),
+            ("up", 4, (17, 12)),
+            ("right", 2, (19, 12)),
+        ):
+            self._gym_presses(direction, count, landing)
+        self._gym_presses("up", 1, (19, 2))
+        self._gym_presses("up", 1, (11, 1))
+        self.face("left")
+        self.send("press a")
+        if self.state.get("root") == "overworld":
+            self.send("wait 12")
+        self._settle_gym()
+        if self.position() != (11, 1):
+            raise ProtocolError("Viridian Gym blackbelt fight left " + str(self.position()))
+        self._gym_presses("down", 1, (17, 2))
+        self._gym_presses("right", 1, (18, 11))
+        for direction, count, landing in (
+            ("down", 1, (18, 12)),
+            ("left", 4, (14, 12)),
+            ("up", 3, (14, 9)),
             ("left", 1, (13, 9)),
             ("up", 2, (13, 7)),
             ("right", 2, (15, 7)),
             ("up", 1, (15, 6)),
-            ("up", 2, (15, 4)),
-            ("left", 3, (12, 4)),
+            ("right", 1, (16, 6)),
+            ("up", 1, (16, 5)),
+            ("up", 1, (16, 4)),
+            ("left", 4, (12, 4)),
             ("down", 1, (12, 5)),
-            ("left", 1, (11, 5)),
-            ("left", 1, (10, 5)),
+            ("left", 2, (10, 5)),
             ("up", 3, (10, 2)),
             ("left", 3, (7, 2)),
             ("down", 2, (7, 4)),
