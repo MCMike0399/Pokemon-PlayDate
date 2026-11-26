@@ -17,6 +17,13 @@ playdate = {
     buttonJustPressed = function()
         return false
     end,
+    -- engine.lua loads each score with playdate.file.run. The path is the
+    -- pdz name without ".lua", the same string import() accepts.
+    file = {
+        run = function(path)
+            import(path)
+        end,
+    },
     sound = {
         kWaveSquare = "square",
         kWaveNoise = "noise",
