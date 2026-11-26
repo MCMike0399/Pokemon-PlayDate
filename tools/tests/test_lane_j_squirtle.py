@@ -5946,11 +5946,13 @@ def _hideout_spin(player, report, direction, place, landed):
     raise RuntimeError(f"arrow stopped at {_k_here(player)} not {place} {landed}")
 
 
-def _hideout_stairs(player, report, place, upward=False):
+def _hideout_stairs(player, report, place, upward=False, goal=None, expect=None):
     spec = HIDEOUT_FLOORS[place]
     _name, x, y = _k_here(player)
-    goal = spec["up"] if upward else spec["goal"]
-    expect = spec["up_next"] if upward else spec["next"]
+    if goal is None:
+        goal = spec["up"] if upward else spec["goal"]
+    if expect is None:
+        expect = spec["up_next"] if upward else spec["next"]
     if (x, y) == goal:
         for direction in DELTAS:
             nxt = neighbor(goal, direction)
@@ -6075,7 +6077,7 @@ def _holding(player, item):
 
 
 def _beaten(player, event_id):
-    flags = (player.state.get("session") or {}).get("trainerFlags") or {}
+    flags = ((player.state.get("session") or {}).get("flags") or {}).get("trainers") or {}
     if isinstance(flags, dict):
         return bool(flags.get(event_id))
     return event_id in flags
@@ -6083,6 +6085,8 @@ def _beaten(player, event_id):
 
 def _through_hideout(player, report):
     place, _x, _y = _k_here(player)
+    if _holding(player, "silphScope"):
+        return _leave_hideout(player, report)
     upward = _holding(player, "liftKey") and not _holding(player, "silphScope")
     if place == "RocketHideoutElevator":
         return _hideout_floor(player, report)
@@ -6117,8 +6121,8 @@ def _hideout_elevator(player, report):
     return _hideout_floor(player, report)
 
 
-def _hideout_floor(player, report):
-    """The panel is the wall left of the cabin exits. B4F is the third row."""
+def _hideout_floor(player, report, floor="B4F", expect="b4f"):
+    """The panel is the wall left of the cabin exits. The menu is B1F, B2F, B4F."""
     _name, x, y = _k_here(player)
     if y != 1:
         status = _k_go(player, report, "up", "RocketHideoutElevator", x, 1)
@@ -6134,15 +6138,15 @@ def _hideout_floor(player, report):
     player.press("a", wait=8)
     for _ in range(12):
         options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
-        if "B4F" in options:
-            player.choose("event", "B4F")
+        if floor in options:
+            player.choose("event", floor)
             player.settle(limit=20)
             break
         if player.exploring():
             raise RuntimeError("the lift panel did not open: " + json.dumps(summary(player.state)))
         player.press("a", wait=8)
     else:
-        raise RuntimeError("the lift never offered B4F: " + json.dumps(summary(player.state)))
+        raise RuntimeError(f"the lift never offered {floor}: " + json.dumps(summary(player.state)))
     if not player.exploring():
         if not player.dismiss_until_explore(limit=40):
             raise RuntimeError("the lift menu stayed up: " + json.dumps(summary(player.state)))
@@ -6150,8 +6154,8 @@ def _hideout_floor(player, report):
     player.settle(limit=30)
     player.step("up")
     player.settle(limit=80)
-    if "b4f" not in str(player.state.get("zone")):
-        raise RuntimeError("the lift did not reach B4F: " + json.dumps(summary(player.state)))
+    if expect not in str(player.state.get("zone")):
+        raise RuntimeError(f"the lift did not reach {floor}: " + json.dumps(summary(player.state)))
     _checkpoint(player, report, "saved_elevator")
     return "yield"
 
@@ -6208,6 +6212,127 @@ def _hideout_east(player, report):
         return "yield"
     _checkpoint(player, report, "saved_hideout_east")
     return "yield"
+
+
+CELADON_DOORS = {
+    (8, 13), (10, 13), (24, 9), (24, 3), (25, 3), (41, 9), (12, 27),
+    (28, 19), (39, 19), (33, 19), (31, 27), (35, 27), (43, 27),
+}
+
+
+def _needs_center(player):
+    members = (((player.state.get("session") or {}).get("party") or {}).get("members") or [])
+    return any((mon.get("hp") or 0) <= 0 for mon in members)
+
+
+def _leave_hideout(player, report):
+    """The scope is in the bag. B2F's lift is the way out; B1F's door is still shut."""
+    place, x, y = _k_here(player)
+    if place == "RocketHideoutB4F":
+        if (x, y) != (24, 14):
+            status = _b4_walk(player, report, (24, 14), {(25, 15), (19, 10), (11, 2), (10, 2), (25, 2)})
+            if status:
+                return status
+        player.step("down")
+        player.settle(limit=80)
+        if "elevator" not in str(player.state.get("zone")):
+            raise RuntimeError("the lift did not open: " + json.dumps(summary(player.state)))
+        return _hideout_floor(player, report, "B2F", "b2f")
+    if place == "RocketHideoutElevator":
+        return _hideout_floor(player, report, "B2F", "b2f")
+    if place == "RocketHideoutB2F":
+        return _hideout_stairs(player, report, place, upward=True)
+    if place == "RocketHideoutB1F":
+        return _hideout_stairs(player, report, place, goal=(21, 2), expect="game_corner")
+    if place == "GameCorner":
+        if (x, y) == (17, 4):
+            status = _one_step(player, report, "down", "GameCorner", 17, 5)
+            if status:
+                return status
+            _name, x, y = _k_here(player)
+        avoid = {(17, 4), (15, 17), (16, 17), (9, 5)}
+        avoid.discard((x, y))
+        status = _corner_walk(player, report, (15, 16), avoid)
+        if status:
+            return status
+        player.step("down")
+        player.settle(limit=80)
+        if "celadon" not in str(player.state.get("zone")):
+            raise RuntimeError("the Game Corner door stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_celadon")
+        return "yield"
+    raise RuntimeError("the scope leave left the Hideout: " + json.dumps(summary(player.state)))
+
+
+def _city_walk(player, report, goal):
+    cells = set(open_map(EAST / "CeladonCity.json", 0, 50))
+    for _ in range(40):
+        _name, x, y = _k_here(player)
+        if (x, y) == goal:
+            return None
+        blocked = set(CELADON_DOORS)
+        blocked.discard((x, y))
+        blocked.discard(goal)
+        steps = route(cells, (x, y), goal, blocked)
+        if not steps:
+            raise RuntimeError(f"no Celadon path {(x, y)} -> {goal}")
+        nxt = neighbor((x, y), steps[0])
+        status = _k_go(player, report, steps[0], "CeladonCity", nxt[0], nxt[1])
+        if status:
+            return status
+    raise RuntimeError("the Celadon walk stalled at " + json.dumps(summary(player.state)))
+
+
+def _center_heal(player, report):
+    if _needs_center(player):
+        for y in (6, 5, 4, 3):
+            if _k_here(player) == ("CeladonPokecenter", 3, y):
+                break
+            status = _one_step(player, report, "up", "CeladonPokecenter", 3, y)
+            if status:
+                return status
+        cells = set(open_map(EAST / K_FILES["CeladonPokecenter"][0], *K_FILES["CeladonPokecenter"][1:]))
+        talk_to(player, cells, K_NURSE["CeladonPokecenter"], set())
+        if _needs_center(player):
+            raise RuntimeError("the nurse did not heal: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_scope_healed")
+    return "yield"
+
+
+def _with_scope(player, report):
+    """Heal, then take Celadon's east road. Route 16 is the Snorlax."""
+    place = _k_here(player)[0]
+    if place in ("RocketHideoutB1F", "RocketHideoutB2F", "RocketHideoutB3F", "RocketHideoutB4F", "RocketHideoutElevator", "GameCorner"):
+        return _leave_hideout(player, report)
+    if place == "CeladonCity":
+        if _needs_center(player):
+            status = _city_walk(player, report, (41, 10))
+            if status:
+                return status
+            player.step("up")
+            player.settle(limit=80)
+            if "pokecenter" not in str(player.state.get("zone")):
+                raise RuntimeError("the Center door stayed shut: " + json.dumps(summary(player.state)))
+        else:
+            status = _city_walk(player, report, (48, 10))
+            if status:
+                return status
+            player.step("right")
+            player.settle(limit=80)
+            if "route_7" not in str(player.state.get("zone")):
+                raise RuntimeError("Route 7 did not open: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_route7")
+            return "yield"
+    if _k_here(player)[0] == "CeladonPokecenter":
+        if not _needs_center(player) and _k_here(player)[2] == 7:
+            player.step("down")
+            player.settle(limit=80)
+            if "celadon_city" not in str(player.state.get("zone")):
+                raise RuntimeError("the Center door stayed shut: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_scope_healed")
+            return "yield"
+        return _center_heal(player, report)
+    raise RuntimeError("off the scope road: " + json.dumps(summary(player.state)))
 
 
 def _rocket_stairs(player, report):
@@ -6502,6 +6627,8 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
     from (5, 11). Cascade is already set, so Cerulean does not mean Misty.
     """
     zone = str(player.state.get("zone"))
+    if _holding(player, "silphScope") and not _quest(player).get("BADGE_SOUL"):
+        return _with_scope(player, report)
     if "game_corner" in zone or "rocket_hideout" in zone:
         return _rocket_stairs(player, report)
     if zone == "kanto_route2":
