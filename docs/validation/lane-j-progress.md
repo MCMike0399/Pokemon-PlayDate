@@ -73,13 +73,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 202, Rocket Hideout B4F (24, 3) facing right. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. Giovanni is beaten and the office door is open. The Silph Scope ball is at (25, 2). The Lift Key is in the bag. TM21 is in the bag. There are no potions.
+Rainbow Badge is set. The pause is sequence 204, Rocket Hideout B2F (25, 19) facing up, on the lift landing. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. The Silph Scope and the Lift Key are in the bag. Giovanni is beaten. TM21 is in the bag. There are no potions.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
 Team: Pidgeotto 33 (0 HP), Bellsprout 15 (0 HP), Wartortle 32 (0 HP), Dugtrio 28 (12 HP). The Center is the next stop after the Scope.
 
-The stair side of B4F does not connect to Giovanni. B1F's door at (24, 16) and (25, 16) is the closed $54 block until the Rocket at (28, 18) falls, and he stands on the far side of it. The B2F lift reached this side. Next is the two Rockets at (23, 12) and (26, 12), then Giovanni. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
+The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
 ## Blockers
 

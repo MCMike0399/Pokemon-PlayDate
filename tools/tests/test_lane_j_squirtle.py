@@ -5866,7 +5866,7 @@ HIDEOUT_FLOORS = {
         "zone": "pokered:ROCKET_HIDEOUT_B2F",
         "warps": {(27, 8), (21, 8), (24, 19), (21, 22), (25, 19)},
         "up": (27, 8), "up_next": "b1f",
-        "blocked": {(20, 12), (1, 11), (16, 8), (6, 12), (3, 21)},
+        "blocked": {(20, 12), (20, 13), (20, 14), (20, 15), (20, 16), (1, 11), (16, 8), (6, 12), (3, 21)},
     },
     "RocketHideoutB3F": {
         "file": "RocketHideoutB3F.json", "width": 30, "goal": (19, 18), "next": "b4f",
