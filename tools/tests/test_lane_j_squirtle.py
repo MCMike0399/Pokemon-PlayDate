@@ -5793,16 +5793,16 @@ def _face_erika(player, report, display, clips, output):
     facing = (player.state.get("player") or {}).get("facing")
     if facing != "up":
         player.press("up", wait=8)
-        player.wait(4)
+        player.settle(limit=8)
     def battle():
         player.press("a", wait=8)
         _fight_once(player, "Erika", 30, shift_to="pidgeotto")
     if display is not None and clips is not None:
-        film(display, clips, output, "erika", battle, report)
+        film(display, clips, output, "erika", report, "end", battle)
     else:
         battle()
     player.dismiss_until_explore(limit=40)
-    flags = player.state.get("flags") or {}
+    flags = _quest(player)
     if flags.get("BADGE_RAINBOW") or flags.get("BADGE_RAINBOWBADGE"):
         _checkpoint(player, report, "saved_rainbow")
         return "badge"

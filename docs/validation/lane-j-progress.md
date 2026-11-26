@@ -72,15 +72,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-WIP, stopped on request. The golden-path Simulator run is not running.
-
-The live pause is sequence 160, Celadon City (49, 11) facing right. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `c5ff8e268eeccf8718722866a54a667915d3f978c137acaf74b3b5d04fb12932`. The other slot is sequence 159, Celadon Pokémon Center (3, 3) facing up, `adventure.a.json` sha256 `e716d22bfc5d6fb427134c457a7bc3bdea3bc06774c8351202de5e5b4614ec59`. The same two files are at `/opt/cursor/artifacts/lane-j/saves/route6-bird/`.
+Pidgeotto learned Wing Attack. The pause is sequence 168, Celadon Gym (4, 4) facing right, the cell after the west-tree Beauty. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json` sha256 `4d0a00a0a522833308e546e8f393345a1acdced8a44d9c5f93bcf75b50397d3f`. Sequence 167 is the Celadon Center heal, `adventure.a.json` sha256 `491f6ec198a07f47c244e1e2a2d7714256c4b18fd3758716eabfcf409ce3a493`.
 
 Badges: Boulder, Cascade, and Thunder. Rainbow Badge is not set.
 
-Team: Pidgeotto 30 (77 HP; Gust, Sand Attack, Quick Attack, Whirlwind), Bellsprout 15 (40 HP; Vine Whip, Growth, Wrap, Cut), Wartortle 31 (81 HP; Tackle, Water Gun, Withdraw, Bite), Dugtrio 27 (60 HP; Scratch, Growl, Dig, Sand Attack).
+Team: Pidgeotto 31 (70 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-Rock Tunnel, Lavender, the Route 8 underground, and Route 7 are behind this pause. (49, 11) facing right is Celadon's east edge, on the way back to the Route 7 grass. Next step: grind Pidgeotto to 31 so it learns Wing Attack, then cut only the west tree in Celadon Gym and face Erika from (5, 4). Whirlwind is already in the moveset. No Erika attempt yet. The Route 9 clip `artifacts/lane-j/20261120T141526Z-route9.mp4` is untracked and is not in this commit.
+Next step: walk to (5, 4), face up, and fight Erika. The first attempt reached (5, 4) facing up and stopped in the driver before A, so Erika has not been battled.
 
 ## Blockers
 
