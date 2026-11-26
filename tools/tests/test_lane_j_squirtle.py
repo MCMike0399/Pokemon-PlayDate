@@ -5981,13 +5981,72 @@ def _hideout_stairs(player, report, place):
     raise RuntimeError("the stair walk ended on the same floor")
 
 
+def _b4_walk(player, report, goal, avoid):
+    cells = set(open_map(EAST / "RocketHideoutB4F.json", 0, 30))
+    for _ in range(40):
+        _name, x, y = _k_here(player)
+        if (x, y) == goal:
+            return None
+        blocked = set(avoid)
+        blocked.discard((x, y))
+        steps = route(cells, (x, y), goal, blocked)
+        if not steps:
+            raise RuntimeError(f"no B4F path {(x, y)} -> {goal}")
+        nxt = neighbor((x, y), steps[0])
+        status = _k_go(player, report, steps[0], "RocketHideoutB4F", nxt[0], nxt[1])
+        if status:
+            return status
+    raise RuntimeError("the B4F walk stalled at " + json.dumps(summary(player.state)))
+
+
+def _hideout_b4(player, report):
+    """The lift-key Rocket is on the stair side. The east door opens after two fights."""
+    quest = _quest(player)
+    avoid = {
+        (19, 10), (24, 15), (25, 15), (25, 3), (23, 12), (26, 12),
+        (11, 2), (25, 2), (9, 4), (10, 12), (12, 20), (10, 2),
+    }
+    if not quest.get("EVENT_ROCKET_HIDEOUT_4_DOOR_UNLOCKED"):
+        avoid.update({(24, 11), (25, 11)})
+    if not quest.get("EVENT_ROCKET_DROPPED_LIFT_KEY"):
+        status = _b4_walk(player, report, (11, 3), avoid)
+        if status:
+            return status
+        if player.state.get("root") != "battle":
+            if (player.state.get("player") or {}).get("facing") != "up":
+                player.press("up", wait=8)
+            player.press("a", wait=8)
+        if player.state.get("root") == "battle" or not player.exploring():
+            return _k_clear(player, report) or "yield"
+        raise RuntimeError("the lift-key Rocket did not battle: " + json.dumps(summary(player.state)))
+    avoid.discard((10, 2))
+    if "liftKey" not in json.dumps(player.state.get("session") or {}):
+        status = _b4_walk(player, report, (10, 2), avoid)
+        if status:
+            return status
+        if not player.exploring():
+            _settle_hideout_scene(player, 20)
+        _checkpoint(player, report, "saved_lift_key")
+        return "yield"
+    status = _b4_walk(player, report, (20, 10), avoid)
+    if status:
+        return status
+    player.step("right")
+    player.settle(limit=20)
+    landed = _k_here(player)
+    if landed[1] == 20:
+        block = (player.state.get("player") or {}).get("lastTraversalBlock")
+        raise RuntimeError("B4F (21, 10) stayed shut: " + json.dumps(block))
+    _checkpoint(player, report, "saved_hideout_b4")
+    return "yield"
+
+
 def _through_hideout(player, report):
     place = _k_here(player)[0]
     if place in HIDEOUT_FLOORS:
         return _hideout_stairs(player, report, place)
     if place == "RocketHideoutB4F":
-        _checkpoint(player, report, "saved_hideout_b4")
-        return "yield"
+        return _hideout_b4(player, report)
     raise RuntimeError("off the Hideout floors: " + json.dumps(summary(player.state)))
 
 

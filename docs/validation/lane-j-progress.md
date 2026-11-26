@@ -73,13 +73,13 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 183, Rocket Hideout B1F (21, 2) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json` sha256 `fce7eb423bde803978af6bcba63ce46f291d7e00759b191bde0fefcf1052cf99`. `EVENT_BEAT_ERIKA`, `EVENT_FOUND_ROCKET_HIDEOUT`, and `ROCKET_HIDEOUT_SCENE_V1_GUARD_LEFT` are set. TM21 is in the bag. The bag has no potions.
+Rainbow Badge is set. The pause is sequence 191, Rocket Hideout B4F (19, 10) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `EVENT_BEAT_ERIKA`, `EVENT_FOUND_ROCKET_HIDEOUT`, and `ROCKET_HIDEOUT_SCENE_V1_GUARD_LEFT` are set. TM21 is in the bag. The bag has no potions.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
 Team: Pidgeotto 32 (60 HP; Gust, Sand Attack, Quick Attack, Wing Attack), Bellsprout 15 (40 HP), Wartortle 31 (81 HP), Dugtrio 27 (60 HP).
 
-The Game Corner Rocket is talk-only. Facing him and pressing A started the battle, he left, and the poster at (9, 4) opened the stair. The next walk is B1F (23, 2) down to B2F, then the B3F arrows, then Giovanni. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
+The Game Corner Rocket is talk-only. Facing him and pressing A started the battle, he left, and the poster opened the stair. B1F (23, 2), B2F (21, 8), and the B3F arrows all led here. Next is the lift-key Rocket at (11, 2). Giovanni is past the door that opens after the two east Rockets. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
 ## Blockers
 
