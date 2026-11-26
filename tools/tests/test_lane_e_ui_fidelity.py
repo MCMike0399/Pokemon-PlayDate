@@ -56,23 +56,26 @@ class LaneEUIFidelityTests(unittest.TestCase):
 
     def test_bag_list_matches_the_item_menu(self):
         text = (ROOT / "Source/game/bagState.lua").read_text(encoding="utf-8")
-        self.assertIn("GbFont.drawChar(TitleIdle.CURSOR, 5, nameRow)", text)
+        self.assertIn("GbFont.drawCharAt(TitleIdle.CURSOR, 5 * TitleIdle.COL, nameY)", text)
         self.assertNotIn('"> "', text)
-        self.assertIn("local nameRow = 4 + n * 2", text)
-        self.assertIn("local quantityRow = nameRow + 1", text)
-        self.assertIn("GbFont.drawString(label, 6, nameRow)", text)
+        self.assertIn("local textRow = TitleIdle.ROW * 2", text)
+        self.assertIn("local nameY = TitleIdle.ROW + n * textRow * 2", text)
+        self.assertIn("local quantityY = nameY + textRow", text)
+        self.assertIn("GbFont.drawStringAt(label, 6 * TitleIdle.COL, nameY)", text)
         self.assertIn("local quantityCol = 19 - GbFont.tiles(quantity)", text)
-        self.assertIn("GbFont.drawString(quantity, quantityCol, quantityRow)", text)
+        self.assertIn("GbFont.drawStringAt(quantity, quantityCol * TitleIdle.COL, quantityY)", text)
         self.assertNotIn("drawOpenString", text)
         self.assertNotIn("OPEN_ROWS", text)
-        self.assertNotIn("local row = 4 + n * 2", text)
+        self.assertNotIn("local nameRow = 4 + n * 2", text)
+        self.assertNotIn("local quantityRow = nameRow + 1", text)
         self.assertNotIn("14, row + 1", text)
         self.assertNotIn("14, quantityRow", text)
         self.assertIn("local window = 4", text)
-        self.assertIn('GbFont.drawString("CANCEL", 6, nameRow)', text)
+        self.assertIn('GbFont.drawStringAt("CANCEL", 6 * TitleIdle.COL, nameY)', text)
+        self.assertIn("h = 17 * TitleIdle.ROW", text)
+        self.assertNotIn("boxCol, boxRow, boxRight, boxBottom = 4, 2, 19, 12", text)
         self.assertIn("item.sourceName or item.name", text)
         self.assertIn("return count + 1", text)
-        self.assertIn("boxCol, boxRow, boxRight, boxBottom = 4, 2, 19, 12", text)
         self.assertIn("start_sub_menus.asm:315", text)
         self.assertIn("core.asm:2226", text)
         self.assertNotIn("drawMoneyRight", text)
@@ -82,38 +85,44 @@ class LaneEUIFidelityTests(unittest.TestCase):
         self.assertNotIn("SORT BAG", text)
         self.assertIn('"A: Choose  B: Back"', text)
 
+    def ink_bands(self, path, x0, x1, y0, y1, min_height=6):
+        image = Image.open(path).convert("L")
+        bands, start = [], None
+        for y in range(y0, y1):
+            ink = any(image.getpixel((x, y)) < 128 for x in range(x0, x1))
+            if ink and start is None:
+                start = y
+            elif not ink and start is not None:
+                if y - start >= min_height:
+                    bands.append((start, y - 1))
+                start = None
+        return bands
+
+    def quantity_on_its_own_row(self, path):
+        # Names in the left of the list, quantities on the right. The
+        # quantity's top is at or below its name and above the next name,
+        # and its bottom clears that next name by half a glyph. r5 leaves
+        # only a couple of pixels, so the × sits in the crack.
+        names = self.ink_bands(path, 120, 300, 8, 210)
+        quantities = self.ink_bands(path, 330, 379, 8, 210)
+        if len(quantities) < 2 or len(names) < len(quantities) + 1:
+            return False
+        for index, (top, bottom) in enumerate(quantities):
+            _, name_bottom = names[index]
+            next_top, _ = names[index + 1]
+            name_height = names[index][1] - names[index][0] + 1
+            if top < name_bottom or top >= next_top or bottom >= next_top:
+                return False
+            if next_top - bottom < name_height // 2:
+                return False
+        return True
+
     def test_bag_drawn_rows_keep_each_quantity_on_its_own_line(self):
-        # Names stay on rows 4, 6, 8, 10 and the quantity on the row below,
-        # in the same 20 by 13 cell the Pokédex list uses. The quantity sits
-        # to the right of a nine-tile name, so the two full cells do not meet.
-        text = (ROOT / "Source/game/bagState.lua").read_text(encoding="utf-8")
-        font = (ROOT / "Source/game/gbFont.lua").read_text(encoding="utf-8")
-        self.assertIn("function GbFont.drawString", font)
-        self.assertNotIn("OPEN_ROWS", font)
-        self.assertNotIn("drawOpenString", font)
-        self.assertIn("local quantityCol = 19 - GbFont.tiles(quantity)", text)
-        row_px, col_px = 13, 20
-        glyph = row_px
-        for n in range(4):
-            name_row = 4 + n * 2
-            quantity_row = name_row + 1
-            name_top = name_row * row_px
-            name_bottom = name_top + glyph
-            quantity_top = quantity_row * row_px
-            quantity_bottom = quantity_top + glyph
-            self.assertEqual(quantity_row, name_row + 1)
-            self.assertGreaterEqual(quantity_top, name_bottom)
-            if n < 3:
-                next_name_top = (4 + (n + 1) * 2) * row_px
-                self.assertGreaterEqual(next_name_top, quantity_bottom)
-            quantity_col = 19 - 2
-            name_last = 6 + 9 - 1
-            name_right = (name_last + 1) * col_px
-            quantity_left = quantity_col * col_px
-            self.assertGreaterEqual(quantity_col, name_last + 1)
-            self.assertGreaterEqual(quantity_left, name_right)
-            self.assertLessEqual((quantity_col + 2) * col_px, 19 * col_px)
-            self.assertLessEqual(quantity_bottom, 12 * row_px)
+        frames = ROOT / "artifacts/lane-g/ui-fidelity"
+        self.assertFalse(self.quantity_on_its_own_row(frames / "bag-r5.png"))
+        self.assertFalse(self.quantity_on_its_own_row(frames / "battle-bag-r5.png"))
+        self.assertTrue(self.quantity_on_its_own_row(frames / "bag-r6.png"))
+        self.assertTrue(self.quantity_on_its_own_row(frames / "battle-bag-r6.png"))
 
     def painted_height(self, path, x, y, w, h):
         image = Image.open(path).convert("L")
@@ -127,9 +136,9 @@ class LaneEUIFidelityTests(unittest.TestCase):
         # 20 by 13 cell. r4's bag glyphs are the 8px open tiles, so this
         # equality fails on bag-r4.png.
         frames = ROOT / "artifacts/lane-g/ui-fidelity"
-        dex = self.painted_height(frames / "pokedex-list-r5.png", 20, 13, 160, 13)
-        bag = self.painted_height(frames / "bag-r5.png", 120, 52, 120, 13)
-        battle = self.painted_height(frames / "battle-bag-r5.png", 120, 52, 120, 13)
+        dex = self.painted_height(frames / "pokedex-list-r6.png", 20, 13, 160, 13)
+        bag = self.painted_height(frames / "bag-r6.png", 120, 13, 120, 13)
+        battle = self.painted_height(frames / "battle-bag-r6.png", 120, 13, 120, 13)
         squashed = self.painted_height(frames / "bag-r4.png", 120, 52, 120, 13)
         self.assertEqual(bag, dex)
         self.assertEqual(battle, dex)

@@ -1,5 +1,5 @@
 diff --git a/Source/game/bagState.lua b/Source/game/bagState.lua
-index c28713e0..ce7ed15b 100644
+index c28713e0..a5cf1902 100644
 --- a/Source/game/bagState.lua
 +++ b/Source/game/bagState.lua
 @@ -1,3 +1,4 @@
@@ -33,7 +33,7 @@ index c28713e0..ce7ed15b 100644
                  return
              end
              local id = slots[self.selected].id
-@@ -409,29 +410,47 @@ function BagState:draw()
+@@ -409,36 +410,55 @@ function BagState:draw()
      gfx.setDrawOffset(0, 0)
      gfx.clear(gfx.kColorWhite)
      gfx.setColor(gfx.kColorBlack)
@@ -54,21 +54,22 @@ index c28713e0..ce7ed15b 100644
 +    -- DisplayBagMenu does the same at engine/battle/core.asm:2226.
 +    -- PrintListMenuEntries (home/list_menu.asm:411) prints a price only
 +    -- when that flag is set. LIST_MENU_BOX is data/text_boxes.asm:13.
-+    -- Four names start at (6,4) and each entry is 2*SCREEN_WIDTH apart
-+    -- (list_menu.asm:364 and :512), the same full 20 by 13 cell the
-+    -- Pokédex list uses. The × quantity is the second row of that entry,
-+    -- right-aligned against the column-19 border so it does not meet the
-+    -- next name. CANCEL is the entry after the last item.
++    -- PrintListMenuEntries prints four names (list_menu.asm, ld b, 4)
++    -- from hlcoord 6, 4. Each entry steps 2*SCREEN_WIDTH, and ×qty is the
++    -- next row, right-aligned. A Game Boy row is 8px. A full glyph here is
++    -- 12px in a 13px cell, so one cell per row leaves the quantity in the
++    -- crack above the next name. A text row is two cells, the Pokédex list
++    -- pitch. The box is taller than LIST_MENU_BOX so those four slots fit.
 +    if self.options and self.options.mode=="held" then
 +        gfx.drawText("GIVE: "..self.options.holder.name, 12, 0)
      end
 -    if #slots == 0 then gfx.drawText(self.options and self.options.mode=="held" and "No holdable items in your bag." or "Your bag is empty.", 16, 64) end
 -    for i = first, math.min(self:listCount(), first + 6) do
-+    local boxCol, boxRow, boxRight, boxBottom = 4, 2, 19, 12
++    local textRow = TitleIdle.ROW * 2
 +    GbFont.drawBox({
-+        x = boxCol * TitleIdle.COL, y = boxRow * TitleIdle.ROW,
-+        w = (boxRight - boxCol + 1) * TitleIdle.COL,
-+        h = (boxBottom - boxRow + 1) * TitleIdle.ROW,
++        x = 4 * TitleIdle.COL, y = 0,
++        w = 16 * TitleIdle.COL,
++        h = 17 * TitleIdle.ROW,
 +    })
 +    local slots = self:visibleSlots()
 +    local count = self:listCount()
@@ -77,9 +78,9 @@ index c28713e0..ce7ed15b 100644
 +    for n = 0, math.min(window, count) - 1 do
 +        local i = first + n
 +        if i > count then break end
-+        local nameRow = 4 + n * 2
-+        local quantityRow = nameRow + 1
-+        if i == self.selected then GbFont.drawChar(TitleIdle.CURSOR, 5, nameRow) end
++        local nameY = TitleIdle.ROW + n * textRow * 2
++        local quantityY = nameY + textRow
++        if i == self.selected then GbFont.drawCharAt(TitleIdle.CURSOR, 5 * TitleIdle.COL, nameY) end
          local slot = slots[i]
 -        local top = 50 + (i - first) * 21
 -        local prefix = i == self.selected and "> " or "  "
@@ -88,26 +89,53 @@ index c28713e0..ce7ed15b 100644
 -            gfx.drawText("x" .. slot.quantity, 328, top)
 +            local item = ItemData.definitions[slot.id]
 +            local label = item.sourceName or item.name
-+            GbFont.drawString(label, 6, nameRow)
++            GbFont.drawStringAt(label, 6 * TitleIdle.COL, nameY)
 +            if not item.keyItem then
 +                local quantity = "×" .. slot.quantity
 +                local quantityCol = 19 - GbFont.tiles(quantity)
-+                GbFont.drawString(quantity, quantityCol, quantityRow)
++                GbFont.drawStringAt(quantity, quantityCol * TitleIdle.COL, quantityY)
 +            end
          else
 -            gfx.drawText(prefix .. "SORT BAG", 12, top)
-+            GbFont.drawString("CANCEL", 6, nameRow)
++            GbFont.drawStringAt("CANCEL", 6 * TitleIdle.COL, nameY)
          end
      end
      local hint = self.options.mode == "held" and "A: Give  B: Back" or "A: Choose  B: Back"
+     if GameOptions.crankScrolling() and self:listCount() >= 5 then
+         hint = hint .. "  Crank: Scroll"
+     end
+-    gfx.drawText(hint, 12, 218)
++    gfx.drawText(hint, 12, 224)
+     if self.phase == "message" then
+         gfx.setColor(gfx.kColorWhite); gfx.fillRect(4, 174, 392, 62)
+         gfx.setColor(gfx.kColorBlack); gfx.drawRect(4, 174, 392, 62)
 diff --git a/Source/game/gbFont.lua b/Source/game/gbFont.lua
-index b7653c8c..ff9a8c90 100644
+index b7653c8c..5ae094cb 100644
 --- a/Source/game/gbFont.lua
 +++ b/Source/game/gbFont.lua
-@@ -61,6 +61,16 @@ function GbFont.drawString(text, col, row)
+@@ -52,15 +52,34 @@ function GbFont.drawChar(char, col, row)
+ end
+ 
+ function GbFont.drawString(text, col, row)
++    GbFont.drawStringAt(text, col * TitleIdle.COL, row * TitleIdle.ROW)
++end
++
++function GbFont.drawStringAt(text, x, y)
+     local cursor, index = 0, 1
+     while index <= #text do
+         local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+-        tileImage(sheetName, glyph):draw((col + cursor) * TitleIdle.COL, row * TitleIdle.ROW)
++        tileImage(sheetName, glyph):draw(x + cursor * TitleIdle.COL, y)
+         cursor = cursor + 1
+         index = nextIndex
      end
  end
  
++function GbFont.drawCharAt(char, x, y)
++    local sheetName, index = TitleIdle.glyph(char)
++    tileImage(sheetName, index):draw(x, y)
++end
++
 +function GbFont.tiles(text)
 +    local count, index = 0, 1
 +    while index <= #text do
