@@ -235,6 +235,12 @@ BlueBot approved the r3 card, dex rating, spacing, bands, black text, silhouette
 
 A normal boot leaves `game/creditsDraw` out of `main.pdz`. It is a standalone `game/creditsDraw.pdz`. On the title screen and in Pallet, and while Oak's Hall dialog is up, `EndgameStory.drawCredits` is nil. Ten frames after that dialog closes, the Hall photo has loaded it. The roll then draws the same frames as r4.
 
+## Round 30
+
+`origin/main` is still `ea32b553`. The credits recheck is waiting on a main commit past that SHA. No merge.
+
+The unreviewed field and battle pages are in `docs/validation/lane-g-ui-unreviewed.md`, with the Simulator frames in `artifacts/lane-g/ui-unreviewed/`. Pokered pin `af519899719f0754965776faac0e836a3b906e6d`. The notes record source diffs and leave the visual call to BlueBot. The Viridian Mart clerk stays unreachable from a walkable tile, so the buy list is the aisle frame only.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
