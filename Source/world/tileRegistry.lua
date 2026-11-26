@@ -391,6 +391,10 @@ end
 function TileRegistry:registerBatch(entries)
     return self:registerPreparedBatch(self:prepareBatch(entries))
 end
+function TileRegistry:releaseRenderedImages()
+    local store = stores[self]
+    if store then store.images = {} end
+end
 function TileRegistry:renderImported(value, renderer)
     local id = self:id(value)
     assert(id > BASE_COUNT, "base images are provided by TileFactory")
