@@ -1,0 +1,47 @@
+diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
+index 340349c3..764117fe 100644
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -78,4 +78,4 @@ function PauseState:draw()
+         if self.phase == "save" then
+-            gfx.drawText("Would you like to SAVE the game?", 28, 40)
+-            self.menu:draw(200, 112, 172, 60)
++            gfx.clear(gfx.kColorWhite)
++            self:drawSave()
+         else
+@@ -108 +108,35 @@ function PauseState:resume()
+ end
++
++-- engine/menus/main_menu.asm PrintSaveScreenText draws the info box at
++-- hlcoord 4, 0. SaveScreenInfoText starts at hlcoord 5, 2 and <NEXT> is
++-- two rows. The yes/no box is DisplayTwoOptionMenu at hlcoord 0, 7 with
++-- the cursor at column 1, row 8 (engine/menus/text_box.asm).
++function PauseState:drawSave()
++    local session = self.game.session
++    local clock = session:playTime()
++    local owned = 0
++    for _, flag in pairs(session:pokedex().owned) do
++        if flag then owned = owned + 1 end
++    end
++    local badges = 0
++    for _, id in ipairs(TitleIdle.BADGE_FLAGS) do
++        if session:questFlag(id) == true then badges = badges + 1 end
++    end
++    GbFont.drawBox(TitleIdle.textBox(4, 0, 14, 8))
++    GbFont.drawString("PLAYER", 5, 2)
++    GbFont.drawString(Story.playerName(self.game), 12, 2)
++    GbFont.drawString("BADGES", 5, 4)
++    GbFont.drawString(string.format("%2d", badges), 17, 4)
++    GbFont.drawString("POKéDEX", 5, 6)
++    GbFont.drawString(string.format("%3d", owned), 16, 6)
++    GbFont.drawString("TIME", 5, 8)
++    GbFont.drawString(TitleIdle.playTimeText(clock.hours, clock.minutes), 13, 8)
++    GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
++    GbFont.drawString("Would you like to", 1, 14)
++    GbFont.drawString("SAVE the game?", 1, 16)
++    GbFont.drawBox(TitleIdle.textBox(0, 7, 4, 3))
++    local cursorRow = self.menu.selectedIndex == 2 and 10 or 8
++    GbFont.drawChar(TitleIdle.CURSOR, 1, cursorRow)
++    GbFont.drawString("YES", 2, 8)
++    GbFont.drawString("NO", 2, 10)
++end

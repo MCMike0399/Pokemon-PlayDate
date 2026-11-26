@@ -1,0 +1,59 @@
+diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
+index 340349c3..97814b70 100644
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -81,21 +81,4 @@ function PauseState:draw()
+         else
+-            -- start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
+-            -- DrawBadges is tile art this screen does not have, so the
+-            -- badge count is the text stand-in for that box.
+-            local session = self.game.session
+-            local clock = session:playTime()
+-            local flags = {}
+-            for _, id in ipairs(TitleIdle.BADGE_FLAGS) do
+-                flags[id] = session:questFlag(id) == true
+-            end
+-            gfx.drawText("NAME/" .. Story.playerName(self.game), 32, 42)
+-            -- engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
+-            -- prints the charmap money sign ($f0), not "$".
+-            local moneyLabel = "MONEY/"
+-            gfx.drawText(moneyLabel, 32, 72)
+-            local moneyWidth = gfx.getTextSize(moneyLabel)
+-            GbFont.drawMoneyLine("¥" .. session:inventory():money(), 32 + moneyWidth, 72)
+-            gfx.drawText("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 32, 102)
+-            gfx.drawText("BADGES  " .. TitleIdle.countFlags(flags), 32, 132)
+-            gfx.drawText("A / B: Back", 32, 178)
++            gfx.clear(gfx.kColorWhite)
++            self:drawTrainer()
+         end
+@@ -105,2 +88,30 @@ end
+ 
++-- engine/menus/start_sub_menus.asm DrawTrainerInfo. The top box is 20 by 8
++-- tiles from hlcoord 0, 0. NAME/ MONEY/ TIME/ is PlaceString at hlcoord 2, 2,
++-- so each label is two rows down. BADGES sits on the row between the boxes.
++-- The side rails are TrainerInfo_DrawVerticalLine at columns 0 and 19.
++function PauseState:drawTrainer()
++    local session = self.game.session
++    local clock = session:playTime()
++    GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 6))
++    GbFont.drawBox(TitleIdle.textBox(1, 10, 16, 6))
++    for row = 10, 17 do
++        GbFont.drawChar("│", 0, row)
++        GbFont.drawChar("│", 19, row)
++    end
++    GbFont.drawString("NAME/", 2, 2)
++    GbFont.drawString(Story.playerName(self.game), 7, 2)
++    GbFont.drawString("MONEY/", 2, 4)
++    GbFont.drawString("¥" .. session:inventory():money(), 8, 4)
++    GbFont.drawString("TIME/", 2, 6)
++    GbFont.drawString(TitleIdle.playTimeText(clock.hours, clock.minutes), 9, 6)
++    GbFont.drawString("BADGES", 6, 9)
++    local pic = gfx.image.new("images/player/red-pic-front")
++    if pic then
++        local _, height = pic:getSize()
++        local target = 6 * TitleIdle.ROW
++        pic:drawScaled(15 * TitleIdle.COL, TitleIdle.ROW, target / height)
++    end
++end
++
+ function PauseState:resume()

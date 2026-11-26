@@ -275,6 +275,10 @@ The r4 bag glyphs were 8px tall in the 13px cell, so they looked short and wide 
 
 The unreviewed field and battle pages are in `docs/validation/lane-g-ui-unreviewed.md`, with the Simulator frames in `artifacts/lane-g/ui-unreviewed/`. Pokered pin `af519899719f0754965776faac0e836a3b906e6d`. The notes record source diffs and leave the visual call to BlueBot. The Viridian Mart clerk stays unreachable from a walkable tile, so the buy list is the aisle frame only.
 
+## Round 38
+
+The START menu already matches `engine/menus/draw_start_menu.asm` (`hlcoord 10, 0`, first item row 2, cursor column 11, `PrintStartMenuItem` steps two rows). The before and after frames are the same bytes. Party, status, summary, the trainer card, and the save screen were system-font layouts. The patches, measured on a scratch tree of `4bac3bdf` against pokered `af519899`, are `tools/notes/lane-e-party-fidelity.patch`, `lane-e-status-fidelity.patch` (status and summary), `lane-e-trainer-fidelity.patch`, and `lane-e-save-fidelity.patch`. Each applies alone and they stack. `tools/tests/test_lane_e_fidelity_sweep.py` measures the painted rows and fails on the unpatched frames. Frames are `artifacts/lane-g/fidelity-sweep/`. The glyph cell is the dex list, 20 by 13. `Source/` is unchanged. `origin/main` is still `ea32b553`, so the Hall of Fame and credits recheck stays waiting.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.
