@@ -6561,16 +6561,24 @@ def _rescue_fuji(player, report):
 
 def _grid_walk(player, report, folder, filename, pad, width, place, goal, avoid):
     cells = set(open_map(folder / filename, pad, width))
-    for _ in range(40):
+    misses = 0
+    for _ in range(48):
         _name, x, y = _k_here(player)
         if (x, y) == goal:
             return None
         blocked = set(avoid)
+        for npc in player.state.get("npcs") or []:
+            blocked.add((npc.get("x"), npc.get("y")))
         blocked.discard((x, y))
         blocked.discard(goal)
         steps = route(cells, (x, y), goal, blocked)
         if not steps:
-            raise RuntimeError(f"no {place} path {(x, y)} -> {goal}")
+            misses += 1
+            if misses > 6:
+                raise RuntimeError(f"no {place} path {(x, y)} -> {goal}")
+            player.send("wait 30")
+            continue
+        misses = 0
         nxt = neighbor((x, y), steps[0])
         status = _k_go(player, report, steps[0], place, nxt[0], nxt[1])
         if status:
