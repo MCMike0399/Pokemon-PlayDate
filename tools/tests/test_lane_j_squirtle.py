@@ -3652,16 +3652,24 @@ def _send_out(player, prefer):
                     break
                 slot = None
     if slot is None:
-        for want in ("wartortle", "blastoise", "squirtle"):
+        for want in ("wartortle", "blastoise", "squirtle", "dugtrio"):
             slot, mon = _member(player, want)
             if mon and (mon.get("hp") or 0) > 0:
                 break
             slot = None
         if slot is None:
+            birds = {"pidgeot", "pidgeotto", "pidgey", "fearow", "spearow"}
+            bird = None
             for index, mon in enumerate(((player.state.get("party") or {}).get("members") or []), start=1):
-                if (mon.get("hp") or 0) > 0:
+                if (mon.get("hp") or 0) <= 0:
+                    continue
+                if (mon.get("species") or "") in birds:
+                    bird = bird or index
+                else:
                     slot = index
                     break
+            if slot is None:
+                slot = bird
     if slot is None:
         raise RuntimeError("no pokemon to send: " + json.dumps(summary(player.state)))
     _select_party(player, slot)
@@ -5394,6 +5402,7 @@ K_ZONES = {
     "Route15Gate1F": "kanto_route_15_gate_1f",
     "FuchsiaCity": "kanto_fuchsia_city",
     "FuchsiaPokecenter": "kanto_fuchsia_pokecenter",
+    "FuchsiaMart": "kanto_fuchsia_mart",
     "FuchsiaGym": "kanto_fuchsia_gym",
     "UndergroundPathRoute8": "kanto_underground_path_route_8",
     "UndergroundPathWestEast": "kanto_underground_path_west_east",
@@ -5753,7 +5762,8 @@ def _k_clear(player, report):
             player.dismiss_until_explore(limit=40)
         return None
     before = player.state.get("last_battle_outcome")
-    player.fight(limit=2500, potion_at=30, shift_to="pidgeotto")
+    # Wartortle takes the hit. A Super Potion is used before Pidgeot would be sent out.
+    player.fight(limit=2500, potion_at=70, shift_to="wartortle")
     player.dismiss_until_explore(limit=80)
     if _lost(before, player.state.get("last_battle_outcome") or {}):
         _note_blackout(report)
@@ -6821,14 +6831,17 @@ def _leave_edge(player, report, place, direction, expect, key):
     return "yield"
 
 
+def _lead_tank(player):
+    """Walk and fight with Wartortle. Pidgeot stays benched so it can learn Fly."""
+    for species in ("wartortle", "blastoise", "squirtle", "dugtrio"):
+        _slot, mon = _member(player, species)
+        if mon and (mon.get("hp") or 0) > 0:
+            _lead(player, species)
+            return
+
+
 def _snorlax_to_gate(player, report):
-    species, mon = _bird(player)
-    if mon and (mon.get("hp") or 0) > 0:
-        _lead(player, species)
-    else:
-        _slot, water = _member(player, "wartortle")
-        if water and (water.get("hp") or 0) > 0:
-            _lead(player, "wartortle")
+    _lead_tank(player)
     status = _route_leg(player, report, "Route12.json", 0, 20, "Route12", (10, 22),
                         {(10, 21), (11, 21)}, "saved_route12")
     if status:
@@ -6883,9 +6896,7 @@ def _toward_snorlax(player, report):
         return _route12_to_lavender(player, report)
     if y < 20:
         return _route12_gate(player, report)
-    species, _mon = _bird(player)
-    if species and not _needs_center(player):
-        _lead(player, species)
+    _lead_tank(player)
     goal = (10, 106) if _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX") else (10, 61)
     blob = json.loads((SOUTH / "Route12.json").read_text())
     present = _present_ids(player)
@@ -6964,6 +6975,7 @@ def _to_pokemon_tower(player, report):
 
 
 def _route13(player, report):
+    _lead_tank(player)
     if _needs_center(player):
         status = _route_leg(player, report, "Route13.json", 0, 60, "Route13", (50, 0), set(), "saved_route13")
         if status:
@@ -6976,6 +6988,7 @@ def _route13(player, report):
 
 
 def _route14(player, report):
+    _lead_tank(player)
     if _needs_center(player):
         status = _route_leg(player, report, "Route14.json", 0, 20, "Route14", (19, 10), set(), "saved_route14")
         if status:
@@ -6988,6 +7001,7 @@ def _route14(player, report):
 
 
 def _route15(player, report):
+    _lead_tank(player)
     _name, x, _y = _k_here(player)
     doors = {(14, 8), (14, 9), (7, 8), (7, 9)}
     if x < 10:
@@ -7023,8 +7037,90 @@ def _fuchsia_doors():
     return {(warp["x"], warp["y"]) for warp in blob["events"]["warps"]}
 
 
-def _fuchsia_city(player, report):
+def _party_needs_heal(player):
     if _needs_center(player):
+        return True
+    for species in ("wartortle", "pidgeot"):
+        _slot, mon = _member(player, species)
+        if mon and 0 < (mon.get("hp") or 0) < 40:
+            return True
+    return False
+
+
+def _close_shop(player):
+    for _ in range(8):
+        if player.state.get("root") != "shop":
+            return
+        phase = (player.state.get("shop") or {}).get("phase")
+        if phase == "mode":
+            player.choose("shop", "QUIT")
+        else:
+            player.press("b", wait=4)
+
+
+def _enter_fuchsia_mart(player, report):
+    status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (5, 14),
+                        _fuchsia_doors(), "saved_fuchsia")
+    if status:
+        return status
+    player.step("up")
+    player.settle(limit=80)
+    if _k_here(player)[0] == "FuchsiaCity":
+        player.step("up")
+        player.settle(limit=80)
+    if _k_here(player)[0] != "FuchsiaMart":
+        raise RuntimeError("the Fuchsia Mart stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_fuchsia_mart")
+    return "yield"
+
+
+def _fuchsia_mart(player, report):
+    """Fuchsia sells Super Potions. Basic Potions are not on this clerk's list."""
+    if _item_count(player, "superPotion") >= 8:
+        status = _route_leg(player, report, "FuchsiaMart.json", 2, 13, "FuchsiaMart", (5, 6),
+                            {(2, 5), (6, 2), (8, 5), (5, 7), (6, 7)}, "saved_fuchsia_mart")
+        if status:
+            return status
+        player.step("down")
+        player.settle(limit=80)
+        if _k_here(player)[0] == "FuchsiaMart":
+            player.step("down")
+            player.settle(limit=80)
+        if _k_here(player)[0] != "FuchsiaCity":
+            raise RuntimeError("the Mart door stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_fuchsia_stocked")
+        return "yield"
+    cells = set(open_map(SOUTH / "FuchsiaMart.json", 2, 13))
+    opened = player.state.get("root") == "shop"
+    for _ in range(8):
+        if player.state.get("root") == "shop":
+            opened = True
+            break
+        if not player.exploring():
+            player.dismiss_until_explore(limit=12)
+        npc = npc_named(player.state, "pokered:FUCHSIA_MART:objects:1")
+        if npc is None:
+            break
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here != (4, 5):
+            player.travel(cells, (4, 5), {(npc["x"], npc["y"]), (6, 2), (8, 5), (5, 7), (6, 7)})
+        if player.state["player"].get("facing") != "left":
+            player.press("left", wait=4)
+        player.press("a", wait=8)
+    if not opened and player.state.get("root") != "shop":
+        raise RuntimeError("the Fuchsia clerk did not open: " + json.dumps(summary(player.state)))
+    bought = _shop_buy(player, "superPotion", 700, 8)
+    report["super_potions"] = bought
+    _close_shop(player)
+    if bought < 8 and int((player.state.get("inventory") or {}).get("money") or 0) >= 700:
+        raise RuntimeError("Fuchsia Mart did not sell Super Potions: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_fuchsia_stocked")
+    return "yield"
+
+
+def _fuchsia_city(player, report):
+    _lead_tank(player)
+    if _party_needs_heal(player):
         status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (19, 28),
                             _fuchsia_doors(), "saved_fuchsia")
         if status:
@@ -7038,6 +7134,8 @@ def _fuchsia_city(player, report):
             raise RuntimeError("the Fuchsia Center stayed shut: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_fuchsia_center")
         return "yield"
+    if _item_count(player, "superPotion") < 8:
+        return _enter_fuchsia_mart(player, report)
     status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (5, 28),
                         _fuchsia_doors(), "saved_fuchsia")
     if status:
@@ -7081,10 +7179,25 @@ def _fuchsia_center(player, report):
     return "yield"
 
 
-def _koga(player, report):
+def _koga(player, report, display=None, clips=None, output=None):
     """The gym walls are the collision grid. Koga stands at runtime (5, 10) and does not watch a tile."""
+    _lead_tank(player)
     if _quest(player).get("BADGE_SOUL"):
         _checkpoint(player, report, "saved_soul")
+        return "yield"
+    if _item_count(player, "superPotion") < 8 and player.state.get("root") != "battle":
+        status = _route_leg(player, report, "FuchsiaGym.json", 1, 13, "FuchsiaGym", (5, 16),
+                            {(5, 17), (6, 17)}, "saved_fuchsia_gym")
+        if status:
+            return status
+        player.step("down")
+        player.settle(limit=80)
+        if _k_here(player)[0] == "FuchsiaGym":
+            player.step("down")
+            player.settle(limit=80)
+        if _k_here(player)[0] != "FuchsiaCity":
+            raise RuntimeError("the gym door stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_fuchsia")
         return "yield"
     status = _route_leg(player, report, "FuchsiaGym.json", 1, 13, "FuchsiaGym", (5, 9),
                         {(5, 17), (6, 17)}, "saved_fuchsia_gym")
@@ -7096,20 +7209,24 @@ def _koga(player, report):
     for _ in range(30):
         root = player.state.get("root")
         if root == "battle":
-            return _k_clear(player, report)
+            break
         if root in ("dialog", "bag", "pause") or not player.exploring():
             player.press("a", wait=8)
             continue
         break
     if player.state.get("root") == "battle":
-        return _k_clear(player, report)
+        def finish():
+            return _k_clear(player, report)
+        if display is not None and clips is not None and output is not None:
+            return film(display, clips, output, "koga", report, "end", finish)
+        return finish()
     if _quest(player).get("BADGE_SOUL"):
         _checkpoint(player, report, "saved_soul")
         return "yield"
     raise RuntimeError("Koga did not battle: " + json.dumps(summary(player.state)))
 
 
-def _with_scope(player, report):
+def _with_scope(player, report, display=None, clips=None, output=None):
     """Heal, then the underground to Lavender. The Saffron gate stays shut."""
     place = _k_here(player)[0]
     if place == "Route7":
@@ -7182,10 +7299,12 @@ def _with_scope(player, report):
         return _through_route15_gate(player, report)
     if place == "FuchsiaCity":
         return _fuchsia_city(player, report)
+    if place == "FuchsiaMart":
+        return _fuchsia_mart(player, report)
     if place == "FuchsiaPokecenter":
         return _fuchsia_center(player, report)
     if place == "FuchsiaGym":
-        return _koga(player, report)
+        return _koga(player, report, display, clips, output)
     if place == "Route12Gate1F":
         if _needs_center(player) and _quest(player).get("EVENT_BEAT_ROUTE12_SNORLAX"):
             return _gate_to_lavender(player, report)
@@ -7529,7 +7648,7 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
     """
     zone = str(player.state.get("zone"))
     if _holding(player, "silphScope") and not _quest(player).get("BADGE_SOUL"):
-        return _with_scope(player, report)
+        return _with_scope(player, report, display, clips, output)
     if "game_corner" in zone or "rocket_hideout" in zone:
         return _rocket_stairs(player, report)
     if zone == "kanto_route2":
