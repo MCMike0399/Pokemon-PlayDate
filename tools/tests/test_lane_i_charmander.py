@@ -5277,6 +5277,20 @@ class CharmanderRun(BrockJourney):
                 if getattr(self, "stage", None) == "cerulean" and trainer_battle:
                     CeruleanJourney.record_source_outcome(self, trainer_id)
                 raise
+            except ProtocolError as error:
+                # A Master Ball catch publishes "was caught" before the outcome
+                # kind matches the ended-phase diagnostic. Keep the catch.
+                message = ((self.state.get("battle") or {}).get("message") or "")
+                text = str(error)
+                caught = "was caught" in message and (
+                    "missing matching terminal outcome" in text
+                    or "unexpected actual battle result" in text)
+                if not caught:
+                    raise
+                if self.state.get("root") == "dialog":
+                    self.dialog()
+                self.summary.setdefault("battles", []).append({"name": name, "caught": True})
+                result = (False, False)
             if getattr(self, "stage", None) == "cerulean" and trainer_battle:
                 CeruleanJourney.record_source_outcome(self, trainer_id)
             return result
@@ -5437,6 +5451,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn('event_choices["pokered:CERULEAN_CAVE_1F:script:mew-gift"] = "MEW"', postgame)
         self.assertIn("self._surf_down_route24()", postgame)
         self.assertIn("self._cave_maze(", postgame)
+        self.assertIn('"was caught"', source.split("def battle(self, name", 1)[1].split("def capture_presentation", 1)[0])
         maze = source.split("def _cave_maze", 1)[1].split("def route_portal", 1)[0]
         self.assertIn("model.pairs", source.split("def _cave_pair_blocked", 1)[1].split("def _cave_maze", 1)[0])
         self.assertIn("project_warp", maze)
