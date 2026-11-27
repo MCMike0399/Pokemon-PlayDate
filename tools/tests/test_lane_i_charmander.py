@@ -4389,7 +4389,10 @@ class CharmanderRun(BrockJourney):
 
     def _prepare_victory_cave(self):
         """Lobby Full Heals, then the east door. Route 23 grass stays walled off."""
-        hurt = any(mon["hp"] <= 0 or not self._clear_status(mon) for mon in self.party())
+        # A half-health trainee never comes back for the KO, so Charizard
+        # solos and the bench stops gaining. Low HP has to walk to the nurse.
+        hurt = self._party_needs_center() or any(
+            not self._clear_status(mon) for mon in self.party())
         if self._on("VictoryRoad2F") and self._reachable((28, 7)) and not hurt and not self._needs_league_stock():
             return
         if self._on("VictoryRoad2F") or self._on("VictoryRoad3F"):
