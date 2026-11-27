@@ -8458,8 +8458,9 @@ def _silph_floor(player):
         return "5F"
     if not _quest(player).get("EVENT_SILPH_CO_3_UNLOCKED_DOOR2"):
         return "3F"
-    if not _beaten(player, "pokered:SILPH_CO_7F:objects:9"):
-        return "7F"
+    # The rival and Lapras are off the 7F elevator. The 3F warp is the door.
+    if not _quest(player).get("BIT_GOT_LAPRAS"):
+        return "3F"
     return "11F"
 
 
@@ -8615,7 +8616,28 @@ def _silph_7f(player, report):
             raise RuntimeError("the rival room did not return to 3F: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_silph_3f")
         return "yield"
+    _lead_tank(player)
     saffron = Path("Source/data/midgameSaffron")
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here[0] >= 10:
+        data = json.loads((saffron / "SilphCo7F.json").read_text(encoding="utf-8"))
+        avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+        avoid.discard(here)
+        cells = set(open_map(saffron / "SilphCo7F.json", 0, 26))
+        if here != (18, 1):
+            kind = _walk(player, cells, map_surface(saffron / "SilphCo7F.json"), (18, 1), avoid,
+                         report=report, yield_after=2)
+            if kind in ("blackout", "yield"):
+                return kind
+        player.step("up")
+        player.settle(limit=80)
+        if "elevator" not in str(player.state.get("zone")):
+            player.step("up")
+            player.settle(limit=80)
+        if "elevator" not in str(player.state.get("zone")):
+            raise RuntimeError("the 7F lift stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_silph_lift")
+        return "yield"
     data = json.loads((saffron / "SilphCo7F.json").read_text(encoding="utf-8"))
     warps = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
     here = (player.state["player"]["x"], player.state["player"]["y"])
@@ -8628,6 +8650,8 @@ def _silph_7f(player, report):
             kind = _walk(player, cells, surface, (4, 2), warps, report=report, yield_after=2)
             if kind in ("blackout", "yield"):
                 return kind
+            if (player.state["player"]["x"], player.state["player"]["y"]) != (4, 2):
+                raise RuntimeError("could not reach the rival: " + str(kind) + " " + json.dumps(summary(player.state)))
             player.step("left")
             player.settle(limit=40)
         for _ in range(80):

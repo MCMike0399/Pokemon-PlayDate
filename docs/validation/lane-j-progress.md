@@ -74,11 +74,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-The Card Key opened the 3F door. The committed pause is sequence 460, Silph Co. 9F (18, 0) facing down, on the elevator landing. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. `origin/main` `61a70ffe` is merged and this save continued. Fresh Water opened the Route 7 gate. Blastoise is paralyzed at 49 HP with two Super Potions and no Full Heal. A rocket blocks the 9F nurse, so the next step is the Saffron Center, then the rival, Lapras, and Giovanni. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
+The Saffron Center cleared Blastoise's paralysis. The committed pause is sequence 469, Silph Co. 7F (18, 0) facing down, on the elevator landing. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. That landing does not reach the rival. The next step is the 3F warp into the rival's room, then Lapras and Giovanni. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
 
 Badges: Boulder, Cascade, Thunder, Rainbow, and Soul.
 
-Team: Blastoise 37 (49 HP, paralyzed, Surf, Strength, Water Gun, Bite), Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Dugtrio 30 (66 HP), Venonat 22 (64 HP). Route 16 stays the other Snorlax.
+Team: Dugtrio 30 (66 HP) leads, Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Blastoise 37 (110 HP, Surf, Strength, Water Gun, Bite), Venonat 22 (64 HP). Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
