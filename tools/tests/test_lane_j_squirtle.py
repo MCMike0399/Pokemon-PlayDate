@@ -9074,10 +9074,77 @@ def _pick_trainer(player, path, pad, width, trainers, extra):
         avoid.discard(stand)
         if route(cells, here, stand, avoid):
             return (tid, stand, kind)
-    if remaining:
-        tid, stand, kind, _sight = remaining[0]
-        return (tid, stand, kind)
     return None
+
+
+# Source door coordinates. A locked door is two tiles wide and the static
+# collision still calls it open, so the walk has to avoid it until Card Key.
+_SILPH_DOORS = {
+    "2f": (("EVENT_SILPH_CO_2_UNLOCKED_DOOR1", 2, 2), ("EVENT_SILPH_CO_2_UNLOCKED_DOOR2", 2, 5)),
+    "3f": (("EVENT_SILPH_CO_3_UNLOCKED_DOOR1", 4, 4), ("EVENT_SILPH_CO_3_UNLOCKED_DOOR2", 8, 4)),
+    "4f": (("EVENT_SILPH_CO_4_UNLOCKED_DOOR1", 2, 6), ("EVENT_SILPH_CO_4_UNLOCKED_DOOR2", 6, 4)),
+    "5f": (("EVENT_SILPH_CO_5_UNLOCKED_DOOR1", 3, 2), ("EVENT_SILPH_CO_5_UNLOCKED_DOOR2", 3, 6),
+           ("EVENT_SILPH_CO_5_UNLOCKED_DOOR3", 7, 5)),
+    "6f": (("EVENT_SILPH_CO_6_UNLOCKED_DOOR", 2, 6),),
+    "7f": (("EVENT_SILPH_CO_7_UNLOCKED_DOOR1", 5, 3), ("EVENT_SILPH_CO_7_UNLOCKED_DOOR2", 10, 2),
+           ("EVENT_SILPH_CO_7_UNLOCKED_DOOR3", 10, 6)),
+    "8f": (("EVENT_SILPH_CO_8_UNLOCKED_DOOR", 3, 4),),
+    "9f": (("EVENT_SILPH_CO_9_UNLOCKED_DOOR1", 1, 4), ("EVENT_SILPH_CO_9_UNLOCKED_DOOR2", 9, 2),
+           ("EVENT_SILPH_CO_9_UNLOCKED_DOOR3", 9, 5)),
+    "10f": (("EVENT_SILPH_CO_10_UNLOCKED_DOOR", 5, 4),),
+    "11f": (("EVENT_SILPH_CO_11_UNLOCKED_DOOR", 3, 6),),
+}
+
+
+def _door_tiles(source_x, source_y):
+    return {(x, y) for x in (source_x * 2, source_x * 2 + 1) for y in (source_y * 2, source_y * 2 + 1)}
+
+
+def _locked_door_tiles(player, tag):
+    tiles = set()
+    for flag, source_x, source_y in _SILPH_DOORS.get(tag, ()):
+        if not _quest(player).get(flag):
+            tiles.update(_door_tiles(source_x, source_y))
+    return tiles
+
+
+def _unlock_silph_door(player, report, path, width, tag, extra):
+    """Face one locked door the current room can reach and use the Card Key."""
+    cells = set(open_map(path, 0, width))
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here[1] == 0:
+        here = (here[0], 1)
+    locked = _locked_door_tiles(player, tag)
+    blocked = _map_blocks(path, 0) | set(extra) | locked
+    blocked.discard(here)
+    faces = ((0, -1, "down"), (0, 1, "up"), (-1, 0, "right"), (1, 0, "left"))
+    for flag, source_x, source_y in _SILPH_DOORS.get(tag, ()):
+        if _quest(player).get(flag):
+            continue
+        for tile in _door_tiles(source_x, source_y):
+            for dx, dy, face in faces:
+                stand = (tile[0] + dx, tile[1] + dy)
+                if stand not in cells or stand in blocked:
+                    continue
+                if route(cells, here, stand, blocked) is None:
+                    continue
+                kind = _walk(player, cells, map_surface(path), stand, blocked,
+                             report=report, yield_after=1)
+                if kind in ("blackout", "yield"):
+                    return kind
+                if (player.state["player"]["x"], player.state["player"]["y"]) != stand:
+                    continue
+                if player.state["player"].get("facing") != face:
+                    player.press(face, wait=4)
+                for _ in range(12):
+                    if _quest(player).get(flag):
+                        break
+                    player.press("a", wait=8)
+                if not _quest(player).get(flag):
+                    raise RuntimeError("the Card Key did not open " + flag + ": " + json.dumps(summary(player.state)))
+                _checkpoint(player, report, "saved_silph_door")
+                return "yield"
+    raise RuntimeError("no Silph door can be reached on " + tag + ": " + json.dumps(summary(player.state)))
 
 
 def _silph_clear_floor(player, report, tag):
@@ -9087,6 +9154,7 @@ def _silph_clear_floor(player, report, tag):
     _tag, filename, width, elev, trainers = row
     path = Path("Source/data/midgameSaffron") / filename
     extra = {(3, 2), (3, 3)} if tag == "7f" else set()
+    extra.update(_locked_door_tiles(player, tag))
     if _sweep_hurt(player):
         sights = set()
         for tid, _stand, _kind, sight in trainers:
@@ -9100,6 +9168,8 @@ def _silph_clear_floor(player, report, tag):
         tid, stand, kind = picked
         extra.update(_other_sights(trainers, tid, lambda other: _beaten(player, other)))
         return _engage(player, report, path, 0, width, tid, stand, kind, extra)
+    if any(not _beaten(player, tid) for tid, _stand, _kind, _sight in trainers):
+        return _unlock_silph_door(player, report, path, width, tag, extra)
     return _ride_lift(player, report, filename, width, elev)
 
 
