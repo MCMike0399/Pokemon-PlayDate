@@ -50,8 +50,9 @@ CUES = (
     ('item', 'item', 'jingle', 'home/text.asm', 'SFX_GET_ITEM_1'),
     ('item2', 'item2', 'jingle', 'home/text.asm', 'SFX_GET_ITEM_2'),
     ('key_item', 'key_item', 'jingle', 'home/text.asm', 'SFX_GET_KEY_ITEM'),
-    # Badge scripts name this opcode. The audio2 bank alias is not reproduced.
-    ('badge', 'key_item', 'jingle', 'home/text.asm', 'SFX_GET_KEY_ITEM'),
+    # sound_level_up is DEF'd as sound_get_item_1. Pewter and Viridian
+    # badges use that opcode, so the fanfare is SFX_GET_ITEM_1.
+    ('badge', 'item', 'jingle', 'home/text.asm', 'SFX_GET_ITEM_1'),
     ('level_up', 'level_up', 'jingle', 'engine/pokemon/learn_move.asm', 'SFX_LEVEL_UP'),
     ('caught', 'caught', 'jingle', 'home/text.asm', 'SFX_CAUGHT_MON'),
     ('heal', 'heal', 'jingle', 'engine/overworld/healing_machine.asm', 'MUSIC_PKMN_HEALED'),

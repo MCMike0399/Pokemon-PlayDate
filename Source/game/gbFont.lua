@@ -214,3 +214,8 @@ function GbFont.drawMoneyRight(text, rightX, y)
     local width = GbFont.measureMoneyLine(text)
     GbFont.drawMoneyLine(text, rightX - width, y)
 end
+
+import "game/drawnText"
+if gfx then
+    DrawnText.install(gfx)
+end

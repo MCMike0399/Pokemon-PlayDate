@@ -1,0 +1,13 @@
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -1,8 +1,6 @@
+ -- League story generated from pinned pokered. Decisions read story.json.
+ -- Badge writes happen only through Giovanni's confirmed victory.
+-if type(import) == "function" and not DrawnText then
+-    import "game/drawnText"
+-end
++import "game/drawnText"
+ EndgameStory = {}
+ local CONTENT <const> = "endgame"
+ local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
