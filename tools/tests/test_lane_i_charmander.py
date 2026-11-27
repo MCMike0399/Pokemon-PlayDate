@@ -2394,9 +2394,10 @@ class CharmanderRun(BrockJourney):
             ("right", 1, (12, 5)),
             ("up", 1, (12, 4)),
             ("right", 3, (15, 4)),
-            ("down", 2, (15, 6)),
-            ("down", 1, (15, 7)),
-            ("left", 2, (13, 7)),
+            # The cooltrainer who watched (16, 5) now stands on (15, 5).
+            ("left", 1, (14, 4)),
+            ("down", 3, (14, 7)),
+            ("left", 1, (13, 7)),
             ("down", 2, (13, 9)),
             ("right", 1, (14, 9)),
             ("down", 7, (14, 16)),
