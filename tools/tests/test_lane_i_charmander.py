@@ -3549,7 +3549,7 @@ class CharmanderRun(BrockJourney):
                 and enemy_max and enemy_hp * 3 <= enemy_max):
             return bool(self.battle_switch(trainee, options, "bench-finish"))
         player = battle.get("player") or {}
-        if (self.quantity("fullRestore") and player.get("hp", 1) < player.get("maxHP", 1)
+        if (self._spare_healing() == "fullRestore" and player.get("hp", 1) < player.get("maxHP", 1)
                 and self._move_pp(self.party()[active - 1]) < 6):
             self.battle_medicine("fullRestore", options)
             return True
@@ -4900,6 +4900,18 @@ class CharmanderRun(BrockJourney):
         })
         return True
 
+    def _spare_healing(self):
+        """A battle may spend a spare Full Restore. The last one fills the next door.
+
+        The field heal before each north door uses any missing Charizard HP.
+        Spending the last bottle in Bruno leaves Lance and Blue short.
+        """
+        if self.quantity("fullRestore") > 1:
+            return "fullRestore"
+        if self.quantity("maxPotion"):
+            return "maxPotion"
+        return None
+
     def _spare_revive(self, battle):
         """A battle may spend a spare Revive. The last one stays for the next door.
 
@@ -4980,7 +4992,7 @@ class CharmanderRun(BrockJourney):
         hp, maximum = player.get("hp") or 0, player.get("maxHP") or 1
         if hp <= 0 or hp * 3 > maximum * 2:
             return False
-        item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
+        item = self._spare_healing()
         if item is None:
             return False
         self.battle_medicine(item, options)
@@ -5001,7 +5013,7 @@ class CharmanderRun(BrockJourney):
             if self.quantity("fullHeal") > 0:
                 self.battle_medicine("fullHeal", options)
                 return True
-            if self.quantity("fullRestore") > 0:
+            if self._spare_healing() == "fullRestore":
                 self.battle_medicine("fullRestore", options)
                 return True
             party, active = self._battle_members(battle)
@@ -5270,6 +5282,11 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertLess(stock.index('"fullRestore", 2'), stock.index('"maxPotion", 2'))
         self.assertLess(stock.index("len(slots) >= 20"), stock.index("self.buy_item"))
         self.assertIn("def _spare_revive", source)
+        self.assertIn("def _spare_healing", source)
+        door = source.split("def _top_off_in_field", 1)[1].split("def _needs_league_heal", 1)[0]
+        battle_heal = source.split("def _top_off_starter", 1)[1].split("def battle_preparation_action", 1)[0]
+        self.assertIn('self.quantity("fullRestore")', door)
+        self.assertIn("self._spare_healing()", battle_heal)
         climb = source.split("def _climb_route23", 1)[1].split("def _pin_victory_trainers", 1)[0]
         self.assertIn("self._victory_road_2f()", climb)
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
