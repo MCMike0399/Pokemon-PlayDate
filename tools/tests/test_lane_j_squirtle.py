@@ -1040,6 +1040,8 @@ class Player:
 
     def choose(self, key, label):
         for _ in range(16):
+            if key == "battle" and self.state.get("root") != "battle":
+                return
             menu = self.menu(key)
             options = menu.get("options") or []
             if label not in options:
@@ -1321,6 +1323,9 @@ class Player:
                 else:
                     self.send("wait 4")
                 continue
+            if root == "bag":
+                self.use_potion()
+                continue
             if root != "battle":
                 break
             battle = self.state.get("battle") or {}
@@ -1352,6 +1357,13 @@ class Player:
                 else:
                     self.send("wait 18", "press a", max_frames=200)
             elif phase == "command":
+                message = battle.get("message") or ""
+                lower = message.lower()
+                if any(phrase in lower for phrase in (
+                        "hurt by poison", "hurt by burn", "is asleep", "is paralyzed",
+                        "is confused", "is frozen")):
+                    self.press("a", wait=8)
+                    continue
                 player_hp = (battle.get("player") or {}).get("hp") or 0
                 max_hp = (battle.get("player") or {}).get("maxHP") or 0
                 quantities = (self.state.get("inventory") or {}).get("quantities") or {}
@@ -1361,6 +1373,9 @@ class Player:
                 # Staryu's hits are about 9, so those turns stay on Bite.
                 foe = ((battle.get("enemy") or {}).get("species") or "")
                 ceiling = potion_at if bite_only or foe != "staryu" else min(potion_at, 18)
+                active = ((battle.get("player") or {}).get("species") or "")
+                if active in ("pidgeot", "pidgeotto", "pidgey"):
+                    ceiling = max(ceiling, 70)
                 menu = battle.get("menu") or {}
                 # Ability text, such as Intimidate, keeps command phase with the menu closed.
                 ready = bool(menu.get("active")) and not battle.get("inMoveSelect")
@@ -1437,7 +1452,7 @@ class Player:
         except RuntimeError:
             self.press("b", wait=4)
             return False
-        for _ in range(16):
+        for _ in range(40):
             root = self.state.get("root")
             if root == "battle":
                 return True
@@ -5404,6 +5419,13 @@ K_ZONES = {
     "FuchsiaPokecenter": "kanto_fuchsia_pokecenter",
     "FuchsiaMart": "kanto_fuchsia_mart",
     "FuchsiaGym": "kanto_fuchsia_gym",
+    "SafariZoneGate": "kanto_safari_zone_gate",
+    "SafariZoneCenter": "kanto_safari_zone_center",
+    "SafariZoneEast": "kanto_safari_zone_east",
+    "SafariZoneNorth": "kanto_safari_zone_north",
+    "SafariZoneWest": "kanto_safari_zone_west",
+    "SafariZoneSecretHouse": "kanto_safari_zone_secret_house",
+    "WardensHouse": "kanto_wardens_house",
     "UndergroundPathRoute8": "kanto_underground_path_route_8",
     "UndergroundPathWestEast": "kanto_underground_path_west_east",
     "UndergroundPathRoute7": "kanto_underground_path_route_7",
@@ -5449,6 +5471,13 @@ SOUTH_IDS = {
     "Route15Gate1F": "pokered:ROUTE_15_GATE_1F",
     "FuchsiaCity": "pokered:FUCHSIA_CITY",
     "FuchsiaGym": "pokered:FUCHSIA_GYM",
+    "SafariZoneGate": "pokered:SAFARI_ZONE_GATE",
+    "SafariZoneCenter": "pokered:SAFARI_ZONE_CENTER",
+    "SafariZoneEast": "pokered:SAFARI_ZONE_EAST",
+    "SafariZoneNorth": "pokered:SAFARI_ZONE_NORTH",
+    "SafariZoneWest": "pokered:SAFARI_ZONE_WEST",
+    "SafariZoneSecretHouse": "pokered:SAFARI_ZONE_SECRET_HOUSE",
+    "WardensHouse": "pokered:WARDENS_HOUSE",
 }
 K_LINE = [
     ("walk", "up", 1, "Route9", 20, 11),
@@ -5762,9 +5791,14 @@ def _k_clear(player, report):
             player.dismiss_until_explore(limit=40)
         return None
     before = player.state.get("last_battle_outcome")
-    # Wartortle takes the hit. A Super Potion is used before Pidgeot would be sent out.
-    # Heal once a Super Potion restores most of its 60 HP. Healing at 70 wasted the dose.
-    player.fight(limit=2500, potion_at=36, shift_to="wartortle")
+    # Dugtrio has 62 HP. Healing at 36 made every Hypno hit a potion turn, so Dig never finished.
+    # One gym trainer outlasts a single 2500-step fight call. Do not save that call mid-battle.
+    for _ in range(6):
+        if player.state.get("root") != "battle":
+            break
+        player.fight(limit=4000, potion_at=20, shift_to="wartortle")
+    if player.state.get("root") == "battle":
+        raise RuntimeError("the fight did not finish: " + json.dumps(summary(player.state)))
     player.dismiss_until_explore(limit=80)
     if _lost(before, player.state.get("last_battle_outcome") or {}):
         _note_blackout(report)
@@ -5773,11 +5807,29 @@ def _k_clear(player, report):
     return "yield"
 
 
+def _run_safari(player):
+    """Safari battles are not party fights. Run, and do not throw the Safari Balls."""
+    for _ in range(24):
+        if player.state.get("root") != "safariBattle":
+            return True
+        node = player.state.get("safariBattle") or {}
+        menu = node.get("menu") or {}
+        if "RUN" in (menu.get("options") or []):
+            player.choose("safariBattle", "RUN")
+        else:
+            player.press("a", wait=6)
+    return player.state.get("root") != "safariBattle"
+
+
 def _k_go(player, report, direction, place, end_x, end_y):
+    if player.state.get("root") == "safariBattle" and not _run_safari(player):
+        raise RuntimeError("the safari battle stayed open")
     status = _k_clear(player, report)
     if status:
         return status
     player.step(direction)
+    if player.state.get("root") == "safariBattle" and not _run_safari(player):
+        raise RuntimeError("the safari battle stayed open")
     if player.state.get("root") == "battle":
         landed = _k_here(player)
         status = _k_clear(player, report)
@@ -7041,11 +7093,12 @@ def _fuchsia_doors():
 def _party_needs_heal(player):
     if _needs_center(player):
         return True
-    for species in ("wartortle", "pidgeot"):
-        _slot, mon = _member(player, species)
-        if mon and 0 < (mon.get("hp") or 0) < 40:
-            return True
-    return False
+    _slot, mon = _member(player, "pidgeot")
+    if mon and 0 < (mon.get("hp") or 0) < 40:
+        return True
+    # 38 HP walked into the gym and fainted before Hypno. Heal before that fight.
+    _slot, mon = _member(player, "wartortle")
+    return bool(mon and 0 < (mon.get("hp") or 0) < 50)
 
 
 def _close_shop(player):
@@ -7135,7 +7188,7 @@ def _fuchsia_city(player, report):
             raise RuntimeError("the Fuchsia Center stayed shut: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_fuchsia_center")
         return "yield"
-    if _item_count(player, "superPotion") < 12:
+    if _item_count(player, "superPotion") < 4:
         return _enter_fuchsia_mart(player, report)
     status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (5, 28),
                         _fuchsia_doors(), "saved_fuchsia")
@@ -7154,7 +7207,7 @@ def _fuchsia_city(player, report):
 
 def _fuchsia_center(player, report):
     avoid = {(2, 3), (6, 5), (11, 2), (3, 1), (3, 7), (4, 7)}
-    if _needs_center(player):
+    if _party_needs_heal(player):
         status = _route_leg(player, report, "FuchsiaPokecenter.json", 0, 14, "FuchsiaPokecenter",
                             (3, 3), avoid, "saved_fuchsia_center")
         if status:
@@ -7642,6 +7695,185 @@ def _continue_kanto(player, report, display, clips, output):
     raise RuntimeError("the road east of Pewter is not open: " + json.dumps(summary(player.state)))
 
 
+def _accept_service(player, item_id=None):
+    """Press A through a gift or a YES/NO service. A selects YES, which is the first row."""
+    for _ in range(40):
+        if item_id and _holding(player, item_id):
+            return True
+        menu = (player.state.get("event") or {}).get("menu") or {}
+        if "YES" in (menu.get("options") or []):
+            player.choose("event", "YES")
+            continue
+        if not player.exploring():
+            player.press("a", wait=8)
+            continue
+        return bool(item_id and _holding(player, item_id))
+    return bool(item_id and _holding(player, item_id))
+
+
+def _safari_door(player, report, place, filename, pad, width, goal, direction, expect, avoid):
+    status = _route_leg(player, report, filename, pad, width, place, goal, avoid, "saved_safari")
+    if status:
+        return status
+    return _leave_edge(player, report, place, direction, expect, "saved_safari")
+
+
+def _safari_area(player, report, place):
+    """Center opens east, east opens north, and north opens into the west area."""
+    teeth = _holding(player, "goldTeeth")
+    surf = _holding(player, "hm03")
+    done = teeth and surf
+    if place == "SafariZoneCenter":
+        if done:
+            return _safari_door(player, report, place, "SafariZoneCenter.json", 0, 30, (15, 24), "down",
+                                "SafariZoneGate", {(14, 25), (15, 25), (0, 10), (0, 11), (14, 0), (15, 0),
+                                                   (29, 10), (29, 11), (17, 19)})
+        return _safari_door(player, report, place, "SafariZoneCenter.json", 0, 30, (28, 10), "right",
+                            "SafariZoneEast", {(14, 25), (15, 25), (0, 10), (0, 11), (14, 0), (15, 0),
+                                               (29, 10), (29, 11), (17, 19)})
+    if place == "SafariZoneEast":
+        if done:
+            return _safari_door(player, report, place, "SafariZoneEast.json", 0, 30, (1, 22), "left",
+                                "SafariZoneCenter", {(0, 4), (0, 5), (0, 22), (0, 23), (25, 9)})
+        return _safari_door(player, report, place, "SafariZoneEast.json", 0, 30, (1, 4), "left",
+                            "SafariZoneNorth", {(0, 4), (0, 5), (0, 22), (0, 23), (25, 9)})
+    if place == "SafariZoneNorth":
+        if done:
+            return _safari_door(player, report, place, "SafariZoneNorth.json", 0, 40, (38, 30), "right",
+                                "SafariZoneEast", {(2, 35), (3, 35), (8, 35), (9, 35), (20, 35), (21, 35),
+                                                   (39, 30), (39, 31), (35, 3)})
+        return _safari_door(player, report, place, "SafariZoneNorth.json", 0, 40, (2, 34), "down",
+                            "SafariZoneWest", {(2, 35), (3, 35), (8, 35), (9, 35), (20, 35), (21, 35),
+                                               (39, 30), (39, 31), (35, 3)})
+    if place != "SafariZoneWest":
+        raise RuntimeError("the safari area is not on the walk: " + place)
+    west_avoid = {(20, 0), (21, 0), (26, 0), (27, 0), (29, 22), (29, 23), (3, 3), (11, 11)}
+    if not teeth:
+        cells = set(open_map(SOUTH / "SafariZoneWest.json", 0, 30))
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        spots = []
+        for direction, (dx, dy) in DELTAS.items():
+            spot = (19 - dx, 7 - dy)
+            if spot in cells and spot not in west_avoid:
+                spots.append((abs(spot[0] - here[0]) + abs(spot[1] - here[1]), spot, direction))
+        if not spots:
+            raise RuntimeError("the Gold Teeth have no open side")
+        _distance, spot, direction = min(spots)
+        if here != spot:
+            status = _route_leg(player, report, "SafariZoneWest.json", 0, 30, place, spot,
+                                west_avoid, "saved_safari")
+            if status:
+                return status
+        if player.state["player"].get("facing") != direction:
+            player.press(direction, wait=4)
+        player.press("a", wait=8)
+        if not player.exploring():
+            player.dismiss_until_explore(limit=40)
+        if not _holding(player, "goldTeeth"):
+            raise RuntimeError("the Gold Teeth stayed on the ground: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_teeth")
+        return "yield"
+    if not surf:
+        return _safari_door(player, report, place, "SafariZoneWest.json", 0, 30, (3, 4), "up",
+                            "SafariZoneSecretHouse", west_avoid)
+    return _safari_door(player, report, place, "SafariZoneWest.json", 0, 30, (20, 1), "up",
+                        "SafariZoneNorth", west_avoid)
+
+
+def _safari_gate(player, report):
+    teeth = _holding(player, "goldTeeth")
+    surf = _holding(player, "hm03")
+    if not player.exploring():
+        _accept_service(player)
+        if player.exploring() and _k_here(player)[0] == "FuchsiaCity":
+            _checkpoint(player, report, "saved_safari_out")
+            return "yield"
+    if teeth and surf:
+        status = _route_leg(player, report, "SafariZoneGate.json", 2, 13, "SafariZoneGate", (5, 4),
+                            {(5, 5), (6, 5), (5, 0), (6, 0), (5, 2), (6, 2)}, "saved_safari")
+        if status:
+            return status
+        return _leave_edge(player, report, "SafariZoneGate", "down", "FuchsiaCity", "saved_safari_out")
+    status = _route_leg(player, report, "SafariZoneGate.json", 2, 13, "SafariZoneGate", (6, 3),
+                        {(5, 5), (6, 5), (5, 0), (6, 0), (5, 2), (6, 2), (3, 4)}, "saved_safari")
+    if status:
+        return status
+    player.step("up")
+    player.settle(limit=80)
+    _accept_service(player)
+    if _k_here(player)[0] not in ("SafariZoneCenter", "SafariZoneGate"):
+        raise RuntimeError("the safari gate did not answer: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_safari")
+    return "yield"
+
+
+def _secret_house(player, report):
+    if not _holding(player, "hm03"):
+        status = _route_leg(player, report, "SafariZoneSecretHouse.json", 2, 13, "SafariZoneSecretHouse",
+                            (5, 4), {(5, 3), (4, 7), (5, 7)}, "saved_safari")
+        if status:
+            return status
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        if not _accept_service(player, "hm03"):
+            raise RuntimeError("the Secret House did not give Surf: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_surf")
+        return "yield"
+    status = _route_leg(player, report, "SafariZoneSecretHouse.json", 2, 13, "SafariZoneSecretHouse",
+                        (4, 6), {(5, 3), (4, 7), (5, 7)}, "saved_safari")
+    if status:
+        return status
+    return _leave_edge(player, report, "SafariZoneSecretHouse", "down", "SafariZoneWest", "saved_safari")
+
+
+def _warden(player, report):
+    if _holding(player, "hm04"):
+        _checkpoint(player, report, "saved_strength")
+        return "yield"
+    status = _route_leg(player, report, "WardensHouse.json", 1, 13, "WardensHouse", (3, 4),
+                        {(3, 3), (8, 3), (8, 4), (4, 7), (5, 7)}, "saved_warden")
+    if status:
+        return status
+    if player.state["player"].get("facing") != "up":
+        player.press("up", wait=4)
+    player.press("a", wait=8)
+    if not _accept_service(player, "hm04"):
+        raise RuntimeError("the warden did not give Strength: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_strength")
+    return "yield"
+
+
+def _after_soul(player, report):
+    """HM03 is in the Secret House. The Gold Teeth are in the west area. The warden gives HM04."""
+    _lead_tank(player)
+    place = _k_here(player)[0]
+    if place == "FuchsiaGym":
+        return _safari_door(player, report, place, "FuchsiaGym.json", 1, 13, (5, 16), "down",
+                            "FuchsiaCity", {(5, 17), (6, 17)})
+    if place == "FuchsiaPokecenter":
+        return _fuchsia_center(player, report)
+    if place == "FuchsiaMart":
+        return _fuchsia_mart(player, report)
+    if place == "SafariZoneSecretHouse":
+        return _secret_house(player, report)
+    if place in ("SafariZoneCenter", "SafariZoneEast", "SafariZoneNorth", "SafariZoneWest"):
+        return _safari_area(player, report, place)
+    if place == "SafariZoneGate":
+        return _safari_gate(player, report)
+    if place == "WardensHouse":
+        return _warden(player, report)
+    if place != "FuchsiaCity":
+        raise RuntimeError("after the Soul Badge: " + json.dumps(summary(player.state)))
+    if _party_needs_heal(player):
+        return _fuchsia_city(player, report)
+    if _holding(player, "hm03") and _holding(player, "goldTeeth"):
+        return _safari_door(player, report, "FuchsiaCity", "FuchsiaCity.json", 0, 40, (27, 28), "up",
+                            "WardensHouse", _fuchsia_doors())
+    return _safari_door(player, report, "FuchsiaCity", "FuchsiaCity.json", 0, 40, (18, 4), "up",
+                        "SafariZoneGate", _fuchsia_doors())
+
+
 def _toward_celadon(player, report, display=None, clips=None, output=None):
     """After the badge: Diglett's Cave to Route 2, Cut (5, 10), then Pewter.
 
@@ -7649,6 +7881,8 @@ def _toward_celadon(player, report, display=None, clips=None, output=None):
     from (5, 11). Cascade is already set, so Cerulean does not mean Misty.
     """
     zone = str(player.state.get("zone"))
+    if _quest(player).get("BADGE_SOUL") and not _holding(player, "hm04"):
+        return _after_soul(player, report)
     if _holding(player, "silphScope") and not _quest(player).get("BADGE_SOUL"):
         return _with_scope(player, report, display, clips, output)
     if "game_corner" in zone or "rocket_hideout" in zone:
