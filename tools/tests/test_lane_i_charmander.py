@@ -4012,14 +4012,10 @@ class CharmanderRun(BrockJourney):
 
     def _indigo_plateau(self):
         """North from the cave exit, heal, then the Elite Four."""
+        # A beaten room does not open the south door. pokered's DefaultScript
+        # still says "Don't run away!" there. Training is from the lobby,
+        # before that door, or after a blackout.
         rooms = ("LoreleisRoom", "BrunosRoom", "AgathasRoom", "LancesRoom", "ChampionsRoom")
-        # A short bench leaves the rooms first. The lobby reset clears the
-        # wins, which is the same door a loss already walked. The grass and
-        # the clerk are on that side of the door.
-        if not self._agatha_bench_ready() and any(self._on(name) for name in rooms):
-            self._retreat_to_lobby()
-            if any(self._on(name) for name in rooms):
-                raise ProtocolError("could not leave the Elite Four to train at " + self._map_name())
         if not any(self._on(name) for name in rooms):
             self._raise_lorelei_bench()
         self.summary["acceptance"] = "walking to Indigo Plateau"
