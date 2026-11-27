@@ -1,0 +1,14 @@
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index aadfc149..2a041909 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -1117,6 +1117,9 @@ function BattleScene:drawPlayerBack()
+ end
+ 
+ function BattleScene:drawTrainer()
++    -- Mon front sprites are flat 1-bit (mode 1, black and white only).
++    -- gfx/trainers/*.png grays stay flat. The Bayer 31.25%/68.75% patterns
++    -- in lib/shade.lua are for overworld grids, not these portraits.
+     local sourceClass = self.battle.trainerClass
+     if not sourceClass then
+         return

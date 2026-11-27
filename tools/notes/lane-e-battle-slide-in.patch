@@ -1,0 +1,85 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 219755eb..5a22c6c3 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -383,2 +383,6 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
+     self:runScript(function()
++        -- engine/battle/core.asm:9 SlidePlayerAndEnemySilhouettesOnScreen
++        -- engine/battle/core.asm:100 jpfar PrintBeginningBattleText
++        -- Called from core.asm:6738 before StartBattle at core.asm:6763.
++        self:present("silhouetteEnter")
+         if self.trainerName then
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index aadfc149..6d10ee08 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -545,6 +545,10 @@ function BattleScene:drawBattleField()
+ 
+     if self.trainerVisible then
+         self:drawTrainer()
++    elseif self:silhouetteOffset() > 0 and self.battle.enemy then
++        -- Wild battles slide the mon pic in with the player back. The
++        -- sprite is the one drawPresentedPokemon already loads.
++        self:drawPresentedPokemon(self.battle.enemy, "enemy", 300 + self:silhouetteOffset(), 20, false)
+     end
+     if self.enemyShown and not self:isFaintSlide("enemy")
+         and (not self.captureAnimation or self.captureAnimation:isEnemyVisible())
+@@ -993,6 +997,12 @@ function BattleScene:updateVisualEvent(request)
+     if not GameOptions.battleAnimations() then
+         duration = 1
+     end
++    if request.kind == "silhouetteEnter" then
++        -- engine/battle/core.asm SlidePlayerAndEnemySilhouettesOnScreen
++        -- ld c, $90 and decrements by 2 (72 Game Boy frames). Playdate is
++        -- 30fps and the pics are 2x, so 36 frames at 8px. No new bitmap.
++        duration = 36
++    end
+     if request.kind == "sendout" and self.presentationFrame >= 10 then
+         self[request.details.side .. "Shown"] = request.details.pokemon
+     end
+@@ -1132,6 +1142,7 @@ function BattleScene:drawTrainer()
+     end
+     local offset = self.activePresentation and self.activePresentation.kind == "trainerExit"
+         and (self.presentationFrame or 0) * 6 or 0
++    offset = offset + self:silhouetteOffset()
+     local w, h = self.trainerImage:getSize()
+     self.trainerImage:draw(340 - w // 2 + offset, 8)
+ end
+@@ -1146,7 +1157,7 @@ local moveMotifs <const> = {
+ 
+ function BattleScene:drawPresentation()
+     local request = self.activePresentation
+-    if not request or request.kind == "experience" or not GameOptions.battleAnimations() then
++    if not request or request.kind == "experience" or request.kind == "silhouetteEnter" or not GameOptions.battleAnimations() then
+         return
+     end
+     local frame = self.presentationFrame or 0
+@@ -1254,3 +1265,28 @@ function BattleScene:syncMessage()
+         self.messageReady = true
+     end)
+ end
++
++function BattleScene:silhouetteOffset()
++    local request = self.activePresentation
++    if not request or request.kind ~= "silhouetteEnter" then return 0 end
++    -- engine/battle/core.asm:9 SlidePlayerAndEnemySilhouettesOnScreen.
++    -- Both pics start at SCX $90 and walk in from the right. This is only
++    -- an x delta on pics the scene already holds. Nothing here allocates.
++    local frames <const> = 36
++    local step <const> = 8
++    local remain = frames - (self.presentationFrame or 0)
++    if remain < 0 then remain = 0 end
++    return remain * step
++end
++
++local drawPlayerBackPic = BattleScene.drawPlayerBack
++function BattleScene:drawPlayerBack()
++    local slide = self:silhouetteOffset()
++    if slide == 0 then
++        return drawPlayerBackPic(self)
++    end
++    local ox, oy = gfx.getDrawOffset()
++    gfx.setDrawOffset(ox + slide, oy)
++    drawPlayerBackPic(self)
++    gfx.setDrawOffset(ox, oy)
++end
