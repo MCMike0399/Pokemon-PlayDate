@@ -3341,7 +3341,18 @@ class CharmanderRun(BrockJourney):
         scientist = next(event for event in self.models[cave].events["objects"]
                          if event["id"] == "postgame:CERULEAN_CAVE_1F:mew-gift")
         if not self._on("CeruleanCave1F") and not self._on("CeruleanCaveB1F"):
-            self.travel(cave, set(self.models[cave].approaches((scientist["x"], scientist["y"]))))
+            # The outdoor router stops at the city. The cave warp is the north
+            # step at (4, 11), and the guard on (4, 12) is already hidden.
+            city = self.zone("CeruleanCity")
+            self.travel(city, {(4, 13), (3, 12), (5, 12)})
+            if not self._on("CeruleanCity"):
+                raise ProtocolError("Cerulean City missed: " + self._map_name() + " " + str(self.position()))
+            if self.position() != (4, 12):
+                self.navigate((4, 12))
+            self.send("press up", "wait 20")
+            self.drain()
+        if not self._on("CeruleanCave1F") and not self._on("CeruleanCaveB1F"):
+            raise ProtocolError("cave door stayed at " + self._map_name() + " " + str(self.position()))
         if self._on("CeruleanCave1F") and not self.summary.get("mew_gift"):
             self._record_screen("cerulean-cave", 20)
             self._record_screen("mew-gift", 25)
@@ -5310,6 +5321,9 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("def _spare_revive", source)
         self.assertIn("def _spare_healing", source)
         self.assertIn("self._keep_door_restore(battle, options)", source)
+        postgame = source.split("def _play_postgame", 1)[1].split("def _champion", 1)[0]
+        self.assertIn('self.zone("CeruleanCity")', postgame)
+        self.assertIn("press up", postgame)
         door = source.split("def _top_off_in_field", 1)[1].split("def _needs_league_heal", 1)[0]
         battle_heal = source.split("def _top_off_starter", 1)[1].split("def battle_preparation_action", 1)[0]
         self.assertIn('self.quantity("fullRestore")', door)
