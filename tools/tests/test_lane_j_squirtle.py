@@ -166,7 +166,8 @@ def forget_index(learning):
 
     Surf already covers Water Gun. Ice Beam takes that slot for Gyarados.
     """
-    order = ["tailWhip", "growl", "withdraw", "bubble", "tackle", "waterGun"]
+    order = ["tailWhip", "growl", "withdraw", "bubble", "tackle", "waterGun",
+             "gust", "sandAttack", "scratch", "skullBash"]
     by_key = {move.get("key"): move.get("index") for move in (learning.get("known_moves") or [])}
     for key in order:
         if key in by_key:
@@ -951,6 +952,49 @@ class SquirtleRouteTests(unittest.TestCase):
         fuchsia = set(open_map(SOUTH / "FuchsiaCity.json", 0, 40))
         self.assertIn((49, 8), route18)
         self.assertIn((0, 16), fuchsia)
+
+    def test_south_road_turns_back_for_the_rival_level(self):
+        route14 = _south_rounds("ROUTE_14")
+        route15 = _south_rounds("ROUTE_15")
+        self.assertEqual(len(route14), 10)
+        self.assertEqual(len(route15), 10)
+        self.assertEqual(
+            [row[0] for row in route15 if row[2] == "dugtrio"],
+            ["pokered:ROUTE_15:objects:2"],
+        )
+        self.assertTrue(all(row[2] == "share" for row in route14))
+        self.assertEqual(_south_grind_leg("Route8", trained=False, left=True), "lavender")
+        self.assertEqual(_south_grind_leg("LavenderTown", trained=False, left=True), "route13")
+        self.assertEqual(_south_grind_leg("Route12", trained=False, left=True), "route13")
+        self.assertEqual(_south_grind_leg("Route12Gate1F", trained=False, left=True), "route13")
+        self.assertEqual(_south_grind_leg("Route13", trained=False, left=True), "route14")
+        self.assertEqual(_south_grind_leg("Route14", trained=False, left=True), "fight")
+        self.assertEqual(_south_grind_leg("Route15", trained=False, left=True), "fight")
+        self.assertIsNone(_south_grind_leg("Route12", trained=True, left=True))
+        self.assertIsNone(_south_grind_leg("LavenderTown", trained=False, left=False))
+        path14 = SOUTH / "Route14.json"
+        cells14 = set(open_map(path14, 0, 20))
+        self.assertIn((19, 10), cells14)
+        self.assertIn((0, 44), cells14)
+        here = (19, 10)
+        reachable = []
+        for tid, stand, _kind, _sight in route14:
+            avoid = _map_blocks(path14, 0) | _other_sights(route14, tid, lambda _other: False)
+            avoid.discard(here)
+            avoid.discard(stand)
+            if route(cells14, here, stand, avoid):
+                reachable.append(tid)
+        self.assertTrue(reachable)
+        path13 = SOUTH / "Route13.json"
+        cells13 = set(open_map(path13, 0, 60))
+        avoid13 = _map_blocks(path13, 0)
+        avoid13.discard((51, 9))
+        avoid13.discard((0, 10))
+        self.assertIsNotNone(route(cells13, (51, 9), (0, 10), avoid13))
+        self.assertIn((59, 8), route8_cells())
+        self.assertIsNone(route(route8_cells(), (59, 8), (0, 8), set(ROUTE8_AVOID)))
+        self.assertIsNotNone(route(route8_cells(), (59, 8), (13, 4), set(ROUTE8_AVOID)))
+        self.assertIsNotNone(route(lavender_cells(), (0, 8), (8, 17), set(LAVENDER_DOORS)))
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -9234,6 +9278,37 @@ def _saffron_to_route8(player, report):
     return _saffron_edge(player, report, (39, 16), "right", "route_8", "route8")
 
 
+def _route8_to_lavender(player, report):
+    """The east edge is Lavender. Saffron's west step stays shut until the rival is trained."""
+    avoid = set(ROUTE8_AVOID)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    avoid.discard((59, 8))
+    if here != (59, 8):
+        kind = _walk(player, route8_cells(), map_surface(EAST / "Route8.json"), (59, 8), avoid,
+                     report=report, yield_after=1, shift=_share_species(player))
+        if kind in ("blackout", "yield"):
+            return kind
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (59, 8):
+            raise RuntimeError("lavender missed (59, 8): " + str(kind) + " "
+                               + json.dumps(summary(player.state)))
+    player.step("right")
+    player.settle(limit=80)
+    if "lavender" not in str(player.state.get("zone")):
+        player.step("right")
+        player.settle(limit=80)
+    if "lavender" not in str(player.state.get("zone")):
+        raise RuntimeError("Lavender did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_lavender")
+    return "yield"
+
+
+def _lavender_to_route12(player, report):
+    path = EAST / "LavenderTown.json"
+    return _edge_leave(player, report, path, 0, 20, (8, 17), "down", set(LAVENDER_DOORS),
+                       "lavender_south", "route_12")
+
+
 def _route8_to_saffron(player, report):
     avoid = set(ROUTE8_AVOID)
     avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
@@ -9311,6 +9386,64 @@ def _route7_grind(player, report):
     return "yield"
 
 
+_DUGTRIO_FOES = {
+    "pikachu", "raichu", "voltorb", "electrode", "magnemite", "magneton", "electabuzz",
+    "geodude", "graveler", "golem", "onix", "rhyhorn", "rhydon",
+}
+
+
+def _south_rounds(map_id):
+    """Route 14 and 15 trainers, with the cells they watch."""
+    blob = json.loads((SOUTH / "trainers.json").read_text(encoding="utf-8"))["trainers"]
+    rows = []
+    for trainer in blob.values():
+        if trainer.get("map_id") != "pokered:" + map_id:
+            continue
+        dx, dy = TOWER_FACE[trainer["facing_source"]]
+        sight = tuple(
+            (trainer["x"] + dx * step, trainer["y"] + dy * step)
+            for step in range(1, int(trainer["sight_range_cells"]) + 1)
+        )
+        species = {member["species"] for member in trainer.get("party") or []}
+        kind = "dugtrio" if species & _DUGTRIO_FOES else "share"
+        rows.append((trainer["id"], (trainer["x"], trainer["y"]), kind, sight))
+    rows.sort(key=lambda row: row[0])
+    return tuple(rows)
+
+
+def _south_trainers_left(player):
+    return (_rounds_left(player, _south_rounds("ROUTE_14"))
+            or _rounds_left(player, _south_rounds("ROUTE_15")))
+
+
+def _south_grind_leg(place, trained, left):
+    """Pidgeot still needs the Route 14 and 15 trainers before the Silph rival."""
+    if trained or not left:
+        return None
+    if place == "Route8":
+        return "lavender"
+    if place in ("Route12", "Route12Gate1F", "LavenderTown"):
+        return "route13"
+    if place == "Route13":
+        return "route14"
+    if place in ("Route14", "Route15"):
+        return "fight"
+    return None
+
+
+def _fight_south_map(player, report, map_id, filename, width):
+    rounds = _south_rounds(map_id)
+    if not _rounds_left(player, rounds):
+        return None
+    path = SOUTH / filename
+    picked = _pick_trainer(player, path, 0, width, rounds, ())
+    if picked is None:
+        raise RuntimeError(map_id + " trainers are boxed in: " + json.dumps(summary(player.state)))
+    tid, stand, kind = picked
+    extra = _other_sights(rounds, tid, lambda other: _beaten(player, other))
+    return _engage(player, report, path, 0, width, tid, stand, kind, extra)
+
+
 def _after_strength(player, report, display=None, clips=None, output=None):
     """Teach Surf and Strength, then buy a Celadon roof drink for the Route 7 guard.
 
@@ -9338,6 +9471,8 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         return _south_exit(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (38, 16),
                            set(_fuchsia_doors()) | {(39, 16), (39, 17)}, "right", "Route15", "saved_route15")
     if place == "Route15":
+        if _south_grind_leg(place, _rival_trained(player), _rounds_left(player, _south_rounds("ROUTE_15"))):
+            return _fight_south_map(player, report, "ROUTE_15", "Route15.json", 60)
         _name, x, _y = _k_here(player)
         doors = {(7, 8), (7, 9), (14, 8), (14, 9)}
         if x < 10:
@@ -9350,26 +9485,52 @@ def _after_strength(player, report, display=None, clips=None, output=None):
                            {(6, 1), (9, 4), (9, 5), (2, 4), (2, 5), (8, 8)}, "right", "Route15",
                            "saved_route15")
     if place == "Route14":
+        if _south_grind_leg(place, _rival_trained(player), _south_trainers_left(player)):
+            fought = _fight_south_map(player, report, "ROUTE_14", "Route14.json", 20)
+            if fought:
+                return fought
+            path = SOUTH / "Route14.json"
+            return _edge_leave(player, report, path, 0, 20, (0, 44), "left",
+                               _map_blocks(path, 0), "route14_west", "route_15")
         return _south_exit(player, report, "Route14.json", 0, 20, "Route14", (19, 10), set(),
                            "right", "Route13", "saved_route13")
     if place == "Route13":
+        if _south_grind_leg(place, _rival_trained(player), _south_trainers_left(player)):
+            path = SOUTH / "Route13.json"
+            return _edge_leave(player, report, path, 0, 60, (0, 10), "left",
+                               _map_blocks(path, 0), "route13_west", "route_14")
         return _south_exit(player, report, "Route13.json", 0, 60, "Route13", (50, 0), set(),
                            "up", "Route12", "saved_route12")
     if place == "Route12":
         _name, _x, y = _k_here(player)
+        if _south_grind_leg(place, _rival_trained(player), _south_trainers_left(player)):
+            if y < 20:
+                return _route12_gate(player, report)
+            return _toward_snorlax(player, report)
         if y > 22:
             return _snorlax_to_gate(player, report)
         return _route12_to_lavender(player, report)
     if place == "Route12Gate1F":
+        if _south_grind_leg(place, _rival_trained(player), _south_trainers_left(player)):
+            return _through_route12_gate(player, report)
         return _gate_to_lavender(player, report)
     if place == "LavenderTown":
+        if _south_grind_leg(place, _rival_trained(player), _south_trainers_left(player)):
+            return _lavender_to_route12(player, report)
         status = _cross_lavender(player, report)
         if status != "open":
             return status
         _checkpoint(player, report, "saved_route8")
         return "yield"
     if place == "Route8":
-        return _route8_to_saffron(player, report)
+        if _south_grind_leg(place, _rival_trained(player), _south_trainers_left(player)):
+            return _route8_to_lavender(player, report)
+        # (0, 8) is the far side of the gate. The road does not reach it.
+        status = _cross_route8(player, report)
+        if status != "open":
+            return status
+        _checkpoint(player, report, "saved_underground")
+        return "yield"
     if "underground" in zone:
         status = _cross_underground(player, report)
         if status != "open":
