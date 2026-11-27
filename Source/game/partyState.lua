@@ -254,53 +254,151 @@ function PartyState:_rememberScreen(party)
     }
 end
 
+-- engine/pokemon/status_screen.asm StatusScreen places TypesIDNoOTText
+-- (TYPE1/ then TYPE2/) and PrintMonType. Equal type bytes skip the second
+-- name. data/names.asm prints PSYCHIC for PSYCHIC_TYPE. Species store the
+-- lowercase type, and a single type leaves type2 nil.
+local TYPE_NAMES <const> = {
+    normal = "NORMAL", fighting = "FIGHTING", flying = "FLYING", poison = "POISON",
+    ground = "GROUND", rock = "ROCK", bug = "BUG", ghost = "GHOST", fire = "FIRE",
+    water = "WATER", grass = "GRASS", electric = "ELECTRIC", psychic = "PSYCHIC",
+    ice = "ICE", dragon = "DRAGON",
+}
+
+function PartyState.typeLines(mon)
+    local function shown(value)
+        local name = TYPE_NAMES[value]
+        assert(name, "unknown type")
+        return name
+    end
+    local lines = {"TYPE1/ " .. shown(mon.type)}
+    if mon.type2 and mon.type2 ~= mon.type then
+        lines[2] = "TYPE2/ " .. shown(mon.type2)
+    else
+        lines[2] = "TYPE2/"
+    end
+    return lines
+end
+
 function PartyState:_paintScreen(party)
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
     local mon = party:get(self.selected)
     if self.phase == "stats" and mon then
-        gfx.drawText(mon.name .. "  Lv" .. mon.level, 12, 10)
-        gfx.drawText("HP " .. mon.hp .. "/" .. mon.maxHP .. "  " .. (mon.status or "OK"):upper(), 12, 34)
-        gfx.drawText("ATTACK " .. mon.atk .. "   DEFENSE " .. mon.def, 12, 58)
-        gfx.drawText("SP. ATK " .. mon.spa .. "   SP. DEF " .. mon.spd, 12, 82)
-        gfx.drawText("SPEED " .. mon.spe .. "   EXP " .. mon.xp, 12, 106)
-        for i, key in ipairs(mon.moves) do
-            gfx.drawText(moveData[key].name, 12, 124 + i * 19)
-            gfx.drawText("PP " .. mon.pp[key] .. "/" .. moveData[key].maxPP, 270, 124 + i * 19)
-        end
-        gfx.drawText("A: INFO   B: Back", 12, 222)
+        PartyState.typeLines(mon)
+        self:drawStatus(mon)
     elseif self.phase=="info" and mon then
-        gfx.drawText(mon.name.."  Lv"..mon.level,12,10)
-        gfx.drawText("NATURE  "..SpecimenData.natures[mon.natureId].name:upper(),12,54)
-        gfx.drawText("ABILITY",12,90)
-        gfx.drawTextInRect(SpecimenData.abilityNames[mon:ability()]:upper(),12,110,376,36)
-        gfx.drawText("HELD ITEM",12,154)
-        gfx.drawTextInRect(mon.heldItem=="none" and "NONE" or ItemData.definitions[mon.heldItem].name,12,174,376,36)
-        gfx.drawText("A: STATS  B: Back",12,222)
+        self:drawSummary(mon)
     else
-        gfx.drawText("POKEMON", 12, 6)
-        if party:count() == 0 then gfx.drawText("You have no POKEMON yet.", 16, 64) end
-        for i = 1, party:count() do
-            local member = party:get(i)
-            local top = 30 + (i - 1) * 29
-            gfx.drawText((i == self.selected and "> " or "  ") .. member.name, 8, top)
-            gfx.drawText("Lv" .. member.level, 196, top)
-            gfx.drawText(member.hp .. "/" .. member.maxHP, 256, top)
-            gfx.drawText(member.hp == 0 and "FNT" or PARTY_STATUS[member.status] or "", 354, top)
-            gfx.drawRect(30, top + 21, 140, 4)
-            local fill = math.floor(138 * member.hp / member.maxHP)
-            if fill > 0 then gfx.fillRect(31, top + 22, fill, 2) end
+        self:drawPartyList(party)
+    end
+end
+
+
+-- engine/menus/party_menu.asm RedrawPartyMenu_ prints the name at
+-- hlcoord 3, 0 and steps 2*SCREEN_WIDTH. The level is ten columns
+-- right, the status fourteen, and DrawHP2 is one row down. BlueBot r2
+-- starts that first name on tile row 1 so the ink is not on pixel row 0.
+-- Two rows per mon stay: the HP bar and the fraction are the row under
+-- the name. Columns stay 3, 13 and 17. The cursor stays on the HP row
+-- (home/pokemon.asm PartyMenuInit), shifted with the name.
+-- Glyphs are a uniform 12/8 nearest scale of gfx/font/font.png inside
+-- the 20 by 13 cell, leaving the top pixel clear. Borders stay full-cell.
+local PARTY_FIT <const> = 12
+
+local function partyFitTile(sheetName, index)
+    local sheet = GbFont.load()[sheetName]
+    local columns = sheetName == "ed" and 1 or 16
+    local sx = (index % columns) * 8
+    local sy = math.floor(index / columns) * 8
+    local image = gfx.image.new(PARTY_FIT, PARTY_FIT, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setColor(gfx.kColorBlack)
+    for y = 0, PARTY_FIT - 1 do
+        local sourceY = sy + math.floor(y * 8 / PARTY_FIT)
+        for x = 0, PARTY_FIT - 1 do
+            local sourceX = sx + math.floor(x * 8 / PARTY_FIT)
+            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(x, y)
+            end
         end
-        local prompt = self.phase == "swap" and "Move to which position?"
-            or self.message or (self.options and self.options.prompt) or "Choose a POKEMON.  B: Back"
-        gfx.drawText(prompt, 12, 216)
-        if self.phase=="actions" then self.menu:draw(210,222-(16+(self.actionCount or 4)*20),180,16+(self.actionCount or 4)*20)
-        elseif self.phase=="held-actions" then self.menu:draw(210,146,180,76) end
-        if self.phase=="held-message" then
-            gfx.setColor(gfx.kColorWhite);gfx.fillRect(4,174,392,62)
-            gfx.setColor(gfx.kColorBlack);gfx.drawRect(4,174,392,62)
-            gfx.drawTextInRect(self.message,14,184,372,42)
-        end
+    end
+    gfx.popContext()
+    return image
+end
+
+local function partyFitAt(sheetName, index, col, row)
+    local ox = math.floor((TitleIdle.COL - PARTY_FIT) / 2)
+    local oy = TitleIdle.ROW - PARTY_FIT
+    partyFitTile(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
+end
+
+local function partyFitChar(char, col, row)
+    local sheetName, index = TitleIdle.glyph(char)
+    partyFitAt(sheetName, index, col, row)
+end
+
+local function partyFitString(text, col, row)
+    local cursor, index = 0, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+        partyFitAt(sheetName, glyph, col + cursor, row)
+        cursor = cursor + 1
+        index = nextIndex
+    end
+end
+
+local PARTY_LIST_CONDITION <const> = {poison="PSN", badPoison="PSN", burn="BRN", paralyze="PAR", sleep="SLP", freeze="FRZ"}
+
+local function partyPad(value, digits)
+    return string.format("%" .. digits .. "d", math.max(0, math.floor(value or 0)))
+end
+
+local function partyHpBar(col, row, tiles, hp, maxHP)
+    local x = col * TitleIdle.COL
+    local y = row * TitleIdle.ROW + 4
+    local w = tiles * TitleIdle.COL
+    local h = 5
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(x, y, w, h)
+    local fill = maxHP > 0 and math.floor((w - 2) * math.max(0, hp) / maxHP) or 0
+    if fill > 0 then gfx.fillRect(x + 1, y + 1, fill, h - 2) end
+end
+
+function PartyState:drawPartyList(party)
+    import "game/gbFont"
+    local count = math.min(party:count(), 6)
+    for i = 1, count do
+        local member = party:get(i)
+        local row = 1 + (i - 1) * 2
+        if i == self.selected then partyFitChar(TitleIdle.CURSOR, 0, row + 1) end
+        partyFitString(member.name, 3, row)
+        partyFitString("L" .. string.format("%2d", member.level), 13, row)
+        local condition = PARTY_LIST_CONDITION[member.status]
+        if condition then partyFitString(condition, 17, row) end
+        partyHpBar(4, row + 1, 6, member.hp, member.maxHP)
+        partyFitString(partyPad(member.hp, 3) .. "/" .. partyPad(member.maxHP, 3), 13, row + 1)
+    end
+    if count == 0 then partyFitString("You have no POKEMON yet.", 1, 4) end
+    -- data/text_boxes.asm MESSAGE_BOX is 0,12 through 19,17.
+    -- data/text/text_2.asm _PartyMenuNormalText.
+    GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
+    local prompt = self.phase == "swap" and "Move PKMN where?"
+        or self.message or (self.options and self.options.prompt)
+    if not prompt then
+        partyFitString("Choose a ", 1, 14)
+        partyFitChar("PK", 10, 14)
+        partyFitString("MON.", 11, 14)
+    else
+        partyFitString(prompt, 1, 14)
+    end
+    if self.phase=="actions" then self.menu:draw(210,222-(16+(self.actionCount or 4)*20),180,16+(self.actionCount or 4)*20)
+    elseif self.phase=="held-actions" then self.menu:draw(210,146,180,76) end
+    if self.phase=="held-message" then
+        gfx.setColor(gfx.kColorWhite);gfx.fillRect(4,174,392,62)
+        gfx.setColor(gfx.kColorBlack);gfx.drawRect(4,174,392,62)
+        gfx.drawTextInRect(self.message,14,184,372,42)
     end
 end
 
@@ -325,6 +423,143 @@ function PartyState:draw()
     end
     self.screenImage:draw(0, 0)
     if x ~= 0 or y ~= 0 then gfx.setDrawOffset(x, y) end
+end
+
+-- status_screen.asm StatusScreen and StatusScreen2. The name is
+-- hlcoord 9, 1. StatsText is ATTACK / DEFENSE / SPEED / SPECIAL, two
+-- rows apart, inside the box at hlcoord 0, 8. SPECIAL is that one
+-- line; the figure is the special attack. StatusScreen2 prints the
+-- moves at hlcoord 2, 9 and PP one row below each move.
+-- Text uses the same uniform 12/8 scale as the party list.
+local STATUS_FIT <const> = 12
+
+local function statusFitTile(sheetName, index)
+    local sheet = GbFont.load()[sheetName]
+    local columns = sheetName == "ed" and 1 or 16
+    local sx = (index % columns) * 8
+    local sy = math.floor(index / columns) * 8
+    local image = gfx.image.new(STATUS_FIT, STATUS_FIT, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setColor(gfx.kColorBlack)
+    for y = 0, STATUS_FIT - 1 do
+        local sourceY = sy + math.floor(y * 8 / STATUS_FIT)
+        for x = 0, STATUS_FIT - 1 do
+            local sourceX = sx + math.floor(x * 8 / STATUS_FIT)
+            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(x, y)
+            end
+        end
+    end
+    gfx.popContext()
+    return image
+end
+
+local function statusFitAt(sheetName, index, col, row)
+    local ox = math.floor((TitleIdle.COL - STATUS_FIT) / 2)
+    local oy = TitleIdle.ROW - STATUS_FIT
+    statusFitTile(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
+end
+
+local function statusFitChar(char, col, row)
+    local sheetName, index = TitleIdle.glyph(char)
+    statusFitAt(sheetName, index, col, row)
+end
+
+local function statusFitString(text, col, row)
+    local cursor, index = 0, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+        statusFitAt(sheetName, glyph, col + cursor, row)
+        cursor = cursor + 1
+        index = nextIndex
+    end
+end
+
+local STATUS_CONDITION <const> = {poison="PSN", badPoison="PSN", burn="BRN", paralyze="PAR", sleep="SLP", freeze="FRZ"}
+
+local function statusPad(value, digits)
+    return string.format("%" .. digits .. "d", math.max(0, math.floor(value or 0)))
+end
+
+local function statusFront(mon)
+    local pic = gfx.image.new("images/pokemon/" .. mon.species .. "-front")
+    if not pic then return end
+    local _, height = pic:getSize()
+    if height > 0 then pic:drawScaled(TitleIdle.COL, 0, (6 * TitleIdle.ROW) / height) end
+end
+
+local function statusHpBar(col, row, tiles, hp, maxHP)
+    local x = col * TitleIdle.COL
+    local y = row * TitleIdle.ROW + 4
+    local w = tiles * TitleIdle.COL
+    local h = 5
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(x, y, w, h)
+    local fill = maxHP > 0 and math.floor((w - 2) * math.max(0, hp) / maxHP) or 0
+    if fill > 0 then gfx.fillRect(x + 1, y + 1, fill, h - 2) end
+end
+
+local function statusLineBox(col, row, down, across)
+    for i = 0, down - 1 do GbFont.drawChar("│", col, row + i) end
+    GbFont.drawChar("┘", col, row + down)
+    for i = 1, across do GbFont.drawChar("─", col - i, row + down) end
+end
+
+function PartyState:drawStatus(mon)
+    import "game/gbFont"
+    statusFront(mon)
+    statusLineBox(19, 1, 6, 10)
+    statusFitString(mon.name, 9, 1)
+    statusFitString("L" .. string.format("%2d", mon.level), 14, 2)
+    statusFitString(string.format("%03d", mon.dex or 0), 3, 7)
+    statusHpBar(11, 3, 6, mon.hp, mon.maxHP)
+    statusFitString(statusPad(mon.hp, 3) .. "/" .. statusPad(mon.maxHP, 3), 12, 4)
+    statusFitString("STATUS/", 9, 6)
+    statusFitString(STATUS_CONDITION[mon.status] or "OK", 16, 6)
+    statusLineBox(19, 9, 8, 6)
+    statusFitString("TYPE1/", 10, 9)
+    statusFitString("TYPE2/", 10, 11)
+    statusFitString("IDNo/", 10, 13)
+    statusFitString("OT/", 10, 15)
+    statusFitString(string.upper(mon.type or ""), 11, 10)
+    if mon.type2 then statusFitString(string.upper(mon.type2), 11, 12) end
+    statusFitString(Story.playerName(self.game), 12, 16)
+    GbFont.drawBox(TitleIdle.textBox(0, 8, 8, 8))
+    local stats = {
+        {"ATTACK", mon.atk}, {"DEFENSE", mon.def},
+        {"SPEED", mon.spe}, {"SPECIAL", mon.spa},
+    }
+    for index, stat in ipairs(stats) do
+        local row = 9 + (index - 1) * 2
+        statusFitString(stat[1], 1, row)
+        statusFitString(statusPad(stat[2], 3), 6, row + 1)
+    end
+end
+
+function PartyState:drawSummary(mon)
+    import "game/gbFont"
+    statusFront(mon)
+    statusLineBox(19, 1, 6, 10)
+    statusFitString(mon.name, 9, 1)
+    statusFitString("EXP POINTS", 9, 3)
+    statusFitString("LEVEL UP", 9, 5)
+    statusFitString(statusPad(mon.xp or 0, 7), 12, 4)
+    local remain = math.max(0, (mon.xpToNext or 0) - (mon.xp or 0))
+    statusFitString(statusPad(remain, 7), 7, 6)
+    -- <to> is one tile at column 14 (status_screen.asm). The dex font
+    -- has no <to> tile, so the two letters fill column 14 and the blank
+    -- column before PrintLevel at column 16.
+    statusFitString("to", 14, 6)
+    statusFitString("L" .. string.format("%2d", math.min(100, mon.level + 1)), 16, 6)
+    GbFont.drawBox(TitleIdle.textBox(0, 8, 18, 8))
+    for index, key in ipairs(mon.moves) do
+        local row = 9 + (index - 1) * 2
+        local move = moveData[key]
+        statusFitString(string.upper(move.name), 2, row)
+        statusFitString("PP", 11, row + 1)
+        statusFitString(statusPad(mon.pp[key] or 0, 2) .. "/" .. statusPad(move.maxPP or move.pp or 0, 2), 14, row + 1)
+    end
 end
 
 function PartyState:resume()

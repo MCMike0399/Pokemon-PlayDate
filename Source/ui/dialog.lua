@@ -250,7 +250,9 @@ function Dialog:draw(settled)
     gfx.fillRect(0, 234, 400, 6)
     -- data/text_boxes.asm MESSAGE_BOX is hlcoord 0, 12 through 19, 17.
     -- Text is placed at bccoord 1, 14. The second row is hlcoord 1, 16.
-    -- constants/charmap.asm puts ▼ at $ee, and PromptText writes it at 18, 16.
+    -- constants/charmap.asm puts ▼ at $ee.
+    -- home/text.asm:214 PromptText does ldcoord_a 18, 16.
+    -- home/joypad2.asm:71 HandleDownArrowBlinkTiming blinks that same tile.
     GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))
     -- settled means the page is complete. The shift question uses that so
     -- YES/NO shares the screen with the whole line, not the typewriter prefix.

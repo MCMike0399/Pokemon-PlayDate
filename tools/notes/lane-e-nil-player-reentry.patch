@@ -1,0 +1,60 @@
+# Post-blackout re-entry into Cerulean Cave indexed a nil player.
+# switchZone nils game.player. OverworldState:enter asserted the field
+# reload before Player() ran, the harness swallowed that assert, and
+# ExploreSubstate:update then read player.pendingBoulder. The published
+# error is game/overworldState.lua:88. The command was
+# zone kanto_cerulean_cave_1f 20 10 down. That cell is collision 1 in
+# Source/data/zRemainder/CeruleanCave1F.json. The door landing (24, 16) is
+# collision 0. MallocPoolSize stays 16645684.
+
+diff --git a/Source/game/overworldState.lua b/Source/game/overworldState.lua
+index 5487b17f..ce8b4b6f 100644
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -62,12 +62,17 @@ local function noteFieldPoison(game)
+ end
+ 
+ function ExploreSubstate:exit()
+-    self.owner.game.player.running = false
++    local player = self.owner.game.player
++    if player then player.running = false end
+ end
+ 
+ function ExploreSubstate:update()
+     local game = self.owner.game
+     local player = game.player
++    -- switchZone nils the player before OverworldState:enter builds the next
++    -- one. A field reload that rejects the arrival used to assert first, and
++    -- this frame then indexed the missing player.
++    if not player then return end
+ 
+     if SafariRuntime and SafariRuntime.check(game) then
+         return
+@@ -614,6 +619,7 @@ function OverworldState:enter(opts)
+     -- The id is kept so this reload still sees the map the player left.
+     local departing = self.builtZone
+     local fromID = departing and departing.stableID or self.releasedZoneID
++    local reloadAccepted, reloadProblem = true, nil
+     if game.fieldWorld and not (opts and opts.fieldRestore)
+         and self.builtSession == game.session and fromID
+         and (departing ~= currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
+@@ -623,10 +629,9 @@ function OverworldState:enter(opts)
+         end
+         local reason = opts and opts.fieldReloadReason or (departing == currentZone and "reload" or "map")
+         BootTrace.mark("overworld.field_reload.begin")
+-        local accepted, problem = game.fieldWorld.enter(game, fromID,
++        reloadAccepted, reloadProblem = game.fieldWorld.enter(game, fromID,
+             {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
+             actors or WorldMotionData.empty(), reason)
+-        assert(accepted, problem)
+         BootTrace.mark("overworld.field_reload.end")
+     end
+     self.releasedZoneID = nil
+@@ -644,6 +649,7 @@ function OverworldState:enter(opts)
+         game.player.facing = pos.facing
+         game.player:updateSprite()
+     end
++    assert(reloadAccepted, reloadProblem)
+ 
+     local actorRecord=opts and opts.actors
+     local reconcile=false
