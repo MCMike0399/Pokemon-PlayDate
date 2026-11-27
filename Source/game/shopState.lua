@@ -1,4 +1,5 @@
 -- Native shop overlay. Session owns bag/money; Items owns every transaction.
+import "game/martList"
 local gfx <const> = playdate.graphics
 Class("ShopState"):extends(State)
 local function clamp(n,lo,hi) return math.max(lo,math.min(hi,n)) end
@@ -72,11 +73,20 @@ function ShopState:rows()
 end
 function ShopState:browse()
     self:hideMenu();self.phase,self.item,self.result="browse",nil,nil
-    self.selected=clamp(self.selected,1,math.max(1,#self:rows()))
+    self.selected=clamp(self.selected,1,math.max(1,#self:rows()+1))
 end
 function ShopState:price()
     local data=assert(ItemData.definitions[self.item])
     return self.trade=="buy" and data.price or data.sellPrice
+end
+function ShopState:shownPrice()
+    local row=self.phase=="browse" and self:rows()[self.selected] or nil
+    if row then
+        local data=ItemData.definitions[row.id]
+        return (self.trade=="buy" and data.price or data.sellPrice) or 0
+    end
+    if self.item then return self:price() end
+    return 0
 end
 function ShopState:showResult(ok,reason,total)
     self:hideMenu();self.phase="result"
@@ -85,7 +95,9 @@ function ShopState:showResult(ok,reason,total)
             or messages[reason] or "That transaction couldn't be completed."}
 end
 function ShopState:chooseItem()
-    local row=self:rows()[self.selected]
+    local rows=self:rows()
+    if self.selected==#rows+1 then self:mode() return end
+    local row=rows[self.selected]
     if not row then return end
     self.item,self.quantity=row.id,1
     local data=ItemData.definitions[row.id]
@@ -116,7 +128,7 @@ function ShopState:handleButton(button)
         elseif button=="a" then if self.menu.onSelect then self.menu.onSelect(self.menu.selectedIndex) end
         elseif button=="b" then if self.menu.onCancel then self.menu.onCancel() end end
     elseif self.phase=="browse" then
-        local count=#self:rows()
+        local count=#self:rows()+1
         if button=="b" then self:mode()
         elseif count>0 then
             self.selected=clamp(self.selected,1,count)
@@ -152,7 +164,7 @@ function ShopState:handleInput()
     if self.menu.isActive then
         self.menu.selectedIndex = self.menu.crank:move(self.menu.selectedIndex, #self.menu.options)
     elseif self.phase == "browse" then
-        self.selected = self.crank:move(self.selected, #self:rows())
+        self.selected = self.crank:move(self.selected, #self:rows()+1)
     end
 end
 function ShopState:getSnapshot()
@@ -161,41 +173,45 @@ function ShopState:getSnapshot()
     local options={};for i,value in ipairs(self.menu.options) do options[i]=value end
     local row=self.phase=="browse" and self:rows()[self.selected] or nil
     return {phase=self.phase,selected=self.selected,item=(row and row.id or self.item) or "none",quantity=self.quantity,result=result,
-        menu={selected=self.menu.selectedIndex,active=self.menu.isActive,options=options}}
+        price=self:shownPrice(),menu={selected=self.menu.selectedIndex,active=self.menu.isActive,options=options}}
 end
 local function right(text,x,y) local w=gfx.getTextSize(text);gfx.drawText(text,x-w,y) end
 local function box(x,y,w,h)
     gfx.setColor(gfx.kColorWhite);gfx.fillRect(x,y,w,h)
     gfx.setColor(gfx.kColorBlack);gfx.drawRect(x,y,w,h)
 end
+function ShopState:drawPokeredList()
+    local rows={}
+    for _,row in ipairs(self:rows()) do
+        local item=ItemData.definitions[row.id]
+        rows[#rows+1]={name=item.sourceName or item.name,price=self.trade=="buy" and item.price or item.sellPrice,quantity=row.quantity}
+    end
+    local result=self.phase=="result" and self.result and self.result.message or nil
+    local paint=MartList.paint(rows,self.selected,self:inventory():money(),self.trade,result)
+    for _,key in ipairs({"message","money","list"}) do
+        local frame=paint.boxes[key]
+        GbFont.drawBox(TitleIdle.textBox(frame.col,frame.row,frame.innerW,frame.innerH))
+    end
+    gfx.setColor(gfx.kColorWhite)
+    for _,rect in ipairs(paint.clears) do gfx.fillRect(rect.x,rect.y,rect.w,rect.h) end
+    for _,cell in ipairs(paint.cells) do GbFont.drawFitString(cell.text,cell.col,cell.row,MartList.GLYPH) end
+end
 function ShopState:draw()
     if not self.active then return end
     gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
     gfx.setImageDrawMode(gfx.kDrawModeCopy);gfx.setFont(gfx.getSystemFont());gfx.setLineWidth(1)
+    if self.phase=="browse" or self.phase=="result" then
+        self:drawPokeredList()
+        gfx.popContext()
+        return
+    end
     box(4,4,392,232)
-    gfx.drawText("POKE MART"..(self.phase~="mode" and (self.trade=="buy" and " - BUY" or " - SELL") or ""),16,14)
+    gfx.drawText("POKE MART",16,14)
     GbFont.drawMoneyRight("¥"..self:inventory():money(),382,14)
     if self.phase=="mode" then
         gfx.drawTextInRect("Hi there!\nMay I help you?",20,64,216,52)
         self.menu:draw(248,52,132,80)
         gfx.drawText("A: Choose   B: Leave",20,208)
-    elseif self.phase=="browse" or self.phase=="result" then
-        local rows=self:rows();local selected=clamp(self.selected,1,math.max(1,#rows))
-        local first=math.max(1,selected-5)
-        box(12,44,376,136)
-        if #rows==0 then gfx.drawTextInRect("You don't have anything to sell.",24,82,344,52) end
-        for i=first,math.min(#rows,first+5) do
-            local row=rows[i];local item=ItemData.definitions[row.id];local y=52+(i-first)*20
-            gfx.drawText((i==selected and "> " or "  ")..item.name,20,y)
-            local price=self.trade=="buy" and item.price or item.sellPrice
-            local amount=self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "¥"..price or "--")) or "¥"..price
-            if amount:find("¥",1,true) then GbFont.drawMoneyRight(amount,366,y) else right(amount,366,y) end
-        end
-        if first>1 then gfx.drawText("^",376,46) end
-        if first+5<#rows then gfx.drawText("v",376,162) end
-        if self.phase=="result" then
-            box(12,184,376,44);gfx.drawTextInRect(self.result.message,22,190,356,34)
-        else gfx.drawText("A: Choose   B: Back",20,204) end
     else
         local item=ItemData.definitions[self.item];local price=self:price()
         gfx.drawText(item.name,20,54);right("IN BAG x"..self:inventory():quantity(self.item),380,54)

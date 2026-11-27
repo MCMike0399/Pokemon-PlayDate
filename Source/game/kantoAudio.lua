@@ -413,7 +413,7 @@ function KantoAudio.updateGame(game)
                 local moveKey = battle.currentMoveKey
                 local moveCue = moveKey and moveScore(moveKey)
                 if battle.player and battle.player.hp ~= nil and battle.player.hp <= 0 and species then
-                    -- playSFX returns false for a move row with no score.
+                    -- playSFX returns false for a cue with no score.
                     -- scoreTicks would then assert "unknown Kanto score".
                     local played = moveCue and KantoAudio.playSFX(moveCue)
                     if played then
