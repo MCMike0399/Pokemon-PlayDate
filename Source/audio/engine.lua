@@ -136,8 +136,14 @@ local function ensureScore(name)
     -- literal "audio/score/" prefix as a file request. file.run loads the
     -- compiled score pdz the first time that score plays.
     local scorePath = "audio/score/" .. name
-    playdate.file.run(scorePath)
-    return assert(bindScore(KantoScores[name]), "unknown Kanto score")
+    local loaded, _ = pcall(function()
+        playdate.file.run(scorePath)
+    end)
+    local score = loaded and KantoScores[name]
+    if not score then
+        return nil
+    end
+    return bindScore(score)
 end
 
 local function init()
@@ -163,6 +169,9 @@ end
 
 local function layer(name, now, score)
     score = score or ensureScore(name)
+    if not score then
+        return nil
+    end
     serial = serial + 1
     local firstLoop = 1
 
@@ -359,7 +368,7 @@ function KantoSynth.jingling()
 end
 
 function KantoSynth.scoreTicks(name)
-    return ensureScore(name).ticks
+    return assert(ensureScore(name), "unknown Kanto score").ticks
 end
 
 function KantoSynth.sfx(name)
@@ -370,12 +379,21 @@ function KantoSynth.sfx(name)
     if name == "heal" then
         layers.jingle = layer(name, now)
     else
-        local priority = assert(sfxPriority(name), "unknown Kanto SFX")
+        -- No priority, or a score that did not load, returns false.
+        -- Asserting here restarts the battle the moment a Pokémon faints.
+        local priority = sfxPriority(name)
+        if not priority then
+            return false
+        end
         local playing = layers.sfx and sfxPriority(layers.sfx.name)
         if playing and playing < priority then
             return false
         end
-        layers.sfx = layer(name, now)
+        local nextLayer = layer(name, now)
+        if not nextLayer then
+            return false
+        end
+        layers.sfx = nextLayer
     end
 
     KantoSynth.update(now)
