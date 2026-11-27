@@ -74,6 +74,40 @@ def lcd_clip_command(display, origin_x, origin_y, seconds, path):
     ]
 
 
+def dismiss_simulator_dialogs():
+    """Close the Simulator's Heads up window before a grab.
+
+    Its title bar sits on the bottom edge of the 400x240 LCD crop. The
+    buttons go to that dialog only, then the pointer leaves the panel.
+    """
+    found = subprocess.run(
+        ["xdotool", "search", "--onlyvisible", "--name", "^Heads up!$"],
+        check=False, text=True, capture_output=True)
+    if found.returncode not in (0, 1):
+        return
+    for window_id in (line.strip() for line in found.stdout.splitlines() if line.strip()):
+        subprocess.run(
+            ["xdotool", "key", "--window", window_id, "Return"],
+            check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        geo = subprocess.run(
+            ["xdotool", "getwindowgeometry", "--shell", window_id],
+            check=False, text=True, capture_output=True)
+        width = height = None
+        for line in geo.stdout.splitlines():
+            if line.startswith("WIDTH="):
+                width = int(line.split("=", 1)[1])
+            elif line.startswith("HEIGHT="):
+                height = int(line.split("=", 1)[1])
+        if width and height:
+            subprocess.run(
+                ["xdotool", "mousemove", "--window", window_id,
+                 str(width // 2), str(int(height * 0.82)), "click", "1"],
+                check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(
+        ["xdotool", "mousemove", "2", "2"],
+        check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def command_op(command):
     if isinstance(command, str):
         return command.split()[0]
@@ -5253,6 +5287,10 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("pc", command)
         self.assertNotIn("yuv420p", command)
         self.assertNotIn("scale", command)
+        source = Path(__file__).read_text(encoding="utf-8")
+        self.assertIn(
+            "dismiss_simulator_dialogs()\n        proc = subprocess.Popen(",
+            source)
 
     def test_clip_close_waits_for_the_file_once(self):
         class Done:
@@ -5434,6 +5472,7 @@ class FightRecorder:
             if window and window.get("width") and window.get("height"):
                 _pin_window(window)
                 time.sleep(0.2)
+                dismiss_simulator_dialogs()
                 window = _window() or window
                 self.origin = window
                 return window
@@ -5470,6 +5509,8 @@ class FightRecorder:
             else:
                 seconds = "60"
         seconds = str(seconds)
+        # The Heads up title must be gone before the LCD grab.
+        dismiss_simulator_dialogs()
         proc = subprocess.Popen(
             lcd_clip_command(display, origin_x, origin_y, seconds, path),
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
