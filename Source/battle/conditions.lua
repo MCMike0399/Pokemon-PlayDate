@@ -11,8 +11,16 @@ end
 function BattleConditions:init(battle)
     self.battle=battle;self:clearAll()
 end
+local function restoreMimic(mon, state)
+    local copy = state and state.mimicCopy
+    if not copy or mon.moves[copy.slot] ~= copy.key then return end
+    mon.moves[copy.slot] = "mimic"
+    mon.pp[copy.key] = nil
+    if copy.mimicPP ~= nil then mon.pp.mimic = copy.mimicPP end
+end
 function BattleConditions:clearAll()
-    for mon in pairs(self.members or {}) do
+    for mon, state in pairs(self.members or {}) do
+        restoreMimic(mon, state)
         self:revertTransform(mon)
     end
     self.members = {}
@@ -439,6 +447,31 @@ function BattleConditions:camouflage()
     battle:say(mon.name .. " transformed into the GROUND type!")
     return true
 end
+-- pokered ConversionEffect_ copies the target's types. fidelity-ledger.md
+-- Wide Guard row gives pokered moves Gen V rules: the user's type becomes
+-- the type of one of its own moves, and fails when every move already is
+-- that single type.
+function BattleConditions:conversion()
+    local b = self.battle
+    local mon = b.attacker
+    local first, second = self:types(mon)
+    local options = {}
+    for _, key in ipairs(self:movesOf(mon)) do
+        local move = moveData[key]
+        local kind = move and move.type
+        if kind and not (kind == first and second == nil) then
+            options[#options + 1] = kind
+        end
+    end
+    if #options == 0 then
+        b:say("But it failed!")
+        return false
+    end
+    local kind = options[RulesRNG.random(1, #options)]
+    self:of(mon).changedType = kind
+    b:say(mon.name .. " transformed into the " .. string.upper(kind) .. " type!")
+    return true
+end
 function BattleConditions:roost()
     local b=self.battle;local mon=b.attacker
     if not self:activeSide(mon) or mon~=b[b.attackerSide] or not alive(mon) then return false,"invalid-roost-user" end
@@ -449,13 +482,14 @@ function BattleConditions:roost()
     return true
 end
 local sideDurations <const> = {
-    reflect=5, lightScreen=5, safeguard=5, tailwind=4,
+    reflect=5, lightScreen=5, safeguard=5, tailwind=4, mist=5,
 }
 local sideSuborders <const> = {
-    reflect=1, lightScreen=2, safeguard=3, tailwind=5,
+    reflect=1, lightScreen=2, safeguard=3, mist=4, tailwind=5,
 }
 local sideNames <const> = {
     reflect="Reflect", lightScreen="Light Screen", safeguard="Safeguard", tailwind="Tailwind",
+    mist="Mist",
 }
 function BattleConditions:activeSide(mon)
     if mon==self.battle.player then return "player" end
@@ -469,6 +503,7 @@ function BattleConditions:setSideCondition(kind)
     state[kind]={turns=sideDurations[kind]}
     local team=side=="player" and "your team" or "the opposing team"
     if kind=="tailwind" then b:say("A tailwind blew behind "..team.."!")
+    elseif kind=="mist" then b:say(b.attacker.name .. "'s shrouded in mist!")
     else b:say(sideNames[kind].." protected "..team.."!") end
     return true
 end
@@ -514,12 +549,56 @@ function BattleConditions:preventsStatus(mon,status,origin)
     return origin.cause=="move" or origin.cause=="ability" or origin.cause=="toxicSpikes"
 end
 function BattleConditions:clear(mon)
+    restoreMimic(mon, self.members[mon])
     self:revertTransform(mon)
     self.members[mon]=nil
     for _,state in pairs(self.members) do
         if state.trap and state.trap.source==mon then state.trap=nil end
         if state.infatuation and state.infatuation.source==mon then state.infatuation=nil end
     end
+end
+-- pokered MimicEffect copies into the Mimic slot. Gen V (ledger Wide Guard
+-- row: Gen V rules apply to moves pokered has) gives that copy 5 PP and
+-- drops it when the battler leaves, instead of keeping the copied move.
+function BattleConditions:mimic()
+    local b = self.battle
+    local user, target = b.attacker, b.defender
+    if not user:isAlive() or not target:isAlive() then
+        b:say("But it failed!")
+        return false
+    end
+    local known = {}
+    for _, key in ipairs(self:movesOf(user)) do known[key] = true end
+    local choices = {}
+    for _, key in ipairs(self:movesOf(target)) do
+        if not known[key] and key ~= "struggle" and moveData[key] then
+            choices[#choices + 1] = key
+        end
+    end
+    table.sort(choices)
+    if #choices == 0 then
+        b:say("But it failed!")
+        return false
+    end
+    local slot
+    for index, key in ipairs(user.moves) do
+        if key == "mimic" then slot = index end
+    end
+    if not slot then
+        b:say("But it failed!")
+        return false
+    end
+    local pick = choices[RulesRNG.random(1, #choices)]
+    local state = self:of(user)
+    if not state.mimicCopy then
+        state.mimicCopy = {slot = slot, mimicPP = user.pp.mimic}
+    end
+    state.mimicCopy.slot = slot
+    state.mimicCopy.key = pick
+    user.moves[slot] = pick
+    user.pp[pick] = 5
+    b:say(user.name .. " learned " .. moveData[pick].name .. "!")
+    return true
 end
 function BattleConditions:mustRecharge(mon)
     local state=self.members[mon]
@@ -577,6 +656,20 @@ function BattleConditions:airborne(mon)
     local state = self.members[mon]
     return state ~= nil and state.charge ~= nil and state.charge.key == "fly"
 end
+-- pokered ChargeEffect SkyAttackGlowingText. Sky Attack does not set INVULNERABLE.
+function BattleConditions:skyAttackCharge()
+    local b = self.battle
+    local user = b.attacker
+    local state = self:of(user)
+    if state.charge then
+        assert(state.charge.key == "skyAttack", "wrong-charge-continuation")
+        state.charge = nil
+        return false
+    end
+    state.charge = {key = "skyAttack"}
+    b:say(user.name .. " is glowing!")
+    return true
+end
 -- Showdown 9b136a8 Dig. The shared charge() body stays the reviewed
 -- Solar Beam / Skull Bash / Fly owner. Dig uses the same receipt: one
 -- PP on the burrow, locked release, and clear on interrupt, switch, or faint.
@@ -597,6 +690,21 @@ end
 function BattleConditions:underground(mon)
     local state = self.members[mon]
     return state ~= nil and state.charge ~= nil and state.charge.key == "dig"
+end
+-- pokered ChargeEffect sets CHARGING_UP for Razor Wind and does not set
+-- INVULNERABLE (that bit is Fly and Dig only). The release is the next turn.
+function BattleConditions:razorWindCharge()
+    local b = self.battle
+    local user = b.attacker
+    local state = self:of(user)
+    if state.charge then
+        assert(state.charge.key == "razorWind", "wrong-charge-continuation")
+        state.charge = nil
+        return false
+    end
+    state.charge = {key = "razorWind"}
+    b:say(user.name .. " made a whirlwind!")
+    return true
 end
 -- Successful self-effect precedes contact reactions, as the pinned dispatcher
 -- does. First miss/immune/absent target never creates a lock or duration draw.
@@ -854,7 +962,7 @@ function BattleConditions:events()
         end
     end
     for _,side in ipairs({"player","enemy"}) do
-        for _,kind in ipairs({"reflect","lightScreen","safeguard","tailwind"}) do
+        for _,kind in ipairs({"reflect","lightScreen","safeguard","mist","tailwind"}) do
             local state=self.sides[side][kind]
             if state then events[#events+1]={kind="sideTimer",side=side,condition=kind,record=state,order=26,suborder=sideSuborders[kind]} end
         end

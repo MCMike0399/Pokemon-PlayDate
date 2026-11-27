@@ -22,13 +22,23 @@ WaitForTextScrollButtonPress then requires a new press. The battle script
 already waits MESSAGE_MIN_FRAMES (10) before that press can turn the page.
 """
 
+import os
 import re
 import subprocess
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-POKERED = Path.home() / 'Developer/Pokemon-PlayDate-env/pokered'
+
+
+def pokered_reference():
+    raw = os.environ.get("POKERED_REFERENCE_DIR")
+    if not raw:
+        raise RuntimeError("POKERED_REFERENCE_DIR is required")
+    path = Path(raw)
+    if not path.is_dir():
+        raise RuntimeError("POKERED_REFERENCE_DIR is not a directory")
+    return path
 PATCH = ROOT / 'tools/notes/lane-e-battle-message.patch'
 DIALOG = ROOT / 'Source/ui/dialog.lua'
 
@@ -166,8 +176,9 @@ print("key-items-rejected")
         self.assertIn('key-items-rejected', completed.stdout)
 
     def test_steel_against_grass_poison_is_neutral(self):
-        moves = (POKERED / 'data/moves/moves.asm').read_text()
-        evos = (POKERED / 'data/pokemon/evos_moves.asm').read_text()
+        pokered = pokered_reference()
+        moves = (pokered / 'data/moves/moves.asm').read_text()
+        evos = (pokered / 'data/pokemon/evos_moves.asm').read_text()
         self.assertNotIn('MIRROR_SHOT', moves)
         block = evos.split('MagnetonEvosMoves:', 1)[1].split('KoffingEvosMoves:', 1)[0]
         self.assertIn('db 21, SONICBOOM', block)
