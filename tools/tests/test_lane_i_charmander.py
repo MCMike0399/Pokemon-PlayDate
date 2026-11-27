@@ -3434,8 +3434,29 @@ class CharmanderRun(BrockJourney):
         rows = [mon for mon in self.party() if mon["species"] in self._LORELEI_BENCH]
         return len(rows) >= 2 and all(mon["level"] >= self._BENCH_LEVEL for mon in rows)
 
+    def _agatha_levels(self):
+        return {
+            mon["species"]: mon["level"]
+            for mon in self.party() if mon["species"] in {"lapras", "weepinbell"}
+        }
+
+    def _agatha_bench_ready(self):
+        """Lapras and Weepinbell both sit in the mid 40s before the next Elite Four."""
+        levels = self._agatha_levels()
+        return levels.get("lapras", 0) >= 45 and levels.get("weepinbell", 0) >= 45
+
     def _trainee_index(self):
         short, alive = [], []
+        if getattr(self, "_agatha_training", False):
+            best = None
+            for index, mon in enumerate(self.party(), 1):
+                if mon["species"] not in {"lapras", "weepinbell"} or mon["hp"] <= 0:
+                    continue
+                if mon["level"] >= 45:
+                    continue
+                if best is None or mon["level"] < best[0]:
+                    best = (mon["level"], index)
+            return best[1] if best else None
         if getattr(self, "_lance_training", False):
             best = None
             for index, mon in enumerate(self.party(), 1):
@@ -3543,15 +3564,13 @@ class CharmanderRun(BrockJourney):
 
         self.require_shop_stock = allow
         try:
-            # Full Heal cures paralysis and does not restore HP. Buy one Max
-            # Potion and one Revive before filling status cures, or the lead
-            # walks into the next room too low to finish it.
+            # The clerk sells Revive, Max Potion, Full Restore, and Full Heal.
+            # Hyper Potion is not on the shelf. Status cures come last.
             for item, cap in (
-                ("maxPotion", 1),
-                ("revive", 1),
-                ("fullHeal", 4),
-                ("maxPotion", 2),
                 ("revive", 2),
+                ("maxPotion", 2),
+                ("fullRestore", 1),
+                ("fullHeal", 4),
             ):
                 price = self._INDIGO_PRICES[item]
                 have = self.quantity(item)
@@ -3830,7 +3849,9 @@ class CharmanderRun(BrockJourney):
         return self._party_needs_center()
 
     def _can_attempt_lorelei(self):
-        """Lorelei starts once Charizard is healthy and a Revive is in the bag."""
+        """Lorelei starts once the bench is in the mid 40s and Charizard is healthy."""
+        if not self._agatha_bench_ready():
+            return False
         if self._lorelei_bench_ready():
             return True
         starter = next((mon for mon in self.party() if mon["species"] == "charizard"), None)
@@ -3917,7 +3938,8 @@ class CharmanderRun(BrockJourney):
             self._puzzle = False
 
     def _raise_lorelei_bench(self):
-        """Flee rock wilds, heal, buy a Revive from a trainer payout, then fight Lorelei."""
+        """Level Lapras and Weepinbell, then heal and stock before Lorelei."""
+        self._grind_agatha_bench()
         if self._can_attempt_lorelei():
             self._bench_share = False
             self.training_mode = None
@@ -3990,11 +4012,15 @@ class CharmanderRun(BrockJourney):
 
     def _indigo_plateau(self):
         """North from the cave exit, heal, then the Elite Four."""
-        # A resume already inside the rooms cannot walk back to the clerk.
-        # The south warp stays shut, and the lobby reset would wipe the wins.
-        if not any(self._on(name) for name in (
-            "LoreleisRoom", "BrunosRoom", "AgathasRoom", "LancesRoom", "ChampionsRoom",
-        )):
+        rooms = ("LoreleisRoom", "BrunosRoom", "AgathasRoom", "LancesRoom", "ChampionsRoom")
+        # A short bench leaves the rooms first. The lobby reset clears the
+        # wins, which is the same door a loss already walked. The grass and
+        # the clerk are on that side of the door.
+        if not self._agatha_bench_ready() and any(self._on(name) for name in rooms):
+            self._retreat_to_lobby()
+            if any(self._on(name) for name in rooms):
+                raise ProtocolError("could not leave the Elite Four to train at " + self._map_name())
+        if not any(self._on(name) for name in rooms):
             self._raise_lorelei_bench()
         self.summary["acceptance"] = "walking to Indigo Plateau"
         self._pin_elite_trainers()
@@ -4168,6 +4194,28 @@ class CharmanderRun(BrockJourney):
         return (slot("charizard", True) or slot("charizard") or slot("pidgeotto")
                 or slot("lapras") or slot("weepinbell"))
 
+    def _agatha_choice(self, party, enemy):
+        """Poison and Ghost resist Fire. Lapras leads with Ice while it can take a hit."""
+        enemy = (enemy or "").lower()
+
+        def slot(species, healthy=False):
+            for index, mon in enumerate(party, 1):
+                if mon["species"] != species or mon["hp"] <= 0 or not self._clear_status(mon):
+                    continue
+                if healthy and not self._mon_healthy(mon):
+                    continue
+                return index
+            return None
+
+        if enemy not in {"gengar", "haunter", "golbat", "arbok"}:
+            return slot("charizard", True) or slot("charizard")
+        lapras = slot("lapras", True)
+        if lapras is not None:
+            moves = set(party[lapras - 1].get("moves") or [])
+            if moves & {"iceBeam", "iceShard", "blizzard"}:
+                return lapras
+        return slot("charizard", True) or slot("lapras") or slot("charizard")
+
     def _lead_for_lance(self, enemy):
         """Charizard takes Gyarados and Aerodactyl only while he is healthy."""
         party = self.party()
@@ -4257,10 +4305,85 @@ class CharmanderRun(BrockJourney):
 
     def _needs_league_stock(self):
         money = self.inventory()["money"]
-        for item, cap in (("fullHeal", 4), ("revive", 2), ("maxPotion", 2)):
+        for item, cap in (("revive", 2), ("maxPotion", 2), ("fullRestore", 1), ("fullHeal", 4)):
             if self.quantity(item) < cap and money >= self._INDIGO_PRICES[item]:
                 return True
         return False
+
+    def _grind_agatha_bench(self):
+        """Victory Road wilds until Lapras and Weepinbell are both level 45.
+
+        The east pocket is the open grass beside the Indigo door. Charizard
+        covers a higher wild, and the trainee comes back for the finish so
+        the experience lands on the bench. Route 23 is the fallback grass.
+        """
+        if self._agatha_bench_ready():
+            return
+        from tools.harness.brock_journey import NaturalBlackout
+        self.summary["acceptance"] = "leveling Lapras and Weepinbell"
+        self._bench_share = True
+        self._flee_wilds = False
+        self._agatha_training = True
+        try:
+            self._prepare_victory_cave()
+            a, b = (28, 7), (28, 8)
+            if self._on("VictoryRoad2F") and self.position() not in {a, b}:
+                self._walk_avoiding_warps(a)
+            steps, quiet, dry = 0, 0, 0
+            seen = self._agatha_levels()
+            while steps < 6000 and not self._agatha_bench_ready():
+                if self._party_needs_center():
+                    self._prepare_victory_cave()
+                    quiet = 0
+                if self._on("VictoryRoad2F") and self._reachable((28, 7)) and self.position() not in {a, b}:
+                    self._walk_avoiding_warps(a)
+                index = self._trainee_index()
+                active = lookup(self.state, "session.party.active") or 1
+                if index and index != active and self.state.get("root") == "overworld":
+                    self.field_swap(index, active)
+                before = len(self.summary.get("training") or [])
+                goal = b if self.position() == a else a
+                try:
+                    if self._on("VictoryRoad2F") and self.position() in {a, b}:
+                        self._step("down" if goal[1] > self.position()[1] else "up")
+                    else:
+                        self._try_south_grass()
+                except NaturalBlackout:
+                    self.recover_blackout()
+                    self._prepare_victory_cave()
+                    continue
+                after = len(self.summary.get("training") or [])
+                if after > before:
+                    quiet = 0
+                    dry = 0
+                else:
+                    quiet += 1
+                levels = self._agatha_levels()
+                if levels != seen:
+                    seen = levels
+                    self.summary["bench"] = levels
+                    self.save()
+                if quiet >= 400:
+                    self.save()
+                    dry += 1
+                    quiet = 0
+                    if dry >= 2:
+                        raise ProtocolError(
+                            "no wild battle while leveling at "
+                            + self._map_name() + " " + str(self.position())
+                            + " " + str(self._agatha_levels()))
+                    self._try_south_grass()
+                    self._prepare_victory_cave()
+                steps += 1
+            self.save()
+            if not self._agatha_bench_ready():
+                raise ProtocolError("bench stopped at " + str(self._agatha_levels()))
+            if self._on("VictoryRoad2F") or self._on("VictoryRoad3F"):
+                self._leave_east_cave()
+        finally:
+            self._bench_share = False
+            self._flee_wilds = False
+            self._agatha_training = False
 
     def _prepare_victory_cave(self):
         """Lobby Full Heals, then the east door. Route 23 grass stays walled off."""
@@ -4832,6 +4955,11 @@ class CharmanderRun(BrockJourney):
         # A Max Potion makes Charizard the healthy lead before the matchup switch.
         if self._top_off_starter(battle, options):
             return True
+        if "AGATHAS_ROOM" in zone and enemy:
+            party, active = self._battle_members(battle)
+            choice = self._agatha_choice(party, enemy)
+            if choice and choice != active and self.battle_switch(choice, options, "agatha-matchup"):
+                return True
         if any(token in zone for token in ("LANCES_ROOM", "CHAMPIONS_ROOM")) and enemy:
             party, active = self._battle_members(battle)
             choice = self._lance_choice(party, enemy)
