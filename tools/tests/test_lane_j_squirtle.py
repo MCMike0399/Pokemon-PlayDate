@@ -8019,7 +8019,8 @@ def _route7_to_celadon(player, report):
 
 def _route7_to_gate(player, report):
     _lead_tank(player)
-    kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (10, 9),
+    # (11, 9) is the solid half of the gate. The door is (11, 10).
+    kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (10, 10),
                  set(ROUTE7_GATES) | {(5, 13)}, report=report, yield_after=2)
     if kind in ("blackout", "yield"):
         return kind
