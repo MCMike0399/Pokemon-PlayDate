@@ -1814,3 +1814,9 @@ Sequence 1888 is Victory Road 3F `(25, 11)`, sha256
 Pidgeot L47 XP 98807, Poliwhirl L47 74/119 XP 98859, Hypno L47 36/152
 XP 106285, Venusaur L72. Money is still ¥3424. The same run is in
 the grass.
+
+Sequence 1910 is Victory Road 3F `(25, 10)` after a lobby heal, sha256
+`19eaeecca046f9f8ad3d3bcbfac11d6f8f314d720ce476ce10c5d0bdde3a9ed9`.
+Pidgeot L48 150/150 XP 105623, Poliwhirl L48 121/121 XP 106079, Hypno
+L48 155/155 XP 110753, Venusaur L72. Money is still ¥3424. The 13:35
+clip is `20261127T133535Z-victory-road.mp4`. Training continues.
