@@ -8105,10 +8105,14 @@ def _celadon_center(player, report):
     cells = set(open_map(EAST / "CeladonPokecenter.json", 0, 14))
     surface = map_surface(EAST / "CeladonPokecenter.json")
     avoid = {(3, 1), (7, 3), (10, 5), (11, 2), (3, 7), (4, 7)}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
     if _party_needs_heal(player):
         kind = _walk(player, cells, surface, (3, 3), avoid, report=report, yield_after=2)
         if kind in ("blackout", "yield"):
             return kind
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (3, 3):
+            raise RuntimeError("could not reach the Celadon nurse: " + kind + " " + json.dumps(summary(player.state)))
         if player.state["player"].get("facing") != "up":
             player.press("up", wait=4)
         player.press("a", wait=8)
