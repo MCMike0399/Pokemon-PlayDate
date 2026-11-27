@@ -3607,7 +3607,7 @@ class CharmanderRun(BrockJourney):
             # The clerk sells Revive, Max Potion, Full Restore, and Full Heal.
             # Hyper Potion is not on the shelf. Status cures come last.
             for item, cap in (
-                ("revive", 2),
+                ("revive", 3),
                 ("fullRestore", 1),
                 ("maxPotion", 2),
                 ("fullHeal", 4),
@@ -4345,7 +4345,7 @@ class CharmanderRun(BrockJourney):
 
     def _needs_league_stock(self):
         money = self.inventory()["money"]
-        for item, cap in (("revive", 2), ("maxPotion", 2), ("fullRestore", 1), ("fullHeal", 4)):
+        for item, cap in (("revive", 3), ("maxPotion", 2), ("fullRestore", 1), ("fullHeal", 4)):
             if self.quantity(item) < cap and money >= self._INDIGO_PRICES[item]:
                 return True
         return False
@@ -4911,7 +4911,7 @@ class CharmanderRun(BrockJourney):
         bench = {"lapras", "pidgeotto", "pidgeot", "weepinbell"}
         if any(mon["species"] in bench and mon["hp"] > 0 and self._clear_status(mon) for mon in party):
             return False
-        item = "revive" if self.quantity("revive") else "maxRevive" if self.quantity("maxRevive") else None
+        item = "revive" if self.quantity("revive") > 1 else "maxRevive" if self.quantity("maxRevive") else None
         if item is None:
             return False
         for species in ("lapras", "pidgeot", "pidgeotto", "weepinbell"):
@@ -4943,7 +4943,7 @@ class CharmanderRun(BrockJourney):
         for index, mon in enumerate(self.party(), 1):
             if mon["species"] != "charizard" or mon["hp"] > 0:
                 continue
-            item = "revive" if self.quantity("revive") else "maxRevive" if self.quantity("maxRevive") else None
+            item = "revive" if self.quantity("revive") > 1 else "maxRevive" if self.quantity("maxRevive") else None
             if item is None:
                 return False
             self.battle_medicine(item, options, target=index)
@@ -5252,6 +5252,7 @@ class CharmanderTitleTests(unittest.TestCase):
         stock = source.split("def _stock_league_items", 1)[1].split("def _want_league_shop", 1)[0]
         self.assertLess(stock.index('"fullRestore", 1'), stock.index('"maxPotion", 2'))
         self.assertLess(stock.index("len(slots) >= 20"), stock.index("self.buy_item"))
+        self.assertIn('self.quantity("revive") > 1', source)
         climb = source.split("def _climb_route23", 1)[1].split("def _pin_victory_trainers", 1)[0]
         self.assertIn("self._victory_road_2f()", climb)
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
