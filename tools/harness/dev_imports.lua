@@ -5,6 +5,48 @@ import "dev/sliceCatalog"
 import "dev/sliceContracts"
 import "dev/worldContracts"
 import "dev/contracts"
+-- The no-argument catalog keeps every suite in one process. world, traversal,
+-- event-ui and pewterProviderContracts leave decoded maps and suite tables
+-- live, and the Lua heap is already ~13805 KiB when individual-stats-v1
+-- tries to publish its score. pd_readcompressed then cannot inflate.
+-- Drop the finished suite table and contract zones before the next one.
+-- The next checkpoint already collects. Releasing the shared compact
+-- catalogue makes event-ui re-verify every map and not return. Disposing
+-- the imported cache or collecting retained runtime maps here frees images
+-- the frame is still drawing, and the simulator crashes. Modules a later
+-- suite calls by name stay installed.
+local registerSuite = Contracts.register
+local keepSuiteModule = {
+    CeruleanRoutesContracts = true,
+    CeruleanSceneContracts = true,
+    KantoServicesContracts = true,
+    PartyBattleContracts = true,
+    SessionContracts = true,
+}
+local function releaseResidentCatalog(fn)
+    for key, value in pairs(_G) do
+        if type(key) == "string" and type(value) == "table" and key ~= "Contracts"
+            and not keepSuiteModule[key] and key:find("Contract", 1, true)
+            and value.run == fn then
+            _G[key] = nil
+        end
+    end
+    if type(zoneRegistry) == "table" then
+        for key, zone in pairs(zoneRegistry) do
+            if type(key) == "string" and key:sub(1, 9) == "contract_" and zone ~= currentZone then
+                zoneRegistry[key] = nil
+            end
+        end
+    end
+end
+function Contracts.register(name, run)
+    registerSuite(name, function()
+        local result = run()
+        releaseResidentCatalog(run)
+        run = nil
+        return result
+    end)
+end
 import "dev/sessionFixture"
 import "dev/learnsetContracts"
 import "dev/partyContracts"
