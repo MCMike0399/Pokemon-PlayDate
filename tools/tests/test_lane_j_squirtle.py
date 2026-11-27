@@ -995,6 +995,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNone(route(route8_cells(), (59, 8), (0, 8), set(ROUTE8_AVOID)))
         self.assertIsNotNone(route(route8_cells(), (59, 8), (13, 4), set(ROUTE8_AVOID)))
         self.assertIsNotNone(route(lavender_cells(), (0, 8), (8, 17), set(LAVENDER_DOORS)))
+        self.assertEqual(_decline_step("ask", 1, False), "down")
+        self.assertEqual(_decline_step("ask", 2, False), "a")
+        self.assertEqual(_decline_step("stop", 1, False), "a")
+        self.assertEqual(_decline_step("replace", 2, False), "b")
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -3808,33 +3812,34 @@ def _lost(before, after):
     return after.get("won") is False or after.get("blackout") is True
 
 
+def _decline_step(phase, selected, dialog_ready):
+    """Agility's question stores the cursor on the learning state, not a menu."""
+    if phase in (None, "message", "closed") or dialog_ready:
+        return "a" if dialog_ready or phase == "message" else "wait"
+    if phase == "ask":
+        return "a" if selected == 2 else "down"
+    if phase == "stop":
+        return "a" if selected == 1 else "up"
+    return "b"
+
+
 def _decline_new_move(player):
     """NO on the learn question, then YES to abandon it. Whirlwind is 17 in B2W2."""
     for _ in range(16):
         if player.state.get("root") != "learning":
             return
         learning = player.state.get("learning") or {}
-        phase = learning.get("phase")
         menu = learning.get("menu") or {}
-        if phase in (None, "message", "closed") or learning.get("dialog_ready"):
-            if learning.get("dialog_ready") or phase == "message":
-                player.press("a", wait=6)
-            else:
-                player.send("wait 6")
-        elif phase == "ask" and not menu.get("active"):
+        selected = menu.get("selected") or learning.get("selected") or 1
+        step = _decline_step(learning.get("phase"), selected, bool(learning.get("dialog_ready")))
+        if step == "wait":
+            player.send("wait 6")
+        elif step == "a":
             player.press("a", wait=6)
-        elif phase == "ask":
-            selected = menu.get("selected") or 1
-            if selected != 2:
-                player.press("down", wait=2)
-            else:
-                player.press("a", wait=6)
-        elif phase == "stop":
-            selected = menu.get("selected") or 1
-            if selected != 1:
-                player.press("up", wait=2)
-            else:
-                player.press("a", wait=6)
+        elif step == "down":
+            player.press("down", wait=2)
+        elif step == "up":
+            player.press("up", wait=2)
         else:
             player.press("b", wait=4)
 
