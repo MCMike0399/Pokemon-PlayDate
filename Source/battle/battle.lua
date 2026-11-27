@@ -1633,6 +1633,12 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         elseif effectiveness < 1 then
             self:say("It's not very effective...")
         end
+        -- fidelity-ledger.md Combat row: Gen V/B2W2 rules. Bulbapedia's
+        -- Critical hit page prints "A critical hit!" after the damage.
+        -- Showdown battle-actions.ts (9b136a8) runs secondaries() after
+        -- spreadDamage, so the burn, freeze, paralysis, and stat lines
+        -- follow the crit and effectiveness lines.
+        self:flushSecondaryLines()
 
         -- Drain / recoil: % of damage dealt (negative = recoil)
         if attacker:isAlive() and move.struggleRecoil and bodyHits > 0 then
@@ -1713,11 +1719,33 @@ function Battle:hitCount(move)
 end
 
 function Battle:applyMoveSecondaries(move, preparedSecondary, receipt)
-    for _,effect in ipairs(move.secondaries or {}) do effect:apply(self, receipt) end
-    if preparedSecondary then
-        preparedSecondary:apply(self, receipt)
-    else
-        ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move,receipt)
+    -- The chance still rolls here, with contact reactions after it. Only the
+    -- narration waits. Gen V prints the crit and effectiveness lines first.
+    local held = self.deferredSecondaryLines
+    if not held then
+        held = {}
+        self.deferredSecondaryLines = held
+    end
+    local real = self.say
+    self.say = function(_, text) held[#held + 1] = text end
+    local ok, err = pcall(function()
+        for _,effect in ipairs(move.secondaries or {}) do effect:apply(self, receipt) end
+        if preparedSecondary then
+            preparedSecondary:apply(self, receipt)
+        else
+            ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move,receipt)
+        end
+    end)
+    self.say = real
+    if not ok then error(err, 0) end
+end
+
+function Battle:flushSecondaryLines()
+    local lines = self.deferredSecondaryLines
+    self.deferredSecondaryLines = nil
+    if not lines then return end
+    for _, text in ipairs(lines) do
+        self:say(text)
     end
 end
 
