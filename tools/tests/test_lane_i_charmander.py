@@ -3068,7 +3068,11 @@ class CharmanderRun(BrockJourney):
         return next((mon for mon in self.party() if mon["species"] == "charizard"), None)
 
     def _top_off_in_field(self):
-        """Heal Charizard before the next room. The south mats clear the wins."""
+        """Use a Max Potion or Full Restore before the next door.
+
+        Any missing HP is enough. A Max Potion fills 35/191 before Agatha.
+        The south door of a beaten room stays shut, so this is the heal.
+        """
         starter = self._starter_mon()
         if starter is None or starter["hp"] <= 0:
             return
@@ -3076,7 +3080,7 @@ class CharmanderRun(BrockJourney):
         if starter["status"] not in {None, "none"} and self.quantity("fullHeal") > 0:
             self._field_item("fullHeal", index)
             starter = self._starter_mon()
-        if starter is None or starter["hp"] <= 0 or starter["hp"] * 3 > starter["maxHP"] * 2:
+        if starter is None or starter["hp"] <= 0 or starter["hp"] >= starter["maxHP"]:
             return
         item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
         if item is None:
@@ -3186,6 +3190,8 @@ class CharmanderRun(BrockJourney):
                 continue
             self.drain()
             if not self.flag(flag):
+                self._revive_fainted()
+                self._top_off_in_field()
                 self._lead_starter()
                 if label == "Lorelei":
                     self._record_screen("lorelei", 60)
@@ -3852,13 +3858,13 @@ class CharmanderRun(BrockJourney):
         """Lorelei starts once the bench is in the mid 40s and Charizard is healthy."""
         if not self._agatha_bench_ready():
             return False
-        if self._lorelei_bench_ready():
-            return True
         starter = next((mon for mon in self.party() if mon["species"] == "charizard"), None)
         if starter is None or starter["hp"] <= 0 or starter["hp"] * 3 < starter["maxHP"] * 2:
             return False
         if starter["status"] not in {None, "none"}:
             return False
+        if self._lorelei_bench_ready():
+            return True
         # Ice Beam is the Lance gate. Full Heals cover the return trip.
         if not self._lapras_needs_ice_beam():
             return True

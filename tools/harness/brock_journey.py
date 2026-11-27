@@ -380,7 +380,13 @@ class BrockJourney(ParcelJourney):
             elif phase=='command':
                 if not battle.get('inMoveSelect'):
                     if not lookup(self.state,'battle.menu.active'):
-                        self.send('wait 2');continue
+                        # A between-turn line, such as binding damage, closes
+                        # the menu. A party screen still owns those buttons.
+                        if self.state.get('root')=='battle' and battle.get('message'):
+                            self.send('press a','wait 6')
+                        else:
+                            self.send('wait 2')
+                        continue
                     options=sequence(lookup(self.state,'battle.menu.options'),'battle.menu.options')
                     if getattr(self,'_force_struggle',False):
                         self._force_struggle=False
@@ -399,6 +405,11 @@ class BrockJourney(ParcelJourney):
                         continue
                     fight=[i for i,v in enumerate(options,1)if v=='FIGHT'or isinstance(v,dict)and v.get('action')=='fight']
                     if len(fight)!=1:raise ProtocolError('battle requires exactly one real FIGHT action')
+                    # A switch attempt can leave the party screen up. The next
+                    # loop owns that screen; this select would wait on a menu
+                    # that is not open.
+                    if self.state.get('root')!='battle' or not lookup(self.state,'battle.menu.active'):
+                        continue
                     self.select('battle.menu.selected',fight[0]);self.send('press a')
                 else:
                     legal=sequence(lookup(self.state,'battle.legal_moves'),'battle.legal_moves')
