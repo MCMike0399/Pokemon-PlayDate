@@ -1010,6 +1010,26 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn("SAFFRON_HYPER_STOCK", mart)
         self.assertNotIn(", 1500, 2)", mart)
 
+    def test_sabrina_pads_and_the_president_tile_are_open(self):
+        self.assertEqual(_sabrina_hop((9, 16)), ((11, 16), "up"))
+        self.assertEqual(_sabrina_hop((19, 17)), ((19, 16), "up"))
+        self.assertEqual(_sabrina_hop((19, 9)), ((19, 10), "down"))
+        self.assertEqual(_sabrina_hop((1, 9)), ((1, 10), "down"))
+        self.assertEqual(_sabrina_hop((5, 5)), ((2, 5), "left"))
+        self.assertIsNone(_sabrina_hop((11, 11)))
+        self.assertIsNone(_sabrina_hop((9, 9)))
+        gym = Path("Source/data/midgameSaffron/SaffronGym.json")
+        cells = set(open_map(gym, 0, 20))
+        self.assertIn((9, 9), cells)
+        self.assertIn((11, 16), cells)
+        office = set(open_map(Path("Source/data/midgameSaffron/SilphCo11F.json"), 0, 18))
+        self.assertIn((5, 5), office)
+        self.assertIn((6, 5), office)
+        self.assertIsNotNone(route(office, (3, 3), (6, 5), {(7, 5), (10, 5), (6, 9)}))
+        floor_source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
+        floor_source = floor_source.split("\ndef _silph_floor", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("_silph_needs_town(player)", floor_source)
+
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
         cells = set(open_map(path, 0, 40))
@@ -9665,7 +9685,17 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         return _saffron_mart(player, report)
     if "fighting_dojo" in zone:
         return _dojo(player, report)
+    if "saffron_gym" in zone:
+        return _sabrina(player, report)
     if "saffron_city" in zone:
+        if _quest(player).get("BADGE_MARSH"):
+            return "yield"
+        if _quest(player).get("EVENT_GOT_MASTER_BALL"):
+            if _silph_needs_nurse(player):
+                return _saffron_to_center(player, report)
+            if _needs_medicine(player):
+                return _saffron_to_mart(player, report)
+            return _saffron_to_gym(player, report)
         if _silph_needs_nurse(player):
             return _saffron_to_center(player, report)
         if not _dojo_done(player):
@@ -9709,6 +9739,133 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         if moved:
             return moved
     raise RuntimeError("after Strength: " + json.dumps(summary(player.state)))
+
+
+def _sabrina_hop(here):
+    """Five pads from the door to the tile south of Sabrina.
+
+    Landings are (19, 17), (19, 9), (1, 9), (5, 5), then (11, 11).
+    """
+    x, y = here
+    if y >= 16 and x < 15:
+        return (11, 16), "up"
+    if x >= 15 and y >= 15:
+        return (19, 16), "up"
+    if x >= 15 and 8 <= y <= 12:
+        return (19, 10), "down"
+    if x <= 2 and y <= 10:
+        return (1, 10), "down"
+    if x <= 6 and y <= 6:
+        return (2, 5), "left"
+    return None
+
+
+def _saffron_to_gym(player, report):
+    data = json.loads((Path("Source/data/midgameSaffron/SaffronCity.json")).read_text(encoding="utf-8"))
+    doors = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    doors.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    cells = set(open_map(Path("Source/data/midgameSaffron/SaffronCity.json"), 0, 40))
+    kind = _walk(player, cells, map_surface(Path("Source/data/midgameSaffron/SaffronCity.json")),
+                 (34, 4), doors, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("up")
+    player.settle(limit=80)
+    if "gym" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "gym" not in str(player.state.get("zone")):
+        raise RuntimeError("the Saffron Gym stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron_gym")
+    return "yield"
+
+
+def _leave_saffron_gym(player, report):
+    path = Path("Source/data/midgameSaffron/SaffronGym.json")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    avoid.update((obj["x"], obj["y"]) for obj in data["events"]["objects"])
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    avoid.discard((9, 16))
+    cells = set(open_map(path, 0, 20))
+    if here != (9, 16):
+        kind = _walk(player, cells, map_surface(path), (9, 16), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+    player.step("down")
+    player.settle(limit=80)
+    if "saffron_city" not in str(player.state.get("zone")):
+        player.step("down")
+        player.settle(limit=80)
+    if "saffron_city" not in str(player.state.get("zone")):
+        raise RuntimeError("the Saffron Gym door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_marsh")
+    return "yield"
+
+
+def _sabrina(player, report):
+    """The pads are the only road. Sabrina stands at (9, 8). Talk from (9, 9)."""
+    if _quest(player).get("BADGE_MARSH") and player.state.get("root") != "battle":
+        return _leave_saffron_gym(player, report)
+    path = Path("Source/data/midgameSaffron/SaffronGym.json")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    pads = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    people = {(obj["x"], obj["y"]) for obj in data["events"]["objects"]}
+    cells = set(open_map(path, 0, 20))
+    surface = map_surface(path)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if player.state.get("root") == "battle" or here == (9, 9):
+        if player.state.get("root") != "battle":
+            if player.state["player"].get("facing") != "up":
+                player.press("up", wait=4)
+            player.press("a", wait=8)
+            for _ in range(24):
+                if player.state.get("root") == "battle":
+                    break
+                player.press("a", wait=8)
+        if player.state.get("root") == "battle":
+            def finish():
+                return _k_clear(player, report)
+            filmed = report.get("film")
+            if filmed:
+                return film(*filmed, "sabrina", report, "end", finish)
+            return finish()
+        if _quest(player).get("BADGE_MARSH"):
+            _checkpoint(player, report, "saved_marsh")
+            return "yield"
+        raise RuntimeError("Sabrina did not battle: " + json.dumps(summary(player.state)))
+    hop = _sabrina_hop(here)
+    avoid = set(pads) | people
+    avoid.discard(here)
+    if hop is None:
+        kind = _walk(player, cells, surface, (9, 9), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (9, 9):
+            raise RuntimeError("could not reach Sabrina: " + str(kind) + " "
+                               + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_saffron_gym")
+        return "yield"
+    stand, step = hop
+    pad = {
+        "up": (stand[0], stand[1] - 1),
+        "down": (stand[0], stand[1] + 1),
+        "left": (stand[0] - 1, stand[1]),
+        "right": (stand[0] + 1, stand[1]),
+    }[step]
+    avoid.discard(stand)
+    if here != stand:
+        kind = _walk(player, cells, surface, stand, avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+    player.step(step)
+    player.settle(limit=80)
+    landed = (player.state["player"]["x"], player.state["player"]["y"])
+    if landed == stand or landed == pad:
+        raise RuntimeError("the gym pad stayed put: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron_gym")
+    return "yield"
 
 
 def _saffron_to_center(player, report):
@@ -10285,7 +10442,9 @@ def _prep_done(player):
 
 
 def _silph_floor(player):
-    if _sweep_hurt(player) and _holding(player, "cardKey"):
+    # A short Hyper Potion stock is the same trip as a hurt party. 3F would
+    # otherwise send the player back into this elevator.
+    if _silph_needs_town(player) and _holding(player, "cardKey"):
         return "1F"
     if not _rival_trained(player) and _holding(player, "cardKey"):
         return _next_silph_floor(player) or "1F"
@@ -10294,6 +10453,8 @@ def _silph_floor(player):
     if not _quest(player).get("EVENT_SILPH_CO_3_UNLOCKED_DOOR2"):
         return "3F"
     # The rival and Lapras are off the 7F elevator. The 3F warp is the door.
+    if _quest(player).get("EVENT_GOT_MASTER_BALL"):
+        return "1F"
     if not _quest(player).get("BIT_GOT_LAPRAS"):
         return "3F"
     return "11F"
@@ -10451,6 +10612,8 @@ def _silph_7f(player, report):
             raise RuntimeError("the rival room did not return to 3F: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_silph_3f")
         return "yield"
+    if _quest(player).get("EVENT_GOT_MASTER_BALL"):
+        return _silph_7f_to_3f(player, report)
     _lead_tank(player)
     saffron = Path("Source/data/midgameSaffron")
     here = (player.state["player"]["x"], player.state["player"]["y"])
@@ -10582,7 +10745,83 @@ def _silph_11f(player, report):
         player.step("up")
         player.settle(limit=40)
         return _k_clear(player, report)
-    raise RuntimeError("Giovanni is beaten; Sabrina is next: " + json.dumps(summary(player.state)))
+    if not _quest(player).get("EVENT_GOT_MASTER_BALL"):
+        return _silph_master_ball(player, report, cells, surface, avoid)
+    return _silph_11f_to_7f(player, report, cells, surface, avoid)
+
+
+def _silph_7f_to_3f(player, report):
+    """(5, 3) is 3F. (5, 7) goes back to 11F, so the walk stays off it."""
+    saffron = Path("Source/data/midgameSaffron")
+    data = json.loads((saffron / "SilphCo7F.json").read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    cells = set(open_map(saffron / "SilphCo7F.json", 0, 26))
+    surface = map_surface(saffron / "SilphCo7F.json")
+    if here != (5, 4):
+        kind = _walk(player, cells, surface, (5, 4), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+    player.step("up")
+    player.settle(limit=80)
+    if "3f" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "3f" not in str(player.state.get("zone")):
+        raise RuntimeError("the 7F pad did not open 3F: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_3f")
+    return "yield"
+
+
+def _silph_master_ball(player, report, cells, surface, avoid):
+    """(5, 5) is the inert warp. The president faces down from (7, 5)."""
+    avoid = set(avoid)
+    avoid.discard((5, 5))
+    avoid.update({(7, 5), (10, 5), (6, 9), (3, 16), (15, 9)})
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    if here != (6, 5):
+        kind = _walk(player, cells, surface, (6, 5), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (6, 5):
+            raise RuntimeError("could not reach the president: " + str(kind) + " "
+                               + json.dumps(summary(player.state)))
+    if player.state["player"].get("facing") != "right":
+        player.press("right", wait=4)
+    for _ in range(40):
+        if _quest(player).get("EVENT_GOT_MASTER_BALL") and player.exploring():
+            break
+        if player.state.get("root") == "battle":
+            return _k_clear(player, report)
+        player.press("a", wait=8)
+    if not _quest(player).get("EVENT_GOT_MASTER_BALL") and not _holding(player, "masterBall"):
+        raise RuntimeError("the president did not give the Master Ball: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_master_ball")
+    return "yield"
+
+
+def _silph_11f_to_7f(player, report, cells, surface, avoid):
+    """(3, 2) returns to 7F. The 11F elevator is the other side of the floor."""
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    blocked = set(avoid)
+    blocked.discard((5, 5))
+    blocked.discard(here)
+    blocked.add((3, 2))
+    if here != (3, 3):
+        kind = _walk(player, cells, surface, (3, 3), blocked, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+    player.step("up")
+    player.settle(limit=80)
+    if "7f" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "7f" not in str(player.state.get("zone")):
+        raise RuntimeError("the 11F pad did not open 7F: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_7f")
+    return "yield"
 
 
 def _silph_door(player, report):
@@ -10613,7 +10852,8 @@ def _silph_door(player, report):
             raise RuntimeError("the Card Key did not open the 3F door: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_silph_door")
         return "yield"
-    if not _rival_trained(player) or _silph_needs_town(player):
+    if (_quest(player).get("EVENT_GOT_MASTER_BALL")
+            or not _rival_trained(player) or _silph_needs_town(player)):
         kind = _walk(player, cells, map_surface(saffron / "SilphCo3F.json"), (20, 1), avoid,
                      report=report, yield_after=2)
         if kind in ("blackout", "yield"):
@@ -10696,8 +10936,10 @@ def _silph_progress(player, report):
         return _silph_7f(player, report)
     if zone.endswith("silph_co_11f"):
         return _silph_11f(player, report)
-    if (zone.endswith("silph_co_1f") and not _rival_trained(player)
-            and (_sweep_hurt(player) or _next_silph_floor(player) is None)):
+    if zone.endswith("silph_co_1f") and (
+            _quest(player).get("EVENT_GOT_MASTER_BALL")
+            or (not _rival_trained(player)
+                and (_sweep_hurt(player) or _next_silph_floor(player) is None))):
         _lead(player, "dugtrio")
         data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))
         avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
