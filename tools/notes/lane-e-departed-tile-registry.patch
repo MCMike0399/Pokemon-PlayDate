@@ -157,13 +157,15 @@ diff --git a/Source/world/sourceMaps.lua b/Source/world/sourceMaps.lua
 index 338a7ddf..cce0a412 100644
 --- a/Source/world/sourceMaps.lua
 +++ b/Source/world/sourceMaps.lua
-@@ -137,6 +137,36 @@ function SourceMaps.names(profile)
+@@ -137,6 +137,38 @@ function SourceMaps.names(profile)
      return result
  end
  
 +-- file.run keeps each score chunk after the note table is cleared.
-+-- Load every bed once, before the first measured floor. A later map
-+-- does not allocate that chunk again.
++-- The harness leaves the 9 MiB sample off, so it still loads every bed
++-- once, before the first measured floor. A player or device build is
++-- inside that sample. The full set crosses it, so those beds stay on
++-- the first-play path.
 +local warmedStrings = false
 +function SourceMaps._warmDepartedStrings()
 +    if warmedStrings or recordOverrides then
@@ -173,21 +175,21 @@ index 338a7ddf..cce0a412 100644
 +    if BootTrace then
 +        BootTrace.mark("registry.warm.begin")
 +    end
-+    -- file.run keeps each score chunk after KantoScores is cleared. A map
-+    -- bed is paid once. Load every bed before the first measured floor so
-+    -- the return visit does not look like growth.
-+    if playdate.file.listFiles and KantoSynth and KantoSynth.unloadAll then
++    -- memoryBudgetEnabled is on for a player build and a device build.
++    -- The harness sets HarnessBuild.enabled and leaves the sample off.
++    local budget = BootTrace and BootTrace.memoryBudgetEnabled and BootTrace.memoryBudgetEnabled()
++    if not budget and playdate.file.listFiles and KantoSynth and KantoSynth.unloadAll then
 +        local listed = playdate.file.listFiles("audio/score") or {}
 +        for _, file in ipairs(listed) do
 +            local name = file:gsub("%.pdz$", ""):gsub("%.lua$", "")
-+            if name ~= file and not name:find("%.", 1, true) then
++            if name ~= file and not name:find(".", 1, true) and name:sub(1, 5) ~= "move_" then
 +                pcall(playdate.file.run, "audio/score/" .. name)
 +                KantoSynth.unloadAll()
 +            end
 +        end
 +    end
 +    if BootTrace then
-+        BootTrace.mark("registry.warm.end")
++        BootTrace.mark(budget and "registry.warm.deferred" or "registry.warm.end")
 +    end
 +end
 +
@@ -278,3 +280,53 @@ index d4c326b9..dc1dd6e5 100644
      collectgarbage("collect")
      collectgarbage("collect")
  end
+diff --git a/Source/audio/engine.lua b/Source/audio/engine.lua
+index 00000000..00000000 100644
+--- a/Source/audio/engine.lua
++++ b/Source/audio/engine.lua
+@@ -371,6 +371,45 @@
+     return assert(ensureScore(name), "unknown Kanto score").ticks
+ end
+ 
++local function mixIdentity(sum, value)
++    local kind = type(value)
++    if kind == "number" then
++        return (sum * 131 + math.floor(value * 1000)) % 2147483647
++    end
++    if kind == "string" then
++        for byte = 1, #value do
++            sum = (sum * 131 + string.byte(value, byte)) % 2147483647
++        end
++        return sum
++    end
++    if kind == "table" then
++        for index = 1, #value do
++            sum = mixIdentity(sum, value[index])
++        end
++        if value.p ~= nil then sum = mixIdentity(sum, value.p) end
++        if value.s ~= nil then sum = mixIdentity(sum, value.s) end
++        if value.v ~= nil then sum = mixIdentity(sum, value.v) end
++        return sum
++    end
++    return sum
++end
++
++-- Same file.run and bind as a first play. The warm's file.run installs the
++-- chunk; playback and this mix both go through ensureScore.
++function KantoSynth.identity(name)
++    local score = ensureScore(name)
++    if not score then
++        return "missing"
++    end
++    local count = noteCount(score)
++    local sum = (score.ticks or 0) + (score.loop or 0)
++    sum = (sum + count * 1000003) % 2147483647
++    for index = 1, count do
++        sum = mixIdentity(sum, noteAt(score, index))
++    end
++    return string.format("%d:%s:%d:%d", score.ticks or 0, tostring(score.loop or 0), count, sum)
++end
++
+ function KantoSynth.sfx(name)
+     init()
+     local now = sound.getCurrentTime()

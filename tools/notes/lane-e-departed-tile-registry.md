@@ -102,7 +102,7 @@ The patch does three things:
 
 - Identical shade rows in one registration share a single grid table. The share dies with the batch, so a later eviction can free the rows.
 - `releaseDepartingWorld` and the Fly origin release drop imported registry entries and their images, the two atlas slots, the slice and Pewter and source sprite caches, the field-move decodes, and the prepared encounter zone. The next visit registers the same stable keys, in definition order, into the same slots above the 37 authored bases. The Center's `registry.slots` line stays `62` on every rebuild.
-- The first ordinary `createZone` runs every score file once, then `unloadAll`, before `definition.begin`. Isolated catalogue fixtures skip that warm. The chunks are then in both the first mark and the return, and a new map does not look like growth.
+- The first ordinary `createZone` runs every map bed once, then `unloadAll`, before `definition.begin`, when the 9 MiB sample is off. That is the harness. `move_` files are battle cues, not map beds, so the warm leaves them for first play. Isolated catalogue fixtures skip that warm. The chunks are then in both the first mark and the return, and a new map does not look like growth. A player or device build is inside the sample, so it marks `registry.warm.deferred` and loads each bed on first play through the same `file.run`.
 
 `MallocPoolSize` stayed `16645684`.
 
@@ -167,3 +167,19 @@ At each Center sample the event-source tables stayed 219814 bytes, text sources 
 What remains is live data that is still there after `releaseDepartingWorld` and two full collections. Twelve round trips through Pallet Town and the Center, from the same fixture, climbed by 2.125 KiB on each of the later returns (2176 bytes). From the second return to the twelfth, the floor rose 21.8 KiB and did not level off. That cost is per visit, not per new map, so the catalogue of 222 maps does not cap it.
 
 Map 100 sits at 14193.7 KiB. The pool is 16255.6, which leaves 2062 KiB. At 2.125 KiB per Pallet/Center round trip, about 970 more of those trips fit. The maps still unseen, at the post-50 rate of 3.44 KiB each, are about 420 KiB. A first visit of the manifest fits, and so do several hundred revisits. The tail is not flat, and re-entering a map does not stop it. The 96 KiB tests were not loosened. `MallocPoolSize` stayed `16645684`.
+
+## The 9 MiB sample
+
+`BootTrace.checkGuard` errors when the Lua heap is at least `9 * 1024` KiB. The comment above `BootTrace.memoryBudgetEnabled` names the three admission limits: 6 MiB is the post-collection live cap on hardware, 8 MiB is the soft collection point, and 9 MiB is the hard sample. `docs/validation/progress.md` records the same three limits. The budget is on for a device-test build and for any process where the harness is off. A private harness session leaves it off, which is why the 96 KiB walks can hold the map-bed chunks and still be inside the pool. The guard numbers were not changed, and `MallocPoolSize` stayed `16645684`.
+
+On `f79bce30`, a production `.pdx` (the `dev` tree dropped) played with the simulator's buttons from the title, through Oak's speech, to the grass north of Pallet. That commit already spills harness results and releases departed actor profiles (`a87c8d89`), so `tools/notes/lane-e-revisit-leak.patch` does not apply on it. The unpatched boot is that code.
+
+| build | guard | phase | sample KiB |
+| --- | --- | --- | ---: |
+| unpatched `f79bce30` | fires | `door.map.end` | 9270.576 |
+| map beds warmed | fires | `registry.warm.end` | 9874.775 |
+| warm deferred | fires | `door.map.end` | 9279.074 |
+
+The full map-bed warm moved the heap from 8695.074 KiB at `registry.warm.begin` to 9873.194 KiB at `registry.warm.end`. The deferred warm stays at 8695.135 then 8695.273. The lab overworld still crosses the sample at `door.map.end` with no score warm at all (unpatched trace 9270.153 KiB). That is the player path, not the warm, and the guard was left as it is.
+
+The harness still warms every map bed before the first measured floor. On this tree that warm is `registry.warm.begin` then `registry.warm.end`, and the Center return moved from 13694.188 KiB to 13717.009 KiB (22.821 KiB, slots 62 both times). Map 20 through map 50 spanned 42.523 KiB, and the highest of those Center samples was 13931.778 KiB. `move_` cues stay on the first-play path in both builds. `KantoSynth.identity` mixes the notes `ensureScore` binds after `file.run`. The identity session loads each score, drops it, and loads it again. Those two mixes match, and the ticks, loop, and note count match the score file. The 30-trip revisit test, which is already in `f79bce30` rather than applied as a second note, passed inside 8 KiB.
