@@ -1038,6 +1038,12 @@ class SquirtleRouteTests(unittest.TestCase):
         center = floor_source.split("\ndef _saffron_center", 1)[1].split("\ndef ", 1)[0]
         self.assertIn("_sabrina_needs_nurse(player)", center)
         self.assertNotIn("_silph_needs_nurse(player)", center)
+        fight = floor_source.split("\n    def fight(", 1)[1].split("\n    def ", 1)[0]
+        self.assertIn('active not in ("wartortle", "blastoise", "squirtle")', fight)
+        sabrina = floor_source.split("\ndef _sabrina(", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn('_lead(player, "blastoise")', sabrina)
+        send = floor_source.split("\ndef _send_out(", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("slot == active and active_hp > 0", send)
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -1502,7 +1508,11 @@ class Player:
                     elif rival and fainted == "growlithe":
                         want = "blastoise"
                         self.press("a", wait=8)
-                    elif shift_to and active != shift_to and (fainted == "kadabra" or grass):
+                    elif (shift_to and active != shift_to
+                          and active not in ("wartortle", "blastoise", "squirtle")
+                          and (fainted == "kadabra" or grass)):
+                        # Blastoise is the Wartortle this line asked for. Yes would
+                        # select him and sit on "already out".
                         self.press("a", wait=8)
                     else:
                         self.press("b", wait=8)
@@ -3932,6 +3942,18 @@ def _send_out(player, prefer):
                 slot = bird
     if slot is None:
         raise RuntimeError("no pokemon to send: " + json.dumps(summary(player.state)))
+    members = ((player.state.get("party") or {}).get("members") or [])
+    active = (player.state.get("party") or {}).get("active") or 1
+    active_hp = (members[active - 1].get("hp") or 0) if 0 < active <= len(members) else 0
+    if slot == active and active_hp > 0:
+        # "BLASTOISE is already out!" stays up if A selects him again.
+        player.press("b", wait=4)
+        return
+    if slot == active:
+        slot = next((index for index, mon in enumerate(members, start=1)
+                     if index != active and (mon.get("hp") or 0) > 0), None)
+        if slot is None:
+            raise RuntimeError("no pokemon to send: " + json.dumps(summary(player.state)))
     _select_party(player, slot)
     player.press("a", wait=8)
 
@@ -9837,6 +9859,7 @@ def _sabrina(player, report):
     here = (player.state["player"]["x"], player.state["player"]["y"])
     if player.state.get("root") == "battle" or here == (9, 9):
         if player.state.get("root") != "battle":
+            _lead(player, "blastoise")
             if player.state["player"].get("facing") != "up":
                 player.press("up", wait=4)
             player.press("a", wait=8)
