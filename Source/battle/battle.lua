@@ -1646,7 +1646,9 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         local effectOutcome=self:applyMoveEffects(move, lastReceipt)
         if effectOutcome=="run" then return effectOutcome end
         self.conditions:moveFinished(move,true)
-        if move.recharge and attacker:isAlive() and defender:isAlive() then
+        -- Gen V still recharges after the target faints. The next Pokémon
+        -- comes in, and the user spends that turn on the receipt.
+        if move.recharge and attacker:isAlive() then
             self.conditions:of(attacker).recharge = true
         end
 
@@ -1729,7 +1731,15 @@ function Battle:_registerFaints(lastFaintedSide)
             -- which is the bar reaching the authoritative HP. The line is
             -- printed only after the drain and the slide.
             self:present("faint", {side = side, pokemon = pokemon})
-            self:say(pokemon.name .. " fainted!")
+            -- pokered data/text/text_2.asm _EnemyMonFaintedText:
+            -- text "Enemy @" / text_ram wEnemyMonNick / line "fainted!".
+            -- Wild and trainer foes share that page. The player's own
+            -- faint stays the nick, then fainted.
+            if side == "enemy" then
+                self:say("Enemy " .. pokemon.name .. "\nfainted!")
+            else
+                self:say(pokemon.name .. " fainted!")
+            end
         end
     end
     return lastFaintedSide,changed
@@ -1805,9 +1815,10 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
                 self:say(self.prizeLine)
             end
             self.message = self.prizeLine or (playerName .. " defeated " .. self.trainerName .. "!")
-        else
-            self.message = "You won the battle!"
         end
+        -- A wild win has no extra page. pokered returns to the map after
+        -- the EXP and level-up text. A trainer win already said
+        -- TrainerDefeatedText, the end-battle pages, and the prize.
         return "victory"
     end
     if not playerTeamAlive then
