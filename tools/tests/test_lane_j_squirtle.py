@@ -8526,6 +8526,79 @@ def _cross_gate(player, report, filename, toward, destination, key):
     return _edge_leave(player, report, path, 2, 13, stand, direction, avoid, key, destination)
 
 
+def _bag_slots(player):
+    return (player.state.get("inventory") or {}).get("slots") or []
+
+
+def _toss_one(player, item_id):
+    """Throw away one of a disposable item. The confirm menu lists NO, then YES."""
+    if _item_count(player, item_id) <= 0:
+        return
+    if not player.exploring():
+        player.dismiss_until_explore(limit=20)
+    player.press("b", wait=10)
+    player.choose("pause", _menu_label(player, "pause", "ITEM"))
+    for _ in range(48):
+        if _item_count(player, item_id) <= 0 and player.exploring():
+            return
+        root = player.state.get("root")
+        bag = player.state.get("bag") or {}
+        phase = bag.get("phase")
+        options = ((bag.get("menu") or {}).get("options") or [])
+        if _item_count(player, item_id) <= 0:
+            if root == "bag":
+                player.press("b", wait=4)
+            elif root == "pause":
+                player.choose("pause", _menu_label(player, "pause", "EXIT"))
+            elif root == "dialog":
+                dialog = player.state.get("dialog") or {}
+                if dialog.get("ready"):
+                    player.press("a", wait=6)
+                else:
+                    player.send("wait 8")
+            else:
+                player.press("a", wait=6)
+            continue
+        if root == "bag" and phase == "message":
+            player.press("a", wait=6)
+            continue
+        if root == "bag" and phase == "toss" and "YES" in options:
+            player.choose("bag", "YES")
+            continue
+        if root == "bag" and phase == "actions" and "TOSS" in options:
+            player.choose("bag", "TOSS")
+            continue
+        if root == "bag" and phase in (None, "list", "closed"):
+            index = next((i for i, entry in enumerate(_bag_slots(player), start=1)
+                          if entry.get("id") == item_id), None)
+            if index is None:
+                break
+            selected = bag.get("selected") or 1
+            if selected != index:
+                player.press("down" if index > selected else "up", wait=2)
+            else:
+                player.press("a", wait=6)
+            continue
+        player.press("a", wait=6)
+    if _item_count(player, item_id) > 0 or not player.exploring():
+        raise RuntimeError("could not toss " + item_id + ": " + json.dumps(summary(player.state)))
+
+
+def _make_room(player, limit):
+    """The voucher and the bicycle each need an empty slot. The exchange rejects a full bag."""
+    disposable = ("tm21", "tm06", "pokeBall")
+    for _ in range(16):
+        if len(_bag_slots(player)) <= limit:
+            return
+        item = next((name for name in disposable if _item_count(player, name) > 0), None)
+        if item is None:
+            raise RuntimeError("the bag is full: " + json.dumps(
+                [entry.get("id") for entry in _bag_slots(player)]))
+        _toss_one(player, item)
+    if len(_bag_slots(player)) > limit:
+        raise RuntimeError("the bag still has no room: " + json.dumps(summary(player.state)))
+
+
 def _accept_gift(player, report, flag, key):
     """Advance only a finished page. The chairman's story is too long to mash."""
     for _ in range(160):
@@ -8626,6 +8699,9 @@ def _fan_club(player, report):
     if _bike_stage(player) != "voucher":
         return _edge_leave(player, report, path, 2, 13, (5, 6), "down", _warp_tiles(path, 2),
                            "vermilion", "vermilion_city")
+    # The voucher is a new item, and the bicycle exchange still rejects a full bag.
+    if len(_bag_slots(player)) > 17:
+        _make_room(player, 17)
     # The chairman is (5, 1). (6, 1) sits between him and the receptionist.
     kind = _stand_on(player, report, path, 2, 13, (4, 1), _map_blocks(path, 2))
     if kind != "arrived":
@@ -8648,6 +8724,8 @@ def _bike_shop(player, report):
     if _bike_stage(player) == "road":
         return _edge_leave(player, report, path, 2, 13, (5, 6), "down", _warp_tiles(path, 2),
                            "cerulean", "cerulean_city")
+    if len(_bag_slots(player)) >= 20:
+        _make_room(player, 19)
     kind = _stand_on(player, report, path, 2, 13, (6, 2), _map_blocks(path, 2))
     if kind != "arrived":
         return kind
