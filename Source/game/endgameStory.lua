@@ -320,17 +320,18 @@ function EndgameStory.hallScrollFrames(which)
 end
 
 function EndgameStory.hallPicOrigin(scx, scy)
-    -- Tile (12, 5) is map pixel (96, 40). Coords past the right edge stay
-    -- positive; coords that wrapped past the left edge become negative.
-    local x = (96 - scx) % 256
-    local y = (40 - scy) % 256
-    if x > 160 then
-        x = x - 256
+    -- Tile (12, 5) is map pixel (96, 40). The LCD is 160 by 144. A pic
+    -- whose origin is past the right edge is drawn on the left only when
+    -- the 56px sprite actually straddles x=0. HoFShowMonOrPlayer's first
+    -- front frame (hSCX $a0) is off the right, not a clipped left flash.
+    local function place(origin, scroll, span, screen)
+        local coord = (origin - scroll) % 256
+        if coord >= screen and coord - 256 + span > 0 then
+            coord = coord - 256
+        end
+        return coord
     end
-    if y > 144 then
-        y = y - 256
-    end
-    return x, y
+    return place(96, scx, 56, 160), place(40, scy, 56, 144)
 end
 
 function EndgameStory.hallScrollFrame(which, index)
@@ -380,13 +381,19 @@ function EndgameStory.playerHallPics(opens)
 end
 
 function EndgameStory.hallView()
-    -- 2x Game Boy screen, shifted up so the row-15 caption fits in 240px.
-    return {scale = 2, x = 40, y = -48, width = 160, height = 144}
+    -- The 20 by 13 grid is the Game Boy tile map. One tile is TitleIdle.COL
+    -- by TitleIdle.ROW, so all 18 rows fit (18 * 13 = 234) and the info box
+    -- top at row 2 stays on screen. hall_of_fame.asm HoFDisplayMonInfo.
+    local col <const> = TitleIdle.COL
+    local row <const> = TitleIdle.ROW
+    return {scale = col / 8, scaleY = row / 8, x = 0, y = 0, width = 160, height = 144,
+        col = col, row = row}
 end
 
 function EndgameStory.hallPixel(gbX, gbY)
     local view <const> = EndgameStory.hallView()
-    return view.x + gbX * view.scale, view.y + gbY * view.scale
+    local scaleY <const> = view.scaleY or view.scale
+    return view.x + gbX * view.scale, view.y + gbY * scaleY
 end
 
 function EndgameStory.hallBoxes()
@@ -471,11 +478,9 @@ end
 function EndgameStory.playerHallRows(stats)
     stats = stats or {}
     return {
-        -- HoFDisplayPlayerStats places the name at hlcoord 7, 2. The hall
-        -- view is a 2x Game Boy screen shifted up 48px so the row-15
-        -- caption fits, which puts that tile at y=-16. One tile lower
-        -- lands on the first visible row.
-        {text = stats.name or "RED", col = 7, row = 3},
+        -- HoFDisplayPlayerStats places the name at hlcoord 7, 2. On the
+        -- 20 by 13 grid that row is on screen, so it is not nudged down.
+        {text = stats.name or "RED", col = 7, row = 2},
         {text = "PLAY TIME", col = 1, row = 6},
         {text = EndgameStory.formatPlayTime(stats.hours, stats.minutes), col = 5, row = 7},
         {text = "MONEY", col = 1, row = 9},
@@ -1558,19 +1563,25 @@ local function blitHallPic(gfx, image, gbX, gbY)
     if not image then
         return
     end
+    local view <const> = EndgameStory.hallView()
+    local scaleY <const> = view.scaleY or view.scale
+    -- The 160 by 144 LCD. The BG wrap is not a second copy on the left.
+    gfx.setClipRect(view.x, math.max(0, view.y), view.width * view.scale, view.height * scaleY)
     local px, py = EndgameStory.hallPixel(gbX, gbY)
-    local scale <const> = EndgameStory.hallView().scale
     if image.drawScaled then
-        image:drawScaled(px, py, scale)
+        image:drawScaled(px, py, view.scale, scaleY)
     else
         image:draw(px, py)
     end
 end
 
 local function drawHallBox(gfx, box)
-    local px, py = EndgameStory.hallPixel(box.col * 8, box.row * 8)
-    local scale <const> = EndgameStory.hallView().scale
-    gfx.drawRect(px, py, box.width * 8 * scale, box.height * 8 * scale)
+    -- hallBoxes stores the TextBoxBorder size, c+2 by b+2.
+    GbFont.drawBox(TitleIdle.textBox(box.col, box.row, box.width - 2, box.height - 2))
+end
+
+local function drawHallLine(text, col, row)
+    GbFont.drawString(EndgameStory.expandPokeredText(text), col, row)
 end
 
 function EndgameStory.drawPhoto(gfx, state)
@@ -1580,7 +1591,6 @@ function EndgameStory.drawPhoto(gfx, state)
     gfx.pushContext()
     gfx.setDrawOffset(0, 0)
     gfx.clearClipRect()
-    gfx.setFont(gfx.getSystemFont())
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.setColor(gfx.kColorWhite)
     gfx.fillRect(0, 0, 400, 240)
@@ -1589,7 +1599,8 @@ function EndgameStory.drawPhoto(gfx, state)
         gfx.popContext()
         return
     end
-    gfx.setClipRect(view.x, 0, view.width * view.scale, 240)
+    local scaleY <const> = view.scaleY or view.scale
+    gfx.setClipRect(view.x, math.max(0, view.y), view.width * view.scale, view.height * scaleY)
     local stage <const> = state.photo.stage
     if stage == "scroll-back" or stage == "scroll-front" then
         local which <const> = stage == "scroll-back" and "back" or "front"
@@ -1608,25 +1619,24 @@ function EndgameStory.drawPhoto(gfx, state)
         drawHallBox(gfx, boxes.playerStats)
     end
     for _, row in ipairs(EndgameStory.hallRows(photo)) do
-        local px, py = EndgameStory.hallPixel(row.col * 8, row.row * 8)
-        if row.text:find("¥", 1, true) then
-            GbFont.drawMoneyLine(row.text, px, py)
-        else
-            EndgameStory.drawPokeredText(gfx, row.text, px, py)
-        end
+        drawHallLine(row.text, row.col, row.row)
     end
     if photo.kind == "player" then
         local pages <const> = EndgameStory.playerHallPages(photo.stats)
         local page <const> = pages[state.photo.page or 1]
         if page then
-            local px, py = EndgameStory.hallPixel(8, 13 * 8)
-            EndgameStory.drawPokeredText(gfx, page.text, px, py)
+            local lineRow = 13
+            for line in (page.text .. "\n"):gmatch("(.-)\n") do
+                if lineRow <= 17 then
+                    drawHallLine(line, 1, lineRow)
+                end
+                lineRow = lineRow + 1
+            end
         end
     elseif EndgameStory.hallShowsCaption(photo, stage, state.photo.clock) then
         local caption <const> = EndgameStory.hallCaptionRow()
         drawHallBox(gfx, boxes.caption)
-        local px, py = EndgameStory.hallPixel(caption.col * 8, caption.row * 8)
-        EndgameStory.drawPokeredText(gfx, caption.text, px, py)
+        drawHallLine(caption.text, caption.col, caption.row)
     end
     if stage == "fade" and Shade then
         gfx.clearClipRect()
