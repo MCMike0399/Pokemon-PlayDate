@@ -947,6 +947,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNone(_route17_south_step(cells, (5, 32), (15, 34)))
         self.assertIsNotNone(_route17_south_step(cells, (5, 32), (3, 68)))
         self.assertIsNotNone(_route17_south_step(cells, (10, 25), (15, 34)))
+        route18 = set(open_map(SOUTH / "Route18.json", 0, 50))
+        fuchsia = set(open_map(SOUTH / "FuchsiaCity.json", 0, 40))
+        self.assertIn((49, 8), route18)
+        self.assertIn((0, 16), fuchsia)
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -9030,6 +9034,10 @@ def _route17_bike(player, report):
     blocked = _map_blocks(path, 0)
     skipped = set()
     for _ in range(240):
+        if not _on_map(player, "route_17"):
+            if _on_map(player, "route_18"):
+                return _route18_bike(player, report)
+            return "yield"
         if player.state.get("root") == "battle":
             return _k_clear(player, report)
         if not player.exploring():
@@ -9057,6 +9065,10 @@ def _route17_bike(player, report):
         if player.state.get("root") == "battle":
             return _k_clear(player, report)
         moved = _route17_coast(player, cells, target)
+        if moved == "warp":
+            if _on_map(player, "route_18"):
+                return _route18_bike(player, report)
+            return "yield"
         if moved == "unreachable":
             skipped.add(tid)
             continue
@@ -9084,6 +9096,8 @@ def _route17_coast(player, cells, target):
     stuck = 0
     last = None
     for _ in range(400):
+        if not _on_map(player, "route_17"):
+            return "warp"
         if player.state.get("root") == "battle":
             return "battle"
         if player.state.get("root") == "dialog":
@@ -9140,21 +9154,20 @@ def _route18_bike(player, report):
         player.step("down")
         player.settle(limit=40)
     if x < 34:
-        if not _road_home(player) and _rounds_left(player, _ROUTE18_ROUNDS):
-            # (34, 8) is the gate wall. (33, 8) is the west door.
-            return _edge_leave(player, report, path, 0, 50, (32, 8), "right", _warp_tiles(path, 0),
-                               "route18_gate", "route_18_gate_1f")
-        return _edge_leave(player, report, path, 0, 50, (10, 0), "up", _map_blocks(path, 0),
-                           "route18_north", "route_17")
-    if not _road_home(player):
+        # (34, 8) is the gate wall. (33, 8) is the west door.
+        # The west road does not turn back onto Route 17. That hill only runs south.
+        return _edge_leave(player, report, path, 0, 50, (32, 8), "right", _warp_tiles(path, 0),
+                           "route18_gate", "route_18_gate_1f")
+    if _rounds_left(player, _ROUTE18_ROUNDS) and not _rival_trained(player):
         extra = set()
         picked = _pick_trainer(player, path, 0, 50, _ROUTE18_ROUNDS, extra)
         if picked:
             tid, stand, kind = picked
             extra.update(_other_sights(_ROUTE18_ROUNDS, tid, lambda other: _beaten(player, other)))
             return _engage(player, report, path, 0, 50, tid, stand, kind, extra)
-    return _edge_leave(player, report, path, 0, 50, (41, 8), "left", _warp_tiles(path, 0),
-                       "route18_gate", "route_18_gate_1f")
+    # (49, 8) steps east onto Fuchsia (0, 16). The Soul Badge is already ours.
+    return _edge_leave(player, report, path, 0, 50, (49, 8), "right", _warp_tiles(path, 0),
+                       "route18_fuchsia", "fuchsia_city")
 
 
 def _route18_gate(player, report):
@@ -9477,6 +9490,25 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         if _needs_medicine(player):
             return _saffron_to_mart(player, report)
         return _saffron_to_silph(player, report)
+    if zone.endswith("fuchsia_city"):
+        if _party_needs_heal(player) or _sweep_hurt(player):
+            status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (19, 28),
+                                _fuchsia_doors(), "saved_fuchsia")
+            if status:
+                return status
+            player.step("up")
+            player.settle(limit=80)
+            if _k_here(player)[0] == "FuchsiaCity":
+                player.step("up")
+                player.settle(limit=80)
+            if _k_here(player)[0] != "FuchsiaPokecenter":
+                raise RuntimeError("the Fuchsia Center stayed shut: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_fuchsia_center")
+            return "yield"
+        _checkpoint(player, report, "saved_fuchsia")
+        return "yield"
+    if "fuchsia_pokecenter" in zone:
+        return _fuchsia_center(player, report)
     if "silph_co" in zone:
         return _silph_progress(player, report)
     if _cycling_quest(player) or zone in {
