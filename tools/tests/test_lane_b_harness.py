@@ -3,7 +3,8 @@
 
 A clip records each live command for the frames that command consumes.
 A 900-frame record around one step holds the harness request open and the
-picture freezes. Saved frames are ordered by chunk, then frame.
+picture freezes. Saved frames stay in capture order, including the old
+tail a later recording did not overwrite.
 """
 
 import os
@@ -74,6 +75,27 @@ class LaneBHarnessTest(unittest.TestCase):
             'victory-road-0001-02-display.png',
             'victory-road-0001-10-display.png',
             'victory-road-0002-01-display.png',
+        ])
+
+    def test_an_overwritten_chunk_plays_its_old_tail_before_the_new_frames(self):
+        """A second record replaces frames 1 and 2. Frame 3 is the earlier tail."""
+        with TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            names = {
+                'elite-lorelei-0001-01-display.png': 2000,
+                'elite-lorelei-0001-02-display.png': 2001,
+                'elite-lorelei-0001-03-display.png': 1000,
+                'elite-lorelei-0002-01-display.png': 1500,
+            }
+            for name, stamp in names.items():
+                (folder / name).write_bytes(name.encode())
+                os.utime(folder / name, (stamp, stamp))
+            got = [path.name for path in clip_frames(folder, 'elite-lorelei')]
+        self.assertEqual(got, [
+            'elite-lorelei-0001-03-display.png',
+            'elite-lorelei-0002-01-display.png',
+            'elite-lorelei-0001-01-display.png',
+            'elite-lorelei-0001-02-display.png',
         ])
 
     def test_a_recycled_chunk_plays_after_the_frames_it_did_not_replace(self):
