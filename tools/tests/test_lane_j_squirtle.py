@@ -8262,7 +8262,8 @@ def _celadon_center(player, report):
     avoid = {(3, 1), (7, 3), (10, 5), (11, 2), (3, 7), (4, 7)}
     here = (player.state["player"]["x"], player.state["player"]["y"])
     avoid.discard(here)
-    if _party_needs_heal(player):
+    # Poison on Pidgeot is below the fainted-party check and still has to be cured.
+    if _party_needs_heal(player) or _sweep_hurt(player):
         kind = _walk(player, cells, surface, (3, 3), avoid, report=report, yield_after=2)
         if kind in ("blackout", "yield"):
             return kind
@@ -8272,7 +8273,7 @@ def _celadon_center(player, report):
             player.press("up", wait=4)
         player.press("a", wait=8)
         for _ in range(40):
-            if player.exploring() and not _party_needs_heal(player):
+            if player.exploring() and not _party_needs_heal(player) and not _sweep_hurt(player):
                 break
             event = player.state.get("event") or {}
             phase = event.get("phase")
@@ -8284,7 +8285,7 @@ def _celadon_center(player, report):
                 player.choose("event", "YES")
                 continue
             player.press("a", wait=8)
-        if _party_needs_heal(player):
+        if _party_needs_heal(player) or _sweep_hurt(player):
             raise RuntimeError("the Celadon nurse did not heal: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_celadon_healed")
         return "yield"
