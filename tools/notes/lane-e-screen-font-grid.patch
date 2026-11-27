@@ -63,7 +63,7 @@ index b7653c8c..4199d0cf 100644
      local sheetName, index = TitleIdle.glyph(char)
      tileImage(sheetName, index):draw(col * TitleIdle.COL, row * TitleIdle.ROW)
 diff --git a/Source/game/namingState.lua b/Source/game/namingState.lua
-index b74d5299..1cc287bf 100644
+index b74d5299..e4fb18ce 100644
 --- a/Source/game/namingState.lua
 +++ b/Source/game/namingState.lua
 @@ -501,10 +501,10 @@ if Class then
@@ -80,7 +80,7 @@ index b74d5299..1cc287bf 100644
      end
  
      function NamingState:draw()
-@@ -518,44 +518,50 @@ if Class then
+@@ -518,44 +518,59 @@ if Class then
              return
          end
          gfx.clear(gfx.kColorWhite)
@@ -143,7 +143,16 @@ index b74d5299..1cc287bf 100644
 +                    if row == screen.row and col == screen.col then
 +                        GbFont.drawFitChar(TitleIdle.CURSOR, tileCol - 1, tileRow)
 +                    end
-+                    GbFont.drawFitString(letter, tileCol, tileRow)
++                    -- constants/charmap.asm <PK> is $e1 and <MN> is $e2.
++                    -- LoadEDTile copies gfx/font/ED.1bpp. alphabets.asm stores
++                    -- each as one byte, and PrintAlphabet writes that byte
++                    -- into one cell. The 8x8 tile already packs the two
++                    -- letters; the 12/8 scale keeps that pair inside the cell.
++                    if letter == "PK" or letter == "MN" or letter == "ED" then
++                        GbFont.drawFitChar(letter, tileCol, tileRow)
++                    else
++                        GbFont.drawFitString(letter, tileCol, tileRow)
++                    end
                  end
              end
 -            local caseMark = screen.row == 6 and TitleIdle.CURSOR or " "
@@ -155,7 +164,7 @@ index b74d5299..1cc287bf 100644
          end
          gfx.setDrawOffset(x, y)
      end
-@@ -678,7 +684,7 @@ if Class then
+@@ -678,7 +693,7 @@ if Class then
          local first = (self.page - 1) * OakSpeech.LINES_PER_PAGE + 1
          for offset = 0, OakSpeech.LINES_PER_PAGE - 1 do
              local line = self.lines[first + offset]
