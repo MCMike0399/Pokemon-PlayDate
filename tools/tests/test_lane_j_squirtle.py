@@ -8251,16 +8251,83 @@ def _stock_celadon_supers(player, report):
 
 
 def _stock_celadon_revives(player, report):
+    """Clerk 1 at (5, 3) sells Revives. Clerk 2 sells TMs, which this bag does not need."""
     cells = celadon_mart_cells(2)
     surface = map_surface(EAST / "CeladonMart2F.json")
     opened = _open_clerk(player, cells, surface, (5, 5))
     if opened in ("blackout", "yield"):
         return opened
     if opened != "shop":
-        opened = _open_clerk(player, cells, surface, (6, 5))
-    if opened != "shop":
-        raise RuntimeError("the 2F clerk did not open: " + json.dumps(summary(player.state)))
-    report["revives"] = _shop_buy(player, "revive", 1500, 4)
+        raise RuntimeError("the medicine clerk did not open: " + str(opened) + " " + json.dumps(summary(player.state)))
+    # The bag is 20 slots and it is full. Two Super Potions are the stack that
+    # can leave. Hyper Potions stay. The protected TMs and the fossils stay.
+    slots = (player.state.get("inventory") or {}).get("slots") or []
+    if len(slots) >= 20 and _item_count(player, "revive") < 1 and _item_count(player, "superPotion") > 0:
+        armed = False
+        for _ in range(30):
+            if _item_count(player, "superPotion") == 0:
+                break
+            shop = player.state.get("shop") or {}
+            phase = shop.get("phase")
+            if phase == "mode":
+                player.choose("shop", "SELL")
+                armed = True
+            elif phase == "browse" and not armed:
+                player.press("b", wait=4)
+            elif phase == "browse":
+                if shop.get("item") == "superPotion":
+                    player.press("a", wait=4)
+                else:
+                    player.press("down", wait=2)
+            elif phase == "quantity" and shop.get("item") == "superPotion":
+                held = _item_count(player, "superPotion")
+                if (shop.get("quantity") or 1) < held:
+                    player.press("up", wait=2)
+                else:
+                    player.press("a", wait=4)
+            elif phase == "confirm":
+                player.choose("shop", "YES")
+            elif phase == "result":
+                player.press("a", wait=4)
+            else:
+                player.send("wait 4")
+        if _item_count(player, "superPotion") > 0:
+            raise RuntimeError("the Super Potions did not leave the bag: " + json.dumps(summary(player.state)))
+    seen = []
+    buying = False
+    for _ in range(40):
+        if _item_count(player, "revive") >= 4 or _money(player) < 1500:
+            break
+        shop = player.state.get("shop") or {}
+        phase = shop.get("phase")
+        item = shop.get("item")
+        seen.append(f"{phase}:{item}")
+        if phase == "mode":
+            player.choose("shop", "BUY")
+            buying = True
+        elif phase == "browse" and not buying:
+            player.press("b", wait=4)
+        elif phase == "browse":
+            if item == "revive":
+                player.press("a", wait=4)
+            else:
+                player.press("down", wait=2)
+        elif phase == "quantity":
+            # One at a time. The bag had no free slot for a stack of four.
+            player.press("a", wait=4)
+        elif phase == "confirm":
+            player.choose("shop", "YES")
+        elif phase == "result":
+            reason = (shop.get("result") or {}).get("reason")
+            if reason in ("bag-full", "insufficient-money", "not-stocked", "unknown-item"):
+                raise RuntimeError("the clerk refused the Revive: " + str(reason))
+            player.press("a", wait=4)
+        else:
+            player.send("wait 4")
+    bought = _item_count(player, "revive")
+    if bought < 1 and _money(player) >= 1500:
+        raise RuntimeError("the clerk did not sell a Revive: " + " ".join(seen[-12:]))
+    report["revives"] = bought
     _close_shop(player)
     _checkpoint(player, report, "saved_celadon_revives")
     return "yield"
@@ -8816,7 +8883,8 @@ def _needs_revives(player):
 
 
 def _prep_done(player):
-    return _ice_known(player) and not _needs_revives(player) and _item_count(player, "tm13") == 0
+    # Gen V reuses TMs, so TM13 stays in the bag after Ice Beam is learned.
+    return _ice_known(player) and not _needs_revives(player)
 
 
 def _silph_floor(player):
