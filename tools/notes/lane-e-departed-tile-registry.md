@@ -125,3 +125,45 @@ With the patch applied, `test_lane_e_departed_tile_registry.py` passed inside 96
 Map 20 through map 50 spans 79.2 KiB. The highest Lua heap in that trace was 14811.4 KiB, 1444 KiB under the 16255.6 KiB pool. The old line crossed the pool near map 158. This tail is about 2.6 KiB per map; carried to map 200 it is still near 14400 KiB. `registry.slots ViridianPokecenter` was 62 after every return.
 
 `python3 tools/generate_terrain_atlases.py --check` regenerated the 24 atlases, 938 frames, and matched the files in `Source/terrainAtlases`. That is the Pallet overworld pin and the Gym pin shared by Celadon Gym and Fuchsia Gym. The battle-art pins are `tools/generate_battle_art.py --check` against archive `e571972fc926dcb65d94fc989299d38109590aa945ed657bf215eac8561afd05`. That archive is not on this machine. The patch does not change the generator, the shade grids, or the battle PNGs. On the patched tree, `contracts cave-encounters` passed 8, `contracts field-travel` passed 3, and `contracts individual-stats-v1` passed 17.
+
+## After main b7cdc96e
+
+`git merge` of `b7cdc96e` applied cleanly. `git apply --check tools/notes/lane-e-departed-tile-registry.patch` passed on that merged tree. The 96 KiB bound and the map-20-to-50 span of 96 KiB were not changed. Unpatched, the four-map return was 12548.458 to 13062.327 KiB (+513.869) and the fifty-map tail spanned 457.248 KiB. With the patch applied, both tests passed.
+
+Two fresh processes ran the four-map return from the same fixture (intro skipped, seed 1, Viridian Center at (7, 4) facing right, level-5 Squirtle). Each process dumped every registry slot as `id=stable_key` after the first Center build and again after the return. The two processes matched, and within each process the first build matched the return. There are 62 slots. Slots 1–37 are `base:1` through `base:37`. Slots 38–62 are `pokered:POKECENTER:cell:…`, and slot 62 is `pokered:POKECENTER:cell:5c-5d-5e-5f`.
+
+The same patched walk was continued to 100 maps. The first 50 keys are the fifty-map test. The next 50 are the following compact keys in alphabetical order: the bike shop, Bill's house, Blue's house, the Celadon houses, gym, hotel, mansion floors, mart floors, the Cerulean houses and cave floors, the Cinnabar lab rooms, the daycare, both Diglett gates, the dojo, both forest gates, the Fuchsia houses and gym, the Game Corner and its prize room, and Indigo Plateau plus its lobby. Agatha's room, Bruno's room, Lance's room, Lorelei's room, the Champion's room, and the Hall of Fame were skipped because entering them leaves the overworld in a dialog. The Center `definition.begin` samples were:
+
+| new maps | Center KiB | since start | since the previous sample |
+| ---: | ---: | ---: | ---: |
+| 0 | 13736.3 | 0 |  |
+| 5 | 13846.0 | 109.6 | 109.6 |
+| 10 | 13917.1 | 180.8 | 71.1 |
+| 15 | 13923.5 | 187.1 | 6.4 |
+| 20 | 13936.3 | 199.9 | 12.8 |
+| 25 | 13959.5 | 223.1 | 23.2 |
+| 30 | 13980.4 | 244.1 | 21.0 |
+| 35 | 13985.8 | 249.4 | 5.3 |
+| 40 | 13997.9 | 261.6 | 12.2 |
+| 45 | 14009.7 | 273.3 | 11.7 |
+| 50 | 14021.6 | 285.3 | 11.9 |
+| 55 | 14059.0 | 322.7 | 37.4 |
+| 60 | 14069.4 | 333.1 | 10.4 |
+| 65 | 14080.8 | 344.5 | 11.4 |
+| 70 | 14099.2 | 362.8 | 18.3 |
+| 75 | 14113.5 | 377.1 | 14.3 |
+| 80 | 14130.4 | 394.0 | 16.9 |
+| 85 | 14137.3 | 401.0 | 6.9 |
+| 90 | 14151.3 | 415.0 | 14.0 |
+| 95 | 14170.0 | 433.7 | 18.7 |
+| 100 | 14193.7 | 457.4 | 23.7 |
+
+Map 20 through map 50 spans 85.3 KiB, 2.84 KiB per map. Map 50 through map 100 spans 172.1 KiB, 3.44 KiB per map. The highest Lua heap in that trace was 14854.8 KiB, 1401 KiB under the pool. `registry.slots ViridianPokecenter` stayed 62.
+
+The score chunks are not this tail. The warm still moves the heap once, from 12595.2 to 13722.3 KiB (+1127), before the first Center sample, and `KantoScores` was empty at every later sample. Skipping `KantoAudio.enterMap` left the revisit step unchanged. After map 50 the per-map step does not track score-file size (correlation -0.03) or runtime JSON size (correlation -0.17).
+
+At each Center sample the event-source tables stayed 219814 bytes, text sources 368, content indexes and content fields empty, the recent chunk cache 3 entries (999 bytes), `SpriteFactory.npc` 8 keys, `zoneRegistry` 6 zones, packed rows 16, and the retained runtime 1. `zoneProfiles` gained one profile string per map. None of those is a few KiB per visit. Turning the boot-trace print off, and then making `BootTrace.mark` return without writing, left the same step, so the trace log is not the holder either.
+
+What remains is live data that is still there after `releaseDepartingWorld` and two full collections. Twelve round trips through Pallet Town and the Center, from the same fixture, climbed by 2.125 KiB on each of the later returns (2176 bytes). From the second return to the twelfth, the floor rose 21.8 KiB and did not level off. That cost is per visit, not per new map, so the catalogue of 222 maps does not cap it.
+
+Map 100 sits at 14193.7 KiB. The pool is 16255.6, which leaves 2062 KiB. At 2.125 KiB per Pallet/Center round trip, about 970 more of those trips fit. The maps still unseen, at the post-50 rate of 3.44 KiB each, are about 420 KiB. A first visit of the manifest fits, and so do several hundred revisits. The tail is not flat, and re-entering a map does not stop it. The 96 KiB tests were not loosened. `MallocPoolSize` stayed `16645684`.
