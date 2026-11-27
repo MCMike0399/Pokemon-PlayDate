@@ -92,7 +92,8 @@ check(EndgameStory.entranceAction(lorelei, 4, 11, {}), "autowalk", "door autowal
 check(EndgameStory.entranceAction(lorelei, 4, 10, {}), "dont-run", "tile above the door stops a leave")
 check(EndgameStory.entranceAction(lorelei, 4, 11, {[lorelei.autowalk_event] = true}), "dont-run",
     "door stays shut after the walk")
-check(EndgameStory.entranceAction(lorelei, 4, 11, {[lorelei.flag] = true}), nil, "beaten room is quiet")
+check(EndgameStory.entranceAction(lorelei, 4, 11, {[lorelei.flag] = true}), "dont-run",
+    "beaten room still blocks the south door")
 local walk = EndgameStory.approachWalk(lorelei, 4)
 local rights, ups = 0, 0
 for _, step in ipairs(walk) do

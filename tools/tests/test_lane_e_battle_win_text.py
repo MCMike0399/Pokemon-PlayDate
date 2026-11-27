@@ -22,6 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 POKERED = Path(os.environ["POKERED_REFERENCE_DIR"]) / "data/text/text_2.asm"
 BATTLE = ROOT / "Source/battle/battle.lua"
+STATE = ROOT / "Source/game/battleState.lua"
 PATCH = ROOT / "tools/notes/lane-e-battle-win-text.patch"
 
 ENEMY_SAY = 'self:say("Enemy " .. pokemon.name .. "\\nfainted!")'
@@ -95,6 +96,31 @@ class BattleWinTextTest(unittest.TestCase):
         self.assertLess(done.index(DEFEAT), done.index(PRIZE))
         self.assertLess(done.index(PRIZE), done.index('return "victory"'))
         self.assertIn("if self.trainerName then", done)
+        # A wild faint says the EXP line, then the level-up line, and the
+        # trainer pages never run. The tail after that if returns victory
+        # with no extra say, and the field state changes straight back.
+        self.assertLess(done.index('gained\\n'), done.index("if self.trainerName then"))
+        self.assertLess(done.index("grew to Lv"), done.index("if self.trainerName then"))
+        after_trainer = done.split("if self.trainerName then", 1)[1]
+        trainer_block = after_trainer.split("\n        end\n", 1)[0]
+        # The old wild page was the else of this if: self.message = "You won the battle!".
+        self.assertNotIn("\n        else\n", trainer_block)
+        self.assertNotIn("You won the battle!", trainer_block)
+        wild = after_trainer.split("\n        end\n", 1)[1].split('return "victory"', 1)[0]
+        self.assertIn("A wild win has no extra page", wild)
+        self.assertNotIn("self:say", wild)
+        self.assertNotIn("self.message", wild)
+        self.assertNotIn("You won the battle!", wild)
+        ended = battle.split("function BattleEndedPhase:enter", 1)[1].split("\nfunction ", 1)[0]
+        self.assertNotIn("self.battle.message", ended)
+        self.assertNotIn(":say(", ended)
+        finish = STATE.read_text(encoding="utf-8").split("function BattleState:finish", 1)[1].split("\nfunction ", 1)[0]
+        self.assertNotIn("You won the battle!", finish)
+        arm = finish.split("A final recoil victory", 1)[1].split("\n    end", 1)[0]
+        self.assertIn('self.machine:change("overworld")', arm)
+        self.assertNotIn(":say(", arm)
+        self.assertNotIn("push(", arm)
+        self.assertNotIn("You won", arm)
 
 
 if __name__ == "__main__":

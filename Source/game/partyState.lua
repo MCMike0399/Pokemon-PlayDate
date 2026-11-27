@@ -254,13 +254,42 @@ function PartyState:_rememberScreen(party)
     }
 end
 
+-- engine/pokemon/status_screen.asm StatusScreen places TypesIDNoOTText
+-- (TYPE1/ then TYPE2/) and PrintMonType. Equal type bytes skip the second
+-- name. data/names.asm prints PSYCHIC for PSYCHIC_TYPE. Species store the
+-- lowercase type, and a single type leaves type2 nil.
+local TYPE_NAMES <const> = {
+    normal = "NORMAL", fighting = "FIGHTING", flying = "FLYING", poison = "POISON",
+    ground = "GROUND", rock = "ROCK", bug = "BUG", ghost = "GHOST", fire = "FIRE",
+    water = "WATER", grass = "GRASS", electric = "ELECTRIC", psychic = "PSYCHIC",
+    ice = "ICE", dragon = "DRAGON",
+}
+
+function PartyState.typeLines(mon)
+    local function shown(value)
+        local name = TYPE_NAMES[value]
+        assert(name, "unknown type")
+        return name
+    end
+    local lines = {"TYPE1/ " .. shown(mon.type)}
+    if mon.type2 and mon.type2 ~= mon.type then
+        lines[2] = "TYPE2/ " .. shown(mon.type2)
+    else
+        lines[2] = "TYPE2/"
+    end
+    return lines
+end
+
 function PartyState:_paintScreen(party)
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
     local mon = party:get(self.selected)
     if self.phase == "stats" and mon then
+        local lines = PartyState.typeLines(mon)
         gfx.drawText(mon.name .. "  Lv" .. mon.level, 12, 10)
+        gfx.drawText(lines[1], 220, 10)
         gfx.drawText("HP " .. mon.hp .. "/" .. mon.maxHP .. "  " .. (mon.status or "OK"):upper(), 12, 34)
+        gfx.drawText(lines[2], 220, 34)
         gfx.drawText("ATTACK " .. mon.atk .. "   DEFENSE " .. mon.def, 12, 58)
         gfx.drawText("SP. ATK " .. mon.spa .. "   SP. DEF " .. mon.spd, 12, 82)
         gfx.drawText("SPEED " .. mon.spe .. "   EXP " .. mon.xp, 12, 106)
