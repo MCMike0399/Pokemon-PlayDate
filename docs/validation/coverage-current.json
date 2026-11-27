@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "55a7da7582c85b7fa118feac2c46a1dadbc5d70f",
-    "source_sha256": "0b06e2a45a58076cb163b1144e6c42f591d7197b41d7027f73dfd485d8621d3d",
+    "commit": "2e93fa5a0dff9da6206f7784f3d304ce29c5bf7d",
+    "source_sha256": "d37fd1d6ec17125bdc90523c79659de4752763b829f8b845c049bab15845159e",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after the source-map catalogue loads one map on entry and releases it on depart. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 a856a2c0334b22229bdeedc253b86478591fa84da5965ba2153122d74949bc88.",
+    "scope": "Source identity after the Hall of Fame and credits use the 20 by 13 grid. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 0b06e2a45a58076cb163b1144e6c42f591d7197b41d7027f73dfd485d8621d3d.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
