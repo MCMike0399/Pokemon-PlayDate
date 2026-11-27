@@ -356,7 +356,39 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
                 if arrival_cell in target["blocked"]:
                     descriptor["blocked"][cell] = warp["id"]
                     changed = True
-    return dict(runtime, **{"compact.json": canonical(compact), "tile-grids.json": canonical(atlas)})
+    artifacts = dict(runtime, **{"compact.json": canonical(compact), "tile-grids.json": canonical(atlas)})
+    artifacts.update(catalogue_entries(compact))
+    return artifacts
+
+
+def catalogue_entries(compact):
+    """One descriptor file per map, plus the shared tile metadata.
+
+    The shipping provider loads a map on first entry and drops it on depart.
+    compact.json stays the byte-for-byte catalogue those files are cut from.
+    """
+    revision = compact["source_revision"]
+    files = {
+        "tiles.json": canonical({
+            "schema": 1, "source_revision": revision, "tiles": compact["tiles"],
+        }),
+        # Hash pin for one runtime map. Door tiles stay with the compact
+        # readers that still need them; this file is the small substitute
+        # for decoding every map just to read manifest_sha256.
+        "header.json": canonical({
+            "schema": 1,
+            "source_revision": revision,
+            "manifest_sha256": compact["manifest_sha256"],
+            "warp_authority_sha256": compact["warp_authority_sha256"],
+            "door_tiles": compact["door_tiles"],
+        }),
+    }
+    for name, descriptor in compact["maps"].items():
+        require(descriptor.get("name") == name, "compact map name differs: " + name)
+        files["entry-" + name + ".json"] = canonical({
+            "schema": 1, "source_revision": revision, "map": descriptor,
+        })
+    return files
 
 
 def check(artifacts, directory):
