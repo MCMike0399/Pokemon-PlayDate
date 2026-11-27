@@ -3,7 +3,8 @@
 
 The shelf change lives in tools/notes/lane-e-link-cable-celadon-4f.patch.
 This journey fails until that patch is applied: the 4F clerk does not stock
-the cable, so Kadabra never becomes Alakazam.
+the cable, so Kadabra never becomes Alakazam. The cable is ¥2100, the same
+as the stones, and it sells for ¥1050.
 """
 
 import json
@@ -59,12 +60,17 @@ def run_journey(output):
 class CeladonLinkCableTests(unittest.TestCase):
     def test_patch_keeps_the_scientist_and_the_three_cave_balls(self):
         text = PATCH.read_text()
+        added = "\n".join(
+            line[1:] for line in text.splitlines()
+            if line.startswith("+") and not line.startswith("+++"))
         self.assertIn('celadonMart4FClerkText = { "pokeDoll", "fireStone", "thunderStone", "waterStone", "leafStone", "linkCable" }', text)
         self.assertIn("a7347868", text)
         self.assertIn("Use like a stone.", text)
+        self.assertIn('["price"] = 2100', added)
+        self.assertIn('["sellPrice"] = 1050', added)
         self.assertNotIn("MallocPoolSize", text)
         self.assertNotIn("CeruleanCave1F", text)
-        self.assertNotIn("FULL_RESTORE", text)
+        self.assertNotIn("FULL_RESTORE", added)
         cave = CAVE.read_text()
         for ball in BALLS:
             self.assertIn(ball, cave)
@@ -73,7 +79,16 @@ class CeladonLinkCableTests(unittest.TestCase):
         self.assertIn("postgame:CERULEAN_CAVE_1F:mew-gift", story)
         items = (ROOT / "Source/data/items.lua").read_text()
         self.assertIn('["text"] = "Use like a stone."', items)
-        self.assertIn('["price"] = 0', items.split("linkCable", 1)[1][:240])
+
+    def test_link_cable_is_priced_with_the_stones(self):
+        items = (ROOT / "Source/data/items.lua").read_text()
+        cable = items.split("linkCable = ", 1)[1].split("},", 1)[0]
+        self.assertIn('["price"] = 2100', cable)
+        self.assertIn('["sellPrice"] = 1050', cable)
+        for stone in ("fireStone", "thunderStone", "waterStone", "leafStone"):
+            row = items.split(stone + " = ", 1)[1].split("},", 1)[0]
+            self.assertIn('["price"] = 2100', row, stone)
+            self.assertIn('["sellPrice"] = 1050', row, stone)
 
     def test_walk_buy_and_evolve_kadabra_before_the_elite_four(self):
         output = Path(os.environ.get("LINK_CABLE_JOURNEY_OUTPUT", "/tmp/link-cable-celadon"))
@@ -81,6 +96,13 @@ class CeladonLinkCableTests(unittest.TestCase):
         self.assertTrue(summary.get("ok"), summary.get("error"))
         species = ((summary.get("last_snapshot") or {}).get("pokemon") or {}).get("species")
         self.assertEqual(species, "alakazam")
+        money = ((summary.get("last_snapshot") or {}).get("inventory") or {}).get("money")
+        self.assertEqual(money, 900)
+        bought = summary.get("link_cable") or {}
+        self.assertEqual(bought.get("price"), 2100)
+        self.assertEqual(bought.get("spent"), 2100)
+        self.assertEqual(bought.get("sell"), 1050)
+        self.assertEqual(bought.get("money"), 900)
         checkpoints = [item.get("name") for item in summary.get("checkpoints") or []]
         self.assertIn("celadon-4f", checkpoints)
         self.assertIn("alakazam", checkpoints)

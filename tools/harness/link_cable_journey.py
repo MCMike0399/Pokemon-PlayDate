@@ -12,6 +12,10 @@ from tools.harness.protocol import ProtocolError, atomic_json
 
 STAIRS = "kanto_celadon_mart_5f"
 FLOOR = "kanto_celadon_mart_4f"
+# The stones are ¥2100 and sell for half. The cable uses that same pair.
+START_MONEY = 3000
+CABLE_PRICE = 2100
+CABLE_SELL = 1050
 CLERK = (5, 7)
 # The clerk stands behind the counter. The walkable cell north of it faces
 # down across the counter tile, which is how a mart purchase reaches him.
@@ -60,13 +64,13 @@ class LinkCableJourney(Journey):
             zone=STAIRS,
             entry={"x": 16, "y": 2, "facing": "up"},
             player_pokemon={"species": "kadabra", "level": 16},
-            inventory={"money": 0, "slots": []},
+            inventory={"money": START_MONEY, "slots": []},
         )
         self.require(
             zone=STAIRS, root="overworld",
             **{"player.x": 16, "player.y": 2, "player.facing": "up",
                "player.settled": True, "pokemon.species": "kadabra",
-               "inventory.money": 0, "inventory.quantities.linkCable": 0})
+               "inventory.money": START_MONEY, "inventory.quantities.linkCable": 0})
         self.before_hall()
         self.send("press up", "wait 30")
         self.await_value("zone", FLOOR, frames=240)
@@ -103,6 +107,7 @@ class LinkCableJourney(Journey):
         self.require(**{"shop.phase": "mode"})
         self.send("press a")
         self.require(**{"shop.phase": "browse"})
+        self.send("shot link-cable-list")
         seen = []
         for _ in range(8):
             item = lookup(self.state, "shop.item")
@@ -114,18 +119,44 @@ class LinkCableJourney(Journey):
             self.send("press down")
         else:
             raise ProtocolError("LINK CABLE is not on the Celadon 4F counter: " + ", ".join(seen))
+        self.require(**{"shop.item": "linkCable", "shop.price": CABLE_PRICE})
         self.send("shot link-cable-shelf")
+        before = lookup(self.state, "inventory.money")
         self.send("press a")
         self.require(**{"shop.phase": "quantity", "shop.quantity": 1, "shop.item": "linkCable"})
         self.send("press a")
         self.require(**{"shop.phase": "confirm"})
         self.send("press a")
         self.require(**{"shop.phase": "result"})
-        self.require(**{"inventory.quantities.linkCable": 1, "inventory.money": 0})
+        after = lookup(self.state, "inventory.money")
+        if before - after != CABLE_PRICE:
+            raise ProtocolError(f"LINK CABLE price did not debit ¥{CABLE_PRICE}: {before} -> {after}")
+        self.require(**{
+            "inventory.quantities.linkCable": 1,
+            "inventory.money": before - CABLE_PRICE,
+            "shop.result.total": CABLE_PRICE,
+        })
         self.send("press a")
         self.require(**{"shop.phase": "browse"})
         self.send("press b")
         self.require(**{"shop.phase": "mode"})
+        self.select_menu("shop.menu.selected", 2)
+        self.send("press a")
+        self.require(**{
+            "shop.phase": "browse",
+            "shop.item": "linkCable",
+            "shop.price": CABLE_SELL,
+            "inventory.quantities.linkCable": 1,
+            "inventory.money": before - CABLE_PRICE,
+        })
+        self.send("press b")
+        self.require(**{"shop.phase": "mode", "inventory.quantities.linkCable": 1})
+        self.summary["link_cable"] = {
+            "price": CABLE_PRICE,
+            "sell": CABLE_SELL,
+            "spent": before - after,
+            "money": after,
+        }
         self.select_menu("shop.menu.selected", 3)
         self.send("press a")
         self.await_value("root", "overworld", frames=180)
@@ -156,7 +187,11 @@ class LinkCableJourney(Journey):
         self.await_value("evolution.phase", "animate", frames=180)
         self.send("record link-cable-evolve 80")
         self.await_value("evolution.done", True, frames=240)
-        self.require(**{"pokemon.species": "alakazam", "inventory.quantities.linkCable": 0, "inventory.money": 0})
+        self.require(**{
+            "pokemon.species": "alakazam",
+            "inventory.quantities.linkCable": 0,
+            "inventory.money": START_MONEY - CABLE_PRICE,
+        })
         self.before_hall()
         self.await_value("evolution.dialog_ready", True, frames=180)
         self.send("wait 12", "shot link-cable-after", "press a")

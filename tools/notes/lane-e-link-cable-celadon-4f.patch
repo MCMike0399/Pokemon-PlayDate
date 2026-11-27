@@ -1,7 +1,16 @@
 diff --git a/Source/data/items.lua b/Source/data/items.lua
-index a658fa0b..fcc04c05 100644
+index a658fa0b..6eec1e8b 100644
 --- a/Source/data/items.lua
 +++ b/Source/data/items.lua
+@@ -127,7 +127,7 @@ ItemData = {
+         tm48 = { ["id"] = "tm48", ["symbol"] = "TM_ROCK_SLIDE", ["numericId"] = 248, ["name"] = "TM48", ["keyItem"] = false, ["price"] = 4000, ["sellPrice"] = 2000, ["category"] = "tm", ["effect"] = "unsupported", ["moveSymbol"] = "ROCK_SLIDE" },
+         tm49 = { ["id"] = "tm49", ["symbol"] = "TM_TRI_ATTACK", ["numericId"] = 249, ["name"] = "TM49", ["keyItem"] = false, ["price"] = 4000, ["sellPrice"] = 2000, ["category"] = "tm", ["effect"] = "unsupported", ["moveSymbol"] = "TRI_ATTACK" },
+         tm50 = { ["id"] = "tm50", ["symbol"] = "TM_SUBSTITUTE", ["numericId"] = 250, ["name"] = "TM50", ["keyItem"] = false, ["price"] = 2000, ["sellPrice"] = 1000, ["category"] = "tm", ["effect"] = "unsupported", ["moveSymbol"] = "SUBSTITUTE" },
+-        linkCable = { ["id"] = "linkCable", ["symbol"] = "LINK_CABLE", ["numericId"] = 251, ["name"] = "LINK CABLE", ["keyItem"] = false, ["price"] = 0, ["category"] = "evolution", ["effect"] = "evolution", ["sellPrice"] = 0, ["text"] = "Use like a stone." },
++        linkCable = { ["id"] = "linkCable", ["symbol"] = "LINK_CABLE", ["numericId"] = 251, ["name"] = "LINK CABLE", ["keyItem"] = false, ["price"] = 2100, ["category"] = "evolution", ["effect"] = "evolution", ["sellPrice"] = 1050, ["text"] = "Use like a stone." },
+     },
+     bySymbol = { ["MASTER_BALL"] = "masterBall", ["ULTRA_BALL"] = "ultraBall", ["GREAT_BALL"] = "greatBall", ["POKE_BALL"] = "pokeBall", ["TOWN_MAP"] = "townMap", ["BICYCLE"] = "bicycle", ["MOON_STONE"] = "moonStone", ["ANTIDOTE"] = "antidote", ["BURN_HEAL"] = "burnHeal", ["ICE_HEAL"] = "iceHeal", ["AWAKENING"] = "awakening", ["PARLYZ_HEAL"] = "parlyzHeal", ["FULL_RESTORE"] = "fullRestore", ["MAX_POTION"] = "maxPotion", ["HYPER_POTION"] = "hyperPotion", ["SUPER_POTION"] = "superPotion", ["POTION"] = "potion", ["ESCAPE_ROPE"] = "escapeRope", ["REPEL"] = "repel", ["OLD_AMBER"] = "oldAmber", ["FIRE_STONE"] = "fireStone", ["THUNDER_STONE"] = "thunderStone", ["WATER_STONE"] = "waterStone", ["HP_UP"] = "hpUp", ["PROTEIN"] = "protein", ["IRON"] = "iron", ["CARBOS"] = "carbos", ["CALCIUM"] = "calcium", ["RARE_CANDY"] = "rareCandy", ["DOME_FOSSIL"] = "domeFossil", ["HELIX_FOSSIL"] = "helixFossil", ["SECRET_KEY"] = "secretKey", ["BIKE_VOUCHER"] = "bikeVoucher", ["X_ACCURACY"] = "xAccuracy", ["LEAF_STONE"] = "leafStone", ["CARD_KEY"] = "cardKey", ["NUGGET"] = "nugget", ["POKE_DOLL"] = "pokeDoll", ["FULL_HEAL"] = "fullHeal", ["REVIVE"] = "revive", ["MAX_REVIVE"] = "maxRevive", ["GUARD_SPEC"] = "guardSpec", ["SUPER_REPEL"] = "superRepel", ["MAX_REPEL"] = "maxRepel", ["DIRE_HIT"] = "direHit", ["FRESH_WATER"] = "freshWater", ["SODA_POP"] = "sodaPop", ["LEMONADE"] = "lemonade", ["S_S_TICKET"] = "ssTicket", ["GOLD_TEETH"] = "goldTeeth", ["X_ATTACK"] = "xAttack", ["X_DEFEND"] = "xDefend", ["X_SPEED"] = "xSpeed", ["X_SPECIAL"] = "xSpecial", ["COIN_CASE"] = "coinCase", ["OAKS_PARCEL"] = "oaksParcel", ["ITEMFINDER"] = "itemfinder", ["SILPH_SCOPE"] = "silphScope", ["POKE_FLUTE"] = "pokeFlute", ["LIFT_KEY"] = "liftKey", ["EXP_ALL"] = "expAll", ["OLD_ROD"] = "oldRod", ["GOOD_ROD"] = "goodRod", ["SUPER_ROD"] = "superRod", ["PP_UP"] = "ppUp", ["ETHER"] = "ether", ["MAX_ETHER"] = "maxEther", ["ELIXER"] = "elixir", ["MAX_ELIXER"] = "maxElixir", ["HM_CUT"] = "hm01", ["HM01"] = "hm01", ["HM_FLY"] = "hm02", ["HM02"] = "hm02", ["HM_SURF"] = "hm03", ["HM03"] = "hm03", ["HM_STRENGTH"] = "hm04", ["HM04"] = "hm04", ["HM_FLASH"] = "hm05", ["HM05"] = "hm05", ["TM_MEGA_PUNCH"] = "tm01", ["TM01"] = "tm01", ["TM_RAZOR_WIND"] = "tm02", ["TM02"] = "tm02", ["TM_SWORDS_DANCE"] = "tm03", ["TM03"] = "tm03", ["TM_WHIRLWIND"] = "tm04", ["TM04"] = "tm04", ["TM_MEGA_KICK"] = "tm05", ["TM05"] = "tm05", ["TM_TOXIC"] = "tm06", ["TM06"] = "tm06", ["TM_HORN_DRILL"] = "tm07", ["TM07"] = "tm07", ["TM_BODY_SLAM"] = "tm08", ["TM08"] = "tm08", ["TM_TAKE_DOWN"] = "tm09", ["TM09"] = "tm09", ["TM_DOUBLE_EDGE"] = "tm10", ["TM10"] = "tm10", ["TM_BUBBLEBEAM"] = "tm11", ["TM11"] = "tm11", ["TM_WATER_GUN"] = "tm12", ["TM12"] = "tm12", ["TM_ICE_BEAM"] = "tm13", ["TM13"] = "tm13", ["TM_BLIZZARD"] = "tm14", ["TM14"] = "tm14", ["TM_HYPER_BEAM"] = "tm15", ["TM15"] = "tm15", ["TM_PAY_DAY"] = "tm16", ["TM16"] = "tm16", ["TM_SUBMISSION"] = "tm17", ["TM17"] = "tm17", ["TM_COUNTER"] = "tm18", ["TM18"] = "tm18", ["TM_SEISMIC_TOSS"] = "tm19", ["TM19"] = "tm19", ["TM_RAGE"] = "tm20", ["TM20"] = "tm20", ["TM_MEGA_DRAIN"] = "tm21", ["TM21"] = "tm21", ["TM_SOLARBEAM"] = "tm22", ["TM22"] = "tm22", ["TM_DRAGON_RAGE"] = "tm23", ["TM23"] = "tm23", ["TM_THUNDERBOLT"] = "tm24", ["TM24"] = "tm24", ["TM_THUNDER"] = "tm25", ["TM25"] = "tm25", ["TM_EARTHQUAKE"] = "tm26", ["TM26"] = "tm26", ["TM_FISSURE"] = "tm27", ["TM27"] = "tm27", ["TM_DIG"] = "tm28", ["TM28"] = "tm28", ["TM_PSYCHIC_M"] = "tm29", ["TM29"] = "tm29", ["TM_TELEPORT"] = "tm30", ["TM30"] = "tm30", ["TM_MIMIC"] = "tm31", ["TM31"] = "tm31", ["TM_DOUBLE_TEAM"] = "tm32", ["TM32"] = "tm32", ["TM_REFLECT"] = "tm33", ["TM33"] = "tm33", ["TM_BIDE"] = "tm34", ["TM34"] = "tm34", ["TM_METRONOME"] = "tm35", ["TM35"] = "tm35", ["TM_SELFDESTRUCT"] = "tm36", ["TM36"] = "tm36", ["TM_EGG_BOMB"] = "tm37", ["TM37"] = "tm37", ["TM_FIRE_BLAST"] = "tm38", ["TM38"] = "tm38", ["TM_SWIFT"] = "tm39", ["TM39"] = "tm39", ["TM_SKULL_BASH"] = "tm40", ["TM40"] = "tm40", ["TM_SOFTBOILED"] = "tm41", ["TM41"] = "tm41", ["TM_DREAM_EATER"] = "tm42", ["TM42"] = "tm42", ["TM_SKY_ATTACK"] = "tm43", ["TM43"] = "tm43", ["TM_REST"] = "tm44", ["TM44"] = "tm44", ["TM_THUNDER_WAVE"] = "tm45", ["TM45"] = "tm45", ["TM_PSYWAVE"] = "tm46", ["TM46"] = "tm46", ["TM_EXPLOSION"] = "tm47", ["TM47"] = "tm47", ["TM_ROCK_SLIDE"] = "tm48", ["TM48"] = "tm48", ["TM_TRI_ATTACK"] = "tm49", ["TM49"] = "tm49", ["TM_SUBSTITUTE"] = "tm50", ["TM50"] = "tm50", ["LINK_CABLE"] = "linkCable" },
+     marts = {
 @@ -138,7 +138,7 @@ ItemData = {
          lavenderMartClerkText = { "greatBall", "superPotion", "revive", "escapeRope", "superRepel", "antidote", "burnHeal", "iceHeal", "parlyzHeal" },
          celadonMart2FClerk1Text = { "greatBall", "superPotion", "revive", "superRepel", "antidote", "burnHeal", "iceHeal", "awakening", "parlyzHeal" },
@@ -12,20 +21,57 @@ index a658fa0b..fcc04c05 100644
          celadonMart5FClerk2Text = { "hpUp", "protein", "iron", "carbos", "calcium" },
          fuchsiaMartClerkText = { "ultraBall", "greatBall", "superPotion", "revive", "fullHeal", "superRepel" },
 diff --git a/Source/dev/itemContracts.lua b/Source/dev/itemContracts.lua
-index 88861fe6..661f15c9 100644
+index 88861fe6..6106d378 100644
 --- a/Source/dev/itemContracts.lua
 +++ b/Source/dev/itemContracts.lua
-@@ -56,7 +56,7 @@ tm47 tm48 tm49 tm50 lightBall linkCable
+@@ -56,13 +56,13 @@ tm47 tm48 tm49 tm50 lightBall linkCable
          end
          equal(blue, 125)
          equal(count, 126)
 -        -- Item 251, the first id after TM_SUBSTITUTE. Not a mart item.
-+        -- Item 251, the first id after TM_SUBSTITUTE. Sold beside the Celadon 4F stones.
++        -- Item 251, the first id after TM_SUBSTITUTE. Sold beside the Celadon 4F stones at the stone price.
          local cable <const> = ItemData.definitions.linkCable
          equal(cable.symbol, "LINK_CABLE")
          equal(cable.numericId, 251)
+         equal(cable.name, "LINK CABLE")
+-        equal(cable.price, 0)
+-        equal(cable.sellPrice, 0)
++        equal(cable.price, 2100)
++        equal(cable.sellPrice, 1050)
+         equal(cable.keyItem, false)
+         equal(cable.category, "evolution")
+         equal(cable.effect, "evolution")
+diff --git a/Source/game/shopState.lua b/Source/game/shopState.lua
+index fb6924c5..508e577c 100644
+--- a/Source/game/shopState.lua
++++ b/Source/game/shopState.lua
+@@ -78,6 +78,15 @@ function ShopState:price()
+     local data=assert(ItemData.definitions[self.item])
+     return self.trade=="buy" and data.price or data.sellPrice
+ end
++function ShopState:shownPrice()
++    local row=self.phase=="browse" and self:rows()[self.selected] or nil
++    if row then
++        local data=ItemData.definitions[row.id]
++        return (self.trade=="buy" and data.price or data.sellPrice) or 0
++    end
++    if self.item then return self:price() end
++    return 0
++end
+ function ShopState:showResult(ok,reason,total)
+     self:hideMenu();self.phase="result"
+     self.result={ok=ok,reason=reason,total=total or 0,
+@@ -161,7 +170,7 @@ function ShopState:getSnapshot()
+     local options={};for i,value in ipairs(self.menu.options) do options[i]=value end
+     local row=self.phase=="browse" and self:rows()[self.selected] or nil
+     return {phase=self.phase,selected=self.selected,item=(row and row.id or self.item) or "none",quantity=self.quantity,result=result,
+-        menu={selected=self.menu.selectedIndex,active=self.menu.isActive,options=options}}
++        price=self:shownPrice(),menu={selected=self.menu.selectedIndex,active=self.menu.isActive,options=options}}
+ end
+ local function right(text,x,y) local w=gfx.getTextSize(text);gfx.drawText(text,x-w,y) end
+ local function box(x,y,w,h)
 diff --git a/docs/validation/fidelity-ledger.md b/docs/validation/fidelity-ledger.md
-index 73bf4e44..fa9da6fb 100644
+index 73bf4e44..7abd9c07 100644
 --- a/docs/validation/fidelity-ledger.md
 +++ b/docs/validation/fidelity-ledger.md
 @@ -33,8 +33,9 @@
@@ -35,15 +81,15 @@ index 73bf4e44..fa9da6fb 100644
 -| Mew | `constants/pokemon_constants.asm` lists `MEW`. No wild map places Mew. `gfx/sprites.asm` already has `ScientistSprite` from `gfx/sprites/scientist.2bpp` | Miguel-approved deviation from pokered. Mew is a post-Hall-of-Fame gift at level 5, one per save, behind its own flag. The giver stands at Cerulean Cave 1F (23, 16) as object `postgame:CERULEAN_CAVE_1F:mew-gift`, sprite `SPRITE_SCIENTIST`, facing right. That object is not in pokered. No new art was added. The remainder sprite package already contained `SPRITE_SCIENTIST` | Miguel's policy pick, BlueBot's chat, 2026-11-12 9:43 AM CST. Map patch `tools/notes/lane-e-mew-scientist.patch` from lane H `3b2c6afb` | The cave object is on the loaded map. The gift script stays on lane H's postgame story |
 +| Mew | `constants/pokemon_constants.asm` lists `MEW`. No wild map places Mew. `gfx/sprites.asm` already has `ScientistSprite` from `gfx/sprites/scientist.2bpp` | Miguel-approved deviation from pokered. Mew is a post-Hall-of-Fame gift at level 5, one per save, behind its own flag. The giver stands at Cerulean Cave 1F (23, 16) as object `postgame:CERULEAN_CAVE_1F:mew-gift`, sprite `SPRITE_SCIENTIST`, facing right. That object is not in pokered. No new art was added. The remainder sprite package already contained `SPRITE_SCIENTIST` | Nov 12 Mew approval `a7347868`. Miguel's policy pick, BlueBot's chat, 2026-11-12 9:43 AM CST. Map patch `tools/notes/lane-e-mew-scientist.patch` from lane H `3b2c6afb` | The cave object is on the loaded map. The gift script stays on lane H's postgame story |
  | Trade evolutions | `data/pokemon/evos_moves.asm` uses `EVOLVE_TRADE, 1` for Kadabra to Alakazam, Machoke to Machamp, Graveler to Golem, and Haunter to Gengar. `constants/item_constants.asm` stops at `TM_SUBSTITUTE` `$FA` | Miguel-approved deviation from pokered. Those four also evolve with LINK CABLE, item id 251, used like an evolution stone. The Gen5 trade edge stays on each of them. Every other species and every pokered item id stays | Miguel's policy pick, BlueBot's chat, 2026-11-12 9:43 AM CST. Patch `tools/notes/lane-e-link-cable.patch` from lane H `90c351a4` | Adopted. A bag USE on Kadabra evolves it to Alakazam and consumes the cable. The static-encounter and fossil-item notes at `90c351a4` match the versions already adopted |
-+| Celadon LINK CABLE | `data/items/marts.asm` `CeladonMart4FClerkText` sells a POKE DOLL and the four evolution stones. No mart sells a trade item. The only giver is `postgame:CERULEAN_CAVE_1F:mew-gift`, and `PostgameStory.giveLinkCable` refuses until the Hall of Fame | Miguel-approved deviation. LINK CABLE is stocked on that counter after the four stones. Price stays 0, the bag text stays "Use like a stone.", and USE stays the stone evolution. The scientist and Cerulean Cave 1F's three pokered item balls stay | Miguel-approved so Kadabra, Machoke, Graveler, and Haunter can evolve in a normal playthrough before the Elite Four | `tools/notes/lane-e-link-cable-celadon-4f.patch`. The Mew giver remains the Nov 12 approval `a7347868` |
++| Celadon LINK CABLE | `data/items/marts.asm` `CeladonMart4FClerkText` sells a POKE DOLL and the four evolution stones. No mart sells a trade item. The only giver is `postgame:CERULEAN_CAVE_1F:mew-gift`, and `PostgameStory.giveLinkCable` refuses until the Hall of Fame | Miguel-approved deviation. LINK CABLE is stocked on that counter after the four stones. The price is ¥2100, the same as the stones, and it sells for ¥1050. The bag text stays "Use like a stone.", and USE stays the stone evolution. The scientist and Cerulean Cave 1F's three pokered item balls stay | Miguel-approved so Kadabra, Machoke, Graveler, and Haunter can evolve in a normal playthrough before the Elite Four | `tools/notes/lane-e-link-cable-celadon-4f.patch`. The Mew giver remains the Nov 12 approval `a7347868` |
  | Abilities, held items, natures | Absent from original Red/Blue | Add Gen V/B2W2 behavior for the original151 | Explicit user choice on 2026-10-20: “Add abilities, held items, and natures” | Codec6 sex/nature/slot/held, LightBall/CompoundEyes acquisition and bounded battle hooks integrated; current950 SDK/462 host0skip,11 new native component cases and16 fault witnesses qualify,2494 images exact; full111 ability-union/held/IV-EV scope remains open |
  | TM/HM policy | Original Blue identities, compatibility and consumable TMs/reusable HMs | Keep original55 machine mapping and compatibility; execute moves under GenV rules | Preserve original campaign rewards including TM34Bide | Isolated typed teaching/Bide implemented;3037 legal pairs/8305bits match independent pinned PKHeX; integrated873 SDK +actual TM34Bag/Bide input pass; broader machine-use acceptance follows content |
  | Compound base power | GenV shared Q12 modifiers | One raw power followed by combined Rivalry/MudSport/Solar chain | Fix old40Electric×Rivalry×Mud16→17 | Actual pinned PS Gen5 replay reproduced by root; two-owner MudSport stacking is PS policy, not independently proven cartridge behavior; 873 SDK includes unified pipeline; actual original2494 preservation passes |
 diff --git a/tools/generate_items.py b/tools/generate_items.py
-index a684929a..0a2b6a06 100644
+index a684929a..64e932ac 100644
 --- a/tools/generate_items.py
 +++ b/tools/generate_items.py
-@@ -132,6 +132,14 @@ def lua(value):
+@@ -132,9 +132,17 @@ def lua(value):
  
  def render(raw):
      items,symbols,marts=collect(raw)
@@ -57,7 +103,11 @@ index a684929a..0a2b6a06 100644
 +        stock.append('linkCable')
      # Miguel-approved deviation. 251 is the first id after TM50, outside the pokered floor block.
      items['linkCable']={'id':'linkCable','symbol':'LINK_CABLE','numericId':251,'name':'LINK CABLE',
-         'keyItem':False,'price':0,'category':'evolution','effect':'evolution','sellPrice':0,
+-        'keyItem':False,'price':0,'category':'evolution','effect':'evolution','sellPrice':0,
++        'keyItem':False,'price':2100,'category':'evolution','effect':'evolution','sellPrice':1050,
+         'text':'Use like a stone.'}
+     symbols['LINK_CABLE']='linkCable'
+     lines=['-- Generated by tools/generate_items.py; pinned Blue economy / Gen V medicines.',
 diff --git a/tools/tests/test_link_cable.py b/tools/tests/test_link_cable.py
 index 25c62f43..37c09f81 100644
 --- a/tools/tests/test_link_cable.py

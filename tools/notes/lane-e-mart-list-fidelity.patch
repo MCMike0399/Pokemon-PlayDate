@@ -1,0 +1,263 @@
+diff --git a/Source/game/martList.lua b/Source/game/martList.lua
+new file mode 100644
+index 00000000..191a5be8
+--- /dev/null
++++ b/Source/game/martList.lua
+@@ -0,0 +1,142 @@
++-- Pokered priced list and money box.
++-- home/list_menu.asm PrintListMenuEntries, data/text_boxes.asm
++-- LIST_MENU_BOX and MONEY_BOX_TEMPLATE, engine/menus/text_box.asm DisplayMoneyBox.
++-- af519899. The list has no shop title and no button hint.
++MartList = {}
++
++local COL, ROW = 20, 13
++local VISIBLE = 4
++
++function MartList.box(col, row, innerW, innerH)
++    return {
++        col = col, row = row, innerW = innerW, innerH = innerH,
++        x = col * COL, y = row * ROW,
++        w = (innerW + 2) * COL, h = (innerH + 2) * ROW,
++    }
++end
++
++function MartList.boxes()
++    -- LIST_MENU_BOX (4,2)-(19,12): inner 14 by 9.
++    -- MONEY_BOX_TEMPLATE (11,0)-(19,2): inner 7 by 1.
++    -- MESSAGE_BOX (0,12): inner 18 by 4. The list and the money box share
++    -- row 2; the list and the message box share row 12.
++    return {
++        money = MartList.box(11, 0, 7, 1),
++        list = MartList.box(4, 2, 14, 9),
++        message = MartList.box(0, 12, 18, 4),
++    }
++end
++
++function MartList.figure(amount)
++    amount = math.max(0, math.min(999999, math.floor(amount or 0)))
++    return string.format("¥%06d", amount)
++end
++
++function MartList.window(count, selected)
++    local total = count + 1
++    selected = math.max(1, math.min(selected or 1, total))
++    local first = 1
++    if total > VISIBLE and selected > VISIBLE then
++        first = selected - VISIBLE + 1
++    end
++    local lastStart = math.max(1, total - VISIBLE + 1)
++    if first > lastStart then first = lastStart end
++    return first, VISIBLE, total, selected
++end
++
++local function put(cells, col, row, text)
++    cells[#cells + 1] = {col = col, row = row, text = text}
++end
++
++local function wrapped(text)
++    local lines = {}
++    for raw in (text .. "\n"):gmatch("(.-)\n") do
++        local line = ""
++        for word in raw:gmatch("%S+") do
++            local joined = line == "" and word or (line .. " " .. word)
++            if #joined > 18 and line ~= "" then
++                lines[#lines + 1] = line
++                line = word
++            else
++                line = joined
++            end
++        end
++        if line ~= "" then lines[#lines + 1] = line end
++    end
++    return lines
++end
++
++function MartList.paint(rows, selected, money, trade, resultText)
++    local cells = {}
++    put(cells, 13, 0, "MONEY")
++    put(cells, 12, 1, MartList.figure(money))
++    local first, visible, total = MartList.window(#rows, selected)
++    for slot = 0, visible - 1 do
++        local index = first + slot
++        if index > total then break end
++        local nameRow = 4 + slot * 2
++        if index == selected then put(cells, 5, nameRow, "▶") end
++        if index <= #rows then
++            local row = rows[index]
++            put(cells, 6, nameRow, row.name)
++            if trade == "buy" then
++                put(cells, 11, nameRow + 1, MartList.figure(row.price))
++            elseif row.quantity then
++                put(cells, 14, nameRow + 1, "×" .. string.format("%02d", math.min(99, row.quantity)))
++            end
++        else
++            put(cells, 6, nameRow, "CANCEL")
++        end
++    end
++    if first + visible - 1 < total then put(cells, 18, 11, "▼") end
++    if resultText and resultText ~= "" then
++        local lines = wrapped(resultText)
++        for index, line in ipairs(lines) do
++            if index > 2 then break end
++            put(cells, 1, 12 + index * 2, line)
++        end
++    elseif trade == "sell" then
++        put(cells, 1, 14, "What would you")
++        put(cells, 1, 16, "like to sell?")
++    else
++        put(cells, 1, 14, "Take your time.")
++    end
++    return {
++        boxes = MartList.boxes(),
++        cells = cells,
++        rows = VISIBLE,
++        title = false,
++        hint = false,
++    }
++end
++
++function MartList.occupied(paint)
++    local ink = {}
++    local function mark(col, row, kind)
++        ink[col .. "," .. row] = kind
++    end
++    local function border(box)
++        local right = box.col + box.innerW + 1
++        local bottom = box.row + box.innerH + 1
++        for col = box.col, right do
++            mark(col, box.row, "border")
++            mark(col, bottom, "border")
++        end
++        for row = box.row, bottom do
++            mark(box.col, row, "border")
++            mark(right, row, "border")
++        end
++    end
++    -- Message, then money, then the list, matching the buy loop's draw order.
++    border(paint.boxes.message)
++    border(paint.boxes.money)
++    border(paint.boxes.list)
++    for _, cell in ipairs(paint.cells) do
++        local col = cell.col
++        for _ in cell.text:gmatch(utf8.charpattern) do
++            mark(col, cell.row, "text")
++            col = col + 1
++        end
++    end
++    return ink
++end
+diff --git a/Source/game/shopState.lua b/Source/game/shopState.lua
+index fb6924c5..e0c3cea8 100644
+--- a/Source/game/shopState.lua
++++ b/Source/game/shopState.lua
+@@ -1,4 +1,5 @@
+ -- Native shop overlay. Session owns bag/money; Items owns every transaction.
++import "game/martList"
+ local gfx <const> = playdate.graphics
+ Class("ShopState"):extends(State)
+ local function clamp(n,lo,hi) return math.max(lo,math.min(hi,n)) end
+@@ -72,7 +73,7 @@ function ShopState:rows()
+ end
+ function ShopState:browse()
+     self:hideMenu();self.phase,self.item,self.result="browse",nil,nil
+-    self.selected=clamp(self.selected,1,math.max(1,#self:rows()))
++    self.selected=clamp(self.selected,1,math.max(1,#self:rows()+1))
+ end
+ function ShopState:price()
+     local data=assert(ItemData.definitions[self.item])
+@@ -85,7 +86,9 @@ function ShopState:showResult(ok,reason,total)
+             or messages[reason] or "That transaction couldn't be completed."}
+ end
+ function ShopState:chooseItem()
+-    local row=self:rows()[self.selected]
++    local rows=self:rows()
++    if self.selected==#rows+1 then self:mode() return end
++    local row=rows[self.selected]
+     if not row then return end
+     self.item,self.quantity=row.id,1
+     local data=ItemData.definitions[row.id]
+@@ -116,7 +119,7 @@ function ShopState:handleButton(button)
+         elseif button=="a" then if self.menu.onSelect then self.menu.onSelect(self.menu.selectedIndex) end
+         elseif button=="b" then if self.menu.onCancel then self.menu.onCancel() end end
+     elseif self.phase=="browse" then
+-        local count=#self:rows()
++        local count=#self:rows()+1
+         if button=="b" then self:mode()
+         elseif count>0 then
+             self.selected=clamp(self.selected,1,count)
+@@ -152,7 +155,7 @@ function ShopState:handleInput()
+     if self.menu.isActive then
+         self.menu.selectedIndex = self.menu.crank:move(self.menu.selectedIndex, #self.menu.options)
+     elseif self.phase == "browse" then
+-        self.selected = self.crank:move(self.selected, #self:rows())
++        self.selected = self.crank:move(self.selected, #self:rows()+1)
+     end
+ end
+ function ShopState:getSnapshot()
+@@ -168,34 +171,36 @@ local function box(x,y,w,h)
+     gfx.setColor(gfx.kColorWhite);gfx.fillRect(x,y,w,h)
+     gfx.setColor(gfx.kColorBlack);gfx.drawRect(x,y,w,h)
+ end
++function ShopState:drawPokeredList()
++    local rows={}
++    for _,row in ipairs(self:rows()) do
++        local item=ItemData.definitions[row.id]
++        rows[#rows+1]={name=item.name,price=self.trade=="buy" and item.price or item.sellPrice,quantity=row.quantity}
++    end
++    local result=self.phase=="result" and self.result and self.result.message or nil
++    local paint=MartList.paint(rows,self.selected,self:inventory():money(),self.trade,result)
++    for _,key in ipairs({"message","money","list"}) do
++        local frame=paint.boxes[key]
++        GbFont.drawBox(TitleIdle.textBox(frame.col,frame.row,frame.innerW,frame.innerH))
++    end
++    for _,cell in ipairs(paint.cells) do GbFont.drawString(cell.text,cell.col,cell.row) end
++end
+ function ShopState:draw()
+     if not self.active then return end
+     gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil()
+     gfx.setImageDrawMode(gfx.kDrawModeCopy);gfx.setFont(gfx.getSystemFont());gfx.setLineWidth(1)
++    if self.phase=="browse" or self.phase=="result" then
++        self:drawPokeredList()
++        gfx.popContext()
++        return
++    end
+     box(4,4,392,232)
+-    gfx.drawText("POKE MART"..(self.phase~="mode" and (self.trade=="buy" and " - BUY" or " - SELL") or ""),16,14)
++    gfx.drawText("POKE MART",16,14)
+     GbFont.drawMoneyRight("¥"..self:inventory():money(),382,14)
+     if self.phase=="mode" then
+         gfx.drawTextInRect("Hi there!\nMay I help you?",20,64,216,52)
+         self.menu:draw(248,52,132,80)
+         gfx.drawText("A: Choose   B: Leave",20,208)
+-    elseif self.phase=="browse" or self.phase=="result" then
+-        local rows=self:rows();local selected=clamp(self.selected,1,math.max(1,#rows))
+-        local first=math.max(1,selected-5)
+-        box(12,44,376,136)
+-        if #rows==0 then gfx.drawTextInRect("You don't have anything to sell.",24,82,344,52) end
+-        for i=first,math.min(#rows,first+5) do
+-            local row=rows[i];local item=ItemData.definitions[row.id];local y=52+(i-first)*20
+-            gfx.drawText((i==selected and "> " or "  ")..item.name,20,y)
+-            local price=self.trade=="buy" and item.price or item.sellPrice
+-            local amount=self.trade=="sell" and ("x"..row.quantity.."  "..(price~=nil and "¥"..price or "--")) or "¥"..price
+-            if amount:find("¥",1,true) then GbFont.drawMoneyRight(amount,366,y) else right(amount,366,y) end
+-        end
+-        if first>1 then gfx.drawText("^",376,46) end
+-        if first+5<#rows then gfx.drawText("v",376,162) end
+-        if self.phase=="result" then
+-            box(12,184,376,44);gfx.drawTextInRect(self.result.message,22,190,356,34)
+-        else gfx.drawText("A: Choose   B: Back",20,204) end
+     else
+         local item=ItemData.definitions[self.item];local price=self:price()
+         gfx.drawText(item.name,20,54);right("IN BAG x"..self:inventory():quantity(self.item),380,54)
+diff --git a/docs/validation/fidelity-ledger.md b/docs/validation/fidelity-ledger.md
+index 73bf4e44..9eeca1c2 100644
+--- a/docs/validation/fidelity-ledger.md
++++ b/docs/validation/fidelity-ledger.md
+@@ -23,6 +23,7 @@
+ | Intro graphics | `engine/movie/intro.asm` lines 459–466 are Blue's `FightIntroFrontMon` from `gfx/intro/blue_jigglypuff_1.2bpp` through `_3.2bpp` | Intro pictures come only from pokered `gfx/intro`. Blue's fighter is Jigglypuff | BlueBot's approved r1 pick | Recorded. Lane G's intro Gengar and palette fixes are still pending, so those frames are not pulled |
+ | Menu font and borders | pokered menus use `gfx/font` tiles and `TextBoxBorder` | Menus and loading text use the `gfx/font` tiles and borders | BlueBot's approved r1 pick | `BattleMenu` now draws a 4px frame and the `▶` cursor. The shared font is still the system font, not the `gfx/font` tiles |
+ | Dialog font | `home/text.asm` `PrintText` draws `gfx/font` tiles in `data/text_boxes.asm` `MESSAGE_BOX`, two rows of 18. `PromptText`, `Paragraph`, and `_ContText` place `▼` (`constants/charmap.asm` `$ee`) at `hlcoord 18, 16`. `DoneText` does not | Every dialog box uses that pixel font and tile border, two lines of 18 characters, broken at the text, line, cont, and para boundaries. `▼` shows on prompt, para, and cont pages, and never on a done page | BlueBot's visual decision extending r1 ruling d. Lane G `e93bc416` | `Dialog.showsArrow` and `GbFont.drawBox(TitleIdle.textBox(0, 12, 18, 4))`. The protected catalog compare has not been updated: the Simulator still dies while writing catalog frames |
++| Mart list | `engine/events/pokemart.asm` restores the greeting, draws `MONEY_BOX`, then `DisplayListMenuID`. `data/text_boxes.asm` `LIST_MENU_BOX` is `(4,2)-(19,12)` and `MONEY_BOX_TEMPLATE` is `(11,0)-(19,2)`, with `MONEY` at `(13,0)` and the amount at `(12,1)`. `home/list_menu.asm` prints four names from `(6,4)` and a buy price one row down at column 11. There is no "POKE MART - BUY" title and no "A: Choose  B: Back" hint. Every clerk uses that list | The shared shop list uses those two boxes, the message box, four names, the yen figure, and `▶`. Buy shows the price. Sell shows the quantity. The title and the hint are not drawn. BUY/SELL/QUIT stays the mode screen | BlueBot's ruling. `247d60a9` drew the title and the hint on every mart because every clerk opens `ShopState` | `tools/notes/lane-e-mart-list-fidelity.patch`. The host ink check rejects the title cell `(0,1)` and the hint cell `(1,15)` and requires the money box and the list box |
+ | XP arithmetic | Gen V scaled award and species growth | Correct growth/20 yields; bounded exact arithmetic without unsigned-overflow glitch | Preserve intended reward mechanics rather than a cartridge arithmetic bug | Growth/participant contracts and all3 native starter wins; source formula notes |
+ | Sleep | Gen V withdrawal resets original sleep duration | Store original duration separately from remaining turns | Correct switches and save/reload | Codec3; native voluntary sleep-switch case passes |
+ | Blackout | Defeated party returns healing checkpoint | New sessions use original Pallet5,6, then actual Center checkpoint; existing saved checkpoints retained; lab rival exception | Replace old current-zone spawn placeholder | Native checkpoint blackout and all3 intro regressions pass; corrected default/Mom rest pass integrated873 SDK; existing native checkpoint blackout passes |
