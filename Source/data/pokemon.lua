@@ -1473,13 +1473,13 @@ end
 
 -- Preserve legacy bool first return; structured second result gives new levels
 -- and learning choices. The queue remains until a UI/session owner resolves it.
-function Pokemon:gainXP(amount)
+function Pokemon:gainXP(amount, allowFainted)
     self:attributes() -- Validate durable inputs before any XP/stats/choice mutation.
     amount = type(amount) == "number" and math.tointeger(amount) or nil
     assert(amount and amount >= 0, "XP gain must be a nonnegative native integer")
     local oldLevel = self.level
     local room = self:xpForLevel(100) - self.xp
-    local gained = self:isAlive() and math.min(amount, room) or 0
+    local gained = (self:isAlive() or allowFainted) and math.min(amount, room) or 0
     local targetXP = self.xp + gained -- Clamp BEFORE addition: native MAX is valid.
     local targetLevel, levels = oldLevel, {}
     while targetLevel < 100 and targetXP >= self:xpForLevel(targetLevel + 1) do
@@ -1550,11 +1550,11 @@ end
 -- Conscious participants share the base before recipient scaling; original OT,
 -- no held/item/Pass Power boosts. Omitted count preserves single-member callers.
 -- Eligibility/cap return the actual amount that gainXP can accept.
-function Pokemon:calcExpGain(defeated, trainerBattle, participants)
+function Pokemon:calcExpGain(defeated, trainerBattle, participants, allowFainted)
     assert(type(trainerBattle) == "boolean", "calcExpGain requires trainer battle flag")
     participants = participants == nil and 1 or (type(participants)=="number" and math.tointeger(participants))
     assert(participants and participants>=1 and participants<=6,"invalid conscious participant count")
-    if not self:isAlive() or self.level == 100 then return 0 end
+    if self.level == 100 or (not allowFainted and not self:isAlive()) then return 0 end
     return math.min(self:xpForLevel(100) - self.xp,
         Growth.battleAward(baseExpYield(defeated.species), defeated.level, self.level, trainerBattle, participants, NPCTrades.isOutsider(self)))
 end
