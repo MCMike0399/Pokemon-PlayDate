@@ -933,6 +933,15 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn("libx264rgb", argv)
         self.assertIn("rgb24", argv)
 
+    def test_pause_menu_can_release_the_trainer_card(self):
+        # Opening the start menu draws the menu phase, which releases the
+        # trainer card. The card itself loads on demand. Both have to exist
+        # or the first B press errors before a bag command can run.
+        source = (ROOT / "Source/game/pauseState.lua").read_text(encoding="utf-8")
+        self.assertIn("function PauseState:releaseTrainerScreen()", source)
+        self.assertIn("function PauseState:drawTrainer()", source)
+        self.assertIn('playdate.file.run("game/trainerScreen")', source)
+
     def test_ffmpeg_threshold_frame_is_only_black_and_white(self):
         with tempfile.TemporaryDirectory() as temporary:
             folder = Path(temporary)

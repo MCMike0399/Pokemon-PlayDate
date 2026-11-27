@@ -117,3 +117,24 @@ function PauseState:releaseSaveScreen()
     collectgarbage("collect")
     collectgarbage("collect")
 end
+
+-- The trainer card is a standalone pdz, loaded the same way as the save page.
+-- The menu draw releases it so a boot that never opens TRAINER never keeps it.
+function PauseState:drawTrainer()
+    if not TrainerScreen then
+        if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+            playdate.file.run("game/trainerScreen")
+        else
+            dofile("Source/game/trainerScreen.lua")
+        end
+    end
+    TrainerScreen.draw(self)
+end
+
+function PauseState:releaseTrainerScreen()
+    if TrainerScreen == nil then return end
+    if TrainerScreen.release then TrainerScreen.release() end
+    TrainerScreen = nil
+    collectgarbage("collect")
+    collectgarbage("collect")
+end
