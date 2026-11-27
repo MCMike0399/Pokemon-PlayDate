@@ -270,6 +270,8 @@ function BattleEffects:canAttempt(move,attacker,defender)
         if not pending or pending.category=="status" then return false end
     end
     if move.damageRule=="endeavor" and attacker.hp>=defender.hp then return false end
+    -- pokered MoveHitTest misses Dream Eater unless the target is sleeping.
+    if key=="dreamEater" and defender.status~="sleep" then return false end
     return true
 end
 function BattleEffects:fixedDamage(move,attacker,defender)
@@ -510,6 +512,11 @@ function BattleEffects:ignoresBurn(mon) return self:effectiveAbility(mon)==62 en
 function BattleEffects:canDropStat(source, target, stat, delta)
     if source == target or delta >= 0 then
         return true
+    end
+    -- pokered MoveHitTest blocks stat-down effects while PROTECTED_BY_MIST.
+    -- Gen V Mist lasts 5 turns (sideDurations) rather than until switch.
+    if self.battle.conditions:sideTurns(target, "mist") > 0 then
+        return false, "Mist"
     end
     if self:livingAbility(target, 29) then
         return false, "Clear Body"
