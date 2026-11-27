@@ -48,7 +48,11 @@ function EventState:dialog(pages,callback,receipt)
     assert(#pages>0 and #pages<=64,"bounded source pages required")
     local lines={}
     for _, page in ipairs(pages) do
-        lines[#lines + 1] = {text = page.text, ending = page.ending}
+        -- sound_get_item_1, sound_get_item_2, and sound_get_key_item.
+        -- The label map is generated from the pokered text scripts.
+        -- Lane E: this hook and the Dialog wait live outside Source/audio.
+        local fanfare = KantoAudio and KantoAudio.receiptCue and KantoAudio.receiptCue(page.label) or nil
+        lines[#lines + 1] = {text = page.text, ending = page.ending, fanfare = fanfare}
     end
     if pages[1].label == "_OaksLabOak1HowIsYourPokedexComingText" then
         local owned = 0

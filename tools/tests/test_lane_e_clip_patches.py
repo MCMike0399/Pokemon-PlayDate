@@ -141,6 +141,57 @@ end
         finally:
             subprocess.run(["rm", "-rf", str(tree)], check=True)
 
+    def test_receipt_fanfare_is_red_before_and_generated_after(self):
+        original = show("Source/game/kantoAudio.lua").decode()
+        dialog = show("Source/ui/dialog.lua").decode()
+        event = show("Source/game/eventState.lua").decode()
+        self.assertNotIn("audio/fieldReceipts", original)
+        self.assertNotIn("beginReceipt", original)
+        self.assertNotIn("textHold", dialog)
+        self.assertNotIn("receiptCue", event)
+        source = os.environ.get("POKERED_REFERENCE_DIR", "/tmp/pokered")
+        from tools.audio.events import emit_receipts, field_receipts
+        from tools.audio.source import Source
+        receipts = field_receipts(Source(source))
+        generated = emit_receipts({"field_receipts": receipts}).decode()
+        self.assertEqual(receipts["_Route1Youngster1GotPotionText"]["cue"], "item")
+        self.assertEqual(receipts["_OaksLabOak1DeliverParcelText"]["cue"], "key_item")
+        self.assertIn("item2", {row["cue"] for row in receipts.values()})
+        tree = apply_notes(["receipt"])
+        try:
+            patched = (tree / "Source/audio/fieldReceipts.lua").read_text()
+            self.assertEqual(patched, generated)
+            self.assertIn('["_Route1Youngster1GotPotionText"] = "item"', patched)
+            self.assertIn('["_OaksLabOak1DeliverParcelText"] = "key_item"', patched)
+            audio = (tree / "Source/game/kantoAudio.lua").read_text()
+            self.assertIn('playdate.file.run("audio/fieldReceipts")', audio)
+            self.assertIn("KantoReceipt.holdFrames", audio)
+            self.assertIn("observer.textHold", audio)
+            dialog = (tree / "Source/ui/dialog.lua").read_text()
+            self.assertIn("KantoAudio.textHold()", dialog)
+            self.assertIn("KantoAudio.beginReceipt(fanfare)", dialog)
+            event = (tree / "Source/game/eventState.lua").read_text()
+            self.assertIn("KantoAudio.receiptCue(page.label)", event)
+            holds = lua(tree / "Source/audio/receiptWait.lua", """
+print(KantoReceipt.holdFrames(73))
+print(KantoReceipt.holdFrames(121))
+""")
+            item, key = holds.strip().splitlines()
+            self.assertEqual(int(item), gb_frames(73))
+            self.assertEqual(int(key), gb_frames(121))
+        finally:
+            subprocess.run(["rm", "-rf", str(tree)], check=True)
+
+    def test_the_three_notes_apply_together(self):
+        tree = apply_notes(["heal", "move", "receipt"])
+        try:
+            audio = (tree / "Source/game/kantoAudio.lua").read_text()
+            self.assertIn("KantoHeal.plan(count)", audio)
+            self.assertIn("KantoAttack.cue", audio)
+            self.assertIn("beginReceipt", audio)
+            self.assertNotIn('playSFX("hit")', audio)
+        finally:
+            subprocess.run(["rm", "-rf", str(tree)], check=True)
 
 
 if __name__ == "__main__":

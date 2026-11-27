@@ -123,6 +123,32 @@ function KantoAudio.playCry(species)
     return KantoSynth.cry(species)
 end
 
+function KantoAudio.receiptCue(label)
+    if type(label) ~= "string" then
+        return nil
+    end
+    if not KantoEvents.fieldReceipts then
+        playdate.file.run("audio/fieldReceipts")
+    end
+    return KantoEvents.fieldReceipts[label]
+end
+
+function KantoAudio.textHold()
+    return observer.textHold or 0
+end
+
+function KantoAudio.beginReceipt(name)
+    -- TextCommand_SOUND plays the command, then WaitForSoundToFinish
+    -- before the next text command. The hold is that score length.
+    local cue = KantoEvents.cues[name]
+    local score = cue and cue.score or name
+    if not KantoReceipt then
+        playdate.file.run("audio/receiptWait")
+    end
+    KantoAudio.playCue(name)
+    observer.textHold = KantoReceipt.holdFrames(KantoSynth.scoreTicks(score))
+end
+
 function KantoAudio.trainerJingle(class, gymLeaderNo)
     return KantoEvents.trainerJingle(class, gymLeaderNo)
 end
@@ -289,6 +315,9 @@ function KantoAudio.updateGame(game)
     end
 
     pumpSFX()
+    if observer.textHold and observer.textHold > 0 then
+        observer.textHold = observer.textHold - 1
+    end
 
     if observer.game ~= game or observer.session ~= game.session then
         KantoAudio.stop()
