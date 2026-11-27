@@ -3556,15 +3556,19 @@ class CharmanderRun(BrockJourney):
         self._return_to_cave_grass()
         self._catch_trade = True
         try:
-            for _ in range(80):
+            # Kadabra is one grass slot. Pace the same two tiles until a
+            # catch, the balls run out, or the flee cap is close.
+            for _ in range(1500):
                 if any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
                     return
                 if self.quantity("pokeBall") < 1:
                     break
-                # The basement ladder is to the left of this grass. Pace the other way.
-                moved = self._step("up") or self._step("down") or self._step("right")
-                if not moved and not self._on("CeruleanCave1F"):
+                if len(self.summary.get("wild_encounters") or []) >= 58:
                     break
+                self._step("up")
+                if any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
+                    return
+                self._step("down")
         finally:
             self._catch_trade = False
         if not any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
@@ -3639,7 +3643,8 @@ class CharmanderRun(BrockJourney):
                 self.drain()
         if not self._on("CeruleanCave1F") and not self._on("CeruleanCaveB1F"):
             raise ProtocolError("cave door stayed at " + self._map_name() + " " + str(self.position()))
-        if self._on("CeruleanCave1F") and not self.summary.get("mew_gift"):
+        if (self._on("CeruleanCave1F") and not self.summary.get("mew_gift")
+                and not self.flag("EVENT_GOT_MEW")):
             self._record_screen("cerulean-cave", 20)
             self._record_screen("mew-gift", 25)
             self.interact(source_id=scientist["id"])
