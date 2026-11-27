@@ -132,6 +132,13 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
 
     -- Immune = 0 damage
     if effectiveness == 0 then damage = 0 end
+    -- Gen V Stomp doubles damage when the target has used Minimize.
+    -- Showdown's gen5 Minimize condition keeps onSourceModifyDamage and
+    -- drops the accuracy bypass. Body Slam gains that flag in Generation VI.
+    if damage > 0 and move.name == "STOMP" and defender and effects and effects.battle
+        and effects.battle.conditions:of(defender).minimize then
+        damage = damage * 2
+    end
 
     return {
         damage = damage,
@@ -214,6 +221,12 @@ function BattleScriptPhase:exit()
 end
 
 function BattleScriptPhase:advance()
+    -- The opening slide is only adopted by a scene that attaches before
+    -- the next advance. A headless settle advances with no scene, so the
+    -- hold must not survive into a later BattleScene.
+    if self.battle.pendingSilhouette and not self.battle.presentationAttached then
+        self.battle.pendingSilhouette = nil
+    end
     if self.cancelled then return false, "script-cancelled" end
     if self.battle.pendingLearning then return false, "learning-pending" end
     local ok, kind, value = coroutine.resume(self.co)
@@ -381,8 +394,21 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     end
 
     self:runScript(function()
+        -- engine/battle/core.asm:9 SlidePlayerAndEnemySilhouettesOnScreen
+        -- engine/battle/core.asm:100 jpfar PrintBeginningBattleText
+        -- Called from core.asm:6738 before StartBattle at core.asm:6763.
+        self:present("silhouetteEnter")
         if self.trainerName then
-            self:say(self.trainerName .. " wants to battle!")
+            -- data/text/text_2.asm:1258 _TrainerWantsToFightText
+            --   text_ram wTrainerName
+            --   text " wants"
+            --   line "to fight!"
+            --   prompt
+            -- engine/battle/common_text.asm:24 ld hl, TrainerWantsToFightText
+            -- engine/battle/common_text.asm:85 TrainerWantsToFightText:
+            -- engine/battle/common_text.asm:86 text_far _TrainerWantsToFightText
+            -- home/text.asm:214 PromptText writes the arrow with ldcoord_a 18, 16.
+            self:say(self.trainerName .. " wants\nto fight!", "prompt")
             self:present("trainerExit")
             self:opponentEntered()
         else
@@ -467,7 +493,10 @@ function Battle:runScript(fn)
 end
 
 -- Only callable from inside a script coroutine
-function Battle:say(text)
+function Battle:say(text, ending)
+    -- ending "prompt" is the pokered prompt on TrainerWantsToFightText.
+    -- home/text.asm:209 PromptText. The arrow stays at tile (18, 16).
+    self.messageEnding = ending
     coroutine.yield("say", text)
 end
 
@@ -593,6 +622,15 @@ end
 
 -- Optional scene handshake. Rules-only callers never acquire visual waits.
 function Battle:present(kind, details)
+    -- Battle:init asks for the opening slide before a production scene
+    -- exists. Remember it and return. BattleScene plays that slide, then
+    -- reveals the line this script says next. There is no yield, so
+    -- RewardContracts.settle and any other headless caller do not block
+    -- on a presentation they have no scene to play.
+    if kind == "silhouetteEnter" and not self.presentationAttached then
+        self.pendingSilhouette = true
+        return
+    end
     if not self.presentationAttached then
         return
     end
@@ -1267,6 +1305,78 @@ function Battle:mirrorMove(move)
     return self:performMove(copied)
 end
 
+-- fidelity-ledger.md Wide Guard row: Gen V rules apply to moves pokered has.
+-- The call pool is pokered's move table (through Struggle), not later-gen
+-- moves in moveData. Gen V bans that exist in that table are Metronome,
+-- Struggle, Counter, Mimic, Mirror Move, and Transform.
+local pokeredMove <const> = {
+    pound=true, karateChop=true, doubleSlap=true, cometPunch=true,
+    megaPunch=true, payDay=true, firePunch=true, icePunch=true,
+    thunderPunch=true, scratch=true, viceGrip=true, guillotine=true,
+    razorWind=true, swordsDance=true, gust=true, wingAttack=true,
+    whirlwind=true, bind=true, slam=true, vineWhip=true,
+    stomp=true, doubleKick=true, megaKick=true, jumpKick=true,
+    rollingKick=true, sandAttack=true, headbutt=true, hornAttack=true,
+    furyAttack=true, hornDrill=true, tackle=true, bodySlam=true,
+    wrap=true, takeDown=true, thrash=true, doubleEdge=true,
+    tailWhip=true, poisonSting=true, twineedle=true, pinMissile=true,
+    leer=true, bite=true, growl=true, roar=true,
+    sing=true, supersonic=true, sonicBoom=true, disable=true,
+    acid=true, ember=true, flamethrower=true, mist=true,
+    waterGun=true, hydroPump=true, iceBeam=true, blizzard=true,
+    psybeam=true, bubbleBeam=true, auroraBeam=true, hyperBeam=true,
+    peck=true, drillPeck=true, submission=true, lowKick=true,
+    counter=true, seismicToss=true, absorb=true, megaDrain=true,
+    leechSeed=true, growth=true, razorLeaf=true, solarBeam=true,
+    poisonPowder=true, stunSpore=true, sleepPowder=true, petalDance=true,
+    stringShot=true, dragonRage=true, fireSpin=true, thunderShock=true,
+    thunderbolt=true, thunderWave=true, thunder=true, rockThrow=true,
+    earthquake=true, fissure=true, dig=true, toxic=true,
+    confusion=true, psychic=true, hypnosis=true, meditate=true,
+    agility=true, quickAttack=true, rage=true, teleport=true,
+    nightShade=true, mimic=true, screech=true, doubleTeam=true,
+    recover=true, harden=true, minimize=true, smokescreen=true,
+    confuseRay=true, withdraw=true, defenseCurl=true, barrier=true,
+    lightScreen=true, haze=true, reflect=true, focusEnergy=true,
+    bide=true, metronome=true, mirrorMove=true, selfDestruct=true,
+    eggBomb=true, lick=true, smog=true, sludge=true,
+    boneClub=true, fireBlast=true, waterfall=true, clamp=true,
+    swift=true, skullBash=true, spikeCannon=true, constrict=true,
+    amnesia=true, kinesis=true, softBoiled=true, highJumpKick=true,
+    glare=true, dreamEater=true, poisonGas=true, barrage=true,
+    leechLife=true, lovelyKiss=true, skyAttack=true, transform=true,
+    bubble=true, dizzyPunch=true, spore=true, psywave=true,
+    splash=true, acidArmor=true, crabhammer=true, explosion=true,
+    furySwipes=true, bonemerang=true, rest=true, rockSlide=true,
+    hyperFang=true, sharpen=true, conversion=true, triAttack=true,
+    superFang=true, slash=true, substitute=true, struggle=true,
+    cut=true, fly=true, surf=true, strength=true,
+    flash=true,
+}
+local metronomeBanned <const> = {
+    metronome=true, struggle=true, counter=true, mimic=true,
+    mirrorMove=true, transform=true,
+}
+function Battle:metronome(move)
+    local keys = {}
+    for key, definition in pairs(moveData) do
+        if pokeredMove[key] and not metronomeBanned[key]
+            and definition and not definition.noPP and definition.name then
+            keys[#keys + 1] = key
+        end
+    end
+    table.sort(keys)
+    self.metronomeEligible = keys
+    if #keys == 0 then
+        self:say("But it failed!")
+        self.conditions:moveFinished(move, false)
+        return nil
+    end
+    local pick = keys[RulesRNG.random(1, #keys)]
+    self.metronomePick = pick
+    return self:performMove(moveData[pick])
+end
+
 -- Keep a bounded, transient diagnostic in addition to the Simulator dev log.
 -- Neither this receipt nor the support inventory owns battle outcomes or saves.
 function Battle:recordMoveGap(key, reason)
@@ -1377,8 +1487,13 @@ function Battle:performMove(move)
         self.conditions:moveFinished(move, false)
         return nil
     end
+    -- pokered ChargeEffect: Razor Wind charges without the Fly/Dig invulnerable bit.
+    if self.currentMoveKey=="razorWind" and self.conditions:razorWindCharge() then return nil end
     -- Mirror Move spends its own PP, then runs the copied move on this path.
     if self.currentMoveKey=="mirrorMove" then return self:mirrorMove(move) end
+    -- Gen V Metronome calls a pokered move. The Gen V bans in that table are
+    -- Metronome, Struggle, Counter, Mimic, Mirror Move, and Transform.
+    if self.currentMoveKey=="metronome" then return self:metronome(move) end
     if handler == "wild-escape" then
         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
         -- zero, no selfSwitch, trainer failure even with a usable reserve.
@@ -1397,6 +1512,8 @@ function Battle:performMove(move)
     -- Dig is a second receipt. It does not enter the reviewed charge() body.
     if self.currentMoveKey == "dig" and self.conditions:digCharge() then return nil end
     if move.chargeRule and self.conditions:charge(move) then return nil end
+    -- pokered ChargeEffect Sky Attack text is "is glowing!" and is not invulnerable.
+    if self.currentMoveKey=="skyAttack" and self.conditions:skyAttackCharge() then return nil end
     if move.selfDestruct then
         -- Gen V TryMove (Damp) precedes the user's faint, which precedes all
         -- target hit checks. Keep the checkpoint after those checks so the
@@ -1544,6 +1661,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         elseif self.currentMoveKey=="odorSleuth" then self.conditions:odorSleuth()
         elseif self.currentMoveKey=="transform" then self.conditions:transform()
         elseif self.currentMoveKey=="taunt" then self.conditions:taunt()
+        elseif self.currentMoveKey=="conversion" then self.conditions:conversion()
         else error("unsupported battle-condition move") end
         return nil
     end
@@ -1633,6 +1751,12 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         elseif effectiveness < 1 then
             self:say("It's not very effective...")
         end
+        -- fidelity-ledger.md Combat row: Gen V/B2W2 rules. Bulbapedia's
+        -- Critical hit page prints "A critical hit!" after the damage.
+        -- Showdown battle-actions.ts (9b136a8) runs secondaries() after
+        -- spreadDamage, so the burn, freeze, paralysis, and stat lines
+        -- follow the crit and effectiveness lines.
+        self:flushSecondaryLines()
 
         -- Drain / recoil: % of damage dealt (negative = recoil)
         if attacker:isAlive() and move.struggleRecoil and bodyHits > 0 then
@@ -1664,6 +1788,26 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
             return self:handleFaint()
         end
     else
+        -- Gen V Counter: twice the last physical HP loss this turn.
+        -- fidelity-ledger.md gives pokered moves the physical/special split,
+        -- so the type filter in pokered HandleCounterMove does not apply.
+        -- A special hit, a status move, and a miss leave counterDamage unset.
+        if self.currentMoveKey=="counter" then
+            local stored=self.conditions:of(attacker).counterDamage or 0
+            if stored<=0 then
+                self:say("But it failed!")
+                self.conditions:moveFinished(move,false)
+                return nil
+            end
+            DirectDamage(DEFENDER,stored*2):apply(self)
+            self.conditions:moveFinished(move,true)
+            if not self.defender:isAlive() then return self:handleFaint() end
+            if not self.attacker:isAlive() then
+                self:setDirection(self.attackerSide=="player" and "enemy" or "player")
+                return self:handleFaint()
+            end
+            return nil
+        end
         -- Status / fixed-damage move: effects carry the whole payload
         if self.currentMoveKey == "splash" then self:say("But nothing happened!") end
         local effectOutcome=self:applyMoveEffects(move)
@@ -1693,11 +1837,33 @@ function Battle:hitCount(move)
 end
 
 function Battle:applyMoveSecondaries(move, preparedSecondary, receipt)
-    for _,effect in ipairs(move.secondaries or {}) do effect:apply(self, receipt) end
-    if preparedSecondary then
-        preparedSecondary:apply(self, receipt)
-    else
-        ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move,receipt)
+    -- The chance still rolls here, with contact reactions after it. Only the
+    -- narration waits. Gen V prints the crit and effectiveness lines first.
+    local held = self.deferredSecondaryLines
+    if not held then
+        held = {}
+        self.deferredSecondaryLines = held
+    end
+    local real = self.say
+    self.say = function(_, text) held[#held + 1] = text end
+    local ok, err = pcall(function()
+        for _,effect in ipairs(move.secondaries or {}) do effect:apply(self, receipt) end
+        if preparedSecondary then
+            preparedSecondary:apply(self, receipt)
+        else
+            ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move,receipt)
+        end
+    end)
+    self.say = real
+    if not ok then error(err, 0) end
+end
+
+function Battle:flushSecondaryLines()
+    local lines = self.deferredSecondaryLines
+    self.deferredSecondaryLines = nil
+    if not lines then return end
+    for _, text in ipairs(lines) do
+        self:say(text)
     end
 end
 
@@ -1830,7 +1996,9 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
         else
             local title = self.session and self.session:title()
             local playerName = title and title.playerName or "RED"
-            self.message = playerName .. " is out of\nuseable POKéMON!\n\n"
+            -- para is a form feed. A blank line is an empty row, so
+            -- "blacked" fills one page and "out!" lands on the next.
+            self.message = playerName .. " is out of\nuseable POKéMON!\f"
                 .. playerName .. " blacked\nout!"
         end
         return "defeat"

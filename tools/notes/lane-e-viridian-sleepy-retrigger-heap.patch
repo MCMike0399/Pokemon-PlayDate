@@ -1,0 +1,25 @@
+diff --git a/Source/dev/harness.lua b/Source/dev/harness.lua
+index c777f248..cd11f12a 100644
+--- a/Source/dev/harness.lua
++++ b/Source/dev/harness.lua
+@@ -398,13 +398,13 @@ local function finish(game, status, message)
+     request, commands, complete, failure = nil, nil, false, nil
+     entries = {}
+     Autopilot.catalog = nil
+-    if config.journey_profile then
+-        -- Full snapshots and JSON observations belong to the test harness.
+-        -- Reclaim them before the next real game action. Journey timings and
+-        -- heap samples are not production performance measurements.
+-        finalSnapshot, interruptedSnapshot, last = nil, nil, nil
+-        collectgarbage("collect")
+-    end
++    -- Generational collection with step(1) does not major-collect a request
++    -- graph that survived json.encodeToFile. Journey timings already dropped
++    -- it. The full harness must too. Repeating the Viridian sleepy scene
++    -- tenured each request's snapshots, and the Lua heap climbed with no
++    -- live retainer (about 83 KiB a retrigger; the long loop reached 24.7 MiB).
++    finalSnapshot, interruptedSnapshot, last = nil, nil, nil
++    collectgarbage("collect")
+ end
+ local function poll(game)
+     local incoming, wire = read("request.json")

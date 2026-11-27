@@ -1,0 +1,28 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index eeb9aa1f..191537e1 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1830,7 +1830,9 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
+         else
+             local title = self.session and self.session:title()
+             local playerName = title and title.playerName or "RED"
+-            self.message = playerName .. " is out of\nuseable POKéMON!\n\n"
++            -- para is a form feed. A blank line is an empty row, so
++            -- "blacked" fills one page and "out!" lands on the next.
++            self.message = playerName .. " is out of\nuseable POKéMON!\f"
+                 .. playerName .. " blacked\nout!"
+         end
+         return "defeat"
+diff --git a/tools/tests/test_lane_e_blackout.py b/tools/tests/test_lane_e_blackout.py
+index 93a39239..633d202d 100644
+--- a/tools/tests/test_lane_e_blackout.py
++++ b/tools/tests/test_lane_e_blackout.py
+@@ -18,7 +18,7 @@ class BlackoutTests(unittest.TestCase):
+         battle = (ROOT / "Source/battle/battle.lua").read_text()
+         branch = battle.split("if not playerTeamAlive then", 1)[1].split(
+             'return "defeat"', 1)[0]
+-        self.assertIn('playerName .. " is out of\\nuseable POKéMON!\\n\\n"', branch)
++        self.assertIn('playerName .. " is out of\\nuseable POKéMON!\\f"', branch)
+         self.assertIn('playerName .. " blacked\\nout!"', branch)
+         self.assertIn('intro.stage == "rival_fight"', branch)
+ 
