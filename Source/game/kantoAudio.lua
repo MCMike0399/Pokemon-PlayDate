@@ -244,6 +244,17 @@ local function moveScore(key)
     return KantoMoveSfx[key]
 end
 
+local function attackEffectiveness(battle, victim)
+    local move = battle.currentMove
+    if not move or move.typeless or type(move.power) ~= "number" or move.power <= 0 then
+        return 0
+    end
+    if not victim or type(battle.typeMatchup) ~= "function" then
+        return 1
+    end
+    return battle:typeMatchup(move.type, victim)
+end
+
 local function playSequence(names)
     KantoAudio.playSFX(names[1])
     local wait = sfxFrames(names[1])
@@ -349,6 +360,7 @@ function KantoAudio.updateGame(game)
             end
             observer.battle = battle
             observer.lowHP = nil
+            observer.moveKey = nil
             observer.pendingCry = nil
             observer.pendingCryFrames = nil
         end
@@ -358,11 +370,13 @@ function KantoAudio.updateGame(game)
             local hp = observer.hp
             local hit = false
             local faint = false
+            local victim = nil
             for _, mon in ipairs({battle.player, battle.enemy}) do
                 if mon and type(mon.hp) == "number" then
                     local before = hp[mon]
                     if before and mon.hp < before then
                         hit = true
+                        victim = mon
                         if mon.hp <= 0 then
                             faint = true
                         end
@@ -406,12 +420,25 @@ function KantoAudio.updateGame(game)
                     observer.pendingCry = nil
                 end
             end
+            -- GetMoveSound plays the move row when the move changes.
+            -- PlayApplyingAttackSound then picks the damage score from the
+            -- type matchup: neutral, super-effective, or not very effective.
+            -- A matchup of 0 plays no damage sound. The player's own faint
+            -- is still the cry after that row, and only a score that actually
+            -- played may delay the cry.
+            local moveKey = battle.currentMoveKey
+            local moveCue = nil
+            if moveKey ~= observer.moveKey then
+                observer.moveKey = moveKey
+                moveCue = moveKey and moveScore(moveKey)
+            end
+            if not KantoAttack then
+                playdate.file.run("audio/attackSound")
+            end
             if faint then
                 -- FaintEnemyPokemon waits out the move row, then the thud.
                 -- The player's own faint is the cry after that row.
                 local species = battle.player and battle.player.species
-                local moveKey = battle.currentMoveKey
-                local moveCue = moveKey and moveScore(moveKey)
                 if battle.player and battle.player.hp ~= nil and battle.player.hp <= 0 and species then
                     -- playSFX returns false for a cue with no score.
                     -- scoreTicks would then assert "unknown Kanto score".
@@ -427,7 +454,16 @@ function KantoAudio.updateGame(game)
                     KantoAudio.playSFX("faint")
                 end
             elseif hit then
-                KantoAudio.playSFX("hit")
+                local damage = KantoAttack.cue(attackEffectiveness(battle, victim))
+                if moveCue and damage then
+                    playSequence({moveCue, damage})
+                elseif damage then
+                    KantoAudio.playSFX(damage)
+                elseif moveCue then
+                    KantoAudio.playSFX(moveCue)
+                end
+            elseif moveCue then
+                KantoAudio.playSFX(moveCue)
             end
             noteCries(battle, battleState)
         end

@@ -93,6 +93,54 @@ dump(6)
         finally:
             subprocess.run(["rm", "-rf", str(tree)], check=True)
 
+    def test_move_row_is_red_before_and_uses_effectiveness_after(self):
+        original = show("Source/game/kantoAudio.lua").decode()
+        self.assertIn('KantoAudio.playSFX("hit")', original)
+        self.assertNotIn("KantoAttack.cue", original)
+        self.assertNotIn("damage_super", original)
+        moves = show("Source/audio/moveSfxData.lua").decode()
+        self.assertIn('tackle = "move_tackle"', moves)
+        self.assertIn('bite = "move_bite"', moves)
+        tackle = show("Source/audio/score/move_tackle.lua").decode()
+        bite = show("Source/audio/score/move_bite.lua").decode()
+        self.assertIn("audio2:SFX_Super_Effective", tackle)
+        self.assertIn("-- pitch modifier 16 tempo modifier 160", tackle)
+        self.assertIn("audio2:SFX_Battle_1E", bite)
+        self.assertNotEqual(tackle, bite)
+        tree = apply_notes(["move"])
+        try:
+            text = (tree / "Source/game/kantoAudio.lua").read_text()
+            self.assertNotIn('KantoAudio.playSFX("hit")', text)
+            self.assertIn("local played = moveCue and KantoAudio.playSFX(moveCue)", text)
+            self.assertIn("KantoAttack.cue(attackEffectiveness(battle, victim))", text)
+            self.assertIn("playSequence({moveCue, damage})", text)
+            self.assertIn('moveCue = moveKey and moveScore(moveKey)', text)
+            engine = (tree / "Source/audio/engine.lua").read_text()
+            for name in ("damage_normal", "damage_super", "damage_not_very"):
+                self.assertIn(f"{name} = 2", engine)
+            cues = lua(tree / "Source/audio/attackSound.lua", """
+for _, value in ipairs({1, 2, 4, 0.5, 0.25, 0}) do
+    print(tostring(KantoAttack.cue(value)))
+end
+""")
+            self.assertEqual(
+                cues.strip().splitlines(),
+                ["damage_normal", "damage_super", "damage_super",
+                 "damage_not_very", "damage_not_very", "nil"])
+            normal = (tree / "Source/audio/score/damage_normal.lua").read_text()
+            super_hit = (tree / "Source/audio/score/damage_super.lua").read_text()
+            weak = (tree / "Source/audio/score/damage_not_very.lua").read_text()
+            self.assertIn("audio2:SFX_Damage", normal)
+            self.assertIn("-- pitch modifier 32 tempo modifier 48", normal)
+            self.assertIn("audio2:SFX_Super_Effective", super_hit)
+            self.assertIn("-- pitch modifier 224 tempo modifier 255", super_hit)
+            self.assertIn("audio2:SFX_Not_Very_Effective", weak)
+            self.assertIn("-- pitch modifier 80 tempo modifier 1", weak)
+            self.assertNotIn("-- pitch modifier 16 tempo modifier 160", super_hit)
+            self.assertTrue((tree / "Source/audio/score/damage_super.bin").stat().st_size > 0)
+        finally:
+            subprocess.run(["rm", "-rf", str(tree)], check=True)
+
 
 
 if __name__ == "__main__":
