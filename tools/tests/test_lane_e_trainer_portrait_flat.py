@@ -12,6 +12,10 @@ import subprocess
 import unittest
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts
+
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -48,7 +52,7 @@ class TrainerPortraitFlatTests(unittest.TestCase):
         self.assertIn("flat 1-bit", text)
         self.assertNotIn("diff --git a/Source/images/", text)
         self.assertNotIn("MallocPoolSize", text)
-        checked = git("apply", "--check", str(PATCH))
+        checked = accepts(PATCH)
         self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_mon_fronts_and_portraits_match_the_flat_threshold(self):

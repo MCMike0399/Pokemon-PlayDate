@@ -12,6 +12,10 @@ import subprocess
 import unittest
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts
+
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "tools/notes/lane-e-pokemon-accent.patch"
 
@@ -32,7 +36,7 @@ class PokemonAccentTests(unittest.TestCase):
         line = (Path(reference) / "constants/charmap.asm").read_text().splitlines()[15]
         self.assertIn('charmap "#"', line)
         self.assertIn('"POKé"', line)
-        checked = git("apply", "--check", str(PATCH))
+        checked = accepts(PATCH)
         self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_hash_macro_expands_to_poke_with_acute_e(self):

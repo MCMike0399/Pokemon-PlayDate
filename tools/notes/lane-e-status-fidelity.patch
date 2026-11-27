@@ -2,10 +2,14 @@ diff --git a/Source/game/partyState.lua b/Source/game/partyState.lua
 index 4a951eee..80266157 100644
 --- a/Source/game/partyState.lua
 +++ b/Source/game/partyState.lua
-@@ -261,20 +261,5 @@ function PartyState:_paintScreen(party)
+@@ -290,24 +290,7 @@ function PartyState:_paintScreen(party)
+     local mon = party:get(self.selected)
      if self.phase == "stats" and mon then
+-        local lines = PartyState.typeLines(mon)
 -        gfx.drawText(mon.name .. "  Lv" .. mon.level, 12, 10)
+-        gfx.drawText(lines[1], 220, 10)
 -        gfx.drawText("HP " .. mon.hp .. "/" .. mon.maxHP .. "  " .. (mon.status or "OK"):upper(), 12, 34)
+-        gfx.drawText(lines[2], 220, 34)
 -        gfx.drawText("ATTACK " .. mon.atk .. "   DEFENSE " .. mon.def, 12, 58)
 -        gfx.drawText("SP. ATK " .. mon.spa .. "   SP. DEF " .. mon.spd, 12, 82)
 -        gfx.drawText("SPEED " .. mon.spe .. "   EXP " .. mon.xp, 12, 106)
@@ -14,6 +18,7 @@ index 4a951eee..80266157 100644
 -            gfx.drawText("PP " .. mon.pp[key] .. "/" .. moveData[key].maxPP, 270, 124 + i * 19)
 -        end
 -        gfx.drawText("A: INFO   B: Back", 12, 222)
++        PartyState.typeLines(mon)
 +        self:drawStatus(mon)
      elseif self.phase=="info" and mon then
 -        gfx.drawText(mon.name.."  Lv"..mon.level,12,10)

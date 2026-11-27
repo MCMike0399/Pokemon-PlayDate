@@ -6,11 +6,14 @@ tools/notes. These checks measure the Simulator frames: the predicate
 fails on the unpatched frame and passes on the patched one. A text row
 of PlaceString <NEXT> is two cells, 26px.
 """
-import subprocess
 import unittest
 from pathlib import Path
 
 from PIL import Image
+
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts, forward_check, git, reverse_check
 
 ROOT = Path(__file__).resolve().parents[2]
 FRAMES = ROOT / "artifacts/lane-g/fidelity-sweep"
@@ -137,20 +140,22 @@ def same_ink(left, right, x0, y0, x1, y1):
 
 class LaneEFidelitySweepTests(unittest.TestCase):
     def test_patches_apply_alone_and_stacked(self):
-        for patch in PATCHES.values():
-            completed = subprocess.run(
-                ["git", "apply", "--check", str(patch)],
-                cwd=ROOT, check=False, capture_output=True, text=True)
-            self.assertEqual(completed.returncode, 0, completed.stderr)
+        for name, patch in PATCHES.items():
             text = patch.read_text(encoding="utf-8", errors="replace")
             self.assertNotIn("MallocPoolSize", text)
             self.assertNotIn("drawTight", text)
             self.assertIn("math.floor(y * 8 /", text)
             self.assertIn("math.floor(x * 8 /", text)
             self.assertIn("_FIT <const> = 12", text)
+            if name == "status":
+                continue
+            checked = accepts(patch)
+            self.assertEqual(checked.returncode, 0, checked.stderr)
         party = PATCHES["party"].read_text(encoding="utf-8", errors="replace")
         self.assertIn("row = 1 + (i - 1) * 2", party)
         status = PATCHES["status"].read_text(encoding="utf-8", errors="replace")
+        self.assertIn("PartyState.typeLines(mon)", status)
+        self.assertIn("self:drawStatus(mon)", status)
         self.assertIn('statusFitString("PP", 11, row + 1)', status)
         self.assertIn("local row = 9 + (index - 1) * 2", status)
         trainer = PATCHES["trainer"].read_text(encoding="utf-8", errors="replace")
@@ -165,22 +170,36 @@ class LaneEFidelitySweepTests(unittest.TestCase):
         self.assertIn("engine/menus/main_menu.asm PrintSaveScreenText", save)
         self.assertIn("column 5 row 8", save)
         self.assertIn("columns 0-5 and rows 7-11", save)
-        # --check of two files does not stack them. Apply the pair, then
-        # put the tree back. Source/ stays unchanged after the test.
+        self.assertIn('playdate.file.run("game/saveScreen")', save)
+        self.assertIn("function SaveScreen.release", save)
+        if all(reverse_check(patch).returncode == 0 for patch in PATCHES.values()):
+            return
+        # status-fidelity is rebased onto lane-h party-status-type. Stack
+        # the pairs in a throwaway worktree so the live Source stays put,
+        # including when this tree already contains the patches.
+        path = "/tmp/lane-e-fidelity-stack"
+        git("worktree", "remove", "--force", path)
+        added = git("worktree", "add", "--detach", path, "HEAD")
+        self.assertEqual(added.returncode, 0, added.stderr)
         try:
-            for first, second in (("party", "status"), ("trainer", "save")):
-                applied = subprocess.run(
-                    ["git", "apply", str(PATCHES[first])],
-                    cwd=ROOT, check=False, capture_output=True, text=True)
+            shown = git("show", "d1ddaf20:tools/notes/lane-e-party-status-type.patch")
+            self.assertEqual(shown.returncode, 0, shown.stderr)
+            type_patch = Path(path) / "party-status-type.patch"
+            type_patch.write_text(shown.stdout, encoding="utf-8")
+            typed = git("apply", str(type_patch), cwd=path)
+            self.assertEqual(typed.returncode, 0, typed.stderr)
+            for name in ("party", "status", "trainer", "save"):
+                if forward_check(PATCHES[name], path).returncode != 0:
+                    present = reverse_check(PATCHES[name], path)
+                    self.assertEqual(present.returncode, 0, present.stderr)
+                    continue
+                if name == "status":
+                    stacked = forward_check(PATCHES["status"], path)
+                    self.assertEqual(stacked.returncode, 0, stacked.stderr)
+                applied = git("apply", str(PATCHES[name]), cwd=path)
                 self.assertEqual(applied.returncode, 0, applied.stderr)
-                stacked = subprocess.run(
-                    ["git", "apply", "--check", str(PATCHES[second])],
-                    cwd=ROOT, check=False, capture_output=True, text=True)
-                self.assertEqual(stacked.returncode, 0, stacked.stderr)
-                subprocess.run(
-                    ["git", "checkout", "--", "Source"], cwd=ROOT, check=True)
         finally:
-            subprocess.run(["git", "checkout", "--", "Source"], cwd=ROOT, check=True)
+            git("worktree", "remove", "--force", path)
 
     def test_start_menu_already_matches_the_tile_rows(self):
         # draw_start_menu.asm DrawStartMenu: box at hlcoord 10, 0, first

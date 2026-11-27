@@ -12,6 +12,10 @@ import subprocess
 import unittest
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts
+
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -33,7 +37,7 @@ class BattleBackPicTests(unittest.TestCase):
         self.assertIn("gfx/battle/oldmanb.png", text)
         self.assertIn("value >= 128", text)
         self.assertNotIn("MallocPoolSize", text)
-        checked = git("apply", "--check", str(PATCH))
+        checked = accepts(PATCH)
         self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_red_back_file_is_the_redb_threshold(self):

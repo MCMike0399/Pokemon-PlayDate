@@ -17,6 +17,10 @@ import subprocess
 import unittest
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts
+
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "tools/notes/lane-e-trainer-wants-to-fight.patch"
 FIGHT = 'self:say(self.trainerName .. " wants\\nto fight!", "prompt")'
@@ -48,7 +52,7 @@ class TrainerWantsToFightTests(unittest.TestCase):
         self.assertEqual(common[23], "\tld hl, TrainerWantsToFightText")
         self.assertEqual(common[84], "TrainerWantsToFightText:")
         self.assertEqual(common[85], "\ttext_far _TrainerWantsToFightText")
-        checked = git("apply", "--check", str(PATCH))
+        checked = accepts(PATCH)
         self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_live_trainer_intro_is_the_fight_line(self):

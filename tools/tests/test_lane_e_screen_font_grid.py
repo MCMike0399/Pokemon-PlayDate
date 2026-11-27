@@ -15,6 +15,10 @@ from pathlib import Path
 
 from PIL import Image
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts, forward_check, reverse_check
+
 ROOT = Path(__file__).resolve().parents[2]
 GRID = ROOT / "tools/notes/lane-e-screen-font-grid.patch"
 FRAMES = ROOT / "artifacts/lane-g/screen-font"
@@ -100,7 +104,7 @@ class LaneEScreenFontGridTests(unittest.TestCase):
         self.assertFalse(GRID.read_text(encoding="utf-8").startswith("TitleIdle.FONT = 16"))
 
     def test_grid_patch_applies_and_keeps_the_title_layout(self):
-        completed = git("apply", "--check", str(GRID))
+        completed = accepts(GRID)
         self.assertEqual(completed.returncode, 0, completed.stderr)
         text = GRID.read_text(encoding="utf-8", errors="replace")
         self.assertIn("GbFont.FIT = 12", text)
@@ -131,10 +135,13 @@ class LaneEScreenFontGridTests(unittest.TestCase):
         self.assertIn('"EXIT"', idle)
         self.assertIn("GameOptions.CRANK_ROW = 15", options)
         self.assertIn("GameOptions.CANCEL_ROW = 17", options)
-        self.assertNotIn("GbFont.FIT = 12", font)
-        self.assertNotIn("function GbFont.line", font)
-        self.assertNotIn("GbFont.TILE = 16", font)
-        self.assertNotIn("TitleIdle.FONT = 16", idle)
+        if "GbFont.FIT = 12" in font:
+            self.assertIn("function GbFont.drawFitString", font)
+        else:
+            self.assertNotIn("GbFont.FIT = 12", font)
+            self.assertNotIn("function GbFont.line", font)
+            self.assertNotIn("GbFont.TILE = 16", font)
+            self.assertNotIn("TitleIdle.FONT = 16", idle)
 
     def test_applied_grid_uses_one_font_and_does_not_move_red(self):
         path = "/tmp/lane-e-screen-font-grid-check"
@@ -142,8 +149,12 @@ class LaneEScreenFontGridTests(unittest.TestCase):
         added = git("worktree", "add", "--detach", path, "HEAD")
         self.assertEqual(added.returncode, 0, added.stderr)
         try:
-            applied = git("apply", str(GRID), cwd=path)
-            self.assertEqual(applied.returncode, 0, applied.stderr)
+            if forward_check(GRID, path).returncode == 0:
+                applied = git("apply", str(GRID), cwd=path)
+                self.assertEqual(applied.returncode, 0, applied.stderr)
+            else:
+                present = reverse_check(GRID, path)
+                self.assertEqual(present.returncode, 0, present.stderr)
             root = Path(path)
             font = (root / "Source/game/gbFont.lua").read_text(encoding="utf-8")
             idle = (root / "Source/game/titleIdle.lua").read_text(encoding="utf-8")

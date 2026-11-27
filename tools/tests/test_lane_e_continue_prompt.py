@@ -15,6 +15,10 @@ import subprocess
 import unittest
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts
+
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -50,7 +54,7 @@ class ContinuePromptTests(unittest.TestCase):
         joypad = (root / "home/joypad2.asm").read_text().splitlines()
         self.assertEqual(text_asm[213], "\tldcoord_a 18, 16")
         self.assertEqual(joypad[70], "\thlcoord 18, 16")
-        checked = git("apply", "--check", str(PATCH))
+        checked = accepts(PATCH)
         self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_dialog_draws_the_arrow_at_tile_18_16(self):

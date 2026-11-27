@@ -18,6 +18,10 @@ from pathlib import Path
 
 from PIL import Image
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.tests.lane_e_apply import accepts
+
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "tools/notes/lane-e-battle-slide-in.patch"
 BEFORE = ROOT / "artifacts/lane-g/e4"
@@ -56,7 +60,7 @@ class BattleSlideInTests(unittest.TestCase):
         self.assertEqual(core[99], "\tjpfar PrintBeginningBattleText")
         self.assertEqual(core[6737], "\tcall SlidePlayerAndEnemySilhouettesOnScreen")
         self.assertEqual(core[6762], "\tcall StartBattle")
-        checked = git("apply", "--check", str(PATCH))
+        checked = accepts(PATCH)
         self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_live_script_slides_both_pics_before_the_first_line(self):
@@ -73,7 +77,12 @@ class BattleSlideInTests(unittest.TestCase):
         field = scene.split("function BattleScene:drawBattleField()", 1)[1].split("function BattleScene:", 1)[0]
         self.assertIn("self:silhouetteOffset()", field)
         present = battle.split("function Battle:present(", 1)[1].split("function Battle:", 1)[0]
-        self.assertIn('kind ~= "silhouetteEnter"', present)
+        self.assertIn('kind == "silhouetteEnter" and not self.presentationAttached', present)
+        self.assertIn("self.pendingSilhouette = true", present)
+        self.assertNotIn('kind ~= "silhouetteEnter"', present)
+        self.assertIn("openingSlide", scene)
+        sync = scene.split("function BattleScene:syncMessage()", 1)[1].split("function BattleScene:", 1)[0]
+        self.assertIn("silhouetteOffset() > 0", sync)
 
     def test_settled_enemy_portrait_matches_before_and_the_threshold(self):
         reference = os.environ.get("POKERED_REFERENCE_DIR")

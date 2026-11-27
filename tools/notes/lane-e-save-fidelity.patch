@@ -1,17 +1,70 @@
 diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
-index 340349c3..3daa732a 100644
+index 340349c3..57a490ec 100644
 --- a/Source/game/pauseState.lua
 +++ b/Source/game/pauseState.lua
-@@ -78,4 +78,4 @@ function PauseState:draw()
+@@ -8,6 +8,7 @@ function PauseState:init(game)
+ end
+ 
+ function PauseState:enter()
++    self:releaseSaveScreen()
+     self.phase = "menu"
+     local hasDex = self.game.session:questFlag("EVENT_GOT_POKEDEX")
+     local playerName = Story.playerName(self.game)
+@@ -46,6 +47,7 @@ function PauseState:enter()
+ end
+ 
+ function PauseState:exit()
++    self:releaseSaveScreen()
+     self.phase = "closed"
+     self.menu:hide()
+     self.menu.onSelect, self.menu.onCancel = nil, nil
+@@ -76,6 +78,6 @@ function PauseState:draw()
+         gfx.setColor(gfx.kColorWhite); gfx.fillRect(16, 24, 368, 192)
+         gfx.setColor(gfx.kColorBlack); gfx.drawRect(16, 24, 368, 192)
          if self.phase == "save" then
 -            gfx.drawText("Would you like to SAVE the game?", 28, 40)
 -            self.menu:draw(200, 112, 172, 60)
 +            gfx.clear(gfx.kColorWhite)
 +            self:drawSave()
          else
-@@ -108 +108,87 @@ function PauseState:resume()
+@@ -106,3 +108,26 @@ end
+ function PauseState:resume()
+     self.menu.crank:reset()
  end
 +
++-- The save page is a standalone pdz. It is not imported, so the rasterizer,
++-- its images, and any font it touches stay out of a boot that never opens
++-- SAVE. playdate.file.run loads it for this screen. releaseSaveScreen drops
++-- the global and collects when the page closes.
++function PauseState:drawSave()
++    if not SaveScreen then
++        if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
++            playdate.file.run("game/saveScreen")
++        else
++            dofile("Source/game/saveScreen.lua")
++        end
++    end
++    SaveScreen.draw(self)
++end
++
++function PauseState:releaseSaveScreen()
++    if SaveScreen == nil then return end
++    if SaveScreen.release then SaveScreen.release() end
++    SaveScreen = nil
++    collectgarbage("collect")
++    collectgarbage("collect")
++end
+diff --git a/Source/game/saveScreen.lua b/Source/game/saveScreen.lua
+new file mode 100644
+index 00000000..170fc341
+--- /dev/null
++++ b/Source/game/saveScreen.lua
+@@ -0,0 +1,99 @@
++-- Standalone pdz. PauseState loads it with playdate.file.run("game/saveScreen")
++-- for the SAVE page and nils SaveScreen when that page closes. It is not
++-- imported, so a boot that never opens SAVE does not keep this rasterizer,
++-- a glyph cache, or a second font.
++--
 +-- engine/menus/main_menu.asm PrintSaveScreenText draws the info box at
 +-- hlcoord 4, 0 with b = 8 and c = 14. SaveScreenInfoText starts at
 +-- hlcoord 5, 2 and <NEXT> is two rows, so TIME is column 5 row 8.
@@ -23,6 +76,8 @@ index 340349c3..3daa732a 100644
 +-- is the same tile as the T of TIME. The later box covers it. YES is
 +-- border + SCREEN_WIDTH + 2, column 2 row 8, and NO is the next row.
 +-- Text uses the uniform 12/8 scale. The covered T stays covered.
++SaveScreen = {}
++local gfx = playdate and playdate.graphics
 +local SAVE_FIT <const> = 12
 +
 +local function saveFitTile(sheetName, index)
@@ -50,7 +105,9 @@ index 340349c3..3daa732a 100644
 +local function saveFitAt(sheetName, index, col, row)
 +    local ox = math.floor((TitleIdle.COL - SAVE_FIT) / 2)
 +    local oy = TitleIdle.ROW - SAVE_FIT
-+    saveFitTile(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
++    local image = saveFitTile(sheetName, index)
++    image:draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
++    image = nil
 +end
 +
 +local function saveFitChar(char, col, row)
@@ -68,8 +125,8 @@ index 340349c3..3daa732a 100644
 +    end
 +end
 +
-+function PauseState:drawSave()
-+    local session = self.game.session
++function SaveScreen.draw(state)
++    local session = state.game.session
 +    local clock = session:playTime()
 +    local owned = 0
 +    for _, flag in pairs(session:pokedex().owned) do
@@ -81,7 +138,7 @@ index 340349c3..3daa732a 100644
 +    end
 +    GbFont.drawBox(TitleIdle.textBox(4, 0, 14, 8))
 +    saveFitString("PLAYER", 5, 2)
-+    saveFitString(Story.playerName(self.game), 12, 2)
++    saveFitString(Story.playerName(state.game), 12, 2)
 +    saveFitString("BADGES", 5, 4)
 +    saveFitString(string.format("%2d", badges), 17, 4)
 +    saveFitString("POKéDEX", 5, 6)
@@ -92,8 +149,13 @@ index 340349c3..3daa732a 100644
 +    saveFitString("Would you like to", 1, 14)
 +    saveFitString("SAVE the game?", 1, 16)
 +    GbFont.drawBox(TitleIdle.textBox(0, 7, 4, 3))
-+    local cursorRow = self.menu.selectedIndex == 2 and 10 or 8
++    local cursorRow = state.menu.selectedIndex == 2 and 10 or 8
 +    saveFitChar(TitleIdle.CURSOR, 1, cursorRow)
 +    saveFitString("YES", 2, 8)
 +    saveFitString("NO", 2, 10)
++end
++
++function SaveScreen.release()
++    -- Glyph images are drawn and dropped inside saveFitAt. Nothing here
++    -- is kept. PauseState nils this global and collects.
 +end
