@@ -157,6 +157,10 @@ function FieldTravelRequests.complete(token, overlay)
         end
     end
     request.status = "committing"
+    -- The prepared request is the last strong reference to the city being
+    -- left. Fly decodes the destination in this call, so the city has to go
+    -- first. Rollback rebuilds it from the origin key.
+    request.zone = nil
     local called, accepted, reason = pcall(request.game.commitFieldTravel, request.game,
         copy(request.observed), copy(plan))
     request.status = called and accepted and "complete" or "failed"
