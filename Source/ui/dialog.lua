@@ -112,11 +112,13 @@ end
 function Dialog:show(lines, onComplete)
     assert(type(lines) == "table" and #lines > 0, "nonempty dialogue required")
     self.font = gfx.getFont()
-    self.lines, self.legacy, self.arrows = {}, {}, {}
+    self.lines, self.legacy, self.arrows, self.fanfares = {}, {}, {}, {}
+    self.receiptHold = nil
+    self.receiptStarted = nil
     for _, entry in ipairs(lines) do
-        local text, ending = entry, nil
+        local text, ending, fanfare = entry, nil, nil
         if type(entry) == "table" then
-            text, ending = entry.text, entry.ending
+            text, ending, fanfare = entry.text, entry.ending, entry.fanfare
         end
         assert(type(text) == "string" and utf8.len(text), "valid UTF-8 dialogue required")
         local pages = Dialog.paginate(text)
@@ -126,6 +128,9 @@ function Dialog:show(lines, onComplete)
             -- A wrapped overflow is not its own prompt. The command's ending
             -- belongs to the last row pair.
             self.arrows[#self.arrows + 1] = index == #pages and Dialog.showsArrow(ending) or false
+            -- The sound command follows the whole text_far, so it belongs
+            -- to the last page of that label.
+            self.fanfares[#self.fanfares + 1] = index == #pages and fanfare or false
         end
     end
     self.currentLine = 1
@@ -183,6 +188,29 @@ function Dialog:handleInput()
         end
         return
     end
+    -- home/text.asm TextCommand_SOUND plays when the text_far finishes,
+    -- then WaitForSoundToFinish, then the next command. No button starts
+    -- it. home/text_script.asm still waits for a button after the whole
+    -- script. Pages without a fanfare keep the 10-frame edge below.
+    local fanfare = self.fanfares and self.fanfares[self.currentLine]
+    if fanfare and not self.receiptStarted and KantoAudio and KantoAudio.beginReceipt then
+        KantoAudio.beginReceipt(fanfare)
+        self.receiptStarted = true
+        self.receiptHold = true
+    end
+    if self.receiptHold then
+        if KantoAudio and KantoAudio.textHold and KantoAudio.textHold() > 0 then
+            return
+        end
+        self.receiptHold = nil
+        self.holdFrames = 0
+        self.pageShown = false
+        self.shownFrames = 0
+        if self.currentLine < #self.lines then
+            self:advance()
+            return
+        end
+    end
     if not self.pageShown then
         self.pageShown = true
         self.holdFrames = 0
@@ -224,6 +252,8 @@ function Dialog:advance()
         self.blinkTimer = 0
         self.pageShown = false
         self.shownFrames = 0
+        self.receiptStarted = nil
+        self.receiptHold = nil
         if self.currentLine > #self.lines then
             self.isActive = false
             local callback = self.onComplete

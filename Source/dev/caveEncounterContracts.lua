@@ -257,9 +257,13 @@ function CaveEncounterContracts.run()
 
     test("FOREST non-grass and outdoor non-grass reject; ordinary grass retains Blue rate", function()
         local game <const> = context()
+        -- Mt Moon's two retained runtime maps are still full definitions after
+        -- the previous case returns. Viridian Forest's source record does not
+        -- decode beside them once the boot floor is above the old main.
+        if SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
+        if SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
         for _, name in ipairs({ "ViridianForest", "Route3" }) do
-            -- Viridian Forest's source record does not decode beside the live
-            -- zone. Keep the Blue rate, drop the copy, then build the map.
+            -- Keep the Blue rate, drop the copy, then build the map.
             local definition = SourceMaps.definition(name)
             local rate <const> = definition.encounters.grass.rate_byte
             definition = nil

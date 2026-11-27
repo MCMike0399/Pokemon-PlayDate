@@ -16,10 +16,18 @@ fix is tools/notes/lane-e-party-import.patch. This test fails until that
 patch is in the shared files.
 """
 
+import json
+import os
+import shutil
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from tools.harness.run import sdk_path
 PARTY = ROOT / "Source/game/partyState.lua"
 PAUSE = ROOT / "Source/game/pauseState.lua"
 PATCH = ROOT / "tools/notes/lane-e-party-import.patch"
@@ -52,6 +60,93 @@ class PartyImportTests(unittest.TestCase):
                 f"{name} calls import() after the pdx has loaded. "
                 "Apply tools/notes/lane-e-party-import.patch",
             )
+
+    def test_no_other_import_runs_after_load(self):
+        # main.lua's imports are the pdx boot itself. namingState.lua imports
+        # gbFont while that file is loading, inside `if Class then`, before
+        # NamingState exists. Every other indented import is a call after load.
+        allowed = {"Source/main.lua", "Source/game/namingState.lua"}
+        late = []
+        for path in sorted((ROOT / "Source").rglob("*.lua")):
+            rel = path.relative_to(ROOT).as_posix()
+            if rel in allowed:
+                continue
+            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                stripped = line.lstrip()
+                if line[:1].isspace() and stripped.startswith("import ") and not stripped.startswith("import ("):
+                    late.append("%s:%d: %s" % (rel, number, stripped))
+        self.assertEqual(late, [])
+        naming = (ROOT / "Source/game/namingState.lua").read_text(encoding="utf-8")
+        load, _, functions = naming.partition("function NamingState")
+        self.assertIn('import "game/gbFont"', load)
+        self.assertNotIn('import "game/gbFont"', functions)
+
+    def test_boot_opens_party_status_and_trainer_card(self):
+        output = Path(os.environ.get("PARTY_IMPORT_OUTPUT", "/tmp/party-import-boot"))
+        if output.exists():
+            shutil.rmtree(output)
+        scenario = output.parent / "party-import-boot.json"
+        scenario.write_text(json.dumps({
+            "commands": [
+                {"op": "fixture", "options": {
+                    "intro": "skip", "opening": False, "seed": 1,
+                    "zone": "reds_house_2f",
+                    "player_pokemon": {"species": "squirtle", "level": 5},
+                }},
+                {"op": "await", "path": "player.settled", "equals": True, "frames": 120},
+                "press b",
+                "wait 4",
+                {"op": "await", "path": "root", "equals": "pause", "frames": 30},
+                "press a",
+                "wait 4",
+                {"op": "await", "path": "root", "equals": "party", "frames": 30},
+                {"op": "await", "path": "party_ui.phase", "equals": "list", "frames": 30},
+                "press a",
+                "wait 2",
+                "press a",
+                "wait 4",
+                {"op": "await", "path": "party_info.page", "equals": "stats", "frames": 30},
+                "press b",
+                "wait 2",
+                "press b",
+                "wait 4",
+                {"op": "await", "path": "root", "equals": "overworld", "frames": 30},
+                "press b",
+                "wait 4",
+                {"op": "await", "path": "pause.phase", "equals": "menu", "frames": 30},
+                {"op": "await", "path": "pause.selected", "equals": 1, "frames": 15},
+                "press down",
+                "press down",
+                {"op": "await", "path": "pause.selected", "equals": 3, "frames": 15},
+                "press a",
+                "wait 4",
+                {"op": "await", "path": "pause.phase", "equals": "trainer", "frames": 30},
+            ],
+        }))
+        proc = subprocess.run(
+            [
+                sys.executable, "tools/harness/run.py",
+                "--sdk", str(sdk_path(os.environ.get("PLAYDATE_SDK_PATH"))),
+                "--scenario", str(scenario),
+                "--output", str(output),
+                "--timeout", "180",
+                "--ready-timeout", "90",
+            ],
+            cwd=ROOT,
+            check=False,
+            text=True,
+            capture_output=True,
+            env={**os.environ, "DISPLAY": os.environ.get("DISPLAY", ":1")},
+        )
+        outcome = output / "outcome.json"
+        detail = (proc.stderr or "") + (proc.stdout or "")
+        if outcome.is_file():
+            detail += outcome.read_text(encoding="utf-8")
+        result = output / "runtime-data" / "result.json"
+        if result.is_file():
+            detail += result.read_text(encoding="utf-8")[:1500]
+        self.assertTrue(outcome.is_file() and '"ok": true' in outcome.read_text(encoding="utf-8"), detail[-2000:])
+        self.assertNotIn("import() called outside", detail)
 
 
 if __name__ == "__main__":

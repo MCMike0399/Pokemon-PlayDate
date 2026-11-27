@@ -12,8 +12,17 @@ class LaneEAudioFidelityTests(unittest.TestCase):
     def test_center_heal_repeats_the_machine_once_per_party_member(self):
         text = (ROOT / 'Source/game/kantoAudio.lua').read_text()
         self.assertIn('local count = healing.healCount', text)
-        self.assertIn('names[#names + 1] = "healing_machine"', text)
-        self.assertIn('names[#names + 1] = "heal"', text)
+        schedule = ROOT / 'Source/audio/healSchedule.lua'
+        if schedule.is_file():
+            body = schedule.read_text()
+            self.assertIn('KantoHeal.plan(count)', text)
+            self.assertIn('name = "healing_machine"', body)
+            self.assertIn('name = "heal"', body)
+            self.assertIn('ballFrames = 15', body)
+        else:
+            # The 247d60a9 handoff series still lists one machine shot per ball.
+            self.assertIn('names[#names + 1] = "healing_machine"', text)
+            self.assertIn('names[#names + 1] = "heal"', text)
 
     def test_source_audio_steps_play_the_script_cry(self):
         text = (ROOT / 'Source/game/eventState.lua').read_text()
