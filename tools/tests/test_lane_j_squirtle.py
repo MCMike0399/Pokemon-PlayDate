@@ -1003,6 +1003,12 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn("wait 150", decline)
         self.assertEqual(_decline_step("stop", 1, False), "a")
         self.assertEqual(_decline_step("replace", 2, False), "b")
+        self.assertEqual(SAFFRON_HYPER_STOCK, 4)
+        source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
+        mart = source.split("\ndef _saffron_mart", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("_needs_medicine(player)", mart)
+        self.assertIn("SAFFRON_HYPER_STOCK", mart)
+        self.assertNotIn(", 1500, 2)", mart)
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -9802,7 +9808,8 @@ def _saffron_mart(player, report):
     avoid = {(2, 5), (6, 2), (8, 5), (5, 7), (6, 7)}
     here = (player.state["player"]["x"], player.state["player"]["y"])
     avoid.discard(here)
-    if _item_count(player, "hyperPotion") < 2 and _money(player) >= 1500:
+    # Four Hyper Potions is the Silph gate. Two would leave and re-enter forever.
+    if _needs_medicine(player) and _money(player) >= 1500:
         kind = _walk(player, cells, surface, (4, 5), avoid, report=report, yield_after=2)
         if kind in ("blackout", "yield"):
             return kind
@@ -9816,7 +9823,7 @@ def _saffron_mart(player, report):
         if player.state.get("root") != "shop":
             raise RuntimeError("the Saffron clerk stayed shut: " + json.dumps(summary(player.state)))
         had = _item_count(player, "hyperPotion")
-        _shop_buy(player, "hyperPotion", 1500, 2)
+        _shop_buy(player, "hyperPotion", 1500, SAFFRON_HYPER_STOCK)
         _shop_buy(player, "fullHeal", 600, 4)
         _close_shop(player)
         # One Hyper Potion is a stock when the payout only covers one.
@@ -9865,9 +9872,12 @@ def _silph_needs_nurse(player):
     return _sweep_hurt(player)
 
 
+SAFFRON_HYPER_STOCK = 4
+
+
 def _needs_medicine(player):
     """Two Super Potions lost the rival. Hyper Potions are what this Mart sells."""
-    return _item_count(player, "hyperPotion") < 4
+    return _item_count(player, "hyperPotion") < SAFFRON_HYPER_STOCK
 
 
 def _silph_needs_town(player):
