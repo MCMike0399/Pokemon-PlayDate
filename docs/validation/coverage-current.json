@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "e7a49bf7121f0293d479dbda30d3b850de602999",
-    "source_sha256": "b526c338bd3424c8841d4a625763f8fda4a786fb3e96d3f651e753112745d5a6",
+    "commit": "3467f3cc20c88ba046b69b5e9b631562348daac2",
+    "source_sha256": "8d1b6ac0a10e645071d24b509a6f355ec22dcd0c93b659cddf2ca78a80676512",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after a secondary effect is narrated after the critical hit and the effectiveness line. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 dbcee350193f3e4b30706b0892ba2bb0d08b565904859f902e61b09992cc3007.",
+    "scope": "Source identity after a missing player is ignored on cave re-entry and the party stats page draws TYPE1/. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 b526c338bd3424c8841d4a625763f8fda4a786fb3e96d3f651e753112745d5a6.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
