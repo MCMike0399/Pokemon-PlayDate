@@ -175,3 +175,31 @@ The requested batch 1 (patches 1–26, through status-fidelity, with mewtwo and 
 Batch 1 is patches 1–25 (door lock through party-fidelity). That includes mewtwo-continue-actor and, immediately after it, postgame-pickup-continue. Cave-encounters is 8/0 at 13077.6 KiB.
 
 Batch 2 starts with status-fidelity, then the reworked battle-slide-in, the slimmed save-fidelity, trainer-fidelity, and F's seven audio patches in the order above. Status-fidelity is the forest regression (7/1 at 13111.0 KiB). The rest of batch 2 keeps rewards at 23/4 and leaves individual-stats and field-travel green. The full stack stays 7/1 on the forest case at 13137.8 KiB.
+
+## Regenerated status and trainer cards
+
+Fresh detached worktree of main `247d60a9216307c0e1b15316f2b052ae10d23a6c`. Same 36-patch order as the section above. G's patches were taken again from `cursor/lane-g-front-end` `aa2d86b4730dd4e3db31f107bdb57d8f21df8a98`. Against `39ad4248`, only `lane-e-status-fidelity.patch` and `lane-e-trainer-fidelity.patch` changed. G's stated clean base is `2ba9de33`. H stayed `26d64e4c`. F stayed `9dc7883c`. `MallocPoolSize` stayed `16645684`.
+
+Every patch was checked with plain `git apply --check` (no `--3way`) and then applied. All 36 checks were clean, including every G patch from `aa2d86b4`. On a second tree that stopped at batch 1 (patches 1–25, through party-fidelity), these four also checked clean on their own, before any of them was applied:
+
+| Patch | `git apply --check` on 247d60a9 plus batch 1 |
+| --- | --- |
+| lane-e-status-fidelity | clean |
+| lane-e-battle-slide-in | clean |
+| lane-e-save-fidelity | clean |
+| lane-e-trainer-fidelity | clean |
+
+The regenerated status card is a standalone `statusScreen` pdz. `PartyState` runs it while STATS or SUMMARY is open and drops the module when that page closes. The trainer card is the same pattern: `PauseState` runs `trainerScreen` only while the card is open. The yen line lives in `Source/game/trainerScreen.lua` as `trainerFitString("¥" .. session:inventory():money(), 8, 4)`, next to `trainerFitString("MONEY/", 2, 4)`. `test_trainer_card_and_payday_use_yen` reads that file when it is present and otherwise applies the regenerated patch. Payday stays `picked up\n¥` in `battle.lua`.
+
+### Device checks on the full stack
+
+| Suite | passed | failed | heap |
+| --- | --- | --- | --- |
+| cave-encounters | 8 | 0 | 13082.5 KiB |
+| individual-stats-v1 | 17 | 0 | 12972.1 KiB |
+| battle-rewards-v1 | 23 | 4 | 12854.2 KiB |
+| field-travel | 3 | 0 | 12832.7 KiB |
+
+Cave-encounters is 8/0 on the full stack. The `39ad4248` status card was the forest edge (7/1 at 13111.0 KiB, full stack 13137.8 KiB). Loading the status and trainer cards only while those screens are open brings the full stack, including F's seven, back under that edge at 13082.5 KiB. The four battle-rewards failures are the same inherited expectations (level-up EV identity, HUD `script-cancelled`, bench `script-cancelled`, stats-box `expected true, got false`). Individual-stats and field-travel stayed green.
+
+Batch 1 is still patches 1–25. Batch 2 is still status-fidelity, battle-slide-in, save-fidelity, trainer-fidelity, then F's seven at `9dc7883c`. With the regenerated cards, batch 2 no longer turns the forest case red.

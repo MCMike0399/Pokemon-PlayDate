@@ -6,12 +6,36 @@ tools/notes/lane-e-money-yen.patch.
 """
 
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SIGHT = ROOT / "tools/notes/lane-e-viridian-sight.patch"
 MONEY = ROOT / "tools/notes/lane-e-money-yen.patch"
+TRAINER = ROOT / "tools/notes/lane-e-trainer-fidelity.patch"
+YEN_CALL = 'trainerFitString("¥" .. session:inventory():money(), 8, 4)'
+
+
+def trainer_card_text():
+    live = ROOT / "Source/game/trainerScreen.lua"
+    if live.is_file() and YEN_CALL in live.read_text(encoding="utf-8"):
+        return live.read_text(encoding="utf-8")
+    work = Path(tempfile.mkdtemp(prefix="trainer-card-"))
+    subprocess.run(["git", "init"], cwd=work, check=True, capture_output=True)
+    target = work / "Source/game/pauseState.lua"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes((ROOT / "Source/game/pauseState.lua").read_bytes())
+    subprocess.run(["git", "add", "-A"], cwd=work, check=True, capture_output=True)
+    applied = subprocess.run(
+        ["git", "apply", "--include=Source/game/pauseState.lua", "--include=Source/game/trainerScreen.lua", str(TRAINER)],
+        cwd=work, capture_output=True, text=True)
+    if applied.returncode != 0:
+        raise AssertionError(applied.stderr)
+    card = work / "Source/game/trainerScreen.lua"
+    if not card.is_file():
+        raise AssertionError("trainer-fidelity did not add trainerScreen.lua")
+    return card.read_text(encoding="utf-8")
 
 
 class LandedFidelityTests(unittest.TestCase):
@@ -84,10 +108,14 @@ class FidelityGapTests(unittest.TestCase):
         self.assertIn("talk_only = (row.sight or 0) == 0", row)
 
     def test_trainer_card_and_payday_use_yen(self):
-        # start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
-        card = (ROOT / "Source/game/pauseState.lua").read_text()
+        # engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
+        # is NAME/ then MONEY/ then TIME/. PrintBCDNumber at hlcoord 8, 4
+        # uses MONEY_SIGN, the charmap yen ($f0). trainer-fidelity draws
+        # that amount with trainerFitString.
+        card = trainer_card_text()
         self.assertNotIn("MONEY/$", card)
-        self.assertIn('GbFont.drawMoneyLine("¥"', card)
+        self.assertIn('trainerFitString("MONEY/", 2, 4)', card)
+        self.assertIn(YEN_CALL, card)
         # data/text/text_2.asm _PickUpPayDayMoneyText, after a win.
         won = (ROOT / "Source/battle/battle.lua").read_text()
         won = won.split("if won then", 1)[1].split('return "victory"', 1)[0]
