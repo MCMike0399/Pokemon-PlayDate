@@ -5253,6 +5253,30 @@ class CharmanderRun(BrockJourney):
             return self.battle("source-" + expected["species"], expected="win")
         return super().flee()
 
+    def _settle_catch(self):
+        """Close the dex page and decline the nickname, then leave the battle."""
+        for _ in range(80):
+            root = self.state.get("root")
+            if (root == "overworld" and self.state.get("overworld") == "explore"
+                    and lookup(self.state, "player.settled")):
+                return
+            if root == "dialog":
+                self.dialog()
+            elif root == "pokedex":
+                self.send("press a")
+            elif root == "naming":
+                self.send("press b")
+            elif root == "battle":
+                phase = (self.state.get("battle") or {}).get("phase")
+                self.send("press a" if phase == "ended" else "wait 6")
+            elif root == "event":
+                if lookup(self.state, "event.phase") == "failed":
+                    raise ProtocolError("catch event failed: " + str(lookup(self.state, "event.waiting")))
+                self.send("press a", "wait 6")
+            else:
+                self.send("wait 6")
+        raise ProtocolError("catch did not return to the overworld: " + str(self.state.get("root")))
+
     def battle(self, name, strategy="attack", expected=None):
         from tools.harness.brock_journey import NaturalBlackout
         from tools.harness.cerulean_journey import CeruleanJourney
@@ -5287,16 +5311,18 @@ class CharmanderRun(BrockJourney):
                 raise
             except ProtocolError as error:
                 # A Master Ball catch publishes "was caught" before the outcome
-                # kind matches the ended-phase diagnostic. Keep the catch.
+                # kind matches the ended-phase diagnostic. The dex page and the
+                # nickname question also take the root off the battle, so the
+                # trainer loop stops before it records a terminal phase.
                 message = ((self.state.get("battle") or {}).get("message") or "")
                 text = str(error)
                 caught = "was caught" in message and (
                     "missing matching terminal outcome" in text
-                    or "unexpected actual battle result" in text)
+                    or "unexpected actual battle result" in text
+                    or "battle exited without observed terminal phase" in text)
                 if not caught:
                     raise
-                if self.state.get("root") == "dialog":
-                    self.dialog()
+                self._settle_catch()
                 self.summary.setdefault("battles", []).append({"name": name, "caught": True})
                 result = (False, False)
             if getattr(self, "stage", None) == "cerulean" and trainer_battle:
@@ -5461,7 +5487,10 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn('event_choices["pokered:CERULEAN_CAVE_1F:script:mew-gift"] = "MEW"', postgame)
         self.assertIn("self._surf_down_route24()", postgame)
         self.assertIn("self._cave_maze(", postgame)
-        self.assertIn('"was caught"', source.split("def battle(self, name", 1)[1].split("def capture_presentation", 1)[0])
+        caught = source.split("def battle(self, name", 1)[1].split("def capture_presentation", 1)[0]
+        self.assertIn('"was caught"', caught)
+        self.assertIn("battle exited without observed terminal phase", caught)
+        self.assertIn("self._settle_catch()", caught)
         maze = source.split("def _cave_maze", 1)[1].split("def route_portal", 1)[0]
         self.assertIn("model.pairs", source.split("def _cave_pair_blocked", 1)[1].split("def _cave_maze", 1)[0])
         self.assertIn("project_warp", maze)
