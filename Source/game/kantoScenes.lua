@@ -35,6 +35,8 @@ KantoScenes.reconcileActors = CeruleanStory.reconcileActors
 
 function KantoScenes.install()
     assert(not installed, "Kanto scenes already installed")
+    -- Field install does not load the Hall chunk. A Hall continue and the
+    -- Hall of Fame ceremony load that standalone pdz themselves.
     -- Qualified owners declare membership here. World callbacks remain cheap
     -- boot wiring; they do not imply that scene/text data has been prepared.
     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})

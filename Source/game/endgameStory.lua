@@ -1157,6 +1157,7 @@ function EndgameStory.check(game)
         end
     elseif currentZone.stableID == "pokered:HALL_OF_FAME"
         and not game.session:questFlag(data.hall_of_fame.hides[1]) and not armed.hall then
+        EndgameStory.ensurePostgame()
         local party <const> = game.session:party()
         local members = {}
         for index = 1, party:count() do
@@ -1352,6 +1353,7 @@ function EndgameStory.skipBlockedMove(state, advance)
 end
 
 function EndgameStory.beginPhotos(state, advance)
+    EndgameStory.ensurePostgame()
     state.photoAdvance = advance
     state.photo = {index = 1, clock = 0, stage = "preamble"}
     state.phase = "hall-photo"
@@ -1511,6 +1513,43 @@ local function photoImage(gfx, state, photo, which)
     return nil
 end
 
+-- The postgame chunk stays a standalone pdz. The Hall ceremony and a
+-- Hall-team Continue are the loads. Field install never calls this.
+function EndgameStory.ensurePostgame()
+    if PostgameStory and PostgameStory.ensureRuntime then
+        PostgameStory.ensureRuntime()
+        return true
+    end
+    if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+        local folder, name = "game/", "postgameStory"
+        playdate.file.run(folder .. name)
+    else
+        local folder, name = "Source/game/", "postgameStory.lua"
+        dofile(folder .. name)
+    end
+    if PostgameStory and PostgameStory.ensureRuntime then
+        PostgameStory.ensureRuntime()
+        return true
+    end
+    return false
+end
+
+-- The draw path stays a standalone pdz. A Hall photo or the credits roll
+-- loads it. Host checks have no playdate.file and read the same file.
+function EndgameStory.ensureCreditsDraw()
+    if EndgameStory.drawCredits then return end
+    if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+        local folder, name = "game/", "creditsDraw"
+        playdate.file.run(folder .. name)
+        return
+    end
+    dofile("Source/game/creditsDraw.lua")
+end
+if playdate == nil or playdate.file == nil or type(playdate.file.run) ~= "function" then
+    EndgameStory.ensureCreditsDraw()
+end
+
+
 local function blitHallPic(gfx, image, gbX, gbY)
     if not image then
         return
@@ -1531,6 +1570,7 @@ local function drawHallBox(gfx, box)
 end
 
 function EndgameStory.drawPhoto(gfx, state)
+    EndgameStory.ensureCreditsDraw()
     local photo = state.photo and state.plan.photos[state.photo.index]
     local view <const> = EndgameStory.hallView()
     gfx.pushContext()
@@ -1568,7 +1608,7 @@ function EndgameStory.drawPhoto(gfx, state)
         if row.text:find("¥", 1, true) then
             GbFont.drawMoneyLine(row.text, px, py)
         else
-            gfx.drawText(row.text, px, py)
+            EndgameStory.drawPokeredText(gfx, row.text, px, py)
         end
     end
     if photo.kind == "player" then
@@ -1576,13 +1616,13 @@ function EndgameStory.drawPhoto(gfx, state)
         local page <const> = pages[state.photo.page or 1]
         if page then
             local px, py = EndgameStory.hallPixel(8, 13 * 8)
-            gfx.drawText(page.text, px, py)
+            EndgameStory.drawPokeredText(gfx, page.text, px, py)
         end
     elseif EndgameStory.hallShowsCaption(photo, stage, state.photo.clock) then
         local caption <const> = EndgameStory.hallCaptionRow()
         drawHallBox(gfx, boxes.caption)
         local px, py = EndgameStory.hallPixel(caption.col * 8, caption.row * 8)
-        gfx.drawText(caption.text, px, py)
+        EndgameStory.drawPokeredText(gfx, caption.text, px, py)
     end
     if stage == "fade" and Shade then
         gfx.clearClipRect()

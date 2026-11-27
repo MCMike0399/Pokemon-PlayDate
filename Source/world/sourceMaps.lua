@@ -687,6 +687,24 @@ function SourceMaps.releaseRetainedRuntime()
     end
     collectgarbage("collect")
 end
+-- Title inspect decodes the saved room. A Hall continue then decodes Pallet,
+-- and both stay in the two-slot cache after the Hall zone itself is gone.
+-- Keep the map the player is standing on and drop the other one.
+function SourceMaps.releaseRetainedExcept(name)
+    local dropped = false
+    local keep = type(name) == "string" and retainedRuntime[name] or nil
+    for index = #retainedRuntimeOrder, 1, -1 do
+        local key = retainedRuntimeOrder[index]
+        if key ~= name then dropped = true end
+        retainedRuntime[key] = nil
+        retainedRuntimeOrder[index] = nil
+    end
+    if keep then
+        retainedRuntime[name] = keep
+        retainedRuntimeOrder[1] = name
+    end
+    return dropped
+end
 function SourceMaps._runtimePadded(name)
     if runtimeDefinitions and runtimeDefinitions[name] then
         return runtimeDefinitions[name]

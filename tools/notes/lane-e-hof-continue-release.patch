@@ -1,0 +1,72 @@
+diff --git a/Source/game/postgameStory.lua b/Source/game/postgameStory.lua
+index 7498b99c..a976da3e 100644
+--- a/Source/game/postgameStory.lua
++++ b/Source/game/postgameStory.lua
+@@ -671,4 +671,13 @@ function PostgameStory.boot()
+     PostgameStory.ensureRuntime()
+ end
+ 
++-- story() and play() stay decoded after the continue hooks are installed.
++-- The next postgame script loads them again. A Hall continue does not need
++-- those tables while the player is walking out of Pallet.
++function PostgameStory.releaseContinueData()
++    local held = cached ~= nil or playCached ~= nil
++    cached, playCached = nil, nil
++    return held
++end
++
+ PostgameStory.boot()
+diff --git a/Source/game/saves.lua b/Source/game/saves.lua
+index c11025df..279f212d 100644
+--- a/Source/game/saves.lua
++++ b/Source/game/saves.lua
+@@ -224,6 +224,20 @@ local function continueGame(self, prepared)
+             self.observeBoundary(candidate, "loaded", payload, metadata)
+         end
+         self.game:offerPartyLearning()
++        -- The Hall room was only needed to read the save. Pallet is current.
++        -- Drop that definition and the postgame JSON, then return the bytes
++        -- before the player takes a step.
++        local released = false
++        if PostgameStory and PostgameStory.releaseContinueData then
++            released = PostgameStory.releaseContinueData() or released
++        end
++        if SourceMaps and SourceMaps.releaseRetainedExcept and currentZone then
++            local kept = SourceMaps.nameForID(currentZone.stableID)
++            released = SourceMaps.releaseRetainedExcept(kept) or released
++        end
++        if released then
++            collectgarbage("collect")
++        end
+     end
+     if BootTrace then
+         BootTrace.mark("Continue.end")
+diff --git a/Source/world/sourceMaps.lua b/Source/world/sourceMaps.lua
+index d07f8241..338a7ddf 100644
+--- a/Source/world/sourceMaps.lua
++++ b/Source/world/sourceMaps.lua
+@@ -687,6 +687,24 @@ function SourceMaps.releaseRetainedRuntime()
+     end
+     collectgarbage("collect")
+ end
++-- Title inspect decodes the saved room. A Hall continue then decodes Pallet,
++-- and both stay in the two-slot cache after the Hall zone itself is gone.
++-- Keep the map the player is standing on and drop the other one.
++function SourceMaps.releaseRetainedExcept(name)
++    local dropped = false
++    local keep = type(name) == "string" and retainedRuntime[name] or nil
++    for index = #retainedRuntimeOrder, 1, -1 do
++        local key = retainedRuntimeOrder[index]
++        if key ~= name then dropped = true end
++        retainedRuntime[key] = nil
++        retainedRuntimeOrder[index] = nil
++    end
++    if keep then
++        retainedRuntime[name] = keep
++        retainedRuntimeOrder[1] = name
++    end
++    return dropped
++end
+ function SourceMaps._runtimePadded(name)
+     if runtimeDefinitions and runtimeDefinitions[name] then
+         return runtimeDefinitions[name]
