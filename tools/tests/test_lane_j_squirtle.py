@@ -1127,6 +1127,9 @@ class Player:
             elif root == "pokedex":
                 # The capture page closes on A. B would leave the same page.
                 self.press("a", wait=6)
+            elif root == "safariPassage":
+                # Ding-dong needs A. The walk home ignores buttons, so A is idle then.
+                self.press("a", wait=8)
             else:
                 self.send("wait 8")
         if self.state.get("root") == "battle":
@@ -5810,7 +5813,23 @@ def _k_here(player):
     return None, body.get("x"), body.get("y")
 
 
+def _ride_safari_return(player, report):
+    """The step limit walks back to the gate. A clears the ding-dong page. The walk ignores buttons."""
+    for _ in range(500):
+        if player.state.get("root") != "safariPassage":
+            break
+        player.press("a", wait=8)
+    if player.state.get("root") == "safariPassage":
+        raise RuntimeError("the safari return did not finish: " + json.dumps(summary(player.state)))
+    if not player.exploring():
+        player.dismiss_until_explore(limit=40)
+    _checkpoint(player, report, "saved_safari_return")
+    return "yield"
+
+
 def _k_clear(player, report):
+    if player.state.get("root") == "safariPassage":
+        return _ride_safari_return(player, report)
     if player.state.get("root") != "battle":
         if not player.exploring():
             player.dismiss_until_explore(limit=40)
