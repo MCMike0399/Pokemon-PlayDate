@@ -8778,7 +8778,7 @@ def _saffron_mart(player, report):
     avoid = {(2, 5), (6, 2), (8, 5), (5, 7), (6, 7)}
     here = (player.state["player"]["x"], player.state["player"]["y"])
     avoid.discard(here)
-    if _needs_medicine(player):
+    if _item_count(player, "hyperPotion") < 2 and _money(player) >= 1500:
         kind = _walk(player, cells, surface, (4, 5), avoid, report=report, yield_after=2)
         if kind in ("blackout", "yield"):
             return kind
