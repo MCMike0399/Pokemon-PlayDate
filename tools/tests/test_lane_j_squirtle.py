@@ -1392,8 +1392,9 @@ class Player:
                     # Weezing's Selfdestruct dealt 76. Attacking from 76 faints the Fly user.
                     ceiling = max(ceiling, 90)
                 elif active in ("wartortle", "blastoise", "squirtle"):
-                    # Gyarados hits for about 60. Healing at 48 let that hit faint Blastoise.
-                    ceiling = max(ceiling, 72)
+                    # Gyarados hits for about 60. Other trainers do not need a potion at 72.
+                    hard = foe in ("gyarados", "venusaur", "dragonair", "dragonite")
+                    ceiling = max(ceiling, 72 if hard else 48)
                 elif active == "dugtrio":
                     # Dig is two turns. Healing at 21 spends the second turn and the move never lands.
                     ceiling = min(ceiling, 15)
@@ -8663,10 +8664,12 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         if _silph_needs_nurse(player):
             return _saffron_to_center(player, report)
         if not _dojo_done(player):
+            if _item_count(player, "hyperPotion") < 2 and _money(player) >= 1500:
+                return _saffron_to_mart(player, report)
             return _saffron_to_dojo(player, report)
         if not _rival_trained(player):
             if _next_silph_floor(player):
-                if _needs_medicine(player) and _money(player) >= 1500:
+                if _item_count(player, "hyperPotion") < 2 and _money(player) >= 1500:
                     return _saffron_to_mart(player, report)
                 return _saffron_to_silph(player, report)
             return _saffron_to_route7(player, report)
