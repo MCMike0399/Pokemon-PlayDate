@@ -4,9 +4,11 @@
 pokered sends Minimize through StatModifierUpEffect EVASION_UP1_EFFECT, one
 stage. docs/validation/fidelity-ledger.md Combat row uses Gen V stages, and
 the Wide Guard row says "Gen V rules apply to moves pokered has." The
-generated move is evasion +2. The minimize flag is set on that use. The
-ledger does not say whether Stomp and the other minimize-boosted moves deal
-double damage, so this test stops at the evasion stage and the flag.
+generated move is evasion +2, and the minimize flag is set. Showdown's
+Generation V Stomp text doubles damage when the target has used Minimize.
+The gen5 Minimize condition keeps that damage modifier and drops the
+accuracy bypass. Body Slam does not gain the modifier until Generation VI,
+so a Tackle against the same flag is unchanged.
 """
 
 import unittest
@@ -21,6 +23,12 @@ class MinimizeTests(unittest.TestCase):
         self.assertTrue(flag(rows, "sharply"))
         self.assertEqual(number(rows, "eva"), 2)
         self.assertTrue(flag(rows, "flag"))
+        plain = number(rows, "stomp-plain")
+        self.assertGreater(plain, 0)
+        self.assertEqual(number(rows, "stomp-min"), plain * 2)
+        tackle = number(rows, "tackle-plain")
+        self.assertGreater(tackle, 0)
+        self.assertEqual(number(rows, "tackle-min"), tackle)
 
 
 if __name__ == "__main__":

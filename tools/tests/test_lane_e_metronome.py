@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
-"""Metronome calls another move and never calls itself or Struggle.
+"""Metronome calls a pokered move and cannot call the Gen V bans.
 
-pokered MetronomePickMove (engine/battle/core.asm) rejects Metronome and any
-roll from Struggle upward, so the called set is the earlier move ids.
-
-docs/validation/fidelity-ledger.md Wide Guard row: "Gen V rules apply to
-moves pokered has." The ledger does not list the B2W2 call ban. This call
-also refuses the Gen V bans that exist in moveData: afterYou, bestow,
-copycat, counter, covet, destinyBond, detect, endure, feint, focusPunch,
-followMe, helpingHand, meFirst, metronome, mimic, mirrorCoat, mirrorMove,
-protect, quickGuard, ragePowder, sleepTalk, snore, struggle, switcheroo,
-transform, trick, and wideGuard. The pool is the project's move table, not
-the pokered id range. The ledger does not say which of those two pools it
-means.
+pokered MetronomePickMove (engine/battle/core.asm) rolls a move id below
+Struggle. docs/validation/fidelity-ledger.md Wide Guard row: "Gen V rules
+apply to moves pokered has." The pool is that pokered table, including the
+field moves Cut, Fly, Surf, Strength, and Flash. Later-gen moves in moveData
+stay out. The Gen V bans that exist in the pokered table are Metronome,
+Struggle, Counter, Mimic, Mirror Move, and Transform. Forcing the roll at
+each of those keys still cannot select it.
 """
 
 import unittest
@@ -28,7 +23,12 @@ class MetronomeTests(unittest.TestCase):
         self.assertGreater(number(rows, "dealt"), 0)
         self.assertFalse(flag(rows, "has-metronome"))
         self.assertFalse(flag(rows, "has-struggle"))
-        self.assertGreater(number(rows, "eligible"), 0)
+        self.assertEqual(number(rows, "banned-absent"), 6)
+        self.assertEqual(number(rows, "forced-blocked"), 6)
+        self.assertTrue(flag(rows, "has-tackle"))
+        self.assertTrue(flag(rows, "has-cut"))
+        self.assertFalse(flag(rows, "has-shadow-claw"))
+        self.assertEqual(number(rows, "eligible"), 159)
         self.assertEqual(number(rows, "pp"), 9)
         self.assertEqual(rows["phase"], "command")
 

@@ -1,8 +1,26 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 219755eb..ae5de78c 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -132,6 +132,13 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
+ 
+     -- Immune = 0 damage
+     if effectiveness == 0 then damage = 0 end
++    -- Gen V Stomp doubles damage when the target has used Minimize.
++    -- Showdown's gen5 Minimize condition keeps onSourceModifyDamage and
++    -- drops the accuracy bypass. Body Slam gains that flag in Generation VI.
++    if damage > 0 and move.name == "STOMP" and defender and effects and effects.battle
++        and effects.battle.conditions:of(defender).minimize then
++        damage = damage * 2
++    end
+ 
+     return {
+         damage = damage,
 diff --git a/Source/battle/dsl.lua b/Source/battle/dsl.lua
-index 73e0d054..2bc8d91a 100644
+index 73e0d054..5f2c9e80 100644
 --- a/Source/battle/dsl.lua
 +++ b/Source/battle/dsl.lua
-@@ -541,6 +545,12 @@ Class("RageEffect")
+@@ -541,6 +541,12 @@ Class("RageEffect")
  function RageEffect:apply(battle) if battle.attacker:isAlive() then battle.conditions:of(battle.attacker).rage=true end end
  Class("DefenseCurlEffect")
  function DefenseCurlEffect:apply(battle) battle.conditions:of(battle.attacker).defenseCurl=true end
@@ -16,16 +34,20 @@ index 73e0d054..2bc8d91a 100644
  function RapidSpinEffect:apply(battle, _secondary, receipt)
      if receipt and receipt.substitute then return end
 diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
-index bd10b883..6a033240 100644
+index bd10b883..6f497837 100644
 --- a/Source/battle/moveSupport.lua
 +++ b/Source/battle/moveSupport.lua
-@@ -105,3 +105,3 @@ MoveSupport.handlers.harden = "dsl"
+@@ -102,7 +102,7 @@ MoveSupport.handlers.screech = "dsl"
+ MoveSupport.handlers.doubleTeam = "dsl"
+ MoveSupport.handlers.recover = "dsl"
  MoveSupport.handlers.harden = "dsl"
 -MoveSupport.gaps.minimize = "volatileStatus"
 +MoveSupport.handlers.minimize = "dsl"
  MoveSupport.handlers.smokescreen = "dsl"
+ MoveSupport.handlers.confuseRay = "engine-dsl"
+ MoveSupport.handlers.withdraw = "dsl"
 diff --git a/Source/battle/moves.lua b/Source/battle/moves.lua
-index e37af4f4..2dfa4f9b 100644
+index e37af4f4..eec6c365 100644
 --- a/Source/battle/moves.lua
 +++ b/Source/battle/moves.lua
 @@ -396,7 +396,7 @@ moveData = {
@@ -38,7 +60,7 @@ index e37af4f4..2dfa4f9b 100644
      smokescreen = function()
          return Move{ name = "SMOKESCREEN", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } }
 diff --git a/tools/references/move-support.json b/tools/references/move-support.json
-index 9efb566a..9bdbc2d3 100644
+index 9efb566a..47185272 100644
 --- a/tools/references/move-support.json
 +++ b/tools/references/move-support.json
 @@ -316,7 +316,7 @@

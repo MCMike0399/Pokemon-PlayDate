@@ -128,6 +128,7 @@ if CASE == "razor-wind" or CASE == "sky-attack" then
     write("release-failed", text2:find("But it failed!", 1, true) ~= nil)
     write("phase", battle:phase())
     write("enemy-hp", enemy.hp)
+    if key == "razorWind" then write("crit-stage", moveData.razorWind.critStage) end
 elseif CASE == "mist" then
     local battle, player = battleOf("articuno", "rattata", {"mist", "splash"}, {"growl"})
     local text = turn(battle, 1)
@@ -175,6 +176,16 @@ elseif CASE == "minimize" then
     write("sharply", text:find("rose sharply", 1, true) ~= nil)
     write("eva", player.statStages.eva)
     write("flag", state and state.minimize == true)
+    local function strike(moveKey, minimized)
+        local strikeBattle, _, strikeEnemy = battleOf("tauros", "snorlax", {moveKey}, {"splash"})
+        if minimized then strikeBattle.conditions:of(strikeEnemy).minimize = true end
+        local _, _, dealt = turn(strikeBattle, 1)
+        return dealt
+    end
+    write("stomp-plain", strike("stomp", false))
+    write("stomp-min", strike("stomp", true))
+    write("tackle-plain", strike("tackle", false))
+    write("tackle-min", strike("tackle", true))
 elseif CASE == "metronome" then
     local battle, player = battleOf("clefable", "rattata", {"metronome"}, {"splash"})
     local real = RulesRNG.random
@@ -188,7 +199,7 @@ elseif CASE == "metronome" then
         return real(a, b)
     end
     local text, _, dealt = turn(battle, 1)
-    local eligible = battle.metronomeEligible or forced or {}
+    local eligible = battle.metronomeEligible or {}
     local hasMeta, hasStruggle = false, false
     for _, key in ipairs(eligible) do
         if key == "metronome" then hasMeta = true end
@@ -198,8 +209,44 @@ elseif CASE == "metronome" then
     write("failed", text:find("But it failed!", 1, true) ~= nil)
     write("called-tackle", text:find("TACKLE", 1, true) ~= nil)
     write("dealt", dealt)
+    local banned = {"metronome", "struggle", "counter", "mimic", "mirrorMove", "transform"}
+    local function listed(list, key)
+        for _, item in ipairs(list) do
+            if item == key then return true end
+        end
+        return false
+    end
+    local blocked = 0
+    for _, key in ipairs(banned) do
+        if not listed(eligible, key) then blocked = blocked + 1 end
+    end
+    local forced = 0
+    for _, key in ipairs(banned) do
+        local probe = battleOf("clefable", "rattata", {"metronome"}, {"splash"})
+        local roll = RulesRNG.random
+        function RulesRNG.random(a, b)
+            local choices = probe.metronomeEligible
+            if choices and a == 1 and b == #choices then
+                for index, choice in ipairs(choices) do
+                    if choice == key then return index end
+                end
+                for index, choice in ipairs(choices) do
+                    if choice == "tackle" then return index end
+                end
+            end
+            return roll(a, b)
+        end
+        turn(probe, 1)
+        if probe.metronomePick ~= key then forced = forced + 1 end
+        RulesRNG.random = roll
+    end
     write("has-metronome", hasMeta)
     write("has-struggle", hasStruggle)
+    write("banned-absent", blocked)
+    write("forced-blocked", forced)
+    write("has-tackle", listed(eligible, "tackle"))
+    write("has-cut", listed(eligible, "cut"))
+    write("has-shadow-claw", listed(eligible, "shadowClaw"))
     write("eligible", #eligible)
     write("pp", player.pp.metronome)
     write("phase", battle:phase())

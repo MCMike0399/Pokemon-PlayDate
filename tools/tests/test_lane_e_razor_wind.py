@@ -7,8 +7,8 @@ the next turn and spends the move's PP once.
 
 docs/validation/fidelity-ledger.md Combat row gives pokered moves Gen V
 physical/special damage. Razor Wind is special here. The charge itself is the
-pokered handler. The generated record still has critStage 1; the ledger does
-not say whether that high-crit stage remains.
+pokered handler. High critical rate has been part of Razor Wind since
+Generation II, including Generation V, so critStage stays 1.
 """
 
 import unittest
@@ -28,6 +28,7 @@ class RazorWindTests(unittest.TestCase):
         self.assertGreater(number(rows, "release-dealt"), 0)
         self.assertFalse(flag(rows, "release-failed"))
         self.assertEqual(rows["phase"], "command")
+        self.assertEqual(number(rows, "crit-stage"), 1)
 
 
 if __name__ == "__main__":
