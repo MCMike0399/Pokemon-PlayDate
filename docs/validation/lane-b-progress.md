@@ -1775,3 +1775,25 @@ sha256 `83af5269cb16e2253b809ec096767bb3c57ee9c17e1e3c4b445ed50cc13d84da`.
 Pidgeot is L36 at 113/113 with 40513 XP. Venusaur is 194/194. Money is
 still 298. The walk back to the Route 23 grass is underway. Two backups
 are not yet level 40, and Lorelei has not been fought again.
+
+## Victory Road toward L52
+
+Continue is sequence 1885, Indigo Plateau lobby `(7, 7)`, sha256
+`e9c812c1e507d4ef7f0c677eb546f7479106eec3cacfaf6be48c41b912536db1`.
+Branch `1f0b2bee`. The party-import fix is local and uncommitted.
+Main stays unmerged until that fix lands.
+
+Pidgeot L47 147/147 XP 97261, Poliwhirl L47 119/119 XP 97209, Hypno
+L47 152/152 XP 105729, Venusaur L72 223/223. Money is ¥3424. The bag
+is the rods, the bicycle, HM01, HM03, HM04, HM05, the keys, one Full
+Heal, and one Revive. No Nugget. Item storage holds one Potion
+(sell ¥150), TM21 Mega Drain (sell ¥2500), a Moon Stone (sell ¥0),
+the Dome Fossil, and the S.S. Ticket. Venusaur already has Solar Beam
+and Razor Leaf, so TM21 is spare. Withdrawing it is a PC trip the
+current walk is not taking. ¥3424 buys one Full Restore. Four Full
+Restores and four Revives are ¥18000, and wild fights pay nothing, so
+the door is L52.
+
+The same run healed Poliwhirl, put Pidgeot in front, and is back in
+the Victory Road grass. The 12:34 clip is
+`20261127T123435Z-victory-road.mp4`.
