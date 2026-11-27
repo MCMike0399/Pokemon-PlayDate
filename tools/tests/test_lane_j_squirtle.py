@@ -8096,6 +8096,7 @@ def _mart_stair(player, report, filename, goal, key):
     avoid = {(obj["x"], obj["y"]) for obj in data["events"]["objects"]}
     avoid.update((warp["x"], warp["y"]) for warp in data["events"]["warps"])
     avoid.discard(goal)
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
     cells = set(open_map(EAST / filename, 0, 20))
     return _onto_warp(player, cells, map_surface(EAST / filename), goal, avoid, report, key)
 

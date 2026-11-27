@@ -74,11 +74,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Surf and Strength stayed on the starter when it evolved. The committed pause is sequence 419, the Route 8 underground (5, 7) facing up. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. The return crossed Fuchsia, Routes 15-12, the Route 12 gate, Lavender, and Route 8. Two Super Potions remain and the Full Heals are gone (money 19924). The next door is the Celadon Center, then the roof vending machine. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. The Saffron gate is next, after one Fresh Water. Pidgeot stays in the party for Fly. Blastoise leads. One Safari Ball caught a Venonat before Run was selected; it is still in the party. One party slot stays open for Lapras.
+Surf and Strength stayed on the starter when it evolved. The committed pause is sequence 427, Celadon Dept. Store 1F (2, 7) facing up, after the Center healed the party. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. The return crossed Fuchsia, Routes 15-12, Lavender, the underground, and Route 7. The next step is the roof vending machine, then the Route 7 guard. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Pidgeot stays in the party for Fly. Blastoise leads. One party slot stays open for Lapras.
 
 Badges: Boulder, Cascade, Thunder, Rainbow, and Soul.
 
-Team: Blastoise 36 (32 HP, Surf, Strength, Water Gun, Bite), Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Dugtrio 30 (66 HP), Venonat 22 (64 HP). Route 16 stays the other Snorlax.
+Team: Blastoise 36 (107 HP, Surf, Strength, Water Gun, Bite), Bellsprout 15, Pidgeot 38 (111 HP), Dugtrio 30, Venonat 22. Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
