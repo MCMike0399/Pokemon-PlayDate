@@ -207,3 +207,35 @@ The menu is `MEW`, `LINK CABLE`, and A selects it. After MEW the party is Blasto
 The Psychic card is a separate handoff. `tools/notes/lane-e-type-display-names.patch` maps the constant through pokered `data/types/names.asm` (`af519899`), which prints `PSYCHIC`, and doubles `_` and `*` before `drawText`. `tools/tests/test_lane_e_type_display_names.py` fails on this tree: the Mewtwo TYPE1 row is `PSYCHIC_TYPE`. `pdc` still needs K's file-scope import after that patch.
 
 A later scratch of lane E `79fbcba5` did leave the Hall and walked as far as Route 24. Door heaps on that scratch, not on main: Route 1 13267.2, Viridian 13525.6, Pewter 13973.4, Route 3 14036.4, Route 4 14020.1, Mt Moon 1F 14484.2, Cerulean 14500.3 (peak 14811.7), Route 24 14303.2. Every move was then at 0 PP. Struggle's recoil fainted the only Pokémon on the winning blow, and the blackout returned to the fixture checkpoint, Pallet (3, 17) up. The cave, the gift, and Mewtwo were not reached there either.
+
+## Mewtwo caught on the patched scratch
+
+Scratch `/tmp/mewtwo-catch`, detached at the local main merge `d6e06010` (`origin/main` `61a70ffe`). Applied, and not committed: `lane-e-gift-menu-input.patch`, `lane-e-type-display-names.patch`, K's file-scope import, and `lane-e-viridian-sleepy-retrigger-heap.patch`. The Hall save has no Master Ball. Real buttons picked up TM45 on Route 24, a Full Restore and a Nugget in the cave, caught a level 46 Hypno with three Poké Balls (the third shake triple was 4710, 16520, 7645, all under the Gen V threshold 36671), and taught Thunder Wave over Hypno's fourth move. The Fuchsia Mart clerk, faced through the counter, sold the Nugget and the leftover Poké Balls, then sold 4 Super Potions and 5 Ultra Balls (¥900 left). The visible Ultra Balls on Cerulean Cave 2F and B1F raised the count from 5 to 7. `MallocPoolSize` stayed `16645684`. No inflate line and no out-of-memory line.
+
+A at B1F (26, 13) facing right starts the static Mewtwo, level 70, 229 HP, catch rate 3. Thunder Wave paralyzed him. Surf landed once, 229 to 163. Recover put him back to 229 before the balls. Hypno, who resists Psychic, stayed in and was healed with the Super Potions and the Full Restore. Six Ultra Balls were thrown, all at 229/229 paralyzed. The sixth caught. Every throw's `modifiedRate4096` was 12288 and every `shakeThreshold` was 21583, with `criticalThreshold` 0. That is the Gen V formula in `Source/domain/capture.lua` for an Ultra Ball (half-unit ball 4), rate 3, and paralysis (half-unit status 3).
+
+| throw | shakes | checks | caught |
+| --- | --- | ---: | --- |
+| 1 | 56697 | 1 | false |
+| 2 | 58411 | 1 | false |
+| 3 | 21565, 56751 | 2 | false |
+| 4 | 59534 | 1 | false |
+| 5 | 8356, 24767 | 2 | false |
+| 6 | 13959, 14840, 10882 | 3 | true |
+
+pokered `engine/items/item_effects.asm` ItemUseBall (`af519899`) is a different roll. An Ultra Ball redraws Rand1 into [0, 150], subtracts 12 for paralysis, fails when that remainder is above the catch rate 3, and otherwise compares Rand2 with X. BallFactor is 12, so W = ((229 * 255) / 12) / max(229 / 4, 1) = 85 and X = 85. A cartridge catch needs Rand1 ≤ 15 and then Rand2 ≤ 85. The live engine caught on three 16-bit shakes under 21583. `GameSession:attemptSourceCapture` still calls `Capture.attempt`. The handoff is `tools/notes/lane-e-source-capture-formula.patch` with `tools/tests/test_lane_e_source_capture_formula.py`. The test fails on this tree and the assertions hold on the patched copies. It is not applied. Ordinary `Capture.attempt` stays the Gen V hybrid for non-source wilds, and the patch conflicts with that hybrid and the pinned capture contracts on purpose.
+
+After the catch the party is Blastoise (23 HP), Hypno (fainted), and Mewtwo at level 70, 229/229, paralyzed, moves Swift, Psychic, Barrier, Recover, `types` `psychic`. `EVENT_BEAT_MEWTWO` is true. On B1F the NPC `pokered:CERULEAN_CAVE_B1F:objects:1` is gone. `data/endgame/visual.json` stores `PSYCHIC_TYPE`, `PSYCHIC_TYPE`. With the type-display patch and K's import, `DrawnText.typeName` prints `PSYCHIC`, and `EndgameStory.hallRows` puts `TYPE1/` on row 8 and `PSYCHIC` on row 9. The two types are equal, so there is no TYPE2 row. The party stats page does not draw the TYPE1 label. Its shot is the stats and the four moves.
+
+| point | heap KiB | observed peak KiB |
+| --- | ---: | ---: |
+| ready | 12734.6 | |
+| Continue, Pallet (5, 6) down | 13149.7 | 13699.9 |
+| after the Hypno catch | 13747.3 | 13861.0 |
+| Thunder Wave taught | 13720.7 | 13861.0 |
+| Fuchsia Mart, after the sale | 13445.5 | 13861.0 |
+| beside Mewtwo | 13669.9 | 13861.0 |
+| overworld after the catch | 13780.8 | 13861.0 |
+| party stats | 13696.1 | 13861.0 |
+
+A fresh Continue, then the same B1F tile, still has the object and `EVENT_BEAT_MEWTWO` false. Blastoise is the only Pokémon. Mewtwo's first Swift is a critical hit, 177 to 74. Surf chips him, Recover takes him from 109 to 227, and Psychic faints Blastoise at 157 HP. The blackout returns to Pallet (3, 17) up and the flag stays false. That is `stay_on` defeat in `Source/data/postgame/story.json`. The follow-up zone into the cave raised `game/overworldState.lua:88` on a nil player, so the post-loss revisit did not finish. `hide_on` caught already removed the object in the catch session. A victory faint was not completed: one Blastoise does not live through the crit and the later Psychic.
