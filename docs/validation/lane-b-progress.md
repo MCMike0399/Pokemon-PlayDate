@@ -1797,3 +1797,13 @@ the door is L52.
 The same run healed Poliwhirl, put Pidgeot in front, and is back in
 the Victory Road grass. The 12:34 clip is
 `20261127T123435Z-victory-road.mp4`.
+
+## Main 6cc6dfea merged
+
+Local edits to `partyState.lua` and `pauseState.lua` were dropped.
+Merge `68ea804a` takes main `6cc6dfea` (party-import fix `371bf703`).
+`git ls-remote` matches that SHA. Sequence 1886 reloaded on Victory
+Road 3F `(25, 9)` with the same six Pokémon, the same HP and XP, the
+same fourteen bag slots, and ¥3424. The party list opened during an
+Onix fight and closed back to the battle. No import crash. Training
+to L52 continues.
