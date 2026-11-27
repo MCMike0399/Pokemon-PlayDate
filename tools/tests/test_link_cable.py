@@ -85,7 +85,11 @@ class LinkCableTests(unittest.TestCase):
             if symbol == "LINK_CABLE":
                 continue
             self.assertEqual(ids[symbol], number, symbol)
-        self.assertNotIn("linkCable", (ROOT / "Source/data/items.lua").read_text().split("marts = {", 1)[1])
+        marts = (ROOT / "Source/data/items.lua").read_text().split("marts = {", 1)[1]
+        self.assertEqual(marts.count("linkCable"), 1)
+        self.assertIn(
+            'celadonMart4FClerkText = { "pokeDoll", "fireStone", "thunderStone", "waterStone", "leafStone", "linkCable" }',
+            marts)
 
     def test_only_the_four_trade_species_gain_the_stone_edge(self):
         text = (ROOT / "Source/data/evolutionData.lua").read_text()
