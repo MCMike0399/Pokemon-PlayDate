@@ -1027,8 +1027,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn((6, 5), office)
         self.assertIsNotNone(route(office, (3, 3), (6, 5), {(7, 5), (10, 5), (6, 9)}))
         floor_source = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
-        floor_source = floor_source.split("\ndef _silph_floor", 1)[1].split("\ndef ", 1)[0]
-        self.assertIn("_silph_needs_town(player)", floor_source)
+        floor_body = floor_source.split("\ndef _silph_floor", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("_silph_needs_town(player)", floor_body)
+        progress = floor_source.split("\ndef _silph_progress", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("_silph_needs_town(player)", progress)
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -10938,6 +10940,7 @@ def _silph_progress(player, report):
         return _silph_11f(player, report)
     if zone.endswith("silph_co_1f") and (
             _quest(player).get("EVENT_GOT_MASTER_BALL")
+            or _silph_needs_town(player)
             or (not _rival_trained(player)
                 and (_sweep_hurt(player) or _next_silph_floor(player) is None))):
         _lead(player, "dugtrio")
