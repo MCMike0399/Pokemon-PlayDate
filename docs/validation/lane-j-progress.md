@@ -74,7 +74,7 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Hyper Potions are in the bag. The committed pause is sequence 483, Silph Co. 7F (5, 3) facing down, in the rival's room. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. The rival wiped the party twice. Both blackouts returned to the Center and left this save in place. The second fight never counted the six Hyper Potions. The rematch uses them, then Lapras and Giovanni. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
+Hyper Potions are in the bag. The committed pause is sequence 483, Silph Co. 7F (5, 3) facing down, in the rival's room. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. The rival wiped the party three times. Each blackout returned to the Saffron Center and left this save in place. The last fight did use the Hyper Potions: Blastoise fell to Gyarados, and Pidgeot fell to Alakazam after the medicine was gone. Lapras, Giovanni, Sabrina, and Blaine are still ahead. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
 
 Badges: Boulder, Cascade, Thunder, Rainbow, and Soul.
 
