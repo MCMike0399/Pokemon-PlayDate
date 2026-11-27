@@ -9111,9 +9111,10 @@ def _locked_door_tiles(player, tag):
 def _unlock_silph_door(player, report, path, width, tag, extra):
     """Face one locked door the current room can reach and use the Card Key."""
     cells = set(open_map(path, 0, width))
+    if player.state["player"]["y"] == 0:
+        player.step("down")
+        player.settle(limit=40)
     here = (player.state["player"]["x"], player.state["player"]["y"])
-    if here[1] == 0:
-        here = (here[0], 1)
     locked = _locked_door_tiles(player, tag)
     blocked = _map_blocks(path, 0) | set(extra) | locked
     blocked.discard(here)
