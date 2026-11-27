@@ -166,6 +166,44 @@ Continue lands on Pallet (5, 6) down. The cave door opens. The gift talk at Ceru
 
 Type names, in a throwaway with the type-display patch and K's file-scope import from `cursor/lane-k-qa` `b20a7aa3`: both `test_lane_e_type_display_names` tests pass, and the Mewtwo TYPE1 row is `PSYCHIC`. On this unpatched tree the row is still `PSYCHIC_TYPE`.
 
+## The 46484 KiB reading
+
+That number is the harness request graph, not a gift-event allocation loop. The stuck walker sent 180 snapshot requests while root stayed `event`. Saved results `01970` through `01983` climb by 175.3 KiB every request, from 44205.6 to 46484.3. `(46484.3 - 14894.7) / 175.3` is 180 requests. `finish()` still major-collects only when `config.journey_profile` is set, so `json.encodeToFile` tenures each request's snapshot. `tools/notes/lane-e-viridian-sleepy-retrigger-heap.patch` already nils those locals and calls `collectgarbage("collect")` on every finish. It still applies on this tree. No second patch.
+
+A fresh Hall continue, then `switchZone` straight to `kanto_cerulean_cave_1f` at (24, 16). `switchZone` is the debug menu's call: `releaseDepartingWorld` drops the retained runtime maps and major-collects twice before the cave is built. `MallocPoolSize` stayed `16645684`. No inflate line.
+
+| request | unpatched KiB | reclaim patch KiB |
+| --- | ---: | ---: |
+| Continue, Pallet (5, 6) | 13296.7 | 13296.7 |
+| fresh cave (24, 16) | 13245.5 | 13245.5 |
+| idle snapshot 0 | 13268.5 | 13205.0 |
+| idle snapshot 3 | 13327.7 | 13205.4 |
+| gift dialog | 13520.2 | 13378.2 |
+| dialog snapshot 0 | 13543.1 | 13342.3 |
+| dialog snapshot 7 | 13681.3 | 13343.0 |
+
+Unpatched idle and dialog requests each leave about 19.7 KiB. The reclaim patch leaves 0.4 KiB across four idle requests and 0.7 KiB across eight dialog requests. The observed peak stays the Continue peak, 13751 unpatched and 13741 patched. It does not become 17 MB when the cave is the only map loaded.
+
+The long walk's 15714–17136 KiB figures are that boot-trace high-water mark. It never falls. Settled overworld on that walk stayed 14.3–15.1 MB, about 1.5 MB above this fresh cave, after roughly 1800 requests whose graphs were tenured. A battle request itself reached 35002 KiB and the next settled overworld was 14592 KiB. The cave is not holding the maps visited on the way. The fresh cave is 13.2 MB, under the 14 MB Lua budget.
+
+## Gift menu and Mewtwo on the patched scratch
+
+Scratch `/tmp/gift-walk`, not committed. Applied `lane-e-gift-menu-input.patch`, `lane-e-type-display-names.patch`, K's file-scope import from `cursor/lane-k-qa` `da5cfca6` (same diff as `b20a7aa3`), and the harness reclaim patch so the table is not the request graph. Same Continue, then `switchZone` to the cave. The gift talk and the walk down to Mewtwo are real button input. Encounters off. No inflate line.
+
+| point | heap KiB | observed peak KiB |
+| --- | ---: | ---: |
+| ready | 12724.2 | |
+| Continue, Pallet (5, 6) down | 13303.4 | 13747.5 |
+| cave 1F (24, 16), before the talk | 13253.0 | 13747.5 |
+| MEW chosen, back on the overworld | 13334.7 | 13747.5 |
+| LINK CABLE chosen, back on the overworld | 13336.3 | 13747.5 |
+| Cerulean Cave 2F | 13304.5 | 13747.5 |
+| Cerulean Cave B1F | 13462.5 | 13747.5 |
+| beside Mewtwo (26, 13) | 13269.2 | 13747.5 |
+| wild Mewtwo, level 70, 229 HP | 13626.4 | 13747.5 |
+
+The menu is `MEW`, `LINK CABLE`, and A selects it. After MEW the party is Blastoise and Mew, `EVENT_GOT_MEW` is true, and root is `overworld`. After LINK CABLE the bag has one `linkCable` beside the 20 POKé Balls, and root is `overworld` again. Real steps then go 1F to 2F to B1F. A at (26, 13) facing right starts the battle. Hydro Pump misses. One POKé Ball is thrown at 229 HP: catch rate 3, one shake check, `caught` false, message `Oh no! The POKEMON broke free!` Mewtwo is not caught. Settled heaps stay under 14000 KiB.
+
 The Psychic card is a separate handoff. `tools/notes/lane-e-type-display-names.patch` maps the constant through pokered `data/types/names.asm` (`af519899`), which prints `PSYCHIC`, and doubles `_` and `*` before `drawText`. `tools/tests/test_lane_e_type_display_names.py` fails on this tree: the Mewtwo TYPE1 row is `PSYCHIC_TYPE`. `pdc` still needs K's file-scope import after that patch.
 
 A later scratch of lane E `79fbcba5` did leave the Hall and walked as far as Route 24. Door heaps on that scratch, not on main: Route 1 13267.2, Viridian 13525.6, Pewter 13973.4, Route 3 14036.4, Route 4 14020.1, Mt Moon 1F 14484.2, Cerulean 14500.3 (peak 14811.7), Route 24 14303.2. Every move was then at 0 PP. Struggle's recoil fainted the only Pokémon on the winning blow, and the blackout returned to the fixture checkpoint, Pallet (3, 17) up. The cave, the gift, and Mewtwo were not reached there either.
