@@ -1836,6 +1836,25 @@ and Hypno takes the damage. No lane E handoff.
 `20261127T143616Z-victory-road.mp4` paces up and down beside the boulder
 in the Victory Road grass. The boulder's screen position follows the
 camera and returns with it. It does not change tiles, and there is no
-map reload. The same run is still gaining XP there. Sequence 1940 is
-`(25, 11)`: Pidgeot L49 XP 113262, Poliwhirl L49 XP 113770, Hypno L49
-XP 119583.
+map reload. That is the grass pace, not a boulder reset. No lane E
+patch for either finding. The host repro was not kept; it is not a
+failing test.
+
+## Stopped at sequence 1941
+
+The driver is stopped. Sequence 1941 is Victory Road 3F `(25, 11)`
+facing down, sha256
+`c1dcb228f7324232848b3bfb137ff6acf8af0024daacfbf791f9b447585ef0cf`.
+The same file is in `/opt/cursor/artifacts/lane-b/` and
+`/cursor/stores/self/saves/`. Hourly clips through
+`20261127T143616Z-victory-road.mp4` are in both clip directories.
+
+Pidgeot L49 153/153 XP 113532, Weepinbell L26 70/70, Poliwhirl L49
+57/124 XP 114040, Hypno L49 130/158 XP 119583, Venusaur L72 223/223
+XP 386535, Sandshrew L19 52/52. Money is ¥3424. The bag is the rods,
+the bicycle, HM01, HM03, HM04, HM05, the keys, and one Revive. No
+Full Restore and no Full Heal.
+
+Still open: Pidgeot, Poliwhirl, and Hypno are short of L52. The Indigo
+mart purchase, the Elite Four, the Champion, and the credits were not
+reached. Main was not merged again.
