@@ -60,10 +60,17 @@ function WorldView:init(zone, options)
     self.tilemap = gfx.tilemap.new()
     self.tilemap:setImageTable(self.images)
     self.tilemap:setSize(zone.width, zone.height)
-    local tileIDs = {}
+    -- Growing a city index by doubling needs a second copy while the first
+    -- is still live. That copy is the allocation Fly loses after the
+    -- destination atlas. Maps past 1024 cells allocate the final size once.
+    local count = zone.width * zone.height
+    local tileIDs = count > 1024 and table.create(count, 0) or {}
+    local index = 0
     for y = 1, zone.height do
+        local row = zone.tiles[y]
         for x = 1, zone.width do
-            tileIDs[#tileIDs + 1] = zone.tiles[y][x]
+            index = index + 1
+            tileIDs[index] = row[x]
         end
         if GameBootstrap then
             GameBootstrap.yieldIfDue()
@@ -243,7 +250,8 @@ end
 function WorldView:dispose()
     if self.disposed then return end
     if self.sprite then self.sprite:remove() end
-    self.zone:detachView(self)
+    -- Fly nils this before the destination is built, then disposes on success.
+    if self.zone then self.zone:detachView(self) end
     -- The sprite and tilemap own the map's bitmap. Drop those references
     -- before the next city allocates its own, or both images sit in the pool.
     self.sprite = nil

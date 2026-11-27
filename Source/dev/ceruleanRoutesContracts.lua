@@ -46,6 +46,13 @@ function CeruleanRoutesContracts.withScene(name, options, fn)
         zone:spawnNPCs(g.npcManager)
         g.npcManager.motion:attach(g,zone)
         assert(g.session:activateRNG())
+        -- The rival receipt builds a real battle on top of a live city.
+        -- The other retained definition, decoded grids and the map bed do
+        -- not fit beside that battle once Fly's runtime is resident.
+        if SourceMaps.releaseRetainedExcept then SourceMaps.releaseRetainedExcept(name) end
+        if SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+        if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
+        collectgarbage("collect")
         fn(g)
     end)
     if g then
