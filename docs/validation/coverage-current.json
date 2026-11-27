@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "ea80ddd28d112bb80af6fb60e00013bca7f37c6a",
-    "source_sha256": "6d17565f507b19c35ee94cd09c09ebf2696b39eec9f79357712c11478be67809",
+    "commit": "ed620dd4fd7d43e367c619d27a38d22679729f2f",
+    "source_sha256": "8c06b2600b35f7d1f5069871f1739bfc206b1eb85345a06236e10b6e47280707",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after the boot chunk hides a beaten Mewtwo before Continue validates the cave save. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 849eeffbb8e46ea5d8dbb7116c70d375719709bec7e2ef84aae9bc7efed3afd5.",
+    "scope": "Source identity after the boot chunk hides beaten postgame statics and taken cave and Power Plant balls before Continue validates the save. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 6d17565f507b19c35ee94cd09c09ebf2696b39eec9f79357712c11478be67809.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
