@@ -1172,6 +1172,9 @@ local function releaseDepartingWorld()
     playdate.graphics.sprite.removeAll()
     if SourceMaps and SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
     if SourceMaps and SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+    if SourceActors and SourceActors.releaseDepartedProfiles then
+        SourceActors.releaseDepartedProfiles()
+    end
     currentZone = nil
     if WorldDeltas.disposeImportedCache then WorldDeltas.disposeImportedCache() end
     if SourceEvents and SourceEvents.releaseRecentContent then

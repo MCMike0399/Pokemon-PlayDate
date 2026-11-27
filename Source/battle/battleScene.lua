@@ -553,19 +553,20 @@ function BattleScene:drawBattleField()
     -- Draw pokemon sprites (before platforms so platforms overlap sprite bottoms)
     local flashHide = self.flashHide
 
+    local sliding = self:silhouetteOffset() > 0
     if self.trainerVisible then
         self:drawTrainer()
-    elseif self:silhouetteOffset() > 0 and self.battle.enemy then
-        -- Wild battles slide the mon pic in with the player back. The
-        -- sprite is the one drawPresentedPokemon already loads.
+    elseif sliding and self.battle.enemy then
+        -- SlidePlayerAndEnemySilhouettesOnScreen slides the enemy pic.
+        -- The name box is not on screen yet.
         self:drawPresentedPokemon(self.battle.enemy, "enemy", 300 + self:silhouetteOffset(), 20, false)
     end
-    if self.enemyShown and not self:isFaintSlide("enemy")
+    if not sliding and self.enemyShown and not self:isFaintSlide("enemy")
         and (not self.captureAnimation or self.captureAnimation:isEnemyVisible())
         and not (flashHide and self.battle.attackerSide == "player") then
         self:drawPresentedPokemon(self.enemyShown, "enemy", 300, 20, false)
     end
-    if self.playerShown and not self:isFaintSlide("player")
+    if not sliding and self.playerShown and not self:isFaintSlide("player")
         and not (flashHide and self.battle.attackerSide == "enemy") then
         self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
     elseif not self.playerIntroDone then
@@ -594,7 +595,9 @@ function BattleScene:drawBattleField()
 
     -- HUDs follow the same presented Pokemon as sprites, not the rules' active
     -- battlers, which already exist during trainer/send-out narration.
-    if self.enemyShown == self.battle.enemy then
+    -- core.asm:100 jumps to PrintBeginningBattleText only after the slide
+    -- loop (core.asm:70). The name and HP box stay off until then.
+    if not sliding and self.enemyShown == self.battle.enemy then
         -- Enemy info box (top-left): name/level row, then HP bar row.
         -- Heights are sized for the fonts (battleFont ~17px, system ~16px)
         -- so nothing pokes through the frame.
@@ -629,7 +632,7 @@ function BattleScene:drawBattleField()
         self:drawHPBar(eBarX, 26, eBarW, 8, enemyHP, enemyMaxHP)
     end
 
-    if self.playerShown == self.battle.player then
+    if not sliding and self.playerShown == self.battle.player then
         -- Player info box (bottom-right): name/level, HP bar, HP numbers,
         -- and a thin XP gauge along the bottom edge
         local player = self.battle.player

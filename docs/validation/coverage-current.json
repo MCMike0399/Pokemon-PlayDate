@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "7fc275d7951ae4115a5eca3fcbf12efe8756ad3b",
-    "source_sha256": "0598dc34a090da344a76ee0ad52b6edcf6419bbad408f2254c1e79bdc56e52fc",
+    "commit": "f80fd388a3c2d072ec7b014da8d2c98b1eeba5ec",
+    "source_sha256": "466dbe110a5a41ee73bc21a79dc596868d4880de28aa1542768f7fd8dd6a02c8",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after a faint with no score plays the cry instead of aborting the battle. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 a971d5921df7078fd270f2b158e3c7bc48b4a4ee0ff80ab999b9507cc9243c1c.",
+    "scope": "Source identity after the Vermilion journey pin records the departed-profile zone hash. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 2aa601aead21b165c18cf71ca6adfff411561dcdcd80ca53d4f1abe45c289930.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
