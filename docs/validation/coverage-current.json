@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "063aed84f74cf1f0ed7187216d343a63a9d50b61",
-    "source_sha256": "73de9a82b58a91de52619056f4c19783073ecf0f6b3436052151c8e82426a339",
+    "commit": "2c0daa81c2422ad7d5f3fe3575ce619ffa9c349b",
+    "source_sha256": "3bc5be7e776e20491ebb3cd95c35c07b61c0c1cf7546000f23029d3ea9f2398f",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after the reward contracts expect Bubble at level 8, Ember at level 9, and a gained line break. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 7704b05a62f590bdbfca970fe9ac7d76c7b185c92fe70795ffa348869c33a629.",
+    "scope": "Source identity after batch 2: lazy status and trainer screens, the opening slide, save and trainer fidelity, and the seven audio patches. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 73de9a82b58a91de52619056f4c19783073ecf0f6b3436052151c8e82426a339.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
