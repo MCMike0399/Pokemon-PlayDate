@@ -8017,6 +8017,26 @@ def _route7_to_celadon(player, report):
     return "yield"
 
 
+def _route7_to_saffron(player, report):
+    """The drink opens the east side. y=9 lands Saffron at y=17."""
+    _lead_tank(player)
+    avoid = set(ROUTE7_GATES) | {(5, 13)}
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (19, 9),
+                 avoid, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("right")
+    player.settle(limit=80)
+    if "saffron" not in str(player.state.get("zone")):
+        player.step("right")
+        player.settle(limit=80)
+    if "saffron" not in str(player.state.get("zone")):
+        raise RuntimeError("Saffron did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron")
+    return "yield"
+
+
 def _route7_to_gate(player, report):
     _lead_tank(player)
     # (11, 9) is the solid half of the gate. The door is (11, 10).
@@ -8237,7 +8257,9 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         _checkpoint(player, report, "saved_underground")
         return "yield"
     if place == "Route7":
-        if _holding(player, "freshWater") and not _gave_drink(player):
+        if _gave_drink(player):
+            return _route7_to_saffron(player, report)
+        if _holding(player, "freshWater"):
             return _route7_to_gate(player, report)
         return _route7_to_celadon(player, report)
     if "route_7_gate" in zone:
@@ -8320,7 +8342,95 @@ def _after_strength(player, report, display=None, clips=None, output=None):
             raise RuntimeError("Route 7 did not open: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_route7")
         return "yield"
+    if "saffron_city" in zone:
+        return _saffron_to_silph(player, report)
+    if "silph_co" in zone:
+        return _silph_progress(player, report)
     raise RuntimeError("after Strength: " + json.dumps(summary(player.state)))
+
+
+def _saffron_to_silph(player, report):
+    data = json.loads((Path("Source/data/midgameSaffron/SaffronCity.json")).read_text(encoding="utf-8"))
+    doors = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    doors.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    cells = set(open_map(Path("Source/data/midgameSaffron/SaffronCity.json"), 0, 40))
+    kind = _walk(player, cells, map_surface(Path("Source/data/midgameSaffron/SaffronCity.json")),
+                 (18, 22), doors, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (18, 22):
+        raise RuntimeError("could not reach Silph Co.: " + str(kind) + " " + json.dumps(summary(player.state)))
+    player.step("up")
+    player.settle(limit=80)
+    if "silph" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "silph" not in str(player.state.get("zone")):
+        raise RuntimeError("Silph Co. stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph")
+    return "yield"
+
+
+def _silph_progress(player, report):
+    """1F elevator to 5F. The Card Key is the next ball after that landing."""
+    zone = str(player.state.get("zone"))
+    saffron = Path("Source/data/midgameSaffron")
+    if "elevator" in zone:
+        cells = set(open_map(saffron / "SilphCoElevator.json", 4, 13))
+        avoid = {(5, 3), (6, 3)}
+        avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+        kind = _walk(player, cells, map_surface(saffron / "SilphCoElevator.json", 4), (7, 1),
+                     avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        for _ in range(16):
+            options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+            if "5F" in options:
+                player.choose("event", "5F")
+                break
+            if player.exploring():
+                player.press("a", wait=8)
+                continue
+            player.press("a", wait=8)
+        else:
+            raise RuntimeError("the Silph lift did not offer 5F: " + json.dumps(summary(player.state)))
+        if not player.exploring():
+            player.dismiss_until_explore(limit=20)
+        kind = _walk(player, cells, map_surface(saffron / "SilphCoElevator.json", 4), (6, 2),
+                     set(), report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        player.step("down")
+        player.settle(limit=80)
+        if "elevator" in str(player.state.get("zone")):
+            player.step("down")
+            player.settle(limit=80)
+        if "5f" not in str(player.state.get("zone")):
+            raise RuntimeError("the lift did not reach 5F: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_silph_5f")
+        return "yield"
+    if not zone.endswith("silph_co_1f"):
+        raise RuntimeError("Silph floor is not on the lift path: " + json.dumps(summary(player.state)))
+    data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    cells = set(open_map(saffron / "SilphCo1F.json", 0, 30))
+    kind = _walk(player, cells, map_surface(saffron / "SilphCo1F.json"), (20, 1), avoid,
+                 report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("up")
+    player.settle(limit=80)
+    if "elevator" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "elevator" not in str(player.state.get("zone")):
+        raise RuntimeError("the Silph lift stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_lift")
+    return "yield"
 
 
 def _toward_celadon(player, report, display=None, clips=None, output=None):
