@@ -8151,11 +8151,11 @@ def _celadon_center(player, report):
 def _stock_celadon_supers(player, report):
     cells = celadon_mart_cells(2)
     surface = map_surface(EAST / "CeladonMart2F.json")
-    opened = _open_clerk(player, cells, surface, (5, 4))
+    opened = _open_clerk(player, cells, surface, (5, 5))
     if opened in ("blackout", "yield"):
         return opened
     if opened != "shop":
-        opened = _open_clerk(player, cells, surface, (6, 4))
+        opened = _open_clerk(player, cells, surface, (6, 5))
     if opened != "shop":
         raise RuntimeError("the 2F clerk did not open: " + json.dumps(summary(player.state)))
     report["super_potions"] = _shop_buy(player, "superPotion", 700, 8)
