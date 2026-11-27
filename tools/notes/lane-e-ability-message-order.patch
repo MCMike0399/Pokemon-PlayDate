@@ -1,0 +1,64 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1571,7 +1571,9 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
+             local receipt=self.effects:primaryHit(attacker,defender,move,result.damage,hitNumber)
+             lastReceipt = receipt
+             self.conditions:landedMove(move)
+-            ContactAbilities.onHit(self.effects,receipt,result.isCrit)
++            self:deferAbilityLines(function()
++                ContactAbilities.onHit(self.effects,receipt,result.isCrit)
++            end)
+             total=total+receipt.removed
+             if not receipt.substitute then
+                 bodyTotal = bodyTotal + receipt.removed
+@@ -1594,7 +1596,9 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
+             end
+             if result.isCrit then self:say("A critical hit!") end
+             if not receipt.substitute then self.conditions:rageHit(defender) end
+-            self.effects:announceEndure(receipt)
++            self:deferAbilityLines(function()
++                self.effects:announceEndure(receipt)
++            end)
+             -- C DamageListCore: drain, secondary effects, contact reactions;
+             -- whole-move recoil follows DamageMultiHit, before terminal verdict.
+             if not receipt.substitute and receipt.removed>0 and move.drain and move.drain>0 then
+@@ -1602,7 +1606,9 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
+                 self:say(defender.name .. " had its energy drained!")
+             end
+             self:applyMoveSecondaries(move, preparedSecondary, receipt)
+-            self.effects:afterHit(receipt)
++            self:deferAbilityLines(function()
++                self.effects:afterHit(receipt)
++            end)
+             if not defender:isAlive() or not attacker:isAlive() then break end
+         end
+         if move.rollout then
+@@ -1723,10 +1729,25 @@ function Battle:flushSecondaryLines()
+ function Battle:flushSecondaryLines()
+     local lines = self.deferredSecondaryLines
+     self.deferredSecondaryLines = nil
+     if not lines then return end
+     for _, text in ipairs(lines) do
+         self:say(text)
+     end
+ end
+ 
++function Battle:deferAbilityLines(body)
++    -- Sturdy, Anger Point, Static, and Poison Point narrate during the hit.
++    -- Gen V prints the crit and effectiveness lines first, then the ability.
++    local held = self.deferredSecondaryLines
++    if not held then
++        held = {}
++        self.deferredSecondaryLines = held
++    end
++    local real = self.say
++    self.say = function(_, text) held[#held + 1] = text end
++    local ok, err = pcall(body)
++    self.say = real
++    if not ok then error(err, 0) end
++end
++
+ function Battle:applyMoveEffects(move, receipt)
+     if not move.effects then return end
+     for _, effect in ipairs(move.effects) do
