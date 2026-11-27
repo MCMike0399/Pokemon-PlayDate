@@ -933,6 +933,16 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn("libx264rgb", argv)
         self.assertIn("rgb24", argv)
 
+    def test_route17_rides_south_past_the_trainers_already_above(self):
+        path = SOUTH / "Route17.json"
+        cells = set(open_map(path, 0, 20))
+        blocked = _map_blocks(path, 0)
+        tid, kind, target = _route17_target(set(), cells, blocked, (10, 25))
+        self.assertEqual(tid, "pokered:ROUTE_17:objects:4")
+        self.assertEqual(kind, "share")
+        self.assertGreaterEqual(target[1], 25)
+        self.assertIn(target, cells)
+
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
         cells = set(open_map(path, 0, 40))
@@ -8910,26 +8920,101 @@ def _rounds_left(player, rounds):
     return any(not _beaten(player, tid) for tid, _stand, _kind, _sight in rounds)
 
 
+def _route17_target(beaten, cells, blocked, here):
+    """The next sight at or below the rider. The road only coasts south."""
+    hx, hy = here
+    for tid, stand, kind, sight in _ROUTE17_ROUNDS:
+        if tid in beaten:
+            continue
+        options = [cell for cell in sight
+                   if cell[1] >= hy and cell in cells and cell not in blocked and cell != stand]
+        if not options:
+            options = [cell for cell in sight if cell[1] >= hy and cell in cells and cell not in blocked]
+        if options:
+            target = min(options, key=lambda cell: (cell[1], abs(cell[0] - hx)))
+            return tid, kind, target
+    return None
+
+
 def _route17_bike(player, report):
+    """Route 17 rolls south whenever no button is held, so a walked route slides past it."""
     path = SOUTH / "Route17.json"
-    if player.state["player"]["y"] == 0:
-        player.step("down")
-        player.settle(limit=40)
-    sights = _round_sights(_ROUTE17_ROUNDS, player)
-    if _road_home(player) and _can_stand(player, path, 0, 20, (10, 0), sights):
-        return _edge_leave(player, report, path, 0, 20, (10, 0), "up",
-                           _map_blocks(path, 0) | sights, "route17_north", "route_16")
-    extra = set()
-    picked = _pick_trainer(player, path, 0, 20, _ROUTE17_ROUNDS, extra)
-    if picked:
-        tid, stand, kind = picked
-        extra.update(_other_sights(_ROUTE17_ROUNDS, tid, lambda other: _beaten(player, other)))
-        return _engage(player, report, path, 0, 20, tid, stand, kind, extra)
-    if not _road_home(player) and _rounds_left(player, _ROUTE18_ROUNDS):
-        return _edge_leave(player, report, path, 0, 20, (10, 143), "down", _map_blocks(path, 0),
-                           "route17_south", "route_18")
-    return _edge_leave(player, report, path, 0, 20, (10, 0), "up", _map_blocks(path, 0),
-                       "route17_north", "route_16")
+    cells = set(open_map(path, 0, 20))
+    blocked = _map_blocks(path, 0)
+    for _ in range(240):
+        if player.state.get("root") == "battle":
+            return _k_clear(player, report)
+        if not player.exploring():
+            player.send("wait 4")
+            continue
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        beaten = {tid for tid, _stand, _kind, _sight in _ROUTE17_ROUNDS if _beaten(player, tid)}
+        picked = _route17_target(beaten, cells, blocked, here)
+        if picked is None:
+            if here == (10, 143):
+                player.step("down")
+                player.settle(limit=40)
+                if _on_map(player, "route_18"):
+                    _checkpoint(player, report, "saved_route18")
+                    return "yield"
+                raise RuntimeError("route 18 did not open: " + json.dumps(summary(player.state)))
+            return _route17_coast(player, cells, (10, 143))
+        tid, kind, target = picked
+        species = "dugtrio" if kind == "dugtrio" else _share_species(player)
+        _lead(player, species)
+        if player.state.get("root") == "battle":
+            return _k_clear(player, report)
+        moved = _route17_coast(player, cells, target)
+        if moved == "battle" or player.state.get("root") == "battle" or _beaten(player, tid):
+            return _k_clear(player, report)
+        if _beaten(player, tid):
+            _checkpoint(player, report, "saved_trainer")
+            return "yield"
+    raise RuntimeError("the cycling road did not reach a trainer: " + json.dumps(summary(player.state)))
+
+
+def _route17_coast(player, cells, target):
+    """Slide downhill, steering sideways onto one tile. Idle waits are the descent."""
+    tx, ty = target
+    stuck = 0
+    last = None
+    for _ in range(180):
+        if player.state.get("root") == "battle":
+            return "battle"
+        if not player.exploring():
+            player.send("wait 4")
+            continue
+        x, y = player.state["player"]["x"], player.state["player"]["y"]
+        if (x, y) == (tx, ty):
+            player.send("wait 8")
+            if player.state.get("root") == "battle":
+                return "battle"
+            return "passed"
+        if y > ty:
+            return "passed"
+        if (x, y) == last:
+            stuck += 1
+            if stuck > 8:
+                raise RuntimeError(f"stuck coasting toward {target} at {(x, y)}")
+        else:
+            stuck = 0
+        last = (x, y)
+        if y + 1 >= ty and x != tx:
+            step = -1 if tx < x else 1
+            if (x + step, y) not in cells:
+                raise RuntimeError(f"no sideways step toward {target} from {(x, y)}")
+            player.send("press " + ("left" if step < 0 else "right"), "wait 4")
+            continue
+        if (x, y + 1) in cells:
+            player.send("wait 4")
+            continue
+        step = -1 if tx <= x else 1
+        if (x + step, y) not in cells:
+            step = -step
+        if (x + step, y) not in cells:
+            raise RuntimeError(f"no downhill lane toward {target} from {(x, y)}")
+        player.send("press " + ("left" if step < 0 else "right"), "wait 4")
+    return "lost"
 
 
 def _route18_bike(player, report):
