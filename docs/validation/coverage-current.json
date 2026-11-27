@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "2c0daa81c2422ad7d5f3fe3575ce619ffa9c349b",
-    "source_sha256": "3bc5be7e776e20491ebb3cd95c35c07b61c0c1cf7546000f23029d3ea9f2398f",
+    "commit": "846a3840203c6127c04837724bb6340b2e14b419",
+    "source_sha256": "87d91ab781bbfa7c840334731f8094abb7a423bf0f47d8dc4358a4a6d3fd88df",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after batch 2: lazy status and trainer screens, the opening slide, save and trainer fidelity, and the seven audio patches. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 73de9a82b58a91de52619056f4c19783073ecf0f6b3436052151c8e82426a339.",
+    "scope": "Source identity after the blackout defeat string uses a form feed so blacked and out share a page. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 3bc5be7e776e20491ebb3cd95c35c07b61c0c1cf7546000f23029d3ea9f2398f.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
