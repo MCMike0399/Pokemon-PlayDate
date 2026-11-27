@@ -51,6 +51,6 @@ Throwaway checkout `/tmp/e-tip` at `4bac3bdff34ee3a23f7d2d6b7d2cd0b5a2081ffe`. N
 
 Host Lua has no `import`. The test now defines one that dofiles `game/drawnText` before the story file. On this unpatched tree the Mewtwo TYPE1 row is still `PSYCHIC_TYPE` and both tests fail. On the patched E tip both tests pass: TYPE1 is `PSYCHIC`, from pokered `data/types/names.asm` (`af519899`). `MallocPoolSize` stayed `16645684`.
 
-## Postgame
+## Main 93c15d86
 
-Waiting. `origin/main` does not contain `PostgameStory.releaseContinueData` or `SourceMaps.releaseRetainedExcept`. `tools/notes/lane-e-hof-continue-release.patch` is not on main yet. Cerulean Cave, the Mewtwo encounter, and the Mew gift stay unrun until it is.
+Throwaway checkout of this branch after the merge, Source equal to `origin/main` `93c15d86eaa497baa944e39cdc7e364dcc7df739`. Applied `tools/notes/lane-e-type-display-names.patch`, then `tools/notes/lane-k-premerge-type-display-import.patch` from `cursor/lane-k-qa` `b20a7aa3`. Both tests pass. The Mewtwo TYPE1 row is `PSYCHIC`. On this unpatched tree both tests still fail with `PSYCHIC_TYPE`. `MallocPoolSize` stayed `16645684`.

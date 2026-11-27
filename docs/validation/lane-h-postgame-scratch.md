@@ -139,6 +139,33 @@ Real input on that Source, same CONTINUE presses as the Hall test, save `tools/t
 
 The player is still in `kanto_hall_of_fame` at (7, 2) facing up. pokered `data/maps/special_warps.asm` `.PalletTown` is the Hall continue spawn, and this continue never takes it. Cerulean Cave, the Mew gift, and Mewtwo are not reached. Mewtwo remains pokered `data/maps/objects/CeruleanCaveB1F.asm` object 1. Mew is not an object in `data/maps/objects/CeruleanCave1F.asm`.
 
+## Main 93c15d86
+
+`origin/main` is `93c15d86eaa497baa944e39cdc7e364dcc7df739`. This branch merged it. `Source/` matches that tree. `loadHallContinue` still `playdate.file.run`s the postgame chunk and calls `relocateContinue`. No new continue patch. `MallocPoolSize` stayed `16645684`. The simulator log has no inflate line and no out-of-memory line.
+
+Real input, same CONTINUE presses, champion Hall fixture. Wild encounters off. Trainer sight on. One Cerulean Center heal so Struggle does not black out before the cave. The start menu's first row is POKéDEX because `EVENT_GOT_POKEDEX` is set (`draw_start_menu.asm` `DrawStartMenu`). The field SURF sequence presses Down once before POKéMON.
+
+| point | heap KiB | observed peak KiB |
+| --- | ---: | ---: |
+| ready | 12716.8 | |
+| Continue, Pallet (5, 6) down | 13296.0 | 13740.0 |
+| Route 1 | 13470.2 | 13740.0 |
+| Viridian | 13805.5 | 14276.9 |
+| forest south | 13572.7 | 14540.6 |
+| Pewter | 14306.4 | 15714.7 |
+| Route 3 | 14366.8 | 15714.7 |
+| Mt Moon 1F | 14857.0 | 15738.1 |
+| Route 4 | 14432.3 | 15738.1 |
+| after the Cerulean nurse | 13996.2 | 15738.1 |
+| Route 24 | 14640.9 | 16030.4 |
+| Cerulean Cave 1F (24, 16) | 14757.6 | 17136.8 |
+| gift talk, root event | 14894.7 | 17136.8 |
+| still on that event | 46484.3 | 17136.8 |
+
+Continue lands on Pallet (5, 6) down. The cave door opens. The gift talk at Cerulean Cave 1F (24, 16) facing left starts `presentGift` and stays on root `event`. A does not leave it. `EventState:handleInput` only feeds the menu during `heal-confirm`, and `presentGift` shows `MEW` / `LINK CABLE` on that same menu. Mewtwo, `data/maps/objects/CeruleanCaveB1F.asm` object 1, is not reached. The handoff is `tools/notes/lane-e-gift-menu-input.patch` with `tools/tests/test_lane_e_gift_menu_input.py`. The test fails on this tree and passes after `git apply`.
+
+Type names, in a throwaway with the type-display patch and K's file-scope import from `cursor/lane-k-qa` `b20a7aa3`: both `test_lane_e_type_display_names` tests pass, and the Mewtwo TYPE1 row is `PSYCHIC`. On this unpatched tree the row is still `PSYCHIC_TYPE`.
+
 The Psychic card is a separate handoff. `tools/notes/lane-e-type-display-names.patch` maps the constant through pokered `data/types/names.asm` (`af519899`), which prints `PSYCHIC`, and doubles `_` and `*` before `drawText`. `tools/tests/test_lane_e_type_display_names.py` fails on this tree: the Mewtwo TYPE1 row is `PSYCHIC_TYPE`. `pdc` still needs K's file-scope import after that patch.
 
 A later scratch of lane E `79fbcba5` did leave the Hall and walked as far as Route 24. Door heaps on that scratch, not on main: Route 1 13267.2, Viridian 13525.6, Pewter 13973.4, Route 3 14036.4, Route 4 14020.1, Mt Moon 1F 14484.2, Cerulean 14500.3 (peak 14811.7), Route 24 14303.2. Every move was then at 0 PP. Struggle's recoil fainted the only Pokémon on the winning blow, and the blackout returned to the fixture checkpoint, Pallet (3, 17) up. The cave, the gift, and Mewtwo were not reached there either.
