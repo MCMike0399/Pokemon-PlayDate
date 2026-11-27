@@ -5837,11 +5837,24 @@ def _run_safari(player):
     for _ in range(24):
         if player.state.get("root") != "safariBattle":
             return True
-        node = player.state.get("safariBattle") or {}
-        menu = node.get("menu") or {}
-        if "RUN" in (menu.get("options") or []):
-            player.choose("safariBattle", "RUN")
+        battle = ((player.state.get("safari") or {}).get("battle") or {})
+        menu = battle.get("menu") or {}
+        options = menu.get("options") or []
+        if menu.get("active") and "RUN" in options:
+            columns = menu.get("columns") or 2
+            selected = battle.get("selected") or 1
+            target = options.index("RUN") + 1
+            if selected == target:
+                player.press("a", wait=8)
+            else:
+                row, col = divmod(selected - 1, columns)
+                goal_row, goal_col = divmod(target - 1, columns)
+                if row != goal_row:
+                    player.press("down" if goal_row > row else "up", wait=2)
+                else:
+                    player.press("right" if goal_col > col else "left", wait=2)
         else:
+            # The wild-appeared page has no menu yet. A opens BALL / BAIT / ROCK / RUN.
             player.press("a", wait=6)
     return player.state.get("root") != "safariBattle"
 
@@ -6864,9 +6877,26 @@ def _present_people(player, filename, map_id, pad=0):
     return people, items, sight
 
 
+_SOUTH_EDGES = {}
+
+
+def _south_edges(filename, pad):
+    """Forbidden foot-tile pairs, shifted into the padded runtime grid."""
+    key = (filename, pad)
+    cached = _SOUTH_EDGES.get(key)
+    if cached is not None:
+        return cached
+    edges = pair_edges(f"Source/data/midgameSouth/{filename}")
+    if pad:
+        edges = {((left[0] + pad, left[1]), (right[0] + pad, right[1])) for left, right in edges}
+    _SOUTH_EDGES[key] = edges
+    return edges
+
+
 def _route_leg(player, report, filename, pad, width, place, goal, extra, key, limit=40):
     """Walk up to `limit` steps. Sight is skipped when another path remains."""
     cells = set(open_map(SOUTH / filename, pad, width))
+    edges = _south_edges(filename, pad)
     misses = 0
     for _ in range(limit):
         _name, x, y = _k_here(player)
@@ -6879,7 +6909,7 @@ def _route_leg(player, report, filename, pad, width, place, goal, extra, key, li
             avoid = set(people) | set(items) | set(live) | set(extra) | set(block)
             avoid.discard((x, y))
             avoid.discard(goal)
-            steps = route(cells, (x, y), goal, avoid)
+            steps = route(cells, (x, y), goal, avoid, edges)
             if steps:
                 break
         if not steps:
