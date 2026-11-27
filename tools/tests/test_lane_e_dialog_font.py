@@ -32,7 +32,8 @@ local prompt = pages({
     {op = "control", source = "prompt"},
 })
 assert(prompt[1].ending == "prompt", prompt[1].ending)
-assert(prompt[1].text == "Which POKEMON\nshould I look at?", prompt[1].text)
+-- constants/charmap.asm:16 charmap "#", $54 ; "POKé". #MON is POKéMON.
+assert(prompt[1].text == "Which POKéMON\nshould I look at?", prompt[1].text)
 local paragraph = pages({
     {op = "text", text = "That is a decent"},
     {op = "line", text = "nickname!"},

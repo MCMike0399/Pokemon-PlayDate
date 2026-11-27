@@ -246,7 +246,7 @@ moveData = {
         return Move{ name = "FLAMETHROWER", type = "fire", category = "special", power = 95, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
     end,
     mist = function()
-        return Move{ name = "MIST", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+        return Move{ name = "MIST", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("mist") } }
     end,
     waterGun = function()
         return Move{ name = "WATER GUN", type = "water", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
@@ -381,7 +381,7 @@ moveData = {
         return Move{ name = "NIGHT SHADE", type = "ghost", category = "special", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, LevelOf(ATTACKER)) } }
     end,
     mimic = function()
-        return Move{ name = "MIMIC", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+        return Move{ name = "MIMIC", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { MimicEffect() } }
     end,
     screech = function()
         return Move{ name = "SCREECH", type = "normal", category = "status", power = 0, accuracy = 85, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "def", -2) } }
@@ -396,7 +396,7 @@ moveData = {
         return Move{ name = "HARDEN", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1) } }
     end,
     minimize = function()
-        return Move{ name = "MINIMIZE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "eva", 2) } }
+        return Move{ name = "MINIMIZE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "eva", 2), MinimizeEffect() } }
     end,
     smokescreen = function()
         return Move{ name = "SMOKESCREEN", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } }

@@ -501,10 +501,10 @@ if Class then
         end
         local menu = NamingScreen.yesNoBox()
         GbFont.drawBox(menu.box)
-        GbFont.drawString("YES", menu.textCol, menu.yesRow)
-        GbFont.drawString("NO", menu.textCol, menu.noRow)
+        GbFont.drawFitString("YES", menu.textCol, menu.yesRow)
+        GbFont.drawFitString("NO", menu.textCol, menu.noRow)
         local cursorRow = screen.cursor == 1 and menu.yesRow or menu.noRow
-        GbFont.drawChar(TitleIdle.CURSOR, menu.cursorCol, cursorRow)
+        GbFont.drawFitChar(TitleIdle.CURSOR, menu.cursorCol, cursorRow)
     end
 
     function NamingState:draw()
@@ -518,44 +518,59 @@ if Class then
             return
         end
         gfx.clear(gfx.kColorWhite)
-        GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
-        -- A yes/no prompt is the question itself. The header would print it
-        -- a second time and drawTight would run it through the border.
-        if not (screen.phase == "ask" and screen.kind == "yesno") then
-            GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName, screen.prompt), 24, 20)
-        end
+        -- naming_screen.asm PrintAlphabet is hlcoord 2, 5, one skipped
+        -- column and one skipped row. The cursor sits on the tile left of
+        -- the letter (wTopMenuItemX starts at 1). The case row is menu
+        -- item 6, which PlaceMenuCursor puts at row 15. DisplayIntroNameTextBox
+        -- is the preset list: border 0,0 b=10 c=9, names at 2,2 with <next>.
         if screen.phase == "presets" then
+            GbFont.drawBox(TitleIdle.textBox(0, 0, 9, 10))
+            GbFont.drawFitString("NAME", 3, 0)
             for index, label in ipairs(screen.presets) do
-                local marker = index == screen.cursor and TitleIdle.CURSOR or " "
-                GbFont.drawTight(marker .. label, 24, 36 + (index - 1) * 20)
+                local row = 2 + (index - 1) * 2
+                if index == screen.cursor then GbFont.drawFitChar(TitleIdle.CURSOR, 1, row) end
+                GbFont.drawFitString(label, 2, row)
             end
         elseif screen.phase == "ask" then
+            GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
             local ask = screen.kind == "yesno" and (screen.prompt or "How about it?")
                 or NamingScreen.askText(screen.speciesName)
-            local lines = NamingScreen.wrap(ask)
-            local top = screen.kind == "yesno" and 20 or 48
+            local lines = NamingScreen.wrap(ask, 18)
             for index, line in ipairs(lines) do
-                GbFont.drawTight(line, 24, top + (index - 1) * 20)
+                GbFont.drawFitString(line, 1, 1 + (index - 1) * 2)
             end
-            local choice = math.max(96, top + #lines * 20 + 8)
-            GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, choice)
-            GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, choice + 24)
+            local choice = 2 + #lines * 2
+            if screen.cursor == 1 then GbFont.drawFitChar(TitleIdle.CURSOR, 1, choice) end
+            GbFont.drawFitString("YES", 2, choice)
+            if screen.cursor == 2 then GbFont.drawFitChar(TitleIdle.CURSOR, 1, choice + 2) end
+            GbFont.drawFitString("NO", 2, choice + 2)
         else
-            GbFont.drawTight(NamingScreen.text(screen), 24, 40)
+            local header = NamingScreen.header(screen.kind, screen.speciesName, screen.prompt)
+            GbFont.drawFitString(header, 0, 1)
+            GbFont.drawFitString(NamingScreen.text(screen), 10, 2)
+            GbFont.drawBox(TitleIdle.textBox(0, 4, 18, 9))
             local grid = screen.upper and NamingScreen.UPPER or NamingScreen.LOWER
             for row, letters in ipairs(grid) do
-                local cursor = 24
+                local tileRow = 5 + (row - 1) * 2
                 for col, letter in ipairs(letters) do
-                    local marker = (row == screen.row and col == screen.col) and TitleIdle.CURSOR or " "
-                    GbFont.drawCell(marker, cursor, 64 + (row - 1) * 18)
-                    GbFont.drawCell(letter, cursor + 16, 64 + (row - 1) * 18)
-                    cursor = cursor + 36
+                    local tileCol = 2 + (col - 1) * 2
+                    if row == screen.row and col == screen.col then
+                        GbFont.drawFitChar(TitleIdle.CURSOR, tileCol - 1, tileRow)
+                    end
+                    -- constants/charmap.asm <PK> is $e1 and <MN> is $e2.
+                    -- LoadEDTile copies gfx/font/ED.1bpp. alphabets.asm stores
+                    -- each as one byte, and PrintAlphabet writes that byte
+                    -- into one cell. The 8x8 tile already packs the two
+                    -- letters; the 12/8 scale keeps that pair inside the cell.
+                    if letter == "PK" or letter == "MN" or letter == "ED" then
+                        GbFont.drawFitChar(letter, tileCol, tileRow)
+                    else
+                        GbFont.drawFitString(letter, tileCol, tileRow)
+                    end
                 end
             end
-            local caseMark = screen.row == 6 and TitleIdle.CURSOR or " "
-            local caseLabel = screen.upper and "lower case" or "UPPER CASE"
-            GbFont.drawCell(caseMark, 24, 168)
-            GbFont.drawTight(caseLabel, 40, 168)
+            if screen.row == 6 then GbFont.drawFitChar(TitleIdle.CURSOR, 1, 15) end
+            GbFont.drawFitString(screen.upper and "lower case" or "UPPER CASE", 2, 15)
         end
         gfx.setDrawOffset(x, y)
     end
@@ -678,7 +693,7 @@ if Class then
         local first = (self.page - 1) * OakSpeech.LINES_PER_PAGE + 1
         for offset = 0, OakSpeech.LINES_PER_PAGE - 1 do
             local line = self.lines[first + offset]
-            if line then GbFont.drawString(line, 1, 13 + offset) end
+            if line then GbFont.drawFitString(line, 1, 13 + offset) end
         end
         gfx.setDrawOffset(x, y)
     end

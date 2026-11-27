@@ -456,9 +456,9 @@ function TitleState:draw()
         for index, label in ipairs(self.menu.options) do
             local row = 11 + index - 1
             if index == self.menu.selectedIndex then
-                GbFont.drawChar(TitleIdle.CURSOR, 11, row)
+                GbFont.drawFitChar(TitleIdle.CURSOR, 11, row)
             end
-            GbFont.drawString(label, 12, row)
+            GbFont.drawFitString(label, 12, row)
         end
         return
     end
@@ -467,9 +467,9 @@ function TitleState:draw()
     GbFont.drawBox(TitleIdle.mainMenuBox(hasSave, extra))
     for index, cell in ipairs(TitleIdle.mainMenuCells(self.menu.options)) do
         if index == self.menu.selectedIndex then
-            GbFont.drawChar(TitleIdle.CURSOR, 1, cell.row)
+            GbFont.drawFitChar(TitleIdle.CURSOR, 1, cell.row)
         end
-        GbFont.drawString(cell.label, 2, cell.row)
+        GbFont.drawFitString(cell.label, 2, cell.row)
     end
     if self.phase == "continue-info" and self.info then
         local box = TitleIdle.continueBox()
@@ -481,8 +481,8 @@ function TitleState:draw()
             for _, row in ipairs(TitleIdle.CONTINUE_TEXT) do
                 if row.label == cell.label then spec = row end
             end
-            GbFont.drawString(cell.label, spec.labelCol, spec.row)
-            GbFont.drawString(cell.value, spec.valueCol, spec.row)
+            GbFont.drawFitString(cell.label, spec.labelCol, spec.row)
+            GbFont.drawFitString(cell.value, spec.valueCol, spec.row)
         end
     end
 end
