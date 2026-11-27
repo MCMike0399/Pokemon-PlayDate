@@ -1,5 +1,6 @@
 -- League story generated from pinned pokered. Decisions read story.json.
 -- Badge writes happen only through Giovanni's confirmed victory.
+import "game/drawnText"
 EndgameStory = {}
 local CONTENT <const> = "endgame"
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
@@ -246,7 +247,14 @@ function EndgameStory.monTypes(species)
     if not types then
         return {}
     end
-    return {types[1], types[2]}
+    -- visual.json keeps the pokered constant. PrintMonType draws names.asm.
+    local function show(value)
+        if DrawnText and DrawnText.typeName then
+            return DrawnText.typeName(value)
+        end
+        return value
+    end
+    return {show(types[1]), types[2] and show(types[2]) or nil}
 end
 
 function EndgameStory.hallPhotoTiming()
@@ -536,6 +544,43 @@ function EndgameStory.playerHallPages(stats)
         {delay = 120, text = "POKéDEX Rating:"},
         {delay = 120, text = EndgameStory.dexRating(owned)},
     }
+end
+
+-- One drawText of a multi-line rating is taller than the hall clip under
+-- the label (y=160, clip bottom 240), so Playdate drops the paragraph.
+-- Each line is its own draw. # in the pokered text is already POKé.
+-- A 20px pitch matches the system font. Five-line ratings use a shorter
+-- pitch only so the last glyph stays inside the clip.
+function EndgameStory.hallPageLines(text)
+    local lines = {}
+    local start = 1
+    text = text or ""
+    while start <= #text + 1 do
+        local found = text:find("\n", start, true)
+        if not found then
+            lines[#lines + 1] = text:sub(start)
+            break
+        end
+        lines[#lines + 1] = text:sub(start, found - 1)
+        start = found + 1
+    end
+    local x <const>, y <const> = EndgameStory.hallPixel(8, 13 * 8)
+    local glyph <const> = 14
+    local clipBottom <const> = 240
+    local step = 20
+    if #lines > 1 then
+        local room <const> = clipBottom - 1 - y - glyph
+        local maxStep <const> = math.floor(room / (#lines - 1))
+        if step > maxStep then
+            step = maxStep
+        end
+    end
+    local placed = {}
+    for index, line in ipairs(lines) do
+        local lineY <const> = y + (index - 1) * step
+        placed[index] = {text = line, x = x, y = lineY, bottom = lineY + glyph}
+    end
+    return placed
 end
 
 -- The HALL OF FAME box is drawn inside the party loop only, after the
@@ -1615,8 +1660,11 @@ function EndgameStory.drawPhoto(gfx, state)
         local pages <const> = EndgameStory.playerHallPages(photo.stats)
         local page <const> = pages[state.photo.page or 1]
         if page then
-            local px, py = EndgameStory.hallPixel(8, 13 * 8)
-            EndgameStory.drawPokeredText(gfx, page.text, px, py)
+            for _, line in ipairs(EndgameStory.hallPageLines(page.text)) do
+                if line.text ~= "" then
+                    EndgameStory.drawPokeredText(gfx, line.text, line.x, line.y)
+                end
+            end
         end
     elseif EndgameStory.hallShowsCaption(photo, stage, state.photo.clock) then
         local caption <const> = EndgameStory.hallCaptionRow()

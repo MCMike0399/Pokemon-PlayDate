@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tools.audio.catalog import Catalog
 from tools.audio.events import build
-from tools.audio.scores import ASSETS, MANSION_LOOP_TICKS, ScoreTrace, checkpoint_maps
+from tools.audio.scores import ALT_SCORES, ASSETS, PITCHED, LabelTrace, ScoreTrace, _sound_loop_targets, checkpoint_maps
 from tools.audio.source import Source
 from tools.measure_boot_budget import LUA_PEAK_BUDGET_KIB, POOL_BYTES
 
@@ -67,6 +67,16 @@ class AudioEventTests(unittest.TestCase):
             'score:brock-nil': 'gym_leader', 'score:brock-zero': 'trainer',
             'score:giovanni-gym': 'gym_leader', 'score:giovanni-hideout': 'trainer',
             'score:giovanni-zero': 'trainer', 'score:youngster': 'trainer',
+            'score:lorelei': 'trainer', 'victory:lorelei': 'defeated_trainer',
+            'score:bruno': 'trainer', 'victory:bruno': 'defeated_trainer',
+            'score:agatha': 'trainer', 'victory:agatha': 'defeated_trainer',
+            'jingle:lorelei': 'meet_male',
+            'map:pokered:LORELEIS_ROOM': 'gym',
+            'map:pokered:BRUNOS_ROOM': 'dungeon1',
+            'map:pokered:AGATHAS_ROOM': 'tower',
+            'map:pokered:LANCES_ROOM': 'indigo',
+            'map:pokered:CHAMPIONS_ROOM': 'indigo',
+            'map:pokered:HALL_OF_FAME': 'pallet',
             'jingle:lass': 'meet_female', 'jingle:rocket': 'meet_evil',
             'jingle:youngster': 'meet_male', 'jingle:rival': 'nil',
             'jingle:brock': 'meet_male', 'jingle:gym': 'nil', 'jingle:empty': 'nil',
@@ -114,24 +124,47 @@ class AudioEventTests(unittest.TestCase):
             self.assertIn('PlayCry', cited)
             self.assertIn(row['const'], cited)
 
+    def test_field_receipts_follow_the_sound_commands(self):
+        receipts = self.data['field_receipts']
+        self.assertEqual(receipts['_VermilionOldRodHouseFishingGuruTakeThisText']['cue'], 'item')
+        self.assertEqual(receipts['_ViridianCityFisherReceivedTM42Text']['cue'], 'item2')
+        self.assertEqual(receipts['_OaksLabOak1DeliverParcelText']['cue'], 'key_item')
+        self.assertEqual(receipts['_PewterGymBrockReceivedBoulderBadgeText']['cue'], 'badge')
+        self.assertEqual(receipts['_ViridianGymGiovanniReceivedEarthBadgeText']['cue'], 'badge')
+        self.assertEqual(self.data['cues']['intro_crash']['score'], 'intro_crash')
+        self.assertEqual(self.data['cues']['intro_whoosh']['source'], 'engine/movie/title.asm:193')
+        self.assertIn('intro.asm', self.data['cues']['intro_crash']['source'])
+
     def test_cue_citations_are_in_the_pinned_files(self):
         for name, cue in self.data['cues'].items():
             path, line = cue['source'].rsplit(':', 1)
             rows = self.source.read(path).splitlines()
             self.assertIn(cue['token'], rows[int(line) - 1])
             self.assertEqual(self.probe['cue:' + name], cue['score'] + ':' + cue['kind'])
-            self.assertIn(cue['score'], ASSETS)
+            self.assertIn(cue['score'], set(ASSETS) | set(ALT_SCORES) | set(PITCHED))
 
     def test_score_loops_match_source_traces(self):
         import json
         manifest = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())
         adapted = set(manifest['adapted'])
         approximated = set(manifest['approximations'])
-        self.assertEqual(manifest['approximations']['mansion'].count('1788480'), 1)
-        mansion = manifest['scores']['mansion']
-        self.assertEqual((mansion['ticks'], mansion['loop']), (MANSION_LOOP_TICKS, 0))
+        self.assertEqual(approximated, set())
         for name, row in manifest['scores'].items():
+            if row.get('retarget'):
+                continue
+            header = (ROOT / f'Source/audio/score/{name}.lua').read_text().split('notes=', 1)[0]
+            self.assertIn(f'ticks={row["ticks"]}', header)
+            if row.get('parts'):
+                self.assertIn('parts={', header)
+                continue
+            shown = 'nil' if row['loop'] is None else str(row['loop'])
+            self.assertIn(f'loop={shown}', header)
             if name in adapted or name in approximated or name == 'alarm':
+                continue
+            # Pitched falls are the same header traced with GetMoveSound's bytes.
+            if row.get('pitch') is not None:
+                continue
+            if row.get('loop_basis') in ('label', 'joint'):
                 continue
             asset = row['asset']
             trace = ScoreTrace(self.catalog, self.catalog.headers[asset]['family'])
@@ -139,12 +172,63 @@ class AudioEventTests(unittest.TestCase):
             result = trace.run()
             loop = result['repeat']['start_tick'] if result['repeat'] else None
             self.assertNotEqual(result['status'], 'bound', name)
+            if row.get('loop_basis') == 'state':
+                self.assertIsNotNone(loop, name)
+                self.assertEqual(row['ticks'] - row['loop'], result['ticks'] - loop, name)
+                self.assertIn(row['loop'], {loop, loop - 1}, name)
+                continue
             self.assertEqual(row['ticks'], result['ticks'], name)
             self.assertEqual(row['loop'], loop, name)
-            header = (ROOT / f'Source/audio/score/{name}.lua').read_text().split('notes=', 1)[0]
-            shown = 'nil' if loop is None else str(loop)
-            self.assertIn(f'ticks={row["ticks"]}', header)
-            self.assertIn(f'loop={shown}', header)
+
+    def test_loop_points_match_pokered_loop_labels(self):
+        import json
+        manifest = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())
+        label_pcs, loop_pcs = _sound_loop_targets(self.catalog)
+        for name, row in manifest['scores'].items():
+            if row.get('retarget'):
+                continue
+            basis = row.get('loop_basis')
+            if basis not in ('label', 'joint', 'parts', 'state'):
+                continue
+            header = self.catalog.headers[row['asset']]
+            scopes = {channel['entry'] for channel in header['channels']}
+            trace = LabelTrace(self.catalog, header['family'], scopes, label_pcs, loop_pcs)
+            trace.load(row['asset'])
+            trace.run(4000)
+            labels = trace.label_tick
+            self.assertTrue(labels, name)
+            if basis == 'label':
+                self.assertEqual(set(labels.values()), {row['loop']}, name)
+            elif basis == 'joint':
+                self.assertEqual(row['loop'], max(labels.values()), name)
+            elif basis == 'parts':
+                shipped = {part['voice']: part['loop'] for part in row['parts']}
+                self.assertEqual(shipped, labels, name)
+            else:
+                self.assertGreaterEqual(row['loop'], min(labels.values()), name)
+
+    def test_cinnabar_mansion_does_not_seam_at_tick_9315(self):
+        import json
+        row = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())['scores']['mansion']
+        parts = {part['voice']: part for part in row['parts']}
+        self.assertEqual(
+            [(voice, parts[voice]['loop'], parts[voice]['ticks'] - parts[voice]['loop'])
+             for voice in (1, 2, 3, 4)],
+            [(1, 0, 9315), (2, 864, 1728), (3, 0, 3888), (4, 216, 216)],
+        )
+
+        def phase(part, tick):
+            if tick < part['ticks']:
+                return tick
+            span = part['ticks'] - part['loop']
+            return part['loop'] + (tick - part['loop']) % span
+
+        # Channel 1's label returns here. The other channels stay in their own loops.
+        self.assertEqual(phase(parts[1], 9315), 0)
+        self.assertEqual(phase(parts[2], 9315), 2403)
+        self.assertNotEqual(phase(parts[2], 9315), parts[2]['loop'])
+        self.assertEqual(phase(parts[3], 9315), 1539)
+        self.assertEqual(phase(parts[4], 9315), 243)
 
     def test_chirps_keep_the_30fps_gate_adaptation(self):
         import json
@@ -159,6 +243,39 @@ class AudioEventTests(unittest.TestCase):
             trace.load(asset)
             trace.run()
             self.assertLess(min(note[2] for note in trace.notes), 3)
+
+
+    def test_alternate_tempo_entries_are_separate_scores(self):
+        import json
+        manifest = json.loads((ROOT / 'tools/audio/score-manifest.json').read_text())
+        expected = {
+            'cities1_oak': ('Music_Cities1_Ch1_AlternateTempo', 'cities1'),
+            'meet_rival_slow': ('Music_MeetRival_Ch1_AlternateTempo', 'meet_rival'),
+            'meet_rival_league': ('Music_MeetRival_Ch1_AlternateStartAndTempo', 'meet_rival'),
+            'meet_rival_start': ('Music_MeetRival_Ch1_AlternateStart', 'meet_rival'),
+        }
+        for name, (entry, base) in expected.items():
+            text = (ROOT / f'Source/audio/score/{name}.lua').read_text()
+            self.assertIn('-- channel entry ' + entry, text)
+            self.assertEqual(manifest['scores'][name]['retarget'], entry)
+            self.assertNotEqual(manifest['scores'][name]['ticks'], manifest['scores'][base]['ticks'])
+        fall = (ROOT / 'Source/audio/score/faint_fall.lua').read_text()
+        self.assertIn('audio2:SFX_Faint_Fall', fall)
+        self.assertIn('loop=nil', fall)
+        pitched = {
+            'faint_fall_agility': (32, 192),
+            'faint_fall_kinesis': (24, 32),
+            'faint_fall_transform': (255, 255),
+            'faint_fall_dizzy_punch': (255, 4),
+        }
+        for name, (pitch, tempo) in pitched.items():
+            text = (ROOT / f'Source/audio/score/{name}.lua').read_text()
+            self.assertIn(f'-- pitch modifier {pitch} tempo modifier {tempo}', text)
+            self.assertIn('GetMoveSound writes wFrequencyModifier and wTempoModifier', text)
+            row = manifest['scores'][name]
+            self.assertEqual(row['pitch'], pitch)
+            self.assertEqual(row['tempo'], tempo)
+            self.assertNotEqual(row['ticks'], manifest['scores']['faint_fall']['ticks'])
 
 
 class AudioBootTests(unittest.TestCase):

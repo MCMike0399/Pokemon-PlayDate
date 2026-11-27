@@ -1,4 +1,5 @@
 import "battle/captureAnimation"
+import "game/drawnText"
 
 local gfx <const> = playdate.graphics
 
@@ -781,7 +782,7 @@ function BattleScene:drawMoveDetail(x, y)
     if not shown or shown.key ~= key or shown.pp ~= pp or shown.max ~= maxPP or shown.disabled ~= disabled then
         shown = {
             key = key, pp = pp, max = maxPP, disabled = disabled,
-            lines = BattleScene.moveDetailLines(string.upper(move.type), pp, maxPP, disabled),
+            lines = BattleScene.moveDetailLines(DrawnText.typeName(move.type), pp, maxPP, disabled),
         }
         self.moveDetailShown = shown
     end

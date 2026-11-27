@@ -1,0 +1,151 @@
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -26,6 +26,7 @@
+                 self.machine:pop() -- Capture only the settled overworld.
+                 local ok, metadata = self.game.saves:save()
+                 self.lastSave = {ok = ok, reason = metadata and metadata.reason}
++                self.game.lastSave = self.lastSave
+                 local lines
+                 if ok then
+                     lines={"RED saved the game!"}
+--- a/Source/game/bagState.lua
++++ b/Source/game/bagState.lua
+@@ -208,6 +208,8 @@
+     local mon = self.game.session:party():get(index)
+     local ok, result = Items.use(self.game.session:inventory(), id, mon, moveSlot)
+     if ok then
++        self.game.lastItemUse = {effect = ItemData.definitions[id].effect,
++            hpRestored = result.hpRestored or 0, statusCured = result.statusCured}
+         self:showMessage(ItemData.definitions[id].name .. " was used on " .. mon.name .. ".")
+     elseif result == "no-effect" then
+         self:showMessage("It won't have any effect.")
+@@ -482,6 +484,10 @@
+         or (slot and mon.moves[slot]~=moveKey) then self:battleMessage("stale-selection");return false,"stale-selection" end
+     local ok,result=self.options.trySelect(id,index,slot)
+     if ok then self.machine:pop() else self:battleMessage(result) end
++    if ok and type(result) == "table" then
++        self.game.lastItemUse = {effect = ItemData.definitions[id].effect,
++            hpRestored = result.hpRestored or 0, statusCured = result.statusCured}
++    end
+     return ok,result
+ end
+ function BagState:chooseBattleTarget(id)
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -908,6 +908,7 @@
+     local context={pokemon=self.enemy,wild=true}
+     local dex=self.session:pokedex()
+     local caughtCount=0;for _,owned in pairs(dex.owned) do if owned then caughtCount=caughtCount+1 end end
++    local ownedBefore = dex.owned[self.enemy.species] == true
+     local parameters,problem=Capture.parameters(context,ballId,caughtCount)
+     if not parameters then return false,problem end
+     local storage=self.session:storage()
+@@ -928,6 +929,7 @@
+         assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
+     end
+     if result.caught then
++        if not ownedBefore then self.dexPageAdded = self.enemy.species end
+         self.enemy:resetStages()
+         self:clearHitPresentation()
+         if not self.sourceEncounter then
+--- a/Source/game/partyState.lua
++++ b/Source/game/partyState.lua
+@@ -173,7 +173,9 @@
+             self.selected = self.selected % count + 1
+         elseif playdate.buttonJustPressed(playdate.kButtonA) then
+             if self.phase == "swap" then
+-                assert(party:swap(self.swapFrom, self.selected))
++                local from, to = self.swapFrom, self.selected
++                assert(party:swap(from, to))
++                if from ~= to then self.swapReceipt = {from = from, to = to} end
+                 -- The first conscious roster member leads field encounters.
+                 local lead = party:firstUsable()
+                 if lead then assert(party:switch(lead)) end
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -36,6 +36,22 @@
+     self.owner.game.player.running = false
+ end
+ 
++-- engine/events/poison.asm applies poison every fourth completed step when
++-- any living party member still has the poison status, then plays SFX_POISONED.
++local function noteFieldPoison(game)
++    game.fieldSteps = (game.fieldSteps or 0) + 1
++    if game.fieldSteps % 4 ~= 0 then return end
++    local party = game.session and game.session:party()
++    if not party then return end
++    for index = 1, party:count() do
++        local mon = party:get(index)
++        if mon and mon.hp > 0 and (mon.status == "poison" or mon.status == "badPoison") then
++            game.lastFieldPoison = {step = game.fieldSteps}
++            return
++        end
++    end
++end
++
+ function ExploreSubstate:exit()
+     self.owner.game.player.running = false
+ end
+@@ -83,6 +99,7 @@
+         self.owner:_presentedWorld()
+         if not player.fieldStep and player.stepJustFinished then
+             game.session:daycareStep()
++            noteFieldPoison(game)
+         if SafariRuntime then
+             SafariRuntime.completedStep(game)
+         end
+@@ -162,6 +179,7 @@
+     gfx.sprite.update()
+     if wasMoving and not player.isMoving and player.stepJustFinished then
+         game.session:daycareStep()
++        noteFieldPoison(game)
+         if SafariRuntime then
+             SafariRuntime.completedStep(game)
+         end
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -43,6 +43,14 @@
+ function EventState:dialog(pages,callback,receipt)
+     assert(#pages>0 and #pages<=64,"bounded source pages required")
+     local lines={};for _,page in ipairs(pages) do lines[#lines+1]=page.text end
++    if pages[1].label == "_OaksLabOak1HowIsYourPokedexComingText" then
++        local owned = 0
++        local dex = self.session and self.session:pokedex()
++        for _, flag in pairs(dex and dex.owned or {}) do
++            if flag then owned = owned + 1 end
++        end
++        self.game.lastDexRating = {owned = owned}
++    end
+     self.phase,self.waiting=receipt and "receipt" or "dialog",pages[1].label
+     self.machine:push("dialog",lines,self:guard(callback))
+ end
+--- a/Source/game/celadonServicesController.lua
++++ b/Source/game/celadonServicesController.lua
+@@ -315,6 +315,7 @@
+         menu(state, { "1F", "2F", "3F", "4F", "5F" }, function(index)
+             local accepted, reason = CeladonServices.selectFloor(state.session, index)
+             if accepted then
++                state.game.lastElevator = {place = "celadon", floor = index}
+                 state:finish()
+             else
+                 state:fail(reason)
+--- a/Source/game/silphStoryController.lua
++++ b/Source/game/silphStoryController.lua
+@@ -216,6 +216,7 @@
+                 end
+                 local ok, reason = SilphStoryWorld.selectFloor(state.session, index)
+                 if ok then
++                    state.game.lastElevator = {place = "silph", floor = index}
+                     state:finish()
+                 else
+                     state:fail(reason)
+--- a/Source/game/rocketHideoutStoryController.lua
++++ b/Source/game/rocketHideoutStoryController.lua
+@@ -63,6 +63,7 @@
+                     end
+                     local ok, reason = RocketHideoutStory.selectFloor(state.session, entries[index].floor)
+                     if ok then
++                        state.game.lastElevator = {place = "hideout", floor = entries[index].floor}
+                         state:finish()
+                     else
+                         state:fail(reason)

@@ -4,9 +4,7 @@
     "start_menu": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
     "text": "two source pitches, gates 3+5 ticks; native 30FPS chirp"
   },
-  "approximations": {
-    "mansion": "joint channel loop is tick 1788480; shipped loop is channel 1 period 9315"
-  },
+  "approximations": {},
   "checkpoint": {
     "manifest_sha256": "3f0d8683db4159837af759523baa166168f269db89865cce0067ff1b205e0389",
     "maps": 222,
@@ -671,7 +669,7 @@
   "menu_adaptation": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
   "revision": "af519899719f0754965776faac0e836a3b906e6d",
   "schema": 3,
-  "score_sha256": "1b3df3c0eac743023529676ee7f25039626545ecf2897d2fdd5823979b0cf3b7",
+  "score_sha256": "4445745423bfc896e6a75136bfcdc44f164b959b6b4db1588ebe21faea8770e6",
   "scores": {
     "alarm": {
       "adapted": false,
@@ -683,9 +681,17 @@
     "anne": {
       "adapted": false,
       "asset": "audio1:Music_SSAnne",
-      "loop": 169,
-      "notes": 271,
-      "ticks": 2089
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 251,
+      "ticks": 1920
+    },
+    "anne_horn": {
+      "adapted": false,
+      "asset": "audio1:SFX_SS_Anne_Horn_1",
+      "loop": null,
+      "notes": 12,
+      "ticks": 102
     },
     "arrow_tiles": {
       "adapted": false,
@@ -694,12 +700,27 @@
       "notes": 1,
       "ticks": 17
     },
+    "ball_poof": {
+      "adapted": false,
+      "asset": "audio2:SFX_Ball_Poof",
+      "loop": null,
+      "notes": 2,
+      "ticks": 17
+    },
+    "ball_toss": {
+      "adapted": false,
+      "asset": "audio2:SFX_Ball_Toss",
+      "loop": null,
+      "notes": 2,
+      "ticks": 17
+    },
     "bicycle": {
       "adapted": false,
       "asset": "audio3:Music_BikeRiding",
-      "loop": 28,
-      "notes": 522,
-      "ticks": 2080
+      "loop": 27,
+      "loop_basis": "state",
+      "notes": 520,
+      "ticks": 2079
     },
     "boulder": {
       "adapted": false,
@@ -718,30 +739,50 @@
     "celadon": {
       "adapted": false,
       "asset": "audio1:Music_Celadon",
-      "loop": 109,
-      "notes": 304,
-      "ticks": 1837
+      "loop": 108,
+      "loop_basis": "label",
+      "notes": 301,
+      "ticks": 1836
     },
     "cinnabar": {
       "adapted": false,
       "asset": "audio1:Music_Cinnabar",
-      "loop": 28,
-      "notes": 208,
-      "ticks": 1324
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 204,
+      "ticks": 1296
     },
     "cities1": {
       "adapted": false,
       "asset": "audio1:Music_Cities1",
-      "loop": 1,
-      "notes": 610,
-      "ticks": 3457
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 607,
+      "ticks": 3456
+    },
+    "cities1_oak": {
+      "adapted": false,
+      "asset": "audio1:Music_Cities1",
+      "loop": 0,
+      "loop_basis": "state",
+      "notes": 607,
+      "retarget": "Music_Cities1_Ch1_AlternateTempo",
+      "ticks": 5568
     },
     "cities2": {
       "adapted": false,
       "asset": "audio1:Music_Cities2",
-      "loop": 223,
-      "notes": 306,
-      "ticks": 1999
+      "loop": 222,
+      "loop_basis": "label",
+      "notes": 303,
+      "ticks": 1998
+    },
+    "collision": {
+      "adapted": false,
+      "asset": "audio1:SFX_Collision_1",
+      "loop": null,
+      "notes": 1,
+      "ticks": 17
     },
     "credits": {
       "adapted": false,
@@ -760,23 +801,26 @@
     "defeated_gym": {
       "adapted": false,
       "asset": "audio2:Music_DefeatedGymLeader",
-      "loop": 169,
-      "notes": 416,
-      "ticks": 2185
+      "loop": 168,
+      "loop_basis": "label",
+      "notes": 413,
+      "ticks": 2184
     },
     "defeated_trainer": {
       "adapted": false,
       "asset": "audio2:Music_DefeatedTrainer",
-      "loop": 85,
-      "notes": 160,
-      "ticks": 757
+      "loop": 84,
+      "loop_basis": "label",
+      "notes": 157,
+      "ticks": 756
     },
     "defeated_wild": {
       "adapted": false,
       "asset": "audio2:Music_DefeatedWildMon",
-      "loop": 85,
-      "notes": 163,
-      "ticks": 757
+      "loop": 84,
+      "loop_basis": "label",
+      "notes": 160,
+      "ticks": 756
     },
     "denied": {
       "adapted": false,
@@ -785,26 +829,36 @@
       "notes": 4,
       "ticks": 29
     },
+    "dex_page": {
+      "adapted": false,
+      "asset": "audio2:SFX_Dex_Page_Added",
+      "loop": null,
+      "notes": 4,
+      "ticks": 33
+    },
     "dungeon1": {
       "adapted": false,
       "asset": "audio3:Music_Dungeon1",
-      "loop": 109,
-      "notes": 787,
-      "ticks": 4105
+      "loop": 108,
+      "loop_basis": "state",
+      "notes": 783,
+      "ticks": 4104
     },
     "dungeon2": {
       "adapted": false,
       "asset": "audio3:Music_Dungeon2",
-      "loop": 1,
-      "notes": 744,
-      "ticks": 6049
+      "loop": 0,
+      "loop_basis": "state",
+      "notes": 740,
+      "ticks": 6048
     },
     "dungeon3": {
       "adapted": false,
       "asset": "audio3:Music_Dungeon3",
-      "loop": 4972,
-      "notes": 1090,
-      "ticks": 9955
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 545,
+      "ticks": 4983
     },
     "faint": {
       "adapted": false,
@@ -813,12 +867,56 @@
       "notes": 4,
       "ticks": 31
     },
+    "faint_fall": {
+      "adapted": false,
+      "asset": "audio2:SFX_Faint_Fall",
+      "loop": null,
+      "notes": 1,
+      "ticks": 17
+    },
+    "faint_fall_agility": {
+      "adapted": false,
+      "asset": "audio2:SFX_Faint_Fall",
+      "loop": null,
+      "notes": 1,
+      "pitch": 32,
+      "tempo": 192,
+      "ticks": 21
+    },
+    "faint_fall_dizzy_punch": {
+      "adapted": false,
+      "asset": "audio2:SFX_Faint_Fall",
+      "loop": null,
+      "notes": 1,
+      "pitch": 255,
+      "tempo": 4,
+      "ticks": 9
+    },
+    "faint_fall_kinesis": {
+      "adapted": false,
+      "asset": "audio2:SFX_Faint_Fall",
+      "loop": null,
+      "notes": 1,
+      "pitch": 24,
+      "tempo": 32,
+      "ticks": 11
+    },
+    "faint_fall_transform": {
+      "adapted": false,
+      "asset": "audio2:SFX_Faint_Fall",
+      "loop": null,
+      "notes": 1,
+      "pitch": 255,
+      "tempo": 255,
+      "ticks": 24
+    },
     "final": {
       "adapted": false,
       "asset": "audio2:Music_FinalBattle",
-      "loop": 841,
-      "notes": 937,
-      "ticks": 4453
+      "loop": 840,
+      "loop_basis": "label",
+      "notes": 934,
+      "ticks": 4452
     },
     "flute": {
       "adapted": false,
@@ -827,12 +925,20 @@
       "notes": 13,
       "ticks": 577
     },
+    "fly": {
+      "adapted": false,
+      "asset": "audio1:SFX_Fly_1",
+      "loop": null,
+      "notes": 8,
+      "ticks": 49
+    },
     "game_corner": {
       "adapted": false,
       "asset": "audio3:Music_GameCorner",
-      "loop": 181,
-      "notes": 432,
-      "ticks": 2341
+      "loop": 180,
+      "loop_basis": "state",
+      "notes": 429,
+      "ticks": 2340
     },
     "go_inside": {
       "adapted": false,
@@ -851,23 +957,26 @@
     "gym": {
       "adapted": false,
       "asset": "audio1:Music_Gym",
-      "loop": 208,
-      "notes": 343,
-      "ticks": 1864
+      "loop": 207,
+      "loop_basis": "label",
+      "notes": 340,
+      "ticks": 1863
     },
     "gym_leader": {
       "adapted": false,
       "asset": "audio2:Music_GymLeaderBattle",
-      "loop": 2360,
-      "notes": 1272,
-      "ticks": 5012
+      "loop": 2359,
+      "loop_basis": "state",
+      "notes": 1269,
+      "ticks": 5011
     },
     "hall_of_fame": {
       "adapted": false,
       "asset": "audio3:Music_HallOfFame",
-      "loop": 337,
-      "notes": 263,
-      "ticks": 1681
+      "loop": 336,
+      "loop_basis": "joint",
+      "notes": 260,
+      "ticks": 1680
     },
     "heal": {
       "adapted": false,
@@ -875,6 +984,20 @@
       "loop": null,
       "notes": 15,
       "ticks": 136
+    },
+    "heal_ailment": {
+      "adapted": false,
+      "asset": "audio1:SFX_Heal_Ailment_1",
+      "loop": null,
+      "notes": 3,
+      "ticks": 27
+    },
+    "heal_hp": {
+      "adapted": false,
+      "asset": "audio1:SFX_Heal_HP_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 33
     },
     "healing_machine": {
       "adapted": false,
@@ -893,9 +1016,31 @@
     "indigo": {
       "adapted": false,
       "asset": "audio1:Music_IndigoPlateau",
-      "loop": 199,
-      "notes": 392,
-      "ticks": 1783
+      "loop": 198,
+      "loop_basis": "label",
+      "notes": 388,
+      "ticks": 1782
+    },
+    "intro_crash": {
+      "adapted": false,
+      "asset": "audio3:SFX_Intro_Crash",
+      "loop": null,
+      "notes": 2,
+      "ticks": 20
+    },
+    "intro_lunge": {
+      "adapted": false,
+      "asset": "audio3:SFX_Intro_Lunge",
+      "loop": null,
+      "notes": 8,
+      "ticks": 77
+    },
+    "intro_whoosh": {
+      "adapted": false,
+      "asset": "audio3:SFX_Intro_Whoosh",
+      "loop": null,
+      "notes": 5,
+      "ticks": 34
     },
     "item": {
       "adapted": false,
@@ -921,9 +1066,10 @@
     "lavender": {
       "adapted": false,
       "asset": "audio1:Music_Lavender",
-      "loop": 457,
-      "notes": 1990,
-      "ticks": 18697
+      "loop": 456,
+      "loop_basis": "joint",
+      "notes": 1986,
+      "ticks": 18696
     },
     "ledge": {
       "adapted": false,
@@ -942,44 +1088,103 @@
     "mansion": {
       "adapted": false,
       "asset": "audio3:Music_CinnabarMansion",
-      "loop": 0,
-      "notes": 1933,
+      "loop": null,
+      "loop_basis": "parts",
+      "notes": 892,
+      "parts": [
+        {
+          "loop": 0,
+          "notes": 684,
+          "ticks": 9315,
+          "voice": 1
+        },
+        {
+          "loop": 864,
+          "notes": 60,
+          "ticks": 2592,
+          "voice": 2
+        },
+        {
+          "loop": 0,
+          "notes": 133,
+          "ticks": 3888,
+          "voice": 3
+        },
+        {
+          "loop": 216,
+          "notes": 15,
+          "ticks": 432,
+          "voice": 4
+        }
+      ],
       "ticks": 9315
     },
     "meet_evil": {
       "adapted": false,
       "asset": "audio3:Music_MeetEvilTrainer",
-      "loop": 70,
-      "notes": 63,
-      "ticks": 442
+      "loop": 69,
+      "loop_basis": "state",
+      "notes": 60,
+      "ticks": 441
     },
     "meet_female": {
       "adapted": false,
       "asset": "audio3:Music_MeetFemaleTrainer",
-      "loop": 82,
-      "notes": 71,
-      "ticks": 454
+      "loop": 81,
+      "loop_basis": "label",
+      "notes": 68,
+      "ticks": 453
     },
     "meet_male": {
       "adapted": false,
       "asset": "audio3:Music_MeetMaleTrainer",
-      "loop": 169,
-      "notes": 84,
-      "ticks": 505
+      "loop": 168,
+      "loop_basis": "label",
+      "notes": 81,
+      "ticks": 504
     },
     "meet_oak": {
       "adapted": false,
       "asset": "audio1:Music_MeetProfOak",
-      "loop": 1009,
-      "notes": 322,
-      "ticks": 1681
+      "loop": 1008,
+      "loop_basis": "state",
+      "notes": 319,
+      "ticks": 1680
     },
     "meet_rival": {
       "adapted": false,
       "asset": "audio1:Music_MeetRival",
-      "loop": 179,
-      "notes": 198,
-      "ticks": 1019
+      "loop": 178,
+      "loop_basis": "state",
+      "notes": 197,
+      "ticks": 1018
+    },
+    "meet_rival_league": {
+      "adapted": false,
+      "asset": "audio1:Music_MeetRival",
+      "loop": 84,
+      "loop_basis": "state",
+      "notes": 173,
+      "retarget": "Music_MeetRival_Ch1_AlternateStartAndTempo",
+      "ticks": 834
+    },
+    "meet_rival_slow": {
+      "adapted": false,
+      "asset": "audio1:Music_MeetRival",
+      "loop": 159,
+      "loop_basis": "state",
+      "notes": 197,
+      "retarget": "Music_MeetRival_Ch1_AlternateTempo",
+      "ticks": 909
+    },
+    "meet_rival_start": {
+      "adapted": false,
+      "asset": "audio1:Music_MeetRival",
+      "loop": 94,
+      "loop_basis": "state",
+      "notes": 173,
+      "retarget": "Music_MeetRival_Ch1_AlternateStart",
+      "ticks": 934
     },
     "menu": {
       "adapted": true,
@@ -988,19 +1193,1461 @@
       "notes": 2,
       "ticks": 8
     },
+    "move_absorb": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_24",
+      "loop": null,
+      "notes": 3,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 33
+    },
+    "move_acid": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2A",
+      "loop": null,
+      "notes": 33,
+      "pitch": 128,
+      "tempo": 192,
+      "ticks": 124
+    },
+    "move_acidArmor": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0D",
+      "loop": null,
+      "notes": 3,
+      "pitch": 240,
+      "tempo": 255,
+      "ticks": 37
+    },
+    "move_amnesia": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_09",
+      "loop": null,
+      "notes": 1,
+      "pitch": 248,
+      "tempo": 16,
+      "ticks": 10
+    },
+    "move_auroraBeam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_28",
+      "loop": null,
+      "notes": 60,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 25
+    },
+    "move_barrage": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_32",
+      "loop": null,
+      "notes": 2,
+      "pitch": 8,
+      "tempo": 224,
+      "ticks": 13
+    },
+    "move_barrier": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0E",
+      "loop": null,
+      "notes": 2,
+      "pitch": 32,
+      "tempo": 32,
+      "ticks": 26
+    },
+    "move_bide": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_18",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 192,
+      "ticks": 15
+    },
+    "move_bind": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 37
+    },
+    "move_bite": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1E",
+      "loop": null,
+      "notes": 6,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 15
+    },
+    "move_blizzard": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 240,
+      "tempo": 224,
+      "ticks": 186
+    },
+    "move_bodySlam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_20",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 192,
+      "ticks": 23
+    },
+    "move_boneClub": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_32",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 10
+    },
+    "move_bonemerang": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2B",
+      "loop": null,
+      "notes": 52,
+      "pitch": 240,
+      "tempo": 96,
+      "ticks": 110
+    },
+    "move_bubble": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_24",
+      "loop": null,
+      "notes": 3,
+      "pitch": 255,
+      "tempo": 16,
+      "ticks": 33
+    },
+    "move_bubbleBeam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2A",
+      "loop": null,
+      "notes": 33,
+      "pitch": 240,
+      "tempo": 96,
+      "ticks": 87
+    },
+    "move_clamp": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0F",
+      "loop": null,
+      "notes": 4,
+      "pitch": 31,
+      "tempo": 255,
+      "ticks": 25
+    },
+    "move_cometPunch": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0B",
+      "loop": null,
+      "notes": 1,
+      "pitch": 1,
+      "tempo": 128,
+      "ticks": 10
+    },
+    "move_confuseRay": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_13",
+      "loop": null,
+      "notes": 4,
+      "pitch": 241,
+      "tempo": 255,
+      "ticks": 38
+    },
+    "move_confusion": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 0,
+      "tempo": 32,
+      "ticks": 37
+    },
+    "move_constrict": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 15,
+      "tempo": 128,
+      "ticks": 37
+    },
+    "move_conversion": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_33",
+      "loop": null,
+      "notes": 10,
+      "pitch": 240,
+      "tempo": 16,
+      "ticks": 21
+    },
+    "move_counter": {
+      "adapted": false,
+      "asset": "audio2:SFX_Super_Effective",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 224,
+      "ticks": 22
+    },
+    "move_crabhammer": {
+      "adapted": false,
+      "asset": "audio2:SFX_Super_Effective",
+      "loop": null,
+      "notes": 2,
+      "pitch": 240,
+      "tempo": 255,
+      "ticks": 22
+    },
+    "move_cut": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 0,
+      "tempo": 160,
+      "ticks": 34
+    },
+    "move_defenseCurl": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_32",
+      "loop": null,
+      "notes": 2,
+      "pitch": 64,
+      "tempo": 192,
+      "ticks": 12
+    },
+    "move_dig": {
+      "adapted": false,
+      "asset": "audio2:SFX_Damage",
+      "loop": null,
+      "notes": 3,
+      "pitch": 16,
+      "tempo": 64,
+      "ticks": 23
+    },
+    "move_disable": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_27",
+      "loop": null,
+      "notes": 32,
+      "pitch": 255,
+      "tempo": 64,
+      "ticks": 81
+    },
+    "move_doubleEdge": {
+      "adapted": false,
+      "asset": "audio2:SFX_Super_Effective",
+      "loop": null,
+      "notes": 2,
+      "pitch": 32,
+      "tempo": 192,
+      "ticks": 22
+    },
+    "move_doubleKick": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_17",
+      "loop": null,
+      "notes": 4,
+      "pitch": 240,
+      "tempo": 64,
+      "ticks": 23
+    },
+    "move_doubleSlap": {
+      "adapted": false,
+      "asset": "audio2:SFX_Doubleslap",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 19
+    },
+    "move_doubleTeam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_33",
+      "loop": null,
+      "notes": 10,
+      "pitch": 128,
+      "tempo": 64,
+      "ticks": 28
+    },
+    "move_dragonRage": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 240,
+      "tempo": 128,
+      "ticks": 147
+    },
+    "move_dreamEater": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_35",
+      "loop": null,
+      "notes": 8,
+      "pitch": 66,
+      "tempo": 1,
+      "ticks": 125
+    },
+    "move_drillPeck": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_13",
+      "loop": null,
+      "notes": 4,
+      "pitch": 240,
+      "tempo": 32,
+      "ticks": 38
+    },
+    "move_earthquake": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 15,
+      "tempo": 224,
+      "ticks": 186
+    },
+    "move_eggBomb": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_34",
+      "loop": null,
+      "notes": 10,
+      "pitch": 0,
+      "tempo": 64,
+      "ticks": 47
+    },
+    "move_ember": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_19",
+      "loop": null,
+      "notes": 3,
+      "pitch": 16,
+      "tempo": 160,
+      "ticks": 16
+    },
+    "move_explosion": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_34",
+      "loop": null,
+      "notes": 10,
+      "pitch": 16,
+      "tempo": 255,
+      "ticks": 62
+    },
+    "move_fireBlast": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 31,
+      "tempo": 32,
+      "ticks": 147
+    },
+    "move_firePunch": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0D",
+      "loop": null,
+      "notes": 3,
+      "pitch": 16,
+      "tempo": 96,
+      "ticks": 37
+    },
+    "move_fireSpin": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 32,
+      "tempo": 192,
+      "ticks": 169
+    },
+    "move_fissure": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 17,
+      "tempo": 32,
+      "ticks": 147
+    },
+    "move_flamethrower": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_19",
+      "loop": null,
+      "notes": 3,
+      "pitch": 33,
+      "tempo": 224,
+      "ticks": 16
+    },
+    "move_flash": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_13",
+      "loop": null,
+      "notes": 4,
+      "pitch": 248,
+      "tempo": 255,
+      "ticks": 38
+    },
+    "move_fly": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 32,
+      "tempo": 192,
+      "ticks": 34
+    },
+    "move_focusEnergy": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_25",
+      "loop": null,
+      "notes": 5,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 60
+    },
+    "move_furyAttack": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1E",
+      "loop": null,
+      "notes": 6,
+      "pitch": 1,
+      "tempo": 64,
+      "ticks": 15
+    },
+    "move_furySwipes": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0E",
+      "loop": null,
+      "notes": 2,
+      "pitch": 240,
+      "tempo": 32,
+      "ticks": 26
+    },
+    "move_glare": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 9,
+      "tempo": 255,
+      "ticks": 34
+    },
+    "move_growl": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0B",
+      "loop": null,
+      "notes": 1,
+      "pitch": 0,
+      "tempo": 192,
+      "ticks": 10
+    },
+    "move_growth": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_25",
+      "loop": null,
+      "notes": 5,
+      "pitch": 17,
+      "tempo": 224,
+      "ticks": 60
+    },
+    "move_guillotine": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0F",
+      "loop": null,
+      "notes": 4,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 25
+    },
+    "move_gust": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_12",
+      "loop": null,
+      "notes": 12,
+      "pitch": 0,
+      "tempo": 192,
+      "ticks": 85
+    },
+    "move_harden": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 17,
+      "tempo": 32,
+      "ticks": 37
+    },
+    "move_haze": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0F",
+      "loop": null,
+      "notes": 4,
+      "pitch": 248,
+      "tempo": 16,
+      "ticks": 25
+    },
+    "move_headbutt": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_18",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 15
+    },
+    "move_highJumpKick": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_17",
+      "loop": null,
+      "notes": 4,
+      "pitch": 1,
+      "tempo": 224,
+      "ticks": 23
+    },
+    "move_hornAttack": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1E",
+      "loop": null,
+      "notes": 6,
+      "pitch": 0,
+      "tempo": 96,
+      "ticks": 15
+    },
+    "move_hornDrill": {
+      "adapted": false,
+      "asset": "audio2:SFX_Horn_Drill",
+      "loop": null,
+      "notes": 4,
+      "pitch": 0,
+      "tempo": 160,
+      "ticks": 22
+    },
+    "move_hydroPump": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2A",
+      "loop": null,
+      "notes": 33,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 100
+    },
+    "move_hyperBeam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_36",
+      "loop": null,
+      "notes": 124,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 122
+    },
+    "move_hyperFang": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1E",
+      "loop": null,
+      "notes": 6,
+      "pitch": 18,
+      "tempo": 255,
+      "ticks": 21
+    },
+    "move_hypnosis": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_35",
+      "loop": null,
+      "notes": 8,
+      "pitch": 17,
+      "tempo": 24,
+      "ticks": 148
+    },
+    "move_iceBeam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_28",
+      "loop": null,
+      "notes": 60,
+      "pitch": 64,
+      "tempo": 128,
+      "ticks": 25
+    },
+    "move_icePunch": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0D",
+      "loop": null,
+      "notes": 3,
+      "pitch": 32,
+      "tempo": 128,
+      "ticks": 37
+    },
+    "move_jumpKick": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_17",
+      "loop": null,
+      "notes": 4,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 23
+    },
+    "move_karateChop": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0C",
+      "loop": null,
+      "notes": 3,
+      "pitch": 16,
+      "tempo": 128,
+      "ticks": 33
+    },
+    "move_leechSeed": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1B",
+      "loop": null,
+      "notes": 2,
+      "pitch": 3,
+      "tempo": 96,
+      "ticks": 20
+    },
+    "move_leer": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_31",
+      "loop": null,
+      "notes": 10,
+      "pitch": 255,
+      "tempo": 64,
+      "ticks": 61
+    },
+    "move_lick": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_09",
+      "loop": null,
+      "notes": 1,
+      "pitch": 0,
+      "tempo": 64,
+      "ticks": 13
+    },
+    "move_lightScreen": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0E",
+      "loop": null,
+      "notes": 2,
+      "pitch": 240,
+      "tempo": 16,
+      "ticks": 26
+    },
+    "move_lovelyKiss": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_09",
+      "loop": null,
+      "notes": 1,
+      "pitch": 136,
+      "tempo": 16,
+      "ticks": 10
+    },
+    "move_lowKick": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_23",
+      "loop": null,
+      "notes": 5,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 43
+    },
+    "move_meditate": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_09",
+      "loop": null,
+      "notes": 1,
+      "pitch": 32,
+      "tempo": 192,
+      "ticks": 21
+    },
+    "move_megaDrain": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_24",
+      "loop": null,
+      "notes": 3,
+      "pitch": 64,
+      "tempo": 192,
+      "ticks": 33
+    },
+    "move_megaKick": {
+      "adapted": false,
+      "asset": "audio2:SFX_Super_Effective",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 22
+    },
+    "move_megaPunch": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0D",
+      "loop": null,
+      "notes": 3,
+      "pitch": 0,
+      "tempo": 64,
+      "ticks": 37
+    },
+    "move_metronome": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_32",
+      "loop": null,
+      "notes": 2,
+      "pitch": 192,
+      "tempo": 255,
+      "ticks": 14
+    },
+    "move_mimic": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_09",
+      "loop": null,
+      "notes": 1,
+      "pitch": 240,
+      "tempo": 64,
+      "ticks": 13
+    },
+    "move_minimize": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 34,
+      "tempo": 16,
+      "ticks": 37
+    },
+    "move_mirrorMove": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_09",
+      "loop": null,
+      "notes": 1,
+      "pitch": 242,
+      "tempo": 32,
+      "ticks": 11
+    },
+    "move_mist": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 147
+    },
+    "move_nightShade": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 240,
+      "tempo": 224,
+      "ticks": 34
+    },
+    "move_payDay": {
+      "adapted": false,
+      "asset": "audio2:SFX_Trainer_Appeared",
+      "loop": null,
+      "notes": 5,
+      "pitch": 0,
+      "tempo": 255,
+      "ticks": 26
+    },
+    "move_peck": {
+      "adapted": false,
+      "asset": "audio2:SFX_Peck",
+      "loop": null,
+      "notes": 1,
+      "pitch": 1,
+      "tempo": 160,
+      "ticks": 4
+    },
+    "move_petalDance": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_13",
+      "loop": null,
+      "notes": 4,
+      "pitch": 20,
+      "tempo": 192,
+      "ticks": 38
+    },
+    "move_pinMissile": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_19",
+      "loop": null,
+      "notes": 3,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 16
+    },
+    "move_poisonGas": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1C",
+      "loop": null,
+      "notes": 3,
+      "pitch": 0,
+      "tempo": 255,
+      "ticks": 36
+    },
+    "move_poisonPowder": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1C",
+      "loop": null,
+      "notes": 3,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 36
+    },
+    "move_poisonSting": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1B",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 20
+    },
+    "move_pound": {
+      "adapted": false,
+      "asset": "audio2:SFX_Pound",
+      "loop": null,
+      "notes": 1,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 4
+    },
+    "move_psybeam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Psybeam",
+      "loop": null,
+      "notes": 68,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 144
+    },
+    "move_psychic": {
+      "adapted": false,
+      "asset": "audio2:SFX_Psychic_M",
+      "loop": null,
+      "notes": 18,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 97
+    },
+    "move_psywave": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0C",
+      "loop": null,
+      "notes": 3,
+      "pitch": 240,
+      "tempo": 240,
+      "ticks": 33
+    },
+    "move_quickAttack": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_25",
+      "loop": null,
+      "notes": 5,
+      "pitch": 0,
+      "tempo": 16,
+      "ticks": 60
+    },
+    "move_rage": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_26",
+      "loop": null,
+      "notes": 7,
+      "pitch": 240,
+      "tempo": 32,
+      "ticks": 76
+    },
+    "move_razorLeaf": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_12",
+      "loop": null,
+      "notes": 12,
+      "pitch": 32,
+      "tempo": 224,
+      "ticks": 85
+    },
+    "move_razorWind": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0E",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 160,
+      "ticks": 26
+    },
+    "move_recover": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_33",
+      "loop": null,
+      "notes": 10,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 38
+    },
+    "move_reflect": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 240,
+      "tempo": 16,
+      "ticks": 34
+    },
+    "move_rest": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_21",
+      "loop": null,
+      "notes": 5,
+      "pitch": 18,
+      "tempo": 16,
+      "ticks": 35
+    },
+    "move_roar": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0B",
+      "loop": null,
+      "notes": 1,
+      "pitch": 0,
+      "tempo": 64,
+      "ticks": 10
+    },
+    "move_rockSlide": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_36",
+      "loop": null,
+      "notes": 124,
+      "pitch": 240,
+      "tempo": 32,
+      "ticks": 105
+    },
+    "move_rockThrow": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 1,
+      "tempo": 224,
+      "ticks": 37
+    },
+    "move_rollingKick": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_21",
+      "loop": null,
+      "notes": 5,
+      "pitch": 16,
+      "tempo": 128,
+      "ticks": 35
+    },
+    "move_sandAttack": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1B",
+      "loop": null,
+      "notes": 2,
+      "pitch": 1,
+      "tempo": 160,
+      "ticks": 20
+    },
+    "move_scratch": {
+      "adapted": false,
+      "asset": "audio2:SFX_Damage",
+      "loop": null,
+      "notes": 3,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 23
+    },
+    "move_screech": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_31",
+      "loop": null,
+      "notes": 10,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 81
+    },
+    "move_seismicToss": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_26",
+      "loop": null,
+      "notes": 7,
+      "pitch": 1,
+      "tempo": 96,
+      "ticks": 76
+    },
+    "move_selfDestruct": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_34",
+      "loop": null,
+      "notes": 10,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 47
+    },
+    "move_sharpen": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_31",
+      "loop": null,
+      "notes": 10,
+      "pitch": 128,
+      "tempo": 4,
+      "ticks": 42
+    },
+    "move_sing": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_35",
+      "loop": null,
+      "notes": 8,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 249
+    },
+    "move_skullBash": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_26",
+      "loop": null,
+      "notes": 7,
+      "pitch": 30,
+      "tempo": 32,
+      "ticks": 76
+    },
+    "move_skyAttack": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_25",
+      "loop": null,
+      "notes": 5,
+      "pitch": 72,
+      "tempo": 255,
+      "ticks": 60
+    },
+    "move_slam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_22",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 20
+    },
+    "move_slash": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 1,
+      "tempo": 255,
+      "ticks": 34
+    },
+    "move_sleepPowder": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1C",
+      "loop": null,
+      "notes": 3,
+      "pitch": 1,
+      "tempo": 192,
+      "ticks": 36
+    },
+    "move_sludge": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2A",
+      "loop": null,
+      "notes": 33,
+      "pitch": 32,
+      "tempo": 32,
+      "ticks": 75
+    },
+    "move_smog": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 16,
+      "tempo": 255,
+      "ticks": 34
+    },
+    "move_smokescreen": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1B",
+      "loop": null,
+      "notes": 2,
+      "pitch": 241,
+      "tempo": 255,
+      "ticks": 20
+    },
+    "move_softBoiled": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_32",
+      "loop": null,
+      "notes": 2,
+      "pitch": 8,
+      "tempo": 64,
+      "ticks": 7
+    },
+    "move_solarBeam": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2E",
+      "loop": null,
+      "notes": 100,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 145
+    },
+    "move_sonicBoom": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_27",
+      "loop": null,
+      "notes": 32,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 97
+    },
+    "move_spikeCannon": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_26",
+      "loop": null,
+      "notes": 7,
+      "pitch": 31,
+      "tempo": 24,
+      "ticks": 76
+    },
+    "move_splash": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0F",
+      "loop": null,
+      "notes": 4,
+      "pitch": 8,
+      "tempo": 16,
+      "ticks": 25
+    },
+    "move_spore": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1C",
+      "loop": null,
+      "notes": 3,
+      "pitch": 1,
+      "tempo": 255,
+      "ticks": 36
+    },
+    "move_stomp": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_20",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 23
+    },
+    "move_strength": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_26",
+      "loop": null,
+      "notes": 7,
+      "pitch": 32,
+      "tempo": 64,
+      "ticks": 76
+    },
+    "move_stringShot": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1B",
+      "loop": null,
+      "notes": 2,
+      "pitch": 2,
+      "tempo": 160,
+      "ticks": 20
+    },
+    "move_struggle": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0B",
+      "loop": null,
+      "notes": 1,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 10
+    },
+    "move_stunSpore": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1C",
+      "loop": null,
+      "notes": 3,
+      "pitch": 17,
+      "tempo": 160,
+      "ticks": 36
+    },
+    "move_submission": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_23",
+      "loop": null,
+      "notes": 5,
+      "pitch": 1,
+      "tempo": 192,
+      "ticks": 43
+    },
+    "move_substitute": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2C",
+      "loop": null,
+      "notes": 33,
+      "pitch": 216,
+      "tempo": 4,
+      "ticks": 157
+    },
+    "move_superFang": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_26",
+      "loop": null,
+      "notes": 7,
+      "pitch": 240,
+      "tempo": 255,
+      "ticks": 76
+    },
+    "move_supersonic": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_27",
+      "loop": null,
+      "notes": 32,
+      "pitch": 64,
+      "tempo": 96,
+      "ticks": 85
+    },
+    "move_surf": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2C",
+      "loop": null,
+      "notes": 33,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 161
+    },
+    "move_swift": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2B",
+      "loop": null,
+      "notes": 52,
+      "pitch": 31,
+      "tempo": 96,
+      "ticks": 110
+    },
+    "move_swordsDance": {
+      "adapted": false,
+      "asset": "audio2:SFX_Not_Very_Effective",
+      "loop": null,
+      "notes": 4,
+      "pitch": 16,
+      "tempo": 192,
+      "ticks": 34
+    },
+    "move_tackle": {
+      "adapted": false,
+      "asset": "audio2:SFX_Super_Effective",
+      "loop": null,
+      "notes": 2,
+      "pitch": 16,
+      "tempo": 160,
+      "ticks": 22
+    },
+    "move_tailWhip": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_21",
+      "loop": null,
+      "notes": 5,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 35
+    },
+    "move_takeDown": {
+      "adapted": false,
+      "asset": "audio2:SFX_Super_Effective",
+      "loop": null,
+      "notes": 2,
+      "pitch": 0,
+      "tempo": 160,
+      "ticks": 22
+    },
+    "move_teleport": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_33",
+      "loop": null,
+      "notes": 10,
+      "pitch": 240,
+      "tempo": 192,
+      "ticks": 47
+    },
+    "move_thrash": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_22",
+      "loop": null,
+      "notes": 2,
+      "pitch": 17,
+      "tempo": 192,
+      "ticks": 20
+    },
+    "move_thunder": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_26",
+      "loop": null,
+      "notes": 7,
+      "pitch": 0,
+      "tempo": 128,
+      "ticks": 76
+    },
+    "move_thunderPunch": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0D",
+      "loop": null,
+      "notes": 3,
+      "pitch": 0,
+      "tempo": 160,
+      "ticks": 37
+    },
+    "move_thunderShock": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2F",
+      "loop": null,
+      "notes": 52,
+      "pitch": 0,
+      "tempo": 32,
+      "ticks": 91
+    },
+    "move_thunderWave": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2E",
+      "loop": null,
+      "notes": 100,
+      "pitch": 18,
+      "tempo": 96,
+      "ticks": 145
+    },
+    "move_thunderbolt": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_2F",
+      "loop": null,
+      "notes": 52,
+      "pitch": 32,
+      "tempo": 128,
+      "ticks": 91
+    },
+    "move_toxic": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0F",
+      "loop": null,
+      "notes": 4,
+      "pitch": 16,
+      "tempo": 192,
+      "ticks": 25
+    },
+    "move_triAttack": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_29",
+      "loop": null,
+      "notes": 23,
+      "pitch": 248,
+      "tempo": 255,
+      "ticks": 202
+    },
+    "move_twineedle": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_1B",
+      "loop": null,
+      "notes": 2,
+      "pitch": 32,
+      "tempo": 192,
+      "ticks": 20
+    },
+    "move_viceGrip": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_0F",
+      "loop": null,
+      "notes": 4,
+      "pitch": 32,
+      "tempo": 64,
+      "ticks": 25
+    },
+    "move_vineWhip": {
+      "adapted": false,
+      "asset": "audio2:SFX_Vine_Whip",
+      "loop": null,
+      "notes": 8,
+      "pitch": 1,
+      "tempo": 128,
+      "ticks": 36
+    },
+    "move_waterGun": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_24",
+      "loop": null,
+      "notes": 3,
+      "pitch": 32,
+      "tempo": 96,
+      "ticks": 33
+    },
+    "move_waterfall": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_25",
+      "loop": null,
+      "notes": 5,
+      "pitch": 47,
+      "tempo": 128,
+      "ticks": 60
+    },
+    "move_whirlwind": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_13",
+      "loop": null,
+      "notes": 4,
+      "pitch": 0,
+      "tempo": 224,
+      "ticks": 38
+    },
+    "move_wingAttack": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_12",
+      "loop": null,
+      "notes": 12,
+      "pitch": 16,
+      "tempo": 160,
+      "ticks": 85
+    },
+    "move_withdraw": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 51,
+      "tempo": 48,
+      "ticks": 37
+    },
+    "move_wrap": {
+      "adapted": false,
+      "asset": "audio2:SFX_Battle_14",
+      "loop": null,
+      "notes": 4,
+      "pitch": 16,
+      "tempo": 96,
+      "ticks": 37
+    },
     "oaks_lab": {
       "adapted": false,
       "asset": "audio3:Music_OaksLab",
-      "loop": 53,
-      "notes": 280,
-      "ticks": 1733
+      "loop": 52,
+      "loop_basis": "joint",
+      "notes": 277,
+      "ticks": 1732
     },
     "pallet": {
       "adapted": false,
       "asset": "audio1:Music_PalletTown",
-      "loop": 1081,
-      "notes": 357,
-      "ticks": 3001
+      "loop": 1080,
+      "loop_basis": "state",
+      "notes": 354,
+      "ticks": 3000
     },
     "pc_enter": {
       "adapted": false,
@@ -1030,54 +2677,117 @@
       "notes": 4,
       "ticks": 32
     },
+    "poisoned": {
+      "adapted": false,
+      "asset": "audio1:SFX_Poisoned_1",
+      "loop": null,
+      "notes": 5,
+      "ticks": 37
+    },
     "pokecenter": {
       "adapted": false,
       "asset": "audio1:Music_Pokecenter",
-      "loop": 1,
-      "notes": 315,
-      "ticks": 1729
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 312,
+      "ticks": 1728
+    },
+    "pokedex_rating": {
+      "adapted": false,
+      "asset": "audio1:SFX_Pokedex_Rating_1",
+      "loop": null,
+      "notes": 33,
+      "ticks": 141
+    },
+    "purchase": {
+      "adapted": false,
+      "asset": "audio1:SFX_Purchase_1",
+      "loop": null,
+      "notes": 4,
+      "ticks": 17
     },
     "route1": {
       "adapted": false,
       "asset": "audio1:Music_Routes1",
-      "loop": 29,
-      "notes": 326,
-      "ticks": 1397
+      "loop": 28,
+      "loop_basis": "state",
+      "notes": 323,
+      "ticks": 1396
     },
     "routes2": {
       "adapted": false,
       "asset": "audio1:Music_Routes2",
-      "loop": 1,
-      "notes": 265,
-      "ticks": 1141
+      "loop": 0,
+      "loop_basis": "label",
+      "notes": 261,
+      "ticks": 1140
     },
     "routes3": {
       "adapted": false,
       "asset": "audio1:Music_Routes3",
-      "loop": 292,
-      "notes": 373,
-      "ticks": 1624
+      "loop": 291,
+      "loop_basis": "label",
+      "notes": 369,
+      "ticks": 1623
     },
     "routes4": {
       "adapted": false,
       "asset": "audio1:Music_Routes4",
-      "loop": 223,
-      "notes": 483,
-      "ticks": 1999
+      "loop": 222,
+      "loop_basis": "label",
+      "notes": 479,
+      "ticks": 1998
+    },
+    "run": {
+      "adapted": false,
+      "asset": "audio2:SFX_Run",
+      "loop": null,
+      "notes": 11,
+      "ticks": 40
     },
     "safari": {
       "adapted": false,
       "asset": "audio1:Music_SafariZone",
-      "loop": 50,
-      "notes": 59,
-      "ticks": 446
+      "loop": 49,
+      "loop_basis": "label",
+      "notes": 56,
+      "ticks": 445
+    },
+    "safari_pa": {
+      "adapted": false,
+      "asset": "audio1:SFX_Safari_Zone_PA",
+      "loop": null,
+      "notes": 6,
+      "ticks": 90
+    },
+    "save": {
+      "adapted": false,
+      "asset": "audio1:SFX_Save_1",
+      "loop": null,
+      "notes": 14,
+      "ticks": 40
+    },
+    "shooting_star": {
+      "adapted": false,
+      "asset": "audio3:SFX_Shooting_Star",
+      "loop": null,
+      "notes": 9,
+      "ticks": 77
+    },
+    "shrink": {
+      "adapted": false,
+      "asset": "audio1:SFX_Shrink_1",
+      "loop": null,
+      "notes": 5,
+      "ticks": 81
     },
     "silph": {
       "adapted": false,
       "asset": "audio3:Music_SilphCo",
-      "loop": 571,
-      "notes": 623,
-      "ticks": 4078
+      "loop": 570,
+      "loop_basis": "state",
+      "notes": 620,
+      "ticks": 4077
     },
     "start_menu": {
       "adapted": true,
@@ -1089,9 +2799,52 @@
     "surfing": {
       "adapted": false,
       "asset": "audio3:Music_Surfing",
-      "loop": 196,
-      "notes": 253,
-      "ticks": 1636
+      "loop": 195,
+      "loop_basis": "joint",
+      "notes": 251,
+      "ticks": 1635
+    },
+    "swap": {
+      "adapted": false,
+      "asset": "audio1:SFX_Swap_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 13
+    },
+    "switch": {
+      "adapted": false,
+      "asset": "audio1:SFX_Switch_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 21
+    },
+    "teleport_enter_1": {
+      "adapted": false,
+      "asset": "audio1:SFX_Teleport_Enter1_1",
+      "loop": null,
+      "notes": 5,
+      "ticks": 81
+    },
+    "teleport_enter_2": {
+      "adapted": false,
+      "asset": "audio1:SFX_Teleport_Enter2_1",
+      "loop": null,
+      "notes": 2,
+      "ticks": 12
+    },
+    "teleport_exit_1": {
+      "adapted": false,
+      "asset": "audio1:SFX_Teleport_Exit1_1",
+      "loop": null,
+      "notes": 5,
+      "ticks": 81
+    },
+    "teleport_exit_2": {
+      "adapted": false,
+      "asset": "audio1:SFX_Teleport_Exit2_1",
+      "loop": null,
+      "notes": 1,
+      "ticks": 17
     },
     "text": {
       "adapted": true,
@@ -1110,47 +2863,52 @@
     "title": {
       "adapted": false,
       "asset": "audio3:Music_TitleScreen",
-      "loop": 244,
-      "notes": 550,
-      "ticks": 2836
+      "loop": 243,
+      "loop_basis": "label",
+      "notes": 546,
+      "ticks": 2835
     },
     "tower": {
       "adapted": false,
       "asset": "audio3:Music_PokemonTower",
-      "loop": 115,
-      "notes": 231,
-      "ticks": 3763
+      "loop": 114,
+      "loop_basis": "label",
+      "notes": 228,
+      "ticks": 3762
     },
     "trainer": {
       "adapted": false,
       "asset": "audio2:Music_TrainerBattle",
-      "loop": 841,
-      "notes": 1224,
-      "ticks": 5797
+      "loop": 840,
+      "loop_basis": "label",
+      "notes": 1221,
+      "ticks": 5796
     },
     "vermilion": {
       "adapted": false,
       "asset": "audio1:Music_Vermilion",
-      "loop": 1,
-      "notes": 380,
-      "ticks": 1405
+      "loop": 0,
+      "loop_basis": "state",
+      "notes": 376,
+      "ticks": 1404
     },
     "wild": {
       "adapted": false,
       "asset": "audio2:Music_WildBattle",
-      "loop": 937,
-      "notes": 684,
-      "ticks": 2809
+      "loop": 936,
+      "loop_basis": "state",
+      "notes": 681,
+      "ticks": 2808
     }
   },
   "target": "Playdate synth adaptation",
   "tools_sha256": {
     "tools/audio/catalog.py": "52f6d57d510d88130eb4e1d2791c14464769ef2af428b35362dfe9c5256991b2",
-    "tools/audio/scores.py": "759fa22b06de836d72dd5da086e8a52f3b2002bd787896369c4a889c298c4433",
+    "tools/audio/scores.py": "e6dd45d8256b9d323592be641fe36f9e84cae7a72c9e986d20a7fea241bc9189",
     "tools/audio/source.py": "73ce33da16d31bbd0bfede9ea54176092ffe60ee399cd7a33a7545aef83c60b5",
-    "tools/audio/trace.py": "68649d309ab655ba3717c6df8bd104fb6cf3dec88bded79d300da1a20f2723a1"
+    "tools/audio/trace.py": "eae8e251d5f3390cd3bff279e1f69884877439b8f96c5c495c9672839a7693bd"
   },
-  "total_notes": 21297,
+  "total_notes": 22773,
   "waveforms": {
     "audio1-wave0": {
       "path": "Source/audio/waves/audio1-wave0.wav",

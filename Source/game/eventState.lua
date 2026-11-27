@@ -267,9 +267,12 @@ function EventState:advance()
             end
         end
     elseif step.op == "source-audio" then
-        -- Global audio remains unimplemented. Keep exact source cues/waits for
-        -- SourceAudio; do not simulate playback or accept source audio timing.
+        -- scripts/ call PlayCry on this step. The gap record stays so the
+        -- contracts that read it still see the source cue.
         self.audioGaps[#self.audioGaps + 1] = step
+        if step.cue == "cry" and KantoAudio and KantoAudio.playCry then
+            KantoAudio.playCry(step.species)
+        end
         self:advance()
     elseif step.op == "show-pokemon" then
         self:showPokemon(step)

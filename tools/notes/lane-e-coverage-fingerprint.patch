@@ -1,0 +1,10 @@
+--- a/docs/validation/coverage-current.json
++++ b/docs/validation/coverage-current.json
+@@ -3,6 +3,6 @@
+   "snapshot": {
+     "commit": "1c42f9da1e5e56836a7640178358d2eecd0f1862",
+-    "source_sha256": "883c5cc5419290a3fd05b6b4af7eaf922a5ec2381bc37aca1fd482e59c88cb7b",
++    "source_sha256": "aee32b591b3202898ab28d254ee376750c0ea6a58793735a495dde4f24016e27",
+     "policy_date": "2026-11-12",
+     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+     "scope": "Source identity after hasBadge accepts the marsh, volcano, and earth badges. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 7ce440e218429133795280a9ed4b36c817a199b5d750617938ed0723cd09812a.",
