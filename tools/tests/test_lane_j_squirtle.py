@@ -50,7 +50,7 @@ SQUIRTLE_BALL = (8, 3)
 SQUIRTLE_FACE = (8, 4)
 LAB_LANDING = (6, 4)
 LAB_EXITS = {(5, 11), (6, 11)}
-ALLOWED_OPS = {"press", "wait", "snapshot", "await", "shot"}
+ALLOWED_OPS = {"press", "hold", "release", "wait", "snapshot", "await", "shot"}
 
 
 def threshold_byte(value):
@@ -8991,16 +8991,20 @@ def _route17_coast(player, cells, target):
     for _ in range(400):
         if player.state.get("root") == "battle":
             return "battle"
-        if not player.exploring():
-            # The step is still animating. Another idle wait would roll into the next tile.
-            player.send(*([f"press {('left' if tx < player.state['player']['x'] else 'right')}"] * 4))
-            continue
         x, y = player.state["player"]["x"], player.state["player"]["y"]
-        if (x, y) == (tx, ty):
-            player.send("wait 6")
+        if (x, y) == (tx, ty) or (x == tx and y == ty - 1):
+            # Land with B held. The sight check runs only after the step settles,
+            # and an idle frame would roll off the tile before the biker looks.
+            player.send("press down", "hold b", "wait 10")
             if player.state.get("root") == "battle":
                 return "battle"
-            return "passed"
+            player.send("wait 12")
+            if player.state.get("root") == "battle":
+                return "battle"
+            player.send("release b")
+            if player.state["player"]["y"] > ty:
+                return "passed"
+            continue
         if y > ty:
             return "passed"
         if (x, y) == last:
