@@ -1471,7 +1471,7 @@ class Player:
                 self.send("wait 4")
         return won
 
-    def use_potion(self, ids=("potion", "superPotion")):
+    def use_potion(self, ids=("potion", "superPotion", "hyperPotion")):
         """Spend one battle turn on medicine for the lead. The Lass outlasts Bite otherwise."""
         if (self.state.get("battle") or {}).get("inMoveSelect"):
             self.press("b", wait=4)
@@ -8348,9 +8348,13 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         return "yield"
     if "saffron_pokecenter" in zone:
         return _saffron_center(player, report)
+    if "saffron_mart" in zone:
+        return _saffron_mart(player, report)
     if "saffron_city" in zone:
         if _silph_needs_nurse(player):
             return _saffron_to_center(player, report)
+        if _needs_medicine(player):
+            return _saffron_to_mart(player, report)
         return _saffron_to_silph(player, report)
     if "silph_co" in zone:
         return _silph_progress(player, report)
@@ -8424,6 +8428,70 @@ def _saffron_center(player, report):
     return "yield"
 
 
+def _saffron_to_mart(player, report):
+    saffron = Path("Source/data/midgameSaffron")
+    data = json.loads((saffron / "SaffronCity.json").read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    kind = _walk(player, set(open_map(saffron / "SaffronCity.json", 0, 40)),
+                 map_surface(saffron / "SaffronCity.json"), (25, 12), avoid,
+                 report=report, yield_after=2, shift="dugtrio")
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("up")
+    player.settle(limit=80)
+    if "mart" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "mart" not in str(player.state.get("zone")):
+        raise RuntimeError("the Saffron Mart stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron_mart")
+    return "yield"
+
+
+def _saffron_mart(player, report):
+    """The clerk faces right from (2, 5). The counter is (3, 5), so stand at (4, 5)."""
+    saffron = Path("Source/data/midgameSaffron")
+    path = saffron / "SaffronMart.json"
+    cells = set(open_map(path, 2, 13))
+    surface = map_surface(path, 2)
+    avoid = {(2, 5), (6, 2), (8, 5), (5, 7), (6, 7)}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    if _needs_medicine(player):
+        kind = _walk(player, cells, surface, (4, 5), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if player.state["player"].get("facing") != "left":
+            player.press("left", wait=4)
+        player.press("a", wait=8)
+        for _ in range(16):
+            if player.state.get("root") == "shop":
+                break
+            player.press("a", wait=8)
+        if player.state.get("root") != "shop":
+            raise RuntimeError("the Saffron clerk stayed shut: " + json.dumps(summary(player.state)))
+        _shop_buy(player, "hyperPotion", 1500, 6)
+        _shop_buy(player, "fullHeal", 600, 4)
+        _close_shop(player)
+        if _needs_medicine(player):
+            raise RuntimeError("the Saffron Mart did not sell Hyper Potions: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_saffron_stocked")
+        return "yield"
+    kind = _walk(player, cells, surface, (5, 6), avoid, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("down")
+    player.settle(limit=80)
+    if "mart" in str(player.state.get("zone")):
+        player.step("down")
+        player.settle(limit=80)
+    if "saffron_city" not in str(player.state.get("zone")):
+        raise RuntimeError("the Saffron Mart door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron")
+    return "yield"
+
+
 def _saffron_to_silph(player, report):
     data = json.loads((Path("Source/data/midgameSaffron/SaffronCity.json")).read_text(encoding="utf-8"))
     doors = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
@@ -8451,8 +8519,17 @@ def _silph_needs_nurse(player):
     return _party_needs_heal(player)
 
 
+def _needs_medicine(player):
+    """Two Super Potions lost the rival. Hyper Potions are what this Mart sells."""
+    return _item_count(player, "hyperPotion") < 4
+
+
+def _silph_needs_town(player):
+    return _silph_needs_nurse(player) or _needs_medicine(player)
+
+
 def _silph_floor(player):
-    if _silph_needs_nurse(player) and _holding(player, "cardKey"):
+    if _silph_needs_town(player) and _holding(player, "cardKey"):
         return "1F"
     if not _holding(player, "cardKey"):
         return "5F"
@@ -8599,7 +8676,7 @@ def _silph_nurse(player, report):
 
 def _silph_7f(player, report):
     """The rival watches (3, 2) and (3, 3). Lapras is the worker at (1, 5)."""
-    if _silph_needs_nurse(player):
+    if _silph_needs_town(player) and player.state["player"]["x"] < 10:
         cells = set(open_map(Path("Source/data/midgameSaffron/SilphCo7F.json"), 0, 26))
         here = (player.state["player"]["x"], player.state["player"]["y"])
         if here != (5, 2):
@@ -8775,7 +8852,7 @@ def _silph_door(player, report):
             raise RuntimeError("the Card Key did not open the 3F door: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_silph_door")
         return "yield"
-    if _silph_needs_nurse(player):
+    if _silph_needs_town(player):
         kind = _walk(player, cells, map_surface(saffron / "SilphCo3F.json"), (20, 1), avoid,
                      report=report, yield_after=2)
         if kind in ("blackout", "yield"):
@@ -8855,7 +8932,7 @@ def _silph_progress(player, report):
         return _silph_7f(player, report)
     if zone.endswith("silph_co_11f"):
         return _silph_11f(player, report)
-    if zone.endswith("silph_co_1f") and _silph_needs_nurse(player):
+    if zone.endswith("silph_co_1f") and _silph_needs_town(player):
         _lead(player, "dugtrio")
         data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))
         avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
