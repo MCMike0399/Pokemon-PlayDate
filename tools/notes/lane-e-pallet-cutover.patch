@@ -1,0 +1,621 @@
+diff --git a/Source/data/maps.lua b/Source/data/maps.lua
+index d478c749..50e6cd10 100644
+--- a/Source/data/maps.lua
++++ b/Source/data/maps.lua
+@@ -35,281 +35,10 @@ function AuthoredMaps.initialize()
+         return
+     end
+ 
+-    -- ============================================================
+-    -- PALLET TOWN (faithful Gen I recreation, 20x18)
+-    -- ============================================================
+-    registerZone("pallet_town", Zone({
+-        name = "Pallet Town",
+-        spawn = { x = 5, y = 6 },
+-
+-        tileRows = {
+-        --  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
+-            "Tr Tr Tr Tr Tr Tr Tr Tr Tr Pa Pa Tr Tr Tr Tr Tr Tr Tr Tr Tr", -- 0  north border + Route 1 gap
+-            "Tr .  .  .  .  .  .  .  TG TG TG TG .  .  .  .  .  .  .  Tr", -- 1  Route 1 tall grass at the exit
+-            "Tr .  .  .  .  .  .  .  TG TG TG TG .  .  .  .  .  .  .  Tr", -- 2  (walk north into it, Gen 1 style)
+-            "Tr .  .  RL Rf Rf RR .  .  .  .  .  RL Rf Rf RR .  .  .  Tr", -- 3  peaked house roofs
+-            "Tr .  .  Wa WW WW Wa .  .  .  .  .  Wa WW WW Wa .  .  .  Tr", -- 4  house walls + windows
+-            "Tr .  Mb Wa Wa Dr Wa .  .  .  .  .  Wa Dr Wa Wa Mb .  .  Tr", -- 5  doors + mailboxes
+-            "Tr .  .  .  .  Pa .  .  .  .  .  .  .  Pa .  .  .  .  .  Tr", -- 6  paths from doors
+-            "Tr .  Sg .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  Sg .  Tr", -- 7  main east-west path
+-            "Tr .  .  .  .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr", -- 8  path wraps around lab
+-            "Tr .  .  .  .  .  Pa RL Rf Rf Rf Rf Rf RR Pa .  .  .  .  Tr", -- 9  peaked lab roof
+-            "Tr .  .  .  .  .  Pa LW WW LW LW LW WW LW Pa .  .  .  .  Tr", -- 10 lab walls + windows
+-            "Tr .  .  .  .  .  Pa LW LW LW Dr LW LW LW Pa .  .  .  .  Tr", -- 11 lab door + side paths
+-            "Tr .  .  .  .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr", -- 12 path around lab
+-            "Tr .  .  Fn Fn Fn .  .  .  .  .  .  .  .  Fn Fn Fn .  .  Tr", -- 13 garden fences (Gen 1 style)
+-            "Tr .  .  Fl Fl Fl .  .  .  .  .  .  .  .  Fl Fl Fl .  .  Tr", -- 14 flower beds under the fences
+-            "Tr .  .  .  .  .  Sh Sh Sh Sh Sh Sh Sh Sh .  .  .  .  .  Tr", -- 15 shore
+-            "Tr .  .  .  .  .  Wt Wt Wt Wt Wt Wt Wt Wt .  .  .  .  .  Tr", -- 16 water (Route 21)
+-            "Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr", -- 17 south border
+-        },
+-
+-        npcs = {
+-            {
+-                -- After the intro questline, BLUE loiters outside his house
+-                -- itching for a rematch with his (counter-pick) starter
+-                gridX = 12, gridY = 6,
+-                name = "BLUE",
+-                sprite = "rival",
+-                appearsIf = function() return Story.stage == "done" end,
+-                dialog = { "BLUE: You again, RED?", "My POKEMON got way tougher!", "Let's go!" },
+-                battleData = function()
+-                    return { species = Story.rivalStarter or "charmander", level = 7 }
+-                end,
+-                postBattleLines = { "BLUE: Hmph! Smell you later!" },
+-            },
+-        },
+-
+-        encounters = {
+-            { species = "rattata",  minLevel = 2, maxLevel = 4, weight = 40 },
+-            { species = "pidgey",   minLevel = 2, maxLevel = 5, weight = 35 },
+-            { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
+-            { species = "weedle",   minLevel = 3, maxLevel = 5, weight = 10 },
+-        },
+-
+-        warps = {
+-            { label = "Red's House",   x = 5,  y = 6  },
+-            { label = "Blue's House",  x = 13, y = 6  },
+-            { label = "Oak's Lab",     x = 10, y = 12 },
+-            { label = "Main Path",     x = 9,  y = 7  },
+-            { label = "Tall Grass",    x = 9,  y = 1  },
+-            { label = "Shore",         x = 9,  y = 15 },
+-            { label = "Route 1 Exit",  x = 9,  y = 0  },
+-        },
+-
+-        doors = {
+-            { x = 5,  y = 5,  to = "reds_house",  toX = 3, toY = 7, facing = "up" },
+-            { x = 13, y = 5,  to = "blues_house", toX = 3, toY = 7, facing = "up" },
+-            { x = 10, y = 11, to = "oaks_lab",    toX = 5, toY = 9, facing = "up" },
+-        },
+-    }))
+-    GameBootstrap.yieldIfDue()
+-
+-    -- ============================================================
+-    -- INTERIORS — Red's house (1F + 2F), Blue's house, Oak's lab.
+-    -- Rooms sit inside a Vd (void) surround; exit mats and stairs are
+-    -- door defs back to the overworld / between floors.
+-    -- ============================================================
+-
+-    registerZone("reds_house", Zone({
+-        name = "Red's House 1F",
+-        spawn = { x = 3, y = 7, facing = "up" },
+-
+-        tileRows = {
+-        --  0  1  2  3  4  5  6  7  8  9  10 11 12
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+-            "Vd Vd IW IW IW IW IW IW IW IW Vd Vd Vd", -- 1  back wall
+-            "Vd Vd Fo Fo Tv Fo Fo Fo Fo St Vd Vd Vd", -- 2  TV + stairs up
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 3
+-            "Vd Vd Fo Tb Tb Fo Fo Fo Fo Fo Vd Vd Vd", -- 4  dining table (Mom beside)
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
+-            "Vd Vd Ma Ma Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 7  exit mats
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 8  void below the door (exit-arrow space)
+-        },
+-
+-        npcs = {
+-            {
+-                gridX = 5, gridY = 4,
+-                name = "MOM",
+-                sprite = "mom",
+-                dialog = function()
+-                    if Story.stage == "pre_oak" then
+-                        return {
+-                            "MOM: Right. All boys leave home someday.",
+-                            "It said so on TV!",
+-                            "PROF. OAK, next door, is looking for you.",
+-                        }
+-                    end
+-                    return {
+-                        "MOM: Take care out there, honey!",
+-                        "Come rest up whenever you're tired.",
+-                    }
+-                end,
+-            },
+-        },
+-
+-        warps = {
+-            { label = "Exit Mat", x = 3, y = 7 },
+-            { label = "Stairs",   x = 9, y = 2 },
+-        },
+-
+-        doors = {
+-            { x = 2, y = 7, edge = "down", to = "pallet_town", toX = 5, toY = 5, facing = "down" },
+-            { x = 3, y = 7, edge = "down", to = "pallet_town", toX = 5, toY = 5, facing = "down" },
+-            { x = 9, y = 2, to = "reds_house_2f", toX = 9, toY = 2, facing = "left" },
+-        },
+-    }))
+-    GameBootstrap.yieldIfDue()
+-
+-    registerZone("reds_house_2f", Zone({
+-        name = "Red's Room",
+-        -- New game starts here, in front of the TV (Gen 1 starts at the SNES)
+-        spawn = { x = 5, y = 3, facing = "up" },
+-
+-        tileRows = {
+-        --  0  1  2  3  4  5  6  7  8  9  10 11 12
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+-            "Vd Vd IW IW IW IW IW IW IW IW Vd Vd Vd", -- 1  back wall
+-            "Vd Vd Bd Fo Fo Tv Fo PC Fo St Vd Vd Vd", -- 2  bed, SNES corner, PC, stairs
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 3
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 4
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 7
+-        },
+-
+-        warps = {
+-            { label = "Stairs", x = 9, y = 2 },
+-        },
+-
+-        doors = {
+-            { x = 9, y = 2, to = "reds_house", toX = 9, toY = 2, facing = "left" },
+-        },
+-    }))
+-    GameBootstrap.yieldIfDue()
+-
+-    registerZone("blues_house", Zone({
+-        name = "Blue's House",
+-        spawn = { x = 3, y = 7, facing = "up" },
+-
+-        tileRows = {
+-        --  0  1  2  3  4  5  6  7  8  9  10 11 12
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+-            "Vd Vd IW IW IW IW IW IW IW IW Vd Vd Vd", -- 1  back wall
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Bk Bk Vd Vd Vd", -- 2  bookshelves
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 3
+-            "Vd Vd Fo Fo Tb Tb Fo Fo Fo Fo Vd Vd Vd", -- 4  table (Daisy beside)
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
+-            "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
+-            "Vd Vd Ma Ma Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 7  exit mats
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 8  void below the door (exit-arrow space)
+-        },
+-
+-        npcs = {
+-            {
+-                gridX = 6, gridY = 4,
+-                name = "Daisy",
+-                dialog = {
+-                    "DAISY: Hi! My brother is out at Grandpa's lab.",
+-                    "Pallet Town is so peaceful and pretty!",
+-                },
+-                sprite = "daisy",
+-            },
+-        },
+-
+-        warps = {
+-            { label = "Exit Mat", x = 3, y = 7 },
+-        },
+-
+-        doors = {
+-            { x = 2, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 5, facing = "down" },
+-            { x = 3, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 5, facing = "down" },
+-        },
+-    }))
+-    GameBootstrap.yieldIfDue()
+-
+-    registerZone("oaks_lab", Zone({
+-        name = "Oak's Lab",
+-        spawn = { x = 5, y = 9, facing = "up" },
+-
+-        tileRows = {
+-        --  0  1  2  3  4  5  6  7  8  9  10 11 12
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+-            "Vd IW IW IW IW IW IW IW IW IW IW Vd Vd", -- 1  back wall
+-            "Vd LM LM Fo Fo Fo Pb Pb Pb Bk Bk Vd Vd", -- 2  machine, starter balls, shelves
+-            "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 3  Oak + Blue stand here
+-            "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 4
+-            "Vd Bk Bk Bk Bk Fo Fo Bk Bk Bk Bk Vd Vd", -- 5  library stacks
+-            "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 6
+-            "Vd Bk Bk Bk Bk Fo Fo Bk Bk Bk Bk Vd Vd", -- 7  library stacks
+-            "Vd Pl Fo Fo Fo Fo Fo Fo Fo Fo Pl Vd Vd", -- 8
+-            "Vd Fo Fo Fo Fo Ma Ma Fo Fo Fo Fo Vd Vd", -- 9  exit mats
+-            "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 10 void below the door (exit-arrow space)
+-        },
+-
+-        npcs = {
+-            {
+-                gridX = 5, gridY = 3,
+-                name = "OAK",
+-                sprite = "oak",
+-                -- Gen 1: Oak is out at the grass strip until he escorts you in
+-                appearsIf = function() return Story.stage ~= "pre_oak" end,
+-                dialog = function()
+-                    if Story.stage == "choose" then
+-                        return {
+-                            "OAK: Go on, pick a POKEMON!",
+-                            "They're in the POKE BALLS on the table.",
+-                        }
+-                    elseif Story.stage == "pre_rival" then
+-                        return {
+-                            "OAK: A POKEMON can sense how you feel.",
+-                            "Raise it with love!",
+-                        }
+-                    end
+-                    return {
+-                        "OAK: Welcome to my lab!",
+-                        "I study POKEMON as a profession.",
+-                        "The world of POKEMON awaits. Go catch 'em all!",
+-                    }
+-                end,
+-            },
+-            {
+-                -- Stands clear of the three ball tiles (x 6-8) so the player
+-                -- can step in front of any of them
+-                gridX = 9, gridY = 3,
+-                name = "BLUE",
+-                sprite = "rival",
+-                -- Leaves for good after the intro battle ("Smell ya later!")
+-                appearsIf = function() return Story.stage ~= "done" end,
+-                dialog = function()
+-                    if Story.stage == "pre_oak" then
+-                        return {
+-                            "BLUE: Yo RED! Gramps isn't around.",
+-                            "He said he'd be at the lab...",
+-                        }
+-                    elseif Story.stage == "choose" then
+-                        return {
+-                            "BLUE: No rush, RED.",
+-                            "I already know which one I want!",
+-                        }
+-                    end
+-                    return { "BLUE: My POKEMON looks way tougher than yours!" }
+-                end,
+-            },
+-        },
+-
+-        warps = {
+-            { label = "Exit Mat",      x = 5, y = 9 },
+-            { label = "Starter Table", x = 6, y = 3 },
+-        },
+-
+-        doors = {
+-            { x = 5, y = 9, edge = "down", to = "pallet_town", toX = 10, toY = 11, facing = "down" },
+-            { x = 6, y = 9, edge = "down", to = "pallet_town", toX = 10, toY = 11, facing = "down" },
+-        },
+-    }))
+-    GameBootstrap.yieldIfDue()
++    -- Pallet Town, Oak's Lab, Red's house and Blue's house are the imported
++    -- kanto_* maps (kanto_pallet_town, kanto_oaks_lab, kanto_reds_house_1f,
++    -- kanto_reds_house_2f, kanto_blues_house). Their hand-authored tile rows
++    -- are retired. New Game starts in pokered:REDS_HOUSE_2F.
+ 
+     -- ============================================================
+     -- TEST ZONE (original PoC map, 20x15)
+@@ -371,7 +100,7 @@ function AuthoredMaps.initialize()
+     GameBootstrap.yieldIfDue()
+ 
+     -- Default zone
+-    currentZone = zoneRegistry.pallet_town
++    currentZone = zoneRegistry.test_zone
+ 
+     initialized = true
+ end
+diff --git a/Source/game/context.lua b/Source/game/context.lua
+index 26e1bbab..0c529ba5 100644
+--- a/Source/game/context.lua
++++ b/Source/game/context.lua
+@@ -2,7 +2,25 @@
+ import "game/coastStory"
+ Class("GameContext")
+ local TRANSITION_LOG_MAX <const> = 12
+-local function startLocation() return {zone_id="reds_house_2f",x=5,y=3,facing="up"} end
++-- New Game spawns in the imported bedroom and heals at Red's door.
++-- GameContext is built before KantoWorld.install, so that first inactive
++-- session cannot name an imported map yet. It stays on test_zone until
++-- beginNewSession, which runs after the provider exists.
++local BEDROOM <const> = {zone_id="pokered:REDS_HOUSE_2F",x=5,y=3,facing="up"}
++local HEAL <const> = {zone_id="pokered:PALLET_TOWN",x=5,y=6,facing="down"}
++local BOOT <const> = {zone_id="test_zone",x=6,y=7,facing="down"}
++local function importedSession()
++    local provider = WorldDeltas.definitionProvider()
++    return provider and provider:hasID(BEDROOM.zone_id) and provider:hasID(HEAL.zone_id)
++end
++local function startLocation()
++    if importedSession() then return BEDROOM end
++    return BOOT
++end
++local function healLocation()
++    if importedSession() then return HEAL end
++    return BOOT
++end
+ local function zoneKey(stableID)
+     for key,zone in pairs(zoneRegistry) do if zone.stableID==stableID then return key end end
+     local provided=WorldDeltas.zoneKey(stableID)
+@@ -10,7 +28,7 @@ local function zoneKey(stableID)
+     error("unknown stable session zone: "..tostring(stableID))
+ end
+ local function newModel(context,seed)
+-    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint={zone_id="pallet_town",x=5,y=6,facing="down"},seed=seed or 1})
++    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint=healLocation(),seed=seed or 1})
+     assert(session:inventory():credit(3000)) -- pinned Blue InitPlayerData START_MONEY.
+     -- OakSpeech places one Potion in the item PC, not in the bag. This freshly
+     -- constructed model has not been published; loading never calls newModel.
+diff --git a/Source/game/eventState.lua b/Source/game/eventState.lua
+index dadd6bb8..8aad30c2 100644
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -107,7 +107,7 @@ function EventState:enter(id,options)
+     self.hasFailureText=false
+     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
+     if plan.scene=="oak-pokedex" then
+-        assert(currentZone==zoneRegistry.oaks_lab,"Oak parcel scene requires protected authored lab")
++        assert(currentZone and currentZone.stableID=="pokered:OAKS_LAB","Oak parcel scene requires the imported lab")
+         self.oak=assert(self.game.npcManager:findByName("OAK"),"Oak actor missing")
+         self.oldOakFacing=self.oak.facing
+         local aisle=self:oakAisle()
+diff --git a/Source/game/fieldItems.lua b/Source/game/fieldItems.lua
+index 08f6bb91..61099b8e 100644
+--- a/Source/game/fieldItems.lua
++++ b/Source/game/fieldItems.lua
+@@ -157,7 +157,7 @@ function FieldItems.confirmEscape(bag)
+     return true
+ end
+ function FieldItems.tryDaisy(game)
+-    if currentZone.stableID~="blues_house"then return false end
++    if currentZone.stableID~="pokered:BLUES_HOUSE"then return false end
+     local x,y=game.player:getFacingTile();local npc=game.npcManager:getNPCAt(x,y)
+     if not npc or npc.name~="Daisy"then return false end
+     if game.machine:getCurrent()~="overworld"or game.machine:depth()~=1 or game.player.isMoving then return true end
+@@ -166,7 +166,7 @@ function FieldItems.tryDaisy(game)
+     if session:questFlag("EVENT_GOT_TOWN_MAP")then game.machine:push("dialog",{"Use the TOWN MAP to find out where you are."});return true end
+     if not session:questFlag("EVENT_GOT_POKEDEX")then game.machine:push("dialog",{"Hi RED! BLUE is out at Grandpa's lab."});return true end
+     game.machine:push("dialog",{"Grandpa asked you to run an errand? Here, this will help you!"},function()
+-        if game.session~=session or currentZone.stableID~="blues_house"or game.machine:getCurrent()~="overworld"or game.machine:depth()~=1
++        if game.session~=session or currentZone.stableID~="pokered:BLUES_HOUSE"or game.machine:getCurrent()~="overworld"or game.machine:depth()~=1
+             or game.npcManager:getNPCAt(x,y)~=npc then return false,"stale-selection"end
+         local ok,reason=session:transact({flags={EVENT_GOT_POKEDEX=true,EVENT_GOT_TOWN_MAP=false},items={townMap=0}},
+             {flags={EVENT_GOT_TOWN_MAP=true},items={{op="add",id="townMap",quantity=1}}})
+diff --git a/Source/game/homeRest.lua b/Source/game/homeRest.lua
+index bcb02507..48d0876c 100644
+--- a/Source/game/homeRest.lua
++++ b/Source/game/homeRest.lua
+@@ -6,7 +6,7 @@ Class("HomeRestState"):extends(State)
+ function HomeRestState:init(game)HomeRestState.super.init(self,"homeRest");self.game=game;self.epoch=0 end
+ function HomeRest.tryInteract(game)
+     local p=game.player;local world=game.machine:get("overworld")
+-    if not p or currentZone~=zoneRegistry.reds_house or game.machine:current()~=world or game.machine:depth()~=1
++    if not p or not currentZone or currentZone.stableID~="pokered:REDS_HOUSE_1F" or game.machine:current()~=world or game.machine:depth()~=1
+         or p.isMoving or p.isJumping or p.pendingEdgeDoor or p.pendingConnection then return false end
+     local x,y=p:getFacingTile();local npc=game.npcManager:getNPCAt(x,y)
+     if not npc or npc.name~="MOM"then return false end
+@@ -15,7 +15,7 @@ function HomeRest.tryInteract(game)
+ end
+ function HomeRestState:valid()
+     return self.active and self.game.session==self.session and currentZone==self.zone and self.game.player==self.player
+-        and self.game.machine.stack[1]==self.game.machine:get("overworld") and self.zone==zoneRegistry.reds_house
++        and self.game.machine.stack[1]==self.game.machine:get("overworld") and self.zone and self.zone.stableID=="pokered:REDS_HOUSE_1F"
+ end
+ function HomeRestState:say(lines,nextPhase)
+     self.phase="dialog";local epoch=self.epoch
+diff --git a/Source/game/kantoWorld.lua b/Source/game/kantoWorld.lua
+index 1c1da885..03d0c44e 100644
+--- a/Source/game/kantoWorld.lua
++++ b/Source/game/kantoWorld.lua
+@@ -64,6 +64,27 @@ function KantoWorld.connection(game,zone,x,y,direction)
+         local door,handled,reason=PewterWorld.connection(game,zone,x,y,direction)
+         if handled then return door,reason end
+     end
++    if zone.stableID=="pokered:PALLET_TOWN" then
++        if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil end
++        if not game or not game.session or game.session:getIntro().stage~="done" then return nil,"intro-gate" end
++        local value=SourceMaps.connection("PalletTown",x,y,direction)
++        if not value then return nil,"unimplemented-connection:"..zone.stableID..":"..direction end
++        local target=zoneRegistry[value.to]
++        local provider=WorldDeltas.definitionProvider()
++        if provider and provider:hasKey(value.to) then
++            local descriptor=provider:descriptor(value.to)
++            local valid=pcall(provider.resolveLocation, provider,
++                {zone_id=descriptor.id, x=value.x, y=value.y, facing=value.facing},
++                provider:export(), game.sessionLocationPolicy)
++            if not valid then return nil,"blocked-connection-arrival" end
++            target=provider:ensure(value.to)
++        end
++        if not target or not inside(target,value.x,value.y) or target.collision[value.y+1][value.x+1]~=0 then return nil,"blocked-connection-arrival" end
++        for _,npc in ipairs(target.npcDefs) do
++            if npc.gridX==value.x and npc.gridY==value.y and (not npc.appearsIf or npc.appearsIf()) then return nil,"occupied-connection-arrival" end
++        end
++        return {to=value.to,toX=value.x,toY=value.y,facing=value.facing,connection=true,source=value.source}
++    end
+     local name=byID[zone.stableID] or (zone.stableID=="pallet_town" and "pallet_town")
+     if not name then return nil end
+     if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil end
+@@ -127,7 +148,7 @@ function KantoWorld.tryInteract(game)
+         end
+         id = npc and npc.def and npc.def.source_event_id
+     end
+-    if not id and npc and npc.name=="OAK" and currentZone.stableID=="oaks_lab" and game.session:getIntro().stage=="done" then
++    if not id and npc and npc.name=="OAK" and currentZone.stableID=="pokered:OAKS_LAB" and game.session:getIntro().stage=="done" then
+         id="pokered:OAKS_LAB:script:parcel-handoff"
+     end
+     if not id and currentZone:isSliceReady() and inside(currentZone,fx,fy) then
+diff --git a/Source/game/story.lua b/Source/game/story.lua
+index 56035104..362f71a6 100644
+--- a/Source/game/story.lua
++++ b/Source/game/story.lua
+@@ -36,8 +36,6 @@ setmetatable(Story,{__index=function(_,key) if fields[key] then return Story.get
+     __newindex=function(t,key,value) assert(not fields[key],"Story fields are session-owned"); rawset(t,key,value) end})
+ 
+ local STARTER_LEVEL <const> = 5
+-local BALL_TILE <const> = 37   -- Pb: table with a POKE BALL on it
+-local TABLE_TILE <const> = 28  -- Tb: plain table (ball taken)
+ 
+ local COUNTER <const> = {
+     bulbasaur = "charmander",
+@@ -45,13 +43,19 @@ local COUNTER <const> = {
+     squirtle = "bulbasaur",
+ }
+ 
+--- The three starter balls on Oak's table (grid coords in oaks_lab).
++-- The three starter balls on Oak's table, imported lab coordinates.
+ -- Gen 1 left-to-right order: CHARMANDER, SQUIRTLE, BULBASAUR.
++local PALLET_ID <const> = "pokered:PALLET_TOWN"
++local LAB_ID <const> = "pokered:OAKS_LAB"
++local LAB_KEY <const> = "kanto_oaks_lab"
+ local BALLS <const> = {
+-    { x = 6, y = 2, species = "charmander" },
+-    { x = 7, y = 2, species = "squirtle" },
+-    { x = 8, y = 2, species = "bulbasaur" },
++    { x = 7, y = 3, species = "charmander" },
++    { x = 8, y = 3, species = "squirtle" },
++    { x = 9, y = 3, species = "bulbasaur" },
+ }
++local function zoneIs(id)
++    return currentZone and currentZone.stableID == id
++end
+ 
+ -- ------------------------------------------------------------
+ -- Oak's speech. engine/movie/oak_speech/oak_speech.asm OakSpeech
+@@ -245,24 +249,17 @@ function Story.begin(game,seed)
+     return game:beginNewSession(seed)
+ end
+ 
+-local function setLabTile(gx, gy, id)
+-    zoneRegistry.oaks_lab:setTile(gx, gy, id)
+-end
+-
+-local function takeBall(species)
++-- The imported balls are actors, not Pb tiles. Taking one removes that actor.
++local function takeBall(game, species)
++    if not game or not zoneIs(LAB_ID) or not game.npcManager then return end
+     for _, ball in ipairs(BALLS) do
+         if ball.species == species then
+-            setLabTile(ball.x, ball.y, TABLE_TILE)
++            local npc = game.npcManager:getNPCAt(ball.x, ball.y)
++            if npc then game.npcManager:removeNPC(npc) end
+         end
+     end
+ end
+ 
+-local function restoreBalls()
+-    for _, ball in ipairs(BALLS) do
+-        setLabTile(ball.x, ball.y, BALL_TILE)
+-    end
+-end
+-
+ -- Normal B2W2 Lv5 initialization yields the protected intro pairs:
+ -- Tackle/Growl, Scratch/Growl, or Tackle/Tail Whip. No special override.
+ local function starterPokemon(game, species, origin)
+@@ -286,13 +283,13 @@ function Story.check(game, overworldState)
+     local stage = Story.get(game).stage
+ 
+     -- Scene triggers: fire on BEING somewhere, not on a step
+-    if stage == "lab_greet" and currentZone == zoneRegistry.oaks_lab then
++    if stage == "lab_greet" and zoneIs(LAB_ID) then
+         update(game,{stage="choose"})
+         game.machine:push("dialog", Story.labGreet(game))
+         return true
+     end
+ 
+-    if stage == "goodbye" and currentZone == zoneRegistry.oaks_lab then
++    if stage == "goodbye" and zoneIs(LAB_ID) then
+         update(game,{stage="done"})
+         local lines = Story.goodbye(game, Story.get(game).rivalOutcome)
+         game.machine:push("dialog", lines, function()
+@@ -306,20 +303,20 @@ function Story.check(game, overworldState)
+     if not (player and player.stepJustFinished) then return false end
+ 
+     -- Oak stops you at the Route 1 grass strip and escorts you to the lab
+-    if stage == "pre_oak" and currentZone == zoneRegistry.pallet_town
++    if stage == "pre_oak" and zoneIs(PALLET_ID)
+        and player.gridY <= 2 then
+         game.machine:push("dialog", OAK_STOP, function()
+             update(game,{stage="lab_greet"})
+             -- Drop the player a clear tile below Oak so the two sprites
+             -- don't stack into one tall figure
+             overworldState.sub:change("doorWarp",
+-                { to = "oaks_lab", toX = 5, toY = 5, facing = "up" })
++                { to = LAB_KEY, toX = 6, toY = 4, facing = "up" })
+         end)
+         return true
+     end
+ 
+     -- BLUE blocks the lab exit and challenges you
+-    if stage == "pre_rival" and currentZone == zoneRegistry.oaks_lab
++    if stage == "pre_rival" and zoneIs(LAB_ID)
+        and player.gridY >= 8 then
+         local session=game.session
+         game.machine:push("dialog", Story.rivalChallenge(game), function()
+@@ -352,12 +349,11 @@ end
+ 
+ function Story.tryInteract(game, fx, fy)
+     if Story.tryNameRater(game, fx, fy) then return true end
+-    if Story.get(game).stage ~= "choose" or currentZone ~= zoneRegistry.oaks_lab then
++    if Story.get(game).stage ~= "choose" or not zoneIs(LAB_ID) then
+         return false
+     end
+     for _, ball in ipairs(BALLS) do
+-        if ball.x == fx and ball.y == fy
+-           and currentZone.tiles[fy + 1][fx + 1] == BALL_TILE then
++        if ball.x == fx and ball.y == fy and game.npcManager:getNPCAt(fx, fy) then
+             Story.chooseStarter(game, ball.species)
+             return true
+         end
+@@ -370,8 +366,8 @@ function Story.chooseStarter(game, species)
+     assert(game.session:party():count()==0,"starter requires an empty party")
+     assert(game:recruit(starterPokemon(game, species)))
+     assert(game.session:setIntro({stage="pre_rival",starter=species,rivalStarter=COUNTER[species]}))
+-    takeBall(species)
+-    takeBall(Story.get(game).rivalStarter)
++    takeBall(game, species)
++    takeBall(game, Story.get(game).rivalStarter)
+     local mon = game:getPlayerPokemon()
+     local speciesName = pokemonData[species].name
+     game.machine:push("dialog", {
+@@ -510,7 +506,7 @@ function Story.skipIntro(game)
+     local starter=tuple.starter or "squirtle"
+     if not game:getPlayerPokemon() then assert(game:recruit(starterPokemon(game, starter))) end
+     assert(game.session:setIntro({stage="done",starter=starter,rivalStarter=COUNTER[starter],rivalOutcome=tuple.rivalOutcome}))
+-    takeBall(starter); takeBall(COUNTER[starter])
++    takeBall(game, starter); takeBall(game, COUNTER[starter])
+ end
+ 
+ function Story.resetIntro(game)
+diff --git a/Source/game/trainerEvents.lua b/Source/game/trainerEvents.lua
+index e01a8b96..05eba9e3 100644
+--- a/Source/game/trainerEvents.lua
++++ b/Source/game/trainerEvents.lua
+@@ -54,7 +54,7 @@ end
+ local function definition(self,id)
+     local owner=owners[self]
+     if id==LAB then
+-        if owner.game.session:getIntro().stage~="rival_fight" or currentZone.stableID~="oaks_lab" then return nil end
++        if owner.game.session:getIntro().stage~="rival_fight" or not currentZone or currentZone.stableID~="pokered:OAKS_LAB" then return nil end
+         return {id=LAB,payout=175,initial_lab=true,talk_only=true,party={{species=assert(owner.game.session:getIntro().rivalStarter),level=5}},name="BLUE"}
+     end
+     local d = owner.lookup(id)
+diff --git a/Source/world/sourceActors.lua b/Source/world/sourceActors.lua
+index 92ae6f8a..79dae87b 100644
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -96,6 +96,15 @@ function SourceActors.stepImage(source, facing, tick, profile)
+     return content(profile or "pewter").stepImage(source, facing, tick)
+ end
+ 
++local PALLET_NAMES <const> = {
++    TEXT_OAKSLAB_RIVAL = "BLUE",
++    TEXT_OAKSLAB_OAK1 = "OAK",
++    TEXT_OAKSLAB_OAK2 = "OAK",
++    TEXT_PALLETTOWN_OAK = "OAK",
++    TEXT_REDSHOUSE1F_MOM = "MOM",
++    TEXT_BLUESHOUSE_DAISY_SITTING = "Daisy",
++    TEXT_BLUESHOUSE_DAISY_WALKING = "Daisy",
++}
+ function SourceActors.objectDefinition(d, event, spec, options)
+     local profile = SourceMaps.entry(d.name).profile
+     local resolver = content(profile)
+@@ -111,7 +120,7 @@ function SourceActors.objectDefinition(d, event, spec, options)
+         end
+         return visibility
+     end
+-    local def = { gridX=event.x, gridY=event.y, name=trainer and trainer.name or event.text_id,
++    local def = { gridX=event.x, gridY=event.y, name=PALLET_NAMES[event.text_id] or trainer and trainer.name or event.text_id,
+         sprite=key, source_event_id=event.id, source_sprite=event.sprite,
+         source_boulder=SourceActors.isBoulderEvent(event),
+         source_movement={kind=event.movement, range=event.range_or_facing},

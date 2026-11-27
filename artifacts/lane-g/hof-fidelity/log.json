@@ -1,0 +1,423 @@
+{
+  "version": "blue",
+  "party": [
+    {
+      "species": "CHARIZARD",
+      "level": 65,
+      "types": [
+        "FIRE",
+        "FLYING"
+      ]
+    }
+  ],
+  "player": {
+    "name": "RED",
+    "hours": 0,
+    "minutes": 0,
+    "money": 1234,
+    "seen": 2,
+    "owned": 2
+  },
+  "frames": [
+    {
+      "beat": "hof-mon-0",
+      "text": [
+        "CHARIZARD",
+        "LEVEL/",
+        "65",
+        "TYPE1/",
+        "FIRE",
+        "TYPE2/",
+        "FLYING"
+      ],
+      "species": "CHARIZARD",
+      "gb_frames": 80
+    },
+    {
+      "beat": "hof-banner-0",
+      "text": [
+        "CHARIZARD",
+        "LEVEL/",
+        "65",
+        "TYPE1/",
+        "FIRE",
+        "TYPE2/",
+        "FLYING",
+        "HALL OF FAME"
+      ],
+      "species": "CHARIZARD",
+      "gb_frames": 180
+    },
+    {
+      "beat": "hof-player",
+      "text": [
+        "RED",
+        "PLAY TIME",
+        "0:00",
+        "MONEY",
+        "\u00a51234"
+      ],
+      "png": "hof-player.png"
+    },
+    {
+      "beat": "hof-dex-seen",
+      "text": [
+        "Pok\u00e9DEX   Seen:",
+        "2",
+        "Owned:",
+        "2"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "hof-dex-rating-label",
+      "text": [
+        "Pok\u00e9DEX Rating"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "hof-dex-rating",
+      "text": [
+        "You still have",
+        "lots to do.",
+        "Look for Pok\u00e9mon",
+        "in grassy areas!"
+      ],
+      "gb_frames": 120,
+      "png": "hof-dex-rating.png"
+    },
+    {
+      "beat": "credits-00",
+      "text": [
+        "POK\u00e9MON",
+        "BLUE VERSION STAFF"
+      ],
+      "species": "VENUSAUR",
+      "gb_frames": 90,
+      "png": "credits-00.png"
+    },
+    {
+      "beat": "credits-01",
+      "text": [
+        "DIRECTOR",
+        "SATOSHI TAJIRI"
+      ],
+      "species": "ARBOK",
+      "gb_frames": 90
+    },
+    {
+      "beat": "credits-02",
+      "text": [
+        "PROGRAMMERS",
+        "TAKENORI OOTA",
+        "SHIGEKI MORIMOTO"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-03",
+      "text": [
+        "PROGRAMMERS",
+        "TETSUYA WATANABE",
+        "JUNICHI MASUDA",
+        "SOUSUKE TAMADA"
+      ],
+      "species": "RHYHORN",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-04",
+      "text": [
+        "CHARACTER DESIGN",
+        "KEN SUGIMORI",
+        "ATSUKO NISHIDA"
+      ],
+      "species": "FEAROW",
+      "gb_frames": 90
+    },
+    {
+      "beat": "credits-05",
+      "text": [
+        "MUSIC",
+        "JUNICHI MASUDA"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-06",
+      "text": [
+        "SOUND EFFECTS",
+        "JUNICHI MASUDA"
+      ],
+      "species": "ABRA",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-07",
+      "text": [
+        "GAME DESIGN",
+        "SATOSHI TAJIRI"
+      ],
+      "species": "GRAVELER",
+      "gb_frames": 90
+    },
+    {
+      "beat": "credits-08",
+      "text": [
+        "MONSTER DESIGN",
+        "KEN SUGIMORI",
+        "ATSUKO NISHIDA",
+        "MOTOFUMI FUZIWARA"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-09",
+      "text": [
+        "MONSTER DESIGN",
+        "SHIGEKI MORIMOTO",
+        "SATOSHI OOTA",
+        "RENA YOSHIKAWA"
+      ],
+      "species": "HITMONLEE",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-10",
+      "text": [
+        "GAME SCENARIO",
+        "SATOSHI TAJIRI"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-11",
+      "text": [
+        "GAME SCENARIO",
+        "RYOHSUKE TANIGUCHI",
+        "FUMIHIRO NONOMURA",
+        "HIROYUKI ZINNAI"
+      ],
+      "species": "TANGELA",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-12",
+      "text": [
+        "PARAMETRIC DESIGN",
+        "KOHJI NISINO",
+        "TAKEO NAKAMURA"
+      ],
+      "species": "STARMIE",
+      "gb_frames": 90
+    },
+    {
+      "beat": "credits-13",
+      "text": [
+        "MAP DESIGN",
+        "SATOSHI TAJIRI",
+        "KOHJI NISINO"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-14",
+      "text": [
+        "MAP DESIGN",
+        "KENJI MATSUSIMA",
+        "FUMIHIRO NONOMURA",
+        "RYOHSUKE TANIGUCHI"
+      ],
+      "species": "GYARADOS",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-15",
+      "text": [
+        "PRODUCT TESTING",
+        "AKIYOSHI KAKEI",
+        "KAZUKI TSUCHIYA"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-16",
+      "text": [
+        "PRODUCT TESTING",
+        "TAKEO NAKAMURA",
+        "MASAMITSU YUDA"
+      ],
+      "species": "DITTO",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-17",
+      "text": [
+        "SPECIAL THANKS",
+        "TATSUYA HISHIDA",
+        "YASUHIRO SAKAI"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-18",
+      "text": [
+        "SPECIAL THANKS",
+        "WATARU YAMAGUCHI",
+        "KAZUYUKI YAMAMOTO"
+      ],
+      "gb_frames": 140
+    },
+    {
+      "beat": "credits-19",
+      "text": [
+        "SPECIAL THANKS",
+        "AKIHITO TOMISAWA",
+        "HIROSHI KAWAMOTO",
+        "TOMOMICHI OOTA"
+      ],
+      "species": "OMASTAR",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-20",
+      "text": [
+        "PRODUCERS",
+        "SHIGERU MIYAMOTO"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-21",
+      "text": [
+        "PRODUCERS",
+        "TAKASHI KAWAGUCHI"
+      ],
+      "gb_frames": 140
+    },
+    {
+      "beat": "credits-22",
+      "text": [
+        "PRODUCERS",
+        "TSUNEKAZU ISHIHARA"
+      ],
+      "species": "VILEPLUME",
+      "gb_frames": 110
+    },
+    {
+      "beat": "credits-23",
+      "text": [
+        "US VERSION STAFF"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-24",
+      "text": [
+        "US COORDINATION",
+        "GAIL TILDEN"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-25",
+      "text": [
+        "US COORDINATION",
+        "NAOKO KAWAKAMI",
+        "HIRO NAKAMURA"
+      ],
+      "gb_frames": 140
+    },
+    {
+      "beat": "credits-26",
+      "text": [
+        "US COORDINATION",
+        "WILLIAM GIESE",
+        "SARA OSBORNE"
+      ],
+      "gb_frames": 140
+    },
+    {
+      "beat": "credits-27",
+      "text": [
+        "TEXT TRANSLATION",
+        "NOB OGASAWARA"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-28",
+      "text": [
+        "PROGRAMMERS",
+        "TERUKI MURAKAWA",
+        "KOHTA FUKUI"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-29",
+      "text": [
+        "SPECIAL THANKS",
+        "SATORU IWATA"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-30",
+      "text": [
+        "SPECIAL THANKS",
+        "TAKAHIRO HARADA"
+      ],
+      "gb_frames": 140
+    },
+    {
+      "beat": "credits-31",
+      "text": [
+        "PRODUCT TESTING",
+        "PAAD TESTING",
+        "NCL SUPER MARIO CLUB"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-32",
+      "text": [
+        "PRODUCER",
+        "TAKEHIRO IZUSHI"
+      ],
+      "gb_frames": 120
+    },
+    {
+      "beat": "credits-33",
+      "text": [
+        "EXECUTIVE PRODUCER",
+        "HIROSHI YAMAUCHI"
+      ],
+      "species": "NIDOKING",
+      "gb_frames": 90
+    },
+    {
+      "beat": "credits-34",
+      "text": [
+        "\u00a9'95.'96.'98 Nintendo",
+        "\u00a9'95.'96.'98 Creatures inc.",
+        "\u00a9'95.'96.'98 GAME FREAK inc."
+      ],
+      "species": "PARASECT",
+      "gb_frames": 90,
+      "png": "credits-34.png"
+    },
+    {
+      "beat": "the-end",
+      "text": [
+        "THE END"
+      ],
+      "gb_frames": 16,
+      "png": "the-end.png"
+    }
+  ],
+  "name_box": {
+    "note": "box top is Playdate y=-48; the y=0 edge is the clip"
+  }
+}

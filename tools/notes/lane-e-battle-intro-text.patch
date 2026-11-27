@@ -1,0 +1,19 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 6dc82730..2ff93a8b 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -410,8 +410,12 @@ function Battle:opponentEntered(cause)
+     end
+     if self.session then assert(self.session:markSeen(self.enemy.species)) end
+     if cause=="phaze" then self:say(self.enemy.name.." was dragged out!")
+-    elseif self.trainerName then self:say(self.trainerName .. " sent out " .. self.enemy.name .. "!")
+-    else self:say("A wild " .. self.enemy.name .. " appeared!") end
++    -- data/text/text_2.asm _EnemyAppearedText (line 1252): the nick, then
++    -- line "appeared!". Trainer send-outs use that page, not _TrainerSentOutText.
++    elseif self.trainerName then self:say(self.enemy.name .. "\nappeared!")
++    -- data/text/text_2.asm _WildMonAppearedText (line 1237): "Wild @" then
++    -- line "appeared!".
++    else self:say("Wild " .. self.enemy.name .. "\nappeared!") end
+     if self.trainerName then
+         self:present("sendout", {side = "enemy", pokemon = self.enemy})
+     end

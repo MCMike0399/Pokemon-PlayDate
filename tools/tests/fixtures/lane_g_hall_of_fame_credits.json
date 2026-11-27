@@ -1,0 +1,351 @@
+[
+  {
+    "kind": "fade_mon",
+    "lines": [
+      "#MON",
+      "BLUE VERSION STAFF"
+    ],
+    "gb_frames": 90,
+    "species": "VENUSAUR",
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade_mon",
+    "lines": [
+      "DIRECTOR",
+      "SATOSHI TAJIRI"
+    ],
+    "gb_frames": 90,
+    "species": "ARBOK",
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "PROGRAMMERS",
+      "TAKENORI OOTA",
+      "SHIGEKI MORIMOTO"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "PROGRAMMERS",
+      "TETSUYA WATANABE",
+      "JUNICHI MASUDA",
+      "SOUSUKE TAMADA"
+    ],
+    "gb_frames": 110,
+    "species": "RHYHORN"
+  },
+  {
+    "kind": "fade_mon",
+    "lines": [
+      "CHARACTER DESIGN",
+      "KEN SUGIMORI",
+      "ATSUKO NISHIDA"
+    ],
+    "gb_frames": 90,
+    "species": "FEAROW",
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "MUSIC",
+      "JUNICHI MASUDA"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "SOUND EFFECTS",
+      "JUNICHI MASUDA"
+    ],
+    "gb_frames": 110,
+    "species": "ABRA"
+  },
+  {
+    "kind": "fade_mon",
+    "lines": [
+      "GAME DESIGN",
+      "SATOSHI TAJIRI"
+    ],
+    "gb_frames": 90,
+    "species": "GRAVELER",
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "MONSTER DESIGN",
+      "KEN SUGIMORI",
+      "ATSUKO NISHIDA",
+      "MOTOFUMI FUZIWARA"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "MONSTER DESIGN",
+      "SHIGEKI MORIMOTO",
+      "SATOSHI OOTA",
+      "RENA YOSHIKAWA"
+    ],
+    "gb_frames": 110,
+    "species": "HITMONLEE"
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "GAME SCENARIO",
+      "SATOSHI TAJIRI"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "GAME SCENARIO",
+      "RYOHSUKE TANIGUCHI",
+      "FUMIHIRO NONOMURA",
+      "HIROYUKI ZINNAI"
+    ],
+    "gb_frames": 110,
+    "species": "TANGELA"
+  },
+  {
+    "kind": "fade_mon",
+    "lines": [
+      "PARAMETRIC DESIGN",
+      "KOHJI NISINO",
+      "TAKEO NAKAMURA"
+    ],
+    "gb_frames": 90,
+    "species": "STARMIE",
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "MAP DESIGN",
+      "SATOSHI TAJIRI",
+      "KOHJI NISINO"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "MAP DESIGN",
+      "KENJI MATSUSIMA",
+      "FUMIHIRO NONOMURA",
+      "RYOHSUKE TANIGUCHI"
+    ],
+    "gb_frames": 110,
+    "species": "GYARADOS"
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "PRODUCT TESTING",
+      "AKIYOSHI KAKEI",
+      "KAZUKI TSUCHIYA"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "PRODUCT TESTING",
+      "TAKEO NAKAMURA",
+      "MASAMITSU YUDA"
+    ],
+    "gb_frames": 110,
+    "species": "DITTO"
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "SPECIAL THANKS",
+      "TATSUYA HISHIDA",
+      "YASUHIRO SAKAI"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text",
+    "lines": [
+      "SPECIAL THANKS",
+      "WATARU YAMAGUCHI",
+      "KAZUYUKI YAMAMOTO"
+    ],
+    "gb_frames": 140
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "SPECIAL THANKS",
+      "AKIHITO TOMISAWA",
+      "HIROSHI KAWAMOTO",
+      "TOMOMICHI OOTA"
+    ],
+    "gb_frames": 110,
+    "species": "OMASTAR"
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "PRODUCERS",
+      "SHIGERU MIYAMOTO"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text",
+    "lines": [
+      "PRODUCERS",
+      "TAKASHI KAWAGUCHI"
+    ],
+    "gb_frames": 140
+  },
+  {
+    "kind": "text_mon",
+    "lines": [
+      "PRODUCERS",
+      "TSUNEKAZU ISHIHARA"
+    ],
+    "gb_frames": 110,
+    "species": "VILEPLUME"
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "US VERSION STAFF"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "US COORDINATION",
+      "GAIL TILDEN"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text",
+    "lines": [
+      "US COORDINATION",
+      "NAOKO KAWAKAMI",
+      "HIRO NAKAMURA"
+    ],
+    "gb_frames": 140
+  },
+  {
+    "kind": "text",
+    "lines": [
+      "US COORDINATION",
+      "WILLIAM GIESE",
+      "SARA OSBORNE"
+    ],
+    "gb_frames": 140
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "TEXT TRANSLATION",
+      "NOB OGASAWARA"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "PROGRAMMERS",
+      "TERUKI MURAKAWA",
+      "KOHTA FUKUI"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "SPECIAL THANKS",
+      "SATORU IWATA"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "text",
+    "lines": [
+      "SPECIAL THANKS",
+      "TAKAHIRO HARADA"
+    ],
+    "gb_frames": 140
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "PRODUCT TESTING",
+      "PAAD TESTING",
+      "NCL SUPER MARIO CLUB"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade",
+    "lines": [
+      "PRODUCER",
+      "TAKEHIRO IZUSHI"
+    ],
+    "gb_frames": 120,
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade_mon",
+    "lines": [
+      "EXECUTIVE PRODUCER",
+      "HIROSHI YAMAUCHI"
+    ],
+    "gb_frames": 90,
+    "species": "NIDOKING",
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "fade_mon",
+    "lines": [
+      "\u00a9'95.'96.'98 Nintendo",
+      "\u00a9'95.'96.'98 Creatures inc.",
+      "\u00a9'95.'96.'98 GAME FREAK inc."
+    ],
+    "gb_frames": 90,
+    "species": "PARASECT",
+    "fade_gb_frames": 20
+  },
+  {
+    "kind": "the_end",
+    "lines": [
+      "THE END"
+    ],
+    "gb_frames": 16,
+    "fade_gb_frames": 20
+  }
+]

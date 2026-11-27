@@ -44,6 +44,19 @@ COPYRIGHT_LINES = (
     "©'95.'96.'98 GAME FREAK inc.",
 )
 
+# HoFDisplayPlayerStats. TextBoxBorder at hlcoord 5, 0 with b=2, c=9 is an
+# 11 by 4 tile box. The name is PlaceString at hlcoord 7, 2. hallView shifts
+# that top row to Playdate y=-48, so a border drawn at y=0 is the clip.
+PLAYER_NAME_BOX = {
+    "col": 5,
+    "row": 0,
+    "width": 11,
+    "height": 4,
+    "name_col": 7,
+    "name_row": 2,
+    "playdate_top": -48,
+}
+
 # Owned count is strictly less than the threshold. NUM_POKEMON is 151.
 DEX_RATINGS = (
     (10, ("You still have", "lots to do.", "Look for Pokémon", "in grassy areas!")),
@@ -96,6 +109,11 @@ def play_time_text(hours, minutes):
     if not isinstance(minutes, int) or isinstance(minutes, bool) or minutes < 0 or minutes > 59:
         raise ValueError("minutes must be an integer from 0 to 59")
     return f"{hours}:{minutes:02d}"
+
+
+def display_pokered(text):
+    """Charmap '#' is the POKé tile. The species is not part of the string."""
+    return text.replace("#", "POKé")
 
 
 def _norm(text):
@@ -294,7 +312,7 @@ def expected_beats(party, player, credits, version="blue"):
                 "text": ["THE END"],
             })
             continue
-        lines = list(screen["lines"])
+        lines = [display_pokered(line) for line in screen["lines"]]
         if version == "red":
             lines = ["RED VERSION STAFF" if line == "BLUE VERSION STAFF" else line for line in lines]
         beat = {
@@ -336,6 +354,115 @@ def _check_timing(frame, beat, errors, where):
         errors.append(
             f"{where}: fade_gb_frames is {frame['fade_gb_frames']}, pokered fades for {beat['fade_gb_frames']}"
         )
+
+
+def credits_bands():
+    """Hall view is 2x and shifted up 48px. Rows 0-3 and 14-17 are black."""
+    def y(row):
+        return -48 + row * 16
+    return {
+        "top": (max(0, y(0)), min(240, y(4))),
+        "middle": (max(0, y(4)), min(240, y(14))),
+        "bottom": (max(0, y(14)), min(240, y(18))),
+    }
+
+
+def glyph_advance(measure, char):
+    """Advance of one glyph inside a string. A lone space or colon is not trimmed."""
+    if char == "é":
+        char = "e"
+    return measure("X" + char + "X") - measure("XX")
+
+
+def check_glyph_advances(before, after):
+    """before and after map a glyph to its advance. They must match, and ':' renders."""
+    errors = []
+    missing = sorted(set(before) - set(after))
+    extra = sorted(set(after) - set(before))
+    if missing or extra:
+        errors.append("glyph advance map changed: " + ",".join((missing + extra)[:8]))
+    for char in sorted(set(before) & set(after)):
+        if before[char] != after[char]:
+            errors.append(f"advance of {char!r} is {after[char]}, the font advance is {before[char]}")
+    colon = before.get(":")
+    if colon is None or colon <= 0:
+        errors.append("':' has no advance")
+    return errors
+
+
+def _band_ink(image, y0, y1):
+    dark = 0
+    total = 0
+    for y in range(y0, y1):
+        for x in range(0, 400, 8):
+            total += 1
+            if image.getpixel((x, y)) < 128:
+                dark += 1
+    return dark / total if total else 0
+
+
+def _check_credits_colors(frame, root, errors, where):
+    if not (str(where).startswith("credits-") or where == "the-end"):
+        return
+    png = frame.get("png")
+    if not png:
+        return
+    path = Path(png)
+    if not path.is_absolute():
+        path = root / path
+    if not path.is_file():
+        return
+    from PIL import Image
+    bands = credits_bands()
+    with Image.open(path) as image:
+        gray = image.convert("L")
+        top = _band_ink(gray, *bands["top"])
+        bottom = _band_ink(gray, *bands["bottom"])
+        middle = _band_ink(gray, bands["middle"][0], bands["middle"][0] + 8)
+        if top < 0.8:
+            errors.append(f"{where}: top band is not black")
+        if bottom < 0.8:
+            errors.append(f"{where}: bottom band is not black")
+        if middle > 0.2:
+            errors.append(f"{where}: credits middle is not white, so the text is not black on white")
+
+
+def _check_sprite(frame, root, errors, where):
+    """DisplayCreditsMon is a solid black silhouette. BGP %11111100, no dither and no box."""
+    if not frame.get("sprite"):
+        return
+    png = frame.get("png")
+    if not png:
+        errors.append(f"{where}: sprite frame has no png")
+        return
+    path = Path(png)
+    if not path.is_absolute():
+        path = root / path
+    if not path.is_file():
+        errors.append(f"{where}: missing sprite frame {path}")
+        return
+    from PIL import Image
+    with Image.open(path) as image:
+        gray = image.convert("L")
+        width, height = gray.size
+        checkers = 0
+        solid = 0
+        for y in range(0, height - 3, 2):
+            for x in range(0, width - 3, 2):
+                block = (
+                    gray.getpixel((x, y)) < 128,
+                    gray.getpixel((x + 1, y)) < 128,
+                    gray.getpixel((x, y + 1)) < 128,
+                    gray.getpixel((x + 1, y + 1)) < 128,
+                )
+                if block == (True, False, False, True):
+                    checkers += 1
+                if block == (True, True, True, True):
+                    solid += 1
+        if checkers > 80:
+            errors.append(f"{where}: credits mon is dithered, pokered uses a black silhouette")
+        if solid < 8:
+            errors.append(f"{where}: credits mon silhouette is missing")
 
 
 def _check_png(frame, root, errors, where):
@@ -386,6 +513,20 @@ def check_log(log, credits, root=None):
             errors.append(f"missing beat {beat['id']}")
             continue
         text = _frame_text(match)
+        if "#" in text:
+            errors.append(f"{beat['id']}: '#' is the POKé tile, not a literal hash")
+        if str(beat["id"]).startswith("credits-") and "species" in beat:
+            token = str(beat["species"]).casefold()
+            folded = re.sub(r"\s+", "", text).casefold()
+            if token and token in folded:
+                errors.append(f"{beat['id']}: {beat['species']} is a scrolling sprite, not text")
+        if "é" in "".join(str(item) for item in beat["text"]) and "é" not in text:
+            errors.append(f"{beat['id']}: é is the font glyph, not a missing character")
+        if beat["id"] == "hof-player" and "name_box" in match:
+            box = match["name_box"]
+            for key, expected in PLAYER_NAME_BOX.items():
+                if box.get(key) != expected:
+                    errors.append(f"hof-player: {key} is {box.get(key)}, pokered uses {expected}")
         for needle in beat["text"]:
             if needle == "TYPE2 erased":
                 if _contains(text, "TYPE2/"):
@@ -403,6 +544,11 @@ def check_log(log, credits, root=None):
                 errors.append(f"{beat['id']}: species is {got}, pokered shows {beat['species']}")
         _check_timing(match, beat, errors, beat["id"])
         _check_png(match, root, errors, beat["id"])
+        _check_credits_colors(match, root, errors, beat["id"])
+        _check_sprite(match, root, errors, beat["id"])
+    advances = log.get("advances")
+    if advances:
+        errors.extend(check_glyph_advances(advances.get("before") or {}, advances.get("after") or {}))
     while cursor < len(frames):
         frame = frames[cursor]
         cursor += 1

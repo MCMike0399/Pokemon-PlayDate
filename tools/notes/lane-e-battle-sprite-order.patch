@@ -1,0 +1,40 @@
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index 768637dd..f7e3e801 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -513,30 +513,20 @@ end
+ function BattleScene:drawBattleField()
+     self:drawBackgroundBase()
+ 
+-    -- Draw pokemon sprites (before platforms so platforms overlap sprite bottoms)
++    -- Draw each platform, then the mon on it. The platform line is
++    -- engine/battle/core.asm's ground, and the sprite covers it.
+     local flashHide = self.flashHide
+ 
++    self:drawPlatforms()
+     if self.trainerVisible then
+         self:drawTrainer()
+     end
+-    if self.enemyShown and not self:isFaintSlide("enemy")
++    if self.enemyShown
+         and (not self.captureAnimation or self.captureAnimation:isEnemyVisible())
+         and not (flashHide and self.battle.attackerSide == "player") then
+         self:drawPresentedPokemon(self.enemyShown, "enemy", 300, 20, false)
+     end
+-    if self.playerShown and not self:isFaintSlide("player")
+-        and not (flashHide and self.battle.attackerSide == "enemy") then
+-        self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
+-    end
+-
+-    -- Draw platforms on top of resting sprites. A faint slide is drawn after
+-    -- them so the picture can travel down across the platform.
+-    self:drawPlatforms()
+-    if self.enemyShown and self:isFaintSlide("enemy")
+-        and not (flashHide and self.battle.attackerSide == "player") then
+-        self:drawPresentedPokemon(self.enemyShown, "enemy", 300, 20, false)
+-    end
+-    if self.playerShown and self:isFaintSlide("player")
++    if self.playerShown
+         and not (flashHide and self.battle.attackerSide == "enemy") then
+         self:drawPresentedPokemon(self.playerShown, "player", 55, 70, true)
+     end

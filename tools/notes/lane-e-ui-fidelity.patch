@@ -1,0 +1,564 @@
+diff --git a/Source/game/bagState.lua b/Source/game/bagState.lua
+index c28713e0..9db7078a 100644
+--- a/Source/game/bagState.lua
++++ b/Source/game/bagState.lua
+@@ -1,3 +1,4 @@
++import "game/gbFont"
+ local gfx <const> = playdate.graphics
+ Class("BagState"):extends(State)
+ 
+@@ -91,10 +92,8 @@ end
+ 
+ function BagState:listCount()
+     local count = #self:visibleSlots()
+-    if self.active and self.options and not self.options.mode and not self.options.trySelect and not self.battle and count > 1 then
+-        return count + 1
+-    end
+-    return count
++    if self.options and self.options.mode == "held" then return count end
++    return count + 1
+ end
+ 
+ function BagState:init(game)
+@@ -377,8 +376,10 @@ function BagState:handleInput()
+         if playdate.buttonJustPressed(playdate.kButtonUp) then self.selected = (self.selected - 2) % count + 1
+         elseif playdate.buttonJustPressed(playdate.kButtonDown) then self.selected = self.selected % count + 1
+         elseif playdate.buttonJustPressed(playdate.kButtonA) then
+-            if self.selected > #slots then
+-                self:sortBag()
++            if not slots[self.selected] then
++                if self.options.mode=="held" then
++                    local callback=self.options.onCancel;self.machine:pop();if callback then callback() end
++                elseif not self.options.tryCancel or self.options.tryCancel() then self.machine:pop() end
+                 return
+             end
+             local id = slots[self.selected].id
+@@ -409,36 +410,75 @@ function BagState:draw()
+     gfx.setDrawOffset(0, 0)
+     gfx.clear(gfx.kColorWhite)
+     gfx.setColor(gfx.kColorBlack)
+-    gfx.drawText(self.options and self.options.mode=="held" and ("GIVE: "..self.options.holder.name) or "ITEM", 12, 8)
+-    gfx.drawText("$" .. self.game.session:inventory():money(), 286, 8)
+-    local slots = self:visibleSlots()
+-    local first = math.max(1, self.selected - 6)
+-    if not self.options.mode then
+-        local id = GameOptions.registeredItem()
+-        local item = id and ItemData.definitions[id]
+-        local label = item and item.name or "NONE"
+-        if item and (self.game.session:inventory():quantity(id) or 0) < 1 then
+-            label = label .. " (missing)"
+-        end
+-        gfx.drawText("Registered: " .. label, 12, 27)
++    -- Neither bag prints money. StartMenu_Item zeros wPrintItemPrices at
++    -- engine/menus/start_sub_menus.asm:315 before DisplayListMenuID.
++    -- DisplayBagMenu does the same at engine/battle/core.asm:2226.
++    -- PrintListMenuEntries (home/list_menu.asm:411) prints a price only
++    -- when that flag is set. LIST_MENU_BOX is data/text_boxes.asm:13.
++    -- PrintListMenuEntries prints four names (list_menu.asm, ld b, 4)
++    -- from hlcoord 6, 4. Each entry steps 2*SCREEN_WIDTH, and ×qty is the
++    -- next row, right-aligned. A Game Boy row is 8px. A full glyph here is
++    -- 12px in a 13px cell, so one cell per row leaves the quantity in the
++    -- crack above the next name. A text row is two cells, the Pokédex list
++    -- pitch. LIST_MENU_BOX puts the top border on its own row, leaves row
++    -- 3 blank, and puts the bottom border one row below the last line.
++    -- The scaled "─" rule ends on pixel 9 of the 13px cell, so the list
++    -- shifts up by that inset and still clears the rule by one text row.
++    -- home/list_menu.asm has no A/B footer, so "A: Choose  B: Back" is not drawn.
++    if self.options and self.options.mode=="held" then
++        gfx.drawText("GIVE: "..self.options.holder.name, 12, 0)
++    end
++    local textRow = TitleIdle.ROW * 2
++    local ruleInset = TitleIdle.ROW - 9
++    local boxX = 4 * TitleIdle.COL
++    local cols = 16
++    local nameOrigin = TitleIdle.ROW + textRow - ruleInset
++    local lastQuantity = nameOrigin + 3 * textRow * 2 + textRow
++    local bottomY = lastQuantity + TitleIdle.ROW - ruleInset
++    local function borderChar(char, col, pixelY)
++        GbFont.drawCharAt(char, boxX + col * TitleIdle.COL, pixelY)
++    end
++    for col = 0, cols - 1 do
++        local topChar, botChar = "─", "─"
++        if col == 0 then topChar, botChar = "┌", "└"
++        elseif col == cols - 1 then topChar, botChar = "┐", "┘" end
++        borderChar(topChar, col, 0)
++        borderChar(botChar, col, bottomY)
++    end
++    local sideY = TitleIdle.ROW
++    while sideY + TitleIdle.ROW <= bottomY do
++        borderChar("│", 0, sideY)
++        borderChar("│", cols - 1, sideY)
++        sideY = sideY + TitleIdle.ROW
+     end
+-    if #slots == 0 then gfx.drawText(self.options and self.options.mode=="held" and "No holdable items in your bag." or "Your bag is empty.", 16, 64) end
+-    for i = first, math.min(self:listCount(), first + 6) do
++    if sideY < bottomY then
++        borderChar("│", 0, bottomY - TitleIdle.ROW)
++        borderChar("│", cols - 1, bottomY - TitleIdle.ROW)
++    end
++    local slots = self:visibleSlots()
++    local count = self:listCount()
++    local window = 4
++    local first = count > window and math.max(1, math.min(self.selected - window + 1, count - window + 1)) or 1
++    for n = 0, math.min(window, count) - 1 do
++        local i = first + n
++        if i > count then break end
++        local nameY = nameOrigin + n * textRow * 2
++        local quantityY = nameY + textRow
++        if i == self.selected then GbFont.drawCharAt(TitleIdle.CURSOR, 5 * TitleIdle.COL, nameY) end
+         local slot = slots[i]
+-        local top = 50 + (i - first) * 21
+-        local prefix = i == self.selected and "> " or "  "
+         if slot then
+-            gfx.drawText(prefix .. ItemData.definitions[slot.id].name, 12, top)
+-            gfx.drawText("x" .. slot.quantity, 328, top)
++            local item = ItemData.definitions[slot.id]
++            local label = item.sourceName or item.name
++            GbFont.drawStringAt(label, 6 * TitleIdle.COL, nameY)
++            if not item.keyItem then
++                local quantity = "×" .. slot.quantity
++                local quantityCol = 19 - GbFont.tiles(quantity)
++                GbFont.drawStringAt(quantity, quantityCol * TitleIdle.COL, quantityY)
++            end
+         else
+-            gfx.drawText(prefix .. "SORT BAG", 12, top)
++            GbFont.drawStringAt("CANCEL", 6 * TitleIdle.COL, nameY)
+         end
+     end
+-    local hint = self.options.mode == "held" and "A: Give  B: Back" or "A: Choose  B: Back"
+-    if GameOptions.crankScrolling() and self:listCount() >= 5 then
+-        hint = hint .. "  Crank: Scroll"
+-    end
+-    gfx.drawText(hint, 12, 218)
+     if self.phase == "message" then
+         gfx.setColor(gfx.kColorWhite); gfx.fillRect(4, 174, 392, 62)
+         gfx.setColor(gfx.kColorBlack); gfx.drawRect(4, 174, 392, 62)
+diff --git a/Source/game/gbFont.lua b/Source/game/gbFont.lua
+index b7653c8c..5ae094cb 100644
+--- a/Source/game/gbFont.lua
++++ b/Source/game/gbFont.lua
+@@ -52,15 +52,34 @@ function GbFont.drawChar(char, col, row)
+ end
+ 
+ function GbFont.drawString(text, col, row)
++    GbFont.drawStringAt(text, col * TitleIdle.COL, row * TitleIdle.ROW)
++end
++
++function GbFont.drawStringAt(text, x, y)
+     local cursor, index = 0, 1
+     while index <= #text do
+         local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+-        tileImage(sheetName, glyph):draw((col + cursor) * TitleIdle.COL, row * TitleIdle.ROW)
++        tileImage(sheetName, glyph):draw(x + cursor * TitleIdle.COL, y)
+         cursor = cursor + 1
+         index = nextIndex
+     end
+ end
+ 
++function GbFont.drawCharAt(char, x, y)
++    local sheetName, index = TitleIdle.glyph(char)
++    tileImage(sheetName, index):draw(x, y)
++end
++
++function GbFont.tiles(text)
++    local count, index = 0, 1
++    while index <= #text do
++        local nextIndex = TitleIdle.nextTile(text, index)
++        count = count + 1
++        index = nextIndex
++    end
++    return count
++end
++
+ function GbFont.drawBox(box)
+     local cols = math.floor(box.w / TitleIdle.COL)
+     local rows = math.floor(box.h / TitleIdle.ROW)
+diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
+index 340349c3..efffa993 100644
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -79,30 +79,47 @@ function PauseState:draw()
+             gfx.drawText("Would you like to SAVE the game?", 28, 40)
+             self.menu:draw(200, 112, 172, 60)
+         else
+-            -- start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
+-            -- DrawBadges is tile art this screen does not have, so the
+-            -- badge count is the text stand-in for that box.
+-            local session = self.game.session
+-            local clock = session:playTime()
+-            local flags = {}
+-            for _, id in ipairs(TitleIdle.BADGE_FLAGS) do
+-                flags[id] = session:questFlag(id) == true
+-            end
+-            gfx.drawText("NAME/" .. Story.playerName(self.game), 32, 42)
+-            -- engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
+-            -- prints the charmap money sign ($f0), not "$".
+-            local moneyLabel = "MONEY/"
+-            gfx.drawText(moneyLabel, 32, 72)
+-            local moneyWidth = gfx.getTextSize(moneyLabel)
+-            GbFont.drawMoneyLine("¥" .. session:inventory():money(), 32 + moneyWidth, 72)
+-            gfx.drawText("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 32, 102)
+-            gfx.drawText("BADGES  " .. TitleIdle.countFlags(flags), 32, 132)
+-            gfx.drawText("A / B: Back", 32, 178)
++            self:drawTrainer()
+         end
+     end
+     gfx.setDrawOffset(x, y)
+ end
+ 
++-- engine/menus/start_sub_menus.asm DrawTrainerInfo places RedPicFront upper
++-- right, then NAME/ MONEY/ TIME/. engine/menus/draw_badges.asm DrawBadges
++-- draws four faces per row. An owned badge uses the graphic four tiles
++-- below that face in gfx/trainer_card/badges.png.
++function PauseState:drawTrainer()
++    local session = self.game.session
++    local clock = session:playTime()
++    gfx.setColor(gfx.kColorWhite)
++    gfx.fillRect(0, 0, 400, 240)
++    gfx.setColor(gfx.kColorBlack)
++    local pic = gfx.image.new("images/player/red-pic-front")
++    if pic then pic:drawScaled(268, 16, 2) end
++    GbFont.drawTight("NAME/" .. Story.playerName(self.game), 16, 20)
++    GbFont.drawTight("MONEY/", 16, 44)
++    GbFont.drawMoneyLine("¥" .. session:inventory():money(), 16 + 16 * 6, 44)
++    GbFont.drawTight("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 16, 68)
++    GbFont.drawTight("BADGES", 16, 100)
++    local sheet = gfx.image.new("images/trainer/badges")
++    for index, id in ipairs(TitleIdle.BADGE_FLAGS) do
++        local owned = session:questFlag(id) == true
++        local col = (index - 1) % 4
++        local row = index > 4 and 1 or 0
++        local x = 16 + col * 96
++        local y = 124 + row * 52
++        GbFont.drawTight(tostring(index), x, y + 8)
++        if sheet then
++            local sy = (index - 1) * 32 + (owned and 16 or 0)
++            gfx.setClipRect(x + 20, y, 32, 32)
++            sheet:drawScaled(x + 20, y - sy * 2, 2)
++            gfx.clearClipRect()
++        end
++    end
++    GbFont.drawTight("A / B: Back", 16, 220)
++end
++
+ function PauseState:resume()
+     self.menu.crank:reset()
+ end
+diff --git a/Source/game/pcState.lua b/Source/game/pcState.lua
+index 7ae53d48..e9454810 100644
+--- a/Source/game/pcState.lua
++++ b/Source/game/pcState.lua
+@@ -1,4 +1,5 @@
+ -- Box transfers retain actual Pokemon identity and all persistent attributes.
++import "game/gbFont"
+ local gfx <const> = playdate.graphics
+ local pcFont <const> = assert(gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold"),"existing battle font required")
+ Class("PCState"):extends(State)
+@@ -29,6 +30,8 @@ function PCState:showMenu(options,choose,cancel,selected)
+         if self:live() and self.epoch==epoch and self.serial==serial and cancel then cancel() end
+     end)
+     self.menu.selectedIndex=selected or 1
++    self.menu.gbText=true
++    self.menu.glyphs=nil
+ end
+ function PCState:enter(options)
+     options=options or {};assert(options.onComplete==nil or type(options.onComplete)=="function","invalid PC completion")
+@@ -49,8 +52,8 @@ end
+ function PCState:top()
+     self.phase,self.result="top",nil
+     local quest=self.session:flags().quest
+-    local options={quest.EVENT_MET_BILL and "BILL'S PC" or "SOMEONE'S PC","RED'S PC"}
+-    if quest.EVENT_GOT_POKEDEX then options[#options+1]="PROF.OAK'S PC" end
++    local options={quest.EVENT_MET_BILL and "BILL's PC" or "SOMEONE's PC", Story.playerName(self.game) .. "'s PC"}
++    if quest.EVENT_GOT_POKEDEX then options[#options+1]="PROF.OAK's PC" end
+     options[#options+1]="LOG OFF"
+     self:showMenu(options,function(index)
+         if index==1 then self:storageMenu()
+@@ -200,7 +203,15 @@ function PCState:draw()
+     gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil();gfx.setImageDrawMode(gfx.kDrawModeCopy)
+     gfx.setFont(self.font);gfx.setLineWidth(1);panel(4,4,392,232)
+     local storage=self.session:storage()
+-    gfx.drawText("POKEMON STORAGE",14,12);gfx.drawText("BOX "..storage:activeBox().."  "..storage:count().."/20",242,12)
++    gfx.drawText("POKEMON STORAGE", 14, 12)
++    local boxLabel = "BOX No. " .. storage:activeBox()
++    local boxTiles = 0
++    local boxCursor = 1
++    while boxCursor <= #boxLabel do
++        boxCursor = TitleIdle.nextTile(boxLabel, boxCursor)
++        boxTiles = boxTiles + 1
++    end
++    GbFont.drawTight(boxLabel, 388 - boxTiles * 16, 12)
+     if self.phase=="top" then self.menu:draw(18,48,250,120)
+     elseif self.phase=="storage" then self.menu:draw(18,42,256,140)
+     elseif self.phase=="box-confirm" then
+diff --git a/Source/game/pokedexState.lua b/Source/game/pokedexState.lua
+index bf7d55f6..72749c97 100644
+--- a/Source/game/pokedexState.lua
++++ b/Source/game/pokedexState.lua
+@@ -1,8 +1,11 @@
+ -- Encyclopedia overlay: session discovery is authoritative; rendering is read-only.
+ import "data/pokedexData"
++import "game/gbFont"
+ local gfx <const> = playdate.graphics
+ local font <const> = gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold")
+ Class("PokedexState"):extends(State)
++-- engine/menus/pokedex.asm PokedexMenuItemsText, placed at the side menu.
++PokedexState.SIDE = {"DATA", "CRY", "AREA", "QUIT"}
+ function PokedexState:init(game)
+     PokedexState.super.init(self,"pokedex")
+     self.game,self.selected,self.phase=game,1,"closed"
+@@ -54,10 +57,34 @@ function PokedexState:entryView()
+         name=seen and entry.name or "----------",details=owned and entry or nil}
+ end
+ function PokedexState:openEntry()
+-    if self.phase~="list" then return false,"not-list" end
++    if self.phase~="list" and self.phase~="menu" then return false,"not-list" end
+     if not self:entryView().seen then return false,"unseen" end
+     self.phase="entry";return true
+ end
++function PokedexState:openSide()
++    if self.phase~="list" then return false,"not-list" end
++    if not self:entryView().seen then return false,"unseen" end
++    self.phase, self.menuIndex = "menu", 1
++    return true
++end
++function PokedexState:chooseSide()
++    if self.phase ~= "menu" then return false, "not-menu" end
++    local choice = PokedexState.SIDE[self.menuIndex]
++    if choice == "DATA" then
++        self.phase = "entry"
++        return true
++    elseif choice == "CRY" then
++        local species = self:entryView().species
++        if KantoAudio and KantoAudio.playCry then pcall(KantoAudio.playCry, species) end
++        return true
++    elseif choice == "AREA" then
++        return true
++    elseif choice == "QUIT" then
++        self.machine:pop()
++        return true
++    end
++    return false, "invalid-side"
++end
+ function PokedexState:back()
+     if self.sourceDisplay then
+         local complete <const> = self.sourceDisplay.onComplete
+@@ -65,7 +92,7 @@ function PokedexState:back()
+         complete()
+         return true
+     end
+-    if self.phase=="entry" then
++    if self.phase=="entry" or self.phase=="menu" then
+         self.crank:reset()
+         self.phase = "list"
+         return true
+@@ -79,8 +106,19 @@ function PokedexState:handleInput()
+         self:back()
+         return
+     end
++    if self.phase == "menu" then
++        if playdate.buttonJustPressed(playdate.kButtonB) then self.phase = "list"
++        elseif playdate.buttonJustPressed(playdate.kButtonA) then self:chooseSide()
++        elseif playdate.buttonJustPressed(playdate.kButtonUp) then
++            self.menuIndex = (self.menuIndex - 2) % #PokedexState.SIDE + 1
++        elseif playdate.buttonJustPressed(playdate.kButtonDown) then
++            self.menuIndex = self.menuIndex % #PokedexState.SIDE + 1
++        end
++        return
++    end
+     if playdate.buttonJustPressed(playdate.kButtonB) then self:back()
+-    elseif playdate.buttonJustPressed(playdate.kButtonA) then self:openEntry()
++    elseif playdate.buttonJustPressed(playdate.kButtonA) then
++        if self.phase == "list" then self:openSide() else self:openEntry() end
+     elseif playdate.buttonJustPressed(playdate.kButtonUp) then self:move(-1)
+     elseif playdate.buttonJustPressed(playdate.kButtonDown) then self:move(1)
+     elseif playdate.buttonJustPressed(playdate.kButtonLeft) then self:move(-8)
+@@ -91,7 +129,9 @@ function PokedexState:handleInput()
+ end
+ function PokedexState:getSnapshot()
+     local view=self:entryView()
+-    return {phase=self.phase,selected=self.selected,species=view.species,seen=view.seen,owned=view.owned}
++    return {phase=self.phase,selected=self.selected,species=view.species,seen=view.seen,owned=view.owned,
++        menu=self.phase=="menu" and self.menuIndex or 0,
++        side=self.phase=="menu" and PokedexState.SIDE or {}}
+ end
+ function PokedexState:drawFront(species,cx,cy)
+     local image=self.fronts[species]
+@@ -100,45 +140,59 @@ function PokedexState:drawFront(species,cx,cy)
+     -- Every original pixel is an integer 2x2 block; never fit to a fractional scale.
+     image:drawScaled(cx-w,cy-h,2)
+ end
++-- engine/menus/pokedex.asm HandlePokedexListMenu. Coordinates are hlcoord
++-- cells: CONTENTS (1,1), SEEN (16,2), the seen count (16,3), OWN (16,5),
++-- the owned count (16,6), the divider at column 14, and the side menu at (16,10).
++-- PlaceString next (home/text.asm) steps two tile rows unless
++-- BIT_SINGLE_SPACED_LINES is set. DATA/CRY/AREA/QUIT are rows 10, 12, 14, 16.
++function PokedexState:drawList()
++    local dex=self.game.session:pokedex();local seen,owned=0,0
++    for _,entry in ipairs(PokedexData) do
++        if dex.seen[entry.species] then seen=seen+1 end
++        if dex.owned[entry.species] then owned=owned+1 end
++    end
++    local top=math.max(1,math.min(145,self.selected-3))
++    for i=top,math.min(151,top+6) do
++        local e=PokedexData[i];local row=3+(i-top)*2
++        if self.phase=="list" and i==self.selected then GbFont.drawChar(TitleIdle.CURSOR, 0, row) end
++        GbFont.drawString(string.format("%03d",i), 1, row)
++        GbFont.drawString(dex.seen[e.species] and e.name or "----------", 5, row)
++    end
++    for row=0,17 do GbFont.drawChar("│", 14, row) end
++    for col=15,19 do GbFont.drawChar("─", col, 8) end
++    GbFont.drawString("CONTENTS", 1, 1)
++    GbFont.drawString("SEEN", 16, 2)
++    GbFont.drawString(string.format("%3d", seen), 16, 3)
++    GbFont.drawString("OWN", 16, 5)
++    GbFont.drawString(string.format("%3d", owned), 16, 6)
++    local sideRows={10,12,14,16}
++    for index, label in ipairs(PokedexState.SIDE) do
++        local row=sideRows[index]
++        if self.phase=="menu" and index==self.menuIndex then GbFont.drawChar(TitleIdle.CURSOR, 15, row) end
++        GbFont.drawString(label, 16, row)
++    end
++end
++function PokedexState:drawEntry(view)
++    gfx.drawText(string.format("No.%03d  %s",view.dex,view.name),12,6)
++    self:drawFront(view.species,330,80)
++    if view.details then
++        local e=view.details
++        gfx.drawText(e.category.." POKEMON",12,32)
++        gfx.drawText(string.format("HT %d'%02d\"",e.heightFeet,e.heightInches),12,55)
++        gfx.drawText(string.format("WT %d.%d lb",e.weightTenthsLb//10,e.weightTenthsLb%10),12,78)
++        for i,line in ipairs(e.lines) do gfx.drawText(line,12,104+(i-1)*16) end
++    else
++        gfx.drawText("NOT YET OWNED",12,55)
++        gfx.drawText("Catch this POKEMON to record",12,146)
++        gfx.drawText("its full encyclopedia entry.",12,168)
++    end
++    gfx.drawText("B: Back",12,221)
++end
+ function PokedexState:draw()
+     if self.phase=="closed" then return end
+     local x,y=gfx.getDrawOffset();local previousFont=gfx.getFont()
+     gfx.setDrawOffset(0,0);gfx.setFont(font);gfx.clear(gfx.kColorWhite);gfx.setColor(gfx.kColorBlack)
+     local view=self:entryView()
+-    if self.phase=="list" then
+-        local dex=self.game.session:pokedex();local seen,owned=0,0
+-        for _,entry in ipairs(PokedexData) do if dex.seen[entry.species] then seen=seen+1 end;if dex.owned[entry.species] then owned=owned+1 end end
+-        gfx.drawText("POKEDEX",12,6);gfx.drawText("SEEN "..seen.."  OWN "..owned,196,6)
+-        gfx.drawLine(216,31,216,211)
+-        local top=math.max(1,math.min(144,self.selected-3))
+-        for i=top,math.min(151,top+7) do
+-            local e=PokedexData[i];local row=34+(i-top)*22
+-            gfx.drawText(i==self.selected and ">" or " ",8,row)
+-            gfx.drawText(string.format("%03d",i),24,row)
+-            gfx.drawText(dex.seen[e.species] and e.name or "----------",65,row)
+-            if dex.owned[e.species] then gfx.fillCircleAtPoint(204,row+8,3) end
+-        end
+-        gfx.drawText(string.format("No.%03d",view.dex),244,39)
+-        gfx.drawText(view.name,232,62)
+-        if view.seen then self:drawFront(view.species,306,143) else gfx.drawText("?",300,133) end
+-        gfx.drawText("A: Data",250,202)
+-        gfx.drawText("UP/DOWN: Scroll  LEFT/RIGHT: Page",12,219)
+-        gfx.drawText("B: Back",315,219)
+-    else
+-        gfx.drawText(string.format("No.%03d  %s",view.dex,view.name),12,6)
+-        self:drawFront(view.species,330,80)
+-        if view.details then
+-            local e=view.details
+-            gfx.drawText(e.category.." POKEMON",12,32)
+-            gfx.drawText(string.format("HT %d'%02d\"",e.heightFeet,e.heightInches),12,55)
+-            gfx.drawText(string.format("WT %d.%d lb",e.weightTenthsLb//10,e.weightTenthsLb%10),12,78)
+-            for i,line in ipairs(e.lines) do gfx.drawText(line,12,104+(i-1)*16) end
+-        else
+-            gfx.drawText("NOT YET OWNED",12,55)
+-            gfx.drawText("Catch this POKEMON to record",12,146)
+-            gfx.drawText("its full encyclopedia entry.",12,168)
+-        end
+-        gfx.drawText("B: Back",12,221)
+-    end
++    if self.phase=="list" or self.phase=="menu" then self:drawList() else self:drawEntry(view) end
+     gfx.setFont(previousFont);gfx.setDrawOffset(x,y)
+ end
+diff --git a/Source/game/titleIdle.lua b/Source/game/titleIdle.lua
+index 3084f665..64657a42 100644
+--- a/Source/game/titleIdle.lua
++++ b/Source/game/titleIdle.lua
+@@ -542,6 +542,12 @@ function TitleIdle.nextTile(text, index)
+     local pair = text:sub(index, index + 1)
+     local ligature = TitleIdle.LIGATURES[pair]
+     if ligature then return index + 2, "font", ligature end
++    -- constants/charmap.asm: <PK> and <MN> are one tile each. bills_pc.asm
++    -- writes WITHDRAW <PKMN>, which is those two tiles, not four letters.
++    if pair == "PK" or pair == "MN" then
++        local sheet, glyph = TitleIdle.glyph(pair)
++        return index + 2, sheet, glyph
++    end
+     local code = utf8.codepoint(text, index)
+     local nextIndex = utf8.offset(text, 2, index) or (#text + 1)
+     local sheet, glyph = TitleIdle.glyph(utf8.char(code))
+diff --git a/Source/images/trainer/badges.png b/Source/images/trainer/badges.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b14d55eb9acc82076605e8861cf16132e4905c02
+GIT binary patch
+literal 620
+zcmV-y0+aoTP)<h;3K|Lk000e1NJLTq000mG0096200000k}1pM0006rNkl<Zc$`Ji
+zJ!?~89ES1hf9I(=+G^r^hf<GrPzNy}_yS^M1wmYNcCe$)f{xa~O%TBkpdc;|RtE)X
+z>2WC5O`U{>^wf4pv9+fd<C8WykAsEY+@Ik3k(d$ydJ;;R%8_m@xwrf6O^vCp4&~fj
+z*NHQ>8Y%M9xCQ78+s2|gnY>rlQ93C2f16umxu__TE6c?e;Kvn`vXTe@17J*GL%F?6
+zH17n={ZaRqdM9WfwSWRHJP@dx2(+H6nF-YJDj?AQNKsjRqZSY_95jMm_V#)&H@X^0
+zG}%%7!Htv{{$zt~cD~nLukN^QJEwM4p=$Fv%LV(Hxtdd>Ux`#T#X(V>?+4Y0ZR3&T
+z$%EF+=FC0!FaQpq2T`Hq?eTFnzqr2JYN4)I@Csw(_mwB4MVqcOvsXLL+QR|cb6Vi;
+z4Dju$S~E6XCoR$$ma2>aqwLOf1Vs&-`mDMsd*UvBRnI&N9b0YFtk}l1NMxx6T(hS2
+z2K7s_DpR%@KbAm|Q(vTQWffwnY5^!h0ZgL>>)(tou%{>Wai1I(GF21XbzSX>E;crO
+zf7fg^(#m<8^{O4%@}2e6PT9gDSxJ2r3n=pzyizA{nRAU?8#6rX(c#?IUb6DnwSLe#
+zX@47X8NRgTn|fXiDazEFDt5}pRGSbeZff5#6|ZS~Y5}s6GOx6wVydXD$qP_{RF;Ya
+zFuO0dW&zD(voAD_NR-Bk6EUvCk^K?=p5;q~UJEVZEbtH9=jIs2fjsE|0000<MNUMn
+GLSTY7X(Cks
+
+literal 0
+HcmV?d00001
+
+diff --git a/Source/ui/menu.lua b/Source/ui/menu.lua
+index 7236be42..1bdce652 100644
+--- a/Source/ui/menu.lua
++++ b/Source/ui/menu.lua
+@@ -101,11 +101,28 @@ function BattleMenu:draw(x, y, w, h)
+         local glyphs = self.glyphs
+         if not glyphs then glyphs = {}; self.glyphs = glyphs end
+         local glyph = glyphs[i]
+-        if not glyph or glyph.option ~= option or glyph.selected ~= selected then
++        if not glyph or glyph.option ~= option or glyph.selected ~= selected or glyph.gbText ~= (self.gbText == true) then
+             local label = (selected and "▶" or " ") .. option
+             local width, height
+             local image
+-            if option:find("¥", 1, true) then
++            if self.gbText then
++                width, height = 16 * (utf8.len(label) or #label), 16
++                -- 's is one tile and PK/MN are one tile each, so measure with nextTile.
++                local tiles, cursor = 0, 1
++                while cursor <= #label do
++                    cursor = TitleIdle.nextTile(label, cursor)
++                    tiles = tiles + 1
++                end
++                width = 16 * tiles
++                image = gfx.image.new(math.max(1, width), height, gfx.kColorWhite)
++                gfx.pushContext(image)
++                gfx.setDrawOffset(0, 0)
++                gfx.clearClipRect()
++                gfx.clearStencil()
++                gfx.setImageDrawMode(gfx.kDrawModeCopy)
++                GbFont.drawTight(label, 0, 0)
++                gfx.popContext()
++            elseif option:find("¥", 1, true) then
+                 local previousFont = gfx.getFont()
+                 gfx.setFont(BattleMenu.font or previousFont)
+                 width, height = GbFont.measureMoneyLine(label)
+@@ -131,7 +148,7 @@ function BattleMenu:draw(x, y, w, h)
+                 gfx.drawText(label, 0, 0)
+                 gfx.popContext()
+             end
+-            glyph = {option = option, selected = selected, image = image}
++            glyph = {option = option, selected = selected, gbText = self.gbText == true, image = image}
+             glyphs[i] = glyph
+         end
+         glyph.image:draw(optX, optY)

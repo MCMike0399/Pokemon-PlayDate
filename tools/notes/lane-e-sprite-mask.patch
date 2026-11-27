@@ -1,0 +1,84 @@
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index 768637dd..410c5dc3 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -751,6 +751,7 @@ function BattleScene:drawHPBar(x, y, w, h, hp, maxHP)
+     end
+ end
+ 
++import "battle/spriteMask"
+ function BattleScene:_scaledSprite(species, isBack, size, source)
+     local cache = self.scaledSprites
+     if not cache then
+@@ -772,6 +773,30 @@ function BattleScene:_scaledSprite(species, isBack, size, source)
+     gfx.setImageDrawMode(gfx.kDrawModeCopy)
+     source:drawScaled(0, 0, scale)
+     gfx.popContext()
++    -- Flood-fill white from the source edges. Playdate's mask is white for
++    -- opaque and black for transparent, so only the exterior is punched out.
++    -- The scaled mask uses the same drawScaled as the picture.
++    local exterior = SpriteMask.exterior(iw, ih, function(x, y)
++        return source:sample(x, y) ~= gfx.kColorBlack
++    end)
++    local maskSrc = gfx.image.new(iw, ih, gfx.kColorWhite)
++    gfx.pushContext(maskSrc)
++    gfx.setDrawOffset(0, 0)
++    gfx.setColor(gfx.kColorBlack)
++    for y = 0, ih - 1 do
++        local row = y * iw
++        for x = 0, iw - 1 do
++            if exterior[row + x] then gfx.drawPixel(x, y) end
++        end
++    end
++    gfx.popContext()
++    image:addMask(true)
++    gfx.pushContext(image:getMaskImage())
++    gfx.setDrawOffset(0, 0)
++    gfx.clearClipRect()
++    gfx.setImageDrawMode(gfx.kDrawModeCopy)
++    maskSrc:drawScaled(0, 0, scale)
++    gfx.popContext()
+     -- One scan of this cached bitmap. kColorBlack is ink; an all-white
+     -- image keeps inkBottom nil so the drawer does not shift it.
+     local inkBottom = nil
+diff --git a/Source/battle/spriteMask.lua b/Source/battle/spriteMask.lua
+new file mode 100644
+index 00000000..806c04f3
+--- /dev/null
++++ b/Source/battle/spriteMask.lua
+@@ -0,0 +1,35 @@
++-- Exterior white is the white that flood-fills in from the picture's edges.
++-- White enclosed by the silhouette stays opaque. The seen table is keyed
++-- by y * width + x and is true only for the transparent pixels.
++SpriteMask = {}
++
++function SpriteMask.exterior(width, height, isWhite)
++    local seen = {}
++    local stack = {}
++    local function consider(x, y)
++        if x < 0 or y < 0 or x >= width or y >= height then return end
++        local index = y * width + x
++        if seen[index] or not isWhite(x, y) then return end
++        seen[index] = true
++        stack[#stack + 1] = index
++    end
++    for x = 0, width - 1 do
++        consider(x, 0)
++        consider(x, height - 1)
++    end
++    for y = 0, height - 1 do
++        consider(0, y)
++        consider(width - 1, y)
++    end
++    while #stack > 0 do
++        local index = stack[#stack]
++        stack[#stack] = nil
++        local x = index % width
++        local y = (index - x) / width
++        consider(x + 1, y)
++        consider(x - 1, y)
++        consider(x, y + 1)
++        consider(x, y - 1)
++    end
++    return seen
++end

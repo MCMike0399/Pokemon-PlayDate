@@ -103,6 +103,190 @@ A newly caught species follows `item_effects.asm`: the owned flag is read before
 
 The r9 frames were rendered with the patch applied on a scratch tree. That bundle's `source_sha256` is `743b277c49d93f0a191b4979f203eb63471f3dc7c3d75be9752f78c60aab0180` and includes the patch plus the matching transform hashes, so it will not match this commit. A production build of this commit still fails the transform-dependency check until lane E regenerates those hashes. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r9/`: `nickname-gift.png`, `nickname-catch.png`, `pre-throw.png`, `post-pokedex.png`, and `pokedex-rattata.png` (the new entry that returns to the battle).
 
+## Round 8
+
+BlueBot's Zapdos clip switched box styles. `A wild ZAPDOS appeared!` and the typing `Go! SQUIRTLE!` use the tile border and the pixel font. Once the page settles, `Go! SQUIRTLE!` and `What will SQUIRTLE do?` fall through to the thin rectangle and the system font. The dialog patch, applied on `origin/cursor/lane-e-integration` at `2ded4b6a`, did not cover that. Typing called `messageDialog:draw` only while the page was still active. The finished line used `_wrapped` with the system font, and the menu used `gfx.getSystemFont()`.
+
+The patch now sends the typing page and the settled page through `BattleScene:drawDialog`, which calls `Dialog:draw`. The command frame uses that same dialog for `What will` / `NAME do?` and a `GbFont` tile box for `FIGHT` / `BAG` / `POKEMON` / `RUN`. The name is redrawn at 2× in the gutter so `SQUIRTLE do?` stays whole, and the menu labels are the same tiles at 13px so `POKEMON` and `RUN` both fit inside the border. The hunk starts after `local boxY = 180` and leaves the `gfx.setFont(gfx.getSystemFont())` lines, so lane H's `lane-e-battle-text-flicker.patch` still applies before or after it. `tools/tests/test_lane_e_dialog_font.py` checks that the patched typing call and the settled call both go through `drawDialog`. The unpatched `battleScene.lua` still fails that assertion.
+
+`gfx/font/font.png` char `$E7` and `Source/images/title/font/font.png` tile `0x67` are the same 8×8 pixels, 20 ink pixels. The charmap already points `!` at `$E7`. The thick mark is the 20×13 nearest-neighbor scale of that tile. The glyph and the charmap are unchanged.
+
+The r10 frames were rendered on a scratch tree of `e93bc416`. The before set applies the dialog font and leaves `battleScene.lua` unpatched, so the style swap is visible. The after set includes the battle hunk. That bundle's `source_sha256` is `3641207b8a9879759e15d4728941b589ae6f48b12b053cff34540d6482a38f44` and includes the patch, so it will not match this commit. A production build of this commit still fails the transform-dependency check until lane E regenerates those hashes. Playdate Simulator 3.1.2. The fixture is Squirtle L5 against Zapdos L50. Frames are in `artifacts/lane-g/r10/`: `before-appeared.png`, `before-typing.png`, `before-go-full.png`, `before-go-settled.png`, `before-menu.png`, `after-appeared.png`, `after-typing.png`, `after-go-full.png`, `after-go-settled.png`, and `after-menu.png`.
+
+## Round 9
+
+BlueBot approved the shared renderer and did not approve the 20×13 scale. Every `GbFont` blit is now an integer 2× of the 8×8 tile, 16×16, nearest neighbor. `!` stays charmap `$E7` (tile `0x67`, 20 ink pixels). The glyph is unchanged; only the scale changed, so the mark keeps the `$E7` shape. Eighteen glyphs are 288px. Pokered's two text rows keep the blank tile between them (`data/text_boxes.asm` `MESSAGE_BOX` is `0, 12` through `19, 17`; text is `bccoord 1, 14` and `hlcoord 1, 16`). That blank row stays 16px in the narration box, because 6×16 = 96 fits on the screen.
+
+The narration box is `x=0, y=144, w=320, h=96`. Text is `(16, 176)` and `(16, 208)`. The gap is `y=192–208`. `▼` is `(288, 208)` for `prompt`, `para`, and `cont`.
+
+`BATTLE_MENU_TEMPLATE` is `text_box_text` at `data/text_boxes.asm:31`: columns `8, 12` through `19, 17`, text at `10, 14`. `BattleMenuText` is `FIGHT <PK><MN>` / `ITEM  RUN`. `DisplayBattleMenu` (`engine/battle/core.asm`) restores the screen and draws that template over the right of the message box. The port's words are `FIGHT` / `BAG` / `POKEMON` / `RUN`, and `POKEMON RUN` is 11 tiles, so the split moves to `x=208` so the cursor, the shared border, and those 11 tiles fit. The menu box is `x=208, y=144, w=192, h=96`. Labels start at `(224, 176)` and `(224, 208)`; `BAG` and `RUN` start at `x=352` and the last glyph ends at `x=400`. The left box is `x=0, y=144, w=224, h=96`, which is the border plus 12 tiles. `What will` / `SQUIRTLE do?` is drawn there by `Dialog:draw`. There is no 13px size and no second redraw of the name. The prompt still goes through `drawDialog`.
+
+AskName keeps YES/NO at column 14, row 7 (`x=224, y=112, w=96, h=80`, bottom `y=192`). The question uses the compact box (`y=176, h=64`, gap 0, text at `y=192` and `y=208`) so the first line starts where YES/NO ends. Overworld and battle narration stay on the full 96px box.
+
+The HP and level panels are `tools/notes/lane-e-battle-hud.patch`. `DrawHPBar` (`home/pokemon.asm`) writes `$71` (HP), `$62` (left cap), six middle tiles, and `$6d` for the battle right cap. `PrintLevel` writes `<LV>` (`$6E`). `LoadHudTilePatterns` copies `gfx/battle/battle_hud_1.1bpp` onto vChars2 `$6d`, which is the right cap and the Lv tile that is actually shown. The sheet is `Source/images/battle/hud.png`. Enemy `ZAPDOS` Lv50 is `x=8, y=8, w=160, h=32`. Player `SQUIRTLE` Lv5 and `19/19` is `x=216, y=96, w=176, h=48`, ending on the message box. A status replaces the level. The hunk stays above `gfx.setFont(gfx.getSystemFont())` and does not touch the message hunk, so it applies before or after `lane-e-dialog-font.patch` and before or after `lane-e-battle-text-flicker.patch`. `tools/tests/test_lane_e_battle_hud.py` expects the unpatched battle scene to fail.
+
+The circle in r10 `after-go-settled.png` at about `(47, 77)` is the send-out ball, not the poof and not a stray tile. `BattleScene:drawPresentation` draws the ball while `frame < 10`. At frame 5, `t=0.5`, the player ball starts at `x=0` and lands on `(95, 112)` with a hop of 35, so it is at `(47.5, 77)`. `updateVisualEvent` clears `playerShown` for the send-out, which is why Squirtle is absent. Pokered `SendOutMon` (`engine/battle/core.asm`) prints the line, draws the HUDs, plays `POOF_ANIM`, then `AnimateSendingOutMon`, which writes the ball tile (`$4c`) and grows the mon. The rays after frame 9 are this port's stand-in for that poof and grow. The captured frame is still on the ball arc.
+
+The r11 frames were rendered on a scratch tree of `dbfdc00e` with both patches applied. That bundle's `source_sha256` is `2730d2bd50fc0c2b5c6e780ba36668550e741fb5dc9f8797a017f005a0efce7e` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. The fixture is Squirtle L5 against Zapdos L50. Frames are in `artifacts/lane-g/r11/`: `appeared.png`, `typing.png`, `go-full.png`, `go-settled.png`, `menu.png`, `hud.png`, and `overworld-dialog.png`.
+
+## Round 10
+
+The narration box is the full 400px, the same width overworld and battle now share, so the box does not jump between them. Tiles stay 16px. Only the horizontal border run grows: the right corner is the tile at `x=384`. `MESSAGE_BOX` (`data/text_boxes.asm`) is columns 0–19. Text stays one column in from the left border (`textX=16`, rows `y=176` and `y=208`). The arrow stays at column 18 (`x=288`). The clip stays 18 characters. The compact AskName box uses the same width. YES/NO stays at column 14, row 7.
+
+`BATTLE_MENU_TEMPLATE` (`data/text_boxes.asm:31`) is columns 8–19, cursor `hlcoord 9,14`, text at column 10. Pokered has no "What will" line, so the left box is bordered and empty (`x=0, y=144, w=176, h=96`). The port labels are `FIGHT` / `BAG` / `POKEMON` / `RUN`. Cursor, `POKEMON RUN`, and both borders are 14 tiles, wider than columns 8–19, and the menu is right-aligned: `x=176, y=144, w=224, h=96`. The cursor is `x=192`, the first column is `x=208`, and `BAG` / `RUN` are `x=336`. Their tiles end at `x=384`, which is the right border. `tools/notes/lane-e-dialog-font.patch` draws that empty box and no longer builds a command prompt.
+
+Wild encounters say `Wild ZAPDOS` / `appeared!` (`_WildMonAppearedText`, `data/text/text_2.asm:1237`). Trainer send-outs say `ZAPDOS` / `appeared!` (`_EnemyAppearedText`, `text_2.asm:1252`). `tools/notes/lane-e-battle-intro-text.patch` changes only those two `Battle:opponentEntered` lines. `tools/tests/test_lane_e_battle_intro_text.py` expects the unpatched file to fail.
+
+The enemy platform is drawn, then the sprite, so Zapdos covers the line at `y=84`. The player picture is drawn after the player platform the same way. `tools/notes/lane-e-battle-sprite-order.patch` is that block only. It stays clear of the HUD hunk and of `gfx.setFont(gfx.getSystemFont())`, so it applies before or after the dialog patch, the HUD patch, and `lane-e-battle-text-flicker.patch`. `tools/tests/test_lane_e_battle_sprite_order.py` expects the unpatched scene to fail.
+
+`DrawEnemyHUDAndHPBar` (`engine/battle/core.asm`) is name `hlcoord 1,0`, level `4,1`, bar `2,2`, `d=6`. At 2× that is name `(16, 0)`, level `(64, 16)`, bar `(32, 32)`, panel `x=16, y=0, w=160, h=48`, which ends above the platform (`y=84`). `DrawPlayerHUDAndHPBar` is name `hlcoord 10,7`, level `14,8`, bar `10,9`. Row 7 is `y=112`, clear of the platform (`y=84–93`). Three 16px rows from there would end at `y=160`, inside the message box, so the screen forces two rows: the level shares the name row, and `19/19` shares the bar row. The player panel is `x=160, y=112, w=224, h=32` and ends at `y=144`. The sheet moved from `Source/images/battle/hud.png` to `Source/images/title/font/hud.png`. Tile order is unchanged.
+
+The r12 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `8385bab4` with the four lane E patches applied. That bundle's `source_sha256` is `f4245c6d8955ab7cf0a299072c0e1c91ad0fc2ea8e66de65558c1057ca27638b` and includes the patches, so it will not match this commit. The trainer frame needed a scratch-only harness argument (a trainer is a table with a name; the committed `battle` command is still species and level). Its `source_sha256` is `dd9ff52d4c8180079ee7e46c5dae6f46efffbc511231705e5b7bf735fcf0eeb2`. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r12/`: `appeared.png`, `menu.png`, `go-settled.png`, `hud.png`, and `trainer-sendout.png`.
+
+## Round 11
+
+Exterior white on a battle picture is transparent. `tools/notes/lane-e-sprite-mask.patch` flood-fills white from the edges of the front and back pics (`SpriteMask.exterior`) and punches only those pixels out of the scaled picture's mask. White inside the silhouette stays opaque. The mask is built once when the scaled picture is cached. The pics live under `Source/images/pokemon`, which this lane does not own, and the Playdate compile has no separate mask step, so the mask is not a rewritten PNG. `tools/tests/test_lane_e_sprite_mask.py` checks a ring: the corner pixel is transparent and the center pixel stays opaque. The unpatched scene is an expected failure.
+
+The enemy HUD keeps the three pokered rows and drops 4px from the top edge. Name `(16, 4)`, level `(64, 20)`, HP bar `(32, 36)`. `PlaceEnemyHUDTiles` (`engine/battle/draw_hud_pokeball_gfx.asm`) writes `$73` on the left of the bar row, `$74` under it, eight `$76` tiles, and `$78`. `LoadHudTilePatterns` (`engine/battle/core.asm`) copies `battle_hud_2.1bpp` onto vChars2 `$73` and `battle_hud_3.1bpp` after it. That bracket is `y=36` for the vertical and `y=52` for the rule, so the panel is `x=16, y=4, w=160, h=64` and ends at `y=68`, above the platform at `y=84`. The clip is `y=84`.
+
+`PlacePlayerHUDTiles` writes the `$73` vertical on the right, the `$77` corner, the `$76` rule, and `$6F` (the third tile of `battle_hud_1.1bpp`, loaded at `$6d`) on the left. The accepted two-row player panel is still `x=160, y=112, w=224, h=32`. The rule's ink is the middle of the tile, so the tile sits at `y=136` and the clip at the message box (`y=144`) keeps the line on `y=142–143`. The right vertical is `x=384`, and its ink is inside the tile, short of the screen edge. The six tiles are appended to `Source/images/title/font/hud.png`.
+
+The r13 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `e546d6e6` with the sprite-mask patch and the earlier lane E patches. That bundle's `source_sha256` is `c7dd3311bb270efd49107ad042396254ee3c8504a68b3a730058022d42fa1c69` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r13/`: `appeared.png`, `menu.png`, `go-settled.png`, and `zapdos.png`.
+
+## Round 12
+
+The r13 player rule sat on the bar row, so `HP`, the bar, and `19/19` lost their lower half. Two 16px rows plus a full `$77`/`$76`/`$6F` tile are 48px. The block now starts at `y=96`, under the enemy platform (`y=84–93`), and ends on the message box. Name `(160, 96)`, level on that row, bar and `19/19` at `y=112`, rule at `y=128` through `y=143`. The right vertical stays at `x=384`. The panel is `x=160, y=96, w=224, h=48`. Nothing in that block is clipped or drawn over another row. The enemy HUD and the sprite mask are unchanged.
+
+The r14 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `bc3add2b` with the lane E patches applied. That bundle's `source_sha256` is `5814f075d534db0eb2ca7db47061bd3ee2b9a939de346c613c0a6a7fd5c65958` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r14/`: `menu.png`, `go-settled.png`, and `player-hud.png`.
+
+## Round 13
+
+The player HUD stays at `x=160, y=96, w=224, h=48`. `tools/notes/lane-e-enemy-platform-shift.patch` raises the enemy platform by 6px, so the bottom line is `drawLine(268, 87, 390, 87)`, and raises the enemy picture with it (`y = y - 6` in `drawPresentedPokemon`). That leaves `y=88` through `y=95`, eight white pixels, above the name row. The enemy bracket is unchanged: name `(16, 4)`, level `(64, 20)`, bar `(32, 36)`, rule ink ending at `y=61`. The platform top is `y=78`, so the clearance is 16px, and the bracket ends at `x=176` while the platform starts at `x=265`. No nudge. `tools/tests/test_lane_e_enemy_platform_shift.py` expects the unpatched scene to fail.
+
+The r15 frames are Squirtle L5 against Zapdos L50 on a scratch tree of `fde6a429` with the lane E patches applied, including the shift. That bundle's `source_sha256` is `95f4784205079ab31b396e27c6debdf5b59003b82a7a3961c35169b7e20a3ae7` and includes the patches, so it will not match this commit. Playdate Simulator 3.1.2. Frames are in `artifacts/lane-g/r15/`: `menu.png` and `gap.png`.
+
+## Round 20
+
+Lane E tip `5176401725558a31aad4c212c36245a0de3050ed` is in this branch by merge (`327466fc`). A rebase would have rewritten the 12 lane-G commits and needed a force push, so the branch was not rebased. `origin/main` is still `6e4bc90f` and was not moved. `Shade.LIGHT` is still `{0x55, 0xBB, 0x55, 0xFF, 0x55, 0xBB, 0x55, 0xFF}`.
+
+Playdate Simulator 3.1.2. The four frames are 400×240 in `artifacts/lane-g/r20/`.
+
+Pallet C is the imported town (`pallet_town`, source `PalletTown`, padding 0). The wide frame stands at `(10, 7)` facing down, camera `(136, 112)`. The street/lab frame stands at `(12, 12)` facing up, camera `(200, 272)`, with the lab door on the row above. Both use the approved global Bayer. The two-stroke mockup C overlay is still only `tools/notes/lane-e-pallet-tones.patch`. It is not applied on `51764017`.
+
+Celadon Gym stands at `(6, 15)` facing down, camera `(8, 336)`. The planters on that row are `pokered:GYM:cell:2b-2b-03-2b` (tile `$03` in the lower-left quadrant). Pewter Gym stands at `(6, 8)` facing down, camera `(8, 144)`, on the same GYM tileset. The committed `Source/terrainAtlases/gym-table-32-32.png` is still the pre-override bake from `7219d8a5`. These two frames were rendered from a scratch rebuild of that table by the generator `a1740550` landed (`tools/generate_terrain_atlases.py` plus `Source/data/terrainToneOverrides.json`). The rebuilt table was not committed: the same generator also rewrites other tilesets, and this lane does not own the atlas. `generate_kanto_maps.py` now substitutes flower1 for tile `$03` when the tileset animation is `TILEANIM_WATER_FLOWER`. `CeladonGym.json` was not regenerated in `a1740550`, so the flower shape is the grid already stored on that cell, redrawn with the GYM tones.
+
+| Frame | sha256 |
+| --- | --- |
+| `artifacts/lane-g/r20/pallet-c-wide.png` | `8ffb2659dea65be7424fbb6808fd7e173c671689dfd9dafad1757a42297bcc7c` |
+| `artifacts/lane-g/r20/pallet-c-street-lab.png` | `ddfd558c12a87cafa3a72feffaa393f31ae31261bee5511dcf77d5e1bf1c4604` |
+| `artifacts/lane-g/r20/celadon-gym.png` | `6ca82f940c3b2cda2d910ffb9c291170286d7af0a04f6971bbf64f0ffd92b3d4` |
+| `artifacts/lane-g/r20/pewter-gym.png` | `3bb08c527f8b024aa78920f94a5b4c391df732290101ee8126fc1ae925c0f51d` |
+
+BlueBot approved `celadon-gym.png` and `pewter-gym.png`. Those two stay. Do not re-shoot them unless Lane E commits a new gym atlas and asks for a confirmation capture.
+
+BlueBot did not approve the r20 Pallet frames. Paths and lawns there were about 35% black. Those files stay as the rejected pair.
+
+## Round 21
+
+`origin/main` and `origin/cursor/lane-e-integration` are `9a33a835`. That tip contains `1b466640` (pinned flower1, the regenerated gym atlas, and the Pallet strokes). This branch merged it as `427ba5cd`. `Shade.LIGHT` is still `{0x55, 0xBB, 0x55, 0xFF, 0x55, 0xBB, 0x55, 0xFF}`. Celadon and Pewter were not re-shot.
+
+The painter runs only when `zone.stableID` is `pokered:PALLET_TOWN`. That is `kanto_pallet_town`. The authored key `pallet_town` keeps stable id `pallet_town`, so the r20 stand-in does not receive the strokes. The r21 frames use the imported town at the same stands: wide `(10, 7)` facing down, camera `(136, 112)`; street/lab `(12, 12)` facing up, camera `(200, 272)`. Playdate Simulator 3.1.2, 400×240.
+
+Grass cells fully inside the frame, player cell excluded, are 13.4% black in the wide view (37 cells) and 11.7% black in the street/lab view (39 cells). The `$2C` lawn cells in the street/lab view are 13.7% black. Whole frames are higher because roofs and fences stay.
+
+| Frame | sha256 |
+| --- | --- |
+| `artifacts/lane-g/r21/pallet-c-wide.png` | `f4c008a8924e06664feb583b2ed90adf18ce1e66d7f993b687bfe5fe7c1eefd9` |
+| `artifacts/lane-g/r21/pallet-c-street-lab.png` | `59490303a1701a6dd791cb561d971ff229e3f178b8c95b828b123bd2ac7996fc` |
+
+BlueBot approved both r21 Pallet frames as mockup C. `celadon-gym.png` and `pewter-gym.png` stay approved from r20. No further visual capture until Lane E hands off a new tone or tile.
+
+## Round 22
+
+Hall of Fame and credits capture checklist is `docs/validation/lane-g-hall-of-fame.md`, from pokered `af519899` `engine/movie/hall_of_fame.asm` and `engine/movie/credits.asm`. The frame-log harness is `tools/tests/lane_g_hall_of_fame.py` with `tools/tests/test_lane_g_hall_of_fame.py` and `tools/tests/fixtures/lane_g_hall_of_fame_credits.json`. Lane B's Charmander run is still at Lance, so no credits frames were captured.
+
+## Round 23
+
+Dry run of that harness on E's tip, before lane I's Charmander reaches Lance. The fixture is the existing skip-intro party of one Charizard at level 65, money 1234, in `kanto_hall_of_fame`. Frames and `log.json` are in `artifacts/lane-g/hof-dryrun/`. The Hall of Fame card matches pokered for CHARIZARD (LEVEL/ 65, TYPE1/ FIRE, TYPE2/ FLYING, HALL OF FAME) and the dex pages. The player name is drawn at y=-16, above the 240px frame. Every credits PNG, including the copyright screen and THE END, is a black 400×240 frame: the system font stamps black glyphs in Copy mode on the black fill. The composed credits strings match the 36 screens and the 15 species. The harness fails on the three copyright lines and on THE END, which is assigned only in the done phase that `EventState:update` leaves before draw. The unapplied fix is `tools/notes/lane-e-hall-of-fame-draw.patch`. `tools/tests/test_lane_e_hall_of_fame_draw.py` fails on the live tree. No Source edit.
+
+## Round 24
+
+`edcbe288` is on main (`ea32b553` nests the coverage snapshot after it). The Champion-win recapture is `artifacts/lane-g/hof-main/`. Charizard shows `LEVEL/ 65`, `TYPE1/ FIRE`, `TYPE2/ FLYING`, and `HALL OF FAME`. `RED` is on the player card. Credits text is white on black, including `#MON` / `BLUE VERSION STAFF` / `venusaur`, the three `©'95.'96.'98` lines with `parasect`, and `THE END`. `python3 tools/tests/lane_g_hall_of_fame.py --log artifacts/lane-g/hof-main/log.json --pokered /tmp/pokered` prints `hall-of-fame ok (43 frames)`. No new lane-e patch.
+
+## Round 25
+
+BlueBot approved the hof-main layout and flagged the credits species names, the literal `#`, and the missing `é`. `tools/notes/lane-e-hof-credits-fidelity.patch` draws the 4-shade front sprite with `Shade.LIGHT` and `Shade.DARK` at tile `(8, 6)`, scrolling one tile left per frame, and stops printing the species. `#` expands to `POKé`. `é` is the font.png tile 58 glyph. The name box already matches `HoFDisplayPlayerStats`: `hlcoord 5, 0`, `b=2`, `c=9`, top at Playdate y=-48. The y=0 line is that clip. `hlcoord 7, 2` is y=-16, so the name stays on row 3, the first visible row. The patched recapture is `artifacts/lane-g/hof-fidelity/`. `Source/` is unchanged on this branch.
+
+## Round 26
+
+BlueBot rejected the 57499214 frames. The name box and the `#` to `POKé` mapping stay. `tools/notes/lane-e-hof-credits-fidelity.patch` now keeps whole-string advances, so `You still have`, `PLAY TIME`, and `0:00` keep the system font's space and colon. `é` is font.png char `$BA` from the font generator, drawn as one 8px cell. Credits use black bands on rows 0–3 and 14–17, a white middle, and black text. The credits mon is a solid black silhouette at tile `(8, 6)`. It scrolls with the text, and `rWX` hides the part that wraps in from the right. The patched recapture is `artifacts/lane-g/hof-fidelity-r2/`. `Source/` is unchanged on this branch.
+
+## Round 27
+
+The r2 frames still drew `é` as a subscript, and the Venusaur credit showed only `POK` plus that mark. `MON` was under the silhouette's white fill. `tools/notes/lane-e-hof-credits-fidelity.patch` now places the `$BA` e-body on the lowercase baseline (2× tall, one letter wide, accent above the x-height) and draws `#MON` at column 2, so `POKéMON` stays left of the pic on the hold and on the Venusaur frame. The silhouette, the black bands, the black text, and the `PLAY TIME` / `0:00` spacing stay. The patched recapture is `artifacts/lane-g/hof-fidelity-r3/`. The new checks fail on the live tree. `Source/` is unchanged on this branch.
+
+## Round 28
+
+BlueBot approved the r3 card, dex rating, spacing, bands, black text, silhouette and `THE END`. The credits scroll did not match `ScrollCreditsMonLeft`: the text stayed still and the mon was drawn on top of it. `tools/notes/lane-e-hof-credits-fidelity.patch` now scrolls only the white middle. The pic starts at column 20, off the right edge, and shares `SCX` with the text. The black bands stay put. After the seven open steps, the window walks in from `$A7` and masks the wrap. Step 27 has the text gone and the mon at the left. One mon-hold frame is the step-27 frame, so the roll keeps its length. The patched recapture is `artifacts/lane-g/hof-fidelity-r4/`. The scroll check fails on the live tree. `Source/` is unchanged on this branch.
+
+## Round 29
+
+`232d4452` on `cursor/lane-e-integration` includes `dc58ecf0` and `51832ff4`. The Simulator capture used that tree with no local patch. Every requested frame matches the r4 bytes from `ca39ef14`: the player card, the dex rating, credits steps 0, 7 and 27, Venusaur, Parasect, the copyright hold, and `THE END`. `python3 tools/tests/lane_g_hall_of_fame.py --log` on those frames prints `hall-of-fame ok (42 frames)`. The frames are in the agent store at `lane-g/hof-e-232d4452/`. No new lane-e patch.
+
+A normal boot leaves `game/creditsDraw` out of `main.pdz`. It is a standalone `game/creditsDraw.pdz`. On the title screen and in Pallet, and while Oak's Hall dialog is up, `EndgameStory.drawCredits` is nil. Ten frames after that dialog closes, the Hall photo has loaded it. The roll then draws the same frames as r4.
+
+## Round 31
+
+The Viridian clerk already answers A from the tile in front of the counter. `KantoWorld.tryInteract` and `PewterWorld.tryInteract` step one cell past `terrain.counter`, which is the foot tile in the tileset counter list (`tools/generate_kanto_maps.py`). Standing at `(4, 5)` facing left, with `EVENT_OAK_GOT_PARCEL`, opens `shop.phase = mode`: `Hi there! May I help you?` and `BUY` / `SELL` / `QUIT`. The earlier aisle frame was the player at `(3, 7)`, which does not face the counter. No counter patch. The pair is `artifacts/lane-g/ui-fidelity/mart-aisle-before.png` and `mart-shop-after.png`.
+
+`tools/notes/lane-e-ui-fidelity.patch` is the BlueBot UI set, except the Gen V stat split. `tools/tests/test_lane_e_ui_fidelity.py` fails on this tree and passes after `git apply`. The before/after frames are in `artifacts/lane-g/ui-fidelity/`. `origin/main` is still `ea32b553`, so the credits recheck is still waiting.
+
+## Round 32
+
+BlueBot passed the Mart, the PC, and the trainer card on `46797f61`. The r2 of `tools/notes/lane-e-ui-fidelity.patch` matches `HandlePokedexListMenu` in `engine/menus/pokedex.asm`: `CONTENTS` at (1,1), `SEEN` at (16,2) with the count at (16,3), `OWN` at (16,5) with the count at (16,6), the vertical divider at column 14, and `DATA` / `CRY` / `AREA` / `QUIT` at (16,10). The `No.%03d` line and the list-screen mon stay on the DATA page.
+
+The field bag and the battle bag use the ▶ tile, `×` quantities, a `CANCEL` row, and `POKé BALL` through `sourceName`. Pokered prints no money on either bag. `StartMenu_Item` zeros `wPrintItemPrices` at `engine/menus/start_sub_menus.asm:315`, and `DisplayBagMenu` does the same at `engine/battle/core.asm:2226`. `PrintListMenuEntries` (`home/list_menu.asm:411`) prints a price only when that flag is set, so the yen line is gone. The list box is `LIST_MENU_BOX` at `data/text_boxes.asm:13` (`4, 2, 19, 12`). The A/B footers stay.
+
+`test_patch_applies` passes on this tree. The other five checks in `tools/tests/test_lane_e_ui_fidelity.py` fail here and pass after `git apply`. The r2 frames are `artifacts/lane-g/ui-fidelity/pokedex-list-r2.png`, `bag-r2.png`, and `battle-bag-r2.png`. `Source/` is unchanged.
+
+## Round 34
+
+The r3 bag frames were the r2 bytes. A full 13px tile on the quantity row shares its ink with the next name, and column 14 sits under a nine-tile name. `GbFont.drawOpenString` paints the native 8px height at the top of the 13px cell, and the quantity is right-aligned against the column-19 border. `test_bag_drawn_rows_keep_each_quantity_on_its_own_line` measures those ink rows. It fails on the live tree and on r3, and passes after this patch. The Simulator frames, from the patch applied to `79fbcba5`, are `artifacts/lane-g/ui-fidelity/bag-r4.png` and `battle-bag-r4.png`. `Source/` is unchanged.
+
+## Round 35
+
+The r4 bag glyphs were 8px tall in the 13px cell, so they looked short and wide next to the Pokédex. The bag now uses `GbFont.drawString` and `GbFont.drawChar`, the same 20 by 13 cell as the list. The quantity stays on the next row, right-aligned, so the full cells do not meet. `test_bag_glyph_height_matches_the_pokedex_list` measures the painted height in the Simulator frames. r4 is shorter than CONTENTS. The r5 frames match. `Source/` is unchanged.
+
+## Round 37
+
+`LIST_MENU_BOX` (`data/text_boxes.asm`) keeps the top border on its own row and the first name one row below it. The r6 box started at y=0, so `▶POTION` sat on that rule. The list now clears the rule by one text row (26px) and the bottom rule sits below `CANCEL`. The list menu has no A/B footer, so the hint is not drawn. `test_bag_items_clear_the_box_borders` measures the painted ink and fails on the r6 frames. The r7 frames, from the patch applied to `79fbcba5`, are `artifacts/lane-g/ui-fidelity/bag-r7.png` and `battle-bag-r7.png`. `Source/` is unchanged.
+
+## Round 36
+
+`PrintListMenuEntries` prints four names (`ld b, 4`). A full glyph is 12px, so a 13px row leaves the quantity in the crack above the next name. A text row is now two cells, the Pokédex list pitch, and the box is 17 cells tall so four slots still fit. `test_bag_drawn_rows_keep_each_quantity_on_its_own_line` measures the painted y in the frame and fails on the r5 frames. The r6 frames are `artifacts/lane-g/ui-fidelity/bag-r6.png`, `battle-bag-r6.png`, and `pokedex-list-r6.png`. `Source/` is unchanged.
+
+## Round 33
+
+`PlaceString` `<NEXT>` in `home/text.asm` steps two tile rows unless `BIT_SINGLE_SPACED_LINES` is set, and `PrintListMenuEntries` advances `2 * SCREEN_WIDTH` (`home/list_menu.asm:512`). The r3 of `tools/notes/lane-e-ui-fidelity.patch` draws `DATA` / `CRY` / `AREA` / `QUIT` at rows 10, 12, 14 and 16. Each bag entry uses a name row and the next row for `×` at column 14. The list box still holds four entries, and `CANCEL` follows the last item. The new assertions fail on the live tree and on the r2 strings (`10+index-1`, `local row = 4 + n * 2`, `14, row + 1`). The r3 frames are `artifacts/lane-g/ui-fidelity/pokedex-list-r3.png`, `bag-r3.png`, and `battle-bag-r3.png`. `Source/` is unchanged.
+
+## Round 30
+
+`origin/main` is still `ea32b553`. The credits recheck is waiting on a main commit past that SHA. No merge.
+
+The unreviewed field and battle pages are in `docs/validation/lane-g-ui-unreviewed.md`, with the Simulator frames in `artifacts/lane-g/ui-unreviewed/`. Pokered pin `af519899719f0754965776faac0e836a3b906e6d`. The notes record source diffs and leave the visual call to BlueBot. The Viridian Mart clerk stays unreachable from a walkable tile, so the buy list is the aisle frame only.
+
+## Round 40
+
+Fidelity sweep r2. The four screen patches still apply on top of `Source/` and do not change the 20 by 13 cell. Text on those screens is a uniform 12/8 scale of the 8x8 tile, with the top pixel of the cell left clear. The party list starts on tile row 1, two rows per mon. Summary PP stays on the row under the move name. The save YES box still covers the T of TIME; `home/text.asm` `TextBoxBorder` plus `engine/menus/save.asm` `SaveTheGame_YesOrNo` put that border on column 5 row 8. Trainer badges are the 1-bit tiles from `gfx/trainer_card/badges.png`, `badge_numbers.png`, and `circle_tile.png`. START is unchanged. `tools/tests/test_lane_e_fidelity_sweep.py`: 10 tests pass. Frames are the r2 captures under `artifacts/lane-g/fidelity-sweep/`.
+
+## Round 39
+
+YellowBot: `git diff --name-only origin/main...HEAD` still touched `Source/`. Those six paths are now `tools/notes/lane-e-screen-font.patch` (`titleIdle.lua`, `gameOptions.lua`, `optionsState.lua`, `namingState.lua`, `titleState.lua`, `images/title/font/hud.png`). `tools/tests/test_lane_e_screen_font.py` fails on the live tree and passes after `git apply`. `Source/` matches `origin/main` again. `MallocPoolSize` is unchanged.
+
+## Round 38
+
+The START menu already matches `engine/menus/draw_start_menu.asm` (`hlcoord 10, 0`, first item row 2, cursor column 11, `PrintStartMenuItem` steps two rows). The before and after frames are the same bytes. Party, status, summary, the trainer card, and the save screen were system-font layouts. The patches, measured on a scratch tree of `4bac3bdf` against pokered `af519899`, are `tools/notes/lane-e-party-fidelity.patch`, `lane-e-status-fidelity.patch` (status and summary), `lane-e-trainer-fidelity.patch`, and `lane-e-save-fidelity.patch`. Each applies alone and they stack. `tools/tests/test_lane_e_fidelity_sweep.py` measures the painted rows and fails on the unpatched frames. Frames are `artifacts/lane-g/fidelity-sweep/`. The glyph cell is the dex list, 20 by 13. `Source/` is unchanged. `origin/main` is still `ea32b553`, so the Hall of Fame and credits recheck stays waiting.
+
 ## Blockers
 
 - The rival NPC id stays `BLUE`. Dialogue uses the chosen rival name. The actor lookup does not.

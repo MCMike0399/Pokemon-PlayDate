@@ -1,0 +1,31 @@
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index 768637dd..b17387d8 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -305,12 +305,12 @@ function BattleScene:drawPlatforms()
+     -- Enemy platform (top-right, like a cliff edge)
+     if not self.trainerVisible then
+     gfx.setColor(gfx.kColorBlack)
+-    gfx.fillRect(275, 84, 115, 3)
+-    gfx.drawLine(265, 87, 275, 84)
++    gfx.fillRect(275, 78, 115, 3)
++    gfx.drawLine(265, 81, 275, 78)
+     gfx.setPattern(PLATFORM_SHADE)
+-    gfx.fillRect(268, 87, 122, 6)
++    gfx.fillRect(268, 81, 122, 6)
+     gfx.setColor(gfx.kColorBlack)
+-    gfx.drawLine(268, 93, 390, 93)
++    gfx.drawLine(268, 87, 390, 87)
+     end
+ 
+     -- Player platform (bottom-left, wider ground mound)
+@@ -956,6 +956,9 @@ function BattleScene:updateVisualEvent(request)
+ end
+ 
+ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack, maxY)
++    -- Raised with the enemy platform. The bottom line is y=87, eight pixels
++    -- above the player name row at y=96.
++    if side == "enemy" then y = y - 6 end
+     local request = self.activePresentation
+     local frame = self.presentationFrame or 0
+     local size = 80
