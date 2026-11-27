@@ -3324,6 +3324,41 @@ class CharmanderRun(BrockJourney):
                 raise ProtocolError("cave step stayed at " + str(before))
         raise ProtocolError("cave crossing stayed on " + origin + " " + str(self.position()))
 
+    def route_portal(self, target_id, goal=None):
+        """The shared search gives up at 2048 nodes. Kanto to the cave is longer."""
+        import heapq
+        start = (self.state["zone_id"], self.position())
+        queue, best, serial = [(0, 0, start, [])], {start: 0}, 0
+        while queue and len(best) <= 16384:
+            cost, _, node, itinerary = heapq.heappop(queue)
+            if cost != best[node]:
+                continue
+            zone, origin = node
+            model = self.models[zone]
+            occupied = self.occupied() if node == start else set()
+            if zone == target_id:
+                try:
+                    if goal is not None:
+                        model.path(origin, goal, occupied)
+                    return itinerary[0] if itinerary else None
+                except ProtocolError:
+                    pass
+            for point, kind, detail in self.portals(model):
+                try:
+                    path = model.path(origin, {point}, occupied, {point})
+                    if kind == "warp":
+                        destination = self.project_warp(model, detail)
+                    else:
+                        destination = detail[1]
+                except ProtocolError:
+                    continue
+                candidate = cost + len(path) + 2
+                if candidate < best.get(destination, float("inf")):
+                    best[destination] = candidate
+                    serial += 1
+                    heapq.heappush(queue, (candidate, serial, destination, itinerary + [(point, kind, detail, destination)]))
+        raise ProtocolError("no bounded staged source route to " + str((target_id, goal)))
+
     def _play_postgame(self):
         """Heal, cross to Cerulean Cave, and face Mewtwo. The Mew giver has no script."""
         self._bind_kanto_route()
@@ -5324,6 +5359,8 @@ class CharmanderTitleTests(unittest.TestCase):
         postgame = source.split("def _play_postgame", 1)[1].split("def _champion", 1)[0]
         self.assertIn('self.zone("CeruleanCity")', postgame)
         self.assertIn("press up", postgame)
+        self.assertLess(source.index("def route_portal"), source.index("def _play_postgame"))
+        self.assertIn("len(best) <= 16384", source.split("def route_portal", 1)[1].split("def _play_postgame", 1)[0])
         door = source.split("def _top_off_in_field", 1)[1].split("def _needs_league_heal", 1)[0]
         battle_heal = source.split("def _top_off_starter", 1)[1].split("def battle_preparation_action", 1)[0]
         self.assertIn('self.quantity("fullRestore")', door)
