@@ -1820,3 +1820,22 @@ Sequence 1937 is Victory Road 3F `(25, 9)`, sha256
 Pidgeot L49 92/153 XP 112102, Poliwhirl L49 45/124 XP 112150, Hypno
 L49 128/158 XP 118423, Venusaur L72 55/223. Money is still ¥3424.
 The 14:36 clip is `20261127T143616Z-victory-road.mp4`. Training continues.
+
+## Clip review, 13:35 and 14:36
+
+`20261127T133535Z-victory-road.mp4` at 0:05 is Forewarn, not a move.
+The box holds two rows. Page one is "HYPNO's Forewarn / alerted it to".
+Page two is "GEODUDE's SELF / DESTRUCT!". That is the rest of
+"HYPNO's Forewarn alerted it to GEODUDE's SELF DESTRUCT!". The move
+name is on the second page. The next frame is the command menu, then
+"Got away safely!". Geodude is in the driver's run list, so Self-Destruct
+was never selected. A host battle of a wild level-26 Geodude whose only
+move is Self-Destruct faints Geodude on a hit and on an accuracy of 0,
+and Hypno takes the damage. No lane E handoff.
+
+`20261127T143616Z-victory-road.mp4` paces up and down beside the boulder
+in the Victory Road grass. The boulder's screen position follows the
+camera and returns with it. It does not change tiles, and there is no
+map reload. The same run is still gaining XP there. Sequence 1940 is
+`(25, 11)`: Pidgeot L49 XP 113262, Poliwhirl L49 XP 113770, Hypno L49
+XP 119583.
