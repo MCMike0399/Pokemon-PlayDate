@@ -1,0 +1,29 @@
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index 48acb0b4..40d4f1e1 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -751,8 +751,10 @@ function KantoAudio.updateGame(game)
+         end
+         if healing and observer.healing ~= healing then
+             -- AnimateHealingMachine plays SFX_HEALING_MACHINE once per party
+-            -- member (wPartyCount), then MUSIC_PKMN_HEALED. healCount is that
+-            -- count. One shot would finish the jingle before the last ball.
++            -- member, then DelayFrames(30), then MUSIC_PKMN_HEALED.
++            -- healCount is that count. 30 Game Boy frames are 15 Playdate
++            -- frames. The machine score is 11 ticks, so waiting out the
++            -- score starts the healed jingle early.
+             local count = healing.healCount
+             if type(count) ~= "number" or count < 1 then
+                 count = 1
+@@ -762,7 +764,10 @@ function KantoAudio.updateGame(game)
+                 names[#names + 1] = "healing_machine"
+             end
+             names[#names + 1] = "heal"
+-            playSequence(names)
++            KantoAudio.playSFX(names[1])
++            for index = 2, #names do
++                enqueueSFX(names[index], 15)
++            end
+         end
+         observer.healing = healing
+ 

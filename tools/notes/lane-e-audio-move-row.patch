@@ -1,0 +1,49 @@
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index 61e04c4..e11183a 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -349,6 +349,7 @@ function KantoAudio.updateGame(game)
+             end
+             observer.battle = battle
+             observer.lowHP = nil
++            observer.moveKey = nil
+             observer.pendingCry = nil
+             observer.pendingCryFrames = nil
+         end
+@@ -406,12 +407,19 @@ function KantoAudio.updateGame(game)
+                     observer.pendingCry = nil
+                 end
+             end
++            -- GetMoveSound plays the move row when the move changes. A hit
++            -- that is not a faint follows it with SFX_DAMAGE. The player's
++            -- own faint is still the cry after that row.
++            local moveKey = battle.currentMoveKey
++            local moveCue = nil
++            if moveKey ~= observer.moveKey then
++                observer.moveKey = moveKey
++                moveCue = moveKey and moveScore(moveKey)
++            end
+             if faint then
+                 -- FaintEnemyPokemon waits out the move row, then the thud.
+                 -- The player's own faint is the cry after that row.
+                 local species = battle.player and battle.player.species
+-                local moveKey = battle.currentMoveKey
+-                local moveCue = moveKey and moveScore(moveKey)
+                 if battle.player and battle.player.hp ~= nil and battle.player.hp <= 0 and species then
+                     if moveCue then
+                         KantoAudio.playSFX(moveCue)
+@@ -425,7 +433,13 @@ function KantoAudio.updateGame(game)
+                     KantoAudio.playSFX("faint")
+                 end
+             elseif hit then
+-                KantoAudio.playSFX("hit")
++                if moveCue then
++                    playSequence({moveCue, "hit"})
++                else
++                    KantoAudio.playSFX("hit")
++                end
++            elseif moveCue then
++                KantoAudio.playSFX(moveCue)
+             end
+             noteCries(battle, battleState)
+         end
