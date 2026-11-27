@@ -316,7 +316,12 @@ function KantoSynth.sfx(name)
     if name == "heal" then
         layers.jingle = layer(name, now)
     else
-        local priority = assert(priorities[name], "unknown Kanto SFX")
+        -- Move rows are named move_<key> and have no score file yet.
+        -- Asserting here restarts the battle the moment a Pokémon faints.
+        local priority = priorities[name]
+        if not priority then
+            return false
+        end
         if layers.sfx and priorities[layers.sfx.name] < priority then
             return false
         end
