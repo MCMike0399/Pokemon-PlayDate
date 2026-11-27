@@ -7,6 +7,7 @@ host Lua 5.4 probe can load without Playdate.
 from __future__ import annotations
 
 import argparse
+import struct
 import json
 import os
 from pathlib import Path
@@ -17,7 +18,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tools.audio.catalog import Catalog
-from tools.audio.scores import ASSETS, map_routes
+from tools.audio.scores import ALT_SCORES, ASSETS, PITCHED, map_routes
 from tools.audio.source import AudioError, Source
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -57,6 +58,10 @@ CUES = (
     ('healing_machine', 'healing_machine', 'sfx', 'engine/overworld/healing_machine.asm', 'SFX_HEALING_MACHINE'),
     ('evolution', 'safari', 'music', 'engine/movie/evolution.asm', 'MUSIC_SAFARI_ZONE'),
     ('tink', 'tink', 'sfx', 'engine/movie/evolution.asm', 'SFX_TINK'),
+    # The fight-intro slash and the title logo bounce use one crash score.
+    # Whoosh exists only on the title screen (engine/movie/title.asm:193).
+    ('intro_crash', 'intro_crash', 'sfx', 'engine/movie/intro.asm', 'SFX_INTRO_CRASH'),
+    ('intro_whoosh', 'intro_whoosh', 'sfx', 'engine/movie/title.asm', 'SFX_INTRO_WHOOSH'),
     ('title', 'title', 'music', 'engine/movie/title.asm', 'MUSIC_TITLE_SCREEN'),
     ('credits', 'credits', 'music', 'engine/movie/credits.asm', 'MUSIC_CREDITS'),
     ('hall_of_fame', 'hall_of_fame', 'music', 'engine/movie/hall_of_fame.asm', 'MUSIC_HALL_OF_FAME'),
@@ -75,6 +80,46 @@ CUES = (
     ('start_menu', 'start_menu', 'sfx', 'home/start_menu.asm', 'SFX_START_MENU'),
     ('hit', 'hit', 'sfx', 'engine/battle/animations.asm', 'SFX_DAMAGE'),
     ('faint', 'faint', 'sfx', 'engine/battle/core.asm', 'SFX_FAINT_THUD'),
+    # FaintEnemyPokemon waits for this, then plays the thud. Wild wins skip it.
+    ('faint_fall', 'faint_fall', 'sfx', 'engine/battle/core.asm', 'SFX_FAINT_FALL'),
+    # ChampionsRoomOakArrivesScript fades out, then Cities1 at tempo 232.
+    ('cities1_oak', 'cities1_oak', 'music', 'audio/alternate_tempo.asm', 'Music_Cities1AlternateTempo'),
+    # Route22SecondRivalBattleScript, while the rival walks in.
+    ('meet_rival_slow', 'meet_rival_slow', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateTempo'),
+    # Route22 rival2 exit: alternate start on ch1-3, then the slower ch1 entry.
+    ('meet_rival_league', 'meet_rival_league', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateStartAndTempo'),
+    # Music_RivalAlternateStart. Tempo 112, then the normal MeetRival loop.
+    # Oak's lab exits, the first Route 22 battle, Cerulean, the tower, SS Anne, Silph.
+    ('meet_rival_start', 'meet_rival_start', 'music', 'audio/alternate_tempo.asm', 'Music_RivalAlternateStart'),
+    # GetMoveSound copies these sfx.asm bytes onto SFX_FAINT_FALL.
+    ('faint_fall_agility', 'faint_fall_agility', 'sfx', 'data/moves/sfx.asm', 'AGILITY'),
+    ('faint_fall_kinesis', 'faint_fall_kinesis', 'sfx', 'data/moves/sfx.asm', 'KINESIS'),
+    ('faint_fall_transform', 'faint_fall_transform', 'sfx', 'data/moves/sfx.asm', 'TRANSFORM'),
+    ('faint_fall_dizzy_punch', 'faint_fall_dizzy_punch', 'sfx', 'data/moves/sfx.asm', 'DIZZY_PUNCH'),
+    # PlayIntro, before the title. The port has no fight-intro state.
+    ('shooting_star', 'shooting_star', 'sfx', 'engine/movie/splash.asm', 'SFX_SHOOTING_STAR'),
+    ('intro_lunge', 'intro_lunge', 'sfx', 'engine/movie/intro.asm', 'SFX_INTRO_LUNGE'),
+    ('teleport_exit_1', 'teleport_exit_1', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_EXIT_1'),
+    ('teleport_enter_1', 'teleport_enter_1', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_ENTER_1'),
+    ('teleport_exit_2', 'teleport_exit_2', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_EXIT_2'),
+    ('teleport_enter_2', 'teleport_enter_2', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_TELEPORT_ENTER_2'),
+    ('ball_poof', 'ball_poof', 'sfx', 'engine/battle/animations.asm', 'SFX_BALL_POOF'),
+    ('ball_toss', 'ball_toss', 'sfx', 'engine/battle/animations.asm', 'SFX_BALL_TOSS'),
+    ('run', 'run', 'sfx', 'engine/battle/core.asm', 'SFX_RUN'),
+    ('fly', 'fly', 'sfx', 'engine/overworld/player_animations.asm', 'SFX_FLY'),
+    ('collision', 'collision', 'sfx', 'home/overworld.asm', 'SFX_COLLISION'),
+    ('anne_horn', 'anne_horn', 'sfx', 'scripts/VermilionDock.asm', 'SFX_SS_ANNE_HORN'),
+    ('swap', 'swap', 'sfx', 'engine/menus/start_sub_menus.asm', 'SFX_SWAP'),
+    ('heal_hp', 'heal_hp', 'sfx', 'engine/items/item_effects.asm', 'SFX_HEAL_HP'),
+    ('heal_ailment', 'heal_ailment', 'sfx', 'engine/items/item_effects.asm', 'SFX_HEAL_AILMENT'),
+    ('save', 'save', 'sfx', 'engine/menus/save.asm', 'SFX_SAVE'),
+    ('purchase', 'purchase', 'sfx', 'engine/events/pokemart.asm', 'SFX_PURCHASE'),
+    ('pokedex_rating', 'pokedex_rating', 'sfx', 'audio/pokedex_rating_sfx.asm', 'SFX_POKEDEX_RATING'),
+    ('dex_page', 'dex_page', 'sfx', 'home/text.asm', 'SFX_DEX_PAGE_ADDED'),
+    ('poisoned', 'poisoned', 'sfx', 'engine/events/poison.asm', 'SFX_POISONED'),
+    ('switch', 'switch', 'sfx', 'engine/events/hidden_events/vermilion_gym_trash.asm', 'SFX_SWITCH'),
+    ('shrink', 'shrink', 'sfx', 'engine/events/hidden_events/bills_house_pc.asm', 'SFX_SHRINK'),
+    ('safari_pa', 'safari_pa', 'sfx', 'engine/events/hidden_events/safari_game.asm', 'SFX_SAFARI_ZONE_PA'),
     ('go_inside', 'go_inside', 'sfx', 'home/overworld.asm', 'SFX_GO_INSIDE'),
     ('go_outside', 'go_outside', 'sfx', 'home/overworld.asm', 'SFX_GO_OUTSIDE'),
     ('ledge', 'ledge', 'sfx', 'engine/overworld/ledges.asm', 'SFX_LEDGE'),
@@ -102,6 +147,55 @@ def cite(source, path, token):
         if token in code or token in comment:
             return f'{path}:{number}'
     raise AudioError(f'{token} not in {path}')
+
+
+_RECEIPT_SOUNDS = {
+    'sound_get_item_1': 'item',
+    'sound_get_item_2': 'item2',
+    'sound_get_key_item': 'key_item',
+}
+
+
+def field_receipts(source):
+    """Text labels whose script plays a get-item fanfare before text_end.
+
+    sound_level_up is the badge alias of sound_get_item_1. Only a label that
+    names a Badge keeps the badge cue; every other sound_level_up is refused.
+    """
+    receipts = {}
+    root = Path(source.root)
+    for path in sorted((root / 'scripts').glob('*.asm')):
+        relative = f'scripts/{path.name}'
+        pending = None
+        for number, code, _comment in raw_lines(source, relative):
+            far = re.match(r'text_far\s+([A-Za-z0-9_]+)', code)
+            if far:
+                pending = far.group(1)
+                continue
+            sound = re.match(
+                r'(sound_get_item_1|sound_get_item_2|sound_get_key_item|sound_level_up)\b',
+                code,
+            )
+            if sound and pending:
+                kind = sound.group(1)
+                if kind == 'sound_level_up':
+                    if 'Badge' not in pending:
+                        raise AudioError(f'{relative}:{number}: sound_level_up is not a badge')
+                    cue = 'badge'
+                else:
+                    cue = _RECEIPT_SOUNDS[kind]
+                previous = receipts.get(pending)
+                if previous and previous['cue'] != cue:
+                    raise AudioError(f'{pending}: {previous["cue"]} and {cue}')
+                if not previous:
+                    receipts[pending] = {'cue': cue, 'source': f'{relative}:{number}'}
+                pending = None
+                continue
+            if code.startswith('text_end') or code.startswith('text_asm'):
+                pending = None
+    if not receipts:
+        raise AudioError('no field receipt fanfares')
+    return receipts
 
 
 def _list_until_end(source, path, label):
@@ -220,7 +314,7 @@ def build(source_path):
     female = _list_until_end(source, 'data/trainers/encounter_types.asm', 'FemaleTrainerList::')
     cues = {}
     for name, score, kind, path, token in CUES:
-        if score not in ASSETS:
+        if score not in ASSETS and score not in ALT_SCORES and score not in PITCHED:
             raise AudioError(f'cue {name} uses unknown score {score}')
         cues[name] = {
             'score': score,
@@ -241,6 +335,7 @@ def build(source_path):
         'giovanni_zone': GIOVANNI_GYM,
         'legendary': legendary,
         'cues': cues,
+        'field_receipts': field_receipts(source),
         'battle_source': cite(source, 'audio/play_battle_music.asm', 'PlayBattleMusic'),
         'jingle_source': cite(source, 'home/trainers.asm', 'PlayTrainerMusic'),
         'victory_source': cite(source, 'engine/battle/core.asm', 'PlayBattleVictoryMusic'),
@@ -273,18 +368,9 @@ def emit(data):
         f'  alarmSource = {_lua_string(data["alarm_source"])},',
         f'  doorSource = {_lua_string(data["door_source"])},',
         f'  giovanniZone = {_lua_string(data["giovanni_zone"])},',
-        '  maps = {',
     ]
-    for map_id, row in sorted(data['maps'].items()):
-        lines.append(
-            f'    [{_lua_string(map_id)}] = {_lua_string(row["score"])},'
-            f' -- {row["source"]} {row["asset"]}'
-        )
-    lines.append('  },')
-    lines.append('  aliases = {')
-    for key, value in sorted(data['aliases'].items()):
-        lines.append(f'    [{_lua_string(key)}] = {_lua_string(value)},')
-    lines.append('  },')
+    # Map scores and aliases are audio/eventMaps.lua so a city inflate does
+    # not keep that table beside the next definition.
     for field, values in (
         ('evil', data['evil']),
         ('female', data['female']),
@@ -310,6 +396,8 @@ def emit(data):
             f' token={_lua_string(row["token"])}}},'
         )
     lines.append('  },')
+    # The receipt label map is audio/fieldReceipts.lua. It is not imported:
+    # file.run loads it for a receipt, and a city inflate never has to hold it.
     lines.append('  meetRivalScripts = {')
     for site in data['meet_rival_scripts']:
         lines.append(f'    {_lua_string(site)},')
@@ -323,6 +411,68 @@ def emit(data):
     return '\n'.join(lines).encode()
 
 
+def emit_map_bin(data):
+    """Length-prefixed records. The device builds the table from this and drops it.
+
+    A file.run of the lua table keeps every map string on the chunk, so a later
+    inflate still sees them after the table is cleared.
+    """
+    def record(text):
+        raw = text.encode()
+        if len(raw) > 255:
+            raise AudioError(f'map record too long: {text}')
+        return bytes((len(raw),)) + raw
+
+    parts = []
+    maps = sorted(data['maps'].items())
+    aliases = sorted(data['aliases'].items())
+    parts.append(struct.pack('<H', len(maps)))
+    for map_id, row in maps:
+        parts.append(record(map_id))
+        parts.append(record(row['score']))
+    parts.append(struct.pack('<H', len(aliases)))
+    for key, value in aliases:
+        parts.append(record(key))
+        parts.append(record(value))
+    return b''.join(parts)
+
+
+def emit_maps(data):
+    lines = [
+        '-- Generated by tools/audio/events.py; do not hand edit.',
+        '-- Host table. The device reads audio/eventMaps.bin and drops it after the lookup.',
+        'KantoEvents.maps = {',
+    ]
+    for map_id, row in sorted(data['maps'].items()):
+        lines.append(
+            f'    [{_lua_string(map_id)}] = {_lua_string(row["score"])},'
+            f' -- {row["source"]} {row["asset"]}'
+        )
+    lines.append('}')
+    lines.append('KantoEvents.aliases = {')
+    for key, value in sorted(data['aliases'].items()):
+        lines.append(f'    [{_lua_string(key)}] = {_lua_string(value)},')
+    lines.append('}')
+    lines.append('')
+    return '\n'.join(lines).encode()
+
+
+def emit_receipts(data):
+    lines = [
+        '-- Generated by tools/audio/events.py; do not hand edit.',
+        '-- Loaded with playdate.file.run the first time a receipt fanfare plays.',
+        'KantoEvents.fieldReceipts = {',
+    ]
+    for label, row in sorted(data['field_receipts'].items()):
+        lines.append(
+            f'    [{_lua_string(label)}] = {_lua_string(row["cue"])},'
+            f' -- {row["source"]}'
+        )
+    lines.append('}')
+    lines.append('')
+    return '\n'.join(lines).encode()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', default=os.environ.get('POKERED_REFERENCE_DIR'))
@@ -330,14 +480,30 @@ def main():
     args = parser.parse_args()
     if not args.source:
         parser.error('--source or POKERED_REFERENCE_DIR required')
-    payload = emit(build(args.source))
+    data = build(args.source)
+    payload = emit(data)
+    receipts = emit_receipts(data)
+    maps = emit_maps(data)
+    map_bin = emit_map_bin(data)
     target = ROOT / 'Source/audio/events.lua'
+    receipt_target = ROOT / 'Source/audio/fieldReceipts.lua'
+    map_target = ROOT / 'Source/audio/eventMaps.lua'
+    bin_target = ROOT / 'Source/audio/eventMaps.bin'
     if args.check:
         if not target.exists() or target.read_bytes() != payload:
             raise AudioError('Source/audio/events.lua differs; regenerate')
+        if not receipt_target.exists() or receipt_target.read_bytes() != receipts:
+            raise AudioError('Source/audio/fieldReceipts.lua differs; regenerate')
+        if not map_target.exists() or map_target.read_bytes() != maps:
+            raise AudioError('Source/audio/eventMaps.lua differs; regenerate')
+        if not bin_target.exists() or bin_target.read_bytes() != map_bin:
+            raise AudioError('Source/audio/eventMaps.bin differs; regenerate')
         print('audio events: reproducible')
     else:
         target.write_bytes(payload)
+        receipt_target.write_bytes(receipts)
+        map_target.write_bytes(maps)
+        bin_target.write_bytes(map_bin)
         print('audio events: generated')
 
 

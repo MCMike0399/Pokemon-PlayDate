@@ -490,7 +490,7 @@ class Trace:
                 'saved_volume': self.saved_volume, 'pitch_modifier': self.pitch_modifier,
                 'tempo_modifier': self.tempo_modifier, 'alarm': self.alarm, 'disable_noise': self.disable_noise}
 
-    def run(self, max_ticks=120000, scheduled=(), alarm=False):
+    def run(self, max_ticks=120000, scheduled=(), alarm=False, on_tick=None):
         if max_ticks <= 0:
             raise AudioError('max_ticks must be positive')
         if alarm and self.family != 2:
@@ -498,6 +498,7 @@ class Trace:
         if alarm: self.alarm = 128
         pending = sorted(scheduled, key=lambda x: x['tick'])
         seen = {}
+        tracking = True
         status = 'bound'
         repeat = None
         for tick in range(max_ticks):
@@ -507,13 +508,19 @@ class Trace:
                 self.load(item['asset'], item.get('pitch'), item.get('length'))
             if pending and pending[0]['tick'] < tick:
                 raise AudioError('negative/out-of-order scheduled tick')
-            state = json.dumps(self.snapshot(), sort_keys=True, separators=(',', ':'))
-            fingerprint = hashlib.sha256(state.encode()).hexdigest()
-            if not pending and fingerprint in seen:
-                status = 'repeat'
-                repeat = {'start_tick': seen[fingerprint], 'end_tick': tick, 'sha256': fingerprint}
-                break
-            seen[fingerprint] = tick
+            if tracking and not pending:
+                state = json.dumps(self.snapshot(), sort_keys=True, separators=(',', ':'))
+                fingerprint = hashlib.sha256(state.encode()).hexdigest()
+                if fingerprint in seen:
+                    status = 'repeat'
+                    repeat = {'start_tick': seen[fingerprint], 'end_tick': tick, 'sha256': fingerprint}
+                    if on_tick is None:
+                        break
+                    # The label pass keeps going. Drop the fingerprint table.
+                    tracking = False
+                    seen.clear()
+                else:
+                    seen[fingerprint] = tick
             if not pending and not any(c.asset for c in self.channels) and not self.alarm:
                 status = 'ended'
                 break
@@ -532,6 +539,8 @@ class Trace:
                 else:
                     ch.delay = (ch.delay-1) & 255
                     self.effects(i)
+            if on_tick is not None and on_tick(tick, repeat):
+                break
         return {'schema': 1, 'family': self.family, 'status': status, 'ticks': self.tick,
                 'clock': {'tick_numerator': 70224, 'tick_denominator': 4194304, 'unit': 'seconds'},
                 'repeat': repeat, 'events': self.events, 'terminal': self.snapshot(),

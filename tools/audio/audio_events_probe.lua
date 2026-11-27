@@ -1,8 +1,17 @@
 -- Host probe. Lua 5.4 loads the data table and select.lua; Playdate is not required.
 local root = arg[1]
 assert(root and root ~= "", "pass the repository root")
+-- eventMaps.lua is a file.run target. The probe loads it the same way.
+playdate = {
+    file = {
+        run = function(path)
+            dofile(root .. "/Source/" .. path .. ".lua")
+        end,
+    },
+}
 dofile(root .. "/Source/audio/events.lua")
 dofile(root .. "/Source/audio/select.lua")
+KantoEvents.ensureMaps()
 
 local function show(key, value)
     if value == nil then
@@ -53,6 +62,9 @@ battle("giovanni-gym", {trainerClass = "OPP_GIOVANNI", zone = "pokered:VIRIDIAN_
 battle("giovanni-hideout", {trainerClass = "OPP_GIOVANNI", zone = "pokered:ROCKET_HIDEOUT_B4F"})
 battle("giovanni-zero", {trainerClass = "OPP_GIOVANNI", gymLeaderNo = 0, zone = "pokered:VIRIDIAN_GYM"})
 battle("youngster", {trainerClass = "OPP_YOUNGSTER", gymLeaderNo = 0})
+battle("lorelei", {trainerClass = "OPP_LORELEI", gymLeaderNo = 0})
+battle("bruno", {trainerClass = "OPP_BRUNO", gymLeaderNo = 0})
+battle("agatha", {trainerClass = "OPP_AGATHA", gymLeaderNo = 0})
 
 show("jingle:lass", KantoEvents.trainerJingle("OPP_LASS", 0))
 show("jingle:rocket", KantoEvents.trainerJingle("OPP_ROCKET", 0))
@@ -61,6 +73,7 @@ show("jingle:rival", KantoEvents.trainerJingle("OPP_RIVAL1", nil))
 show("jingle:brock", KantoEvents.trainerJingle("OPP_BROCK", 0))
 show("jingle:gym", KantoEvents.trainerJingle("OPP_YOUNGSTER", 1))
 show("jingle:empty", KantoEvents.trainerJingle(nil, nil))
+show("jingle:lorelei", KantoEvents.trainerJingle("OPP_LORELEI", 0))
 
 show("pixels:9", KantoEvents.hpBarPixels(9, 48))
 show("pixels:10", KantoEvents.hpBarPixels(10, 48))

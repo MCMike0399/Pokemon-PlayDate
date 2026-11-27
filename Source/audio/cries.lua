@@ -1,5 +1,7 @@
 -- Expand a shared source cry program into one transient synth score.
-import "audio/crydata"
+-- crydata is a file.run, not an import: the catalogs are released after the
+-- small score exists so they are not resident between cries. A file-scope
+-- import would cache the chunk and would not refill the globals next time.
 
 KantoCries = {}
 
@@ -15,7 +17,22 @@ local function rounded(value)
     return math.floor(value * 10000 + 0.5) / 10000
 end
 
-function KantoCries.score(species, family)
+function KantoCries.ensureData()
+    if not KantoCrySpecies then
+        -- Literal path so pdc compiles crydata even though this runs later.
+        playdate.file.run("audio/crydata")
+    end
+end
+
+function KantoCries.releaseData()
+    KantoCryPrograms = nil
+    KantoCryHeaders = nil
+    KantoCryBases = nil
+    KantoCrySpecies = nil
+    KantoCryMusicBanks = nil
+end
+
+local function buildScore(species, family)
     species = aliases[species] or species
     local parameters = KantoCrySpecies[species]
     if not parameters then
@@ -84,4 +101,15 @@ function KantoCries.score(species, family)
         notes = notes,
         holds = holds,
     }
+end
+
+function KantoCries.score(species, family)
+    KantoCries.ensureData()
+    local ok, score, reason = pcall(buildScore, species, family)
+    KantoCries.releaseData()
+    collectgarbage("collect")
+    if not ok then
+        error(type(score) == "string" and score ~= "" and score or "cry score failed", 0)
+    end
+    return score, reason
 end

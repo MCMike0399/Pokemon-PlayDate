@@ -72,6 +72,68 @@ EDITS = {
                 '        local label = result.mode == "bicycle" and "GotOn" or "GotOff"\n',
             ),
         ],
+    },
+    'tools/notes/lane-e-audio-gaps.patch': {
+        'Source/game/endgameStory.lua': [
+            (
+                '    state.phase = "hall-photo"\n'
+                '    state.waiting = "hall-of-fame"\n'
+                'end\n',
+                '    state.phase = "hall-photo"\n'
+                '    state.waiting = "hall-of-fame"\n'
+                '    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("hall_of_fame") end\n'
+                'end\n',
+            ),
+            (
+                '        if entry and entry.cry then\n'
+                '            EndgameStory.playCry(entry.cry)\n'
+                '        end\n',
+                '        if entry and entry.cry then\n'
+                '            if KantoAudio and KantoAudio.playCry then\n'
+                '                KantoAudio.playCry(entry.cry)\n'
+                '            else\n'
+                '                EndgameStory.playCry(entry.cry)\n'
+                '            end\n'
+                '        end\n',
+            ),
+            (
+                '    if step.audio and step.audio.name then\n'
+                '        EndgameStory.playCue(step.audio.name)\n'
+                '    end\n'
+                '    if state.plan.spin and step.op == "move" and not state.spinStarted then\n'
+                '        state.spinStarted = true\n'
+                '        if state.plan.audio then\n'
+                '            EndgameStory.playCue(state.plan.audio.name)\n'
+                '        end\n'
+                '    end\n',
+                '    if step.audio and step.audio.name then\n'
+                '        if KantoAudio and KantoAudio.playCue and (step.audio.name == "denied" or step.audio.name == "arrow_tiles") then\n'
+                '            KantoAudio.playCue(step.audio.name)\n'
+                '        else\n'
+                '            EndgameStory.playCue(step.audio.name)\n'
+                '        end\n'
+                '    end\n'
+                '    if state.plan.spin and step.op == "move" and not state.spinStarted then\n'
+                '        state.spinStarted = true\n'
+                '        if state.plan.audio then\n'
+                '            if KantoAudio and KantoAudio.playCue then\n'
+                '                KantoAudio.playCue(state.plan.audio.name)\n'
+                '            else\n'
+                '                EndgameStory.playCue(state.plan.audio.name)\n'
+                '            end\n'
+                '        end\n'
+                '    end\n',
+            ),
+        ],
+        'Source/game/eventState.lua': [
+            (
+                '        self.audioGaps[#self.audioGaps + 1] = {cue = "SFX_ARROW_TILES", owner = "SourceAudio",\n'
+                '            wait_for_completion = false}\n',
+                '        self.audioGaps[#self.audioGaps + 1] = {cue = "SFX_ARROW_TILES", owner = "SourceAudio",\n'
+                '            wait_for_completion = false}\n'
+                '        if KantoAudio and KantoAudio.playSFX then KantoAudio.playSFX("arrow_tiles") end\n',
+            ),
+        ],
         'Source/game/snorlaxStory.lua': [
             (
                 'function SnorlaxStory.useFlute(bag)\n'

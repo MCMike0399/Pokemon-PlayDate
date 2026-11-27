@@ -72,13 +72,3 @@
          local label = result.mode == "bicycle" and "GotOn" or "GotOff"
          self:showResult({"_" .. label .. "BicycleText1", "_" .. label .. "BicycleText2"},
              {wStringBuffer=ItemData.definitions.bicycle.name})
---- a/Source/game/snorlaxStory.lua
-+++ b/Source/game/snorlaxStory.lua
-@@ -75,6 +75,7 @@
-     return record and copy(record) or nil
- end
- function SnorlaxStory.useFlute(bag)
-+    if KantoAudio and KantoAudio.playCue then KantoAudio.playCue("flute") end
-     local game <const> = bag.game
-     local machine <const> = game.machine
-     local world <const> = machine:get("overworld")

@@ -1,0 +1,54 @@
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index 7a0e2e6..fd9ee32 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -585,6 +585,8 @@ function KantoAudio.updateGame(game)
+             end
+             observer.battle = battle
+             observer.lowHP = nil
++            observer.pendingCry = nil
++            observer.pendingCryFrames = nil
+         end
+ 
+         if battle then
+@@ -654,9 +656,20 @@ function KantoAudio.updateGame(game)
+ 
+             -- FaintEnemyPokemon (core.asm) waits out SFX_FAINT_FALL, then
+             -- plays SFX_FAINT_THUD. A wild win skips the fall and plays the
+-            -- victory bed instead. The player's own faint is the thud alone.
+-            -- GetMoveSound plays the move's row first. When the damage lands
+-            -- in the same update, the hit or fall follows that row.
++            -- victory bed instead. RemoveFaintedPlayerMon cries
++            -- wBattleMonSpecies (engine/battle/core.asm:1042). GetMoveSound
++            -- plays the move's row first. When the damage lands in the same
++            -- update, the cry follows that row.
++            if observer.pendingCryFrames then
++                observer.pendingCryFrames = observer.pendingCryFrames - 1
++                if observer.pendingCryFrames <= 0 then
++                    observer.pendingCryFrames = nil
++                    if observer.pendingCry then
++                        KantoAudio.playCry(observer.pendingCry)
++                    end
++                    observer.pendingCry = nil
++                end
++            end
+             if observer.pendingThud then
+                 observer.pendingThud = observer.pendingThud - 1
+                 if observer.pendingThud <= 0 then
+@@ -674,10 +687,13 @@ function KantoAudio.updateGame(game)
+                 end
+             elseif faint then
+                 observer.pendingThud = nil
++                local species = battle.player and battle.player.species
+                 if moveCue then
+-                    playSequence({moveCue, "faint"})
+-                else
+-                    KantoAudio.playSFX("faint")
++                    KantoAudio.playSFX(moveCue)
++                    observer.pendingCry = species
++                    observer.pendingCryFrames = sfxFrames(moveCue)
++                elseif species then
++                    KantoAudio.playCry(species)
+                 end
+             elseif hit then
+                 if moveCue then

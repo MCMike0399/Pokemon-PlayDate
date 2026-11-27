@@ -1,0 +1,12 @@
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index 7a0e2e6..834b7db 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -3,6 +3,7 @@
+ import "audio/events"
+ import "audio/select"
+ import "audio/engine"
++import "audio/moveSfx"
+ 
+ KantoAudio = {}
+ 
