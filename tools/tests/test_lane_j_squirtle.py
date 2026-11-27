@@ -1359,9 +1359,15 @@ class Player:
             elif phase == "command":
                 message = battle.get("message") or ""
                 lower = message.lower()
-                if any(phrase in lower for phrase in (
+                menu = battle.get("menu") or {}
+                # A residual line stays in battle.message after the script returns
+                # to the command menu. Pressing A then confirms whatever move is
+                # highlighted, including one Disable just removed. A real say is
+                # phase "script" and is dismissed there.
+                if (any(phrase in lower for phrase in (
                         "hurt by poison", "hurt by burn", "is asleep", "is paralyzed",
-                        "is confused", "is frozen")):
+                        "is confused", "is frozen"))
+                        and not menu.get("active") and not battle.get("inMoveSelect")):
                     self.press("a", wait=8)
                     continue
                 player_hp = (battle.get("player") or {}).get("hp") or 0
@@ -1376,6 +1382,11 @@ class Player:
                 active = ((battle.get("player") or {}).get("species") or "")
                 if active in ("pidgeot", "pidgeotto", "pidgey"):
                     ceiling = max(ceiling, 70)
+                elif active in ("wartortle", "blastoise", "squirtle"):
+                    ceiling = max(ceiling, 48)
+                elif active == "dugtrio":
+                    # Dig is two turns. Healing at 21 spends the second turn and the move never lands.
+                    ceiling = min(ceiling, 15)
                 menu = battle.get("menu") or {}
                 # Ability text, such as Intimidate, keeps command phase with the menu closed.
                 ready = bool(menu.get("active")) and not battle.get("inMoveSelect")
@@ -1409,8 +1420,15 @@ class Player:
                         enemy_types = ["water"]
                     species = ((battle.get("player") or {}).get("species") or "")
                     pp = ((battle.get("player") or {}).get("pp") or {})
+                    legal = set()
+                    for item in battle.get("legal_moves") or []:
+                        key = item.get("key") if isinstance(item, dict) else None
+                        if key:
+                            legal.add("".join(ch for ch in str(key).upper() if ch.isalpha()))
                     for name in options:
                         letters = "".join(ch for ch in str(name).upper() if ch.isalpha())
+                        if legal and letters and letters not in {"DASH"} and letters not in legal:
+                            rejected.add(name)
                         for key, left in pp.items():
                             if "".join(ch for ch in str(key).upper() if ch.isalpha()) == letters and left == 0:
                                 rejected.add(name)
