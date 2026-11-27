@@ -134,7 +134,7 @@ koFoe.hp = 1
 RulesRNG.seed(1)
 local koText = use(ko, "player", "hyperBeam")
 eq(koFoe.hp, 0, "hyper beam can KO: " .. koText)
-eq(ko.conditions:mustRecharge(koUser), false, "a KO skips recharge")
+eq(ko.conditions:mustRecharge(koUser), true, "a KO still recharges")
 
 local impact, impactUser, impactFoe = open("snorlax", "snorlax")
 own(impactUser, {"gigaImpact"})

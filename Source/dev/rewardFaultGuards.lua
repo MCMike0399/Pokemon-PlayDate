@@ -14,7 +14,7 @@ function RewardFaultGuards.run()
   e.hp=1;e.status="poison";for _,mon in ipairs({p,q,e,z})do assert(PokemonCodec.encode(mon))end
   local xp=p.xp;local before=RulesRNG.snapshot()
   battle:runScript(function()return battle:finishRound()end)
-  local n=0;while battle.message~=e.name.." fainted!"do n=n+1;assert(n<100,"missing faint announcement");assert(battle:phase()=="script");assert(battle.machine:get("script"):advance())end
+  local n=0;while battle.message~="Enemy "..e.name.."\nfainted!"do n=n+1;assert(n<100,"missing faint announcement");assert(battle:phase()=="script");assert(battle.machine:get("script"):advance())end
   assert(battle.conditions.members[e]==nil,"dead member conditions must clear BEFORE faint narration")
   assert(battle.conditions.members[p]and battle.conditions.members[p].trap==nil,"source-owned trap must clear BEFORE faint narration")
   assert(battle.effects.abilityOverrides[e]==nil,"ability override must clear BEFORE faint narration")
