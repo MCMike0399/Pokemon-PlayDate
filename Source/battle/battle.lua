@@ -1664,26 +1664,6 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
             return self:handleFaint()
         end
     else
-        -- Gen V Counter: twice the last physical HP loss this turn.
-        -- fidelity-ledger.md gives pokered moves the physical/special split,
-        -- so the type filter in pokered HandleCounterMove does not apply.
-        -- A special hit, a status move, and a miss leave counterDamage unset.
-        if self.currentMoveKey=="counter" then
-            local stored=self.conditions:of(attacker).counterDamage or 0
-            if stored<=0 then
-                self:say("But it failed!")
-                self.conditions:moveFinished(move,false)
-                return nil
-            end
-            DirectDamage(DEFENDER,stored*2):apply(self)
-            self.conditions:moveFinished(move,true)
-            if not self.defender:isAlive() then return self:handleFaint() end
-            if not self.attacker:isAlive() then
-                self:setDirection(self.attackerSide=="player" and "enemy" or "player")
-                return self:handleFaint()
-            end
-            return nil
-        end
         -- Status / fixed-damage move: effects carry the whole payload
         if self.currentMoveKey == "splash" then self:say("But nothing happened!") end
         local effectOutcome=self:applyMoveEffects(move)

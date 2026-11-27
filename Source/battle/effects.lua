@@ -592,11 +592,6 @@ function BattleEffects:hit(source,target,move,amount,hitNumber)
     local receipt={source=source,target=target,move=move,before=before,removed=before-target.hp,endured=endured,
         cause=cause,contact=move~=nil and move.contact==true,hit=hitNumber or 1}
     if move and move.category~="status" then self.battle.conditions:bideHit(target,source,receipt.removed) end
-    -- Gen V Counter stores the last physical body hit. A crit is already
-    -- inside removed. Substitute damage never reaches this receipt.
-    if move and move.category=="physical" and receipt.removed>0 and source~=target then
-        self.battle.conditions:of(target).counterDamage=receipt.removed
-    end
     -- Revenge observes only opposing move HP loss, not residuals, recoil or
     -- confusion. Receipts share the existing logical-round and identity owner.
     if self.round and move and move.category ~= "status" and receipt.removed > 0

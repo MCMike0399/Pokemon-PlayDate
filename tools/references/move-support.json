@@ -205,7 +205,7 @@
       "handler": "engine-dsl"
     },
     "counter": {
-      "handler": "engine-dsl"
+      "gap": "damageCallback, onTry"
     },
     "seismicToss": {
       "handler": "engine-dsl"

@@ -672,7 +672,6 @@ end
 function BattleConditions:endRound()
     for _,state in pairs(self.members) do
         state.protect=nil
-        state.counterDamage=nil
         if state.stall then
             state.stall.remaining=state.stall.remaining-1
             if state.stall.remaining==0 then state.stall=nil end
