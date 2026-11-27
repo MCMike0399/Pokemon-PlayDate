@@ -1,0 +1,95 @@
+# Lane E stack rehearsal
+
+Rehearsed on a detached worktree of main `247d60a9216307c0e1b15316f2b052ae10d23a6c`. The named scratch branch `cursor/lane-e-stack-rehearsal-3818` points at that commit and was not pushed. `source-capture-formula` was not applied. `MallocPoolSize` stayed `16645684`.
+
+Lane I's two handoffs are on `cursor/lane-i-device-perf` tip `dce824230112a22e4ead2087da9177df5616408f`. The south-door patch is `tools/notes/lane-e-e4-door-lock.patch` from `085d55657c074a7e93aa12a2e3b99f1582a58e51`. The secondary-message patch is filed as `tools/notes/lane-e-effect-message-order.patch`, not `lane-e-secondary-message-order.patch`, from `8443500c61cb1faaf8ddd0cbb29f5dde0de3172f`.
+
+Host discover on clean `247d60a9`: 1458 tests, 6 failed, 50 errors, 11 skipped, 422.8s. The same discover on the stacked tree: 1455 tests, 35 failed, 56 errors, 11 skipped, 114.1s. Simulator cases on the stack died in `pdc` (`No such file: audio/moveSfx`), so they never reached the lock. Shared errors on both trees (the `lua` binary name, `~/Developer/PlaydateSDK`, missing pokered paths) are not new. Per-patch reds below are the checks that flipped on a replay. The full discover was not repeated after every patch.
+
+## Apply order
+
+| # | Patch | Taken from | Apply | New host red |
+| --- | --- | --- | --- | --- |
+| 1 | lane-e-e4-door-lock | I `dce82423` / `085d5565` | clean | coverage matrix fingerprint |
+| 2 | lane-e-nil-player-reentry | H `d1ddaf20` | clean | none beyond the fingerprint |
+| 3 | lane-e-gift-menu-input | H `d1ddaf20` | clean | Cerulean projection pin |
+| 4 | lane-e-cave-encounter-memory | lane-k `576f8b70` | clean | none beyond the fingerprint |
+| 5 | lane-e-counter | I `dce82423` | clean | Vermilion journey pin, runtime SDK pin, Vermilion acquisition pin |
+| 6 | lane-e-razor-wind | lane-k | clean | `move_failure_phazing` loses the razorWind gap |
+| 7 | lane-e-mist | lane-k | clean | move inverse hash leaves `ad40fd9b`; early-combat unchanged-row pin |
+| 8 | lane-e-mimic | lane-k | clean | inverse hash moves again |
+| 9 | lane-e-minimize | lane-k | clean | inverse hash lands on `0e662bef` |
+| 10 | lane-e-metronome | lane-k | clean | metronome gap key removed |
+| 11 | lane-e-dream-eater | lane-k | clean | dreamEater gap key removed |
+| 12 | lane-e-sky-attack | lane-k | clean | none beyond the fingerprint |
+| 13 | lane-e-conversion | lane-k | clean | none beyond the fingerprint |
+| 14 | lane-e-effect-message-order | I `dce82423` / `8443500c` | clean | none beyond the fingerprint |
+| 15 | lane-e-viridian-sleepy-retrigger-heap | H `d1ddaf20` | clean | none beyond the fingerprint |
+| 16 | lane-e-party-status-type | H `d1ddaf20` | clean | none beyond the fingerprint |
+| 17 | lane-e-trainer-wants-to-fight | G `2ba9de33` | clean | none beyond the fingerprint |
+| 18 | lane-e-battle-back-pic | G `2ba9de33` | clean | player-back scale looks for `drawScaled(0, 0, scale)` in the back function |
+| 19 | lane-e-battle-slide-in | G `2ba9de33` | clean | none beyond the fingerprint |
+| 20 | lane-e-trainer-portrait-flat | G `2ba9de33` | clean | none beyond the fingerprint |
+| 21 | lane-e-pokemon-accent | G `2ba9de33` | clean | dialog-font probe expects `Which POKEMON` and gets `Which POKéMON` |
+| 22 | lane-e-continue-prompt | G `2ba9de33` | clean | none beyond the fingerprint |
+| 23 | lane-e-screen-font-grid | G `2ba9de33` | clean | none beyond the fingerprint |
+| 24 | lane-e-party-fidelity | G `2ba9de33` | clean | none beyond the fingerprint |
+| 25 | lane-e-status-fidelity | G `2ba9de33` | 3-way | none beyond the fingerprint |
+| 26 | lane-e-save-fidelity | G `2ba9de33` | clean | none beyond the fingerprint; cave forest goes red (below) |
+| 27 | lane-e-trainer-fidelity | G `2ba9de33` | clean | trainer-card test loses `GbFont.drawMoneyLine("¥"` |
+| 28 | lane-e-audio-badge-item | F `f3df914b` | 3-way | none in the host discover |
+| 29 | lane-e-audio-heal-count | F `f3df914b` | clean | calls `playSequence`, which main does not define |
+| 30 | lane-e-audio-pokedex-cry | F `f3df914b` | clean | none |
+| 31 | lane-e-audio-source-cries | F `f3df914b` | clean | none |
+| 32 | lane-e-audio-movesfx-import | F `f3df914b` | clean | `pdc` fails: `audio/moveSfx` is not on main. Every later simulator test dies there |
+| 33 | lane-e-audio-player-faint-cry | F `f3df914b` | 3-way | adapted; see below |
+
+The inverse-hash family that goes red at mist, and stays red, is bide, captivate, charge, earned B, protection, self-KO, roost, rain, poison fang, pre-Brock, side, worry seed, and the move-producer contract.
+
+## Three-way merges
+
+`lane-e-status-fidelity` failed at `Source/game/partyState.lua:261` because party-status-type and party-fidelity had already rewritten the stats block. `git apply --3way` left one conflict. The stats branch now calls `PartyState.typeLines(mon)` and then `self:drawStatus(mon)`. The info branch is `self:drawSummary(mon)`.
+
+`lane-e-audio-badge-item` failed at `Source/audio/events.lua:310`. The 3-way wanted to insert `ball_poof` and `ball_toss`, which are on F and not on main. The resolution keeps main's alphabetical cue list and changes only the badge cue to `score="item"`, token `SFX_GET_ITEM_1`. `tools/audio/events.py` applied cleanly.
+
+`lane-e-audio-player-faint-cry` failed at `Source/game/kantoAudio.lua:654`. The 3-way pulled F's faint sequencer (`moveScore`, `sfxFrames`, `pendingThud`, `playSequence`). Those functions are not on main. The resolution keeps main's hit/faint branch and plays `KantoAudio.playCry` immediately when the battle mon has a species. The move-row delay is not implemented. F's string checks pass on that adaptation. It is not the patch E should land raw.
+
+## Device heap
+
+`MallocPoolSize` is `16645684`.
+
+The unmodified stack does not compile. A measurement copy added an empty `Source/audio/moveSfx.lua` and `function playSequence() end` so the full-stack contracts could build. Prefixes before the audio patches did not use that stub.
+
+| Tree | cave-encounters | heap KiB |
+| --- | --- | --- |
+| through party-status-type (16) | 8 passed, 0 failed | 13067.0 |
+| through screen-font-grid (23) | 8 / 0 | 13069.5 |
+| plus party-fidelity | 8 / 0 | 13074.6 |
+| plus status-fidelity | 8 / 0 | 13083.2 |
+| plus save-fidelity | 7 / 1, forest `not enough memory` | 13112.3 |
+| plus trainer-fidelity | 7 / 1, same forest case | 13134.1 |
+| full stack plus the audio stub | 7 / 1, same forest case | 13147.4 |
+
+`individual-stats-v1` on the stubbed full stack: 17 passed, 0 failed, 13011.1 KiB. `field-travel`: 3 passed, 0 failed, 12874.6 KiB. The no-argument `contracts` command returned in 24.0s with `not enough memory` while scoring `battle-rewards-v1` (1 passed, 26 failed, heap 13876.2 KiB). It did not finish the catalog.
+
+`save-fidelity` is the first patch that puts the forest case back over the edge. The cave-encounter patch alone, on this same pool, was 8/0 at 13046.3 KiB.
+
+## Patch tests
+
+Passed against the stacked source: nil-player reentry, gift menu input, party status type, effect-message order, the eight move hosts, counter last-strike, the wild-win host, the six audio string checks (on the adapted faint and badge text), and `test_lane_d_endgame`. Viridian sleepy retrigger stayed inside 64 KiB (24s, stack through trainer-fidelity).
+
+`test_lane_e_e4_door_lock` fails on the patched tree. The patch does add `return "dont-run"` and the comment `south door stays shut after the win`, but the test slices the first `for _, room in ipairs(data.elite_four)` loop. Main has an earlier loop, so the assertion never sees the comment. I's own `endgameStory.lua` at `dce82423` does not contain that comment either; the comment lives in the patch.
+
+G's "apply this patch onto the live tree" checks fail once the patch is already applied. That includes trainer-wants, back-pic, slide-in, portrait, accent, continue-prompt, the screen-font reapply, and the fidelity sweep's stacked reapply. The screen-font test also asserts the live tree does not define `GbFont.FIT = 12`, which is false after the patch. The frame and source checks that do not re-apply passed.
+
+The cave-encounter test fails on the full stack (7/1). It passes through status-fidelity.
+
+`tools/tests/test_lane_e_wild_win_text.py` KOs a wild Caterpie with Ember and requires outcome `victory`, a faint, EXP, and no `You won the battle!` page. It passes on clean `247d60a9` and on the stack. Restoring that line fails it.
+
+## Batches
+
+Two batches.
+
+Batch 1 is patches 1 through 25 (door lock through status-fidelity), with the one partyState merge above. Cave-encounters stays 8/0 at 13083 KiB. E should expect the host pin reds in the table. They are hashed source bytes moving, not a device crash.
+
+Batch 2 is save-fidelity, trainer-fidelity, and F's six audio patches. Save-fidelity rebreaks the forest case at 13112 KiB, and trainer-fidelity adds more. The audio patches do not compile on main: heal-count calls `playSequence`, and movesfx-import names a module that is not in the tree. Land them with F's `Source/audio` and F's `kantoAudio.lua`, and only after the save screen stops holding the extra heap. Do not take the main-only 3-way of badge-item or faint-cry as the patch.
