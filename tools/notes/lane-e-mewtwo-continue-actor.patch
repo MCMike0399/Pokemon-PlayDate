@@ -1,0 +1,38 @@
+# A cave save after Mewtwo is rejected on Continue.
+# Title inspect validates world motion before loadHallContinue installs
+# the postgame chunk. LateKantoStory.actorMetadata then has no hide rule
+# for pokered:CERULEAN_CAVE_B1F:objects:1, so EVENT_BEAT_MEWTWO does not
+# hide him. WorldMotionData.normalize reports
+# domain/worldMotion.lua:139: missing visible source actor.
+# The newer slot is corrupt and Continue loads the older Hall fixture.
+# MallocPoolSize stays 16645684.
+
+diff --git a/Source/game/lateKantoStory.lua b/Source/game/lateKantoStory.lua
+index fe1af9ee..dd39c6ab 100644
+--- a/Source/game/lateKantoStory.lua
++++ b/Source/game/lateKantoStory.lua
+@@ -59,15 +59,21 @@ function LateKantoStory.caveEntry(flags)
+ end
+ 
+ function LateKantoStory.actorMetadata(id)
+-    -- A field install has not loaded the postgame chunk. Visibility is read
+-    -- only after a Hall continue or the ceremony has installed it.
+-    local rule <const> = LateKantoStory.scenes().cerulean_cave
++    -- A field install has not loaded the postgame chunk. Continue validates
++    -- the saved actor list before that chunk is installed, so Mewtwo's hide
++    -- rule has to live here. scripts/CeruleanCaveB1F.asm object 1 uses
++    -- EVENT_BEAT_MEWTWO. PostgameStory.visibility returns the same rule
++    -- once the ceremony or a Hall-team continue has loaded the chunk.
+     if PostgameStory and PostgameStory.visibility then
+         local extra <const> = PostgameStory.visibility(id)
+         if extra then
+             return extra
+         end
+     end
++    if id == "pokered:CERULEAN_CAVE_B1F:objects:1" then
++        return {visibility = {{group = "quest", id = "EVENT_BEAT_MEWTWO", equals = false}}}
++    end
++    local rule <const> = LateKantoStory.scenes().cerulean_cave
+     if id == rule.guard_id then
+         return {visibility = {{group = "quest", id = rule.hide, equals = false}}}
+     end

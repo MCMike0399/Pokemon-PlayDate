@@ -59,15 +59,21 @@ function LateKantoStory.caveEntry(flags)
 end
 
 function LateKantoStory.actorMetadata(id)
-    -- A field install has not loaded the postgame chunk. Visibility is read
-    -- only after a Hall continue or the ceremony has installed it.
-    local rule <const> = LateKantoStory.scenes().cerulean_cave
+    -- A field install has not loaded the postgame chunk. Continue validates
+    -- the saved actor list before that chunk is installed, so Mewtwo's hide
+    -- rule has to live here. scripts/CeruleanCaveB1F.asm object 1 uses
+    -- EVENT_BEAT_MEWTWO. PostgameStory.visibility returns the same rule
+    -- once the ceremony or a Hall-team continue has loaded the chunk.
     if PostgameStory and PostgameStory.visibility then
         local extra <const> = PostgameStory.visibility(id)
         if extra then
             return extra
         end
     end
+    if id == "pokered:CERULEAN_CAVE_B1F:objects:1" then
+        return {visibility = {{group = "quest", id = "EVENT_BEAT_MEWTWO", equals = false}}}
+    end
+    local rule <const> = LateKantoStory.scenes().cerulean_cave
     if id == rule.guard_id then
         return {visibility = {{group = "quest", id = rule.hide, equals = false}}}
     end
