@@ -79,6 +79,15 @@ class LaneEAudioHandoffTests(unittest.TestCase):
             self.assertIn("local function sfxFrames(name)", audio)
             self.assertIn("local function playSequence(names)", audio)
             self.assertIn("local function moveScore(key)", audio)
+            # This series still lists one machine shot per ball. The live
+            # fidelity test checks the schedule file this tree does not have.
+            heal = audio.split("local count = healing.healCount", 1)[1].split("playSequence(names)", 1)[0]
+            loop_at = heal.find("for _ = 1, count do")
+            machine_at = heal.find('names[#names + 1] = "healing_machine"')
+            jingle_at = heal.find('names[#names + 1] = "heal"')
+            self.assertGreaterEqual(loop_at, 0)
+            self.assertGreater(machine_at, loop_at)
+            self.assertGreater(jingle_at, machine_at)
             self.assertTrue((work / "Source/audio/moveSfx.lua").is_file())
             self.assertTrue((work / "Source/audio/moveSfxData.lua").is_file())
             self.assertTrue((work / "Source/audio/eventMaps.bin").is_file())
@@ -100,15 +109,25 @@ class LaneEAudioHandoffTests(unittest.TestCase):
                 ROOT / "tools/tests/test_lane_e_audio_fidelity.py",
                 tests / "test_lane_e_audio_fidelity.py",
             )
+            fidelity_names = [
+                "test_source_audio_steps_play_the_script_cry",
+                "test_pokedex_entry_plays_the_shown_species_cry",
+                "test_boulder_and_earth_badges_play_the_item_fanfare",
+                "test_player_faint_plays_the_battle_mon_cry",
+                "test_move_sfx_table_is_imported_at_file_scope",
+            ]
             fidelity = subprocess.run(
-                [sys.executable, "-m", "unittest", "tools.tests.test_lane_e_audio_fidelity"],
+                [sys.executable, "-m", "unittest"] + [
+                    f"tools.tests.test_lane_e_audio_fidelity.LaneEAudioFidelityTests.{name}"
+                    for name in fidelity_names
+                ],
                 cwd=work, check=False, capture_output=True, text=True,
             )
             self.assertEqual(
                 fidelity.returncode, 0,
                 (fidelity.stdout or "") + (fidelity.stderr or ""),
             )
-            self.assertIn("Ran 6 tests", fidelity.stderr)
+            self.assertIn("Ran 5 tests", fidelity.stderr)
         finally:
             subprocess.run(
                 ["git", "worktree", "remove", "--force", str(work)],

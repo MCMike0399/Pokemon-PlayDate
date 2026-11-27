@@ -1,0 +1,45 @@
+# Playdate import() is legal only while the pdx is loading. Opening the
+# party menu after seq1869 called import "game/gbFont" from
+# PartyState:drawPartyList and raised
+# game/partyState.lua:374: import() called outside of pdz loading.
+# loadStatusScreen and PauseState:drawTrainer do the same after load.
+# pauseState.lua already imports game/gbFont at file scope. Import it at
+# file scope from partyState.lua and delete the three runtime calls.
+
+diff --git a/Source/game/partyState.lua b/Source/game/partyState.lua
+index 908a5692..06881286 100644
+--- a/Source/game/partyState.lua
++++ b/Source/game/partyState.lua
+@@ -1,3 +1,4 @@
++import "game/gbFont"
+ local gfx <const> = playdate.graphics
+ Class("PartyState"):extends(State)
+ 
+@@ -371,7 +372,6 @@ local function partyHpBar(col, row, tiles, hp, maxHP)
+ end
+ 
+ function PartyState:drawPartyList(party)
+-    import "game/gbFont"
+     local count = math.min(party:count(), 6)
+     for i = 1, count do
+         local member = party:get(i)
+@@ -435,7 +435,6 @@ end
+ -- the 12x12 tiles.
+ function PartyState:loadStatusScreen()
+     if StatusScreen then return end
+-    import "game/gbFont"
+     if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+         playdate.file.run("game/statusScreen")
+     else
+diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
+index e366b502..00f42763 100644
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -95,7 +95,6 @@ end
+ -- and drop when it closes, so a boot that never opens it does not keep them.
+ function PauseState:drawTrainer()
+     if not TrainerScreen then
+-        import "game/gbFont"
+         if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+             playdate.file.run("game/trainerScreen")
+         else
