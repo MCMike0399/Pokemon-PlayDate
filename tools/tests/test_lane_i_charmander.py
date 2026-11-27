@@ -3608,12 +3608,16 @@ class CharmanderRun(BrockJourney):
             # Hyper Potion is not on the shelf. Status cures come last.
             for item, cap in (
                 ("revive", 2),
-                ("maxPotion", 2),
                 ("fullRestore", 1),
+                ("maxPotion", 2),
                 ("fullHeal", 4),
             ):
                 price = self._INDIGO_PRICES[item]
                 have = self.quantity(item)
+                slots = self.inventory().get("slots") or []
+                # A new stack needs a free pocket. The clerk refuses at 20.
+                if have <= 0 and len(slots) >= 20:
+                    continue
                 count = min(cap - have, self.inventory()["money"] // price)
                 if count > 0:
                     self.buy_item(self._INDIGO_CLERK, item, count, price)
@@ -5245,6 +5249,9 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:ROUTE_22:objects:2"), "rival-2")
         self.assertEqual(key_fight("source", "pokered:LORELEIS_ROOM:objects:1"), "elite-lorelei")
         self.assertEqual(key_fight("source", "pokered:CHAMPIONS_ROOM:objects:1"), "champion")
+        stock = source.split("def _stock_league_items", 1)[1].split("def _want_league_shop", 1)[0]
+        self.assertLess(stock.index('"fullRestore", 1'), stock.index('"maxPotion", 2'))
+        self.assertLess(stock.index("len(slots) >= 20"), stock.index("self.buy_item"))
         climb = source.split("def _climb_route23", 1)[1].split("def _pin_victory_trainers", 1)[0]
         self.assertIn("self._victory_road_2f()", climb)
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
