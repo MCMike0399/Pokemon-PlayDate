@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "996f09443538d88204b9baf339a64b9878129947",
-    "source_sha256": "7704b05a62f590bdbfca970fe9ac7d76c7b185c92fe70795ffa348869c33a629",
+    "commit": "063aed84f74cf1f0ed7187216d343a63a9d50b61",
+    "source_sha256": "73de9a82b58a91de52619056f4c19783073ecf0f6b3436052151c8e82426a339",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after batch 1 through party-fidelity, including the Mewtwo and taken-ball continue hides and the cave encounter release. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 77949fb59ea8ff493e315fd2bae40d275e4bddbe0d55c8ca6091f44ba9786505.",
+    "scope": "Source identity after the reward contracts expect Bubble at level 8, Ember at level 9, and a gained line break. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 7704b05a62f590bdbfca970fe9ac7d76c7b185c92fe70795ffa348869c33a629.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
