@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "a4ce5525634290506c404e53c38cb9c3287e3089",
-    "source_sha256": "11796742062910487bab28ffc156bc7afa8162ebdbae638f1836d80295450cff",
+    "commit": "c40fcf10c935a727744aa90fb3229f40125edf4e",
+    "source_sha256": "dd7f559c133b799dc43a15815d8e7d8a9218aa8eae3ffdb2e838eb1020520e60",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after LINK CABLE is the last Celadon 4F item at the stone price, and the pause menu can load and release the trainer card. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 d7789aed021693a3ab2c7adae9c4f4abccde09a0ca9399465e692dc773bdd71e.",
+    "scope": "Source identity after the mart list draws a 10px glyph per cell so the yen stays below the name, and the menu fit stays 12px. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 b0a610e17e1069017f46e0d9e6cee2314face42ee9cc4a316609f0cedd8c1227.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
