@@ -1,7 +1,7 @@
 -- Semantic projection of the pinned English source charset. No model writes.
 SourceText = {}
 
--- Existing # -> POKE policy deliberately preserves reviewed short dialogue.
+-- constants/charmap.asm:16 charmap "#", $54 ; "POKé". #MON is POKéMON.
 local expansions <const> = {
     ["<PKMN>"] = "PKMN", ["<……>"] = "……", ["<PC>"] = "PC",
     ["<TM>"] = "TM", ["<TRAINER>"] = "TRAINER", ["<ROCKET>"] = "ROCKET",
@@ -39,7 +39,7 @@ function SourceText.expand(text, values)
             assert(index == #text, "text after source terminator")
             break
         elseif char == "#" then
-            result[#result + 1] = "POKE"
+            result[#result + 1] = "POKé"
             index = index + 1
         else
             local nextIndex = utf8.offset(text, 2, index) or (#text + 1)

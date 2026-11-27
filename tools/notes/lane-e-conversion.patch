@@ -1,0 +1,74 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 219755eb..9e79cad6 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1544,6 +1582,7 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
+         elseif self.currentMoveKey=="odorSleuth" then self.conditions:odorSleuth()
+         elseif self.currentMoveKey=="transform" then self.conditions:transform()
+         elseif self.currentMoveKey=="taunt" then self.conditions:taunt()
++        elseif self.currentMoveKey=="conversion" then self.conditions:conversion()
+         else error("unsupported battle-condition move") end
+         return nil
+     end
+diff --git a/Source/battle/conditions.lua b/Source/battle/conditions.lua
+index 2b83a699..eff8dac2 100644
+--- a/Source/battle/conditions.lua
++++ b/Source/battle/conditions.lua
+@@ -439,6 +447,31 @@ function BattleConditions:camouflage()
+     battle:say(mon.name .. " transformed into the GROUND type!")
+     return true
+ end
++-- pokered ConversionEffect_ copies the target's types. fidelity-ledger.md
++-- Wide Guard row gives pokered moves Gen V rules: the user's type becomes
++-- the type of one of its own moves, and fails when every move already is
++-- that single type.
++function BattleConditions:conversion()
++    local b = self.battle
++    local mon = b.attacker
++    local first, second = self:types(mon)
++    local options = {}
++    for _, key in ipairs(self:movesOf(mon)) do
++        local move = moveData[key]
++        local kind = move and move.type
++        if kind and not (kind == first and second == nil) then
++            options[#options + 1] = kind
++        end
++    end
++    if #options == 0 then
++        b:say("But it failed!")
++        return false
++    end
++    local kind = options[RulesRNG.random(1, #options)]
++    self:of(mon).changedType = kind
++    b:say(mon.name .. " transformed into the " .. string.upper(kind) .. " type!")
++    return true
++end
+ function BattleConditions:roost()
+     local b=self.battle;local mon=b.attacker
+     if not self:activeSide(mon) or mon~=b[b.attackerSide] or not alive(mon) then return false,"invalid-roost-user" end
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index bd10b883..6a033240 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -152,7 +152,7 @@ MoveSupport.handlers.rest = "engine-dsl"
+ MoveSupport.handlers.rockSlide = "standard-damage"
+ MoveSupport.handlers.hyperFang = "standard-damage"
+ MoveSupport.handlers.sharpen = "dsl"
+-MoveSupport.gaps.conversion = "onHit"
++MoveSupport.handlers.conversion = "battle-condition"
+ MoveSupport.handlers.triAttack = "standard-damage"
+ MoveSupport.handlers.superFang = "engine-dsl"
+ MoveSupport.handlers.slash = "standard-damage"
+diff --git a/tools/references/move-support.json b/tools/references/move-support.json
+index 9efb566a..9bdbc2d3 100644
+--- a/tools/references/move-support.json
++++ b/tools/references/move-support.json
+@@ -466,7 +466,7 @@
+       "handler": "dsl"
+     },
+     "conversion": {
+-      "gap": "onHit"
++      "handler": "battle-condition"
+     },
+     "triAttack": {
+       "handler": "standard-damage"

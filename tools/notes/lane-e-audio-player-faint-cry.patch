@@ -1,0 +1,49 @@
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index 3d26769f..61e04c44 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -349,6 +349,8 @@ function KantoAudio.updateGame(game)
+             end
+             observer.battle = battle
+             observer.lowHP = nil
++            observer.pendingCry = nil
++            observer.pendingCryFrames = nil
+         end
+ 
+         if battle then
+@@ -394,8 +396,34 @@ function KantoAudio.updateGame(game)
+                 KantoAudio.playCue("caught")
+             end
+ 
++            if observer.pendingCryFrames then
++                observer.pendingCryFrames = observer.pendingCryFrames - 1
++                if observer.pendingCryFrames <= 0 then
++                    observer.pendingCryFrames = nil
++                    if observer.pendingCry then
++                        KantoAudio.playCry(observer.pendingCry)
++                    end
++                    observer.pendingCry = nil
++                end
++            end
+             if faint then
+-                KantoAudio.playSFX("faint")
++                -- FaintEnemyPokemon waits out the move row, then the thud.
++                -- The player's own faint is the cry after that row.
++                local species = battle.player and battle.player.species
++                local moveKey = battle.currentMoveKey
++                local moveCue = moveKey and moveScore(moveKey)
++                if battle.player and battle.player.hp ~= nil and battle.player.hp <= 0 and species then
++                    if moveCue then
++                        KantoAudio.playSFX(moveCue)
++                        observer.pendingCry = species
++                        observer.pendingCryFrames = sfxFrames(moveCue)
++                    else
++                        observer.pendingCry = species
++                        KantoAudio.playCry(observer.pendingCry)
++                    end
++                else
++                    KantoAudio.playSFX("faint")
++                end
+             elseif hit then
+                 KantoAudio.playSFX("hit")
+             end

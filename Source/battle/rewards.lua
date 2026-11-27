@@ -51,6 +51,14 @@ local function prepare(battle,foe)
     for _,mon in ipairs(roster)do assert(mon~=foe,"reward-foe-is-owned-member")end
     if battle.enemyParty then assert(battle.enemyParty:active()==foe,"stale-reward-foe-party")end
     local set=participants(battle,roster);local snapshots,alive={},0
+    -- pret/pokered af519899 engine/battle/core.asm IsItemInBag EXP_ALL.
+    -- Owning it halves the fighter award and gives the other half to every
+    -- party member, including not set[mon]. Using the item does nothing.
+    local expAll=false
+    if battle.session then
+        local ok,qty=pcall(function() return battle.session:inventory():quantity("expAll") end)
+        expAll=ok and type(qty)=="number" and qty>0
+    end
     for index,mon in ipairs(roster)do
         if battle.party then assert(Party._owner(mon)==battle.party,"stale-reward-member-owner")end
         snapshots[index]={mon=mon,record=record(mon),stats=stats(mon)}
@@ -62,16 +70,34 @@ local function prepare(battle,foe)
     local entries,holds={},{}
     for index,value in ipairs(snapshots)do
         local mon=value.mon
-        if set[mon]and mon:isAlive()then
-            local ev,delta,wasted=IndividualStats.addEffort(mon.evs,yield)
+        local fighter=set[mon] and mon:isAlive()
+        if fighter or expAll then
+            local ev,delta,wasted
+            if fighter then
+                ev,delta,wasted=IndividualStats.addEffort(mon.evs,yield)
+            else
+                ev=mon.evs
+                delta={hp=0,atk=0,def=0,spa=0,spd=0,spe=0}
+                wasted={hp=0,atk=0,def=0,spa=0,spd=0,spe=0}
+            end
             local candidateRecord=copy(value.record);candidateRecord.evs=ev
             local candidate=assert(PokemonCodec.decode(candidateRecord))
             -- Codec reconstructs canonical field stats. Actual no-level battle
             -- stats must remain the source snapshot until return/level gain.
             candidate.hp=value.stats.hp
             for _,key in ipairs(statFields)do candidate[key]=value.stats[key]end
-            local amount=mon:calcExpGain(foe,battle.trainerName~=nil,alive)
-            local leveled,result=candidate:gainXP(amount) -- actual production bounds/choices, detached only.
+            local trainer=battle.trainerName~=nil
+            local amount
+            if expAll then
+                -- Fighters take half of the participant award. Every party
+                -- member, including not set[mon], takes half of one share.
+                local fought=fighter and mon:calcExpGain(foe,trainer,math.max(alive,1))//2 or 0
+                local share=mon:calcExpGain(foe,trainer,#roster,true)//2
+                amount=fought+share
+            else
+                amount=mon:calcExpGain(foe,trainer,alive)
+            end
+            local leveled,result=candidate:gainXP(amount, not mon:isAlive()) -- detached only.
             record(candidate) -- No fallible candidate validation follows commit.
             local changed=false;for _,n in pairs(delta)do if n~=0 then changed=true end end
             local deferred=not leveled and (changed or owner.deferred[mon]~=nil)

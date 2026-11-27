@@ -58,7 +58,13 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
     if BootTrace then
         BootTrace.mark("map." .. name .. ".art.end")
     end
-    options.sliceBindings = SourceBindings.specs(name, definition, options.hasEvent)
+    -- A terrain fixture has no slice plan, so encounter policy stays unbound.
+    -- Binding the plan here would mark the zone slice-ready and activate grass.
+    if options.terrainFixture then
+        options.sliceBindings = nil
+    else
+        options.sliceBindings = SourceBindings.specs(name, definition, options.hasEvent)
+    end
     options.bindingAdapter = SourceBindings
     -- Terrain is immutable per tile key. Public accessors still return copies;
     -- cells keep private shared records instead of duplicating every flag.
@@ -81,13 +87,24 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
     return zone
 end
 
-function SourceMaps.isolated(name)
+function SourceMaps.isolated(name, overrides)
     local function forbidden() error("catalog source events cannot execute") end
     -- Catalog exporters may inspect visibility later; retain the historical
     -- all-false flag projection without reading live story/session predicates.
     local function absent() return false end
     local profiles = SourceMaps.legacyProfiles({ dispatch = forbidden, questFlag = absent, sourceFlag = absent })
-    return SourceMaps.createZone(name, profiles[SourceMaps.entry(name).profile], TileRegistry(), { isolatedCatalog = true })
+    -- A terrain fixture must use this packed runtime path. SourceMaps.padded
+    -- inflates the raw slice (+650 KiB for Mt. Moon) and fromMapDefinition
+    -- then deep-copies every cell, which has no contiguous hole left.
+    local options = { isolatedCatalog = true }
+    if type(overrides) == "table" then
+        for key, value in pairs(overrides) do
+            if key ~= "isolatedCatalog" and key ~= "registry" then
+                options[key] = value
+            end
+        end
+    end
+    return SourceMaps.createZone(name, profiles[SourceMaps.entry(name).profile], TileRegistry(), options)
 end
 
 function SourceMaps.createProvider(profiles, registry)

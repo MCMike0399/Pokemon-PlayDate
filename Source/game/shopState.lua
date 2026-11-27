@@ -78,6 +78,15 @@ function ShopState:price()
     local data=assert(ItemData.definitions[self.item])
     return self.trade=="buy" and data.price or data.sellPrice
 end
+function ShopState:shownPrice()
+    local row=self.phase=="browse" and self:rows()[self.selected] or nil
+    if row then
+        local data=ItemData.definitions[row.id]
+        return (self.trade=="buy" and data.price or data.sellPrice) or 0
+    end
+    if self.item then return self:price() end
+    return 0
+end
 function ShopState:showResult(ok,reason,total)
     self:hideMenu();self.phase="result"
     self.result={ok=ok,reason=reason,total=total or 0,
@@ -161,7 +170,7 @@ function ShopState:getSnapshot()
     local options={};for i,value in ipairs(self.menu.options) do options[i]=value end
     local row=self.phase=="browse" and self:rows()[self.selected] or nil
     return {phase=self.phase,selected=self.selected,item=(row and row.id or self.item) or "none",quantity=self.quantity,result=result,
-        menu={selected=self.menu.selectedIndex,active=self.menu.isActive,options=options}}
+        price=self:shownPrice(),menu={selected=self.menu.selectedIndex,active=self.menu.isActive,options=options}}
 end
 local function right(text,x,y) local w=gfx.getTextSize(text);gfx.drawText(text,x-w,y) end
 local function box(x,y,w,h)
