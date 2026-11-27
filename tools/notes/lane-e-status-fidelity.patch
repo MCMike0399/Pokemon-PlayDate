@@ -1,8 +1,24 @@
 diff --git a/Source/game/partyState.lua b/Source/game/partyState.lua
-index 4a951eee..80266157 100644
+index ddc342b1..908a5692 100644
 --- a/Source/game/partyState.lua
 +++ b/Source/game/partyState.lua
-@@ -290,24 +290,7 @@ function PartyState:_paintScreen(party)
+@@ -18,6 +18,7 @@ function PartyState:enter(options)
+ end
+ 
+ function PartyState:exit()
++    self:releaseStatusScreen()
+     self.active=false;self.visit=(self.visit or 0)+1;self.view=(self.view or 0)+1;self.session=nil
+     self.phase = "closed"
+     self.menu:hide()
+@@ -281,31 +282,17 @@ function PartyState.typeLines(mon)
+ end
+ 
+ function PartyState:_paintScreen(party)
++    if self.phase ~= "stats" and self.phase ~= "info" then
++        self:releaseStatusScreen()
++    end
+     gfx.clear(gfx.kColorWhite)
+     gfx.setColor(gfx.kColorBlack)
      local mon = party:get(self.selected)
      if self.phase == "stats" and mon then
 -        local lines = PartyState.typeLines(mon)
@@ -30,18 +46,74 @@ index 4a951eee..80266157 100644
 -        gfx.drawText("A: STATS  B: Back",12,222)
 +        self:drawSummary(mon)
      else
-@@ -329,2 +314,140 @@ end
+         self:drawPartyList(party)
+     end
+@@ -442,6 +429,38 @@ function PartyState:draw()
+     if x ~= 0 or y ~= 0 then gfx.setDrawOffset(x, y) end
+ end
  
++-- The status and summary pages live in a standalone pdz. playdate.file.run
++-- loads it while one of those pages is up. Leaving the page drops the glyph
++-- cache and the module, so a boot that never opens STATUS does not keep
++-- the 12x12 tiles.
++function PartyState:loadStatusScreen()
++    if StatusScreen then return end
++    import "game/gbFont"
++    if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
++        playdate.file.run("game/statusScreen")
++    else
++        dofile("Source/game/statusScreen.lua")
++    end
++end
 +
-+-- status_screen.asm StatusScreen and StatusScreen2. The name is
-+-- hlcoord 9, 1. StatsText is ATTACK / DEFENSE / SPEED / SPECIAL, two
-+-- rows apart, inside the box at hlcoord 0, 8. SPECIAL is that one
-+-- line; the figure is the special attack. StatusScreen2 prints the
-+-- moves at hlcoord 2, 9 and PP one row below each move.
-+-- Text uses the same uniform 12/8 scale as the party list.
++function PartyState:drawStatus(mon)
++    self:loadStatusScreen()
++    StatusScreen.drawStatus(self, mon)
++end
++
++function PartyState:drawSummary(mon)
++    self:loadStatusScreen()
++    StatusScreen.drawSummary(self, mon)
++end
++
++function PartyState:releaseStatusScreen()
++    if StatusScreen == nil then return end
++    if StatusScreen.release then StatusScreen.release() end
++    StatusScreen = nil
++    collectgarbage("collect")
++    collectgarbage("collect")
++end
++
+ function PartyState:resume()
+     self.crank:reset()
+     self.menu.crank:reset()
+diff --git a/Source/game/statusScreen.lua b/Source/game/statusScreen.lua
+new file mode 100644
+index 00000000..cc0369a8
+--- /dev/null
++++ b/Source/game/statusScreen.lua
+@@ -0,0 +1,150 @@
++-- Standalone pdz. PartyState loads it with playdate.file.run("game/statusScreen")
++-- while STATS or SUMMARY is open and nils StatusScreen when that page closes.
++-- It is not imported, so a boot that never opens those pages does not keep
++-- this rasterizer or its glyph images.
++--
++-- status_screen.asm StatusScreen and StatusScreen2. The name is hlcoord 9, 1.
++-- StatsText is ATTACK / DEFENSE / SPEED / SPECIAL, two rows apart, inside
++-- the box at hlcoord 0, 8. SPECIAL is that one line; the figure is the
++-- special attack. StatusScreen2 prints the moves at hlcoord 2, 9 and PP
++-- one row below each move. Text is the uniform 12/8 scale. One 12x12 image
++-- is cached per glyph and dropped in StatusScreen.release.
++StatusScreen = {}
++local gfx = playdate and playdate.graphics
 +local STATUS_FIT <const> = 12
++local glyphs = {}
++local front
 +
 +local function statusFitTile(sheetName, index)
++    local key = sheetName .. ":" .. index
++    local cached = glyphs[key]
++    if cached then return cached end
 +    local sheet = GbFont.load()[sheetName]
 +    local columns = sheetName == "ed" and 1 or 16
 +    local sx = (index % columns) * 8
@@ -60,6 +132,7 @@ index 4a951eee..80266157 100644
 +        end
 +    end
 +    gfx.popContext()
++    glyphs[key] = image
 +    return image
 +end
 +
@@ -67,11 +140,6 @@ index 4a951eee..80266157 100644
 +    local ox = math.floor((TitleIdle.COL - STATUS_FIT) / 2)
 +    local oy = TitleIdle.ROW - STATUS_FIT
 +    statusFitTile(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
-+end
-+
-+local function statusFitChar(char, col, row)
-+    local sheetName, index = TitleIdle.glyph(char)
-+    statusFitAt(sheetName, index, col, row)
 +end
 +
 +local function statusFitString(text, col, row)
@@ -91,7 +159,10 @@ index 4a951eee..80266157 100644
 +end
 +
 +local function statusFront(mon)
-+    local pic = gfx.image.new("images/pokemon/" .. mon.species .. "-front")
++    if not front or front.species ~= mon.species then
++        front = {species = mon.species, pic = gfx.image.new("images/pokemon/" .. mon.species .. "-front")}
++    end
++    local pic = front.pic
 +    if not pic then return end
 +    local _, height = pic:getSize()
 +    if height > 0 then pic:drawScaled(TitleIdle.COL, 0, (6 * TitleIdle.ROW) / height) end
@@ -114,8 +185,7 @@ index 4a951eee..80266157 100644
 +    for i = 1, across do GbFont.drawChar("─", col - i, row + down) end
 +end
 +
-+function PartyState:drawStatus(mon)
-+    import "game/gbFont"
++function StatusScreen.drawStatus(state, mon)
 +    statusFront(mon)
 +    statusLineBox(19, 1, 6, 10)
 +    statusFitString(mon.name, 9, 1)
@@ -132,7 +202,7 @@ index 4a951eee..80266157 100644
 +    statusFitString("OT/", 10, 15)
 +    statusFitString(string.upper(mon.type or ""), 11, 10)
 +    if mon.type2 then statusFitString(string.upper(mon.type2), 11, 12) end
-+    statusFitString(Story.playerName(self.game), 12, 16)
++    statusFitString(Story.playerName(state.game), 12, 16)
 +    GbFont.drawBox(TitleIdle.textBox(0, 8, 8, 8))
 +    local stats = {
 +        {"ATTACK", mon.atk}, {"DEFENSE", mon.def},
@@ -145,8 +215,7 @@ index 4a951eee..80266157 100644
 +    end
 +end
 +
-+function PartyState:drawSummary(mon)
-+    import "game/gbFont"
++function StatusScreen.drawSummary(state, mon)
 +    statusFront(mon)
 +    statusLineBox(19, 1, 6, 10)
 +    statusFitString(mon.name, 9, 1)
@@ -170,4 +239,7 @@ index 4a951eee..80266157 100644
 +    end
 +end
 +
- function PartyState:resume()
++function StatusScreen.release()
++    for key in pairs(glyphs) do glyphs[key] = nil end
++    front = nil
++end

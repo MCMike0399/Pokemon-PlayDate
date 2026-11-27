@@ -1,8 +1,18 @@
 diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
-index 340349c3..f93b56f6 100644
+index 340349c3..b1d6dbfd 100644
 --- a/Source/game/pauseState.lua
 +++ b/Source/game/pauseState.lua
-@@ -81,21 +81,4 @@ function PauseState:draw()
+@@ -61,6 +61,9 @@ function PauseState:handleInput()
+ end
+ 
+ function PauseState:draw()
++    if self.phase == "menu" or self.phase == "save" then
++        self:releaseTrainerScreen()
++    end
+     local x, y = gfx.getDrawOffset()
+     gfx.setDrawOffset(0, 0)
+     if self.phase == "menu" then
+@@ -81,24 +84,7 @@ function PauseState:draw()
          else
 -            -- start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
 -            -- DrawBadges is tile art this screen does not have, so the
@@ -26,9 +36,49 @@ index 340349c3..f93b56f6 100644
 +            gfx.clear(gfx.kColorWhite)
 +            self:drawTrainer()
          end
-@@ -105,2 +88,219 @@ end
+     end
+     gfx.setDrawOffset(x, y)
+ end
  
 +
++
++-- The trainer card is a standalone pdz. The badge tiles load with the card
++-- and drop when it closes, so a boot that never opens it does not keep them.
++function PauseState:drawTrainer()
++    if not TrainerScreen then
++        import "game/gbFont"
++        if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
++            playdate.file.run("game/trainerScreen")
++        else
++            dofile("Source/game/trainerScreen.lua")
++        end
++    end
++    TrainerScreen.draw(self)
++end
++
++function PauseState:releaseTrainerScreen()
++    if TrainerScreen == nil then return end
++    if TrainerScreen.release then TrainerScreen.release() end
++    TrainerScreen = nil
++    collectgarbage("collect")
++    collectgarbage("collect")
++end
++
+ function PauseState:resume()
+     self.menu.crank:reset()
+ end
+diff --git a/Source/game/trainerScreen.lua b/Source/game/trainerScreen.lua
+new file mode 100644
+index 00000000..9011009b
+--- /dev/null
++++ b/Source/game/trainerScreen.lua
+@@ -0,0 +1,225 @@
++-- Standalone pdz. PauseState loads it with playdate.file.run("game/trainerScreen")
++-- while the trainer card is open and nils TrainerScreen when that card closes.
++-- The badge tiles stay out of a boot that never opens the card.
++--
++TrainerScreen = {}
++local gfx = playdate and playdate.graphics
 +-- engine/menus/start_sub_menus.asm DrawTrainerInfo. The top box is 20 by 8
 +-- tiles from hlcoord 0, 0. NAME/ MONEY/ TIME/ is PlaceString at hlcoord 2, 2.
 +-- BADGES is TrainerInfo_BadgesText at hlcoord 6, 9, with circle tile $76
@@ -208,8 +258,8 @@ index 340349c3..f93b56f6 100644
 +    return image
 +end
 +
-+function PauseState:drawTrainer()
-+    local session = self.game.session
++function TrainerScreen.draw(state)
++    local session = state.game.session
 +    local clock = session:playTime()
 +    local earned = {}
 +    for index, id in ipairs(TitleIdle.BADGE_FLAGS) do
@@ -222,7 +272,7 @@ index 340349c3..f93b56f6 100644
 +        GbFont.drawChar("│", 19, row)
 +    end
 +    trainerFitString("NAME/", 2, 2)
-+    trainerFitString(Story.playerName(self.game), 7, 2)
++    trainerFitString(Story.playerName(state.game), 7, 2)
 +    trainerFitString("MONEY/", 2, 4)
 +    trainerFitString("¥" .. session:inventory():money(), 8, 4)
 +    trainerFitString("TIME/", 2, 6)
@@ -245,19 +295,23 @@ index 340349c3..f93b56f6 100644
 +    end
 +end
 +
- function PauseState:resume()
++
++function TrainerScreen.release()
++end
 diff --git a/tools/tests/test_lane_e_fidelity.py b/tools/tests/test_lane_e_fidelity.py
+index cf9f5cd4..36622c92 100644
 --- a/tools/tests/test_lane_e_fidelity.py
 +++ b/tools/tests/test_lane_e_fidelity.py
-@@ -84,10 +84,13 @@
+@@ -84,10 +84,13 @@ class FidelityGapTests(unittest.TestCase):
          self.assertIn("talk_only = (row.sight or 0) == 0", row)
  
      def test_trainer_card_and_payday_use_yen(self):
 -        # start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
+-        card = (ROOT / "Source/game/pauseState.lua").read_text()
 +        # engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
 +        # is NAME/ then MONEY/ then TIME/. PrintBCDNumber at hlcoord 8, 4
 +        # uses MONEY_SIGN, the charmap yen ($f0).
-         card = (ROOT / "Source/game/pauseState.lua").read_text()
++        card = (ROOT / "Source/game/trainerScreen.lua").read_text()
          self.assertNotIn("MONEY/$", card)
 -        self.assertIn('GbFont.drawMoneyLine("¥"', card)
 +        self.assertIn('trainerFitString("MONEY/", 2, 4)', card)
