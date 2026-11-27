@@ -10,6 +10,8 @@ local function cell(water)
     }
 end
 
+local releaseRetainedCityResidue
+
 local function runtimeScene(fn)
     -- Boot leaves the pool too fragmented for the first city inflate.
     collectgarbage("collect")
@@ -49,6 +51,10 @@ local function runtimeScene(fn)
                 g.machine:register("party", PartyState(g))
                 g.machine:register("fieldTravel", FieldTravelState(g))
                 g.machine:register("safariPassage", SafariPassageState(g))
+                -- The previous scene disposed its Zones and left the retained
+                -- runtime definitions, recent chunks and map bed. The next
+                -- city does not fit beside them.
+                releaseRetainedCityResidue()
                 fn(g, mon, provider)
             end)
         end)
@@ -63,7 +69,9 @@ local function runtimeScene(fn)
         g.player.grassOverlay:remove()
         g.player.exitArrow:remove()
     end
+    if releaseOverworldView then releaseOverworldView() end
     provider:disposeCache()
+    releaseRetainedCityResidue()
     zoneRegistry, zoneList, currentZone = oldRegistry, oldList, oldZone
     Story.bind(oldStory)
     WorldDeltas.apply(oldWorld)
@@ -112,6 +120,40 @@ local function bank(zone)
         end
     end
     error("source Fuchsia bank witness missing")
+end
+
+-- A contract scope disposes its Zones and still leaves decoded map bodies,
+-- recent event chunks and the map bed. sourceMapContracts already drops the
+-- retained definitions. This suite has to do the same before the next city.
+function releaseRetainedCityResidue()
+    if SourceMaps and SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
+    if SourceMaps and SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+    if SourceEvents and SourceEvents.releaseRecentContent then SourceEvents.releaseRecentContent() end
+    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
+    collectgarbage("collect")
+    collectgarbage("collect")
+end
+
+-- switchZone releases the departing city before the next decode, and it is
+-- bound to the global game. This scene owns a private context, so the same
+-- steps run against that context. The session already recorded the visit.
+local function releaseDepartedCity(g)
+    local world = g.machine:get("overworld")
+    if world then
+        world.releasedZoneID = world.builtZone and world.builtZone.stableID or nil
+        world.builtZone = nil
+        world.builtView = nil
+        world.presentationVisit = nil
+        world.savedPos = nil
+    end
+    if releaseOverworldView then releaseOverworldView() end
+    if g.player and g.player.remove then g.player:remove() end
+    g.player = nil
+    if g.npcManager and g.npcManager.clear then g.npcManager:clear() end
+    gfx.sprite.removeAll()
+    currentZone = nil
+    if WorldDeltas.disposeImportedCache then WorldDeltas.disposeImportedCache() end
+    releaseRetainedCityResidue()
 end
 
 local function safariBank(fn)
@@ -348,6 +390,10 @@ function FieldTravelContracts.run()
         runtimeScene(function(g, _, provider)
             currentZone = provider:ensure(SourceMaps.entry("CeruleanCity").key)
             g.machine:change("overworld", {entry = {x = 19, y = 18, facing = "down"}})
+            -- Pewter's definition does not fit beside a live Cerulean. The
+            -- visit is already in the session. Drop the city before the next
+            -- decode, which is what switchZone does on a real departure.
+            releaseDepartedCity(g)
             currentZone = provider:ensure(SourceMaps.entry("PewterCity").key)
             g.machine:change("overworld", {entry = {x = 13, y = 26, facing = "down"}})
             local expected = {epoch = g.session:fieldWorldEpoch(), position = FieldTravelRuntime.position(g),
