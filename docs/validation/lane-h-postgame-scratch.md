@@ -245,3 +245,34 @@ The follow-up command was `zone kanto_cerulean_cave_1f 20 10 down`. That cell is
 `scripts/CeruleanCaveB1F.asm` lines 10–14 point `END_BATTLE` at `EndTrainerBattle`. The header on lines 23–26 is `trainer EVENT_BEAT_MEWTWO, 0`. `home/trainers.asm` `EndTrainerBattle` skips the flag only when `wIsInBattle` is `LOST_BATTLE`. `engine/battle/core.asm` `.canEscape` stores `wBattleResult` 2 and returns to `EndOfBattle`, which clears `wIsInBattle`. Only `.allPokemonFainted` writes `LOST_BATTLE`. A catch, a KO, and a run set the flag and hide the object. A blackout leaves him, flag false. A second prepare after a hide is `already-complete`, so he does not respawn. `story.json` `hide_on` is victory, caught, run and `stay_on` is defeat. `tools/tests/test_lane_e_mewtwo_outcomes.py` (2 tests) pins that path. It passes on the current tree, so there is no outcome patch. Grouping a run with a blackout does not match `EndTrainerBattle`.
 
 `engine/menus/status_screen.asm` is absent. `engine/pokemon/status_screen.asm` `StatusScreen` places `TypesIDNoOTText` (`TYPE1/` then `TYPE2/`) at hlcoord 10, 9 and `PrintMonType` at hlcoord 11, 10. Equal type bytes skip the second name. The party stats page draws the stats and the four moves and has no `TYPE1/`. The Hall card already prints it. The handoff is `tools/notes/lane-e-party-status-type.patch` with `tools/tests/test_lane_e_party_status_type.py` (1 test). Mewtwo's `type` `psychic` draws `TYPE1/ PSYCHIC` and a bare `TYPE2/`. It is not applied.
+
+## Acceptance on 247d60a9
+
+Scratch `/tmp/postgame-accept-out`, not committed. The four handoffs were applied only in that simulator: `lane-e-gift-menu-input`, `lane-e-viridian-sleepy-retrigger-heap`, `lane-e-nil-player-reentry`, and `lane-e-party-status-type`. `Source/` in the tree is `origin/main` `247d60a9`. `MallocPoolSize` stayed `16645684`. No inflate line and no out-of-memory line. Buttons chose the gifts, taught TM45, bought at the Fuchsia Mart, caught Mewtwo, and saved. Map changes used the private `zone` command.
+
+The gift menu is `MEW` then `LINK CABLE`. A on MEW adds Mew at level 5, 25/25, Pound, and sets `EVENT_GOT_MEW`. Down, then A, adds one `linkCable`. The bag still had the 20 Poké Balls. Root returned to the overworld both times.
+
+The same Hall fixture then picked up TM45, the cave Full Restore, and the Nugget. A level 46 Hypno was caught on the third Poké Ball. Thunder Wave replaced Hypno's fourth move. The Fuchsia clerk sold the Nugget and the leftover Poké Balls and sold 4 Super Potions and 5 Ultra Balls (¥900 left). The cave pickups raised Ultra Balls from 5 to 7. A at B1F (26, 13) facing right started Mewtwo, level 70, 229 HP. Thunder Wave paralyzed him. Surf landed once. Recover restored him to 229. The sixth Ultra Ball, still 229/229 paralyzed, caught. `modifiedRate4096` was 12288 and `shakeThreshold` was 21583 on every throw. That matches the Gen V hybrid already pinned. `EVENT_BEAT_MEWTWO` became true. The party on the overworld was Blastoise 23/177, Mew 25/25, Hypno fainted with Thunder Wave, and Mewtwo 229/229 paralyzed, Swift / Psychic / Barrier / Recover.
+
+SAVE was the fifth start-menu row. YES wrote `adventure.b.json`, sequence 2, 6573 bytes. The published payload has that party, one `linkCable`, location `pokered:CERULEAN_CAVE_B1F` (26, 13) right, `EVENT_GOT_MEW` true, `EVENT_BEAT_MEWTWO` true, and the Hall record version 1, Blastoise level 65. Slot A is still the original Hall fixture, sequence 1.
+
+Quit and Continue loaded slot A. The player is in Pallet (5, 6) down with only Blastoise. `EVENT_GOT_MEW` and `EVENT_BEAT_MEWTWO` are false. The Hall record is the fixture's Blastoise team, which slot A already had. Title inspect marks slot B corrupt before `loadHallContinue` installs the postgame chunk:
+
+`domain/worldMotion.lua:139: missing visible source actor`
+
+The saved actor list keeps the visible Max Revive, `pokered:CERULEAN_CAVE_B1F:objects:3`, and omits object 1 because the flag is set. `LateKantoStory.actorMetadata` only reads `PostgameStory.visibility` after that chunk is loaded, so the boot validation still treats Mewtwo as visible. The handoff is `tools/notes/lane-e-mewtwo-continue-actor.patch` with `tools/tests/test_lane_e_mewtwo_continue_actor.py` (1 test). It fails on this tree and passes after `git apply`. The four earlier patches still apply on `247d60a9`. None of them is in `Source/`.
+
+| point | heap KiB | observed peak KiB |
+| --- | ---: | ---: |
+| ready | 12739.8 | |
+| Continue, Pallet (5, 6) down | 13171.3 | 13718.0 |
+| cave 1F (24, 16), before the gift | 13230.4 | 13718.0 |
+| MEW chosen, overworld | 13325.8 | 13718.0 |
+| LINK CABLE chosen, overworld | 13340.8 | 13718.0 |
+| after the Hypno catch | 13841.4 | 13860.8 |
+| Thunder Wave taught | 13756.8 | 13901.8 |
+| Fuchsia Mart, after the sale | 13641.1 | 13901.8 |
+| beside Mewtwo | 13799.9 | 13901.8 |
+| overworld after the catch | 13904.8 | 13999.5 |
+| saved, overworld, B1F (26, 13) | 13770.9 | 13999.5 |
+| Continue of the rejected slot | 13173.5 | 13693.1 |
