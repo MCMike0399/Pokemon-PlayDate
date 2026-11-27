@@ -25,7 +25,11 @@ class E4DoorLockTests(unittest.TestCase):
             "function EndgameStory.besideTrainer", 1)[0]
         beaten = action.split("if flags[room.flag] then", 1)[1].split("end", 1)[0]
         self.assertIn('return "dont-run"', beaten)
-        loop = source.split("for _, room in ipairs(data.elite_four) do", 1)[1].split(
+        # exclamation() is the first elite_four loop. It returns false for a
+        # room id and never dispatches the door. The dont-run return is the
+        # later loop in EndgameStory.check.
+        check = source.split("function EndgameStory.check(game)", 1)[1]
+        loop = check.split("for _, room in ipairs(data.elite_four) do", 1)[1].split(
             "return false", 1)[0]
         self.assertIn("south door stays shut after the win", loop)
         self.assertNotIn("elseif not game.session:questFlag(room.flag) then", loop)
