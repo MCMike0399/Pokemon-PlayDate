@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "12891fdee6680f0bc653bad23c96df3a38f31818",
-    "source_sha256": "77949fb59ea8ff493e315fd2bae40d275e4bddbe0d55c8ca6091f44ba9786505",
+    "commit": "53b435505d7738b58a0e411216fe0ff173897415",
+    "source_sha256": "dbcee350193f3e4b30706b0892ba2bb0d08b565904859f902e61b09992cc3007",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after field-move and grass-cut scenes release the retained definition, decoded grids, and the map bed before Route 2 or Route 6, and a large save read drops the retained definition before it inflates. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 ddd7d5c51490bdb46555e6c84436caeddab2528c21a250c3bd57385b49530445.",
+    "scope": "Source identity after the cave gift menu takes input, a beaten Elite Four room keeps its south door shut, and Counter returns twice the last physical strike. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 77949fb59ea8ff493e315fd2bae40d275e4bddbe0d55c8ca6091f44ba9786505.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
