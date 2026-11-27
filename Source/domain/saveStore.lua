@@ -176,6 +176,9 @@ function SaveStore.sdkFilesystem()
                 if SourceMaps and SourceMaps._releaseTileGrids then
                     SourceMaps._releaseTileGrids()
                 end
+                if SourceMaps and SourceMaps.releaseRetainedRuntime then
+                    SourceMaps.releaseRetainedRuntime()
+                end
                 collectgarbage("collect")
             end
             local file,err=sdkFile.open(path,sdkFile.kFileRead)

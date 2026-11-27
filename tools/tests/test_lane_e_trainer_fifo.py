@@ -23,7 +23,7 @@ class TrainerFifoTests(unittest.TestCase):
         self.assertIn("return PokeredLearnsets.trainerMoves(species, level, class, index, starter)", trainer)
         events = (ROOT / "Source/game/trainerEvents.lua").read_text(encoding="utf-8")
         self.assertIn(
-            "Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.starter)",
+            "Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.rivalStarter)",
             events)
         self.assertIn("created:usePartyMoves(scripted)", events)
         completed = subprocess.run(

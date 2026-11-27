@@ -303,8 +303,12 @@ function SelfKOMoveContracts.run()
             eq(b.player.hp, 0)
             eq(b.enemy.hp, 0)
             eq(b.outcome, side == "player" and "defeat" or "victory")
-            local userAt = assert(text:find(user.name .. " fainted!", 1, true))
-            local targetAt = assert(text:find(target.name .. " fainted!", 1, true))
+            local function faintLine(mon)
+                if mon == b.enemy then return "Enemy " .. mon.name .. "\nfainted!" end
+                return mon.name .. " fainted!"
+            end
+            local userAt = assert(text:find(faintLine(user), 1, true))
+            local targetAt = assert(text:find(faintLine(target), 1, true))
             assert(userAt < targetAt)
             eq(b.player.xp, xp)
             eq(b.faintAnnounced.player, true)
