@@ -4900,6 +4900,23 @@ class CharmanderRun(BrockJourney):
         })
         return True
 
+    def _spare_revive(self, battle):
+        """A battle may spend a spare Revive. The last one stays for the next door.
+
+        When nobody else is conscious, that last Revive is the only way to
+        keep the fight going, so it is spent.
+        """
+        if self.quantity("maxRevive"):
+            return "maxRevive"
+        have = self.quantity("revive")
+        if have > 1:
+            return "revive"
+        if have == 1:
+            party, _active = self._battle_members(battle)
+            if not any(mon["hp"] > 0 for mon in party):
+                return "revive"
+        return None
+
     def _revive_lance_bench(self, battle, options):
         """Spend a Revive on Lapras when Charizard cannot safely stay in."""
         enemy = ((battle.get("enemy") or {}).get("species") or "").lower()
@@ -4911,7 +4928,7 @@ class CharmanderRun(BrockJourney):
         bench = {"lapras", "pidgeotto", "pidgeot", "weepinbell"}
         if any(mon["species"] in bench and mon["hp"] > 0 and self._clear_status(mon) for mon in party):
             return False
-        item = "revive" if self.quantity("revive") > 1 else "maxRevive" if self.quantity("maxRevive") else None
+        item = self._spare_revive(battle)
         if item is None:
             return False
         for species in ("lapras", "pidgeot", "pidgeotto", "weepinbell"):
@@ -4943,7 +4960,7 @@ class CharmanderRun(BrockJourney):
         for index, mon in enumerate(self.party(), 1):
             if mon["species"] != "charizard" or mon["hp"] > 0:
                 continue
-            item = "revive" if self.quantity("revive") > 1 else "maxRevive" if self.quantity("maxRevive") else None
+            item = self._spare_revive(battle)
             if item is None:
                 return False
             self.battle_medicine(item, options, target=index)
@@ -5252,7 +5269,7 @@ class CharmanderTitleTests(unittest.TestCase):
         stock = source.split("def _stock_league_items", 1)[1].split("def _want_league_shop", 1)[0]
         self.assertLess(stock.index('"fullRestore", 1'), stock.index('"maxPotion", 2'))
         self.assertLess(stock.index("len(slots) >= 20"), stock.index("self.buy_item"))
-        self.assertIn('self.quantity("revive") > 1', source)
+        self.assertIn("def _spare_revive", source)
         climb = source.split("def _climb_route23", 1)[1].split("def _pin_victory_trainers", 1)[0]
         self.assertIn("self._victory_road_2f()", climb)
         route6 = json.loads((REPO / "Source" / "dev" / "vermilionJourney.json").read_text())
