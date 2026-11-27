@@ -1,3 +1,4 @@
+import "game/gbFont"
 local gfx <const> = playdate.graphics
 Class("PartyState"):extends(State)
 
@@ -371,7 +372,6 @@ local function partyHpBar(col, row, tiles, hp, maxHP)
 end
 
 function PartyState:drawPartyList(party)
-    import "game/gbFont"
     local count = math.min(party:count(), 6)
     for i = 1, count do
         local member = party:get(i)
@@ -435,7 +435,6 @@ end
 -- the 12x12 tiles.
 function PartyState:loadStatusScreen()
     if StatusScreen then return end
-    import "game/gbFont"
     if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
         playdate.file.run("game/statusScreen")
     else

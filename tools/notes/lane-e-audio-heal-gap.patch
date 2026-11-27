@@ -1,0 +1,73 @@
+diff --git a/Source/audio/healSchedule.lua b/Source/audio/healSchedule.lua
+new file mode 100644
+index 0000000..103c806
+--- /dev/null
++++ b/Source/audio/healSchedule.lua
+@@ -0,0 +1,32 @@
++-- AnimateHealingMachine in engine/overworld/healing_machine.asm.
++-- One SFX_HEALING_MACHINE per party Poké Ball, then DelayFrames(30),
++-- then MUSIC_PKMN_HEALED. FlashSprite8Times (8 times DelayFrames(10))
++-- overlaps that jingle. The routine returns after the jingle ends and
++-- DelayFrames(32). 30 Game Boy frames are 15 Playdate frames.
++KantoHeal = {}
++KantoHeal.ballFrames = 15
++KantoHeal.jingleTicks = 136
++KantoHeal.tailFrames = 32
++KantoHeal.tickSeconds = 70224 / 4194304
++
++function KantoHeal.gbFrames(frames)
++    return math.max(1, math.ceil(frames * KantoHeal.tickSeconds * 30))
++end
++
++function KantoHeal.plan(count)
++    if type(count) ~= "number" or count < 1 then
++        count = 1
++    end
++    if count > 6 then
++        count = 6
++    end
++    local events = {}
++    local at = 0
++    for _ = 1, count do
++        events[#events + 1] = {name = "healing_machine", at = at}
++        at = at + KantoHeal.ballFrames
++    end
++    events[#events + 1] = {name = "heal", at = at}
++    local total = at + KantoHeal.gbFrames(KantoHeal.jingleTicks) + KantoHeal.gbFrames(KantoHeal.tailFrames)
++    return events, total
++end
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index e513104..b739802 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -440,19 +440,20 @@ function KantoAudio.updateGame(game)
+             end
+         end
+         if healing and observer.healing ~= healing then
+-            -- AnimateHealingMachine plays SFX_HEALING_MACHINE once per party
+-            -- member (wPartyCount), then MUSIC_PKMN_HEALED. healCount is that
+-            -- count. One shot would finish the jingle before the last ball.
++            -- AnimateHealingMachine plays SFX_HEALING_MACHINE once per
++            -- party ball, waits DelayFrames(30), then MUSIC_PKMN_HEALED.
++            -- FlashSprite8Times overlaps the jingle. The routine returns
++            -- after that jingle and DelayFrames(32). KantoHeal.plan is
++            -- that schedule. 30 Game Boy frames are 15 Playdate frames.
+             local count = healing.healCount
+-            if type(count) ~= "number" or count < 1 then
+-                count = 1
++            if not KantoHeal then
++                playdate.file.run("audio/healSchedule")
+             end
+-            local names = {}
+-            for _ = 1, count do
+-                names[#names + 1] = "healing_machine"
++            local events = KantoHeal.plan(count)
++            KantoAudio.playSFX(events[1].name)
++            for index = 2, #events do
++                enqueueSFX(events[index].name, events[index].at - events[index - 1].at)
+             end
+-            names[#names + 1] = "heal"
+-            playSequence(names)
+         end
+         observer.healing = healing
+ 
