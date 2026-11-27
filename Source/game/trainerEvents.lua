@@ -199,9 +199,10 @@ function TrainerEvents:launch(token)
     for index, mon in ipairs(value.definition.party) do
         local created = assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))
         -- WriteMonMoves, then LoneMoves or TeamMoves for this party slot.
+        -- Champion slot 3 reads wRivalStarter. That is the rival's starter.
         -- An explicit party row, when one exists, replaces that.
         local intro = game.session:getIntro()
-        created:usePartyMoves(Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.starter))
+        created:usePartyMoves(Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.rivalStarter))
         local scriptedMoves = RedPartyMoves[value.definition.id]
         local scripted = scriptedMoves and scriptedMoves[mon.species]
         if scripted then created:usePartyMoves(scripted) end
