@@ -153,8 +153,11 @@ def preferred_move(options, skip=(), enemy_types=()):
 
 
 def forget_index(learning):
-    """Replace Tail Whip, then Withdraw, then Bubble. Keep Water Gun."""
-    order = ["tailWhip", "growl", "withdraw", "bubble", "tackle"]
+    """Replace Tail Whip, then Withdraw, then Bubble, then Water Gun.
+
+    Surf already covers Water Gun. Ice Beam takes that slot for Gyarados.
+    """
+    order = ["tailWhip", "growl", "withdraw", "bubble", "tackle", "waterGun"]
     by_key = {move.get("key"): move.get("index") for move in (learning.get("known_moves") or [])}
     for key in order:
         if key in by_key:
@@ -8006,8 +8009,51 @@ def _teach_field_moves(player, report):
     return None
 
 
+def _route7_gate(player, report, leave):
+    """The east strip and the grass are different sides of this gate."""
+    path = EAST / "Route7Gate.json"
+    cells = set(open_map(path, 3, 13))
+    surface = map_surface(path, 3)
+    stand, step = ((4, 3), "left") if leave == "west" else ((7, 3), "right")
+    avoid = {(6, 1), (6, 3), (6, 4), (3, 3), (3, 4), (8, 3), (8, 4)}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    avoid.discard(stand)
+    kind = _walk(player, cells, surface, stand, avoid, report=report, yield_after=2, shift="blastoise")
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step(step)
+    player.settle(limit=80)
+    if "gate" in str(player.state.get("zone")):
+        player.step(step)
+        player.settle(limit=80)
+    if "route_7" not in str(player.state.get("zone")):
+        raise RuntimeError("the Route 7 gate stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route7")
+    return "yield"
+
+
 def _route7_to_celadon(player, report):
     _lead_tank(player)
+    zone = str(player.state.get("zone"))
+    if "route_7_gate" in zone:
+        return _route7_gate(player, report, "west")
+    if "route_7" in zone and player.state["player"]["x"] >= 17:
+        avoid = set(ROUTE7_GATES) | {(5, 13)}
+        avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+        kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (19, 9),
+                     avoid, report=report, yield_after=2, shift="blastoise")
+        if kind in ("blackout", "yield"):
+            return kind
+        player.step("left")
+        player.settle(limit=80)
+        if "gate" not in str(player.state.get("zone")):
+            player.step("left")
+            player.settle(limit=80)
+        if "gate" not in str(player.state.get("zone")):
+            raise RuntimeError("the Route 7 gate did not open: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_route7_gate")
+        return "yield"
     kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (1, 3),
                  set(ROUTE7_GATES) | {(5, 13)}, report=report, yield_after=2)
     if kind in ("blackout", "yield"):
@@ -8194,6 +8240,189 @@ def _stock_celadon_supers(player, report):
     return "yield"
 
 
+def _stock_celadon_revives(player, report):
+    cells = celadon_mart_cells(2)
+    surface = map_surface(EAST / "CeladonMart2F.json")
+    opened = _open_clerk(player, cells, surface, (5, 5))
+    if opened in ("blackout", "yield"):
+        return opened
+    if opened != "shop":
+        opened = _open_clerk(player, cells, surface, (6, 5))
+    if opened != "shop":
+        raise RuntimeError("the 2F clerk did not open: " + json.dumps(summary(player.state)))
+    report["revives"] = _shop_buy(player, "revive", 1500, 4)
+    _close_shop(player)
+    _checkpoint(player, report, "saved_celadon_revives")
+    return "yield"
+
+
+def _buy_roof_water(player, report):
+    """The guard already drank. This bottle is for the roof girl and TM13."""
+    if _holding(player, "freshWater") or _money(player) < 200:
+        return None
+    cells = set(open_map(EAST / "CeladonMartRoof.json", 0, 20))
+    kind = _walk(player, cells, map_surface(EAST / "CeladonMartRoof.json"), (10, 2),
+                 {(10, 4), (5, 5), (15, 2)}, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (10, 2):
+        raise RuntimeError("the vending machine is out of reach: " + json.dumps(summary(player.state)))
+    if player.state["player"].get("facing") != "up":
+        player.press("up", wait=4)
+    for _ in range(24):
+        if _holding(player, "freshWater"):
+            break
+        options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+        label = next((option for option in options if "FRESH" in option), None)
+        if label:
+            player.choose("event", label)
+            continue
+        player.press("a", wait=8)
+    _close_menus(player)
+    if not _holding(player, "freshWater"):
+        raise RuntimeError("the roof machine did not sell Fresh Water: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_roof_water")
+    return "yield"
+
+
+def _give_roof_girl(player, report):
+    if _quest(player).get("EVENT_GOT_TM13") or not _holding(player, "freshWater"):
+        return None
+    cells = set(open_map(EAST / "CeladonMartRoof.json", 0, 20))
+    kind = _walk(player, cells, map_surface(EAST / "CeladonMartRoof.json"), (6, 5),
+                 {(10, 4), (5, 5), (15, 2)}, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (6, 5):
+        raise RuntimeError("could not reach the roof girl: " + json.dumps(summary(player.state)))
+    if player.state["player"].get("facing") != "left":
+        player.press("left", wait=4)
+    before = _item_count(player, "freshWater")
+    for _ in range(40):
+        if _quest(player).get("EVENT_GOT_TM13") or _item_count(player, "freshWater") < before:
+            break
+        options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+        if "YES" in options:
+            player.choose("event", "YES")
+            continue
+        label = next((option for option in options if "FRESH" in option), None)
+        if label:
+            player.choose("event", label)
+            continue
+        player.press("a", wait=8)
+    _close_menus(player)
+    if not _quest(player).get("EVENT_GOT_TM13") and _item_count(player, "tm13") < 1:
+        raise RuntimeError("the roof girl did not give TM13: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_tm13")
+    return "yield"
+
+
+def _saffron_edge(player, report, stand, direction, expect, key):
+    saffron = Path("Source/data/midgameSaffron")
+    data = json.loads((saffron / "SaffronCity.json").read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    kind = _walk(player, set(open_map(saffron / "SaffronCity.json", 0, 40)),
+                 map_surface(saffron / "SaffronCity.json"), stand, avoid,
+                 report=report, yield_after=2, shift="blastoise")
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step(direction)
+    player.settle(limit=80)
+    if expect not in str(player.state.get("zone")):
+        player.step(direction)
+        player.settle(limit=80)
+    if expect not in str(player.state.get("zone")):
+        raise RuntimeError(key + " did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_" + key)
+    return "yield"
+
+
+def _saffron_to_route7(player, report):
+    return _saffron_edge(player, report, (0, 17), "left", "route_7", "route7")
+
+
+def _saffron_to_route8(player, report):
+    return _saffron_edge(player, report, (39, 16), "right", "route_8", "route8")
+
+
+def _route8_to_saffron(player, report):
+    avoid = set(ROUTE8_AVOID)
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    kind = _walk(player, route8_cells(), map_surface(EAST / "Route8.json"), (0, 8), avoid,
+                 report=report, yield_after=2, shift="blastoise")
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("left")
+    player.settle(limit=80)
+    if "saffron" not in str(player.state.get("zone")):
+        player.step("left")
+        player.settle(limit=80)
+    if "saffron" not in str(player.state.get("zone")):
+        raise RuntimeError("Route 8 did not open Saffron: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron")
+    return "yield"
+
+
+def _grind_lead(player):
+    """The member furthest under its Silph target stands in front."""
+    targets = (("blastoise", 45), ("pidgeot", 45), ("dugtrio", 40))
+    behind = [(goal - _level_of(player, species), species) for species, goal in targets]
+    behind.sort(reverse=True)
+    return behind[0][1]
+
+
+def _route7_grind(player, report):
+    """Pace the Route 7 grass on the Celadon side of the gate."""
+    zone = str(player.state.get("zone"))
+    if "route_7_gate" in zone or player.state["player"]["x"] >= 17:
+        return _route7_to_celadon(player, report)
+    if _party_needs_heal(player):
+        return _route7_to_celadon(player, report)
+    species = _grind_lead(player)
+    _lead(player, species)
+    cells = route7_cells()
+    surface = map_surface(EAST / "Route7.json")
+    avoid = set(ROUTE7_GATES) | {(5, 13)}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    grass = ((8, 2), (9, 2))
+    if here not in grass:
+        kind = _walk(player, cells, surface, grass[0], avoid, report=report, yield_after=2, shift=species)
+        if kind in ("blackout", "yield"):
+            return kind
+    battles = 0
+    goal = grass[1]
+    for _ in range(80):
+        if battles >= 4 or _rival_trained(player):
+            break
+        if _party_needs_heal(player) and player.exploring():
+            break
+        if not player.exploring():
+            if player.state.get("root") == "battle":
+                before = player.state.get("last_battle_outcome")
+                player.fight(limit=1200, potion_at=40, shift_to=species)
+                player.dismiss_until_explore(limit=40)
+                battles += 1
+                if _lost(before, player.state.get("last_battle_outcome") or {}):
+                    report["grind"] = {"species": species, "battles": battles, "party": _party(player)}
+                    return "blackout"
+            else:
+                player.dismiss_until_explore(limit=20)
+            continue
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here == goal:
+            goal = grass[0] if goal == grass[1] else grass[1]
+        steps = route(cells, here, goal, avoid)
+        if not steps:
+            break
+        player.step(steps[0])
+    report["grind"] = {"species": species, "level": _level_of(player, species),
+                       "battles": battles, "party": _party(player)}
+    _checkpoint(player, report, "saved_route7_grind")
+    return "yield"
+
+
 def _after_strength(player, report, display=None, clips=None, output=None):
     """Teach Surf and Strength, then buy a Celadon roof drink for the Route 7 guard.
 
@@ -8251,11 +8480,7 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         _checkpoint(player, report, "saved_route8")
         return "yield"
     if place == "Route8":
-        status = _cross_route8(player, report)
-        if status != "open":
-            return status
-        _checkpoint(player, report, "saved_underground")
-        return "yield"
+        return _route8_to_saffron(player, report)
     if "underground" in zone:
         status = _cross_underground(player, report)
         if status != "open":
@@ -8263,15 +8488,22 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         _checkpoint(player, report, "saved_underground")
         return "yield"
     if place == "Route7":
+        if not _rival_trained(player):
+            if _party_needs_heal(player) or not _prep_done(player):
+                return _route7_to_celadon(player, report)
+            return _route7_grind(player, report)
         if _gave_drink(player):
             return _route7_to_saffron(player, report)
         if _holding(player, "freshWater"):
             return _route7_to_gate(player, report)
         return _route7_to_celadon(player, report)
     if "route_7_gate" in zone:
-        given = _give_guard_drink(player, report)
-        if given:
-            return given
+        if not _gave_drink(player):
+            given = _give_guard_drink(player, report)
+            if given:
+                return given
+        if not _rival_trained(player):
+            return _route7_gate(player, report, "west")
         cells = set(open_map(EAST / "Route7Gate.json", 3, 13))
         kind = _walk(player, cells, map_surface(EAST / "Route7Gate.json", 3), (7, 3),
                      {(6, 1), (3, 3), (3, 4), (8, 3), (8, 4)}, report=report, yield_after=2)
@@ -8285,23 +8517,35 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         return "yield"
     if zone == "kanto_celadon_pokecenter":
         return _celadon_center(player, report)
-    if zone == "kanto_celadon_mart_2f" and _item_count(player, "superPotion") < 8 and _money(player) >= 700:
+    if (zone == "kanto_celadon_mart_2f" and _ice_known(player) and _needs_revives(player)):
+        return _stock_celadon_revives(player, report)
+    if (zone == "kanto_celadon_mart_2f" and _rival_trained(player)
+            and _item_count(player, "superPotion") < 8 and _money(player) >= 700):
         return _stock_celadon_supers(player, report)
     if zone == "kanto_celadon_mart_roof":
-        bought = _buy_fresh_water(player, report)
-        if bought:
-            return bought
+        if _climbing_for_drink(player):
+            bought = _buy_roof_water(player, report)
+            if bought:
+                return bought
+        if _holding(player, "freshWater") and not _quest(player).get("EVENT_GOT_TM13"):
+            given = _give_roof_girl(player, report)
+            if given:
+                return given
+        if _item_count(player, "tm13") > 0 and not _ice_known(player):
+            _teach(player, "tm13", "blastoise", "iceBeam")
+            _checkpoint(player, report, "saved_ice_beam")
+            return "yield"
         status = _mart_stair(player, report, "CeladonMartRoof.json", (15, 2), "mart_down")
         if status == "open":
             _checkpoint(player, report, "saved_mart_floor")
             return "yield"
         return status
     stairs = {
-        "kanto_celadon_mart_5f": ("CeladonMart5F.json", (12, 1) if not _holding(player, "freshWater") else (16, 1)),
-        "kanto_celadon_mart_4f": ("CeladonMart4F.json", (16, 1) if not _holding(player, "freshWater") else (12, 1)),
-        "kanto_celadon_mart_3f": ("CeladonMart3F.json", (12, 1) if not _holding(player, "freshWater") else (16, 1)),
-        "kanto_celadon_mart_2f": ("CeladonMart2F.json", (16, 1) if not _holding(player, "freshWater") else (12, 1)),
-        "kanto_celadon_mart_1f": ("CeladonMart1F.json", (12, 1) if not _holding(player, "freshWater") else (3, 7)),
+        "kanto_celadon_mart_5f": ("CeladonMart5F.json", (12, 1) if _climbing_for_drink(player) else (16, 1)),
+        "kanto_celadon_mart_4f": ("CeladonMart4F.json", (16, 1) if _climbing_for_drink(player) else (12, 1)),
+        "kanto_celadon_mart_3f": ("CeladonMart3F.json", (12, 1) if _climbing_for_drink(player) else (16, 1)),
+        "kanto_celadon_mart_2f": ("CeladonMart2F.json", (16, 1) if _climbing_for_drink(player) else (12, 1)),
+        "kanto_celadon_mart_1f": ("CeladonMart1F.json", (12, 1) if _climbing_for_drink(player) or _needs_revives(player) else (3, 7)),
     }
     if zone in stairs:
         filename, goal = stairs[zone]
@@ -8324,7 +8568,7 @@ def _after_strength(player, report, display=None, clips=None, output=None):
                 raise RuntimeError("the Celadon Center stayed shut: " + json.dumps(summary(player.state)))
             _checkpoint(player, report, "saved_celadon_center")
             return "yield"
-        if not _holding(player, "freshWater") and not _gave_drink(player):
+        if _climbing_for_drink(player) or (_ice_known(player) and _needs_revives(player)):
             kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (8, 14), doors,
                          report=report, yield_after=2)
             if kind in ("blackout", "yield"):
@@ -8355,6 +8599,10 @@ def _after_strength(player, report, display=None, clips=None, output=None):
     if "saffron_city" in zone:
         if _silph_needs_nurse(player):
             return _saffron_to_center(player, report)
+        if not _rival_trained(player):
+            if _prep_done(player) and _needs_medicine(player):
+                return _saffron_to_mart(player, report)
+            return _saffron_to_route7(player, report)
         if _needs_medicine(player):
             return _saffron_to_mart(player, report)
         return _saffron_to_silph(player, report)
@@ -8530,8 +8778,39 @@ def _silph_needs_town(player):
     return _silph_needs_nurse(player) or _needs_medicine(player)
 
 
+def _level_of(player, species):
+    _slot, mon = _member(player, species)
+    return (mon or {}).get("level") or 0
+
+
+def _rival_trained(player):
+    """Blastoise and Pidgeot near 45, and Dugtrio near 40, before the Silph rival."""
+    return (_level_of(player, "blastoise") >= 45
+            and _level_of(player, "pidgeot") >= 45
+            and _level_of(player, "dugtrio") >= 40)
+
+
+def _ice_known(player):
+    _species, mon = _water_line(player)
+    return bool(mon and "iceBeam" in (mon.get("moves") or []))
+
+
+def _climbing_for_drink(player):
+    """A second Fresh Water buys TM13 from the roof girl. The guard already has his."""
+    return (not _ice_known(player) and _item_count(player, "tm13") == 0
+            and not _holding(player, "freshWater") and _money(player) >= 200)
+
+
+def _needs_revives(player):
+    return _item_count(player, "revive") < 4 and _money(player) >= 1500
+
+
+def _prep_done(player):
+    return _ice_known(player) and not _needs_revives(player) and _item_count(player, "tm13") == 0
+
+
 def _silph_floor(player):
-    if _silph_needs_town(player) and _holding(player, "cardKey"):
+    if (not _rival_trained(player) or _silph_needs_town(player)) and _holding(player, "cardKey"):
         return "1F"
     if not _holding(player, "cardKey"):
         return "5F"
@@ -8678,7 +8957,7 @@ def _silph_nurse(player, report):
 
 def _silph_7f(player, report):
     """The rival watches (3, 2) and (3, 3). Lapras is the worker at (1, 5)."""
-    if _silph_needs_town(player) and player.state["player"]["x"] < 10:
+    if (not _rival_trained(player) or _silph_needs_town(player)) and player.state["player"]["x"] < 10:
         cells = set(open_map(Path("Source/data/midgameSaffron/SilphCo7F.json"), 0, 26))
         here = (player.state["player"]["x"], player.state["player"]["y"])
         if here != (5, 2):
@@ -8854,7 +9133,7 @@ def _silph_door(player, report):
             raise RuntimeError("the Card Key did not open the 3F door: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_silph_door")
         return "yield"
-    if _silph_needs_town(player):
+    if not _rival_trained(player) or _silph_needs_town(player):
         kind = _walk(player, cells, map_surface(saffron / "SilphCo3F.json"), (20, 1), avoid,
                      report=report, yield_after=2)
         if kind in ("blackout", "yield"):
@@ -8934,7 +9213,7 @@ def _silph_progress(player, report):
         return _silph_7f(player, report)
     if zone.endswith("silph_co_11f"):
         return _silph_11f(player, report)
-    if zone.endswith("silph_co_1f") and _silph_needs_town(player):
+    if zone.endswith("silph_co_1f") and (not _rival_trained(player) or _silph_needs_town(player)):
         _lead(player, "dugtrio")
         data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))
         avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
