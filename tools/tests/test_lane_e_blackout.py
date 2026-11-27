@@ -40,7 +40,7 @@ class BlackoutTests(unittest.TestCase):
         battle = (ROOT / "Source/battle/battle.lua").read_text()
         branch = battle.split("if not playerTeamAlive then", 1)[1].split(
             'return "defeat"', 1)[0]
-        self.assertIn('playerName .. " is out of\\nuseable POKéMON!\\n\\n"', branch)
+        self.assertIn('playerName .. " is out of\\nuseable POKéMON!\\f"', branch)
         self.assertIn('playerName .. " blacked\\nout!"', branch)
         self.assertIn('intro.stage == "rival_fight"', branch)
 

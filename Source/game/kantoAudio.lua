@@ -3,6 +3,7 @@
 import "audio/events"
 import "audio/select"
 import "audio/engine"
+import "audio/moveSfx"
 
 KantoAudio = {}
 
@@ -225,6 +226,46 @@ local function noteCries(battle, battleState)
     end
 end
 
+local function sfxFrames(name)
+    return math.max(1, math.ceil(KantoSynth.scoreTicks(name) * tickSeconds * 30))
+end
+
+local function enqueueSFX(name, frames)
+    observer.sfxQueue = observer.sfxQueue or {}
+    observer.sfxQueue[#observer.sfxQueue + 1] = {name = name, frames = frames}
+end
+
+local function moveScore(key)
+    if not KantoMoveSfx then
+        -- import inside a function is not compiled, and an imported module
+        -- stays in the main chunk. The table is a separate file.run target.
+        playdate.file.run("audio/moveSfxData")
+    end
+    return KantoMoveSfx[key]
+end
+
+local function playSequence(names)
+    KantoAudio.playSFX(names[1])
+    local wait = sfxFrames(names[1])
+    for index = 2, #names do
+        enqueueSFX(names[index], wait)
+        wait = sfxFrames(names[index])
+    end
+end
+
+local function pumpSFX()
+    local queue = observer.sfxQueue
+    local head = queue and queue[1]
+    if not head then
+        return
+    end
+    head.frames = head.frames - 1
+    if head.frames <= 0 then
+        table.remove(queue, 1)
+        KantoAudio.playSFX(head.name)
+    end
+end
+
 function KantoAudio.updateGame(game)
     local stack = game and game.machine and game.machine.stack
     local root = stack and stack[1]
@@ -235,6 +276,8 @@ function KantoAudio.updateGame(game)
         end
         return
     end
+
+    pumpSFX()
 
     if observer.game ~= game or observer.session ~= game.session then
         KantoAudio.stop()
@@ -306,6 +349,8 @@ function KantoAudio.updateGame(game)
             end
             observer.battle = battle
             observer.lowHP = nil
+            observer.pendingCry = nil
+            observer.pendingCryFrames = nil
         end
 
         if battle then
@@ -351,8 +396,36 @@ function KantoAudio.updateGame(game)
                 KantoAudio.playCue("caught")
             end
 
+            if observer.pendingCryFrames then
+                observer.pendingCryFrames = observer.pendingCryFrames - 1
+                if observer.pendingCryFrames <= 0 then
+                    observer.pendingCryFrames = nil
+                    if observer.pendingCry then
+                        KantoAudio.playCry(observer.pendingCry)
+                    end
+                    observer.pendingCry = nil
+                end
+            end
             if faint then
-                KantoAudio.playSFX("faint")
+                -- FaintEnemyPokemon waits out the move row, then the thud.
+                -- The player's own faint is the cry after that row.
+                local species = battle.player and battle.player.species
+                local moveKey = battle.currentMoveKey
+                local moveCue = moveKey and moveScore(moveKey)
+                if battle.player and battle.player.hp ~= nil and battle.player.hp <= 0 and species then
+                    -- playSFX returns false for a cue with no score.
+                    -- scoreTicks would then assert "unknown Kanto score".
+                    local played = moveCue and KantoAudio.playSFX(moveCue)
+                    if played then
+                        observer.pendingCry = species
+                        observer.pendingCryFrames = sfxFrames(moveCue)
+                    else
+                        observer.pendingCry = species
+                        KantoAudio.playCry(observer.pendingCry)
+                    end
+                else
+                    KantoAudio.playSFX("faint")
+                end
             elseif hit then
                 KantoAudio.playSFX("hit")
             end
@@ -367,8 +440,19 @@ function KantoAudio.updateGame(game)
             end
         end
         if healing and observer.healing ~= healing then
-            KantoAudio.playSFX("healing_machine")
-            KantoAudio.playCue("heal")
+            -- AnimateHealingMachine plays SFX_HEALING_MACHINE once per party
+            -- member (wPartyCount), then MUSIC_PKMN_HEALED. healCount is that
+            -- count. One shot would finish the jingle before the last ball.
+            local count = healing.healCount
+            if type(count) ~= "number" or count < 1 then
+                count = 1
+            end
+            local names = {}
+            for _ = 1, count do
+                names[#names + 1] = "healing_machine"
+            end
+            names[#names + 1] = "heal"
+            playSequence(names)
         end
         observer.healing = healing
 

@@ -8,6 +8,7 @@ function PauseState:init(game)
 end
 
 function PauseState:enter()
+    self:releaseSaveScreen()
     self.phase = "menu"
     local hasDex = self.game.session:questFlag("EVENT_GOT_POKEDEX")
     local playerName = Story.playerName(self.game)
@@ -46,6 +47,7 @@ function PauseState:enter()
 end
 
 function PauseState:exit()
+    self:releaseSaveScreen()
     self.phase = "closed"
     self.menu:hide()
     self.menu.onSelect, self.menu.onCancel = nil, nil
@@ -61,6 +63,9 @@ function PauseState:handleInput()
 end
 
 function PauseState:draw()
+    if self.phase == "menu" or self.phase == "save" then
+        self:releaseTrainerScreen()
+    end
     local x, y = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
     if self.phase == "menu" then
@@ -76,33 +81,61 @@ function PauseState:draw()
         gfx.setColor(gfx.kColorWhite); gfx.fillRect(16, 24, 368, 192)
         gfx.setColor(gfx.kColorBlack); gfx.drawRect(16, 24, 368, 192)
         if self.phase == "save" then
-            gfx.drawText("Would you like to SAVE the game?", 28, 40)
-            self.menu:draw(200, 112, 172, 60)
+            gfx.clear(gfx.kColorWhite)
+            self:drawSave()
         else
-            -- start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
-            -- DrawBadges is tile art this screen does not have, so the
-            -- badge count is the text stand-in for that box.
-            local session = self.game.session
-            local clock = session:playTime()
-            local flags = {}
-            for _, id in ipairs(TitleIdle.BADGE_FLAGS) do
-                flags[id] = session:questFlag(id) == true
-            end
-            gfx.drawText("NAME/" .. Story.playerName(self.game), 32, 42)
-            -- engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
-            -- prints the charmap money sign ($f0), not "$".
-            local moneyLabel = "MONEY/"
-            gfx.drawText(moneyLabel, 32, 72)
-            local moneyWidth = gfx.getTextSize(moneyLabel)
-            GbFont.drawMoneyLine("¥" .. session:inventory():money(), 32 + moneyWidth, 72)
-            gfx.drawText("TIME/" .. TitleIdle.playTimeText(clock.hours, clock.minutes), 32, 102)
-            gfx.drawText("BADGES  " .. TitleIdle.countFlags(flags), 32, 132)
-            gfx.drawText("A / B: Back", 32, 178)
+            gfx.clear(gfx.kColorWhite)
+            self:drawTrainer()
         end
     end
     gfx.setDrawOffset(x, y)
 end
 
+-- The trainer card is a standalone pdz. The badge tiles load with the card
+-- and drop when it closes, so a boot that never opens it does not keep them.
+function PauseState:drawTrainer()
+    if not TrainerScreen then
+        import "game/gbFont"
+        if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+            playdate.file.run("game/trainerScreen")
+        else
+            dofile("Source/game/trainerScreen.lua")
+        end
+    end
+    TrainerScreen.draw(self)
+end
+
+function PauseState:releaseTrainerScreen()
+    if TrainerScreen == nil then return end
+    if TrainerScreen.release then TrainerScreen.release() end
+    TrainerScreen = nil
+    collectgarbage("collect")
+    collectgarbage("collect")
+end
+
 function PauseState:resume()
     self.menu.crank:reset()
+end
+
+-- The save page is a standalone pdz. It is not imported, so the rasterizer,
+-- its images, and any font it touches stay out of a boot that never opens
+-- SAVE. playdate.file.run loads it for this screen. releaseSaveScreen drops
+-- the global and collects when the page closes.
+function PauseState:drawSave()
+    if not SaveScreen then
+        if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+            playdate.file.run("game/saveScreen")
+        else
+            dofile("Source/game/saveScreen.lua")
+        end
+    end
+    SaveScreen.draw(self)
+end
+
+function PauseState:releaseSaveScreen()
+    if SaveScreen == nil then return end
+    if SaveScreen.release then SaveScreen.release() end
+    SaveScreen = nil
+    collectgarbage("collect")
+    collectgarbage("collect")
 end

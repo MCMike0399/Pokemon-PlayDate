@@ -1,0 +1,26 @@
+diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
+index 7a0e2e69..1c438d64 100644
+--- a/Source/game/kantoAudio.lua
++++ b/Source/game/kantoAudio.lua
+@@ -714,8 +714,19 @@ function KantoAudio.updateGame(game)
+             end
+         end
+         if healing and observer.healing ~= healing then
+-            KantoAudio.playSFX("healing_machine")
+-            KantoAudio.playCue("heal")
++            -- AnimateHealingMachine plays SFX_HEALING_MACHINE once per party
++            -- member (wPartyCount), then MUSIC_PKMN_HEALED. healCount is that
++            -- count. One shot would finish the jingle before the last ball.
++            local count = healing.healCount
++            if type(count) ~= "number" or count < 1 then
++                count = 1
++            end
++            local names = {}
++            for _ = 1, count do
++                names[#names + 1] = "healing_machine"
++            end
++            names[#names + 1] = "heal"
++            playSequence(names)
+         end
+         observer.healing = healing
+ 

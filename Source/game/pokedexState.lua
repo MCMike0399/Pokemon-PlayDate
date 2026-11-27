@@ -20,6 +20,7 @@ function PokedexState:enter(options)
             if entry.species == options.sourceSpecies then
                 self.selected, self.phase = index, "entry"
                 self.sourceDisplay = options
+                self:playShownCry()
                 return
             end
         end
@@ -56,7 +57,18 @@ end
 function PokedexState:openEntry()
     if self.phase~="list" then return false,"not-list" end
     if not self:entryView().seen then return false,"unseen" end
-    self.phase="entry";return true
+    self.phase="entry"
+    self:playShownCry()
+    return true
+end
+function PokedexState:playShownCry()
+    -- engine/menus/pokedex.asm ShowPokedexDataInternal calls PlayCry after the
+    -- front sprite is on screen.
+    if self.phase ~= "entry" then return end
+    local view = self:entryView()
+    if view.seen and view.species and KantoAudio and KantoAudio.playCry then
+        KantoAudio.playCry(view.species)
+    end
 end
 function PokedexState:back()
     if self.sourceDisplay then

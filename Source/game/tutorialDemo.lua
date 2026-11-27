@@ -4,9 +4,34 @@ import "battle/captureAnimation"
 TutorialDemoArt = {}
 local gfx <const> = playdate.graphics
 local cache = {}
+function TutorialDemoArt.flatBack(name, art)
+    -- gfx/battle/oldmanb.png. Same rule as mon back sprites
+    -- (tools/generate_battle_art.py:113: value >= 128 is white).
+    -- scenes.json shades are 255 '.', 170 '1', 85 '2', 0 '#'.
+    -- '1' is white. TileFactory would dither 1 and 2. This pic does not.
+    local image = gfx.image.new(art.width * 2, art.height * 2, gfx.kColorWhite)
+    gfx.pushContext(image)
+        gfx.setDrawOffset(0, 0)
+        for y = 0, art.height - 1 do
+            local row = art.rows[y + 1] or ""
+            for x = 0, art.width - 1 do
+                local ch = row:sub(x + 1, x + 1)
+                if ch == "2" or ch == "#" then
+                    gfx.setColor(gfx.kColorBlack)
+                    gfx.fillRect(x * 2, y * 2, 2, 2)
+                end
+            end
+        end
+    gfx.popContext()
+    cache[name] = image
+    return image
+end
 function TutorialDemoArt.image(name)
     if cache[name] then return cache[name] end
     local art = assert(TutorialEscortData.get().art[name])
+    if name == "oldmanBack" then
+        return TutorialDemoArt.flatBack(name, art)
+    end
     local image = gfx.image.new(art.width * 2, art.height * 2, gfx.kColorWhite)
     gfx.pushContext(image)
     for top = 0, art.height - 1, 16 do

@@ -1,0 +1,249 @@
+diff --git a/Source/game/gbFont.lua b/Source/game/gbFont.lua
+index b7653c8c..4199d0cf 100644
+--- a/Source/game/gbFont.lua
++++ b/Source/game/gbFont.lua
+@@ -46,6 +46,59 @@ local function tileImage(sheetName, index)
+     return image
+ end
+ 
++-- The fidelity sweep's uniform 12/8 nearest scale of the 8x8 tile.
++-- Borders stay on the full 20 by 13 cell (drawChar / drawBox). Text on
++-- the title menu, options, naming screen, and continue box uses this
++-- inset so a glyph cannot meet the next cell or the border.
++GbFont.FIT = 12
++
++local function fitImage(sheetName, index)
++    local key = "fit:" .. sheetName .. ":" .. index
++    local cached = cache[key]
++    if cached then return cached end
++    local sheet = GbFont.load()[sheetName]
++    local columns = sheetName == "ed" and 1 or 16
++    local sx = (index % columns) * 8
++    local sy = math.floor(index / columns) * 8
++    local image = gfx.image.new(GbFont.FIT, GbFont.FIT, gfx.kColorWhite)
++    gfx.pushContext(image)
++    gfx.setDrawOffset(0, 0)
++    gfx.setColor(gfx.kColorBlack)
++    for y = 0, GbFont.FIT - 1 do
++        local sourceY = sy + math.floor(y * 8 / GbFont.FIT)
++        for x = 0, GbFont.FIT - 1 do
++            local sourceX = sx + math.floor(x * 8 / GbFont.FIT)
++            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
++                gfx.drawPixel(x, y)
++            end
++        end
++    end
++    gfx.popContext()
++    cache[key] = image
++    return image
++end
++
++function GbFont.drawFitAt(sheetName, index, col, row)
++    local ox = math.floor((TitleIdle.COL - GbFont.FIT) / 2)
++    local oy = TitleIdle.ROW - GbFont.FIT
++    fitImage(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
++end
++
++function GbFont.drawFitChar(char, col, row)
++    local sheetName, index = TitleIdle.glyph(char)
++    GbFont.drawFitAt(sheetName, index, col, row)
++end
++
++function GbFont.drawFitString(text, col, row)
++    local cursor, index = 0, 1
++    while index <= #text do
++        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
++        GbFont.drawFitAt(sheetName, glyph, col + cursor, row)
++        cursor = cursor + 1
++        index = nextIndex
++    end
++end
++
+ function GbFont.drawChar(char, col, row)
+     local sheetName, index = TitleIdle.glyph(char)
+     tileImage(sheetName, index):draw(col * TitleIdle.COL, row * TitleIdle.ROW)
+diff --git a/Source/game/namingState.lua b/Source/game/namingState.lua
+index b74d5299..e4fb18ce 100644
+--- a/Source/game/namingState.lua
++++ b/Source/game/namingState.lua
+@@ -501,10 +501,10 @@ if Class then
+         end
+         local menu = NamingScreen.yesNoBox()
+         GbFont.drawBox(menu.box)
+-        GbFont.drawString("YES", menu.textCol, menu.yesRow)
+-        GbFont.drawString("NO", menu.textCol, menu.noRow)
++        GbFont.drawFitString("YES", menu.textCol, menu.yesRow)
++        GbFont.drawFitString("NO", menu.textCol, menu.noRow)
+         local cursorRow = screen.cursor == 1 and menu.yesRow or menu.noRow
+-        GbFont.drawChar(TitleIdle.CURSOR, menu.cursorCol, cursorRow)
++        GbFont.drawFitChar(TitleIdle.CURSOR, menu.cursorCol, cursorRow)
+     end
+ 
+     function NamingState:draw()
+@@ -518,44 +518,59 @@ if Class then
+             return
+         end
+         gfx.clear(gfx.kColorWhite)
+-        GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
+-        -- A yes/no prompt is the question itself. The header would print it
+-        -- a second time and drawTight would run it through the border.
+-        if not (screen.phase == "ask" and screen.kind == "yesno") then
+-            GbFont.drawTight(NamingScreen.header(screen.kind, screen.speciesName, screen.prompt), 24, 20)
+-        end
++        -- naming_screen.asm PrintAlphabet is hlcoord 2, 5, one skipped
++        -- column and one skipped row. The cursor sits on the tile left of
++        -- the letter (wTopMenuItemX starts at 1). The case row is menu
++        -- item 6, which PlaceMenuCursor puts at row 15. DisplayIntroNameTextBox
++        -- is the preset list: border 0,0 b=10 c=9, names at 2,2 with <next>.
+         if screen.phase == "presets" then
++            GbFont.drawBox(TitleIdle.textBox(0, 0, 9, 10))
++            GbFont.drawFitString("NAME", 3, 0)
+             for index, label in ipairs(screen.presets) do
+-                local marker = index == screen.cursor and TitleIdle.CURSOR or " "
+-                GbFont.drawTight(marker .. label, 24, 36 + (index - 1) * 20)
++                local row = 2 + (index - 1) * 2
++                if index == screen.cursor then GbFont.drawFitChar(TitleIdle.CURSOR, 1, row) end
++                GbFont.drawFitString(label, 2, row)
+             end
+         elseif screen.phase == "ask" then
++            GbFont.drawBox(TitleIdle.textBox(0, 0, 18, 16))
+             local ask = screen.kind == "yesno" and (screen.prompt or "How about it?")
+                 or NamingScreen.askText(screen.speciesName)
+-            local lines = NamingScreen.wrap(ask)
+-            local top = screen.kind == "yesno" and 20 or 48
++            local lines = NamingScreen.wrap(ask, 18)
+             for index, line in ipairs(lines) do
+-                GbFont.drawTight(line, 24, top + (index - 1) * 20)
++                GbFont.drawFitString(line, 1, 1 + (index - 1) * 2)
+             end
+-            local choice = math.max(96, top + #lines * 20 + 8)
+-            GbFont.drawTight((screen.cursor == 1 and TitleIdle.CURSOR or " ") .. "YES", 24, choice)
+-            GbFont.drawTight((screen.cursor == 2 and TitleIdle.CURSOR or " ") .. "NO", 24, choice + 24)
++            local choice = 2 + #lines * 2
++            if screen.cursor == 1 then GbFont.drawFitChar(TitleIdle.CURSOR, 1, choice) end
++            GbFont.drawFitString("YES", 2, choice)
++            if screen.cursor == 2 then GbFont.drawFitChar(TitleIdle.CURSOR, 1, choice + 2) end
++            GbFont.drawFitString("NO", 2, choice + 2)
+         else
+-            GbFont.drawTight(NamingScreen.text(screen), 24, 40)
++            local header = NamingScreen.header(screen.kind, screen.speciesName, screen.prompt)
++            GbFont.drawFitString(header, 0, 1)
++            GbFont.drawFitString(NamingScreen.text(screen), 10, 2)
++            GbFont.drawBox(TitleIdle.textBox(0, 4, 18, 9))
+             local grid = screen.upper and NamingScreen.UPPER or NamingScreen.LOWER
+             for row, letters in ipairs(grid) do
+-                local cursor = 24
++                local tileRow = 5 + (row - 1) * 2
+                 for col, letter in ipairs(letters) do
+-                    local marker = (row == screen.row and col == screen.col) and TitleIdle.CURSOR or " "
+-                    GbFont.drawCell(marker, cursor, 64 + (row - 1) * 18)
+-                    GbFont.drawCell(letter, cursor + 16, 64 + (row - 1) * 18)
+-                    cursor = cursor + 36
++                    local tileCol = 2 + (col - 1) * 2
++                    if row == screen.row and col == screen.col then
++                        GbFont.drawFitChar(TitleIdle.CURSOR, tileCol - 1, tileRow)
++                    end
++                    -- constants/charmap.asm <PK> is $e1 and <MN> is $e2.
++                    -- LoadEDTile copies gfx/font/ED.1bpp. alphabets.asm stores
++                    -- each as one byte, and PrintAlphabet writes that byte
++                    -- into one cell. The 8x8 tile already packs the two
++                    -- letters; the 12/8 scale keeps that pair inside the cell.
++                    if letter == "PK" or letter == "MN" or letter == "ED" then
++                        GbFont.drawFitChar(letter, tileCol, tileRow)
++                    else
++                        GbFont.drawFitString(letter, tileCol, tileRow)
++                    end
+                 end
+             end
+-            local caseMark = screen.row == 6 and TitleIdle.CURSOR or " "
+-            local caseLabel = screen.upper and "lower case" or "UPPER CASE"
+-            GbFont.drawCell(caseMark, 24, 168)
+-            GbFont.drawTight(caseLabel, 40, 168)
++            if screen.row == 6 then GbFont.drawFitChar(TitleIdle.CURSOR, 1, 15) end
++            GbFont.drawFitString(screen.upper and "lower case" or "UPPER CASE", 2, 15)
+         end
+         gfx.setDrawOffset(x, y)
+     end
+@@ -678,7 +693,7 @@ if Class then
+         local first = (self.page - 1) * OakSpeech.LINES_PER_PAGE + 1
+         for offset = 0, OakSpeech.LINES_PER_PAGE - 1 do
+             local line = self.lines[first + offset]
+-            if line then GbFont.drawString(line, 1, 13 + offset) end
++            if line then GbFont.drawFitString(line, 1, 13 + offset) end
+         end
+         gfx.setDrawOffset(x, y)
+     end
+diff --git a/Source/game/optionsState.lua b/Source/game/optionsState.lua
+index 6ede7c1b..f20edf84 100644
+--- a/Source/game/optionsState.lua
++++ b/Source/game/optionsState.lua
+@@ -81,22 +81,22 @@ function OptionsState:draw()
+         if boxes[index] then
+             local spec = boxes[index]
+             GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 3))
+-            GbFont.drawString(row.label, 1, spec.labelRow)
++            GbFont.drawFitString(row.label, 1, spec.labelRow)
+             for cursor, value in ipairs(row.choices) do
+                 local col = spec.cols[cursor] or (1 + (cursor - 1) * 8)
+-                if cursor == choiceIndex then GbFont.drawChar(marker, col, spec.choiceRow) end
+-                GbFont.drawString(value, col + 1, spec.choiceRow)
++                if cursor == choiceIndex then GbFont.drawFitChar(marker, col, spec.choiceRow) end
++                GbFont.drawFitString(value, col + 1, spec.choiceRow)
+             end
+         else
+             local place = GameOptions.crankPlace(choiceIndex)
+-            GbFont.drawString(row.label, place.labelCol, place.row)
+-            GbFont.drawChar(marker, place.choiceCol, place.row)
+-            GbFont.drawString(row.choices[choiceIndex], place.choiceCol + 1, place.row)
++            GbFont.drawFitString(row.label, place.labelCol, place.row)
++            GbFont.drawFitChar(marker, place.choiceCol, place.row)
++            GbFont.drawFitString(row.choices[choiceIndex], place.choiceCol + 1, place.row)
+         end
+     end
+     local cancel = GameOptions.cancelPlace(self.selected == self:rowCount())
+-    if cancel.cursor then GbFont.drawChar(TitleIdle.CURSOR, cancel.cursor, cancel.row) end
+-    GbFont.drawString(GameOptions.cancelLabel, cancel.col, cancel.row)
++    if cancel.cursor then GbFont.drawFitChar(TitleIdle.CURSOR, cancel.cursor, cancel.row) end
++    GbFont.drawFitString(GameOptions.cancelLabel, cancel.col, cancel.row)
+     if self.error then GbFont.drawTight(self.error, 8, 222) end
+     gfx.setDrawOffset(x, y)
+ end
+diff --git a/Source/game/titleState.lua b/Source/game/titleState.lua
+index 2869b351..7fc5b723 100644
+--- a/Source/game/titleState.lua
++++ b/Source/game/titleState.lua
+@@ -456,9 +456,9 @@ function TitleState:draw()
+         for index, label in ipairs(self.menu.options) do
+             local row = 11 + index - 1
+             if index == self.menu.selectedIndex then
+-                GbFont.drawChar(TitleIdle.CURSOR, 11, row)
++                GbFont.drawFitChar(TitleIdle.CURSOR, 11, row)
+             end
+-            GbFont.drawString(label, 12, row)
++            GbFont.drawFitString(label, 12, row)
+         end
+         return
+     end
+@@ -467,9 +467,9 @@ function TitleState:draw()
+     GbFont.drawBox(TitleIdle.mainMenuBox(hasSave, extra))
+     for index, cell in ipairs(TitleIdle.mainMenuCells(self.menu.options)) do
+         if index == self.menu.selectedIndex then
+-            GbFont.drawChar(TitleIdle.CURSOR, 1, cell.row)
++            GbFont.drawFitChar(TitleIdle.CURSOR, 1, cell.row)
+         end
+-        GbFont.drawString(cell.label, 2, cell.row)
++        GbFont.drawFitString(cell.label, 2, cell.row)
+     end
+     if self.phase == "continue-info" and self.info then
+         local box = TitleIdle.continueBox()
+@@ -481,8 +481,8 @@ function TitleState:draw()
+             for _, row in ipairs(TitleIdle.CONTINUE_TEXT) do
+                 if row.label == cell.label then spec = row end
+             end
+-            GbFont.drawString(cell.label, spec.labelCol, spec.row)
+-            GbFont.drawString(cell.value, spec.valueCol, spec.row)
++            GbFont.drawFitString(cell.label, spec.labelCol, spec.row)
++            GbFont.drawFitString(cell.value, spec.valueCol, spec.row)
+         end
+     end
+ end

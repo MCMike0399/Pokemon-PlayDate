@@ -9,6 +9,42 @@ local tick, request, commands, index, started, complete, failure = 0, nil, nil, 
 local contractResultPublished = false
 local entries, seen = {}, {}
 local transitions = {}
+-- A command result is about a kibibyte of tables. Holding every one until
+-- finish() grew the heap by 2.125 KiB on each Pallet-Center round trip, and
+-- that floor survived releaseDepartingWorld plus two full collections.
+-- The protocol still wants one result per command, so each result is spilled
+-- as soon as it is scored and only the latest stays live for the final snapshot.
+local RESULT_LOG <const> = "command-results.jsonl"
+local function resetResultLog()
+    if playdate.file.exists(RESULT_LOG) then playdate.file.delete(RESULT_LOG) end
+end
+local function spillEntry(entry)
+    local encoded = json.encode(entry)
+    local mode = playdate.file.exists(RESULT_LOG) and playdate.file.kFileAppend or playdate.file.kFileWrite
+    local file = assert(playdate.file.open(RESULT_LOG, mode), "command result log")
+    file:write(tostring(#encoded) .. "\n" .. encoded)
+    file:close()
+    entries = { entry }
+    return entry
+end
+local function loadSpilledEntries()
+    local file = playdate.file.open(RESULT_LOG, playdate.file.kFileRead)
+    if not file then return entries end
+    local loaded = {}
+    while true do
+        local header = file:readline()
+        if not header or header == "" then break end
+        local size = tonumber(header)
+        if not size or size < 1 then break end
+        local encoded = file:read(size)
+        if type(encoded) ~= "string" or #encoded ~= size then break end
+        local ok, value = pcall(json.decode, encoded)
+        if not ok or type(value) ~= "table" then break end
+        loaded[#loaded + 1] = value
+    end
+    file:close()
+    return #loaded > 0 and loaded or entries
+end
 -- Opening trace.jsonl on every frame can sit in the allocator once a live
 -- city has fragmented the pool, and the frame never returns. One handle is
 -- opened while the boot heap still has a hole, then reused.
@@ -396,23 +432,25 @@ local function finish(game, status, message)
             publish("journey-history-pause.json", { id = request.id })
         end
     end
+    local results = loadSpilledEntries()
     publish("result.json", { id = request.id, status = status, error = message,
         history_paused = safeHistory,
-        results = entries, snapshot = finalSnapshot,
+        results = results, snapshot = finalSnapshot,
         interrupted_snapshot = (status == "cancelled" or status == "timeout") and interruptedSnapshot or nil,
         catalog = Autopilot.catalog, quiescent = Harness.isQuiescent,
         rng_data = RulesRNG.toData(),
         error_code = message and message:find("integer-wire:", 1, true) and "invalid-integer-wire" or nil })
     request, commands, complete, failure = nil, nil, false, nil
     entries = {}
+    resetResultLog()
     Autopilot.catalog = nil
-    if config.journey_profile then
-        -- Full snapshots and JSON observations belong to the test harness.
-        -- Reclaim them before the next real game action. Journey timings and
-        -- heap samples are not production performance measurements.
-        finalSnapshot, interruptedSnapshot, last = nil, nil, nil
-        collectgarbage("collect")
-    end
+    -- Generational collection with step(1) does not major-collect a request
+    -- graph that survived json.encodeToFile. Journey timings already dropped
+    -- it. The full harness must too. Repeating the Viridian sleepy scene
+    -- tenured each request's snapshots, and the Lua heap climbed with no
+    -- live retainer (about 83 KiB a retrigger; the long loop reached 24.7 MiB).
+    finalSnapshot, interruptedSnapshot, last = nil, nil, nil
+    collectgarbage("collect")
 end
 local function poll(game)
     local incoming, wire = read("request.json")
@@ -426,6 +464,7 @@ local function poll(game)
         return
     end
     request, entries, index, started = incoming, {}, 1, tick
+    resetResultLog()
     local ok, problem = pcall(function()
         assert(safeName(incoming.id) and not seen[incoming.id], "invalid or duplicate request id")
         seen[incoming.id] = true
@@ -561,10 +600,11 @@ function Harness.afterFrame(game, runtimeError)
         if request and complete and command and command.contracts then
             -- The suite already returned its report. A later compressed read
             -- must not replace that report with an empty runtime error.
-            entries[#entries + 1] = {
+            spillEntry({
                 command = index, op = command.op, tick = tick, status = "error",
                 outcome = "ok", messages = {}, contracts = command.contracts,
-            }
+            })
+            entries = loadSpilledEntries()
             local published = pcall(function()
                 publish("result.json", {
                     id = request.id, status = "error", error = failure or runtimeError,
@@ -679,8 +719,9 @@ function Harness.afterFrame(game, runtimeError)
             entries = {}
             return
         end
-        entries[#entries + 1] = { command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
-            outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts, observation = command.observation }
+        entries[#entries + 1] = spillEntry({ command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
+            outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts, observation = command.observation })
+        entries = { entries[#entries] }
         if failure then
             HarnessCapture.write("failure")
             finish(game, "error", failure); return

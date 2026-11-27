@@ -123,6 +123,6 @@ drain(wipe)
 only.hp = 0
 wipe:runScript(function() return wipe:handleFaint("player") end)
 drain(wipe)
-eq(wipe.message, "RED is out of\nuseable POKéMON!\n\nRED blacked\nout!", "blackout page")
+eq(wipe.message, "RED is out of\nuseable POKéMON!\fRED blacked\nout!", "blackout page")
 eq(wipe.outcome, "defeat", "wipe outcome")
 print("blackout-page-ok")
