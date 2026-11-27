@@ -8410,10 +8410,29 @@ def _silph_card(player, report):
         here = (player.state["player"]["x"], player.state["player"]["y"])
         warps.discard(here)
         cells = set(open_map(saffron / "SilphCo5F.json", 0, 30))
-        kind = _walk(player, cells, map_surface(saffron / "SilphCo5F.json"), (20, 1), warps,
-                     report=report, yield_after=2)
+        surface = map_surface(saffron / "SilphCo5F.json")
+        # The south corridor's only stair is the 9F pad. Come back on its north side.
+        if here[1] > 15:
+            kind = _walk(player, cells, surface, (9, 16), warps, report=report, yield_after=2)
+            if kind in ("blackout", "yield"):
+                return kind
+            if kind == "warp":
+                _checkpoint(player, report, "saved_silph_9f")
+                return "yield"
+            player.step("up")
+            player.settle(limit=80)
+            if "9f" not in str(player.state.get("zone")):
+                player.step("up")
+                player.settle(limit=80)
+            if "9f" not in str(player.state.get("zone")):
+                raise RuntimeError("the 5F pad did not open 9F: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_silph_9f")
+            return "yield"
+        kind = _walk(player, cells, surface, (20, 1), warps, report=report, yield_after=2)
         if kind in ("blackout", "yield"):
             return kind
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (20, 1):
+            raise RuntimeError("the lift path is closed: " + json.dumps(summary(player.state)))
         player.step("up")
         player.settle(limit=80)
         if "elevator" not in str(player.state.get("zone")):
