@@ -1,0 +1,14 @@
+{
+  "journey": {
+    "name": "link-cable-celadon",
+    "seed": 42
+  },
+  "outputs": [
+    "link-cable-floor.png",
+    "link-cable-shelf.png",
+    "link-cable-before.png",
+    "link-cable-after.png",
+    "link-cable-evolve-01.png",
+    "link-cable-evolve-80.png"
+  ]
+}
