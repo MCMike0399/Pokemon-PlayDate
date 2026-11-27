@@ -3276,53 +3276,80 @@ class CharmanderRun(BrockJourney):
             return True
         return model.feet[y][x] in self._SURF_FEET
 
-    def _cave_cross(self, goals):
-        """Walk land and Surf the cave water. The goal warp changes the floor."""
+    def _cave_pair_blocked(self, model, here, nxt):
+        """Cavern water does not meet every land foot.
+
+        fieldTravel.json blocks CAVERN feet 20 and 5. The land at (21, 6)
+        is foot 5, so Surf there is refused. The same pairs are on the map.
+        """
+        pair = (model.feet[here[1]][here[0]], model.feet[nxt[1]][nxt[0]])
+        return any(pair == (first, second) or pair == (second, first) for first, second in model.pairs)
+
+    def _cave_maze(self, goals):
+        """Cross the three cave floors. Holes are warps. Surf stays on legal pairs."""
         from collections import deque
         goals = set(goals)
-        origin = self._map_name()
+        floors = {self.zone(name) for name in ("CeruleanCave1F", "CeruleanCave2F", "CeruleanCaveB1F")}
         dirs = ((1, 0, "right"), (-1, 0, "left"), (0, 1, "down"), (0, -1, "up"))
-        for _ in range(240):
-            if self._map_name() != origin or self.position() in goals:
+        delta = {"right": (1, 0), "left": (-1, 0), "down": (0, 1), "up": (0, -1)}
+        for _ in range(500):
+            here = (self.state["zone_id"],) + tuple(self.position())
+            if here in goals:
                 return
-            model = self.model()
-            start = self.position()
-            blocked = set(self.occupied())
-            queue, prev = deque([start]), {start: None}
+            queue, prev = deque([here]), {here: None}
             found = None
             while queue:
-                x, y = queue.popleft()
+                zone, x, y = queue.popleft()
+                model = self.models[zone]
                 for dx, dy, name in dirs:
                     nxt = (x + dx, y + dy)
-                    if nxt in prev or nxt in blocked or not self._cave_passable(model, nxt, goals):
+                    if not model.inside(nxt) or self._cave_pair_blocked(model, (x, y), nxt):
                         continue
-                    prev[nxt] = ((x, y), name)
-                    if nxt in goals:
-                        found = nxt
+                    warp = next((event for event in model.events["warps"]
+                                 if (event["x"], event["y"]) == nxt), None)
+                    if warp is not None:
+                        try:
+                            dest_zone, dest_at = self.project_warp(model, warp)
+                        except ProtocolError:
+                            continue
+                        if dest_zone not in floors:
+                            continue
+                        dest = (dest_zone, dest_at[0], dest_at[1])
+                    else:
+                        land = model.collision[nxt[1]][nxt[0]] == 0
+                        if not land and model.feet[nxt[1]][nxt[0]] not in self._SURF_FEET:
+                            continue
+                        dest = (zone, nxt[0], nxt[1])
+                    if dest in prev:
+                        continue
+                    prev[dest] = ((zone, x, y), name)
+                    if dest in goals:
+                        found = dest
                         queue.clear()
                         break
-                    queue.append(nxt)
+                    queue.append(dest)
             if found is None:
-                raise ProtocolError("no cave route on " + origin + " from " + str(start) + " to " + str(sorted(goals)))
-            cur = found
-            while prev[cur] is not None and prev[prev[cur][0]] is not None:
-                cur = prev[cur][0]
-            name = prev[cur][1]
-            before = self.position()
-            nxt = (before[0] + {"right": 1, "left": -1, "down": 0, "up": 0}[name],
-                   before[1] + {"right": 0, "left": 0, "down": 1, "up": -1}[name])
-            entering = model.feet[nxt[1]][nxt[0]] in self._SURF_FEET and model.collision[nxt[1]][nxt[0]] != 0
-            if model.collision[before[1]][before[0]] == 0 and entering and not self._surfing():
+                raise ProtocolError("no cave route from " + str(here) + " to " + str(sorted(goals)))
+            step = found
+            while prev[step][0] != here:
+                step = prev[step][0]
+            name = prev[step][1]
+            model = self.model()
+            before_zone, before = self.state["zone_id"], self.position()
+            nxt = (before[0] + delta[name][0], before[1] + delta[name][1])
+            onto_water = (model.inside(nxt) and model.feet[nxt[1]][nxt[0]] in self._SURF_FEET
+                          and model.collision[nxt[1]][nxt[0]] != 0)
+            if model.collision[before[1]][before[0]] == 0 and onto_water and not self._surfing():
                 self.face(name)
                 index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
                 self.use_field(index, "surf")
-            elif entering or self._surfing():
+            elif onto_water or self._surfing():
                 self._surf_press(name, 1)
             else:
                 self._step(name)
-            if self.position() == before and self._map_name() == origin:
-                raise ProtocolError("cave step stayed at " + str(before))
-        raise ProtocolError("cave crossing stayed on " + origin + " " + str(self.position()))
+            if self.state["zone_id"] == before_zone and self.position() == before:
+                raise ProtocolError("cave step stayed at " + str(before) + " on " + self._map_name())
+        raise ProtocolError("cave maze stayed at " + self._map_name() + " " + str(self.position()))
 
     def route_portal(self, target_id, goal=None):
         """The shared search gives up at 2048 nodes. Kanto to the cave is longer."""
@@ -3442,13 +3469,15 @@ class CharmanderRun(BrockJourney):
             if not self._on("CeruleanCaveB1F"):
                 ladder = next(event for event in self.models[cave].events["warps"]
                               if event["id"] == "pokered:CERULEAN_CAVE_1F:warps:9")
-                self._cave_cross({(ladder["x"], ladder["y"])})
+                dest_zone, dest_at = self.project_warp(self.models[cave], ladder)
+                self._cave_maze({(dest_zone, dest_at[0], dest_at[1])})
             if not self._on("CeruleanCaveB1F"):
                 raise ProtocolError("cave ladder stayed on " + self._map_name() + " " + str(self.position()))
             basement = self.zone("CeruleanCaveB1F")
             mewtwo = next(event for event in self.models[basement].events["objects"]
                           if event["id"] == "pokered:CERULEAN_CAVE_B1F:objects:1")
-            self._cave_cross(set(self.models[basement].approaches((mewtwo["x"], mewtwo["y"]))))
+            self._cave_maze({(basement,) + point
+                             for point in self.models[basement].approaches((mewtwo["x"], mewtwo["y"]))})
             self._record_screen("mewtwo", 70)
             self.interact(source_id=mewtwo["id"])
         if not self.flag("EVENT_BEAT_MEWTWO"):
@@ -5407,6 +5436,10 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("self._bind_post_rainbow()", postgame)
         self.assertIn('event_choices["pokered:CERULEAN_CAVE_1F:script:mew-gift"] = "MEW"', postgame)
         self.assertIn("self._surf_down_route24()", postgame)
+        self.assertIn("self._cave_maze(", postgame)
+        maze = source.split("def _cave_maze", 1)[1].split("def route_portal", 1)[0]
+        self.assertIn("model.pairs", source.split("def _cave_pair_blocked", 1)[1].split("def _cave_maze", 1)[0])
+        self.assertIn("project_warp", maze)
         self.assertIn("press up", postgame)
         self.assertLess(source.index("def route_portal"), source.index("def _play_postgame"))
         self.assertIn("len(best) <= 16384", source.split("def route_portal", 1)[1].split("def _play_postgame", 1)[0])
