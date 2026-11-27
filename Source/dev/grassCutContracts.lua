@@ -19,6 +19,9 @@ local function scene(fn, entry)
     SessionCodec.releaseValidationProof()
     SaveStore.dropDecodedRecords()
     if HarnessDiagnostics.releaseRetainedViews then HarnessDiagnostics.releaseRetainedViews() end
+    if SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
+    if SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
     collectgarbage("collect")
     collectgarbage("collect")
     entry = entry or {x = 6, y = 14, facing = "right"}
@@ -515,6 +518,10 @@ function GrassCutContracts.run()
             g.machine:pop()
             local prefix = "grass-cut-contract-" .. tostring(playdate.getCurrentTimeMilliseconds())
             local saves = GameSaves(g, prefix)
+            -- Continue inflates the save beside Route 6. The map bed is not
+            -- part of that restore, and it is the allocation that no longer fits.
+            if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
+            collectgarbage("collect")
             local ok, problem = pcall(function()
                 assert(saves:save())
                 local saved = assert(saves.store:load())
