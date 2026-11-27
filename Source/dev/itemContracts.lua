@@ -56,13 +56,13 @@ tm47 tm48 tm49 tm50 lightBall linkCable
         end
         equal(blue, 125)
         equal(count, 126)
-        -- Item 251, the first id after TM_SUBSTITUTE. Not a mart item.
+        -- Item 251, the first id after TM_SUBSTITUTE. Sold beside the Celadon 4F stones at the stone price.
         local cable <const> = ItemData.definitions.linkCable
         equal(cable.symbol, "LINK_CABLE")
         equal(cable.numericId, 251)
         equal(cable.name, "LINK CABLE")
-        equal(cable.price, 0)
-        equal(cable.sellPrice, 0)
+        equal(cable.price, 2100)
+        equal(cable.sellPrice, 1050)
         equal(cable.keyItem, false)
         equal(cable.category, "evolution")
         equal(cable.effect, "evolution")

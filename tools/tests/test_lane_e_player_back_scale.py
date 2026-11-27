@@ -16,8 +16,15 @@ class PlayerBackScaleTests(unittest.TestCase):
         scene = (ROOT / "Source/battle/battleScene.lua").read_text()
         back = scene.split("function BattleScene:drawPlayerBack()", 1)[1].split(
             "function BattleScene:", 1)[0]
+        # engine/battle/core.asm LoadPlayerBackPic
+        # ld de, RedPicBack / predef ScaleSpriteByTwo
+        # One scaled draw of that pic. No second bitmap at (0, 0).
         self.assertIn("local size = 80", back)
-        self.assertIn("drawScaled(0, 0, scale)", back)
+        self.assertIn("RedPicBack", back)
+        self.assertIn("ScaleSpriteByTwo", back)
+        self.assertIn("self.playerBackImage:drawScaled(x, y, scale)", back)
+        self.assertNotIn("drawScaled(0, 0, scale)", back)
+        self.assertNotIn("gfx.image.new(sw, sh)", back)
         self.assertIn("70 + size - sh", back)
 
 

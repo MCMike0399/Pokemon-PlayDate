@@ -1,0 +1,118 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 219755eb..c4b7d471 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1267,6 +1267,78 @@ function Battle:mirrorMove(move)
+     return self:performMove(copied)
+ end
+ 
++-- fidelity-ledger.md Wide Guard row: Gen V rules apply to moves pokered has.
++-- The call pool is pokered's move table (through Struggle), not later-gen
++-- moves in moveData. Gen V bans that exist in that table are Metronome,
++-- Struggle, Counter, Mimic, Mirror Move, and Transform.
++local pokeredMove <const> = {
++    pound=true, karateChop=true, doubleSlap=true, cometPunch=true,
++    megaPunch=true, payDay=true, firePunch=true, icePunch=true,
++    thunderPunch=true, scratch=true, viceGrip=true, guillotine=true,
++    razorWind=true, swordsDance=true, gust=true, wingAttack=true,
++    whirlwind=true, bind=true, slam=true, vineWhip=true,
++    stomp=true, doubleKick=true, megaKick=true, jumpKick=true,
++    rollingKick=true, sandAttack=true, headbutt=true, hornAttack=true,
++    furyAttack=true, hornDrill=true, tackle=true, bodySlam=true,
++    wrap=true, takeDown=true, thrash=true, doubleEdge=true,
++    tailWhip=true, poisonSting=true, twineedle=true, pinMissile=true,
++    leer=true, bite=true, growl=true, roar=true,
++    sing=true, supersonic=true, sonicBoom=true, disable=true,
++    acid=true, ember=true, flamethrower=true, mist=true,
++    waterGun=true, hydroPump=true, iceBeam=true, blizzard=true,
++    psybeam=true, bubbleBeam=true, auroraBeam=true, hyperBeam=true,
++    peck=true, drillPeck=true, submission=true, lowKick=true,
++    counter=true, seismicToss=true, absorb=true, megaDrain=true,
++    leechSeed=true, growth=true, razorLeaf=true, solarBeam=true,
++    poisonPowder=true, stunSpore=true, sleepPowder=true, petalDance=true,
++    stringShot=true, dragonRage=true, fireSpin=true, thunderShock=true,
++    thunderbolt=true, thunderWave=true, thunder=true, rockThrow=true,
++    earthquake=true, fissure=true, dig=true, toxic=true,
++    confusion=true, psychic=true, hypnosis=true, meditate=true,
++    agility=true, quickAttack=true, rage=true, teleport=true,
++    nightShade=true, mimic=true, screech=true, doubleTeam=true,
++    recover=true, harden=true, minimize=true, smokescreen=true,
++    confuseRay=true, withdraw=true, defenseCurl=true, barrier=true,
++    lightScreen=true, haze=true, reflect=true, focusEnergy=true,
++    bide=true, metronome=true, mirrorMove=true, selfDestruct=true,
++    eggBomb=true, lick=true, smog=true, sludge=true,
++    boneClub=true, fireBlast=true, waterfall=true, clamp=true,
++    swift=true, skullBash=true, spikeCannon=true, constrict=true,
++    amnesia=true, kinesis=true, softBoiled=true, highJumpKick=true,
++    glare=true, dreamEater=true, poisonGas=true, barrage=true,
++    leechLife=true, lovelyKiss=true, skyAttack=true, transform=true,
++    bubble=true, dizzyPunch=true, spore=true, psywave=true,
++    splash=true, acidArmor=true, crabhammer=true, explosion=true,
++    furySwipes=true, bonemerang=true, rest=true, rockSlide=true,
++    hyperFang=true, sharpen=true, conversion=true, triAttack=true,
++    superFang=true, slash=true, substitute=true, struggle=true,
++    cut=true, fly=true, surf=true, strength=true,
++    flash=true,
++}
++local metronomeBanned <const> = {
++    metronome=true, struggle=true, counter=true, mimic=true,
++    mirrorMove=true, transform=true,
++}
++function Battle:metronome(move)
++    local keys = {}
++    for key, definition in pairs(moveData) do
++        if pokeredMove[key] and not metronomeBanned[key]
++            and definition and not definition.noPP and definition.name then
++            keys[#keys + 1] = key
++        end
++    end
++    table.sort(keys)
++    self.metronomeEligible = keys
++    if #keys == 0 then
++        self:say("But it failed!")
++        self.conditions:moveFinished(move, false)
++        return nil
++    end
++    local pick = keys[RulesRNG.random(1, #keys)]
++    self.metronomePick = pick
++    return self:performMove(moveData[pick])
++end
++
+ -- Keep a bounded, transient diagnostic in addition to the Simulator dev log.
+ -- Neither this receipt nor the support inventory owns battle outcomes or saves.
+ function Battle:recordMoveGap(key, reason)
+@@ -1382,5 +1382,8 @@ function Battle:performMove(move)
+     -- Mirror Move spends its own PP, then runs the copied move on this path.
+     if self.currentMoveKey=="mirrorMove" then return self:mirrorMove(move) end
++    -- Gen V Metronome calls a pokered move. The Gen V bans in that table are
++    -- Metronome, Struggle, Counter, Mimic, Mirror Move, and Transform.
++    if self.currentMoveKey=="metronome" then return self:metronome(move) end
+     if handler == "wild-escape" then
+         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
+         -- zero, no selfSwitch, trainer failure even with a usable reserve.
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index bd10b883..d4434a5e 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -112,7 +112,7 @@ MoveSupport.handlers.lightScreen = "engine-dsl"
+ MoveSupport.handlers.haze = "engine-dsl"
+ MoveSupport.handlers.reflect = "engine-dsl"
+ MoveSupport.handlers.focusEnergy = "engine-dsl"
+-MoveSupport.gaps.metronome = "onHit"
++MoveSupport.handlers.metronome = "battle-condition"
+ MoveSupport.handlers.mirrorMove = "battle-condition"
+ MoveSupport.handlers.selfDestruct = "engine-dsl"
+ MoveSupport.handlers.eggBomb = "standard-damage"
+diff --git a/tools/references/move-support.json b/tools/references/move-support.json
+index 9efb566a..6e84a1dd 100644
+--- a/tools/references/move-support.json
++++ b/tools/references/move-support.json
+@@ -346,7 +346,7 @@
+       "handler": "engine-dsl"
+     },
+     "metronome": {
+-      "gap": "onHit"
++      "handler": "battle-condition"
+     },
+     "mirrorMove": {
+       "handler": "battle-condition"

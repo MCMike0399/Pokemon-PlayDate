@@ -154,8 +154,10 @@ function CaveEncounterContracts.run()
 
     test("terrain-only imported cave cannot activate an unbound encounter table", function()
         local game <const> = context()
-        local zone <const> = Zone.fromMapDefinition(SourceMaps.padded("MtMoon1F"), TileRegistry(),
-            { terrainFixture = true })
+        -- The raw padded slice plus a per-cell terrain copy has no contiguous
+        -- hole once the other cave maps have been built. The packed runtime
+        -- path keeps the fixture unbound without that second inflate.
+        local zone <const> = PewterWorld.isolated("MtMoon1F", { terrainFixture = true })
         local x, y = land(zone)
         rejected(game, zone, x, y, "unbound-encounter-policy")
     end)
@@ -202,12 +204,18 @@ function CaveEncounterContracts.run()
     test("FOREST non-grass and outdoor non-grass reject; ordinary grass retains Blue rate", function()
         local game <const> = context()
         for _, name in ipairs({ "ViridianForest", "Route3" }) do
+            -- Viridian Forest's source record does not decode beside the live
+            -- zone. Keep the Blue rate, drop the copy, then build the map.
+            local definition = SourceMaps.definition(name)
+            local rate <const> = definition.encounters.grass.rate_byte
+            definition = nil
+            collectgarbage("collect")
             local zone <const> = PewterWorld.isolated(name)
             local x, y = land(zone)
             rejected(game, zone, x, y, "ineligible-terrain")
             x, y = cell(zone, function(terrain, collision) return terrain.grass and collision == 0 end)
             local policy <const> = assert(zone:encounterPolicyAt(x, y))
-            equal(policy.rate.value, SourceMaps.definition(name).encounters.grass.rate_byte)
+            equal(policy.rate.value, rate)
             assert(prepare(game, zone, x, y))
         end
         local authored <const> = Zone({ name = "authored grass witness", tileRows = { "TG Fo" } })

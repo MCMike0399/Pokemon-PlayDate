@@ -1,0 +1,125 @@
+diff --git a/Source/battle/conditions.lua b/Source/battle/conditions.lua
+index 2b83a699..eff8dac2 100644
+--- a/Source/battle/conditions.lua
++++ b/Source/battle/conditions.lua
+@@ -11,8 +11,16 @@ end
+ function BattleConditions:init(battle)
+     self.battle=battle;self:clearAll()
+ end
++local function restoreMimic(mon, state)
++    local copy = state and state.mimicCopy
++    if not copy or mon.moves[copy.slot] ~= copy.key then return end
++    mon.moves[copy.slot] = "mimic"
++    mon.pp[copy.key] = nil
++    if copy.mimicPP ~= nil then mon.pp.mimic = copy.mimicPP end
++end
+ function BattleConditions:clearAll()
+-    for mon in pairs(self.members or {}) do
++    for mon, state in pairs(self.members or {}) do
++        restoreMimic(mon, state)
+         self:revertTransform(mon)
+     end
+     self.members = {}
+@@ -514,6 +549,7 @@ function BattleConditions:preventsStatus(mon,status,origin)
+     return origin.cause=="move" or origin.cause=="ability" or origin.cause=="toxicSpikes"
+ end
+ function BattleConditions:clear(mon)
++    restoreMimic(mon, self.members[mon])
+     self:revertTransform(mon)
+     self.members[mon]=nil
+     for _,state in pairs(self.members) do
+@@ -521,6 +557,49 @@ function BattleConditions:clear(mon)
+         if state.infatuation and state.infatuation.source==mon then state.infatuation=nil end
+     end
+ end
++-- pokered MimicEffect copies into the Mimic slot. Gen V (ledger Wide Guard
++-- row: Gen V rules apply to moves pokered has) gives that copy 5 PP and
++-- drops it when the battler leaves, instead of keeping the copied move.
++function BattleConditions:mimic()
++    local b = self.battle
++    local user, target = b.attacker, b.defender
++    if not user:isAlive() or not target:isAlive() then
++        b:say("But it failed!")
++        return false
++    end
++    local known = {}
++    for _, key in ipairs(self:movesOf(user)) do known[key] = true end
++    local choices = {}
++    for _, key in ipairs(self:movesOf(target)) do
++        if not known[key] and key ~= "struggle" and moveData[key] then
++            choices[#choices + 1] = key
++        end
++    end
++    table.sort(choices)
++    if #choices == 0 then
++        b:say("But it failed!")
++        return false
++    end
++    local slot
++    for index, key in ipairs(user.moves) do
++        if key == "mimic" then slot = index end
++    end
++    if not slot then
++        b:say("But it failed!")
++        return false
++    end
++    local pick = choices[RulesRNG.random(1, #choices)]
++    local state = self:of(user)
++    if not state.mimicCopy then
++        state.mimicCopy = {slot = slot, mimicPP = user.pp.mimic}
++    end
++    state.mimicCopy.slot = slot
++    state.mimicCopy.key = pick
++    user.moves[slot] = pick
++    user.pp[pick] = 5
++    b:say(user.name .. " learned " .. moveData[pick].name .. "!")
++    return true
++end
+ function BattleConditions:mustRecharge(mon)
+     local state=self.members[mon]
+     return state~=nil and state.recharge==true
+diff --git a/Source/battle/dsl.lua b/Source/battle/dsl.lua
+index 73e0d054..2bc8d91a 100644
+--- a/Source/battle/dsl.lua
++++ b/Source/battle/dsl.lua
+@@ -633,3 +643,5 @@ function SubstituteEffect:apply(battle)
+     if not ok then battle:say("But it failed!") end
+     return ok
+ end
++Class("MimicEffect")
++function MimicEffect:apply(battle) return battle.conditions:mimic() end
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index bd10b883..6a033240 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -100,3 +100,3 @@ MoveSupport.handlers.nightShade = "engine-dsl"
+ MoveSupport.handlers.nightShade = "engine-dsl"
+-MoveSupport.gaps.mimic = "onHit"
++MoveSupport.handlers.mimic = "dsl"
+ MoveSupport.handlers.screech = "dsl"
+diff --git a/Source/battle/moves.lua b/Source/battle/moves.lua
+index e37af4f4..2dfa4f9b 100644
+--- a/Source/battle/moves.lua
++++ b/Source/battle/moves.lua
+@@ -381,7 +381,7 @@ moveData = {
+         return Move{ name = "NIGHT SHADE", type = "ghost", category = "special", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, LevelOf(ATTACKER)) } }
+     end,
+     mimic = function()
+-        return Move{ name = "MIMIC", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
++        return Move{ name = "MIMIC", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { MimicEffect() } }
+     end,
+     screech = function()
+         return Move{ name = "SCREECH", type = "normal", category = "status", power = 0, accuracy = 85, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "def", -2) } }
+diff --git a/tools/references/move-support.json b/tools/references/move-support.json
+index 9efb566a..9bdbc2d3 100644
+--- a/tools/references/move-support.json
++++ b/tools/references/move-support.json
+@@ -301,7 +301,7 @@
+       "handler": "engine-dsl"
+     },
+     "mimic": {
+-      "gap": "onHit"
++      "handler": "dsl"
+     },
+     "screech": {
+       "handler": "dsl"

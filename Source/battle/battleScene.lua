@@ -129,6 +129,14 @@ end
 function BattleScene:init(battle)
     self.battle = battle
     battle.presentationAttached = true
+    if battle.pendingSilhouette then
+        -- The slide waited for this production scene. It is not a script
+        -- presentationRequest, so a missing scene never blocks settle.
+        battle.pendingSilhouette = nil
+        self.openingSlide = {kind = "silhouetteEnter", details = {}}
+        self.activePresentation = self.openingSlide
+        self.presentationFrame = 0
+    end
     self.displayVitals = setmetatable({}, {__mode = "k"})
     self:vitals(battle.player)
     self:vitals(battle.enemy)
@@ -245,7 +253,8 @@ function BattleScene:enter()
 end
 
 function BattleScene:handleInput()
-    if self.captureClosed or self:isCaptureBlocking() or self:isVitalsBlocking() or self.battle.presentationRequest then
+    if self.captureClosed or self:isCaptureBlocking() or self:isVitalsBlocking() or self.battle.presentationRequest
+        or self:silhouetteOffset() > 0 then
         return
     end
     if self.introPhase ~= "ready" or self.introDrawing then return end
@@ -352,6 +361,7 @@ end
 function BattleScene:update()
     if self.captureClosed then return end
     self:updateVitals()
+    self:updateOpeningSlide()
     self:updatePresentation()
     self:syncMessage()
     self.messageDialog:update()
@@ -545,6 +555,10 @@ function BattleScene:drawBattleField()
 
     if self.trainerVisible then
         self:drawTrainer()
+    elseif self:silhouetteOffset() > 0 and self.battle.enemy then
+        -- Wild battles slide the mon pic in with the player back. The
+        -- sprite is the one drawPresentedPokemon already loads.
+        self:drawPresentedPokemon(self.battle.enemy, "enemy", 300 + self:silhouetteOffset(), 20, false)
     end
     if self.enemyShown and not self:isFaintSlide("enemy")
         and (not self.captureAnimation or self.captureAnimation:isEnemyVisible())
@@ -917,6 +931,20 @@ function BattleScene:isVitalsBlocking()
     return false
 end
 
+function BattleScene:updateOpeningSlide()
+    local request = self.openingSlide
+    if not request then return end
+    if self.battle.presentationRequest then
+        self.openingSlide = nil
+        if self.activePresentation == request then self.activePresentation = nil end
+        return
+    end
+    self:updateVisualEvent(request)
+    if self.activePresentation ~= request then
+        self.openingSlide = nil
+    end
+end
+
 function BattleScene:updatePresentation()
     local request = self.battle.presentationRequest
     if not request then
@@ -992,6 +1020,12 @@ function BattleScene:updateVisualEvent(request)
     local duration = request.kind == "move" and 24 or 20
     if not GameOptions.battleAnimations() then
         duration = 1
+    end
+    if request.kind == "silhouetteEnter" then
+        -- engine/battle/core.asm SlidePlayerAndEnemySilhouettesOnScreen
+        -- ld c, $90 and decrements by 2 (72 Game Boy frames). Playdate is
+        -- 30fps and the pics are 2x, so 36 frames at 8px. No new bitmap.
+        duration = 36
     end
     if request.kind == "sendout" and self.presentationFrame >= 10 then
         self[request.details.side .. "Shown"] = request.details.pokemon
@@ -1092,31 +1126,28 @@ end
 
 function BattleScene:drawPlayerBack()
     if self.playerBackImage == nil then
+        -- engine/battle/core.asm LoadPlayerBackPic: ld de, RedPicBack
+        -- predef ScaleSpriteByTwo. gfx/player/redb.png is stored as
+        -- images/player/red-pic-back. tools/generate_battle_art.py:113
+        -- threshold: value >= 128 is white. The slot draws that one pic
+        -- with drawScaled(x, y, scale). It does not keep a second bitmap.
         self.playerBackImage = gfx.image.new("images/player/red-pic-back") or false
     end
     if not self.playerBackImage then return end
-    -- redb.png is 32x32, the same pixels as an overworld frame. The player's
-    -- battle slot is the 80px box used for back sprites, feet on y 150.
     local size = 80
     local iw, ih = self.playerBackImage:getSize()
     local scale = math.min(size / iw, size / ih)
     local sw = math.max(1, math.floor(iw * scale))
     local sh = math.max(1, math.floor(ih * scale))
-    if self.playerBackScale ~= scale then
-        local image = gfx.image.new(sw, sh)
-        gfx.pushContext(image)
-            gfx.setDrawOffset(0, 0)
-            self.playerBackImage:drawScaled(0, 0, scale)
-        gfx.popContext()
-        self.playerBackScaled = image
-        self.playerBackScale = scale
-    end
     local x = 55 + math.floor((size - sw) / 2)
     local y = 70 + size - sh
-    self.playerBackScaled:draw(x, y)
+    self.playerBackImage:drawScaled(x, y, scale)
 end
 
 function BattleScene:drawTrainer()
+    -- Mon front sprites are flat 1-bit (mode 1, black and white only).
+    -- gfx/trainers/*.png grays stay flat. The Bayer 31.25%/68.75% patterns
+    -- in lib/shade.lua are for overworld grids, not these portraits.
     local sourceClass = self.battle.trainerClass
     if not sourceClass then
         return
@@ -1132,6 +1163,7 @@ function BattleScene:drawTrainer()
     end
     local offset = self.activePresentation and self.activePresentation.kind == "trainerExit"
         and (self.presentationFrame or 0) * 6 or 0
+    offset = offset + self:silhouetteOffset()
     local w, h = self.trainerImage:getSize()
     self.trainerImage:draw(340 - w // 2 + offset, 8)
 end
@@ -1146,7 +1178,7 @@ local moveMotifs <const> = {
 
 function BattleScene:drawPresentation()
     local request = self.activePresentation
-    if not request or request.kind == "experience" or not GameOptions.battleAnimations() then
+    if not request or request.kind == "experience" or request.kind == "silhouetteEnter" or not GameOptions.battleAnimations() then
         return
     end
     local frame = self.presentationFrame or 0
@@ -1236,6 +1268,11 @@ function BattleScene:drawPresentation()
 end
 
 function BattleScene:syncMessage()
+    -- The fight line is already queued. It stays off the glass until the
+    -- opening slide has settled, so the text does not share the iris.
+    if self:silhouetteOffset() > 0 then
+        return
+    end
     -- Include script generation: repeated identical narration is still a new
     -- page, while drawing remains a read-only consumer of the cached dialog.
     local phase = self.battle.machine:current()
@@ -1248,9 +1285,39 @@ function BattleScene:syncMessage()
     self.messageSerial = serial
     self.messageReady = false
     if self.battle.message == "" then
+        self.battle.messageEnding = nil
         return
     end
-    self.messageDialog:show({self.battle.message}, function()
+    local entry = self.battle.message
+    if self.battle.messageEnding then
+        entry = {text = self.battle.message, ending = self.battle.messageEnding}
+    end
+    self.messageDialog:show({entry}, function()
         self.messageReady = true
     end)
+end
+
+function BattleScene:silhouetteOffset()
+    local request = self.activePresentation
+    if not request or request.kind ~= "silhouetteEnter" then return 0 end
+    -- engine/battle/core.asm:9 SlidePlayerAndEnemySilhouettesOnScreen.
+    -- Both pics start at SCX $90 and walk in from the right. This is only
+    -- an x delta on pics the scene already holds. Nothing here allocates.
+    local frames <const> = 36
+    local step <const> = 8
+    local remain = frames - (self.presentationFrame or 0)
+    if remain < 0 then remain = 0 end
+    return remain * step
+end
+
+local drawPlayerBackPic = BattleScene.drawPlayerBack
+function BattleScene:drawPlayerBack()
+    local slide = self:silhouetteOffset()
+    if slide == 0 then
+        return drawPlayerBackPic(self)
+    end
+    local ox, oy = gfx.getDrawOffset()
+    gfx.setDrawOffset(ox + slide, oy)
+    drawPlayerBackPic(self)
+    gfx.setDrawOffset(ox, oy)
 end

@@ -1,0 +1,230 @@
+-- Ink and bounds for the pokered mart list. af519899 home/list_menu.asm
+-- and data/text_boxes.asm. Fails until lane-e-mart-list-fidelity.patch
+-- adds Source/game/martList.lua.
+local ROOT = assert(arg[1], "repo path required")
+dofile(ROOT .. "/Source/game/martList.lua")
+
+local function eq(actual, expected, label)
+    if actual ~= expected then
+        error(label .. " expected " .. tostring(expected) .. " got " .. tostring(actual))
+    end
+end
+
+local boxes = MartList.boxes()
+eq(boxes.money.col, 11, "money column")
+eq(boxes.money.row, 0, "money row")
+eq(boxes.money.innerW, 7, "money inner width")
+eq(boxes.money.innerH, 1, "money inner height")
+eq(boxes.money.x, 220, "money x")
+eq(boxes.money.y, 0, "money y")
+eq(boxes.money.w, 180, "money width")
+eq(boxes.money.h, 39, "money height")
+eq(boxes.list.col, 4, "list column")
+eq(boxes.list.row, 2, "list row")
+eq(boxes.list.innerW, 14, "list inner width")
+eq(boxes.list.innerH, 9, "list inner height")
+eq(boxes.list.x, 80, "list x")
+eq(boxes.list.y, 26, "list y")
+eq(boxes.list.w, 320, "list width")
+eq(boxes.list.h, 143, "list height")
+eq(boxes.list.y, boxes.money.y + boxes.money.h - 13, "money box and list share one row")
+eq(boxes.message.col, 0, "message column")
+eq(boxes.message.row, 12, "message row")
+eq(boxes.message.innerW, 18, "message inner width")
+eq(boxes.message.innerH, 4, "message inner height")
+eq(boxes.message.x, 0, "message x")
+eq(boxes.message.y, 156, "message y")
+eq(boxes.message.w, 400, "message width")
+eq(boxes.message.h, 78, "message height")
+eq(boxes.message.y, boxes.list.y + boxes.list.h - 13, "list and message share one row")
+-- home/print_bcd.asm: bit 7 set skips leading zeroes, bit 5 prints ¥
+-- before the first nonzero digit, three BCD bytes, right aligned.
+eq(MartList.figure(2100), "  ¥2100", "buy figure")
+eq(MartList.figure(1050), "  ¥1050", "sell figure")
+eq(MartList.figure(1000), "  ¥1000", "doll figure")
+eq(MartList.figure(3000), "  ¥3000", "money figure")
+eq(MartList.figure(900), "   ¥900", "money after a purchase")
+eq(MartList.figure(0), "     ¥0", "zero money")
+eq(MartList.figure(100000), "¥100000", "yen stays on the left of a full field")
+eq(utf8.len(MartList.figure(2100)), 7, "six digits plus the yen")
+
+local function joined(paint)
+    local lines = {}
+    for _, cell in ipairs(paint.cells) do lines[#lines + 1] = cell.text end
+    return table.concat(lines, "\n")
+end
+local function forbid(paint)
+    local text = joined(paint)
+    for _, needle in ipairs({"POKE MART", "A: Choose", "B: Back", "B: Leave"}) do
+        if text:find(needle, 1, true) then error("list paints " .. needle) end
+    end
+end
+local function cell(paint, text, row)
+    for _, entry in ipairs(paint.cells) do
+        if entry.text == text and entry.row == row then return entry end
+    end
+    error("missing " .. text .. " on row " .. tostring(row))
+end
+
+local rows = {
+    {name = "POKé DOLL", price = 1000, quantity = 1},
+    {name = "FIRE STONE", price = 2100, quantity = 1},
+    {name = "THUNDERSTONE", price = 2100, quantity = 1},
+    {name = "WATER STONE", price = 2100, quantity = 1},
+    {name = "LEAF STONE", price = 2100, quantity = 1},
+    {name = "LINK CABLE", price = 2100, quantity = 1},
+}
+local paint = MartList.paint(rows, 1, 3000, "buy", nil)
+eq(paint.title, false, "title is not drawn")
+eq(paint.hint, false, "hint is not drawn")
+eq(paint.rows, 4, "four visible rows")
+forbid(paint)
+local name = cell(paint, "POKé DOLL", 4)
+eq(name.col, 6, "name column")
+-- home/list_menu.asm:421 the price field starts at column 11.
+local price = cell(paint, "  ¥1000", 5)
+eq(price.col, MartList.PRICE_COLUMN, "price column")
+eq(price.row, name.row + 1, "price sits one row under the name")
+local cursor = cell(paint, "▶", 4)
+eq(cursor.col, 5, "cursor column")
+eq(cell(paint, "MONEY", 0).col, 13, "MONEY column")
+-- engine/menus/text_box.asm:140 the money field starts at column 12.
+eq(cell(paint, "  ¥3000", 1).col, MartList.MONEY_COLUMN, "amount column")
+eq(cell(paint, "Take your time.", 14).col, 1, "buy greeting")
+local ink = MartList.occupied(paint)
+local function has(col, row)
+    return ink[col .. "," .. row] ~= nil
+end
+eq(has(0, 1), false, "old POKE MART title cell is blank")
+eq(has(1, 15), false, "old A: Choose hint cell is blank")
+eq(has(11, 0), true, "money box corner")
+eq(has(13, 0), true, "MONEY ink")
+eq(has(14, 1), true, "money yen")
+eq(has(18, 1), true, "last money digit")
+for _, glyph in ipairs(paint.glyphs) do
+    if glyph.region == "money" and glyph.row == 1 and glyph.col >= 19 then
+        error("money digit crosses the frame")
+    end
+end
+eq(has(4, 2), true, "list box corner")
+eq(has(19, 12), true, "list box lower right")
+eq(has(6, 4), true, "name ink")
+for _, entry in ipairs(paint.cells) do
+    if entry.row == name.row and entry.text:find("¥", 1, true) then
+        error("price sits on the name row")
+    end
+end
+eq(price.row, name.row + 1, "price ink is the row under the name")
+eq(has(13, 5), true, "price yen")
+eq(has(17, 5), true, "last price digit")
+eq(has(18, 5), false, "price stops before the arrow column")
+eq(has(1, 14), true, "greeting ink")
+
+local scrolled = MartList.paint(rows, 6, 900, "buy", nil)
+forbid(scrolled)
+local scrolledInk = MartList.occupied(scrolled)
+eq(scrolledInk["6,10"] ~= nil, true, "scrolled LINK CABLE name")
+eq(scrolledInk["11,11"] ~= nil, true, "scrolled price stays inside the list")
+eq(scrolledInk["18,11"] ~= nil, true, "down arrow")
+eq(cell(scrolled, "LINK CABLE", 10).col, 6, "cable name")
+eq(cell(scrolled, "  ¥2100", 11).col, MartList.PRICE_COLUMN, "cable price")
+eq(cell(scrolled, "   ¥900", 1).col, MartList.MONEY_COLUMN, "money after the purchase")
+
+local sell = MartList.paint({{name = "LINK CABLE", price = 1050, quantity = 1}}, 1, 900, "sell", nil)
+forbid(sell)
+eq(sell.boxes.list.x, boxes.list.x, "sell uses the list box")
+eq(sell.boxes.money.x, boxes.money.x, "sell uses the money box")
+eq(cell(sell, "×01", 5).col, 14, "sell quantity")
+local sellText = joined(sell)
+if sellText:find("¥001050", 1, true) then error("the sell list prints a price") end
+eq(cell(sell, "What would you", 14).col, 1, "sell greeting")
+eq(cell(sell, "like to sell?", 16).col, 1, "sell greeting second line")
+local sellInk = MartList.occupied(sell)
+eq(sellInk["0,1"] == nil, true, "sell list leaves the title cell blank")
+eq(sellInk["1,15"] == nil, true, "sell list leaves the hint cell blank")
+
+local function overlaps(a, b)
+    return a.x < b.x + b.w and b.x < a.x + a.w and a.y < b.y + b.h and b.y < a.y + a.h
+end
+local function inside(glyph, bounds)
+    return glyph.x >= bounds.x and glyph.y >= bounds.y
+        and glyph.x + glyph.w <= bounds.x + bounds.w
+        and glyph.y + glyph.h <= bounds.y + bounds.h
+end
+local listInterior = MartList.interior(boxes.list)
+local function checkGlyphs(paint, label)
+    local glyphs = paint.glyphs
+    eq(#glyphs > 0, true, label .. " has glyphs")
+    for index, glyph in ipairs(glyphs) do
+        local cellX, cellY = glyph.col * MartList.CELL_W, glyph.row * MartList.CELL_H
+        if glyph.x < cellX or glyph.y < cellY
+            or glyph.x + glyph.w > cellX + MartList.CELL_W
+            or glyph.y + glyph.h > cellY + MartList.CELL_H then
+            error(label .. " glyph leaves its tile " .. glyph.char .. " at " .. glyph.col .. "," .. glyph.row)
+        end
+        if glyph.w ~= MartList.GLYPH or glyph.h ~= MartList.GLYPH then
+            error(label .. " glyph is not one screen-font tile")
+        end
+        if glyph.region == "list" and not inside(glyph, listInterior) then
+            error(label .. " glyph crosses the list frame " .. glyph.char .. " at " .. glyph.col .. "," .. glyph.row)
+        end
+        for other = index + 1, #glyphs do
+            if overlaps(glyph, glyphs[other]) then
+                error(label .. " glyphs overlap " .. glyph.char .. " and " .. glyphs[other].char)
+            end
+        end
+    end
+end
+checkGlyphs(paint, "buy list")
+checkGlyphs(scrolled, "scrolled list")
+checkGlyphs(sell, "sell list")
+local accent = false
+for _, glyph in ipairs(paint.glyphs) do
+    if glyph.char == "é" and glyph.col == 9 and glyph.row == 4 then accent = true end
+end
+eq(accent, true, "POKé DOLL uses the accent tile")
+local priceGlyphs, nameGlyphs = {}, {}
+for _, glyph in ipairs(paint.glyphs) do
+    if glyph.region == "list" and glyph.row == 5 and glyph.char ~= "▶" then
+        priceGlyphs[#priceGlyphs + 1] = glyph
+    elseif glyph.region == "list" and glyph.row == 4 and glyph.char ~= "▶" then
+        nameGlyphs[#nameGlyphs + 1] = glyph
+    end
+end
+eq(#priceGlyphs > 0 and #nameGlyphs > 0, true, "name and price rows")
+local nameBottom, priceTop = 0, 9999
+for _, glyph in ipairs(nameGlyphs) do
+    if glyph.y + glyph.h > nameBottom then nameBottom = glyph.y + glyph.h end
+end
+for _, glyph in ipairs(priceGlyphs) do
+    if glyph.y < priceTop then priceTop = glyph.y end
+    if glyph.col > MartList.PRICE_RIGHT then error("price passes the right text column") end
+end
+eq(priceTop >= nameBottom, true, "price row stays below the name row")
+local lastPrice = priceGlyphs[1]
+for _, glyph in ipairs(priceGlyphs) do
+    if glyph.col > lastPrice.col then lastPrice = glyph end
+end
+eq(lastPrice.col, MartList.PRICE_RIGHT, "price is right aligned")
+local thunder = MartList.paint({
+    {name = "THUNDERSTONE", price = 2100, quantity = 1},
+}, 1, 3000, "buy", nil)
+checkGlyphs(thunder, "thunderstone")
+local thunderRight = 0
+for _, glyph in ipairs(thunder.glyphs) do
+    if glyph.region == "list" and glyph.row == 4 and glyph.col > thunderRight then
+        thunderRight = glyph.col
+    end
+end
+eq(thunderRight < boxes.list.col + boxes.list.innerW + 1, true, "THUNDERSTONE stays inside the frame")
+local cleared = {}
+for _, rect in ipairs(paint.clears) do
+    eq(rect.w, MartList.CELL_W, "label clear covers the cell")
+    eq(rect.h, MartList.CELL_H, "label clear covers the cell height")
+    cleared[rect.col .. "," .. rect.row] = true
+end
+for col = 13, 17 do
+    eq(cleared[col .. ",0"] == true, true, "MONEY span is cleared")
+end
+eq(cleared["12,0"] == nil, true, "the dash beside MONEY stays")
+eq(cleared["18,0"] == nil, true, "the dash after MONEY stays")

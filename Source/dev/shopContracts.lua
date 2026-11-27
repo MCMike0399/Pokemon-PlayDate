@@ -78,7 +78,8 @@ function ShopContracts.run()
         buttons(shop,"a");eq(fingerprint(game),before);buttons(shop,"a")
         eq(bag:quantity("potion"),0);eq(bag:money(),3450);eq(shop.result.total,450)
         buttons(shop,"a");eq(shop.phase,"browse");eq(shop:getSnapshot().item,"none")
-        buttons(shop,"a");eq(shop.phase,"browse")
+        -- The empty sale list's only row is CANCEL, which returns to BUY/SELL/QUIT.
+        buttons(shop,"a");eq(shop.phase,"mode")
     end)
     test("Key and HM sale refusal never consumes and zero-price sale follows Items policy",function()
         for _,id in ipairs({"townMap","hm01"}) do

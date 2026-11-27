@@ -51,7 +51,7 @@ KantoEvents = {
   cues = {
     ["anne_horn"] = {score="anne_horn", kind="sfx", source="scripts/VermilionDock.asm:74", token="SFX_SS_ANNE_HORN"},
     ["arrow_tiles"] = {score="arrow_tiles", kind="sfx", source="scripts/ViridianGym.asm:46", token="SFX_ARROW_TILES"},
-    ["badge"] = {score="key_item", kind="jingle", source="home/text.asm:551", token="SFX_GET_KEY_ITEM"},
+    ["badge"] = {score="item", kind="jingle", source="home/text.asm:546", token="SFX_GET_ITEM_1"},
     ["ball_poof"] = {score="ball_poof", kind="sfx", source="engine/battle/animations.asm:777", token="SFX_BALL_POOF"},
     ["ball_toss"] = {score="ball_toss", kind="sfx", source="engine/battle/animations.asm:698", token="SFX_BALL_TOSS"},
     ["bicycle"] = {score="bicycle", kind="music", source="home/audio.asm:27", token="MUSIC_BIKE_RIDING"},

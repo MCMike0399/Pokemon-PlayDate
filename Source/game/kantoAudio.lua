@@ -3,6 +3,7 @@
 import "audio/events"
 import "audio/select"
 import "audio/engine"
+import "audio/moveSfx"
 
 KantoAudio = {}
 
@@ -600,6 +601,8 @@ function KantoAudio.updateGame(game)
             end
             observer.battle = battle
             observer.lowHP = nil
+            observer.pendingCry = nil
+            observer.pendingCryFrames = nil
         end
 
         if battle then
@@ -669,14 +672,24 @@ function KantoAudio.updateGame(game)
 
             -- FaintEnemyPokemon (core.asm) waits out SFX_FAINT_FALL, then
             -- plays SFX_FAINT_THUD. A wild win skips the fall and plays the
-            -- victory bed instead. The player's own faint is the thud alone.
-            -- GetMoveSound plays the move's row first. When the damage lands
-            -- in the same update, the hit or fall follows that row.
+            -- victory bed instead. The player's own faint is the cry after
+            -- the move row. GetMoveSound plays that row first. When the
+            -- damage lands in the same update, the hit or fall follows it.
             if observer.pendingThud then
                 observer.pendingThud = observer.pendingThud - 1
                 if observer.pendingThud <= 0 then
                     observer.pendingThud = nil
                     KantoAudio.playSFX("faint")
+                end
+            end
+            if observer.pendingCryFrames then
+                observer.pendingCryFrames = observer.pendingCryFrames - 1
+                if observer.pendingCryFrames <= 0 then
+                    observer.pendingCryFrames = nil
+                    if observer.pendingCry then
+                        KantoAudio.playCry(observer.pendingCry)
+                    end
+                    observer.pendingCry = nil
                 end
             end
             if enemyFaint and not info.wild then
@@ -689,8 +702,16 @@ function KantoAudio.updateGame(game)
                 end
             elseif faint then
                 observer.pendingThud = nil
-                if moveCue then
-                    playSequence({moveCue, "faint"})
+                local species = battle.player and battle.player.species
+                if battle.player and battle.player.hp ~= nil and battle.player.hp <= 0 and species then
+                    if moveCue then
+                        KantoAudio.playSFX(moveCue)
+                        observer.pendingCry = species
+                        observer.pendingCryFrames = sfxFrames(moveCue)
+                    else
+                        observer.pendingCry = species
+                        KantoAudio.playCry(observer.pendingCry)
+                    end
                 else
                     KantoAudio.playSFX("faint")
                 end
@@ -729,8 +750,19 @@ function KantoAudio.updateGame(game)
             end
         end
         if healing and observer.healing ~= healing then
-            KantoAudio.playSFX("healing_machine")
-            KantoAudio.playCue("heal")
+            -- AnimateHealingMachine plays SFX_HEALING_MACHINE once per party
+            -- member (wPartyCount), then MUSIC_PKMN_HEALED. healCount is that
+            -- count. One shot would finish the jingle before the last ball.
+            local count = healing.healCount
+            if type(count) ~= "number" or count < 1 then
+                count = 1
+            end
+            local names = {}
+            for _ = 1, count do
+                names[#names + 1] = "healing_machine"
+            end
+            names[#names + 1] = "heal"
+            playSequence(names)
         end
         observer.healing = healing
 
