@@ -96,4 +96,82 @@ Two batches.
 
 Batch 1 is patches 1 through 25 (door lock through status-fidelity), with the one partyState merge above. Cave-encounters stays 8/0 at 13083 KiB. E should expect the host pin reds in the table. They are hashed source bytes moving, not a device crash.
 
-Batch 2 was save-fidelity, trainer-fidelity, and the old six audio patches. Save-fidelity rebreaks the forest case at 13112 KiB, and trainer-fidelity adds more. Those old audio patches do not compile on main. The re-rehearsal replaces them with F's self-contained series at `cursor/lane-f-audio` `9dc7883c7e32049722821dbdb40ea8a44d79e303`, in this order: `lane-e-audio-sequencer`, `lane-e-audio-movesfx-import`, `lane-e-audio-heal-count`, `lane-e-audio-pokedex-cry`, `lane-e-audio-source-cries`, `lane-e-audio-badge-item`, `lane-e-audio-player-faint-cry`. F reports that series builds with `pdc` on clean `247d60a9` (`tools/tests/test_lane_e_audio_handoff.py`). G's replacement SHA for save-fidelity is still pending, so batch 2 has not been re-applied.
+Batch 2 of that first rehearsal was save-fidelity, trainer-fidelity, and the old six audio patches. Save-fidelity rebroke the forest case at 13112 KiB. Those old audio patches do not compile on main. The re-rehearsal below replaces them.
+
+## Batch 2 re-rehearsal
+
+Detached worktree of the same main `247d60a9216307c0e1b15316f2b052ae10d23a6c`. `source-capture-formula` stayed out. `MallocPoolSize` stayed `16645684`. Sources: G `cursor/lane-g-front-end` `39ad4248e1496012f30df4861256a63916446877`, H `cursor/lane-h-postgame` `26d64e4c11327981cb5849bd723d05e77e9beb51`, F `cursor/lane-f-audio` `9dc7883c7e32049722821dbdb40ea8a44d79e303`, I `dce824230112a22e4ead2087da9177df5616408f`, and the cave patch already on this branch. Every patch applied with `git apply` after `git add -A`. No 3-way and no conflict. `pdc` of the stacked `Source` returned 0.
+
+`lane-e-postgame-pickup-continue.patch` is new at H `26d64e4c` and is applied immediately after the updated `lane-e-mewtwo-continue-actor.patch` from that same commit. The pickup header says to apply it after the mewtwo patch. Both touch `Source/game/lateKantoStory.lua`. The mewtwo test at that commit probes the Mewtwo, Zapdos, and `PICKUP:` hide flags and passed on the stacked tree.
+
+Slide-in is the reworked patch from `39ad4248`. It sets `pendingSilhouette` and returns when `presentationAttached` is unset, so a headless settle does not yield. Its own test checks that branch and passed. Status-fidelity from the same commit already contains `PartyState.typeLines` in its hunk context, so it applies cleanly after party-status-type.
+
+Screen-font reapply is a conditional, not a unittest skip. `test_applied_grid_uses_one_font_and_does_not_move_red` runs `forward_check` and applies when that succeeds; otherwise `reverse_check` must succeed because the tree already has the patch. The file has no `unittest.skip`. The word `skip` there is the glyph-rect argument to `glyph_issues`.
+
+| # | Patch | Taken from | Apply | New red on this stack |
+| --- | --- | --- | --- | --- |
+| 1 | lane-e-e4-door-lock | I `dce82423` | clean | own test still misses the comment in the first elite-four loop |
+| 2 | lane-e-nil-player-reentry | H `26d64e4c` | clean | none |
+| 3 | lane-e-mewtwo-continue-actor | H `26d64e4c` | clean | none |
+| 4 | lane-e-postgame-pickup-continue | H `26d64e4c` | clean | none; mewtwo test covers the pickup flags |
+| 5 | lane-e-gift-menu-input | H `26d64e4c` | clean | none |
+| 6 | lane-e-cave-encounter-memory | lane-k `576f8b70` | clean | none |
+| 7 | lane-e-counter | I `dce82423` | clean | none once `counter_host.lua` is present |
+| 8 | lane-e-razor-wind | lane-k | clean | none |
+| 9 | lane-e-mist | lane-k | clean | none |
+| 10 | lane-e-mimic | lane-k | clean | none |
+| 11 | lane-e-minimize | lane-k | clean | none |
+| 12 | lane-e-metronome | lane-k | clean | none |
+| 13 | lane-e-dream-eater | lane-k | clean | none |
+| 14 | lane-e-sky-attack | lane-k | clean | none |
+| 15 | lane-e-conversion | lane-k | clean | none |
+| 16 | lane-e-effect-message-order | I `dce82423` | clean | none once `effect_message_order_host.lua` is present |
+| 17 | lane-e-viridian-sleepy-retrigger-heap | H `26d64e4c` | clean | none |
+| 18 | lane-e-party-status-type | H `26d64e4c` | clean | none |
+| 19 | lane-e-trainer-wants-to-fight | G `39ad4248` | clean | none |
+| 20 | lane-e-battle-back-pic | G `39ad4248` | clean | none |
+| 21 | lane-e-trainer-portrait-flat | G `39ad4248` | clean | none |
+| 22 | lane-e-pokemon-accent | G `39ad4248` | clean | none; the updated accent test passed |
+| 23 | lane-e-continue-prompt | G `39ad4248` | clean | none |
+| 24 | lane-e-screen-font-grid | G `39ad4248` | clean | none |
+| 25 | lane-e-party-fidelity | G `39ad4248` | clean | none |
+| 26 | lane-e-status-fidelity | G `39ad4248` | clean | cave forest goes red (below) |
+| 27 | lane-e-battle-slide-in | G `39ad4248` | clean | none; rewards stay 23/4 |
+| 28 | lane-e-save-fidelity | G `39ad4248` | clean | none beyond the forest case already red |
+| 29 | lane-e-trainer-fidelity | G `39ad4248` | clean | trainer-card test still wants `GbFont.drawMoneyLine("¥"`; the patch writes `trainerFitString("¥"` |
+| 30 | lane-e-audio-sequencer | F `9dc7883c` | clean | none |
+| 31 | lane-e-audio-movesfx-import | F `9dc7883c` | clean | none |
+| 32 | lane-e-audio-heal-count | F `9dc7883c` | clean | none |
+| 33 | lane-e-audio-pokedex-cry | F `9dc7883c` | clean | none |
+| 34 | lane-e-audio-source-cries | F `9dc7883c` | clean | none |
+| 35 | lane-e-audio-badge-item | F `9dc7883c` | clean | none |
+| 36 | lane-e-audio-player-faint-cry | F `9dc7883c` | clean | none |
+
+Own host tests on the stacked tree: 72 run, then the three that had been missing a host script or the `~/Developer/PlaydateSDK` path. Counter, effect-message order, and `test_lane_e_audio_handoff` pass (the handoff compiles the series with `pdc` on a fresh `247d60a9` worktree). Two failures remain, both already known: the e4 door-lock slice, and `test_trainer_card_and_payday_use_yen`. That fidelity assertion is unchanged in `2ba9de33..39ad4248`. Viridian sleepy retrigger on the full stack stayed inside 64 KiB (24.5s).
+
+### Device checks
+
+`contracts cave-encounters` on the full 36 is 7 passed, 1 failed, heap 13137.8 KiB. The failure is the same forest case: `FOREST non-grass and outdoor non-grass reject; ordinary grass retains Blue rate` raises `not enough memory` at `dev/contracts.lua:446`.
+
+The requested batch 1 (patches 1–26, through status-fidelity, with mewtwo and pickup, without slide-in) is already 7/1 at 13111.0 KiB. Prefixes:
+
+| Tree | cave-encounters | heap |
+| --- | --- | --- |
+| through party-status-type, including mewtwo and pickup | 8 / 0 | 13068.6 KiB |
+| through pokemon-accent | 8 / 0 | 13069.6 KiB |
+| through party-fidelity | 8 / 0 | 13077.6 KiB |
+| through status-fidelity (requested batch 1) | 7 / 1, forest | 13111.0 KiB |
+| that tree without mewtwo and pickup | 7 / 1, forest | 13107.8 KiB |
+| full 36 | 7 / 1, forest | 13137.8 KiB |
+
+`lane-e-status-fidelity` from `39ad4248` is the first patch that puts the forest case over the edge. It adds `PartyState:drawStatus` and `drawSummary`, and `statusFitTile` builds a 12×12 image per glyph from the GB font sheets. Mewtwo and pickup add about 3 KiB and are still inside an 8/0 prefix. The later slide-in, slimmed save-fidelity, trainer-fidelity, and audio series leave the same forest failure in place and raise the scored heap to 13137.8 KiB.
+
+`contracts battle-rewards-v1` alone on the full stack is 23 passed, 4 failed, heap 12885.3 KiB. The four are the inherited ones: level-up EV identity, HUD `script-cancelled`, bench `script-cancelled`, and the stats-box `expected true, got false`. The reworked slide-in does not revive `reward presentation requires its production scene`.
+
+`contracts individual-stats-v1` is 17 passed, 0 failed, heap 13001.9 KiB. `contracts field-travel` is 3 passed, 0 failed, heap 12865.2 KiB.
+
+### Final split
+
+Batch 1 is patches 1–25 (door lock through party-fidelity). That includes mewtwo-continue-actor and, immediately after it, postgame-pickup-continue. Cave-encounters is 8/0 at 13077.6 KiB.
+
+Batch 2 starts with status-fidelity, then the reworked battle-slide-in, the slimmed save-fidelity, trainer-fidelity, and F's seven audio patches in the order above. Status-fidelity is the forest regression (7/1 at 13111.0 KiB). The rest of batch 2 keeps rewards at 23/4 and leaves individual-stats and field-travel green. The full stack stays 7/1 on the forest case at 13137.8 KiB.
