@@ -25,13 +25,56 @@ local function array(value,count)
     local seen=0;for key in pairs(value) do assert(integer(key,1,count),"invalid imported array key");seen=seen+1 end
     assert(seen==count,"sparse imported array")
 end
+local IDENTITY <const> = {id=true,key=true,name=true,width=true,height=true,revision=true,padding=true}
+local function tileCatalogue(store)
+    if not store.tileIndex then
+        local record = SourceMaps.record("data/sourceMapCache/tiles.json")
+        store.tileIndex = assert(record.tiles, "imported tile catalogue missing")
+    end
+    return store.tileIndex
+end
+local function loadHeavy(store, d)
+    if not store.lazy or d.tile_rows then return d end
+    local record = SourceMaps.record("data/sourceMapCache/entry-" .. d.name .. ".json")
+    local map = assert(record.map, "imported map entry missing")
+    assert(map.id == d.id and map.key == d.key and map.name == d.name
+        and map.width == d.width and map.height == d.height
+        and map.padding == d.padding and map.revision == d.revision,
+        "imported map entry does not match the manifest")
+    assert(type(map.tile_rows) == "table" and type(map.palette) == "table" and type(map.blocked) == "table",
+        "imported map entry is incomplete")
+    for key, value in pairs(map) do d[key] = value end
+    return d
+end
+local function dropHeavy(store, d)
+    if not store.lazy or not d.tile_rows then return end
+    if store.cache[d.id] or (store.pins[d.id] or 0) > 0 then return end
+    for key in pairs(d) do
+        if not IDENTITY[key] then d[key] = nil end
+    end
+end
+local function releaseUncached(store)
+    if not store.lazy then return end
+    local held = next(store.cache) ~= nil
+    if not held then
+        for _, count in pairs(store.pins) do
+            if count > 0 then held = true break end
+        end
+    end
+    for _, d in pairs(store.byID) do
+        if not store.cache[d.id] and (store.pins[d.id] or 0) == 0 then dropHeavy(store, d) end
+    end
+    if not held then store.tileIndex = nil end
+end
 local function rowKey(store,d,x,y)
+    if store.lazy and not d.tile_rows then loadHeavy(store, d) end
     assert(integer(x,0,d.width-1) and integer(y,0,d.height-1),"imported cell outside map")
     local id=assert(tonumber(d.tile_rows[y+1]:sub(x*2+1,x*2+2),16),"invalid compact cell index")
     return assert(d.palette[id],"unknown compact palette index")
 end
 local function metadata(store,key)
-    local value=store.data.tiles[key] or store.base[key]
+    local tiles = store.lazy and tileCatalogue(store) or store.data.tiles
+    local value=tiles[key] or store.base[key]
     assert(value,"unknown persistent imported tile key: "..tostring(key))
     return value
 end
@@ -73,6 +116,32 @@ end
 function ImportedMaps:init(data,factory)
     assert(type(data)=="table" and data.schema==1 and data.source_revision=="af519899719f0754965776faac0e836a3b906e6d","unverified compact imported definitions")
     assert(type(factory)=="table" and type(factory.create)=="function" and type(factory.ensureKeys)=="function" and type(factory.release)=="function","explicit native imported factory required")
+    if data.lazy == true then
+        local store={data=data,factory=factory,byID={},byKey={},base={},ledger={},cache={},order={},pins={},count=0,lazy=true}
+        store.resident = copy(factory.residentKeys or {})
+        store.residentCount = 0
+        for id=1,37 do local entry=WorldTiles:entry(id);store.base[entry.key]={key=entry.key,collision=entry.collision,terrain=entry.terrain} end
+        for _, name in ipairs(SourceMaps.names()) do
+            local live = SourceMaps._liveEntry(name)
+            local light = {
+                id = live.id, key = live.key, name = name, width = live.width, height = live.height,
+                padding = live.padding, revision = data.source_revision,
+            }
+            assert(not store.byID[light.id] and not store.byKey[light.key] and type(light.revision) == "string",
+                "duplicate imported descriptor identity")
+            assert(integer(light.width, 1, 4096) and integer(light.height, 1, 4096),
+                "invalid imported descriptor dimensions")
+            store.byID[light.id], store.byKey[light.key] = light, light
+            store.count = store.count + 1
+            if GameBootstrap then GameBootstrap.yieldIfDue() end
+        end
+        for key, resident in pairs(store.resident) do
+            assert(resident == true and store.byKey[key], "unknown resident source map")
+            store.residentCount = store.residentCount + 1
+        end
+        stores[self] = store
+        return
+    end
     -- Only the validated SourceMaps catalogue may be shared read-only. Arbitrary
     -- constructor inputs retain defensive ownership, even with a pinned revision.
     local definitions = data
@@ -126,10 +195,12 @@ function ImportedMaps:releaseCatalogue()
     local store=stores[self]
     store.data, store.byID, store.byKey = nil, {}, {}
     store.count = 0
+    store.lazy, store.tileIndex = nil, nil
 end
 function ImportedMaps:retargetCatalogue(data)
     assert(type(data)=="table" and data.schema==1, "unverified compact imported definitions")
     local store=stores[self]
+    store.lazy, store.tileIndex = false, nil
     store.data = data
     store.byID, store.byKey = {}, {}
     store.count = 0
@@ -142,10 +213,19 @@ function ImportedMaps:hasID(id) return stores[self].byID[id]~=nil end
 function ImportedMaps:hasKey(key) return stores[self].byKey[key]~=nil end
 function ImportedMaps:keyForID(id) local d=stores[self].byID[id];return d and d.key end
 function ImportedMaps:descriptor(idOrKey)
-    local store=stores[self];return copy(assert(store.byID[idOrKey] or store.byKey[idOrKey],"unknown imported descriptor"))
+    local store=stores[self]
+    local d=assert(store.byID[idOrKey] or store.byKey[idOrKey],"unknown imported descriptor")
+    loadHeavy(store, d)
+    local result=copy(d)
+    releaseUncached(store)
+    return result
 end
 function ImportedMaps:owns(zone) return zone and stores[self].cache[zone.stableID]==zone or false end
-function ImportedMaps:validate(payload) return normalized(stores[self],payload) end
+function ImportedMaps:validate(payload)
+    local result=normalized(stores[self],payload)
+    releaseUncached(stores[self])
+    return result
+end
 function ImportedMaps:resolveLocation(location,candidate,options)
     local store=stores[self];local d=assert(store.byID[location.zone_id],"unknown imported location")
     assert(options and options.sliceZones and options.sliceZones[d.id]==true,"imported location outside explicit supported slice")
@@ -156,6 +236,7 @@ function ImportedMaps:resolveLocation(location,candidate,options)
         for _,tile in ipairs(zone.tiles) do if tile.x==location.x and tile.y==location.y then key=tile.key end end
     end end
     assert(not d.blocked[tostring(location.y*d.width+location.x+1)] and metadata(store,key).collision==0,"imported location blocked in candidate world")
+    releaseUncached(store)
     return {zone_id=d.id,x=location.x,y=location.y,facing=location.facing}
 end
 function ImportedMaps:export()
@@ -171,6 +252,7 @@ function ImportedMaps:pin(zone)
 end
 function ImportedMaps:_ensure(key)
     local store=stores[self];local d=assert(store.byKey[key],"unknown imported map key")
+    loadHeavy(store, d)
     local found=store.cache[d.id]
     if found then
         for i,id in ipairs(store.order) do if id==d.id then table.remove(store.order,i);break end end
@@ -199,6 +281,7 @@ function ImportedMaps:_ensure(key)
     if evict then
         local old=store.cache[evict];store.factory.release(old);removeRegistry(store,old);store.cache[evict]=nil
         for i,id in ipairs(store.order) do if id==evict then table.remove(store.order,i);break end end
+        dropHeavy(store, store.byID[evict])
     end
     zone:bindDefinitionProvider(self);registerZone(key,zone)
     store.cache[d.id]=zone;store.order[#store.order+1]=d.id
@@ -209,7 +292,7 @@ function ImportedMaps:ensure(key)
     if store.cache[d.id] then return self:_ensure(key) end
     local undoCache=self:checkpointRuntime();local undoTiles=(store.factory.registry or WorldTiles):checkpointRuntime()
     local ok,result=pcall(self._ensure,self,key)
-    if not ok then undoCache();undoTiles();error(result,0) end
+    if not ok then undoCache();undoTiles();releaseUncached(store);error(result,0) end
     return result
 end
 local function sameTiles(first, second)
@@ -241,6 +324,7 @@ function ImportedMaps:apply(payload)
     end)
     if not ok then for i=#undo,1,-1 do undo[i]() end;undoRegistry();error(problem,0) end
     local previous=store.ledger;store.ledger=ledger
+    releaseUncached(store)
     return function() for i=#undo,1,-1 do undo[i]() end;store.ledger=previous;undoRegistry() end
 end
 function ImportedMaps:mutate(zone,x,y,key)
@@ -258,6 +342,7 @@ function ImportedMaps:mutate(zone,x,y,key)
     end)
     if not ok then undoRegistry();error(problem,0) end
     store.ledger[d.id]=record.tile_count>0 and normalizedOne.zones[1] or nil
+    releaseUncached(store)
     return key
 end
 function ImportedMaps:snapshot()
@@ -315,6 +400,7 @@ function ImportedMaps:releaseInactive()
         end
     end
     store.cache, store.order = cache, order
+    releaseUncached(store)
 end
 function ImportedMaps:disposeCache()
     local store=stores[self]
@@ -331,9 +417,11 @@ function ImportedMaps:disposeCache()
         end
     end
     store.cache, store.order, store.pins = cache, order, {}
+    releaseUncached(store)
 end
 function ImportedMaps:inventory()
-    local result={};for _,d in pairs(stores[self].data.maps) do
+    local result={}
+    for _,d in pairs(stores[self].byID) do
         result[#result+1]={id=d.id,key=d.key,name=d.name,width=d.width,height=d.height,revision=d.revision}
     end
     table.sort(result,function(a,b)return a.id<b.id end);return result
@@ -344,6 +432,7 @@ end
 local function actorSurface(provider, id, candidateWorld, shared)
     local store = stores[provider]
     local descriptor = assert(store.byID[id], "unknown imported surface")
+    loadHeavy(store, descriptor)
     local records = {}
     for _, record in ipairs(candidateWorld.zones) do
         if store.byID[record.zone_id] then
@@ -431,7 +520,9 @@ local function actorSurface(provider, id, candidateWorld, shared)
 end
 
 function ImportedMaps:surface(id, candidateWorld)
-    return actorSurface(self, id, candidateWorld, false)
+    local result = actorSurface(self, id, candidateWorld, false)
+    releaseUncached(stores[self])
+    return result
 end
 
 -- Actor descriptors only read these arrays. Public surface() stays defensive.

@@ -128,6 +128,11 @@ function SourceMaps.entry(name)
     return copy(assert(catalogue()[name], "map outside source manifest"))
 end
 
+-- The live manifest record. Callers must not mutate or retain it.
+function SourceMaps._liveEntry(name)
+    return assert(catalogue()[name], "map outside source manifest")
+end
+
 function SourceMaps.names(profile)
     local result = {}
     for name, entry in pairs(catalogue()) do
@@ -158,6 +163,14 @@ function SourceMaps._releaseTileGrids()
     tileGrids = nil
 end
 
+local catalogueHead
+local function catalogueHeader()
+    if not catalogueHead then
+        catalogueHead = SourceMaps.record("data/sourceMapCache/header.json")
+    end
+    return catalogueHead
+end
+
 local function compactData()
     if separateCaches and tileGrids and tileGrids[1] then
         tileGrids = nil
@@ -184,15 +197,52 @@ local function compactData()
     return compact
 end
 
+-- The full compact catalogue stays unloaded until a reader still requires every map.
+-- A hash check uses the small header. Fixture overrides keep the compact path.
+local function manifestHash()
+    if recordOverrides or compact then
+        return compactData().manifest_sha256
+    end
+    return catalogueHeader().manifest_sha256
+end
+
+local tileIndex
+-- One map, or the shared tile metadata. Neither path retains compact.json.
+local function mapRecord(name)
+    if recordOverrides or compact then
+        return assert(compactData().maps[name], "unknown source map")
+    end
+    local record = SourceMaps.record("data/sourceMapCache/entry-" .. name .. ".json")
+    local map = assert(record.map, "unknown source map")
+    assert(map.name == name, "source map entry name differs")
+    return map
+end
+
+local function tileMetadata(key)
+    if recordOverrides or compact then
+        return compactData().tiles[key]
+    end
+    if not tileIndex then
+        local record = SourceMaps.record("data/sourceMapCache/tiles.json")
+        tileIndex = assert(record.tiles, "source tile catalogue missing")
+    end
+    return tileIndex[key]
+end
+
+local function doorTileIDs(constant)
+    local doors = (recordOverrides or compact) and compactData().door_tiles or catalogueHeader().door_tiles
+    return doors[constant]
+end
+
 -- Boolean membership keeps the validated catalogue private without copying it.
 function SourceMaps.hasTile(key)
-    return not not compactData().tiles[key]
+    return not not tileMetadata(key)
 end
 
 -- Detached metadata only; callers never retain the catalogue or load art grids.
 -- Use the active record scope on every query, including fixture overrides.
 function SourceMaps.terrain(key)
-    local tile = compactData().tiles[key]
+    local tile = tileMetadata(key)
     if not tile then
         return nil
     end
@@ -239,7 +289,7 @@ local function grids()
             collectgarbage("collect")
         end
         local data = SourceMaps.record("data/sourceMapCache/tile-grids.json")
-        local actualHash = separateCaches and expectedHash or compactData().manifest_sha256
+        local actualHash = separateCaches and expectedHash or manifestHash()
         assert(data.manifest_sha256 == actualHash, "generated source cache revisions differ")
         value = data.tiles
         data = nil
@@ -342,7 +392,7 @@ function SourceMaps.directTiles(keys)
     local head = text:sub(1, headerEnd - 1):gsub(",%s*$", "") .. "}"
     local header = json.decode(head)
     if type(header) ~= "table" or header.schema ~= 1 or header.source_revision ~= revision
-        or header.manifest_sha256 ~= compactData().manifest_sha256 then
+        or header.manifest_sha256 ~= manifestHash() then
         return fallback()
     end
     local entries = {}
@@ -368,13 +418,12 @@ end
 -- Legacy warp binding needs target warp positions and arrival collision, not
 -- the target's source refs, terrain grids, objects, encounters or full layout.
 function SourceMaps.destination(name)
-    local data = compactData()
-    local descriptor = assert(data.maps[name], "unknown source destination")
+    local descriptor = mapRecord(name)
     local collision = {}
     for _, warp in ipairs(descriptor.warps) do
         for y = warp.y, math.min(warp.y + 1, descriptor.height - 1) do
             local id = assert(tonumber(descriptor.tile_rows[y + 1]:sub(warp.x * 2 + 1, warp.x * 2 + 2), 16))
-            local tile = assert(data.tiles[descriptor.palette[id]])
+            local tile = assert(tileMetadata(descriptor.palette[id]), "unknown source tile")
             collision[y + 1] = collision[y + 1] or {}
             collision[y + 1][warp.x + 1] = tile.collision
         end
@@ -471,7 +520,7 @@ local function runtimeDefinition(name, entry)
         return rawDefinition(name)
     end
     local record = SourceMaps.record("data/sourceMapCache/runtime-" .. name .. ".json")
-    assert(record.manifest_sha256 == compactData().manifest_sha256
+    assert(record.manifest_sha256 == manifestHash()
         and record.source_sha256 == entry.source_sha256, "runtime map cache differs from manifest")
     local definition = record.definition
     assert(definition.name == name and definition.id == entry.id, "runtime map identity mismatch")
@@ -761,7 +810,7 @@ end
 -- A Boolean policy query avoids copying tile rows and event records merely
 -- to inspect the immutable connection-blocker list.
 function SourceMaps.connectionBlocked(name, direction, target)
-    local descriptor = assert(compactData().maps[name], "unknown source map")
+    local descriptor = mapRecord(name)
     local id = direction .. ":" .. target
     for _, blocked in ipairs(descriptor.blocked_connections) do
         if blocked == id then
@@ -772,24 +821,23 @@ function SourceMaps.connectionBlocked(name, direction, target)
 end
 
 function SourceMaps.descriptor(name)
-    return copy(assert(compactData().maps[name], "unknown source map"))
+    return copy(mapRecord(name))
 end
 
 function SourceMaps.cell(name, x, y)
-    local data = compactData()
-    local d = assert(data.maps[name], "unknown source map")
+    local d = mapRecord(name)
     assert(type(x) == "number" and x % 1 == 0 and x >= 0 and x < d.width
         and type(y) == "number" and y % 1 == 0 and y >= 0 and y < d.height, "source cell outside map")
     local id = assert(tonumber(d.tile_rows[y + 1]:sub(x * 2 + 1, x * 2 + 2), 16))
-    local cell = copy(assert(data.tiles[d.palette[id]]))
+    local cell = copy(assert(tileMetadata(d.palette[id]), "unknown source tile"))
     if d.blocked[tostring(y * d.width + x + 1)] then cell.collision = 1 end
     return cell
 end
 
 function SourceMaps.isDoor(name, x, y)
-    local d = assert(compactData().maps[name])
+    local d = mapRecord(name)
     local foot = SourceMaps.cell(name, x, y).terrain.foot_tile
-    for _, id in ipairs(compactData().door_tiles[d.tileset.constant] or {}) do
+    for _, id in ipairs(doorTileIDs(d.tileset.constant) or {}) do
         if id == foot then return true end
     end
     return false
@@ -833,7 +881,7 @@ function SourceMaps.resolveScriptedWarp(game, door)
 end
 
 function SourceMaps.warpSpec(name, event)
-    local descriptor = assert(compactData().maps[name], "unknown source map")
+    local descriptor = mapRecord(name)
     local inert = descriptor.non_triggering_warps and descriptor.non_triggering_warps[event.id]
     if inert then
         local declared
@@ -864,12 +912,12 @@ function SourceMaps.warpSpec(name, event)
     end
     if blocksEvent(entry, event.id) then return blockedWarp(entry) end
     local destination = event.destination
-    local target = destination.kind == "last_outdoor_map" and compactData().maps[name].last_outdoor
+    local target = destination.kind == "last_outdoor_map" and descriptor.last_outdoor
         or SourceMaps.nameForID("pokered:" .. tostring(destination.map))
     if not target then
         return blockedWarp(entry)
     end
-    local d = assert(compactData().maps[target], "LAST_MAP context outside manifest")
+    local d = mapRecord(target)
     local arrival = assert(d.warps[destination.warp_index], "source target warp index absent")
     -- A closed ingress also closes its return warp. Check the warp tile itself
     -- before the door's one-cell arrival advance, so an available room can be
@@ -930,7 +978,7 @@ end
 
 local directions = { up = "north", down = "south", left = "west", right = "east" }
 function SourceMaps.connection(name, x, y, direction)
-    local d = assert(compactData().maps[name], "unknown source map")
+    local d = mapRecord(name)
     local vertical = direction == "up" or direction == "down"
     local boundary = direction == "up" and y == 0 or direction == "down" and y == d.height - 1
         or direction == "left" and x == 0 or direction == "right" and x == d.width - 1
@@ -942,7 +990,7 @@ function SourceMaps.connection(name, x, y, direction)
             end
             local target = SourceMaps.nameForID("pokered:" .. connection.target_map)
             if not target then return nil end
-            local other = compactData().maps[target]
+            local other = mapRecord(target)
             local adjustment = connection.entry_lateral_adjustment_cells
             local tx = vertical and x - d.padding + adjustment + other.padding
                 or (direction == "left" and other.width - other.padding - 1 or other.padding)

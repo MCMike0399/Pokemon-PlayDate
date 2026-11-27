@@ -5,7 +5,7 @@ local installed=setmetatable({},{__mode="k"})
 function PewterWorld.locationPolicy()
     local policy = { sliceZones = {} }
     for _, name in ipairs(SourceMaps.names()) do
-        policy.sliceZones[SourceMaps.entry(name).id] = true
+        policy.sliceZones[SourceMaps._liveEntry(name).id] = true
     end
     return policy
 end
@@ -25,7 +25,7 @@ function PewterWorld.install(game)
     end
     local policy = game.sessionLocationPolicy and game.sessionLocationPolicy.sliceZones
     for _, name in ipairs(SourceMaps.names()) do
-        local entry = SourceMaps.entry(name)
+        local entry = SourceMaps._liveEntry(name)
         assert(policy and policy[entry.id] == true and not zoneRegistry[entry.key], "explicit unloaded source location policy required")
         for _, zone in pairs(zoneRegistry) do
             assert(zone.stableID ~= entry.id, "source stable map ID already owned")

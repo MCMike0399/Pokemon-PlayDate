@@ -107,17 +107,14 @@ function EndgameStory.creditsCaption(view)
     return EndgameStory.expandPokeredText(text)
 end
 
--- HallOfFamePC fills rows 0-3 and 14-17 black. The middle, rows 4-13, is
--- white. hallView's 2x shift is the port's row mapping.
+-- HallOfFamePC fills rows 0-3 and 14-17 with tile $7e. The middle, rows
+-- 4-13, is white. credits.asm FillFourRowsWithBlack and
+-- FillMiddleOfScreenWithWhite. The bands sit on the 20 by 13 grid and do
+-- not scroll.
 function EndgameStory.creditsBands()
-    local view <const> = EndgameStory.hallView()
-    local function rowY(row)
-        return view.y + row * 8 * view.scale
-    end
+    local row <const> = TitleIdle.ROW
     local function band(row0, row1)
-        local y0 = math.max(0, rowY(row0))
-        local y1 = math.min(240, rowY(row1))
-        return {x = 0, y = y0, w = 400, h = y1 - y0}
+        return {x = 0, y = row0 * row, w = TitleIdle.COL * 20, h = (row1 - row0) * row}
     end
     return {top = band(0, 4), middle = band(4, 14), bottom = band(14, 18), text = "black"}
 end
@@ -226,33 +223,104 @@ function EndgameStory.drawPokeredText(gfx, text, x, y)
     end
 end
 
-function EndgameStory.drawCreditsMon(gfx, species, scroll)
+local function creditsShown(scroll)
+    scroll = math.floor(tonumber(scroll) or 0)
+    if scroll < 0 then
+        scroll = 0
+    end
+    -- ScrollCreditsMonLeft displays b, then adds 8. The 27th call shows
+    -- the same SCX as the frame after the 26th add. credits.asm:109.
+    return math.min(scroll, 26)
+end
+
+local function creditsLines(view)
+    if view.ending then
+        return {"THE END"}, "ending"
+    end
+    if view.copyright then
+        return {
+            "©'95.'96.'98 Nintendo",
+            "©'95.'96.'98 Creatures inc.",
+            "©'95.'96.'98 GAME FREAK inc.",
+        }, "copyright"
+    end
+    return view.lines or {}, "text"
+end
+
+-- Glyphs on the 20 by 13 grid. scroll shifts the middle left by one
+-- column per ScrollCreditsMonLeft call. A hold or fade is shift 0 and
+-- draws no mon, so a pic never rests partly off the left edge.
+function EndgameStory.creditsCells(view)
+    view = view or {}
+    local shown = view.phase == "scroll" and creditsShown(view.scroll) or 0
+    local window = math.floor(EndgameStory.creditsScroll(view.phase == "scroll" and view.scroll or 0).windowGb / 8)
+    local lines, kind = creditsLines(view)
+    local glyphs = {}
+    for index, line in ipairs(lines) do
+        local placed <const> = EndgameStory.creditsLine(line, index, kind)
+        local text <const> = EndgameStory.expandPokeredText(placed.text)
+        local cursor, glyphIndex = 0, 1
+        while glyphIndex <= #text do
+            local nextIndex <const> = TitleIdle.nextTile(text, glyphIndex)
+            glyphs[#glyphs + 1] = {
+                char = text:sub(glyphIndex, nextIndex - 1),
+                col = placed.col + cursor - shown,
+                row = placed.row,
+            }
+            cursor = cursor + 1
+            glyphIndex = nextIndex
+        end
+    end
+    local mon = nil
+    if view.phase == "scroll" and view.mon then
+        -- DisplayCreditsMon copies the hlcoord 8, 6 pic to vBGMap0+$c,
+        -- twelve columns right, so it starts at column 20. credits.asm:64.
+        mon = {species = view.mon, col = 20 - shown, row = 6, tiles = 7}
+    end
+    return {glyphs = glyphs, mon = mon, window = window, shift = shown}
+end
+
+local monShadeCache
+
+local function monShadeRows(species)
+    if not monShadeCache then
+        monShadeCache = json.decodeFile("data/endgame/creditsMonShades.json")
+    end
     local key = species and species:lower() or ""
-    local data <const> = json.decodeFile("data/endgame/creditsMonShades.json")
-    local rows = data and data.mons and data.mons[key]
+    return monShadeCache and monShadeCache.mons and monShadeCache.mons[key]
+end
+
+function EndgameStory.drawCreditsMon(gfx, species, scroll)
+    local rows = monShadeRows(species)
     if not rows then
         return
     end
-    local place <const> = EndgameStory.creditsMonPlace(scroll)
-    local windowX <const> = EndgameStory.creditsScroll(scroll).windowX
-    local scale <const> = EndgameStory.hallView().scale
-    local width = #rows[1] * scale
-    local height = #rows * scale
-    local clipW = math.max(0, math.min(place.x + width, windowX) - place.x)
-    if clipW <= 0 then
-        return
-    end
-    -- The 7x7 pic replaces the tiles under it. White matches the middle,
-    -- so this is not a box. BGP %11111100 then stamps every other shade black.
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(place.x, place.y, clipW, height)
+    local shown <const> = creditsShown(scroll)
+    local windowX <const> = math.floor(EndgameStory.creditsScroll(scroll).windowGb / 8) * TitleIdle.COL
+    local originX <const> = (20 - shown) * TitleIdle.COL
+    local originY <const> = 6 * TitleIdle.ROW
+    local scaleX <const> = TitleIdle.COL / 8
+    local scaleY <const> = TitleIdle.ROW / 8
+    local top <const> = 4 * TitleIdle.ROW
+    local bottom <const> = 14 * TitleIdle.ROW
+    -- BGP %11111100 stamps every shade but white to black. The pic shares
+    -- SCX with the text and is clipped by rWX and the white middle.
     gfx.setColor(gfx.kColorBlack)
     for rowIndex, row in ipairs(rows) do
-        for col = 1, #row do
-            if row:sub(col, col) ~= "." then
-                local px = place.x + (col - 1) * scale
-                if px + scale <= windowX then
-                    gfx.fillRect(px, place.y + (rowIndex - 1) * scale, scale, scale)
+        local y0 = math.floor(originY + (rowIndex - 1) * scaleY)
+        local y1 = math.floor(originY + rowIndex * scaleY)
+        if y1 > top and y0 < bottom then
+            local py = math.max(y0, top)
+            local ph = math.min(y1, bottom) - py
+            for col = 1, #row do
+                if row:sub(col, col) ~= "." and ph > 0 then
+                    local x0 = math.floor(originX + (col - 1) * scaleX)
+                    local x1 = math.floor(originX + col * scaleX)
+                    local left = math.max(0, x0)
+                    local right = math.min(windowX, 400, x1)
+                    if right > left then
+                        gfx.fillRect(left, py, right - left, ph)
+                    end
                 end
             end
         end
@@ -303,10 +371,47 @@ function EndgameStory.creditsLine(text, index, kind)
     return {text = text, col = CREDIT_COLUMN[text] or 9, row = 6 + (index - 1) * 2}
 end
 
+local copyrightMark
+
+local function drawCopyrightMark(gfx, col, row)
+    if not copyrightMark then
+        local source <const> = gfx.image.new("images/title/font/copyright_tiles")
+        copyrightMark = gfx.image.new(TitleIdle.COL, TitleIdle.ROW, gfx.kColorClear)
+        gfx.pushContext(copyrightMark)
+        gfx.setColor(gfx.kColorBlack)
+        for y = 0, TitleIdle.ROW - 1 do
+            local sourceY <const> = math.floor(y * 8 / TitleIdle.ROW)
+            for x = 0, TitleIdle.COL - 1 do
+                local sourceX <const> = math.floor(x * 8 / TitleIdle.COL)
+                if source:sample(sourceX, sourceY) == gfx.kColorBlack then
+                    gfx.drawPixel(x, y)
+                end
+            end
+        end
+        gfx.popContext()
+    end
+    copyrightMark:draw(col * TitleIdle.COL, row * TitleIdle.ROW)
+end
+
+local function drawGlyph(gfx, char, col, row, window)
+    local function at(cell)
+        if cell < 0 or cell >= window or cell >= 20 then
+            return
+        end
+        if char == "©" then
+            drawCopyrightMark(gfx, cell, row)
+        else
+            GbFont.drawString(char, cell, row)
+        end
+    end
+    -- The 32-tile map can bring a line back on the right. rWX hides it.
+    at(col)
+    at(col + 32)
+end
+
 function EndgameStory.drawCredits(gfx, view)
     local bands <const> = EndgameStory.creditsBands()
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
-    gfx.setFont(gfx.getSystemFont())
     gfx.setColor(gfx.kColorWhite)
     gfx.fillRect(0, 0, 400, 240)
     gfx.setColor(gfx.kColorBlack)
@@ -315,41 +420,13 @@ function EndgameStory.drawCredits(gfx, view)
     if not view or view.phase == "preamble" then
         return
     end
-    local motion <const> = EndgameStory.creditsScroll(view.phase == "scroll" and view.scroll or 0)
-    -- The window covers everything from its edge rightward. The left clip is
-    -- the Game Boy screen; the side margins are not part of the scrolling map.
-    local viewBox <const> = EndgameStory.hallView()
-    local clipX <const> = viewBox.x
-    local clipW <const> = math.max(0, motion.windowX - clipX)
-    gfx.setClipRect(clipX, bands.middle.y, clipW, bands.middle.h)
-    gfx.setColor(gfx.kColorBlack)
-    local kind = view.ending and "ending" or (view.copyright and "copyright" or "text")
-    local lines = view.lines or {}
-    if view.ending then
-        lines = {"THE END"}
-    elseif view.copyright then
-        lines = {
-            "©'95.'96.'98 Nintendo",
-            "©'95.'96.'98 Creatures inc.",
-            "©'95.'96.'98 GAME FREAK inc.",
-        }
+    local cells <const> = EndgameStory.creditsCells(view)
+    gfx.setClipRect(0, bands.middle.y, cells.window * TitleIdle.COL, bands.middle.h)
+    for _, glyph in ipairs(cells.glyphs) do
+        drawGlyph(gfx, glyph.char, glyph.col, glyph.row, cells.window)
     end
-    for index, line in ipairs(lines) do
-        local placed <const> = EndgameStory.creditsLine(line, index, kind)
-        local x, y = EndgameStory.hallPixel(placed.col * 8, placed.row * 8)
-        local shown <const> = x + motion.dx
-        -- The 32-tile map brings a line back on the right. Draw it only while
-        -- it is still left of the window; the window itself is blank.
-        if shown < motion.windowX then
-            EndgameStory.drawPokeredText(gfx, placed.text, shown, y)
-        end
-        local wrapped <const> = shown + motion.wrap
-        if wrapped < motion.windowX then
-            EndgameStory.drawPokeredText(gfx, placed.text, wrapped, y)
-        end
-    end
-    if view.phase == "scroll" and view.mon then
-        EndgameStory.drawCreditsMon(gfx, view.mon, view.scroll)
+    if cells.mon then
+        EndgameStory.drawCreditsMon(gfx, cells.mon.species, view.scroll)
     end
     gfx.clearClipRect()
 end
