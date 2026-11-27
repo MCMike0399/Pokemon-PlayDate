@@ -3395,6 +3395,9 @@ class CharmanderRun(BrockJourney):
         # Surf leaves root on fieldTravel. The rainbow bind is what teaches
         # drain to advance that state. A postgame process never ran it.
         self._bind_post_rainbow()
+        # The scientist's menu is MEW, then LINK CABLE. A is the choice.
+        # Drain never presses it unless the script id is a planned choice.
+        self.event_choices["pokered:CERULEAN_CAVE_1F:script:mew-gift"] = "MEW"
         self.config["name"] = "cerulean-natural"
         self.config["max_blackouts"] = 4
         self._flee_wilds = True
@@ -3432,7 +3435,8 @@ class CharmanderRun(BrockJourney):
             self._record_screen("cerulean-cave", 20)
             self._record_screen("mew-gift", 25)
             self.interact(source_id=scientist["id"])
-            gifted = any(mon["species"] == "mew" for mon in self.party())
+            gifted = (any(mon["species"] == "mew" for mon in self.party())
+                      or self.flag("EVENT_GOT_MEW"))
             self.summary["mew_gift"] = "received" if gifted else "giver has no script"
         if not self.flag("EVENT_BEAT_MEWTWO"):
             if not self._on("CeruleanCaveB1F"):
@@ -5401,6 +5405,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn('"Route4"', postgame)
         self.assertIn('"Route24"', postgame)
         self.assertIn("self._bind_post_rainbow()", postgame)
+        self.assertIn('event_choices["pokered:CERULEAN_CAVE_1F:script:mew-gift"] = "MEW"', postgame)
         self.assertIn("self._surf_down_route24()", postgame)
         self.assertIn("press up", postgame)
         self.assertLess(source.index("def route_portal"), source.index("def _play_postgame"))
