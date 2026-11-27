@@ -142,7 +142,16 @@ def preferred_move(options, skip=(), enemy_types=()):
         named.append((index, name, letters))
     types = {str(kind).lower() for kind in (enemy_types or ()) if kind}
     resisted = "water" in types or "grass" in types
-    order = ("BITE", "TACKLE", "WATERGUN", "BUBBLE") if resisted else ("WATERGUN", "BUBBLE", "BITE", "TACKLE")
+    # Ice Beam is the Venusaur and Pidgeot answer. Water/Flying stays on Bite:
+    # Ice against that pair is neutral, and Surf is resisted.
+    ice = bool(types & {"grass", "ground", "flying", "dragon"}) and not (
+        types & {"water", "fire", "ice", "steel"})
+    if ice:
+        order = ("ICEBEAM", "BITE", "TACKLE", "WATERGUN", "BUBBLE")
+    elif resisted:
+        order = ("BITE", "TACKLE", "WATERGUN", "BUBBLE")
+    else:
+        order = ("WATERGUN", "BUBBLE", "BITE", "TACKLE")
     for want in order:
         for index, name, letters in named:
             if letters == want:
@@ -727,6 +736,12 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertFalse(_lost({"kind": "none"}, {"kind": "run", "won": False}))
         self.assertTrue(_lost({"kind": "none"}, {"kind": "defeat", "won": False, "blackout": True}))
         self.assertEqual(preferred_move(moves, enemy_types=["water"])[1], "BITE")
+        self.assertEqual(preferred_move(
+            ["STRENGTH", "ICE BEAM", "SURF", "BITE"], enemy_types=["grass", "poison"])[1], "ICE BEAM")
+        self.assertEqual(preferred_move(
+            ["STRENGTH", "ICE BEAM", "SURF", "BITE"], enemy_types=["water", "flying"])[1], "BITE")
+        self.assertEqual(preferred_move(
+            ["STRENGTH", "ICE BEAM", "SURF", "BITE"], enemy_types=["psychic"])[1], "BITE")
         pallet = padded_open_cells("pallet_town")
         pallet.add((9, 0))
         self.assertIsNotNone(route(pallet, (12, 12), (9, 0), avoid={(5, 5), (13, 5), (12, 11)}))
@@ -1302,9 +1317,10 @@ class Player:
             return kind
         return "lost"
 
-    def fight(self, limit=700, potion_at=22, bite_only=False, shift_to=None, decline_moves=False, run_at=None):
+    def fight(self, limit=700, potion_at=22, bite_only=False, shift_to=None, decline_moves=False, run_at=None, rival=False):
         won = None
         rejected = set()
+        want = shift_to
         for _ in range(limit):
             root = self.state.get("root")
             if root == "learning":
@@ -1321,7 +1337,7 @@ class Player:
                 self.dismiss_until_explore(limit=40)
                 continue
             if root == "party":
-                _send_out(self, shift_to)
+                _send_out(self, want)
                 continue
             if root == "dialog":
                 dialog = self.state.get("dialog") or {}
@@ -1346,7 +1362,15 @@ class Player:
                     grass = fainted in (
                         "oddish", "bellsprout", "bulbasaur", "victreebel", "tangela", "vileplume")
                     active = ((battle.get("player") or {}).get("species") or "")
-                    if shift_to and active != shift_to and (fainted == "kadabra" or grass):
+                    # Rival2 order is Pidgeot, Gyarados, Growlithe, Alakazam, Venusaur.
+                    # The prompt still names the fainted Pokémon. Dugtrio meets Growlithe.
+                    if rival and fainted == "gyarados":
+                        want = "dugtrio"
+                        self.press("a", wait=8)
+                    elif rival and fainted == "growlithe":
+                        want = "blastoise"
+                        self.press("a", wait=8)
+                    elif shift_to and active != shift_to and (fainted == "kadabra" or grass):
                         self.press("a", wait=8)
                     else:
                         self.press("b", wait=8)
@@ -1417,6 +1441,21 @@ class Player:
                     if not ready or "FIGHT" not in (menu.get("options") or []):
                         self.send("wait 4")
                         continue
+                    if rival and "POKEMON" in (menu.get("options") or []):
+                        foe = ((battle.get("enemy") or {}).get("species") or "")
+                        if foe == "growlithe" and active != "dugtrio":
+                            _slot, mon = _member(self, "dugtrio")
+                            if mon and (mon.get("hp") or 0) > 0:
+                                want = "dugtrio"
+                                self.choose("battle", "POKEMON")
+                                continue
+                        if (foe in ("alakazam", "venusaur", "gyarados", "pidgeot")
+                                and active == "dugtrio"):
+                            _slot, mon = _member(self, "blastoise")
+                            if mon and (mon.get("hp") or 0) > 0:
+                                want = "blastoise"
+                                self.choose("battle", "POKEMON")
+                                continue
                     self.choose("battle", "FIGHT")
                 else:
                     move_menu = battle.get("moveMenu") or {}
@@ -5834,7 +5873,7 @@ def _ride_safari_return(player, report):
     return "yield"
 
 
-def _k_clear(player, report):
+def _k_clear(player, report, rival=False):
     if player.state.get("root") == "safariPassage":
         return _ride_safari_return(player, report)
     if player.state.get("root") != "battle":
@@ -5849,7 +5888,7 @@ def _k_clear(player, report):
     for _ in range(6):
         if player.state.get("root") != "battle":
             break
-        player.fight(limit=4000, potion_at=20, shift_to="wartortle")
+        player.fight(limit=4000, potion_at=20, shift_to="wartortle", rival=rival)
     if player.state.get("root") == "battle":
         raise RuntimeError("the fight did not finish: " + json.dumps(summary(player.state)))
     player.dismiss_until_explore(limit=80)
@@ -8631,11 +8670,19 @@ _ROUTE16_ROUNDS = (
 def _route16_bike(player, report):
     path = SOUTH / "Route16.json"
     x, y = player.state["player"]["x"], player.state["player"]["y"]
-    if not _quest(player).get("EVENT_BEAT_ROUTE16_SNORLAX") and x >= 24:
+    home = _road_home(player)
+    if not _quest(player).get("EVENT_BEAT_ROUTE16_SNORLAX") and x >= 24 and not home:
         kind = _stand_on(player, report, path, 0, 40, (27, 10), _map_blocks(path, 0))
         if kind != "arrived":
             return kind
         return _play_flute(player, report)
+    # Hurt or trained: east to Celadon. The west side leaves through the gate.
+    if home and x >= 18:
+        return _edge_leave(player, report, path, 0, 40, (39, 10), "right", _map_blocks(path, 0),
+                           "celadon", "celadon_city")
+    if home and x < 18:
+        return _edge_leave(player, report, path, 0, 40, (16, 10), "right", _warp_tiles(path, 0),
+                           "route16_gate", "route_16_gate_1f")
     if x >= 18:
         doors = _warp_tiles(path, 0)
         return _edge_leave(player, report, path, 0, 40, (25, 10), "left", doors,
@@ -8653,12 +8700,135 @@ def _route16_bike(player, report):
 def _route16_gate(player, report):
     path = SOUTH / "Route16Gate1F.json"
     x, y = player.state["player"]["x"], player.state["player"]["y"]
+    avoid = _warp_tiles(path, 2) | _map_blocks(path, 2)
+    # West landing is the cycling road. East landing is the Celadon side.
+    if x <= 3 and y in (8, 9):
+        player.step("right")
+        player.settle(limit=40)
+        return _edge_leave(player, report, path, 2, 13, (8, 8), "right", avoid,
+                           "route16_east", "route_16")
     if x >= 8 and y in (8, 9):
         player.step("left")
         player.settle(limit=40)
-    avoid = _warp_tiles(path, 2) | _map_blocks(path, 2)
+    if _road_home(player):
+        return _edge_leave(player, report, path, 2, 13, (8, 8), "right", avoid,
+                           "route16_east", "route_16")
     return _edge_leave(player, report, path, 2, 13, (3, 8), "left", avoid,
                        "route16_west", "route_16")
+
+
+def _road_home(player):
+    """A hurt or trained party leaves Cycling Road toward Celadon and Saffron."""
+    return _rival_trained(player) or _sweep_hurt(player)
+
+
+def _round_sights(rounds, player):
+    blocked = set()
+    for tid, _stand, _kind, sight in rounds:
+        if not _beaten(player, tid):
+            blocked.update(sight)
+    return blocked
+
+
+def _can_stand(player, path, pad, width, stand, extra):
+    cells = set(open_map(path, pad, width))
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here[1] == 0:
+        here = (here[0], 1)
+    avoid = _map_blocks(path, pad) | set(extra)
+    avoid.discard(here)
+    avoid.discard(stand)
+    return route(cells, here, stand, avoid) is not None
+
+
+_ROUTE17_ROUNDS = (
+    ("pokered:ROUTE_17:objects:1", (11, 19), "share", ((11, 19), (10, 19), (9, 19))),
+    ("pokered:ROUTE_17:objects:2", (12, 16), "share", ((12, 16), (13, 16), (14, 16), (15, 16))),
+    ("pokered:ROUTE_17:objects:3", (4, 17), "share", ((4, 17), (4, 16), (4, 15), (4, 14))),
+    ("pokered:ROUTE_17:objects:4", (6, 32), "share", ((6, 32), (5, 32), (4, 32), (3, 32))),
+    ("pokered:ROUTE_17:objects:5", (15, 34), "dugtrio", ((15, 34), (16, 34), (17, 34))),
+    ("pokered:ROUTE_17:objects:6", (16, 58), "share", ((16, 58), (15, 58))),
+    ("pokered:ROUTE_17:objects:7", (3, 68), "share", ((3, 68), (4, 68), (5, 68), (6, 68))),
+    ("pokered:ROUTE_17:objects:8", (15, 98), "share", ((15, 98), (16, 98))),
+    ("pokered:ROUTE_17:objects:9", (4, 98), "share", ((4, 98), (3, 98), (2, 98))),
+    ("pokered:ROUTE_17:objects:10", (10, 119), "share", ((10, 119), (10, 120), (10, 121), (10, 122))),
+)
+
+_ROUTE18_ROUNDS = (
+    ("pokered:ROUTE_18:objects:3", (41, 13), "share", ((41, 13), (40, 13), (39, 13), (38, 13))),
+    ("pokered:ROUTE_18:objects:1", (37, 11), "share", ((37, 11), (38, 11), (39, 11))),
+    ("pokered:ROUTE_18:objects:2", (39, 15), "share", ((39, 15), (38, 15), (37, 15))),
+)
+
+
+def _rounds_left(player, rounds):
+    return any(not _beaten(player, tid) for tid, _stand, _kind, _sight in rounds)
+
+
+def _route17_bike(player, report):
+    path = SOUTH / "Route17.json"
+    if player.state["player"]["y"] == 0:
+        player.step("down")
+        player.settle(limit=40)
+    sights = _round_sights(_ROUTE17_ROUNDS, player)
+    if _road_home(player) and _can_stand(player, path, 0, 20, (10, 0), sights):
+        return _edge_leave(player, report, path, 0, 20, (10, 0), "up",
+                           _map_blocks(path, 0) | sights, "route17_north", "route_16")
+    extra = set()
+    picked = _pick_trainer(player, path, 0, 20, _ROUTE17_ROUNDS, extra)
+    if picked:
+        tid, stand, kind = picked
+        extra.update(_other_sights(_ROUTE17_ROUNDS, tid, lambda other: _beaten(player, other)))
+        return _engage(player, report, path, 0, 20, tid, stand, kind, extra)
+    if not _road_home(player) and _rounds_left(player, _ROUTE18_ROUNDS):
+        return _edge_leave(player, report, path, 0, 20, (10, 143), "down", _map_blocks(path, 0),
+                           "route17_south", "route_18")
+    return _edge_leave(player, report, path, 0, 20, (10, 0), "up", _map_blocks(path, 0),
+                       "route17_north", "route_16")
+
+
+def _route18_bike(player, report):
+    path = SOUTH / "Route18.json"
+    x = player.state["player"]["x"]
+    if player.state["player"]["y"] == 0:
+        player.step("down")
+        player.settle(limit=40)
+    if x < 34:
+        if not _road_home(player) and _rounds_left(player, _ROUTE18_ROUNDS):
+            # (34, 8) is the gate wall. (33, 8) is the west door.
+            return _edge_leave(player, report, path, 0, 50, (32, 8), "right", _warp_tiles(path, 0),
+                               "route18_gate", "route_18_gate_1f")
+        return _edge_leave(player, report, path, 0, 50, (10, 0), "up", _map_blocks(path, 0),
+                           "route18_north", "route_17")
+    if not _road_home(player):
+        extra = set()
+        picked = _pick_trainer(player, path, 0, 50, _ROUTE18_ROUNDS, extra)
+        if picked:
+            tid, stand, kind = picked
+            extra.update(_other_sights(_ROUTE18_ROUNDS, tid, lambda other: _beaten(player, other)))
+            return _engage(player, report, path, 0, 50, tid, stand, kind, extra)
+    return _edge_leave(player, report, path, 0, 50, (41, 8), "left", _warp_tiles(path, 0),
+                       "route18_gate", "route_18_gate_1f")
+
+
+def _route18_gate(player, report):
+    """The corridor continues through. West is the cycling road, east the bird keepers."""
+    path = SOUTH / "Route18Gate1F.json"
+    x, y = player.state["player"]["x"], player.state["player"]["y"]
+    avoid = _warp_tiles(path, 2) | _map_blocks(path, 2)
+    go_east = x < 7
+    if x <= 3 and y in (4, 5):
+        player.step("right")
+        player.settle(limit=40)
+    elif x >= 8 and y in (4, 5):
+        player.step("left")
+        player.settle(limit=40)
+        go_east = False
+    if go_east:
+        return _edge_leave(player, report, path, 2, 13, (8, 4), "right", avoid,
+                           "route18_east", "route_18")
+    return _edge_leave(player, report, path, 2, 13, (3, 4), "left", avoid,
+                       "route18_west", "route_18")
 
 
 def _bike_zone(player, report, zone):
@@ -8685,6 +8855,12 @@ def _bike_zone(player, report, zone):
         return _route16_gate(player, report)
     if zone == "kanto_route_16":
         return _route16_bike(player, report)
+    if zone == "kanto_route_17":
+        return _route17_bike(player, report)
+    if zone == "kanto_route_18":
+        return _route18_bike(player, report)
+    if zone == "kanto_route_18_gate_1f":
+        return _route18_gate(player, report)
     return None
 
 
@@ -8779,7 +8955,8 @@ def _after_strength(player, report, display=None, clips=None, output=None):
     The return is the walked south road in reverse: Fuchsia, Routes 15-12,
     Lavender, the underground, and Celadon. Diglett's Cave is the wrong way.
     """
-    del display, clips, output
+    if display is not None and clips is not None and output is not None:
+        report["film"] = (display, clips, output)
     taught = _teach_field_moves(player, report)
     if taught:
         return taught
@@ -8894,7 +9071,8 @@ def _after_strength(player, report, display=None, clips=None, output=None):
     if place == "CeladonCity" or zone == "kanto_celadon_city":
         doors = {(8, 13), (10, 13), (12, 27), (24, 9), (24, 3), (25, 3), (41, 9),
                  (28, 19), (39, 19), (33, 19), (31, 27), (35, 27), (43, 27)}
-        if _party_needs_heal(player):
+        if _party_needs_heal(player) or (
+                _sweep_hurt(player) and (_cycling_quest(player) or _rival_trained(player))):
             kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (41, 10), doors,
                          report=report, yield_after=2)
             if kind in ("blackout", "yield"):
@@ -8955,7 +9133,9 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         return _saffron_to_silph(player, report)
     if "silph_co" in zone:
         return _silph_progress(player, report)
-    if _cycling_quest(player):
+    if _cycling_quest(player) or zone in {
+            "kanto_route_16", "kanto_route_16_gate_1f", "kanto_route_17",
+            "kanto_route_18", "kanto_route_18_gate_1f"}:
         moved = _bike_zone(player, report, zone)
         if moved:
             return moved
@@ -9740,9 +9920,12 @@ def _silph_7f(player, report):
             if _quest(player).get("SILPH_STORY_V1_RIVAL_LEFT"):
                 break
             if player.state.get("root") == "battle":
-                status = _k_clear(player, report)
-                if status:
-                    return status
+                def finish():
+                    return _k_clear(player, report, rival=True)
+                filmed = report.get("film")
+                if filmed:
+                    return film(*filmed, "rival", report, "end", finish)
+                return finish()
             elif player.state.get("root") == "naming":
                 player.press("b", wait=8)
             elif not player.exploring():
