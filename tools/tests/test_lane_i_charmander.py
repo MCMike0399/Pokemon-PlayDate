@@ -3462,8 +3462,17 @@ class CharmanderRun(BrockJourney):
         so they arrive on Cerulean (20, 0) and (21, 0).
         """
         if self._on("CeruleanCave1F") or self._on("CeruleanCave2F") or self._on("CeruleanCaveB1F"):
-            self._cave_maze({(self.zone("CeruleanCave1F"), 24, 16)})
-            self._step("down")
+            if self.position() not in {(24, 16), (24, 17), (25, 17)} or not self._on("CeruleanCave1F"):
+                self._cave_maze({(self.zone("CeruleanCave1F"), 24, 16)})
+            # Landing on the entrance does not leave. The step out is the
+            # same down press that the city door uses in reverse, and it
+            # needs the warp to start before drain treats the tile as settled.
+            if self.position() == (24, 16):
+                self.send("press down", "wait 20")
+                self.drain()
+            if self._on("CeruleanCave1F") and self.position() in {(24, 17), (25, 17)}:
+                self.send("press down", "wait 20")
+                self.drain()
         if not self._on("CeruleanCity") and not self._on("Route24"):
             raise ProtocolError("cave exit stayed in " + self._map_name() + " " + str(self.position()))
         if self._on("CeruleanCity"):
