@@ -8371,7 +8371,19 @@ def _saffron_to_silph(player, report):
     return "yield"
 
 
+def _silph_needs_nurse(player):
+    """The 9F nurse is the heal inside Silph. Paralysis with no Full Heal stops here."""
+    _species, mon = _water_line(player)
+    if not mon:
+        return False
+    status = mon.get("status") or "none"
+    hp = mon.get("hp") or 0
+    return 0 < hp < 50 or status not in ("none", "healthy", "")
+
+
 def _silph_floor(player):
+    if _silph_needs_nurse(player) and _holding(player, "cardKey"):
+        return "9F"
     if not _holding(player, "cardKey"):
         return "5F"
     if not _quest(player).get("EVENT_SILPH_CO_3_UNLOCKED_DOOR2"):
@@ -8386,6 +8398,8 @@ def _silph_card(player, report):
     zone = str(player.state.get("zone"))
     saffron = Path("Source/data/midgameSaffron")
     if zone.endswith("silph_co_9f"):
+        if _silph_needs_nurse(player):
+            return _silph_nurse(player, report)
         data = json.loads((saffron / "SilphCo9F.json").read_text(encoding="utf-8"))
         avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
         here = (player.state["player"]["x"], player.state["player"]["y"])
@@ -8487,6 +8501,165 @@ def _silph_card(player, report):
     return "yield"
 
 
+def _silph_nurse(player, report):
+    """The Silph nurse stands at (3, 14). Talk from (3, 15)."""
+    saffron = Path("Source/data/midgameSaffron")
+    data = json.loads((saffron / "SilphCo9F.json").read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    avoid.add((3, 14))
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here == (18, 0):
+        player.step("down")
+        player.settle(limit=40)
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    cells = set(open_map(saffron / "SilphCo9F.json", 0, 26))
+    kind = _walk(player, cells, map_surface(saffron / "SilphCo9F.json"), (3, 15), avoid,
+                 report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    if player.state["player"].get("facing") != "up":
+        player.press("up", wait=4)
+    for _ in range(30):
+        if not _silph_needs_nurse(player) and player.exploring():
+            break
+        if player.state.get("root") == "naming":
+            player.press("b", wait=8)
+        else:
+            player.press("a", wait=8)
+    if _silph_needs_nurse(player):
+        raise RuntimeError("the Silph nurse did not heal: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_nurse")
+    return "yield"
+
+
+def _silph_7f(player, report):
+    """The rival watches (3, 2) and (3, 3). Lapras is the worker at (1, 5)."""
+    if _silph_needs_nurse(player):
+        cells = set(open_map(Path("Source/data/midgameSaffron/SilphCo7F.json"), 0, 26))
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here != (5, 2):
+            kind = _walk(player, cells, map_surface(Path("Source/data/midgameSaffron/SilphCo7F.json")),
+                         (5, 2), set(), report=report, yield_after=2)
+            if kind in ("blackout", "yield"):
+                return kind
+        player.step("down")
+        player.settle(limit=80)
+        if "7f" in str(player.state.get("zone")):
+            player.step("down")
+            player.settle(limit=80)
+        if "3f" not in str(player.state.get("zone")):
+            raise RuntimeError("the rival room did not return to 3F: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_silph_3f")
+        return "yield"
+    saffron = Path("Source/data/midgameSaffron")
+    data = json.loads((saffron / "SilphCo7F.json").read_text(encoding="utf-8"))
+    warps = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    warps.discard(here)
+    cells = set(open_map(saffron / "SilphCo7F.json", 0, 26))
+    surface = map_surface(saffron / "SilphCo7F.json")
+    rival = "pokered:SILPH_CO_7F:objects:9"
+    if not _quest(player).get("SILPH_STORY_V1_RIVAL_LEFT"):
+        if here not in {(3, 2), (3, 3)}:
+            kind = _walk(player, cells, surface, (4, 2), warps, report=report, yield_after=2)
+            if kind in ("blackout", "yield"):
+                return kind
+            player.step("left")
+            player.settle(limit=40)
+        for _ in range(80):
+            if _quest(player).get("SILPH_STORY_V1_RIVAL_LEFT"):
+                break
+            if player.state.get("root") == "battle":
+                status = _k_clear(player, report)
+                if status:
+                    return status
+            elif player.state.get("root") == "naming":
+                player.press("b", wait=8)
+            elif not player.exploring():
+                player.press("a", wait=8)
+            else:
+                player.send("wait 12")
+        else:
+            raise RuntimeError("the rival did not leave: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_silph_rival")
+        return "yield"
+    if not _quest(player).get("BIT_GOT_LAPRAS"):
+        avoid = set(warps)
+        avoid.add((1, 5))
+        avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+        kind = _walk(player, cells, surface, (2, 5), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if player.state["player"].get("facing") != "left":
+            player.press("left", wait=4)
+        for _ in range(40):
+            if _quest(player).get("BIT_GOT_LAPRAS") and player.exploring():
+                break
+            if player.state.get("root") == "naming":
+                player.press("b", wait=8)
+            elif player.state.get("root") == "battle":
+                return _k_clear(player, report)
+            else:
+                player.press("a", wait=8)
+        if not _quest(player).get("BIT_GOT_LAPRAS"):
+            raise RuntimeError("Lapras was not accepted: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_lapras")
+        return "yield"
+    kind = _walk(player, cells, surface, (5, 6), warps, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("down")
+    player.settle(limit=80)
+    if "7f" in str(player.state.get("zone")):
+        player.step("down")
+        player.settle(limit=80)
+    if "11f" not in str(player.state.get("zone")):
+        raise RuntimeError("the 7F pad did not open 11F: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_11f")
+    return "yield"
+
+
+def _silph_11f(player, report):
+    """The Card Key door is (6, 14). Giovanni starts one step up, at (6, 13)."""
+    saffron = Path("Source/data/midgameSaffron")
+    data = json.loads((saffron / "SilphCo11F.json").read_text(encoding="utf-8"))
+    warps = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here == (13, 0) or here == (3, 2):
+        player.step("down")
+        player.settle(limit=40)
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid = set(warps)
+    avoid.add((6, 13))
+    avoid.discard(here)
+    cells = set(open_map(saffron / "SilphCo11F.json", 0, 18))
+    surface = map_surface(saffron / "SilphCo11F.json")
+    if not _quest(player).get("EVENT_SILPH_CO_11_UNLOCKED_DOOR"):
+        kind = _walk(player, cells, surface, (6, 14), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        for _ in range(12):
+            if _quest(player).get("EVENT_SILPH_CO_11_UNLOCKED_DOOR"):
+                break
+            player.press("a", wait=8)
+        if not _quest(player).get("EVENT_SILPH_CO_11_UNLOCKED_DOOR"):
+            raise RuntimeError("the Card Key did not open the 11F door: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_silph_11_door")
+        return "yield"
+    if not _beaten(player, "pokered:SILPH_CO_11F:objects:3"):
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (6, 14):
+            kind = _walk(player, cells, surface, (6, 14), avoid, report=report, yield_after=2)
+            if kind in ("blackout", "yield"):
+                return kind
+        player.step("up")
+        player.settle(limit=40)
+        return _k_clear(player, report)
+    raise RuntimeError("Giovanni is beaten; Sabrina is next: " + json.dumps(summary(player.state)))
+
+
 def _silph_door(player, report):
     """The 3F Card Key door is (18, 8). Face left and press A."""
     saffron = Path("Source/data/midgameSaffron")
@@ -8514,6 +8687,20 @@ def _silph_door(player, report):
         if not _quest(player).get("EVENT_SILPH_CO_3_UNLOCKED_DOOR2"):
             raise RuntimeError("the Card Key did not open the 3F door: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_silph_door")
+        return "yield"
+    if _silph_needs_nurse(player):
+        kind = _walk(player, cells, map_surface(saffron / "SilphCo3F.json"), (20, 1), avoid,
+                     report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        player.step("up")
+        player.settle(limit=80)
+        if "elevator" not in str(player.state.get("zone")):
+            player.step("up")
+            player.settle(limit=80)
+        if "elevator" not in str(player.state.get("zone")):
+            raise RuntimeError("the 3F lift stayed shut: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_silph_lift")
         return "yield"
     kind = _walk(player, cells, map_surface(saffron / "SilphCo3F.json"), (11, 10), avoid,
                  report=report, yield_after=2)
@@ -8577,6 +8764,10 @@ def _silph_progress(player, report):
         return "yield"
     if zone.endswith("silph_co_3f"):
         return _silph_door(player, report)
+    if zone.endswith("silph_co_7f"):
+        return _silph_7f(player, report)
+    if zone.endswith("silph_co_11f"):
+        return _silph_11f(player, report)
     if not zone.endswith("silph_co_1f"):
         raise RuntimeError("Silph floor is not on the lift path: " + json.dumps(summary(player.state)))
     data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))

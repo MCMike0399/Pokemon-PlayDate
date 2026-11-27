@@ -74,11 +74,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-The Card Key is in the bag. The committed pause is sequence 451, Silph Co. 5F (20, 16) facing right, beside the ball. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. Fresh Water from the Celadon roof opened the Route 7 gate. The lift then reached 5F, the 9F warp, and the Card Key. Surf and Strength are on Blastoise. Eight Super Potions remain. The next door is the 3F Card Key door, then the rival, Lapras, and Giovanni. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
+The Card Key opened the 3F door. The committed pause is sequence 457, Silph Co. 7F (5, 3) facing down, in the rival's room. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. Fresh Water opened the Route 7 gate. Blastoise is paralyzed at 49 HP with two Super Potions and no Full Heal, so the next step is the 9F nurse, then the rival, Lapras, and Giovanni. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
 
 Badges: Boulder, Cascade, Thunder, Rainbow, and Soul.
 
-Team: Blastoise 36 (98 HP, Surf, Strength, Water Gun, Bite), Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Dugtrio 30 (66 HP), Venonat 22 (64 HP). Route 16 stays the other Snorlax.
+Team: Blastoise 37 (49 HP, paralyzed, Surf, Strength, Water Gun, Bite), Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Dugtrio 30 (66 HP), Venonat 22 (64 HP). Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
