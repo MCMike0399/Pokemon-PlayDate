@@ -1,5 +1,5 @@
 diff --git a/Source/game/kantoAudio.lua b/Source/game/kantoAudio.lua
-index 61e04c4..e11183a 100644
+index e513104..88c9136 100644
 --- a/Source/game/kantoAudio.lua
 +++ b/Source/game/kantoAudio.lua
 @@ -349,6 +349,7 @@ function KantoAudio.updateGame(game)
@@ -30,9 +30,9 @@ index 61e04c4..e11183a 100644
 -                local moveKey = battle.currentMoveKey
 -                local moveCue = moveKey and moveScore(moveKey)
                  if battle.player and battle.player.hp ~= nil and battle.player.hp <= 0 and species then
-                     if moveCue then
-                         KantoAudio.playSFX(moveCue)
-@@ -425,7 +433,13 @@ function KantoAudio.updateGame(game)
+                     -- playSFX returns false for a cue with no score.
+                     -- scoreTicks would then assert "unknown Kanto score".
+@@ -427,7 +435,13 @@ function KantoAudio.updateGame(game)
                      KantoAudio.playSFX("faint")
                  end
              elseif hit then

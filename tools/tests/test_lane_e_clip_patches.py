@@ -4,8 +4,9 @@ The heal gap is still in this tree: test_lane_e_audio_fidelity.py fails on it
 until tools/notes/lane-e-audio-heal-gap.patch is applied.
 
 The move row and the receipt fanfare are already in this tree. Their notes
-apply to main 18ee8c5c, where the clips showed tackle playing only "hit" and
-the Route 1 potion receipt playing only the text blip.
+apply to main 906657a4. The clips were recorded on 18ee8c5c: tackle played
+only "hit", and the Route 1 potion receipt played only the text blip. The
+move note keeps the faint guard that landed on main after that recording.
 """
 import subprocess
 import tempfile
@@ -13,7 +14,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MAIN = "18ee8c5c"
+MAIN = "906657a46d8893f4281a4632333d175ec8f2f79f"
 
 
 def show(path):
