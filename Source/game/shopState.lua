@@ -194,7 +194,7 @@ function ShopState:drawPokeredList()
     end
     gfx.setColor(gfx.kColorWhite)
     for _,rect in ipairs(paint.clears) do gfx.fillRect(rect.x,rect.y,rect.w,rect.h) end
-    for _,cell in ipairs(paint.cells) do GbFont.drawFitString(cell.text,cell.col,cell.row) end
+    for _,cell in ipairs(paint.cells) do GbFont.drawFitString(cell.text,cell.col,cell.row,MartList.GLYPH) end
 end
 function ShopState:draw()
     if not self.active then return end

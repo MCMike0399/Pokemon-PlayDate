@@ -82,11 +82,25 @@ class MartListFidelityTests(unittest.TestCase):
         self.assertEqual(boxes[58].strip(), 'db "MONEY@"')  # line 59
 
     def fit(self):
+        # The title, options, naming, and continue screens stay on the
+        # landed 12px fit. The mart list passes MartList.GLYPH (10): the
+        # yen tile has ink on source row 0, and a 12px glyph bottom-aligned
+        # in the 13px cell draws that ink into the name row.
+        mart = (ROOT / "Source/game/martList.lua").read_text()
+        glyph = None
+        for line in mart.splitlines():
+            if line.startswith("MartList.GLYPH"):
+                glyph = int(line.split("=")[1].strip())
+        self.assertEqual(glyph, 10)
         font = (ROOT / "Source/game/gbFont.lua").read_text()
-        for line in font.splitlines():
-            if line.startswith("GbFont.FIT"):
-                return int(line.split("=")[1].strip())
-        self.fail("GbFont.FIT is missing")
+        self.assertIn("GbFont.FIT = 12", font)
+        self.assertIn("function GbFont.drawFitString(text, col, row, size)", font)
+        self.assertIn("size = size or GbFont.FIT", font)
+        shop = (ROOT / "Source/game/shopState.lua").read_text()
+        self.assertIn(
+            "GbFont.drawFitString(cell.text,cell.col,cell.row,MartList.GLYPH)",
+            shop)
+        return glyph
 
     def scaled(self, image, index, size, columns=16):
         sx = (index % columns) * 8

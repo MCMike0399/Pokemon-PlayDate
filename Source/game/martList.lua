@@ -10,7 +10,7 @@ local VISIBLE = 4
 -- so the yen's top row cannot enter the name cell.
 MartList.CELL_W = COL
 MartList.CELL_H = ROW
-MartList.GLYPH = 12
+MartList.GLYPH = 10
 -- home/list_menu.asm PrintListMenuEntries: the name is hlcoord 6, 4 and the
 -- price is SCREEN_WIDTH + 5 from there, column 11. The 7-tile BCD field
 -- ends on column 17. Column 18 is the ▼ at (18, 11) in home/window.asm.
