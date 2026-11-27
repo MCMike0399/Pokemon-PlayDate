@@ -8622,11 +8622,12 @@ def _fan_club(player, report):
     if _bike_stage(player) != "voucher":
         return _edge_leave(player, report, path, 2, 13, (5, 6), "down", _warp_tiles(path, 2),
                            "vermilion", "vermilion_city")
-    kind = _stand_on(player, report, path, 2, 13, (6, 1), _map_blocks(path, 2))
+    # The chairman is (5, 1). (6, 1) sits between him and the receptionist.
+    kind = _stand_on(player, report, path, 2, 13, (4, 1), _map_blocks(path, 2))
     if kind != "arrived":
         return kind
-    if player.state["player"].get("facing") != "left":
-        player.press("left", wait=4)
+    if player.state["player"].get("facing") != "right":
+        player.press("right", wait=4)
     return _accept_gift(player, report, "EVENT_GOT_BIKE_VOUCHER", "bike_voucher")
 
 
