@@ -3362,10 +3362,13 @@ class CharmanderRun(BrockJourney):
     def _surf_down_route24(self):
         """Surf Route 24's west channel into the Cerulean Cave pocket.
 
-        pret/pokered af519899 Route24 south adjustment is +10, so water
-        columns 4 through 8 arrive on Cerulean (14, 0) through (18, 0).
-        That water reaches (6, 12), one step east of the door path. The
-        city streets never touch those thirteen tiles.
+        pret/pokered af519899 data/maps/objects/CeruleanCity.asm puts
+        warp_event 4, 11, CERULEAN_CAVE_1F, 1 on the door. The streets do
+        not touch that tile. data/maps/headers/Route24.asm is
+        connection south, CeruleanCity, CERULEAN_CITY, -5, and
+        macros/scripts/maps.asm stores the south entry as offset * -2,
+        so the adjustment is +10. Water columns 4 through 8 arrive on
+        Cerulean (14, 0) through (18, 0) and reach (6, 12).
         """
         if not self._on("Route24"):
             return
@@ -3389,9 +3392,9 @@ class CharmanderRun(BrockJourney):
     def _play_postgame(self):
         """Heal, cross to Cerulean Cave, and face Mewtwo. The Mew giver has no script."""
         self._bind_kanto_route()
-        if not hasattr(self, "use_field"):
-            import tools.harness.midgame_journey as midgame
-            self.use_field = midgame.MidgameJourney.use_field.__get__(self, type(self))
+        # Surf leaves root on fieldTravel. The rainbow bind is what teaches
+        # drain to advance that state. A postgame process never ran it.
+        self._bind_post_rainbow()
         self.config["name"] = "cerulean-natural"
         self.config["max_blackouts"] = 4
         self._flee_wilds = True
@@ -5397,6 +5400,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn('"CeruleanCity"', postgame)
         self.assertIn('"Route4"', postgame)
         self.assertIn('"Route24"', postgame)
+        self.assertIn("self._bind_post_rainbow()", postgame)
         self.assertIn("self._surf_down_route24()", postgame)
         self.assertIn("press up", postgame)
         self.assertLess(source.index("def route_portal"), source.index("def _play_postgame"))
