@@ -40,3 +40,56 @@ Twelve extra `collectgarbage("collect")` calls did not move the return definitio
 ## What E would have to find
 
 The residue appears at `definition.begin`, which is before `padded()` decodes the next map. It is whatever the previous map's build stored beyond the zone, the view, the retained definitions, and the tile registry. The first visit of Mt. Moon is the large step. A second visit of Moon, Route 4, and Cerulean does not allocate it again, so a cache filled on first use fits the shape, and an append of one full copy per crossing does not. A full game that enters each map once still keeps one residue per map. That is the long-playthrough risk. Bounding it means finding the retainer that is still referenced after `releaseDepartingWorld`, not only the registry suffix.
+
+## Fifty unique maps
+
+The same mark, on the current tree, through 50 maps that had not been visited yet. The session is a Center fixture with all eight badges and a level-65 Blastoise that knows Surf and Fly, the same moves as the Hall save. `switchzone` was injected for the run and both dev files were restored. `MallocPoolSize` was `16645684`, which is 16255.6 KiB. The pool was not exhausted. The highest Lua heap in the trace was 14441.5 KiB, during Safari Zone Center. The Center samples below are `map.ViridianPokecenter.definition.begin` after every five new maps.
+
+| new maps | Center KiB | since start | KiB per map | since the previous sample |
+| ---: | ---: | ---: | ---: | ---: |
+| 0 | 12486.2 | 0 |  |  |
+| 5 | 13163.7 | 677.5 | 135.5 | 677.5 |
+| 10 | 13189.2 | 703.0 | 70.3 | 25.5 |
+| 15 | 13318.4 | 832.1 | 55.5 | 129.2 |
+| 20 | 13519.0 | 1032.7 | 51.6 | 200.6 |
+| 25 | 13477.1 | 990.9 | 39.6 | -41.9 |
+| 30 | 13807.3 | 1321.1 | 44.0 | 330.2 |
+| 35 | 13669.7 | 1183.5 | 33.8 | -137.6 |
+| 40 | 13644.9 | 1158.7 | 29.0 | -24.8 |
+| 45 | 13685.7 | 1199.4 | 26.7 | 40.7 |
+| 50 | 13920.9 | 1434.6 | 28.7 | 235.2 |
+
+The order was Pallet, Viridian, its Mart and Gym, Route 1; Route 2, Viridian Forest, Pewter, its Mart and Gym; Route 3, Mt. Moon 1F, B1F, B2F, and the Moon Center; Route 4, Cerulean, its Mart and Gym, Route 24; Routes 25, 5, and 6, Vermilion and its Mart; Vermilion Gym, Route 11, Diglett's Cave, Route 9, Rock Tunnel 1F; Lavender, its Mart, Pokémon Tower 1F, Routes 8 and 7; Celadon, Celadon Mart 1F, Saffron, its Mart and Gym; Fuchsia, its Mart, Routes 12 and 16, Cinnabar; Cinnabar Gym, Seafoam 1F, Victory Road 1F, the Power Plant, and Safari Zone Center. Each return to the Center is the sample.
+
+It has not plateaued. The first five maps cost 135 KiB each, because they bring in the overworld, the Mart, and the Gym. Maps 6 through 50 cost 16.8 KiB each (757 KiB), and the Center at map 50 is the highest sample. A group that only repeats a tileset gives back 25 to 140 KiB. The next new tileset takes it back. A line through the eleven Center samples is `12915.7 + 21.13 × maps`. That line crosses 16255.6 KiB at map 158. At 200 maps it is about 17140 KiB, about 890 KiB over the pool. At the 222 maps in the manifest it is about 17610 KiB. This projects an out-of-memory failure before a full playthrough has visited every map. The 50-map run itself did not run out.
+
+The shade grids are the per-tileset payload that grows on a first visit. Each grid is a 16×16 shade string in the runtime definition, keyed by `stable_id`, and a tileset is counted once. All 222 maps together hold 938 unique grids, 234.5 KiB of shade text. This 50-map walk saw 308 of them, 77.0 KiB. The Center heap rose about 19 KiB for each KiB of newly seen shade text, and that ratio stayed between 17 and 25 the whole way. The largest tilesets, in KiB of unique shade text, are:
+
+| tileset | grids | shade KiB |
+| --- | ---: | ---: |
+| OVERWORLD | 117 | 29.2 |
+| SHIP | 63 | 15.8 |
+| FOREST | 60 | 15.0 |
+| INTERIOR | 55 | 13.8 |
+| LOBBY | 52 | 13.0 |
+| FACILITY | 51 | 12.8 |
+| CLUB | 48 | 12.0 |
+| GYM | 47 | 11.8 |
+| LAB | 47 | 11.8 |
+| MANSION | 46 | 11.5 |
+| MART | 37 | 9.2 |
+| GATE | 37 | 9.2 |
+| MUSEUM | 36 | 9.0 |
+| HOUSE | 35 | 8.8 |
+| PLATEAU | 35 | 8.8 |
+| CAVERN | 32 | 8.0 |
+| SHIP_PORT | 30 | 7.5 |
+| DOJO | 28 | 7.0 |
+| POKECENTER | 25 | 6.2 |
+| REDS_HOUSE_2 | 16 | 4.0 |
+| REDS_HOUSE_1 | 13 | 3.2 |
+| CEMETERY | 12 | 3.0 |
+| UNDERGROUND | 8 | 2.0 |
+| FOREST_GATE | 8 | 2.0 |
+
+The walk had already paid for Overworld, Gym, Mart, Pokecenter, Cavern, Facility, and most of Forest. The tilesets still unseen are the ones in that table from SHIP down through FOREST_GATE, except the rows the walk already touched. Their shade text is the other 157 KiB. At the same 19 KiB of heap per KiB of shade text, that remainder is about 2900 KiB, which from the map-50 Center (13920.9) lands near 16850 KiB and still over the pool. The shade text itself is only 234.5 KiB, so the strings are not what fills the pool. The heap that tracks them is.
