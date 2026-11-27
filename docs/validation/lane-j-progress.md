@@ -42,6 +42,7 @@ Decoded frames are only 0 and 255.
 | `artifacts/lane-j/20261120T131907Z-route3.mp4` | 47.5s | `7b4d7400739e477ccd9804ffe08323d4f6221855c0c9d04bd570bf41bf6693e1` | Pewter's east edge across Route 3. 400x240, gbrp, 1425 frames. Sampled frames are luma 0 and 255 only. |
 | `artifacts/lane-j/20261120T132807Z-mt-moon.mp4` | 61.1s | `0be8ce453bd227b5c7099f9b62754cc030f5cb1f9b593f702c7db700470db775` | Mt. Moon 1F on the crossing that reached Cerulean. 400x240, gbrp, 1833 frames. Sampled frames are luma 0 and 255 only. |
 | `artifacts/lane-j/20261126T190623Z-erika.mp4` | 85.0s | `6bef85855b6e72490368a04122a8bb1fe42a8ac5fee0e670c81d9cb5f48a980f` | Erika, then the Rainbow Badge. 400x240, gbrp, 2549 frames. |
+| `artifacts/lane-j/20261127T020500Z-koga.mp4` | 84.97s, trimmed from 370.47s | `886774e6c4e843f686df6607ebb63ed7a5e768a85e88b1435df98f6ce55d353f` | Koga's Weezing, Pidgeot surviving Selfdestruct at 23 HP, and the Soul Badge. 400x240. |
 
 ## Title intro
 
@@ -73,11 +74,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 362, Fuchsia City (4, 21) facing left, on the walk from the Mart back to the gym. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. `origin/main` `93c15d86` is merged and the midgame save continued. `EVENT_BEAT_ROUTE12_SNORLAX` is set. Routes 13, 14, and 15 were crossed into Fuchsia (39, 16). The Fuchsia clerk sells Super Potions and Full Heals, not basic Potions. Twelve Super Potions and six Full Heals are in the bag (money 11942). Koga was reached. Muk's Disable and Weezing's Selfdestruct were played. Selfdestruct dealt 76 and fainted Pidgeot from 76 HP on the same turn the badge text appeared, then the party blacked out and that win was not written. This pause is the healed party after buying medicine for the rematch. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. TM21 is in the bag. The Saffron gate was not used. Pidgeot is benched for Fly and heals in battle from 90 HP. Wartortle leads.
+Soul Badge is set. The pause is sequence 370, Fuchsia City (19, 28) facing down, outside the Pokémon Center after the nurse healed the party. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. `origin/main` `93c15d86` is merged and the midgame save continued. `EVENT_BEAT_ROUTE12_SNORLAX` is set. Routes 13, 14, and 15 were crossed into Fuchsia (39, 16). The Fuchsia clerk sells Super Potions and Full Heals, not basic Potions. Six Super Potions and six Full Heals remain (money 16199). Koga's Weezing used Selfdestruct. Pidgeot lived at 23 HP and the Soul Badge was saved. The Center then restored the party. The clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. TM21 is in the bag. The Saffron gate was not used. Pidgeot stays in the party for Fly. Wartortle leads.
 
-Badges: Boulder, Cascade, Thunder, and Rainbow.
+Badges: Boulder, Cascade, Thunder, Rainbow, and Soul.
 
-Team: Wartortle 34 (88 HP), Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Dugtrio 29 (64 HP). Next is the gym rematch and Koga, then the Safari Zone for HM03 and the Gold Teeth, then the warden for HM04. Route 16 stays the other Snorlax.
+Team: Wartortle 34 (88 HP), Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Dugtrio 30 (66 HP). Next is the Safari Zone for HM03 and the Gold Teeth, then the warden for HM04. Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
