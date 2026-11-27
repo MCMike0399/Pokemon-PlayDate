@@ -35,8 +35,11 @@ local function tileCatalogue(store)
 end
 local function loadHeavy(store, d)
     if not store.lazy or d.tile_rows then return d end
-    local record = SourceMaps.record("data/sourceMapCache/entry-" .. d.name .. ".json")
-    local map = assert(record.map, "imported map entry missing")
+    local map = SourceMaps._activeCompactMap(d.name)
+    if not map then
+        local record = SourceMaps.record("data/sourceMapCache/entry-" .. d.name .. ".json")
+        map = assert(record.map, "imported map entry missing")
+    end
     assert(map.id == d.id and map.key == d.key and map.name == d.name
         and map.width == d.width and map.height == d.height
         and map.padding == d.padding and map.revision == d.revision,

@@ -75,6 +75,35 @@ local function settle(battle)
     end
 end
 
+-- One harness process registers every suite. The selected run only needs its
+-- own closure. The other contract modules hold about 3.3 MiB, and a fixture
+-- that reloads the compact catalogue does not fit beside them. A wrapper
+-- that names another module (cerulean-story, the Vermilion scene fixtures)
+-- keeps that global; string.dump sees the global name in its constants.
+function Contracts.releaseUnselected(name)
+    if suiteCodeReleased then return end
+    local keep
+    for _, suite in ipairs(suites) do
+        if suite.name == name then keep = suite end
+    end
+    assert(keep and type(keep.run) == "function", "unknown contract suite: " .. tostring(name))
+    local named = ""
+    local dumped, blob = pcall(string.dump, keep.run, true)
+    if dumped and type(blob) == "string" then named = blob end
+    for _, suite in ipairs(suites) do
+        if suite ~= keep then suite.run = nil end
+    end
+    for key, value in pairs(_G) do
+        if type(key) == "string" and type(value) == "table" and key:find("Contract", 1, true)
+            and key ~= "Contracts" and type(value.run) == "function" and value.run ~= keep.run
+            and not named:find(key, 1, true) then
+            _G[key] = nil
+        end
+    end
+    collectgarbage("collect")
+    collectgarbage("collect")
+end
+
 function Contracts.run(only)
     local selected = suites
     if only ~= nil then
@@ -420,6 +449,7 @@ function Contracts.run(only)
     -- 171-map candidate is installed; the suite still runs, the reply is what
     -- exhausts memory. An explicit suite name keeps a bounded native report;
     -- ordinary no-argument runs keep every suite in registration order.
+    if only ~= nil then Contracts.releaseUnselected(only) end
     for _, suite in ipairs(selected) do
         local executed = { id = suite.name, ok = false, passed = 0, failed = 1 }
         if suite.name == "comprehensive-catalog" then executed.artifact_qualifier = "catalog-invariance-v1" end

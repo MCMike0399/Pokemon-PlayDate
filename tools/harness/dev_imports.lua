@@ -169,6 +169,8 @@ import "dev/pewterCatalogExporter"
 PewterCatalogExporter.register()
 import "dev/ceruleanCatalogExporter"
 CeruleanCatalogExporter.register()
+SourceMaps._releaseSharedCompact()
+collectgarbage("collect")
 import "dev/ceruleanCatalogContracts"
 Contracts.register("cerulean-catalog", CeruleanCatalogContracts.run)
 import "dev/comprehensiveCatalogContracts"
@@ -292,6 +294,8 @@ Contracts.register("approved-qol", ApprovedQoLContracts.run)
 -- @harness content-ready
 VermilionCatalogExporter.register()
 MidgameCatalogExporter.register()
+SourceMaps._releaseSharedCompact()
+collectgarbage("collect")
 
 -- @harness runtime
 harness = Harness

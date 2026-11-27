@@ -155,8 +155,17 @@ function SourceMaps._separateCatalogueCaches(enabled)
     separateCaches = enabled == true
 end
 
+-- Fixture scopes replace keys such as fixture_Route22. The shipped entry
+-- file still has the campaign key, so a lazy load has to read the active
+-- compact instead. Production play leaves both unset and uses the entry file.
+function SourceMaps._activeCompactMap(name)
+    if not compact then return nil end
+    return assert(compact.maps[name], "unknown source map")
+end
+
 function SourceMaps._releaseSharedCompact()
     compact, tileGrids = nil, nil
+    collectgarbage("collect")
 end
 
 function SourceMaps._releaseTileGrids()
