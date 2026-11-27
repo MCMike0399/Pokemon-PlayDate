@@ -98,6 +98,25 @@ class LaneBHarnessTest(unittest.TestCase):
             'elite-lorelei-0001-02-display.png',
         ])
 
+    def test_a_new_clip_does_not_splice_the_previous_recordings_tail(self):
+        """Arming again reuses chunk 1. The old bag tail must not precede the new battle."""
+        with TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            bag = folder / 'elite-bruno-0001-15-display.png'
+            sendout = folder / 'elite-bruno-0001-01-display.png'
+            attack = folder / 'elite-bruno-0001-02-display.png'
+            bag.write_bytes(b'bag-loop')
+            sendout.write_bytes(b'go-pidgeot')
+            attack.write_bytes(b'wing-attack')
+            os.utime(bag, (1000, 1000))
+            os.utime(sendout, (5000, 5000))
+            os.utime(attack, (5001, 5001))
+            got = [path.name for path in clip_frames(folder, 'elite-bruno', since=4_000 * 1_000_000_000)]
+        self.assertEqual(got, [
+            'elite-bruno-0001-01-display.png',
+            'elite-bruno-0001-02-display.png',
+        ])
+
     def test_a_recycled_chunk_plays_after_the_frames_it_did_not_replace(self):
         """A second pass reuses chunk 0001. The leftover higher chunk is older."""
         with TemporaryDirectory() as tmp:

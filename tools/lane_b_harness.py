@@ -58,8 +58,14 @@ def attach_record(commands, name, chunk, clip_left):
     return recorded, take, clip_left - take
 
 
-def clip_frames(folder, name):
+def clip_frames(folder, name, since=None):
     """Display frames in capture order.
+
+    ``since`` is a nanosecond timestamp from the moment this clip was armed.
+    A later recording of the same name reuses the low frame numbers and
+    leaves the previous clip's higher frames on disk. Those older files are
+    a different recording. Including them splices that recording's tail,
+    such as a bag menu, onto this recording's battle.
 
     One ``record`` writes a chunk as frames 1..N, in that order. The next
     recording of the same name starts again at frame 1 and overwrites only
@@ -75,8 +81,11 @@ def clip_frames(folder, name):
     for path in Path(folder).glob(f'{name}-*-display.png'):
         match = pattern.match(path.name)
         if path.name.endswith('-display.png') and match:
+            mtime = path.stat().st_mtime_ns
+            if since is not None and mtime < since:
+                continue
             by_chunk.setdefault(int(match.group(1)), []).append(
-                (int(match.group(2)), path.stat().st_mtime_ns, path))
+                (int(match.group(2)), mtime, path))
     segments = []
     for chunk, items in by_chunk.items():
         items.sort()
