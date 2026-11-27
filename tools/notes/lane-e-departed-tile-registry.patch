@@ -1,0 +1,332 @@
+diff --git a/Source/data/ceruleanContent.lua b/Source/data/ceruleanContent.lua
+index d2644835..a51f824f 100644
+--- a/Source/data/ceruleanContent.lua
++++ b/Source/data/ceruleanContent.lua
+@@ -282,6 +282,17 @@ function CeruleanContent.poseAtTick(tick)
+     return phase == 1 and "walk" or phase == 3 and "alternate" or "stand"
+ end
+ 
++function CeruleanContent.releaseDeparted()
++    if SpriteFactory and SpriteFactory.npc then
++        for key, images in pairs(rendered) do
++            if SpriteFactory.npc[key] == images then
++                SpriteFactory.npc[key] = nil
++            end
++        end
++    end
++    rendered = {}
++    walks = {}
++end
+ function CeruleanContent.installArt(definition)
+     assert(definition.source_revision == "af519899719f0754965776faac0e836a3b906e6d", "unverified actor definition")
+     local selected = {}
+diff --git a/Source/domain/fieldEncounters.lua b/Source/domain/fieldEncounters.lua
+index 38f22cbb..0e9416da 100644
+--- a/Source/domain/fieldEncounters.lua
++++ b/Source/domain/fieldEncounters.lua
+@@ -73,6 +73,9 @@ end
+ -- One current-map capture only. Retained requests own their older captures,
+ -- so eviction never changes a published token's values or freshness checks.
+ local preparedZone, preparedData, preparedTotal
++function FieldEncounters.releasePrepared()
++    preparedZone, preparedData, preparedTotal = nil, nil, nil
++end
+ local policyScratch = {rate={}}
+ local function clearPolicyScratch()
+     policyScratch.slots = nil
+diff --git a/Source/domain/fieldMoves.lua b/Source/domain/fieldMoves.lua
+index c49156a9..baa04428 100644
+--- a/Source/domain/fieldMoves.lua
++++ b/Source/domain/fieldMoves.lua
+@@ -59,6 +59,11 @@ local function readMap(id)
+ end
+ -- Internal loading hook. This reads no party, world, flags, or RNG state.
+ -- Call for the entering map, never for the installed-map inventory.
++function FieldMoves.releaseDeparted()
++    maps = {}
++    parts = {}
++    recentMap, previousMap = nil, nil
++end
+ function FieldMoves.prepareMap(id)
+     return readMap(id)
+ end
+diff --git a/Source/game/fieldTravelRuntime.lua b/Source/game/fieldTravelRuntime.lua
+index 3e40fb36..8f4c2b78 100644
+--- a/Source/game/fieldTravelRuntime.lua
++++ b/Source/game/fieldTravelRuntime.lua
+@@ -131,9 +131,25 @@ local function releaseFlyOrigin(game, owner, previous, sprites)
+     if SourceEvents and SourceEvents.releaseRecentContent then SourceEvents.releaseRecentContent() end
+     if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
+     gfx.sprite.removeAll()
+-    if WorldTiles and WorldTiles.releaseRenderedImages then
++    if WorldTiles and WorldTiles.releaseDeparted then
++        WorldTiles:releaseDeparted()
++    elseif WorldTiles and WorldTiles.releaseRenderedImages then
+         WorldTiles:releaseRenderedImages()
+     end
++    if PewterSprites and PewterSprites.releaseDeparted then
++        PewterSprites.releaseDeparted()
++    elseif SliceSprites and SliceSprites.releaseDeparted then
++        SliceSprites.releaseDeparted()
++    end
++    if FieldMoves and FieldMoves.releaseDeparted then
++        FieldMoves.releaseDeparted()
++    end
++    if FieldEncounters and FieldEncounters.releasePrepared then
++        FieldEncounters.releasePrepared()
++    end
++    if CeruleanContent and CeruleanContent.releaseDeparted then
++        CeruleanContent.releaseDeparted()
++    end
+     zone = nil
+     previous.scoreReleased = true
+ end
+diff --git a/Source/world/pewterSprites.lua b/Source/world/pewterSprites.lua
+index 9d17d606..cc362e9a 100644
+--- a/Source/world/pewterSprites.lua
++++ b/Source/world/pewterSprites.lua
+@@ -4,6 +4,19 @@ PewterSprites={}
+ local names={super_nerd="pewterSuperNerd",gramps="pewterGramps",little_girl="pewterLittleGirl",cooltrainer_f="pewterCooltrainerF",gym_guide="pewterGymGuide",poke_ball="pewterPokeBall",fairy="pewterFairy"}
+ local shared={SPRITE_YOUNGSTER=true,SPRITE_GIRL=true,SPRITE_CLERK=true,SPRITE_COOLTRAINER_M=true,SPRITE_NURSE=true,SPRITE_GENTLEMAN=true,SPRITE_LINK_RECEPTIONIST=true}
+ local rendered={}
++function PewterSprites.releaseDeparted()
++    if SpriteFactory and SpriteFactory.npc then
++        for _, key in pairs(names) do
++            if SpriteFactory.npc[key] == rendered[key] then
++                SpriteFactory.npc[key] = nil
++            end
++        end
++    end
++    rendered = {}
++    if SliceSprites.releaseDeparted then
++        SliceSprites.releaseDeparted()
++    end
++end
+ function PewterSprites.key(source)
+     if shared[source] then return SliceSprites.key(source) end
+     local _,name=PewterSlice.sprite(source)
+diff --git a/Source/world/sliceSprites.lua b/Source/world/sliceSprites.lua
+index cdee5af7..1a76d3f4 100644
+--- a/Source/world/sliceSprites.lua
++++ b/Source/world/sliceSprites.lua
+@@ -7,6 +7,17 @@ local function data()
+     if not loaded then loaded = assert(json.decodeFile("data/viridianSlice/sprites.json")); assert(loaded.source_revision == "af519899719f0754965776faac0e836a3b906e6d") end
+     return loaded.sprites
+ end
++function SliceSprites.releaseDeparted()
++    if SpriteFactory and SpriteFactory.npc then
++        for _, key in pairs(keys) do
++            if SpriteFactory.npc[key] == rendered[key] then
++                SpriteFactory.npc[key] = nil
++            end
++        end
++    end
++    loaded = nil
++    rendered = {}
++end
+ function SliceSprites.key(source)
+     local name = assert(source:match("^SPRITE_(.+)$")):lower()
+     assert(keys[name] and data()[name], "unmapped original sprite: " .. tostring(source))
+diff --git a/Source/world/sourceMapProvider.lua b/Source/world/sourceMapProvider.lua
+index 67139ded..6a5a7dfe 100644
+--- a/Source/world/sourceMapProvider.lua
++++ b/Source/world/sourceMapProvider.lua
+@@ -34,6 +34,11 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
+     -- The previous zone's sprites and decoded rows are already unreferenced.
+     -- Incremental GC has not always finished before the next city, so the
+     -- floor stays about 500 KiB above main and the zone build crosses the pool.
++    -- Isolated fixtures skip the score warm. They do not walk the departed
++    -- set, and every bed at once does not fit beside their own copy.
++    if not (type(overrides) == "table" and overrides.isolatedCatalog) then
++        SourceMaps._warmDepartedStrings()
++    end
+     collectgarbage("collect")
+     local entry = SourceMaps.entry(name)
+     if BootTrace then
+@@ -84,6 +89,9 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
+     -- The padded definition and the zone stay referenced. Finish the
+     -- collection before the caller builds the view or the dialogue on top.
+     collectgarbage("collect")
++    if BootTrace and registry and registry.maxID then
++        BootTrace.mark(string.format("registry.slots %s %d", name, registry:maxID()))
++    end
+     return zone
+ end
+ 
+diff --git a/Source/world/sourceMaps.lua b/Source/world/sourceMaps.lua
+index 338a7ddf..cce0a412 100644
+--- a/Source/world/sourceMaps.lua
++++ b/Source/world/sourceMaps.lua
+@@ -137,6 +137,38 @@ function SourceMaps.names(profile)
+     return result
+ end
+ 
++-- file.run keeps each score chunk after the note table is cleared.
++-- The harness leaves the 9 MiB sample off, so it still loads every bed
++-- once, before the first measured floor. A player or device build is
++-- inside that sample. The full set crosses it, so those beds stay on
++-- the first-play path.
++local warmedStrings = false
++function SourceMaps._warmDepartedStrings()
++    if warmedStrings or recordOverrides then
++        return
++    end
++    warmedStrings = true
++    if BootTrace then
++        BootTrace.mark("registry.warm.begin")
++    end
++    -- memoryBudgetEnabled is on for a player build and a device build.
++    -- The harness sets HarnessBuild.enabled and leaves the sample off.
++    local budget = BootTrace and BootTrace.memoryBudgetEnabled and BootTrace.memoryBudgetEnabled()
++    if not budget and playdate.file.listFiles and KantoSynth and KantoSynth.unloadAll then
++        local listed = playdate.file.listFiles("audio/score") or {}
++        for _, file in ipairs(listed) do
++            local name = file:gsub("%.pdz$", ""):gsub("%.lua$", "")
++            if name ~= file and not name:find(".", 1, true) and name:sub(1, 5) ~= "move_" then
++                pcall(playdate.file.run, "audio/score/" .. name)
++                KantoSynth.unloadAll()
++            end
++        end
++    end
++    if BootTrace then
++        BootTrace.mark(budget and "registry.warm.deferred" or "registry.warm.end")
++    end
++end
++
+ function SourceMaps.nameForID(id, profile)
+     for name, entry in pairs(catalogue()) do
+         if entry.id == id and (not profile or entry.profile == profile) then return name end
+diff --git a/Source/world/tileRegistry.lua b/Source/world/tileRegistry.lua
+index 141f9bb2..2b5b12cb 100644
+--- a/Source/world/tileRegistry.lua
++++ b/Source/world/tileRegistry.lua
+@@ -334,6 +334,25 @@ local function normalizeBatch(registry, entries)
+     assert(found == length, "tile batch has holes")
+     local store, pending = stores[registry], {}
+     local normalized = {}
++    -- Identical shade rows share one grid table. The lookup lives only for
++    -- this batch, so a later eviction can drop the rows with the entry.
++    local sharedGrids = {}
++    local function shareGrid(grid)
++        local node = sharedGrids
++        for index = 1, 16 do
++            local row = grid[index]
++            local child = node[row]
++            if not child then
++                child = {}
++                node[row] = child
++            end
++            node = child
++        end
++        if not node.grid then
++            node.grid = grid
++        end
++        return node.grid
++    end
+     for i, value in ipairs(entries) do
+         local entry = imported(value)
+         local existing = store.keys[entry.key] and store.entries[store.keys[entry.key]] or pending[entry.key]
+@@ -341,6 +360,9 @@ local function normalizeBatch(registry, entries)
+         -- Validation above reads every incoming field. Equal private entries
+         -- are immutable, so only a new definition needs a defensive snapshot.
+         local retained = existing or copy(entry)
++        if not existing then
++            retained.grid = shareGrid(retained.grid)
++        end
+         pending[entry.key] = retained
+         normalized[i] = retained
+         if GameBootstrap then
+@@ -395,6 +417,26 @@ function TileRegistry:releaseRenderedImages()
+     local store = stores[self]
+     if store then store.images = {} end
+ end
++-- Departed maps keep no registry rows. The next visit registers the same
++-- stable keys, in definition order, into the same slots above the base set.
++-- Numeric ids are local render slots; saves and journeys use the stable key.
++function TileRegistry:releaseDeparted()
++    local store = stores[self]
++    if not store then
++        return
++    end
++    for id = #store.entries, BASE_COUNT + 1, -1 do
++        local entry = store.entries[id]
++        if entry and entry.key then
++            store.keys[entry.key] = nil
++        end
++        store.entries[id] = nil
++        store.images[id] = nil
++    end
++    for index = #atlasRecent, 1, -1 do
++        atlasRecent[index] = nil
++    end
++end
+ function TileRegistry:renderImported(value, renderer)
+     local id = self:id(value)
+     assert(id > BASE_COUNT, "base images are provided by TileFactory")
+diff --git a/Source/world/zone.lua b/Source/world/zone.lua
+index d4c326b9..dc1dd6e5 100644
+--- a/Source/world/zone.lua
++++ b/Source/world/zone.lua
+@@ -1181,6 +1181,12 @@ local function releaseDepartingWorld()
+     -- until the next map's score replaces it. Drop it before the next
+     -- definition, or the bed and the destination city are in the pool together.
+     if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
++    if WorldTiles and WorldTiles.releaseDeparted then WorldTiles:releaseDeparted() end
++    if PewterSprites and PewterSprites.releaseDeparted then PewterSprites.releaseDeparted()
++    elseif SliceSprites and SliceSprites.releaseDeparted then SliceSprites.releaseDeparted() end
++    if FieldMoves and FieldMoves.releaseDeparted then FieldMoves.releaseDeparted() end
++    if FieldEncounters and FieldEncounters.releasePrepared then FieldEncounters.releasePrepared() end
++    if CeruleanContent and CeruleanContent.releaseDeparted then CeruleanContent.releaseDeparted() end
+     collectgarbage("collect")
+     collectgarbage("collect")
+ end
+diff --git a/Source/audio/engine.lua b/Source/audio/engine.lua
+index 00000000..00000000 100644
+--- a/Source/audio/engine.lua
++++ b/Source/audio/engine.lua
+@@ -371,6 +371,45 @@
+     return assert(ensureScore(name), "unknown Kanto score").ticks
+ end
+ 
++local function mixIdentity(sum, value)
++    local kind = type(value)
++    if kind == "number" then
++        return (sum * 131 + math.floor(value * 1000)) % 2147483647
++    end
++    if kind == "string" then
++        for byte = 1, #value do
++            sum = (sum * 131 + string.byte(value, byte)) % 2147483647
++        end
++        return sum
++    end
++    if kind == "table" then
++        for index = 1, #value do
++            sum = mixIdentity(sum, value[index])
++        end
++        if value.p ~= nil then sum = mixIdentity(sum, value.p) end
++        if value.s ~= nil then sum = mixIdentity(sum, value.s) end
++        if value.v ~= nil then sum = mixIdentity(sum, value.v) end
++        return sum
++    end
++    return sum
++end
++
++-- Same file.run and bind as a first play. The warm's file.run installs the
++-- chunk; playback and this mix both go through ensureScore.
++function KantoSynth.identity(name)
++    local score = ensureScore(name)
++    if not score then
++        return "missing"
++    end
++    local count = noteCount(score)
++    local sum = (score.ticks or 0) + (score.loop or 0)
++    sum = (sum + count * 1000003) % 2147483647
++    for index = 1, count do
++        sum = mixIdentity(sum, noteAt(score, index))
++    end
++    return string.format("%d:%s:%d:%d", score.ticks or 0, tostring(score.loop or 0), count, sum)
++end
++
+ function KantoSynth.sfx(name)
+     init()
+     local now = sound.getCurrentTime()

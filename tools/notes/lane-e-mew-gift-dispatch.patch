@@ -1,0 +1,13 @@
+Superseded by lane E 79fbcba560e34945a130d7e1788ab44be5aa8d77.
+
+K's pre-merge check, docs/validation/lane-k-premerge.md on
+cursor/lane-k-qa at 8600ea0b, reports this file is not a valid diff.
+git apply finds no patches. On that tip PostgameStory.installEvents
+already registers the Cerulean Cave gift: the giver id, the dispatch id
+pokered:CERULEAN_CAVE_1F:script:mew-gift, and registerWorldHooks.
+Do not add a second registration.
+
+The scientist is not an object in pokered data/maps/objects/CeruleanCave1F.asm.
+The level-5 gift remains the Miguel-approved deviation. The real diff
+against origin/main is tools/notes/lane-e-mew-link-cable-gift.patch.
+MallocPoolSize stays 16645684.

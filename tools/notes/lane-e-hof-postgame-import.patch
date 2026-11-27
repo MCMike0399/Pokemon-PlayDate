@@ -1,0 +1,51 @@
+# Real diff of this branch versus origin/main ea32b553.
+# pokered data/maps/special_warps.asm .PalletTown is the Hall continue spawn.
+# pokered scripts/CinnabarLabFossilRoom.asm is the fossil handover.
+# pdc 3.1.2 does not run a variable import, so the chunk never loads.
+# Do not apply this on lane E 79fbcba5: that tip file.runs game/postgameStory
+# from loadHallContinue, and a boot import OOM'd the Hall continue.
+# fossilRevival.lua must not import lateKantoStory.lua. That import loops.
+
+diff --git a/Source/game/fossilRevival.lua b/Source/game/fossilRevival.lua
+index 53c68f43..13541814 100644
+--- a/Source/game/fossilRevival.lua
++++ b/Source/game/fossilRevival.lua
+@@ -8,7 +8,8 @@
+ -- This file does not edit sessionCodec.lua.
+ import "domain/party"
+ import "domain/storage"
+-import "game/lateKantoStory"
++-- LateKantoStory is assigned by game/lateKantoStory, which imports this file.
++-- Importing it here loops the Simulator: this file would re-enter that module.
+ 
+ FossilRevival = {}
+ local ITEM_PREFIX = "wFossilItem:"
+diff --git a/Source/game/lateKantoStory.lua b/Source/game/lateKantoStory.lua
+index 74a01f2a..3524bbf8 100644
+--- a/Source/game/lateKantoStory.lua
++++ b/Source/game/lateKantoStory.lua
+@@ -2,11 +2,10 @@
+ -- Power Plant, Cerulean Cave and the other remainder maps are installed.
+ -- This module reads the pinned plan. It does not write badges, write a
+ -- save, or place Mew.
+--- pdc 3.1.2 treats the import name as a file request, even inside type().
+-local importer = import
+-if type(importer) == "function" then
+-    importer "game/postgameStory"
+-end
++-- A variable call is not an import statement. pdc puts the file in the
++-- bundle and then never runs the chunk, so the Simulator never builds
++-- PostgameStory. This statement runs the chunk before this file.
++import "game/postgameStory"
+ LateKantoStory = {}
+ local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
+ local cached
+@@ -77,6 +76,5 @@ function LateKantoStory.actorMetadata(id)
+     return {}
+ end
+ 
+-if type(importer) == "function" then
+-    importer "game/fossilRevival"
+-end
++-- Same as the postgame import above. FossilRevival.talk is the lab handover.
++import "game/fossilRevival"

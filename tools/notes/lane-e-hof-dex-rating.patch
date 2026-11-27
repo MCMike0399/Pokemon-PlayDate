@@ -1,0 +1,12 @@
+Superseded by tools/notes/lane-k-premerge-hof-dex-rating.patch on
+cursor/lane-k-qa at 8600ea0b.
+
+This diff no longer applies. Lane E draws the hall page with
+EndgameStory.drawPokeredText, not gfx.drawText(page.text, px, py).
+K's patch keeps this branch's line layout and draws each line with
+drawPokeredText. git apply --check of that patch succeeds on E.
+
+pokered engine/movie/hall_of_fame.asm prints DexSeenOwnedText, then
+DexRatingText, then wDexRatingText. HoFPrintTextAndDelay waits 120
+frames after each. The paragraphs are text/pokedex_ratings.asm.
+Do not apply this file. MallocPoolSize stays 16645684.
