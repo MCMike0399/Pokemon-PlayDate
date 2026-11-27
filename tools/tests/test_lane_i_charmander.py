@@ -4912,6 +4912,30 @@ class CharmanderRun(BrockJourney):
             return "maxPotion"
         return None
 
+    def _keep_door_restore(self, battle, options):
+        """The shared battle loop drinks the last Full Restore under two thirds.
+
+        That bottle is the field heal before the next door. Attack instead.
+        A Max Potion or a spare bottle is still spent by that loop.
+        """
+        zone = self.state.get("zone_id") or ""
+        if not any(token in zone for token in (
+            "LORELEIS_ROOM", "BRUNOS_ROOM", "AGATHAS_ROOM", "LANCES_ROOM", "CHAMPIONS_ROOM",
+        )):
+            return False
+        if self.quantity("fullRestore") != 1 or self.quantity("maxPotion"):
+            return False
+        from tools.harness.brock_journey import choose_battle_medicine
+        if choose_battle_medicine(battle.get("player") or {}, self.inventory()) != "fullRestore":
+            return False
+        fight = [i for i, value in enumerate(options, 1)
+                 if value == "FIGHT" or isinstance(value, dict) and value.get("action") == "fight"]
+        if len(fight) != 1:
+            return False
+        self.select("battle.menu.selected", fight[0])
+        self.send("press a")
+        return True
+
     def _spare_revive(self, battle):
         """A battle may spend a spare Revive. The last one stays for the next door.
 
@@ -5060,6 +5084,8 @@ class CharmanderRun(BrockJourney):
             self.battle_medicine("parlyzHeal", options)
             return True
         if not want:
+            if self._keep_door_restore(battle, options):
+                return True
             return super().battle_preparation_action(battle, options)
         # Throw before Dragon Rage can knock the counter out.
         self.training_mode = "capture"
@@ -5283,6 +5309,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertLess(stock.index("len(slots) >= 20"), stock.index("self.buy_item"))
         self.assertIn("def _spare_revive", source)
         self.assertIn("def _spare_healing", source)
+        self.assertIn("self._keep_door_restore(battle, options)", source)
         door = source.split("def _top_off_in_field", 1)[1].split("def _needs_league_heal", 1)[0]
         battle_heal = source.split("def _top_off_starter", 1)[1].split("def battle_preparation_action", 1)[0]
         self.assertIn('self.quantity("fullRestore")', door)
