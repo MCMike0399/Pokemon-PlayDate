@@ -29,6 +29,14 @@ class MoveSfxCrashTests(unittest.TestCase):
         self.assertIn("if played then", faint)
         self.assertLess(faint.index("if played then"), faint.index("sfxFrames(moveCue)"))
 
+    def test_pause_menu_can_release_the_trainer_card(self):
+        pause = (ROOT / "Source/game/pauseState.lua").read_text(encoding="utf-8")
+        self.assertIn("function PauseState:releaseTrainerScreen()", pause)
+        self.assertIn("function PauseState:drawTrainer()", pause)
+        draw = pause.split("function PauseState:draw()", 1)[1].split(
+            "function PauseState:resume()", 1)[0]
+        self.assertLess(draw.index("self:releaseTrainerScreen()"), draw.index("function PauseState:releaseTrainerScreen()"))
+
 
 if __name__ == "__main__":
     unittest.main()

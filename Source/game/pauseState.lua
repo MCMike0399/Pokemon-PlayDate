@@ -91,6 +91,28 @@ function PauseState:draw()
     gfx.setDrawOffset(x, y)
 end
 
+-- The trainer card is a standalone pdz. The badge tiles load with the card
+-- and drop when it closes, so a boot that never opens it does not keep them.
+function PauseState:drawTrainer()
+    if not TrainerScreen then
+        import "game/gbFont"
+        if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+            playdate.file.run("game/trainerScreen")
+        else
+            dofile("Source/game/trainerScreen.lua")
+        end
+    end
+    TrainerScreen.draw(self)
+end
+
+function PauseState:releaseTrainerScreen()
+    if TrainerScreen == nil then return end
+    if TrainerScreen.release then TrainerScreen.release() end
+    TrainerScreen = nil
+    collectgarbage("collect")
+    collectgarbage("collect")
+end
+
 function PauseState:resume()
     self.menu.crank:reset()
 end
