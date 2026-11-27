@@ -3602,6 +3602,21 @@ class CharmanderRun(BrockJourney):
         self.send("press a")
         self.require(root="evolution")
         self.evolution()
+        # The item screen is still up. B from there closes the bag, so the
+        # save press has to happen after the overworld is settled.
+        for _ in range(6):
+            root = self.state.get("root")
+            if root == "overworld" and lookup(self.state, "player.settled"):
+                break
+            if root == "dialog":
+                self.dialog()
+            elif root in {"bag", "party", "pause"}:
+                self.send("press b", "wait 8")
+            else:
+                self.send("wait 8")
+        else:
+            raise ProtocolError("LINK CABLE menus stayed on " + str(self.state.get("root")))
+        self.send("wait 8")
         evolved = self._CABLE_EVOLVED[species]
         if not any(mon["species"] == evolved for mon in self.party()):
             raise ProtocolError("LINK CABLE did not evolve " + species)
