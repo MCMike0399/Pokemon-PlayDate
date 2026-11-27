@@ -3553,22 +3553,29 @@ class CharmanderRun(BrockJourney):
         if count > 0:
             self.travel(self.zone("CeruleanMart"))
             self.buy_item(clerk, "pokeBall", count, price)
-        self._return_to_cave_grass()
         self._catch_trade = True
         try:
-            # Kadabra is one grass slot. Pace the same two tiles until a
-            # catch, the balls run out, or the flee cap is close.
-            for _ in range(1500):
+            # The walk to the grass crosses 2F, which also has Kadabra.
+            self._return_to_cave_grass()
+            # (4, 6) is open east and west. Up and down stay put, so a
+            # vertical pace never enters a new encounter tile.
+            for _ in range(800):
                 if any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
                     return
                 if self.quantity("pokeBall") < 1:
                     break
                 if len(self.summary.get("wild_encounters") or []) >= 58:
                     break
-                self._step("up")
+                before = self.position()
+                self._step("right")
+                if self.position() == before:
+                    self._step("left")
                 if any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
                     return
-                self._step("down")
+                before = self.position()
+                self._step("left")
+                if self.position() == before:
+                    self._step("right")
         finally:
             self._catch_trade = False
         if not any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
