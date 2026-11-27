@@ -1790,10 +1790,10 @@ class CharmanderRun(BrockJourney):
         model = self.model()
         return [(0, y) for y in ys if model.feet[y][0] in self._SURF_FEET]
 
-    def _surf_follow(self, goals):
+    def _surf_follow(self, goals, attempts=8):
         from collections import deque
         goals = set(goals)
-        for _ in range(8):
+        for _ in range(attempts):
             if self._on("CinnabarIsland"):
                 return
             model = self.model()
@@ -3359,6 +3359,32 @@ class CharmanderRun(BrockJourney):
                     heapq.heappush(queue, (candidate, serial, destination, itinerary + [(point, kind, detail, destination)]))
         raise ProtocolError("no bounded staged source route to " + str((target_id, goal)))
 
+    def _surf_down_route24(self):
+        """Surf Route 24's west channel into the Cerulean Cave pocket.
+
+        pret/pokered af519899 Route24 south adjustment is +10, so water
+        columns 4 through 8 arrive on Cerulean (14, 0) through (18, 0).
+        That water reaches (6, 12), one step east of the door path. The
+        city streets never touch those thirteen tiles.
+        """
+        if not self._on("Route24"):
+            return
+        self.navigate((4, 31))
+        self.face("down")
+        index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+        self.use_field(index, "surf")
+        if self.position() == (4, 31):
+            self._surf_press("down", 1)
+        self._surf_follow([(x, 35) for x in range(4, 9)], attempts=40)
+        if self._on("Route24"):
+            self._surf_off("down")
+        if not self._on("CeruleanCity"):
+            raise ProtocolError("Route 24 channel did not enter Cerulean: "
+                                + self._map_name() + " " + str(self.position()))
+        if self._surfing():
+            self._surf_follow([(6, 12), (6, 13)], attempts=40)
+            self._surf_off("left")
+
     def _play_postgame(self):
         """Heal, cross to Cerulean Cave, and face Mewtwo. The Mew giver has no script."""
         self._bind_kanto_route()
@@ -3378,19 +3404,21 @@ class CharmanderRun(BrockJourney):
         if not self._on("CeruleanCave1F") and not self._on("CeruleanCaveB1F"):
             # One search from the Center to Cerulean expands every nearer door
             # and hits the node cap. Each hop is the next road.
-            hops = ("ViridianCity", "Route2", "PewterCity", "Route3", "Route4", "CeruleanCity")
+            # The cave door is a 13-tile pocket off the streets. Route 4's
+            # east road enters the streets. Route 24's west channel is the
+            # surf that lands on the pocket.
+            hops = ("ViridianCity", "Route2", "PewterCity", "Route3", "Route4",
+                    "CeruleanCity", "Route24")
             here = next((index for index, name in enumerate(hops) if self._on(name)), None)
             for name in hops[(here + 1) if here is not None else 0:]:
                 if not self._on(name):
                     self.travel(self.zone(name))
-            city = self.zone("CeruleanCity")
-            self.travel(city, {(4, 13), (3, 12), (5, 12)})
-            if not self._on("CeruleanCity"):
-                raise ProtocolError("Cerulean City missed: " + self._map_name() + " " + str(self.position()))
-            if self.position() != (4, 12):
+            self._surf_down_route24()
+            if self._on("CeruleanCity") and self.position() != (4, 12):
                 self.navigate((4, 12))
-            self.send("press up", "wait 20")
-            self.drain()
+            if self._on("CeruleanCity"):
+                self.send("press up", "wait 20")
+                self.drain()
         if not self._on("CeruleanCave1F") and not self._on("CeruleanCaveB1F"):
             raise ProtocolError("cave door stayed at " + self._map_name() + " " + str(self.position()))
         if self._on("CeruleanCave1F") and not self.summary.get("mew_gift"):
@@ -5362,8 +5390,10 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("def _spare_healing", source)
         self.assertIn("self._keep_door_restore(battle, options)", source)
         postgame = source.split("def _play_postgame", 1)[1].split("def _champion", 1)[0]
-        self.assertIn('self.zone("CeruleanCity")', postgame)
+        self.assertIn('"CeruleanCity"', postgame)
         self.assertIn('"Route4"', postgame)
+        self.assertIn('"Route24"', postgame)
+        self.assertIn("self._surf_down_route24()", postgame)
         self.assertIn("press up", postgame)
         self.assertLess(source.index("def route_portal"), source.index("def _play_postgame"))
         self.assertIn("len(best) <= 16384", source.split("def route_portal", 1)[1].split("def _play_postgame", 1)[0])
