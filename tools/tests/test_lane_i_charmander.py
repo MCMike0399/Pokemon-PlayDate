@@ -1252,6 +1252,14 @@ class CharmanderRun(BrockJourney):
         base_advance = self.advance_event
         def advance_event(stop_phase=None):
             root = self.state.get("root")
+            if root == "pokedex":
+                # A first catch opens the dex page over the battle. A returns.
+                self.send("press a")
+                return True
+            if root == "naming":
+                # The nickname question starts on YES. B keeps the species name.
+                self.send("press b")
+                return True
             if root == "coastSwitch":
                 # The statue menu opens on YES. That toggles the mansion doors.
                 self.send("press a")
@@ -5432,6 +5440,8 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("Route8Gate", east)
         advance = source.split("def advance_event", 1)[1].split("def portals", 1)[0]
         self.assertIn("advance_travel", advance)
+        self.assertIn('root == "pokedex"', advance)
+        self.assertIn('root == "naming"', advance)
         self.assertEqual(key_fight("source", "pokered:CINNABAR_GYM:objects:1"), "badge-volcano")
         self.assertEqual(key_fight("source", "pokered:VIRIDIAN_GYM:objects:1"), "badge-earth")
         self.assertEqual(key_fight("source", "pokered:ROUTE_22:objects:2"), "rival-2")
