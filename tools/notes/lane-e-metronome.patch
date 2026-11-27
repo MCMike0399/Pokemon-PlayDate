@@ -1,0 +1,77 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 219755eb..9e79cad6 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1267,6 +1267,36 @@ function Battle:mirrorMove(move)
+     return self:performMove(copied)
+ end
+ 
++-- fidelity-ledger.md Wide Guard row: Gen V rules apply to moves pokered has.
++-- pokered MetronomePickMove rejects Metronome and anything from Struggle up.
++-- B2W2 also refuses these calls. Keys absent from moveData are ignored.
++local metronomeBanned <const> = {
++    afterYou=true, bestow=true, copycat=true, counter=true, covet=true,
++    destinyBond=true, detect=true, endure=true, feint=true, focusPunch=true,
++    followMe=true, helpingHand=true, meFirst=true, metronome=true, mimic=true,
++    mirrorCoat=true, mirrorMove=true, protect=true, quickGuard=true,
++    ragePowder=true, sleepTalk=true, snore=true, struggle=true, switcheroo=true,
++    transform=true, trick=true, wideGuard=true,
++}
++function Battle:metronome(move)
++    local keys = {}
++    for key, definition in pairs(moveData) do
++        if not metronomeBanned[key] and definition and not definition.noPP and definition.name then
++            keys[#keys + 1] = key
++        end
++    end
++    table.sort(keys)
++    self.metronomeEligible = keys
++    if #keys == 0 then
++        self:say("But it failed!")
++        self.conditions:moveFinished(move, false)
++        return nil
++    end
++    local pick = keys[RulesRNG.random(1, #keys)]
++    self.metronomePick = pick
++    return self:performMove(moveData[pick])
++end
++
+ -- Keep a bounded, transient diagnostic in addition to the Simulator dev log.
+ -- Neither this receipt nor the support inventory owns battle outcomes or saves.
+ function Battle:recordMoveGap(key, reason)
+@@ -1381,5 +1381,9 @@ function Battle:performMove(move)
+     -- Mirror Move spends its own PP, then runs the copied move on this path.
+     if self.currentMoveKey=="mirrorMove" then return self:mirrorMove(move) end
++    -- Gen V Metronome calls another move. pokered MetronomePickMove excludes
++    -- Metronome and Struggle; the ledger's Gen V rule also excludes the B2W2
++    -- call ban for moves this table has.
++    if self.currentMoveKey=="metronome" then return self:metronome(move) end
+     if handler == "wild-escape" then
+         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
+         -- zero, no selfSwitch, trainer failure even with a usable reserve.
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index bd10b883..6a033240 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -112,7 +112,7 @@ MoveSupport.handlers.lightScreen = "engine-dsl"
+ MoveSupport.handlers.haze = "engine-dsl"
+ MoveSupport.handlers.reflect = "engine-dsl"
+ MoveSupport.handlers.focusEnergy = "engine-dsl"
+-MoveSupport.gaps.metronome = "onHit"
++MoveSupport.handlers.metronome = "battle-condition"
+ MoveSupport.handlers.mirrorMove = "battle-condition"
+ MoveSupport.handlers.selfDestruct = "engine-dsl"
+ MoveSupport.handlers.eggBomb = "standard-damage"
+diff --git a/tools/references/move-support.json b/tools/references/move-support.json
+index 9efb566a..9bdbc2d3 100644
+--- a/tools/references/move-support.json
++++ b/tools/references/move-support.json
+@@ -346,7 +346,7 @@
+       "handler": "engine-dsl"
+     },
+     "metronome": {
+-      "gap": "onHit"
++      "handler": "battle-condition"
+     },
+     "mirrorMove": {
+       "handler": "battle-condition"

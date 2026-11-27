@@ -1,0 +1,35 @@
+diff --git a/Source/battle/effects.lua b/Source/battle/effects.lua
+index 57d4012f..dd479002 100644
+--- a/Source/battle/effects.lua
++++ b/Source/battle/effects.lua
+@@ -270,6 +270,8 @@ function BattleEffects:canAttempt(move,attacker,defender)
+         if not pending or pending.category=="status" then return false end
+     end
+     if move.damageRule=="endeavor" and attacker.hp>=defender.hp then return false end
++    -- pokered MoveHitTest misses Dream Eater unless the target is sleeping.
++    if key=="dreamEater" and defender.status~="sleep" then return false end
+     return true
+ end
+ function BattleEffects:fixedDamage(move,attacker,defender)
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index bd10b883..6a033240 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -134,3 +134,3 @@ MoveSupport.handlers.highJumpKick = "standard-damage"
+ MoveSupport.handlers.glare = "dsl"
+-MoveSupport.gaps.dreamEater = "onTryImmunity"
++MoveSupport.handlers.dreamEater = "standard-damage"
+ MoveSupport.handlers.poisonGas = "dsl"
+diff --git a/tools/references/move-support.json b/tools/references/move-support.json
+index 9efb566a..9bdbc2d3 100644
+--- a/tools/references/move-support.json
++++ b/tools/references/move-support.json
+@@ -406,7 +406,7 @@
+       "handler": "dsl"
+     },
+     "dreamEater": {
+-      "gap": "onTryImmunity"
++      "handler": "standard-damage"
+     },
+     "poisonGas": {
+       "handler": "dsl"
