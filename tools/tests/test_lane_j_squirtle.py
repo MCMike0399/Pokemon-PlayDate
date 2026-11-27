@@ -1597,9 +1597,10 @@ class Player:
         return False
 
     def pause_save(self):
-        if not self.exploring():
-            return False
-        self.press("b", wait=10)
+        if self.state.get("root") != "pause":
+            if not self.exploring():
+                return False
+            self.press("b", wait=10)
         if self.state.get("root") != "pause":
             return False
         self.choose("pause", "SAVE")
@@ -4463,7 +4464,11 @@ def _keep_bird_save(report):
 
 
 def _pause(player, report, key):
-    if not player.exploring():
+    if str(player.state.get("zone")) == "kanto_route_17" and not player.exploring():
+        # The hill is still rolling. Hold B through the landing, then open SAVE
+        # in the same batch so an idle frame cannot start another step.
+        player.send("hold b", "wait 16", "release b", "press b", "wait 8")
+    elif not player.exploring():
         _settle_catch(player)
     report[key] = player.pause_save() or player.pause_save()
     if not report[key]:
@@ -8991,6 +8996,15 @@ def _route17_coast(player, cells, target):
     for _ in range(400):
         if player.state.get("root") == "battle":
             return "battle"
+        if player.state.get("root") == "dialog":
+            dialog = player.state.get("dialog") or {}
+            if dialog.get("ready"):
+                player.press("a", wait=4)
+            else:
+                player.send("wait 6")
+            if player.state.get("root") == "battle":
+                return "battle"
+            continue
         x, y = player.state["player"]["x"], player.state["player"]["y"]
         if (x, y) == (tx, ty) or (x == tx and y == ty - 1):
             # Land with B held. The sight check runs only after the step settles,
