@@ -37,9 +37,16 @@ eq(boxes.message.y, 156, "message y")
 eq(boxes.message.w, 400, "message width")
 eq(boxes.message.h, 78, "message height")
 eq(boxes.message.y, boxes.list.y + boxes.list.h - 13, "list and message share one row")
-eq(MartList.figure(2100), "¥002100", "buy figure")
-eq(MartList.figure(1050), "¥001050", "sell figure")
-eq(MartList.figure(3000), "¥003000", "money figure")
+-- home/print_bcd.asm: bit 7 set skips leading zeroes, bit 5 prints ¥
+-- before the first nonzero digit, three BCD bytes, right aligned.
+eq(MartList.figure(2100), "  ¥2100", "buy figure")
+eq(MartList.figure(1050), "  ¥1050", "sell figure")
+eq(MartList.figure(1000), "  ¥1000", "doll figure")
+eq(MartList.figure(3000), "  ¥3000", "money figure")
+eq(MartList.figure(900), "   ¥900", "money after a purchase")
+eq(MartList.figure(0), "     ¥0", "zero money")
+eq(MartList.figure(100000), "¥100000", "yen stays on the left of a full field")
+eq(utf8.len(MartList.figure(2100)), 7, "six digits plus the yen")
 
 local function joined(paint)
     local lines = {}
@@ -74,13 +81,15 @@ eq(paint.rows, 4, "four visible rows")
 forbid(paint)
 local name = cell(paint, "POKé DOLL", 4)
 eq(name.col, 6, "name column")
-local price = cell(paint, "¥001000", 5)
-eq(price.col, 11, "price column")
+-- home/list_menu.asm:421 the price field starts at column 11.
+local price = cell(paint, "  ¥1000", 5)
+eq(price.col, MartList.PRICE_COLUMN, "price column")
 eq(price.row, name.row + 1, "price sits one row under the name")
 local cursor = cell(paint, "▶", 4)
 eq(cursor.col, 5, "cursor column")
 eq(cell(paint, "MONEY", 0).col, 13, "MONEY column")
-eq(cell(paint, "¥003000", 1).col, 12, "amount column")
+-- engine/menus/text_box.asm:140 the money field starts at column 12.
+eq(cell(paint, "  ¥3000", 1).col, MartList.MONEY_COLUMN, "amount column")
 eq(cell(paint, "Take your time.", 14).col, 1, "buy greeting")
 local ink = MartList.occupied(paint)
 local function has(col, row)
@@ -90,8 +99,13 @@ eq(has(0, 1), false, "old POKE MART title cell is blank")
 eq(has(1, 15), false, "old A: Choose hint cell is blank")
 eq(has(11, 0), true, "money box corner")
 eq(has(13, 0), true, "MONEY ink")
-eq(has(12, 1), true, "yen ink")
+eq(has(14, 1), true, "money yen")
 eq(has(18, 1), true, "last money digit")
+for _, glyph in ipairs(paint.glyphs) do
+    if glyph.region == "money" and glyph.row == 1 and glyph.col >= 19 then
+        error("money digit crosses the frame")
+    end
+end
 eq(has(4, 2), true, "list box corner")
 eq(has(19, 12), true, "list box lower right")
 eq(has(6, 4), true, "name ink")
@@ -101,9 +115,9 @@ for _, entry in ipairs(paint.cells) do
     end
 end
 eq(price.row, name.row + 1, "price ink is the row under the name")
-eq(has(11, 5), true, "price ink")
+eq(has(13, 5), true, "price yen")
 eq(has(17, 5), true, "last price digit")
-eq(has(18, 5), false, "price stops inside the list")
+eq(has(18, 5), false, "price stops before the arrow column")
 eq(has(1, 14), true, "greeting ink")
 
 local scrolled = MartList.paint(rows, 6, 900, "buy", nil)
@@ -113,8 +127,8 @@ eq(scrolledInk["6,10"] ~= nil, true, "scrolled LINK CABLE name")
 eq(scrolledInk["11,11"] ~= nil, true, "scrolled price stays inside the list")
 eq(scrolledInk["18,11"] ~= nil, true, "down arrow")
 eq(cell(scrolled, "LINK CABLE", 10).col, 6, "cable name")
-eq(cell(scrolled, "¥002100", 11).col, 11, "cable price")
-eq(cell(scrolled, "¥000900", 1).col, 12, "money after the purchase")
+eq(cell(scrolled, "  ¥2100", 11).col, MartList.PRICE_COLUMN, "cable price")
+eq(cell(scrolled, "   ¥900", 1).col, MartList.MONEY_COLUMN, "money after the purchase")
 
 local sell = MartList.paint({{name = "LINK CABLE", price = 1050, quantity = 1}}, 1, 900, "sell", nil)
 forbid(sell)
@@ -203,3 +217,14 @@ for _, glyph in ipairs(thunder.glyphs) do
     end
 end
 eq(thunderRight < boxes.list.col + boxes.list.innerW + 1, true, "THUNDERSTONE stays inside the frame")
+local cleared = {}
+for _, rect in ipairs(paint.clears) do
+    eq(rect.w, MartList.CELL_W, "label clear covers the cell")
+    eq(rect.h, MartList.CELL_H, "label clear covers the cell height")
+    cleared[rect.col .. "," .. rect.row] = true
+end
+for col = 13, 17 do
+    eq(cleared[col .. ",0"] == true, true, "MONEY span is cleared")
+end
+eq(cleared["12,0"] == nil, true, "the dash beside MONEY stays")
+eq(cleared["18,0"] == nil, true, "the dash after MONEY stays")
