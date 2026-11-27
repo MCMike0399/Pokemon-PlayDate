@@ -19,7 +19,12 @@ local function fillBag(bag)
 end
 local function scene(fn)
     -- The previous Route 2 view is already unreferenced. Collect it before
-    -- this scene copies the screen and builds the next tilemap.
+    -- this scene copies the screen and builds the next tilemap. The champion
+    -- and battle-line chunks sit in the same pool, so the other retained
+    -- definition and the decoded grids have to go first.
+    if SourceMaps.releaseRetainedRuntime then SourceMaps.releaseRetainedRuntime() end
+    if SourceMaps._releaseTileGrids then SourceMaps._releaseTileGrids() end
+    if KantoSynth and KantoSynth.unloadAll then KantoSynth.unloadAll() end
     collectgarbage("collect")
     local oldRegistry,oldList,oldZone = zoneRegistry,zoneList,currentZone
     local oldStory,oldRNG,oldOwner = Story.currentContext(),RulesRNG.toData(),GameSession.activeRNGSession()
