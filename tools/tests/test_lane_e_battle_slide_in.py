@@ -16,8 +16,21 @@ import subprocess
 import unittest
 from pathlib import Path
 
+from PIL import Image
+
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "tools/notes/lane-e-battle-slide-in.patch"
+BEFORE = ROOT / "artifacts/lane-g/e4"
+AFTER = ROOT / "artifacts/lane-g/e4-after"
+# drawTrainer rests at 340 - width/2, y = 8. The pic is 112x112 (56x56 doubled).
+PORTRAIT = (284, 8, 396, 120)
+TRAINERS = {
+    "lorelei": "lorelei",
+    "bruno": "bruno",
+    "agatha": "agatha",
+    "lance": "lance",
+    "champion": "rival3",
+}
 
 
 def git(*args):
@@ -59,6 +72,27 @@ class BattleSlideInTests(unittest.TestCase):
         self.assertIn("duration = 36", visual)
         field = scene.split("function BattleScene:drawBattleField()", 1)[1].split("function BattleScene:", 1)[0]
         self.assertIn("self:silhouetteOffset()", field)
+        present = battle.split("function Battle:present(", 1)[1].split("function Battle:", 1)[0]
+        self.assertIn('kind ~= "silhouetteEnter"', present)
+
+    def test_settled_enemy_portrait_matches_before_and_the_threshold(self):
+        reference = os.environ.get("POKERED_REFERENCE_DIR")
+        if not reference:
+            raise RuntimeError("explicit pinned POKERED_REFERENCE_DIR required; no skipped checks")
+        root = Path(reference) / "gfx/trainers"
+        for name, source_name in TRAINERS.items():
+            before = Image.open(BEFORE / f"{name}-pic.png").convert("L").crop(PORTRAIT)
+            after = Image.open(AFTER / f"{name}-pic.png").convert("L").crop(PORTRAIT)
+            original = Image.open(root / f"{source_name}.png")
+            doubled = original.point(lambda value: 255 if value >= 128 else 0, "1").resize(
+                (112, 112), Image.Resampling.NEAREST).convert("L")
+            after_px = list(after.get_flattened_data())
+            before_px = list(before.get_flattened_data())
+            doubled_px = list(doubled.get_flattened_data())
+            self.assertEqual(len(after_px), len(before_px), name)
+            self.assertEqual(len(after_px), len(doubled_px), name)
+            self.assertEqual(sum(left != right for left, right in zip(after_px, before_px)), 0, name)
+            self.assertEqual(sum(left != right for left, right in zip(after_px, doubled_px)), 0, name)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,18 @@ index 219755eb..5a22c6c3 100644
 +        -- Called from core.asm:6738 before StartBattle at core.asm:6763.
 +        self:present("silhouetteEnter")
          if self.trainerName then
+@@ -594,7 +598,10 @@ function Battle:presentationVitals(mon)
+ -- Optional scene handshake. Rules-only callers never acquire visual waits.
+ function Battle:present(kind, details)
+-    if not self.presentationAttached then
++    -- The opening script runs in Battle:init, before BattleScene sets
++    -- presentationAttached. Yield this slide anyway so the text waits.
++    -- Other presents still return immediately for rules-only callers.
++    if not self.presentationAttached and kind ~= "silhouetteEnter" then
+         return
+     end
+     coroutine.yield("presentation", {kind = kind, details = details or {}})
+ end
 diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
 index aadfc149..6d10ee08 100644
 --- a/Source/battle/battleScene.lua
