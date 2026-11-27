@@ -3407,7 +3407,7 @@
     "game/vermilionStoryTerrain.lua": "7d216e3e86bf6b250f805f9b97986221df91a238fe43fb031a7036ae7cd47de2",
     "main.lua": "88c8a525d7303031d3d41f1a0f74dd37cd9f376efb1964dd9a091034595ae5b7",
     "world/sourceBindings.lua": "f71474a40d57ec9e47b3b14099f6660970c46931c1cbd860791033ac14f4ad5e",
-    "world/zone.lua": "53878f946342aa557f3017b8eb7fa19403838907c0fa8f3606fb42256e7b9b91"
+    "world/zone.lua": "c16eda71c3fc00546ad8d79ba321bd5b33786fc8f9dbc7bd86c2de8babf9efa8"
   },
   "trainers": {
     "pokered:ROUTE_11:objects:1": {
