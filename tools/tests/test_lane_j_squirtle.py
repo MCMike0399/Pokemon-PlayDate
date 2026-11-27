@@ -1597,8 +1597,12 @@ class Player:
         return False
 
     def pause_save(self):
+        # Route 17 rolls on any idle frame. A lone B press there is swallowed
+        # while the overworld gesture is still consumed, and the following wait
+        # rides downhill. The caller opens SAVE first.
+        hill = str(self.state.get("zone")) == "kanto_route_17"
         if self.state.get("root") != "pause":
-            if not self.exploring():
+            if hill or not self.exploring():
                 return False
             self.press("b", wait=10)
         if self.state.get("root") != "pause":
@@ -1607,8 +1611,28 @@ class Player:
         if self.state.get("root") != "pause":
             return False
         self.choose("pause", "YES")
+        if hill:
+            self._ack_route17_save()
+            saved = (self.state.get("pause") or {}).get("lastSave") or {}
+            return bool(saved.get("ok"))
         self.dismiss_until_explore(limit=20)
         return self.exploring()
+
+    def _ack_route17_save(self):
+        """Close the saved-game line. Hold B so the acknowledgement cannot keep rolling."""
+        for _ in range(8):
+            root = self.state.get("root")
+            if root == "dialog":
+                dialog = self.state.get("dialog") or {}
+                if dialog.get("ready"):
+                    self.press("a", wait=1)
+                else:
+                    self.send("wait 4")
+                continue
+            if root == "overworld":
+                self.send("hold b", "wait 12")
+                return
+            self.send("wait 4")
 
 
 def sha256_file(path):
@@ -4463,14 +4487,41 @@ def _keep_bird_save(report):
         shutil.copyfile(src, BIRD_SAVE / src.name)
 
 
+def _route17_open_pause(player):
+    """Open SAVE on the cycling road.
+
+    OverworldState:pause resets the gesture to consumed, and a consumed B press
+    does not open the menu. Hold B until the current step finishes. The hold
+    survives the gap before the next batch, so the hill cannot start again.
+    Releasing B from that hold leaves the gesture consumed for one frame, and
+    the eight Up presses are the following walk. B is tapped on the frame that
+    walk ends.
+    """
+    if player.state.get("root") == "pause":
+        return
+    if player.state.get("root") != "overworld":
+        return
+    for _ in range(4):
+        player.send("hold b", "wait 16")
+        if player.state.get("root") != "overworld":
+            return
+        if (player.state.get("player") or {}).get("settled") is True:
+            break
+    player.send("release b", *(["press up"] * 8), "press b", "wait 8")
+
+
 def _pause(player, report, key):
-    if str(player.state.get("zone")) == "kanto_route_17" and not player.exploring():
-        # The hill is still rolling. Hold B through the landing, then open SAVE
-        # in the same batch so an idle frame cannot start another step.
-        player.send("hold b", "wait 16", "release b", "press b", "wait 8")
+    hill = str(player.state.get("zone")) == "kanto_route_17"
+    if hill:
+        _route17_open_pause(player)
     elif not player.exploring():
         _settle_catch(player)
-    report[key] = player.pause_save() or player.pause_save()
+    report[key] = player.pause_save()
+    if not report[key] and hill:
+        _route17_open_pause(player)
+        report[key] = player.pause_save()
+    elif not report[key]:
+        report[key] = player.pause_save()
     if not report[key]:
         raise RuntimeError(f"{key} did not save: " + json.dumps(summary(player.state)))
 
