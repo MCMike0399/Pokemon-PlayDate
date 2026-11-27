@@ -8527,15 +8527,19 @@ def _cross_gate(player, report, filename, toward, destination, key):
 
 
 def _accept_gift(player, report, flag, key):
-    for _ in range(40):
-        if _quest(player).get(flag):
+    """Advance only a finished page. The chairman's story is too long to mash."""
+    for _ in range(160):
+        if _quest(player).get(flag) and player.exploring():
             break
-        options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
-        if "YES" in options:
+        menu = ((player.state.get("event") or {}).get("menu") or {})
+        if "YES" in (menu.get("options") or []):
             player.choose("event", "YES")
             continue
+        dialog = player.state.get("dialog") or {}
+        if player.state.get("root") == "dialog" and not dialog.get("ready"):
+            player.send("wait 8")
+            continue
         player.press("a", wait=8)
-    _close_menus(player)
     if not _quest(player).get(flag):
         raise RuntimeError(key + " was not received: " + json.dumps(summary(player.state)))
     _checkpoint(player, report, "saved_" + key)
