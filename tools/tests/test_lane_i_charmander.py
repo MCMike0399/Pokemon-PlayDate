@@ -3068,14 +3068,19 @@ class CharmanderRun(BrockJourney):
         return next((mon for mon in self.party() if mon["species"] == "charizard"), None)
 
     def _top_off_in_field(self):
-        """A water or rock hit lands for more than a third of Charizard's HP."""
+        """Heal Charizard before the next room. The south mats clear the wins."""
         starter = self._starter_mon()
-        if starter is None or starter["hp"] <= 0 or starter["hp"] * 2 >= starter["maxHP"]:
+        if starter is None or starter["hp"] <= 0:
+            return
+        index = next(i for i, mon in enumerate(self.party(), 1) if mon["species"] == "charizard")
+        if starter["status"] not in {None, "none"} and self.quantity("fullHeal") > 0:
+            self._field_item("fullHeal", index)
+            starter = self._starter_mon()
+        if starter is None or starter["hp"] <= 0 or starter["hp"] * 3 > starter["maxHP"] * 2:
             return
         item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
         if item is None:
             return
-        index = next(i for i, mon in enumerate(self.party(), 1) if mon["species"] == "charizard")
         self._field_item(item, index)
 
     def _needs_league_heal(self):
@@ -3136,6 +3141,7 @@ class CharmanderRun(BrockJourney):
 
     def _advance_or_bank(self, room):
         """The north door is the only way on. The lobby mats clear the wins."""
+        self._revive_fainted()
         self._top_off_in_field()
         self._leave_north(room, self._north_stand())
         return "forward"
@@ -3537,12 +3543,15 @@ class CharmanderRun(BrockJourney):
 
         self.require_shop_stock = allow
         try:
-            # Full Heal cures paralysis. The lobby does not stock Paralyze
-            # Heals or Hyper Potions, so Max Potion is the healing item.
+            # Full Heal cures paralysis and does not restore HP. Buy one Max
+            # Potion and one Revive before filling status cures, or the lead
+            # walks into the next room too low to finish it.
             for item, cap in (
+                ("maxPotion", 1),
+                ("revive", 1),
                 ("fullHeal", 4),
-                ("revive", 2),
                 ("maxPotion", 2),
+                ("revive", 2),
             ):
                 price = self._INDIGO_PRICES[item]
                 have = self.quantity(item)
@@ -4786,7 +4795,7 @@ class CharmanderRun(BrockJourney):
         if player.get("species") != "charizard":
             return False
         hp, maximum = player.get("hp") or 0, player.get("maxHP") or 1
-        if hp <= 0 or hp * 2 >= maximum:
+        if hp <= 0 or hp * 3 > maximum * 2:
             return False
         item = "fullRestore" if self.quantity("fullRestore") else "maxPotion" if self.quantity("maxPotion") else None
         if item is None:
