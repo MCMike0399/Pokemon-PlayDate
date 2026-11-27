@@ -4175,8 +4175,10 @@ class CharmanderRun(BrockJourney):
         choice = self._lance_choice(party, enemy)
         if choice and choice != active:
             return choice
-        return next((index for index, mon in enumerate(party, 1)
-                     if index != active and mon["hp"] > 0 and self._clear_status(mon)), None)
+        conscious = [index for index, mon in enumerate(party, 1) if index != active and mon["hp"] > 0]
+        clear = [index for index in conscious if self._clear_status(party[index - 1])]
+        pool = clear or conscious
+        return pool[0] if pool else None
 
     def _league_loss_stops(self):
         """One Lance loss leaves the plateau to raise Lapras. A second one stops."""
