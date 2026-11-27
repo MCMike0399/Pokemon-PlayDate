@@ -22,6 +22,12 @@ pret/pokered af519899 engine/movie/hall_of_fame.asm:
 tools/notes/lane-e-hall-of-fame-fidelity.patch draws those cells with
 GbFont on the shared grid and clips the slide to the 160 by 144 LCD.
 The checks fail on the unpatched tree.
+
+test_every_info_and_red_row_keeps_its_own_cell covers the info-box rows
+name, LEVEL/, level, TYPE1/, type 1, TYPE2/ and type 2, and the RED card
+rows name, PLAY TIME, the time, MONEY, the amount, and both dex lines.
+Each glyph's ink has to stay inside its own 20 by 13 cell, and rows on
+the same card cannot share a pixel.
 """
 
 import os
@@ -52,9 +58,17 @@ for _, row in ipairs(rows) do
     io.write(string.format("ROW|%s|%d|%d\n", row.text, row.col, row.row))
     cell(row.col, row.row)
 end
-local name = EndgameStory.playerHallRows({name = "RED", hours = 0, minutes = 0, money = 1234})
+local name = EndgameStory.playerHallRows({name = "RED", hours = 0, minutes = 0, money = 1234, seen = 0, owned = 0})
 for _, row in ipairs(name) do
     io.write(string.format("PLAYER|%s|%d|%d\n", row.text, row.col, row.row))
+end
+local lineRow = 13
+local page = EndgameStory.playerHallPages({seen = 0, owned = 0})[1].text
+for line in (page .. "\n"):gmatch("(.-)\n") do
+    if line ~= "" then
+        io.write(string.format("DEX|%s|1|%d\n", line, lineRow))
+        lineRow = lineRow + 1
+    end
 end
 local box = EndgameStory.hallBoxes()
 io.write(string.format("INFO %d %d %d %d\n", box.info.col, box.info.row, box.info.width, box.info.height))
@@ -66,21 +80,26 @@ local bx, by = EndgameStory.hallPicOrigin(0xc0, 0xd0)
 io.write(string.format("BACK %d %d\n", bx, by))
 local expanded = SourceText.expand("#MON HALL OF")
 io.write("OAK " .. expanded .. "\n")
-local chars = "CHARIZARDLEVEL/85TYPE1FIRETYPE2FLYINGHALL OFMEPY0123456789:"
 local seen = {}
-local index = 1
-while index <= #chars do
-    local nextIndex = utf8.offset(chars, 2, index) or (#chars + 1)
-    local ch = chars:sub(index, nextIndex - 1)
-    if not seen[ch] then
-        seen[ch] = true
-        local sheet, glyph = TitleIdle.glyph(ch)
-        io.write("GLYPH|")
-        io.write(ch)
-        io.write(string.format("|%s|%d\n", sheet, glyph))
+local function emitGlyphs(text)
+    local index = 1
+    while index <= #text do
+        local nextIndex = utf8.offset(text, 2, index) or (#text + 1)
+        local ch = text:sub(index, nextIndex - 1)
+        if ch ~= " " and ch ~= "\n" and not seen[ch] then
+            seen[ch] = true
+            local sheet, glyph = TitleIdle.glyph(ch)
+            io.write("GLYPH|")
+            io.write(ch)
+            io.write(string.format("|%s|%d\n", sheet, glyph))
+        end
+        index = nextIndex
     end
-    index = nextIndex
 end
+for _, row in ipairs(rows) do emitGlyphs(row.text) end
+for _, row in ipairs(name) do emitGlyphs(row.text) end
+emitGlyphs(page)
+emitGlyphs("HALL OF FAME")
 """
 
 
@@ -217,6 +236,131 @@ class HallOfFameFidelityTests(unittest.TestCase):
         self.assertEqual(ink_box(image, 2 * COL, 7 * ROW, 8 * COL, 8 * ROW), 0)
         self.assertGreater(ink_box(image, 0, 4 * ROW, 12 * COL, 5 * ROW), 0)
         self.assertLess(4 * ROW + ROW, 240)
+
+    def test_every_info_and_red_row_keeps_its_own_cell(self):
+        # Each of these is one pokered tile row. At TitleIdle.ROW that is
+        # 13px, and a glyph's ink stays inside that band and its own 20px
+        # column. Rows may sit on adjacent tiles; they do not share pixels.
+        completed = run_probe()
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        placed = []
+        glyphs = {}
+        for line in completed.stdout.splitlines():
+            if line.startswith("ROW|") or line.startswith("PLAYER|") or line.startswith("DEX|"):
+                kind, text, col, row = line.split("|")
+                placed.append({"kind": kind, "text": text, "col": int(col), "row": int(row)})
+            elif line.startswith("GLYPH|"):
+                _, char, sheet, index = line.split("|")
+                glyphs[char] = (sheet, int(index))
+        by_text = {row["text"]: row for row in placed}
+        expected = {
+            "CHARIZARD": (1, 4),
+            "LEVEL/": (2, 6),
+            "85": (8, 7),
+            "TYPE1/": (2, 8),
+            "FIRE": (3, 9),
+            "TYPE2/": (2, 10),
+            "FLYING": (3, 11),
+            "RED": (7, 2),
+            "PLAY TIME": (1, 6),
+            "MONEY": (1, 9),
+        }
+        for text, cell in expected.items():
+            with self.subTest(cell=text):
+                self.assertEqual((by_text[text]["col"], by_text[text]["row"]), cell)
+        time_row = next(row for row in placed if row["kind"] == "PLAYER" and ":" in row["text"])
+        money_row = next(row for row in placed if row["kind"] == "PLAYER" and "¥" in row["text"])
+        dex_rows = [row for row in placed if row["kind"] == "DEX"]
+        self.assertEqual((time_row["col"], time_row["row"]), (5, 7))
+        self.assertEqual((money_row["col"], money_row["row"]), (4, 10))
+        self.assertEqual([(row["col"], row["row"]) for row in dex_rows], [(1, 13), (1, 14)])
+        info_rows = [by_text[text] for text in (
+            "CHARIZARD", "LEVEL/", "85", "TYPE1/", "FIRE", "TYPE2/", "FLYING")]
+        red_rows = [by_text["RED"], by_text["PLAY TIME"], time_row, by_text["MONEY"], money_row, *dex_rows]
+        checked = info_rows + red_rows
+        self.assertEqual(len(info_rows), 7)
+        self.assertEqual(len(red_rows), 5 + len(dex_rows))
+
+        source = (ROOT / "Source/game/endgameStory.lua").read_text(encoding="utf-8")
+        photo_at = source.find("function EndgameStory.drawPhoto")
+        overlay_at = source.find("function EndgameStory.drawOverlay")
+        photo = source[photo_at:overlay_at]
+        line_at = source.find("local function drawHallLine")
+        line_fn = source[line_at:photo_at] if 0 <= line_at < photo_at else ""
+        on_grid = (
+            "GbFont.drawString" in line_fn
+            and "drawHallLine(row.text, row.col, row.row)" in photo
+            and "drawHallLine(line, 1, lineRow)" in photo
+        )
+        sheets = {
+            "font": Image.open(ROOT / "Source/images/title/font/font.png").convert("L"),
+            "extra": Image.open(ROOT / "Source/images/title/font/extra.png").convert("L"),
+        }
+        # The mon card and the RED card are separate screens, so a shared
+        # tile coordinate across the two lists is not overlapping ink.
+        for group in (info_rows, red_rows):
+            self.assert_group_ink(group, on_grid, glyphs, sheets)
+
+    def assert_group_ink(self, rows, on_grid, glyphs, sheets):
+        owned = {}
+        for row in rows:
+            pixels = glyph_pixels(row["text"], row["col"], row["row"], on_grid, glyphs, sheets)
+            with self.subTest(ink=row["text"]):
+                self.assertGreater(len(pixels), 0, row["text"])
+                for px, py, char_col in pixels:
+                    self.assertEqual(py // ROW, row["row"], row["text"])
+                    self.assertEqual(px // COL, char_col, row["text"])
+                    self.assertGreaterEqual(py, row["row"] * ROW)
+                    self.assertLess(py, (row["row"] + 1) * ROW)
+                    self.assertGreaterEqual(px, char_col * COL)
+                    self.assertLess(px, (char_col + 1) * COL)
+                for px, py, _char_col in pixels:
+                    previous = owned.get((px, py))
+                    self.assertIsNone(previous, "%s shares a pixel with %s" % (row["text"], previous))
+            for px, py, _char_col in pixels:
+                owned[(px, py)] = row["text"]
+
+
+def glyph_pixels(text, col, row, on_grid, glyphs, sheets):
+    pixels = []
+    cursor = 0
+    index = 0
+    raw = text.encode("utf-8")
+    while index < len(raw):
+        code = raw[index]
+        if code < 128:
+            char = chr(code)
+            index += 1
+        else:
+            width = 2 if code < 224 else 3 if code < 240 else 4
+            char = raw[index:index + width].decode("utf-8")
+            index += width
+        if char != " ":
+            sheet_name, glyph = glyphs[char]
+            ox = (col + cursor) * COL
+            oy = row * ROW
+            dw, dh = COL, ROW
+            if not on_grid:
+                # The unpatched card draws at the shifted 2x Game Boy origin.
+                ox = 40 + (col + cursor) * 16
+                oy = -48 + row * 16
+                dw, dh = 16, 16
+            pixels.extend(scaled_ink(sheets[sheet_name], glyph, ox, oy, dw, dh, col + cursor))
+        cursor += 1
+    return pixels
+
+
+def scaled_ink(sheet, index, ox, oy, dw, dh, char_col):
+    sx = (index % 16) * 8
+    sy = (index // 16) * 8
+    pixels = []
+    for y in range(dh):
+        source_y = sy + (y * 8) // dh
+        for x in range(dw):
+            source_x = sx + (x * 8) // dw
+            if sheet.getpixel((source_x, source_y)) < 128:
+                pixels.append((ox + x, oy + y, char_col))
+    return pixels
 
 
 if __name__ == "__main__":
