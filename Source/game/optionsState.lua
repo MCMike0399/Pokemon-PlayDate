@@ -81,22 +81,22 @@ function OptionsState:draw()
         if boxes[index] then
             local spec = boxes[index]
             GbFont.drawBox(TitleIdle.textBox(0, spec.origin, 18, 3))
-            GbFont.drawString(row.label, 1, spec.labelRow)
+            GbFont.drawFitString(row.label, 1, spec.labelRow)
             for cursor, value in ipairs(row.choices) do
                 local col = spec.cols[cursor] or (1 + (cursor - 1) * 8)
-                if cursor == choiceIndex then GbFont.drawChar(marker, col, spec.choiceRow) end
-                GbFont.drawString(value, col + 1, spec.choiceRow)
+                if cursor == choiceIndex then GbFont.drawFitChar(marker, col, spec.choiceRow) end
+                GbFont.drawFitString(value, col + 1, spec.choiceRow)
             end
         else
             local place = GameOptions.crankPlace(choiceIndex)
-            GbFont.drawString(row.label, place.labelCol, place.row)
-            GbFont.drawChar(marker, place.choiceCol, place.row)
-            GbFont.drawString(row.choices[choiceIndex], place.choiceCol + 1, place.row)
+            GbFont.drawFitString(row.label, place.labelCol, place.row)
+            GbFont.drawFitChar(marker, place.choiceCol, place.row)
+            GbFont.drawFitString(row.choices[choiceIndex], place.choiceCol + 1, place.row)
         end
     end
     local cancel = GameOptions.cancelPlace(self.selected == self:rowCount())
-    if cancel.cursor then GbFont.drawChar(TitleIdle.CURSOR, cancel.cursor, cancel.row) end
-    GbFont.drawString(GameOptions.cancelLabel, cancel.col, cancel.row)
+    if cancel.cursor then GbFont.drawFitChar(TitleIdle.CURSOR, cancel.cursor, cancel.row) end
+    GbFont.drawFitString(GameOptions.cancelLabel, cancel.col, cancel.row)
     if self.error then GbFont.drawTight(self.error, 8, 222) end
     gfx.setDrawOffset(x, y)
 end

@@ -1092,31 +1092,28 @@ end
 
 function BattleScene:drawPlayerBack()
     if self.playerBackImage == nil then
+        -- engine/battle/core.asm LoadPlayerBackPic: ld de, RedPicBack
+        -- predef ScaleSpriteByTwo. gfx/player/redb.png is stored as
+        -- images/player/red-pic-back. tools/generate_battle_art.py:113
+        -- threshold: value >= 128 is white. The slot draws that one pic
+        -- with drawScaled(x, y, scale). It does not keep a second bitmap.
         self.playerBackImage = gfx.image.new("images/player/red-pic-back") or false
     end
     if not self.playerBackImage then return end
-    -- redb.png is 32x32, the same pixels as an overworld frame. The player's
-    -- battle slot is the 80px box used for back sprites, feet on y 150.
     local size = 80
     local iw, ih = self.playerBackImage:getSize()
     local scale = math.min(size / iw, size / ih)
     local sw = math.max(1, math.floor(iw * scale))
     local sh = math.max(1, math.floor(ih * scale))
-    if self.playerBackScale ~= scale then
-        local image = gfx.image.new(sw, sh)
-        gfx.pushContext(image)
-            gfx.setDrawOffset(0, 0)
-            self.playerBackImage:drawScaled(0, 0, scale)
-        gfx.popContext()
-        self.playerBackScaled = image
-        self.playerBackScale = scale
-    end
     local x = 55 + math.floor((size - sw) / 2)
     local y = 70 + size - sh
-    self.playerBackScaled:draw(x, y)
+    self.playerBackImage:drawScaled(x, y, scale)
 end
 
 function BattleScene:drawTrainer()
+    -- Mon front sprites are flat 1-bit (mode 1, black and white only).
+    -- gfx/trainers/*.png grays stay flat. The Bayer 31.25%/68.75% patterns
+    -- in lib/shade.lua are for overworld grids, not these portraits.
     local sourceClass = self.battle.trainerClass
     if not sourceClass then
         return
@@ -1248,9 +1245,14 @@ function BattleScene:syncMessage()
     self.messageSerial = serial
     self.messageReady = false
     if self.battle.message == "" then
+        self.battle.messageEnding = nil
         return
     end
-    self.messageDialog:show({self.battle.message}, function()
+    local entry = self.battle.message
+    if self.battle.messageEnding then
+        entry = {text = self.battle.message, ending = self.battle.messageEnding}
+    end
+    self.messageDialog:show({entry}, function()
         self.messageReady = true
     end)
 end

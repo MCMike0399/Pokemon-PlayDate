@@ -92,9 +92,6 @@ function EndgameStory.noteStarter(starter)
 end
 
 function EndgameStory.entranceAction(room, x, y, flags)
-    if flags[room.flag] then
-        return nil
-    end
     local index
     for position, point in ipairs(room.entrance or {}) do
         if point.x == x and point.y == y then
@@ -107,6 +104,11 @@ function EndgameStory.entranceAction(room, x, y, flags)
     end
     if not index then
         return nil
+    end
+    -- scripts/LoreleisRoom.asm LoreleisRoomDefaultScript does not check the
+    -- beat flag. LoreleiShowOrHideExitBlock only opens the north block.
+    if flags[room.flag] then
+        return "dont-run"
     end
     local walked <const> = room.autowalk_event and flags[room.autowalk_event]
     if not walked and index >= 3 then
@@ -1183,16 +1185,17 @@ function EndgameStory.check(game)
     for _, room in ipairs(data.elite_four) do
         if room.map ~= name then
             armed[room.id] = nil
-        elseif not game.session:questFlag(room.flag) then
+        else
             local flags <const> = game.session:flags().quest
-            if room.lock_coords and room.lock_event and at(room.lock_coords, x, y)
+            local beaten <const> = game.session:questFlag(room.flag) == true
+            if not beaten and room.lock_coords and room.lock_event and at(room.lock_coords, x, y)
                 and not flags[room.lock_event] then
                 game.session:setQuestFlag(room.lock_event, true)
                 EndgameStory.applyRoom(game)
             end
             if room.entrance then
                 local action <const> = EndgameStory.entranceAction(room, x, y, flags)
-                if action == "autowalk" and not armed[room.id] then
+                if action == "autowalk" and not beaten and not armed[room.id] then
                     if room.autowalk_event then
                         game.session:setQuestFlag(room.autowalk_event, true)
                     end
@@ -1200,11 +1203,12 @@ function EndgameStory.check(game)
                     armed[room.id] = "walked"
                     return SourceEvents.dispatch(game, scriptId(room))
                 end
+                -- south door stays shut after the win
                 if action == "dont-run" then
                     pending.dont_run = room.id
                     return SourceEvents.dispatch(game, scriptId(room))
                 end
-            elseif room.walk_coord then
+            elseif not beaten and room.walk_coord then
                 if EndgameStory.besideTrainer(room, x, y) and armed[room.id] ~= "fought" then
                     armed[room.id] = "fought"
                     return SourceEvents.dispatch(game, room.id, {mode = "talk"})

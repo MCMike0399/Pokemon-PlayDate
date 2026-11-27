@@ -1,0 +1,98 @@
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index aadfc149..a3caf598 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -1092,28 +1092,22 @@ end
+ 
+ function BattleScene:drawPlayerBack()
+     if self.playerBackImage == nil then
++        -- engine/battle/core.asm LoadPlayerBackPic: ld de, RedPicBack
++        -- predef ScaleSpriteByTwo. gfx/player/redb.png is stored as
++        -- images/player/red-pic-back. tools/generate_battle_art.py:113
++        -- threshold: value >= 128 is white. The slot draws that one pic
++        -- with drawScaled(x, y, scale). It does not keep a second bitmap.
+         self.playerBackImage = gfx.image.new("images/player/red-pic-back") or false
+     end
+     if not self.playerBackImage then return end
+-    -- redb.png is 32x32, the same pixels as an overworld frame. The player's
+-    -- battle slot is the 80px box used for back sprites, feet on y 150.
+     local size = 80
+     local iw, ih = self.playerBackImage:getSize()
+     local scale = math.min(size / iw, size / ih)
+     local sw = math.max(1, math.floor(iw * scale))
+     local sh = math.max(1, math.floor(ih * scale))
+-    if self.playerBackScale ~= scale then
+-        local image = gfx.image.new(sw, sh)
+-        gfx.pushContext(image)
+-            gfx.setDrawOffset(0, 0)
+-            self.playerBackImage:drawScaled(0, 0, scale)
+-        gfx.popContext()
+-        self.playerBackScaled = image
+-        self.playerBackScale = scale
+-    end
+     local x = 55 + math.floor((size - sw) / 2)
+     local y = 70 + size - sh
+-    self.playerBackScaled:draw(x, y)
++    self.playerBackImage:drawScaled(x, y, scale)
+ end
+ 
+ function BattleScene:drawTrainer()
+diff --git a/Source/game/tutorialDemo.lua b/Source/game/tutorialDemo.lua
+index 3de5da17..2733f3a6 100644
+--- a/Source/game/tutorialDemo.lua
++++ b/Source/game/tutorialDemo.lua
+@@ -4,9 +4,34 @@ import "battle/captureAnimation"
+ TutorialDemoArt = {}
+ local gfx <const> = playdate.graphics
+ local cache = {}
++function TutorialDemoArt.flatBack(name, art)
++    -- gfx/battle/oldmanb.png. Same rule as mon back sprites
++    -- (tools/generate_battle_art.py:113: value >= 128 is white).
++    -- scenes.json shades are 255 '.', 170 '1', 85 '2', 0 '#'.
++    -- '1' is white. TileFactory would dither 1 and 2. This pic does not.
++    local image = gfx.image.new(art.width * 2, art.height * 2, gfx.kColorWhite)
++    gfx.pushContext(image)
++        gfx.setDrawOffset(0, 0)
++        for y = 0, art.height - 1 do
++            local row = art.rows[y + 1] or ""
++            for x = 0, art.width - 1 do
++                local ch = row:sub(x + 1, x + 1)
++                if ch == "2" or ch == "#" then
++                    gfx.setColor(gfx.kColorBlack)
++                    gfx.fillRect(x * 2, y * 2, 2, 2)
++                end
++            end
++        end
++    gfx.popContext()
++    cache[name] = image
++    return image
++end
+ function TutorialDemoArt.image(name)
+     if cache[name] then return cache[name] end
+     local art = assert(TutorialEscortData.get().art[name])
++    if name == "oldmanBack" then
++        return TutorialDemoArt.flatBack(name, art)
++    end
+     local image = gfx.image.new(art.width * 2, art.height * 2, gfx.kColorWhite)
+     gfx.pushContext(image)
+     for top = 0, art.height - 1, 16 do
+diff --git a/tools/tests/test_lane_e_player_back_scale.py b/tools/tests/test_lane_e_player_back_scale.py
+--- a/tools/tests/test_lane_e_player_back_scale.py
++++ b/tools/tests/test_lane_e_player_back_scale.py
+@@ -16,8 +16,15 @@
+         scene = (ROOT / "Source/battle/battleScene.lua").read_text()
+         back = scene.split("function BattleScene:drawPlayerBack()", 1)[1].split(
+             "function BattleScene:", 1)[0]
++        # engine/battle/core.asm LoadPlayerBackPic
++        # ld de, RedPicBack / predef ScaleSpriteByTwo
++        # One scaled draw of that pic. No second bitmap at (0, 0).
+         self.assertIn("local size = 80", back)
+-        self.assertIn("drawScaled(0, 0, scale)", back)
++        self.assertIn("RedPicBack", back)
++        self.assertIn("ScaleSpriteByTwo", back)
++        self.assertIn("self.playerBackImage:drawScaled(x, y, scale)", back)
++        self.assertNotIn("drawScaled(0, 0, scale)", back)
++        self.assertNotIn("gfx.image.new(sw, sh)", back)
+         self.assertIn("70 + size - sh", back)
+ 
+ 

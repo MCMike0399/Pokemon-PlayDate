@@ -487,6 +487,13 @@ function EventState:handleButton(button)
     elseif self.phase=="failed" and (button=="a" or button=="b") then self:finish() end
 end
 function EventState:handleInput()
+    -- presentGift and presentFossil show MEW / LINK CABLE (and the fossil
+    -- names) on this menu after the intro page. Heal confirm keeps its own
+    -- YES/NO path. Every other active menu has to take the buttons here.
+    if self:valid() and self:isTop() and self.menu.isActive and self.phase~="heal-confirm" then
+        self.menu:handleInput()
+        return
+    end
     for _,button in ipairs({"a","b","up","down"}) do
         local key=({a=playdate.kButtonA,b=playdate.kButtonB,up=playdate.kButtonUp,down=playdate.kButtonDown})[button]
         if playdate.buttonJustPressed(key) then self:handleButton(button);return end
@@ -561,6 +568,12 @@ function EventState:draw()
     end
     if self.phase=="heal-animation" then
         HealingComposition.draw(self.zone,self.healCount,self.healClock,self.game.camera)
+        return
+    end
+    if self.menu.isActive and self.phase~="heal-confirm" and self.phase~="credits" and self.phase~="heal-animation" then
+        gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil();gfx.setFont(gfx.getSystemFont());gfx.setLineWidth(1);gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        self.menu:draw(244,120,156,72)
+        gfx.popContext()
         return
     end
     if self.phase~="heal-confirm" and self.phase~="heal-animation" and self.phase~="failed" then return end

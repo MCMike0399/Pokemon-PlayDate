@@ -49,7 +49,7 @@
       "handler": "engine-dsl"
     },
     "razorWind": {
-      "gap": "onTryMove"
+      "handler": "standard-damage"
     },
     "swordsDance": {
       "handler": "dsl"
@@ -166,7 +166,7 @@
       "handler": "standard-damage"
     },
     "mist": {
-      "gap": "sideCondition"
+      "handler": "dsl"
     },
     "waterGun": {
       "handler": "standard-damage"
@@ -205,7 +205,7 @@
       "handler": "engine-dsl"
     },
     "counter": {
-      "gap": "damageCallback, onTry"
+      "handler": "engine-dsl"
     },
     "seismicToss": {
       "handler": "engine-dsl"
@@ -301,7 +301,7 @@
       "handler": "engine-dsl"
     },
     "mimic": {
-      "gap": "onHit"
+      "handler": "dsl"
     },
     "screech": {
       "handler": "dsl"
@@ -316,7 +316,7 @@
       "handler": "dsl"
     },
     "minimize": {
-      "gap": "volatileStatus"
+      "handler": "dsl"
     },
     "smokescreen": {
       "handler": "dsl"
@@ -346,7 +346,7 @@
       "handler": "engine-dsl"
     },
     "metronome": {
-      "gap": "onHit"
+      "handler": "battle-condition"
     },
     "mirrorMove": {
       "handler": "battle-condition"
@@ -406,7 +406,7 @@
       "handler": "dsl"
     },
     "dreamEater": {
-      "gap": "onTryImmunity"
+      "handler": "standard-damage"
     },
     "poisonGas": {
       "handler": "dsl"
@@ -421,7 +421,7 @@
       "handler": "dsl"
     },
     "skyAttack": {
-      "gap": "onTryMove"
+      "handler": "standard-damage"
     },
     "transform": {
       "handler": "battle-condition"
@@ -466,7 +466,7 @@
       "handler": "dsl"
     },
     "conversion": {
-      "gap": "onHit"
+      "handler": "battle-condition"
     },
     "triAttack": {
       "handler": "standard-damage"

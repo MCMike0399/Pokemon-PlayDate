@@ -269,6 +269,10 @@ function ModifyStat:apply(battle, secondary)
             if prevention == "Clear Body" and secondary then
                 return
             end
+            if prevention == "Mist" then
+                battle:say(pokemon.name .. " is protected by Mist!")
+                return
+            end
             local loss = prevention == "Keen Eye" and "accuracy loss!" or "stat loss!"
             battle:say(pokemon.name .. "'s " .. prevention .. " prevents " .. loss)
             return
@@ -541,6 +545,12 @@ Class("RageEffect")
 function RageEffect:apply(battle) if battle.attacker:isAlive() then battle.conditions:of(battle.attacker).rage=true end end
 Class("DefenseCurlEffect")
 function DefenseCurlEffect:apply(battle) battle.conditions:of(battle.attacker).defenseCurl=true end
+-- Gen V Minimize is evasion +2 (the move's ModifyStat) plus the minimize flag.
+-- pokered StatModifierUpEffect EVASION_UP1_EFFECT is only +1.
+Class("MinimizeEffect")
+function MinimizeEffect:apply(battle)
+    battle.conditions:of(battle.attacker).minimize = true
+end
 Class("RapidSpinEffect")
 function RapidSpinEffect:apply(battle, _secondary, receipt)
     if receipt and receipt.substitute then return end
@@ -606,7 +616,7 @@ end
 Class("SideConditionEffect")
 function SideConditionEffect:init(kind)
     assert(kind == "reflect" or kind == "lightScreen" or kind == "safeguard"
-        or kind == "tailwind", "unsupported-side-condition")
+        or kind == "tailwind" or kind == "mist", "unsupported-side-condition")
     self.kind=kind
 end
 function SideConditionEffect:apply(battle) return battle.conditions:setSideCondition(self.kind) end
@@ -633,3 +643,5 @@ function SubstituteEffect:apply(battle)
     if not ok then battle:say("But it failed!") end
     return ok
 end
+Class("MimicEffect")
+function MimicEffect:apply(battle) return battle.conditions:mimic() end
