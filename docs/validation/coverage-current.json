@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "821694b8bb7b90191251c3feb6ab61bf4fe9d6b0",
-    "source_sha256": "ddd7d5c51490bdb46555e6c84436caeddab2528c21a250c3bd57385b49530445",
+    "commit": "12891fdee6680f0bc653bad23c96df3a38f31818",
+    "source_sha256": "77949fb59ea8ff493e315fd2bae40d275e4bddbe0d55c8ca6091f44ba9786505",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after the champion reads wRivalStarter, Hyper Beam recharges after a KO, and an enemy faint says Enemy then fainted. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 76f8d99c25a1d47f6bc0637d1993d71599c414c9f480842d103a8a9b600747d5.",
+    "scope": "Source identity after field-move and grass-cut scenes release the retained definition, decoded grids, and the map bed before Route 2 or Route 6, and a large save read drops the retained definition before it inflates. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 ddd7d5c51490bdb46555e6c84436caeddab2528c21a250c3bd57385b49530445.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
