@@ -24,13 +24,95 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from tools.harness.run import ProtocolError, sdk_path
-from tools.tests.test_lane_e_departed_tile_registry import (
-    COMMANDS,
-    POOL_INI,
-    _inject,
-    _restore,
-    parse_trace,
+
+# The switchzone helpers live here so this test does not import the
+# departed-tile registry note. That note is not on this tree.
+POOL_INI = Path.home() / ".config/Playdate Simulator/Playdate Simulator.ini"
+HARNESS_ANCHOR = (
+    '    elseif op == "warp" then valid = integer(args[1], 0, 10000) '
+    'and integer(args[2], 0, 10000) and #args == 2\n'
 )
+HARNESS_INSERT = (
+    HARNESS_ANCHOR
+    + '    elseif op == "switchzone" then valid = #args == 1 '
+    'and WorldDeltas.describeZone(args[1]) ~= nil\n'
+)
+AUTOPILOT_ANCHOR = """            results[#results + 1] = "pokemon none"
+        end
+        return true
+    end
+"""
+AUTOPILOT_INSERT = """            results[#results + 1] = "pokemon none"
+        end
+        return true
+
+    elseif name == "switchzone" then
+        player = nil
+        local key = cmd[2]
+        assert(game.machine:is("overworld"), "switchzone requires overworld")
+        assert(WorldDeltas.describeZone(key), "unknown zone")
+        switchZone(key)
+        game.machine:change("overworld", { respawn = true })
+        player = game.player
+        results[#results + 1] = "switchzone " .. tostring(currentZone and currentZone.stableID)
+        return true
+    end
+"""
+COMMANDS = [
+    {
+        "op": "fixture",
+        "options": {
+            "intro": "skip",
+            "opening": False,
+            "seed": 1,
+            "zone": "kanto_viridian_center",
+            "entry": {"x": 7, "y": 4, "facing": "right"},
+            "player_pokemon": {"species": "squirtle", "level": 5},
+        },
+    },
+    "encounters off",
+    "snapshot",
+    "switchzone kanto_mt_moon_1f",
+    "switchzone kanto_route_4",
+    "switchzone kanto_cerulean_city",
+    "switchzone kanto_viridian_center",
+    "record center-return 8",
+    "snapshot",
+]
+
+
+def parse_trace(text):
+    rows = []
+    for line in text.splitlines():
+        parts = line.split("\t")
+        if not parts or not parts[0].isdigit() or len(parts) < 7:
+            continue
+        rows.append({"phase": parts[1], "heap_kib": float(parts[5])})
+    return rows
+
+
+def _restore(saved):
+    for path, text in saved.items():
+        path.write_text(text)
+
+
+def _inject(root):
+    edits = (
+        (root / "Source/dev/harness.lua", HARNESS_ANCHOR, HARNESS_INSERT),
+        (root / "Source/dev/autopilot.lua", AUTOPILOT_ANCHOR, AUTOPILOT_INSERT),
+    )
+    saved = {}
+    try:
+        for path, old, new in edits:
+            text = path.read_text()
+            if text.count(old) != 1:
+                raise RuntimeError(f"switchzone anchor missing in {path}")
+            saved[path] = text
+            path.write_text(text.replace(old, new, 1))
+    except Exception:
+        _restore(saved)
+        raise
+    return saved
 
 PHASE = "map.ViridianPokecenter.definition.begin"
 RETURN_FROM = 5

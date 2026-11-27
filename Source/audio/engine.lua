@@ -34,6 +34,12 @@ local priorities <const> = {
     pc_enter = 3,
     pc_withdraw = 3,
     tink = 3,
+    -- GetMoveSound copies these modifiers onto SFX_FAINT_FALL.
+    faint_fall = 1,
+    faint_fall_agility = 1,
+    faint_fall_kinesis = 1,
+    faint_fall_transform = 1,
+    faint_fall_dizzy_punch = 1,
 }
 
 local function liveScoreNames()
@@ -74,12 +80,55 @@ function KantoSynth.unloadAll()
             KantoScores[name] = nil
         end
     end
+    -- The packed-record decoder is a file.run target, same as a score.
+    KantoPacked = nil
     collectgarbage("collect")
+end
+
+-- Move rows are named move_<key>. They are scores, not cue-table entries.
+-- Asserting priorities[name] aborts the battle when a faint plays one.
+local function sfxPriority(name)
+    local known = priorities[name]
+    if known then
+        return known
+    end
+    if type(name) == "string" and name:sub(1, 5) == "move_" then
+        return 2
+    end
+    return nil
+end
+
+local function packedApi()
+    if not KantoPacked then
+        playdate.file.run("audio/packed")
+    end
+    return KantoPacked
+end
+
+local function bindScore(score)
+    if type(score) == "table" and (score.bin or score.packed or score.parts) then
+        return packedApi().bind(score)
+    end
+    return score
+end
+
+local function noteCount(score)
+    if score.notes then
+        return #score.notes
+    end
+    return packedApi().count(score)
+end
+
+local function noteAt(score, index)
+    if score.notes then
+        return score.notes[index]
+    end
+    return packedApi().noteAt(score, index)
 end
 
 local function ensureScore(name)
     if KantoScores and KantoScores[name] then
-        return KantoScores[name]
+        return bindScore(KantoScores[name])
     end
     KantoScores = KantoScores or {}
     releaseIdleScores(name)
@@ -87,8 +136,14 @@ local function ensureScore(name)
     -- literal "audio/score/" prefix as a file request. file.run loads the
     -- compiled score pdz the first time that score plays.
     local scorePath = "audio/score/" .. name
-    playdate.file.run(scorePath)
-    return assert(KantoScores[name], "unknown Kanto score")
+    local loaded, _ = pcall(function()
+        playdate.file.run(scorePath)
+    end)
+    local score = loaded and KantoScores[name]
+    if not score then
+        return nil
+    end
+    return bindScore(score)
 end
 
 local function init()
@@ -114,14 +169,22 @@ end
 
 local function layer(name, now, score)
     score = score or ensureScore(name)
+    if not score then
+        return nil
+    end
     serial = serial + 1
     local firstLoop = 1
 
     if score.loop then
-        while firstLoop <= #score.notes and score.notes[firstLoop][1] < score.loop do
+        local count = noteCount(score)
+        while firstLoop <= count do
+            local note = noteAt(score, firstLoop)
+            if not note or note[1] >= score.loop then
+                break
+            end
             firstLoop = firstLoop + 1
         end
-        assert(firstLoop <= #score.notes, "empty score loop")
+        assert(firstLoop <= count, "empty score loop")
     end
 
     return {
@@ -155,7 +218,7 @@ local function advance(track, now)
     end
 
     while true do
-        local note = score.notes[track.cursor]
+        local note = noteAt(score, track.cursor)
         if note and note[1] + track.offset <= tick then
             track.active[note[2]] = {
                 note = note,
@@ -305,7 +368,7 @@ function KantoSynth.jingling()
 end
 
 function KantoSynth.scoreTicks(name)
-    return ensureScore(name).ticks
+    return assert(ensureScore(name), "unknown Kanto score").ticks
 end
 
 function KantoSynth.sfx(name)
@@ -316,11 +379,21 @@ function KantoSynth.sfx(name)
     if name == "heal" then
         layers.jingle = layer(name, now)
     else
-        local priority = assert(priorities[name], "unknown Kanto SFX")
-        if layers.sfx and priorities[layers.sfx.name] < priority then
+        -- No priority, or a score that did not load, returns false.
+        -- Asserting here restarts the battle the moment a Pokémon faints.
+        local priority = sfxPriority(name)
+        if not priority then
             return false
         end
-        layers.sfx = layer(name, now)
+        local playing = layers.sfx and sfxPriority(layers.sfx.name)
+        if playing and playing < priority then
+            return false
+        end
+        local nextLayer = layer(name, now)
+        if not nextLayer then
+            return false
+        end
+        layers.sfx = nextLayer
     end
 
     KantoSynth.update(now)

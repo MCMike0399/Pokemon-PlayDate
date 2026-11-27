@@ -1,8 +1,8 @@
 diff --git a/Source/dev/harness.lua b/Source/dev/harness.lua
-index a0564e0d..71303c81 100644
+index a0564e0d..53627338 100644
 --- a/Source/dev/harness.lua
 +++ b/Source/dev/harness.lua
-@@ -9,6 +9,41 @@ local tick, request, commands, index, started, complete, failure = 0, nil, nil,
+@@ -9,6 +9,42 @@ local tick, request, commands, index, started, complete, failure = 0, nil, nil,
  local contractResultPublished = false
  local entries, seen = {}, {}
  local transitions = {}
@@ -22,6 +22,7 @@ index a0564e0d..71303c81 100644
 +    file:write(tostring(#encoded) .. "\n" .. encoded)
 +    file:close()
 +    entries = { entry }
++    return entry
 +end
 +local function loadSpilledEntries()
 +    local file = playdate.file.open(RESULT_LOG, playdate.file.kFileRead)
@@ -44,7 +45,7 @@ index a0564e0d..71303c81 100644
  -- Opening trace.jsonl on every frame can sit in the allocator once a live
  -- city has fragmented the pool, and the frame never returns. One handle is
  -- opened while the boot heap still has a hole, then reused.
-@@ -396,15 +431,17 @@ local function finish(game, status, message)
+@@ -396,15 +432,17 @@ local function finish(game, status, message)
              publish("journey-history-pause.json", { id = request.id })
          end
      end
@@ -63,7 +64,7 @@ index a0564e0d..71303c81 100644
      Autopilot.catalog = nil
      -- Generational collection with step(1) does not major-collect a request
      -- graph that survived json.encodeToFile. Journey timings already dropped
-@@ -426,6 +463,7 @@ local function poll(game)
+@@ -426,6 +464,7 @@ local function poll(game)
          return
      end
      request, entries, index, started = incoming, {}, 1, tick
@@ -71,7 +72,7 @@ index a0564e0d..71303c81 100644
      local ok, problem = pcall(function()
          assert(safeName(incoming.id) and not seen[incoming.id], "invalid or duplicate request id")
          seen[incoming.id] = true
-@@ -561,14 +599,14 @@ function Harness.afterFrame(game, runtimeError)
+@@ -561,10 +600,11 @@ function Harness.afterFrame(game, runtimeError)
          if request and complete and command and command.contracts then
              -- The suite already returned its report. A later compressed read
              -- must not replace that report with an empty runtime error.
@@ -81,22 +82,19 @@ index a0564e0d..71303c81 100644
                  outcome = "ok", messages = {}, contracts = command.contracts,
 -            }
 +            })
++            entries = loadSpilledEntries()
              local published = pcall(function()
                  publish("result.json", {
                      id = request.id, status = "error", error = failure or runtimeError,
--                    results = entries, snapshot = {},
-+                    results = loadSpilledEntries(), snapshot = {},
-                 })
-             end)
-             if published then
-@@ -679,8 +717,8 @@ function Harness.afterFrame(game, runtimeError)
+@@ -679,8 +719,9 @@ function Harness.afterFrame(game, runtimeError)
              entries = {}
              return
          end
 -        entries[#entries + 1] = { command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
 -            outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts, observation = command.observation }
-+        spillEntry({ command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
++        entries[#entries + 1] = spillEntry({ command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
 +            outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts, observation = command.observation })
++        entries = { entries[#entries] }
          if failure then
              HarnessCapture.write("failure")
              finish(game, "error", failure); return
