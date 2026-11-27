@@ -1,0 +1,92 @@
+diff --git a/Source/battle/rewards.lua b/Source/battle/rewards.lua
+index 370f3599..5e299aaa 100644
+--- a/Source/battle/rewards.lua
++++ b/Source/battle/rewards.lua
+@@ -51,6 +51,14 @@ local function prepare(battle,foe)
+     for _,mon in ipairs(roster)do assert(mon~=foe,"reward-foe-is-owned-member")end
+     if battle.enemyParty then assert(battle.enemyParty:active()==foe,"stale-reward-foe-party")end
+     local set=participants(battle,roster);local snapshots,alive={},0
++    -- pret/pokered af519899 engine/battle/core.asm IsItemInBag EXP_ALL.
++    -- Owning it halves the fighter award and gives the other half to every
++    -- party member, including not set[mon]. Using the item does nothing.
++    local expAll=false
++    if battle.session then
++        local ok,qty=pcall(function() return battle.session:inventory():quantity("expAll") end)
++        expAll=ok and type(qty)=="number" and qty>0
++    end
+     for index,mon in ipairs(roster)do
+         if battle.party then assert(Party._owner(mon)==battle.party,"stale-reward-member-owner")end
+         snapshots[index]={mon=mon,record=record(mon),stats=stats(mon)}
+@@ -62,16 +70,34 @@ local function prepare(battle,foe)
+     local entries,holds={},{}
+     for index,value in ipairs(snapshots)do
+         local mon=value.mon
+-        if set[mon]and mon:isAlive()then
+-            local ev,delta,wasted=IndividualStats.addEffort(mon.evs,yield)
++        local fighter=set[mon] and mon:isAlive()
++        if fighter or expAll then
++            local ev,delta,wasted
++            if fighter then
++                ev,delta,wasted=IndividualStats.addEffort(mon.evs,yield)
++            else
++                ev=mon.evs
++                delta={hp=0,atk=0,def=0,spa=0,spd=0,spe=0}
++                wasted={hp=0,atk=0,def=0,spa=0,spd=0,spe=0}
++            end
+             local candidateRecord=copy(value.record);candidateRecord.evs=ev
+             local candidate=assert(PokemonCodec.decode(candidateRecord))
+             -- Codec reconstructs canonical field stats. Actual no-level battle
+             -- stats must remain the source snapshot until return/level gain.
+             candidate.hp=value.stats.hp
+             for _,key in ipairs(statFields)do candidate[key]=value.stats[key]end
+-            local amount=mon:calcExpGain(foe,battle.trainerName~=nil,alive)
+-            local leveled,result=candidate:gainXP(amount) -- actual production bounds/choices, detached only.
++            local trainer=battle.trainerName~=nil
++            local amount
++            if expAll then
++                -- Fighters take half of the participant award. Every party
++                -- member, including not set[mon], takes half of one share.
++                local fought=fighter and mon:calcExpGain(foe,trainer,math.max(alive,1))//2 or 0
++                local share=mon:calcExpGain(foe,trainer,#roster,true)//2
++                amount=fought+share
++            else
++                amount=mon:calcExpGain(foe,trainer,alive)
++            end
++            local leveled,result=candidate:gainXP(amount, not mon:isAlive()) -- detached only.
+             record(candidate) -- No fallible candidate validation follows commit.
+             local changed=false;for _,n in pairs(delta)do if n~=0 then changed=true end end
+             local deferred=not leveled and (changed or owner.deferred[mon]~=nil)
+diff --git a/Source/data/pokemon.lua b/Source/data/pokemon.lua
+index e808868a..a3bd19a5 100644
+--- a/Source/data/pokemon.lua
++++ b/Source/data/pokemon.lua
+@@ -1473,13 +1473,13 @@ end
+ 
+ -- Preserve legacy bool first return; structured second result gives new levels
+ -- and learning choices. The queue remains until a UI/session owner resolves it.
+-function Pokemon:gainXP(amount)
++function Pokemon:gainXP(amount, allowFainted)
+     self:attributes() -- Validate durable inputs before any XP/stats/choice mutation.
+     amount = type(amount) == "number" and math.tointeger(amount) or nil
+     assert(amount and amount >= 0, "XP gain must be a nonnegative native integer")
+     local oldLevel = self.level
+     local room = self:xpForLevel(100) - self.xp
+-    local gained = self:isAlive() and math.min(amount, room) or 0
++    local gained = (self:isAlive() or allowFainted) and math.min(amount, room) or 0
+     local targetXP = self.xp + gained -- Clamp BEFORE addition: native MAX is valid.
+     local targetLevel, levels = oldLevel, {}
+     while targetLevel < 100 and targetXP >= self:xpForLevel(targetLevel + 1) do
+@@ -1550,11 +1550,11 @@ end
+ -- Conscious participants share the base before recipient scaling; original OT,
+ -- no held/item/Pass Power boosts. Omitted count preserves single-member callers.
+ -- Eligibility/cap return the actual amount that gainXP can accept.
+-function Pokemon:calcExpGain(defeated, trainerBattle, participants)
++function Pokemon:calcExpGain(defeated, trainerBattle, participants, allowFainted)
+     assert(type(trainerBattle) == "boolean", "calcExpGain requires trainer battle flag")
+     participants = participants == nil and 1 or (type(participants)=="number" and math.tointeger(participants))
+     assert(participants and participants>=1 and participants<=6,"invalid conscious participant count")
+-    if not self:isAlive() or self.level == 100 then return 0 end
++    if self.level == 100 or (not allowFainted and not self:isAlive()) then return 0 end
+     return math.min(self:xpForLevel(100) - self.xp,
+         Growth.battleAward(baseExpYield(defeated.species), defeated.level, self.level, trainerBattle, participants, NPCTrades.isOutsider(self)))
+ end

@@ -434,6 +434,9 @@ def run(client, scenario, evidence_dir, build_evidence=None, prior_receipt=None,
     if config.get("name") in {"parcel-natural", "parcel-full-bag-supplementary", "parcel-visibility-checkpoint-supplementary"}:
         from tools.harness.parcel_journey import run as run_parcel
         return run_parcel(client, scenario, evidence_dir)
+    if config.get("name") == "link-cable-celadon":
+        from tools.harness.link_cable_journey import run as run_link_cable
+        return run_link_cable(client, scenario, evidence_dir)
     journey = Journey(client, evidence_dir, config)
     name = config.get("name")
     actions = {"intro": journey.natural_intro, "interiors": journey.interiors,

@@ -1,0 +1,64 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 219755eb..9e79cad6 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -1379,5 +1379,7 @@ function Battle:performMove(move)
+         self.conditions:moveFinished(move, false)
+         return nil
+     end
++    -- pokered ChargeEffect: Razor Wind charges without the Fly/Dig invulnerable bit.
++    if self.currentMoveKey=="razorWind" and self.conditions:razorWindCharge() then return nil end
+     -- Mirror Move spends its own PP, then runs the copied move on this path.
+     if self.currentMoveKey=="mirrorMove" then return self:mirrorMove(move) end
+diff --git a/Source/battle/conditions.lua b/Source/battle/conditions.lua
+index 2b83a699..eff8dac2 100644
+--- a/Source/battle/conditions.lua
++++ b/Source/battle/conditions.lua
+@@ -598,6 +691,21 @@ function BattleConditions:underground(mon)
+     local state = self.members[mon]
+     return state ~= nil and state.charge ~= nil and state.charge.key == "dig"
+ end
++-- pokered ChargeEffect sets CHARGING_UP for Razor Wind and does not set
++-- INVULNERABLE (that bit is Fly and Dig only). The release is the next turn.
++function BattleConditions:razorWindCharge()
++    local b = self.battle
++    local user = b.attacker
++    local state = self:of(user)
++    if state.charge then
++        assert(state.charge.key == "razorWind", "wrong-charge-continuation")
++        state.charge = nil
++        return false
++    end
++    state.charge = {key = "razorWind"}
++    b:say(user.name .. " made a whirlwind!")
++    return true
++end
+ -- Successful self-effect precedes contact reactions, as the pinned dispatcher
+ -- does. First miss/immune/absent target never creates a lock or duration draw.
+ function BattleConditions:landedMove(move)
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index bd10b883..6a033240 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -13,7 +13,7 @@ MoveSupport.handlers.thunderPunch = "standard-damage"
+ MoveSupport.handlers.scratch = "standard-damage"
+ MoveSupport.handlers.viceGrip = "standard-damage"
+ MoveSupport.handlers.guillotine = "engine-dsl"
+-MoveSupport.gaps.razorWind = "onTryMove"
++MoveSupport.handlers.razorWind = "standard-damage"
+ MoveSupport.handlers.swordsDance = "dsl"
+ MoveSupport.handlers.gust = "standard-damage"
+ MoveSupport.handlers.wingAttack = "standard-damage"
+diff --git a/tools/references/move-support.json b/tools/references/move-support.json
+index 9efb566a..9bdbc2d3 100644
+--- a/tools/references/move-support.json
++++ b/tools/references/move-support.json
+@@ -49,7 +49,7 @@
+       "handler": "engine-dsl"
+     },
+     "razorWind": {
+-      "gap": "onTryMove"
++      "handler": "standard-damage"
+     },
+     "swordsDance": {
+       "handler": "dsl"

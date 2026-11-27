@@ -1,0 +1,51 @@
+# A taken postgame item ball rejects the newer save on Continue.
+# PostgameStory.installEvents is what marks the Cerulean Cave and Power
+# Plant balls as pickups. Title inspect validates world motion before that
+# chunk loads, so SourceEvents.descriptor is nil and the taken ball stays
+# visible. The cave save omits pokered:CERULEAN_CAVE_B1F:objects:2.
+# WorldMotionData.normalize reports missing visible source actor for that
+# Ultra Ball. The flag is PICKUP:<id>, the same string installEvents writes.
+# Snorlax, Articuno, and Moltres already hide from boot-chunk metadata.
+# The Mew gift actor is not a pokered source object.
+# Apply after lane-e-mewtwo-continue-actor.patch.
+# MallocPoolSize stays 16645684.
+
+--- a/Source/game/lateKantoStory.lua
++++ b/Source/game/lateKantoStory.lua
+@@ -76,6 +76,25 @@
+     ["pokered:POWER_PLANT:objects:9"] = "EVENT_BEAT_ZAPDOS",
+ }
+ 
++-- PostgameStory.installEvents registers these pickups. Until that chunk
++-- loads, SourceEvents.descriptor is nil, so a taken ball is omitted from
++-- the save and title inspect still treats it as visible.
++local POSTGAME_PICKUP_HIDE <const> = {
++    ["pokered:CERULEAN_CAVE_1F:objects:1"] = "PICKUP:pokered:CERULEAN_CAVE_1F:objects:1",
++    ["pokered:CERULEAN_CAVE_1F:objects:2"] = "PICKUP:pokered:CERULEAN_CAVE_1F:objects:2",
++    ["pokered:CERULEAN_CAVE_1F:objects:3"] = "PICKUP:pokered:CERULEAN_CAVE_1F:objects:3",
++    ["pokered:CERULEAN_CAVE_2F:objects:1"] = "PICKUP:pokered:CERULEAN_CAVE_2F:objects:1",
++    ["pokered:CERULEAN_CAVE_2F:objects:2"] = "PICKUP:pokered:CERULEAN_CAVE_2F:objects:2",
++    ["pokered:CERULEAN_CAVE_2F:objects:3"] = "PICKUP:pokered:CERULEAN_CAVE_2F:objects:3",
++    ["pokered:CERULEAN_CAVE_B1F:objects:2"] = "PICKUP:pokered:CERULEAN_CAVE_B1F:objects:2",
++    ["pokered:CERULEAN_CAVE_B1F:objects:3"] = "PICKUP:pokered:CERULEAN_CAVE_B1F:objects:3",
++    ["pokered:POWER_PLANT:objects:10"] = "PICKUP:pokered:POWER_PLANT:objects:10",
++    ["pokered:POWER_PLANT:objects:11"] = "PICKUP:pokered:POWER_PLANT:objects:11",
++    ["pokered:POWER_PLANT:objects:12"] = "PICKUP:pokered:POWER_PLANT:objects:12",
++    ["pokered:POWER_PLANT:objects:13"] = "PICKUP:pokered:POWER_PLANT:objects:13",
++    ["pokered:POWER_PLANT:objects:14"] = "PICKUP:pokered:POWER_PLANT:objects:14",
++}
++
+ function LateKantoStory.actorMetadata(id)
+     -- A field install has not loaded the postgame chunk. Continue validates
+     -- the saved actor list before that chunk is installed, so these hide
+@@ -90,6 +109,10 @@
+     if hidden then
+         return {visibility = {{group = "quest", id = hidden, equals = false}}}
+     end
++    local pickup <const> = POSTGAME_PICKUP_HIDE[id]
++    if pickup then
++        return {visibility = {{group = "quest", id = pickup, equals = false}}}
++    end
+     local rule <const> = LateKantoStory.scenes().cerulean_cave
+     if id == rule.guard_id then
+         return {visibility = {{group = "quest", id = rule.hide, equals = false}}}

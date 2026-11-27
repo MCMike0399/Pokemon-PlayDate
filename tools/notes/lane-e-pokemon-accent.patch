@@ -1,0 +1,35 @@
+diff --git a/Source/game/sourceText.lua b/Source/game/sourceText.lua
+index 0f214a46..8feebf7a 100644
+--- a/Source/game/sourceText.lua
++++ b/Source/game/sourceText.lua
+@@ -1,7 +1,7 @@
+ -- Semantic projection of the pinned English source charset. No model writes.
+ SourceText = {}
+ 
+--- Existing # -> POKE policy deliberately preserves reviewed short dialogue.
++-- constants/charmap.asm:16 charmap "#", $54 ; "POKé". #MON is POKéMON.
+ local expansions <const> = {
+     ["<PKMN>"] = "PKMN", ["<……>"] = "……", ["<PC>"] = "PC",
+     ["<TM>"] = "TM", ["<TRAINER>"] = "TRAINER", ["<ROCKET>"] = "ROCKET",
+@@ -39,7 +39,7 @@ function SourceText.expand(text, values)
+             assert(index == #text, "text after source terminator")
+             break
+         elseif char == "#" then
+-            result[#result + 1] = "POKE"
++            result[#result + 1] = "POKé"
+             index = index + 1
+         else
+             local nextIndex = utf8.offset(text, 2, index) or (#text + 1)
+diff --git a/tools/tests/test_lane_e_dialog_font.py b/tools/tests/test_lane_e_dialog_font.py
+--- a/tools/tests/test_lane_e_dialog_font.py
++++ b/tools/tests/test_lane_e_dialog_font.py
+@@ -32,7 +32,8 @@
+     {op = "control", source = "prompt"},
+ })
+ assert(prompt[1].ending == "prompt", prompt[1].ending)
+-assert(prompt[1].text == "Which POKEMON\nshould I look at?", prompt[1].text)
++-- constants/charmap.asm:16 charmap "#", $54 ; "POKé". #MON is POKéMON.
++assert(prompt[1].text == "Which POKéMON\nshould I look at?", prompt[1].text)
+ local paragraph = pages({
+     {op = "text", text = "That is a decent"},
+     {op = "line", text = "nickname!"},

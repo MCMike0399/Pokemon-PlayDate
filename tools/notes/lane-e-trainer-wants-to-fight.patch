@@ -1,0 +1,54 @@
+diff --git a/Source/battle/battle.lua b/Source/battle/battle.lua
+index 219755eb..f96b6765 100644
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -382,7 +382,16 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
+ 
+     self:runScript(function()
+         if self.trainerName then
+-            self:say(self.trainerName .. " wants to battle!")
++            -- data/text/text_2.asm:1258 _TrainerWantsToFightText
++            --   text_ram wTrainerName
++            --   text " wants"
++            --   line "to fight!"
++            --   prompt
++            -- engine/battle/common_text.asm:24 ld hl, TrainerWantsToFightText
++            -- engine/battle/common_text.asm:85 TrainerWantsToFightText:
++            -- engine/battle/common_text.asm:86 text_far _TrainerWantsToFightText
++            -- home/text.asm:214 PromptText writes the arrow with ldcoord_a 18, 16.
++            self:say(self.trainerName .. " wants\nto fight!", "prompt")
+             self:present("trainerExit")
+             self:opponentEntered()
+         else
+@@ -467,7 +475,10 @@ function Battle:runScript(fn)
+ end
+ 
+ -- Only callable from inside a script coroutine
+-function Battle:say(text)
++function Battle:say(text, ending)
++    -- ending "prompt" is the pokered prompt on TrainerWantsToFightText.
++    -- home/text.asm:209 PromptText. The arrow stays at tile (18, 16).
++    self.messageEnding = ending
+     coroutine.yield("say", text)
+ end
+ 
+diff --git a/Source/battle/battleScene.lua b/Source/battle/battleScene.lua
+index aadfc149..d69474c8 100644
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -1248,9 +1248,14 @@ function BattleScene:syncMessage()
+     self.messageSerial = serial
+     self.messageReady = false
+     if self.battle.message == "" then
++        self.battle.messageEnding = nil
+         return
+     end
+-    self.messageDialog:show({self.battle.message}, function()
++    local entry = self.battle.message
++    if self.battle.messageEnding then
++        entry = {text = self.battle.message, ending = self.battle.messageEnding}
++    end
++    self.messageDialog:show({entry}, function()
+         self.messageReady = true
+     end)
+ end

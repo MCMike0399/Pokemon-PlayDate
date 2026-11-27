@@ -1,0 +1,39 @@
+# Pressing A on a Pokémon Center link receptionist is swallowed.
+# scripts/ViridianPokecenter.asm (af519899) ViridianPokecenterLinkReceptionistText
+# is script_cable_club_receptionist: the welcome line and the "we have to save"
+# line. The same macro is on the other center receptionists. Indigo Plateau
+# lobby object 5 already says those two lines and does not warp. TRADE_CENTER
+# ($EF) and COLOSSEUM ($F0) stay closed. MallocPoolSize stays 16645684.
+
+diff --git a/Source/game/endgameStory.lua b/Source/game/endgameStory.lua
+index 39b65074..1cbb7bc8 100644
+--- a/Source/game/endgameStory.lua
++++ b/Source/game/endgameStory.lua
+@@ -1896,6 +1896,27 @@ function EndgameStory.install()
+         steps = {{op = "dialog", labels = {"_IndigoPlateauLobbyCooltrainerFText"}}}}
+     events["pokered:INDIGO_PLATEAU_LOBBY:objects:4"] = {kind = "program", content = CONTENT,
+         steps = {{op = "shop", id = "indigoPlateauLobbyClerkText"}}}
++    -- script_cable_club_receptionist (scripts/*Pokecenter.asm, af519899) shows the
++    -- welcome and the save line. TRADE_CENTER and COLOSSEUM stay closed: no warp.
++    local cableClub <const> = {
++        {op = "dialog", labels = {"_CableClubNPCWelcomeText"}},
++        {op = "dialog", labels = {"_CableClubNPCPleaseApplyHereHaveToSaveText"}},
++    }
++    for _, id in ipairs({
++        "pokered:VIRIDIAN_POKECENTER:objects:4",
++        "pokered:PEWTER_POKECENTER:objects:4",
++        "pokered:CERULEAN_POKECENTER:objects:4",
++        "pokered:VERMILION_POKECENTER:objects:4",
++        "pokered:LAVENDER_POKECENTER:objects:4",
++        "pokered:CELADON_POKECENTER:objects:4",
++        "pokered:FUCHSIA_POKECENTER:objects:4",
++        "pokered:SAFFRON_POKECENTER:objects:4",
++        "pokered:CINNABAR_POKECENTER:objects:4",
++        "pokered:ROCK_TUNNEL_POKECENTER:objects:4",
++        "pokered:MT_MOON_POKECENTER:objects:6",
++    }) do
++        events[id] = {kind = "program", content = CONTENT, steps = cableClub}
++    end
+     events["pokered:INDIGO_PLATEAU_LOBBY:objects:5"] = {kind = "program", content = CONTENT, steps = {
+         {op = "dialog", labels = {"_CableClubNPCWelcomeText"}},
+         {op = "dialog", labels = {"_CableClubNPCPleaseApplyHereHaveToSaveText"}}}}
