@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "c40fcf10c935a727744aa90fb3229f40125edf4e",
-    "source_sha256": "dd7f559c133b799dc43a15815d8e7d8a9218aa8eae3ffdb2e838eb1020520e60",
+    "commit": "7fc275d7951ae4115a5eca3fcbf12efe8756ad3b",
+    "source_sha256": "0598dc34a090da344a76ee0ad52b6edcf6419bbad408f2254c1e79bdc56e52fc",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after the mart list draws a 10px glyph per cell so the yen stays below the name, and the menu fit stays 12px. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 b0a610e17e1069017f46e0d9e6cee2314face42ee9cc4a316609f0cedd8c1227.",
+    "scope": "Source identity after a faint with no score plays the cry instead of aborting the battle. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 a971d5921df7078fd270f2b158e3c7bc48b4a4ee0ff80ab999b9507cc9243c1c.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
