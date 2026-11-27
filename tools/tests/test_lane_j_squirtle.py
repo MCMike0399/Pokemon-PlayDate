@@ -7176,7 +7176,7 @@ def _party_needs_heal(player):
     if mon and 0 < (mon.get("hp") or 0) < 40:
         return True
     # 38 HP walked into the gym and fainted before Hypno. Heal before that fight.
-    _slot, mon = _member(player, "wartortle")
+    _species, mon = _water_line(player)
     return bool(mon and 0 < (mon.get("hp") or 0) < 50)
 
 
@@ -7975,14 +7975,26 @@ def _south_exit(player, report, filename, pad, width, place, stand, avoid, direc
     return _leave_edge(player, report, place, direction, expect, key)
 
 
+def _water_line(player):
+    """Surf and Strength stay on the starter through evolution."""
+    for species in ("blastoise", "wartortle", "squirtle"):
+        slot, mon = _member(player, species)
+        if mon:
+            return species, mon
+    return None, None
+
+
 def _teach_field_moves(player, report):
-    """Wartortle is the only party member who can learn Surf or Strength."""
-    if not _has_move(player, "wartortle", "surf"):
-        _teach(player, "hm03", "wartortle", "surf")
+    """The water starter is the party member who can learn Surf and Strength."""
+    species, mon = _water_line(player)
+    if species is None:
+        raise RuntimeError("no water starter for Surf and Strength")
+    if "surf" not in (mon.get("moves") or []):
+        _teach(player, "hm03", species, "surf")
         _checkpoint(player, report, "saved_taught_surf")
         return "yield"
-    if not _has_move(player, "wartortle", "strength"):
-        _teach(player, "hm04", "wartortle", "strength")
+    if "strength" not in (mon.get("moves") or []):
+        _teach(player, "hm04", species, "strength")
         _checkpoint(player, report, "saved_taught_strength")
         return "yield"
     return None
@@ -8088,6 +8100,60 @@ def _mart_stair(player, report, filename, goal, key):
     return _onto_warp(player, cells, map_surface(EAST / filename), goal, avoid, report, key)
 
 
+def _celadon_center(player, report):
+    """The Dept. Store is the next door. Heal here before climbing for the drink."""
+    cells = set(open_map(EAST / "CeladonPokecenter.json", 0, 14))
+    surface = map_surface(EAST / "CeladonPokecenter.json")
+    avoid = {(3, 1), (7, 3), (10, 5), (11, 2), (3, 7), (4, 7)}
+    if _party_needs_heal(player):
+        kind = _walk(player, cells, surface, (3, 3), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        for _ in range(24):
+            if player.exploring() and not _party_needs_heal(player):
+                break
+            options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+            if "YES" in options:
+                player.choose("event", "YES")
+                continue
+            player.press("a", wait=8)
+        if _party_needs_heal(player):
+            raise RuntimeError("the Celadon nurse did not heal: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_celadon_healed")
+        return "yield"
+    kind = _walk(player, cells, surface, (3, 6), avoid, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("down")
+    player.settle(limit=80)
+    if "pokecenter" in str(player.state.get("zone")):
+        player.step("down")
+        player.settle(limit=80)
+    if "celadon_city" not in str(player.state.get("zone")):
+        raise RuntimeError("the Celadon Center door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_celadon")
+    return "yield"
+
+
+def _stock_celadon_supers(player, report):
+    cells = celadon_mart_cells(2)
+    surface = map_surface(EAST / "CeladonMart2F.json")
+    opened = _open_clerk(player, cells, surface, (5, 4))
+    if opened in ("blackout", "yield"):
+        return opened
+    if opened != "shop":
+        opened = _open_clerk(player, cells, surface, (6, 4))
+    if opened != "shop":
+        raise RuntimeError("the 2F clerk did not open: " + json.dumps(summary(player.state)))
+    report["super_potions"] = _shop_buy(player, "superPotion", 700, 8)
+    _close_shop(player)
+    _checkpoint(player, report, "saved_celadon_stocked")
+    return "yield"
+
+
 def _after_strength(player, report, display=None, clips=None, output=None):
     """Teach Surf and Strength, then buy a Celadon roof drink for the Route 7 guard.
 
@@ -8175,6 +8241,10 @@ def _after_strength(player, report, display=None, clips=None, output=None):
             raise RuntimeError("the guard did not open the east door: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_saffron_gate")
         return "yield"
+    if zone == "kanto_celadon_pokecenter":
+        return _celadon_center(player, report)
+    if zone == "kanto_celadon_mart_2f" and _item_count(player, "superPotion") < 8 and _money(player) >= 700:
+        return _stock_celadon_supers(player, report)
     if zone == "kanto_celadon_mart_roof":
         bought = _buy_fresh_water(player, report)
         if bought:
@@ -8201,6 +8271,17 @@ def _after_strength(player, report, display=None, clips=None, output=None):
     if place == "CeladonCity" or zone == "kanto_celadon_city":
         doors = {(8, 13), (10, 13), (12, 27), (24, 9), (24, 3), (25, 3), (41, 9),
                  (28, 19), (39, 19), (33, 19), (31, 27), (35, 27), (43, 27)}
+        if _party_needs_heal(player):
+            kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (41, 10), doors,
+                         report=report, yield_after=2)
+            if kind in ("blackout", "yield"):
+                return kind
+            player.step("up")
+            player.settle(limit=40)
+            if "pokecenter" not in str(player.state.get("zone")):
+                raise RuntimeError("the Celadon Center stayed shut: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_celadon_center")
+            return "yield"
         if not _holding(player, "freshWater") and not _gave_drink(player):
             kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (8, 14), doors,
                          report=report, yield_after=2)
