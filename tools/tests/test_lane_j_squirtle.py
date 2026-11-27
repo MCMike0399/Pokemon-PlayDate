@@ -933,6 +933,16 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn("libx264rgb", argv)
         self.assertIn("rgb24", argv)
 
+    def test_route16_east_road_opens_after_snorlax(self):
+        path = SOUTH / "Route16.json"
+        cells = set(open_map(path, 0, 40))
+        feet, ledges = map_surface(path, 0)
+        blocked = _map_blocks(path, 0)
+        blocked.discard((24, 10))
+        self.assertIsNone(ledge_route(cells, feet, ledges, (24, 10), (39, 10), blocked))
+        blocked.discard((26, 10))
+        self.assertIsNotNone(ledge_route(cells, feet, ledges, (24, 10), (39, 10), blocked))
+
     def test_cerulean_south_exit_is_the_regrowing_tree(self):
         cells = set(cerulean_cells())
         feet, ledges = map_surface(ROOT / "Source/data/sourceSlice/CeruleanCity.json")
@@ -8807,8 +8817,12 @@ def _route16_bike(player, report):
             return kind
         return _play_flute(player, report)
     # Hurt or trained: east to Celadon. The west side leaves through the gate.
+    # Snorlax stood on the only east tile. Once the flute has moved him, that tile is open.
     if home and x >= 18:
-        return _edge_leave(player, report, path, 0, 40, (39, 10), "right", _map_blocks(path, 0),
+        blocked = _map_blocks(path, 0)
+        if _quest(player).get("EVENT_BEAT_ROUTE16_SNORLAX"):
+            blocked.discard((26, 10))
+        return _edge_leave(player, report, path, 0, 40, (39, 10), "right", blocked,
                            "celadon", "celadon_city")
     if home and x < 18:
         return _edge_leave(player, report, path, 0, 40, (16, 10), "right", _warp_tiles(path, 0),
