@@ -125,3 +125,37 @@ index 25c62f43..37c09f81 100644
  
      def test_only_the_four_trade_species_gain_the_stone_edge(self):
          text = (ROOT / "Source/data/evolutionData.lua").read_text()
+diff --git a/Source/game/pauseState.lua b/Source/game/pauseState.lua
+index 55c23c1a..ff7bc9e0 100644
+--- a/Source/game/pauseState.lua
++++ b/Source/game/pauseState.lua
+@@ -91,6 +91,29 @@ function PauseState:draw()
+     gfx.setDrawOffset(x, y)
+ end
+ 
++-- The trainer card is a standalone pdz. The landed draw() calls these,
++-- and the bodies were not in the landed file, so the start menu crashed
++-- before the bag could use a LINK CABLE.
++function PauseState:drawTrainer()
++    if not TrainerScreen then
++        import "game/gbFont"
++        if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
++            playdate.file.run("game/trainerScreen")
++        else
++            dofile("Source/game/trainerScreen.lua")
++        end
++    end
++    TrainerScreen.draw(self)
++end
++
++function PauseState:releaseTrainerScreen()
++    if TrainerScreen == nil then return end
++    if TrainerScreen.release then TrainerScreen.release() end
++    TrainerScreen = nil
++    collectgarbage("collect")
++    collectgarbage("collect")
++end
++
+ function PauseState:resume()
+     self.menu.crank:reset()
+ end
