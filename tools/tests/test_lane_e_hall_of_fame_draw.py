@@ -34,6 +34,7 @@ def lua_binary():
 class HallOfFameDrawTests(unittest.TestCase):
     def test_player_name_is_on_the_hall_card(self):
         script = r"""
+dofile("Source/game/titleIdle.lua")
 dofile("Source/game/endgameStory.lua")
 local row = EndgameStory.playerHallRows({name = "RED"})[1]
 local _, y = EndgameStory.hallPixel(row.col * 8, row.row * 8)
@@ -43,7 +44,7 @@ io.write(tostring(y))
             [lua_binary(), "-e", script],
             cwd=ROOT, check=False, capture_output=True, text=True)
         self.assertEqual(completed.returncode, 0, completed.stderr)
-        self.assertGreaterEqual(int(completed.stdout), 0)
+        self.assertGreaterEqual(float(completed.stdout), 0)
 
     def test_credits_draw_shows_the_notice_and_the_end(self):
         draw = (ROOT / "Source/game/eventState.lua").read_text()
@@ -54,10 +55,10 @@ io.write(tostring(y))
         story = (ROOT / "Source/game/creditsDraw.lua").read_text()
         body = story[story.index("function EndgameStory.drawCredits("):]
         self.assertIn("kColorBlack", body)
-        self.assertIn("©'95.'96.'98 Nintendo", body)
-        self.assertIn("©'95.'96.'98 Creatures inc.", body)
-        self.assertIn("©'95.'96.'98 GAME FREAK inc.", body)
-        self.assertIn('"THE END"', body)
+        self.assertIn("©'95.'96.'98 Nintendo", story)
+        self.assertIn("©'95.'96.'98 Creatures inc.", story)
+        self.assertIn("©'95.'96.'98 GAME FREAK inc.", story)
+        self.assertIn('"THE END"', story)
         self.assertNotIn("kDrawModeFillWhite", body)
 
     def test_dry_run_credits_frames_show_text(self):

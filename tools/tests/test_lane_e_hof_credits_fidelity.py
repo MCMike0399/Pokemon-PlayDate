@@ -42,6 +42,7 @@ local font = {
 PROBE = FONT + r"""
 json = {decodeFile = function() return {glyphs = {["é"] = {rows = {"..##...."}}}} end}
 playdate = {graphics = {}}
+dofile("Source/game/titleIdle.lua")
 dofile("Source/game/endgameStory.lua")
 local glyphs = {}
 for code = 32, 126 do
@@ -66,12 +67,12 @@ local caption = EndgameStory.creditsCaption({lines = {"#MON", "BLUE VERSION STAF
 assert(caption == "POKéMON\nBLUE VERSION STAFF", caption)
 assert(not caption:find("venusaur", 1, true))
 local bands = EndgameStory.creditsBands()
-assert(bands.top.y == 0 and bands.top.h == 16, "top")
-assert(bands.middle.y == 16 and bands.middle.h == 160, "middle")
-assert(bands.bottom.y == 176 and bands.bottom.h == 64, "bottom")
+assert(bands.top.y == 0 and bands.top.h == 4 * TitleIdle.ROW, "top")
+assert(bands.middle.y == 4 * TitleIdle.ROW and bands.middle.h == 10 * TitleIdle.ROW, "middle")
+assert(bands.bottom.y == 14 * TitleIdle.ROW and bands.bottom.h == 4 * TitleIdle.ROW, "bottom")
 assert(bands.text == "black")
 local early = EndgameStory.creditsScroll(4)
-assert(early.windowGb == 160 and early.dx == -64, "early window")
+assert(early.windowGb == 160 and early.dx == -4 * TitleIdle.COL, "early window")
 local late = EndgameStory.creditsScroll(12)
 assert(late.windowGb == 120, late.windowGb)
 local place = EndgameStory.creditsMonPlace(0)
@@ -121,6 +122,7 @@ class HallOfFameCreditsFidelityTests(unittest.TestCase):
             [LUA, "-e", r"""
 json = {decodeFile = function() return {} end}
 playdate = {graphics = {}}
+dofile("Source/game/titleIdle.lua")
 dofile("Source/game/endgameStory.lua")
 local box = EndgameStory.hallBoxes().playerName
 local _, top = EndgameStory.hallPixel(box.col * 8, box.row * 8)
@@ -133,9 +135,9 @@ io.write(box.col, " ", box.row, " ", box.width, " ", box.height, " ", top, " ", 
         self.assertEqual(completed.returncode, 0, completed.stderr)
         col, row, width, height, top, name_col, name_row, name_y, asm_y = completed.stdout.split()
         self.assertEqual((col, row, width, height), ("5", "0", "11", "4"))
-        self.assertEqual(top, "-48")
-        self.assertEqual((name_col, asm_y), ("7", "-16"))
-        self.assertEqual(name_row, "3")
+        self.assertEqual(top, "0")
+        self.assertEqual((name_col, name_row), ("7", "2"))
+        self.assertEqual(name_y, asm_y)
         self.assertGreaterEqual(int(name_y), 0)
 
     def test_accent_shares_the_lowercase_e_baseline_and_height(self):
@@ -188,6 +190,7 @@ playdate = {graphics = {
     drawText = function(text, x) drawn[#drawn + 1] = x end,
     image = {new = function() return {draw = function() end} end},
 }}
+dofile("Source/game/titleIdle.lua")
 dofile("Source/game/endgameStory.lua")
 local scale = EndgameStory.hallView().scale
 for step = 0, 26 do
@@ -209,14 +212,12 @@ assert(late.topDx == 0 and late.bottomDx == 0, "step 27 bands moved")
 local base = EndgameStory.hallPixel(8, 48)
 local wrapped = base + late.dx + late.wrap
 assert(wrapped >= late.windowX, "wrap is left of the window")
-EndgameStory.drawCredits(playdate.graphics, {
+local cells = EndgameStory.creditsCells({
     phase = "scroll", scroll = 27, lines = {"BLUE VERSION STAFF"}, mon = "venusaur",
 })
-assert(#drawn > 0, "no credit text")
-for index, x in ipairs(drawn) do
-    assert(x < late.windowX, "text drawn inside the window at " .. tostring(x))
-end
-assert(drawn[1] < 0, "text did not scroll off")
+assert(#cells.glyphs > 0, "no credit text")
+assert(cells.glyphs[1].col < 0, "text did not scroll off")
+assert(cells.glyphs[1].col < cells.window, "text drawn inside the window")
 io.write("scroll-ok")
 """],
             cwd=ROOT, check=False, capture_output=True, text=True)

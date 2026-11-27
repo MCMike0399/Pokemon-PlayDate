@@ -110,9 +110,8 @@ end
 function SourceMaps.createProvider(profiles, registry)
     registry = registry or WorldTiles
     assert(type(profiles) == "table", "explicit bespoke source binding profiles required")
-    local data = SourceMaps._sharedCompact()
     local function profile(name)
-        local entry = SourceMaps.entry(name)
+        local entry = SourceMaps._liveEntry(name)
         local adapter = assert(profiles[entry.profile], "missing bespoke source binding profile")
         assert(type(adapter.options) == "function", "explicit source content options required")
         return adapter, entry
@@ -123,7 +122,13 @@ function SourceMaps.createProvider(profiles, registry)
             GameBootstrap.yieldIfDue()
         end
     end
-    return ImportedMaps(data, {
+    -- Per-map entry files load on first lookup or entry. The full compact
+    -- catalogue stays out of the shipping provider.
+    return ImportedMaps({
+        schema = 1,
+        source_revision = "af519899719f0754965776faac0e836a3b906e6d",
+        lazy = true,
+    }, {
         registry = registry,
         ensureKeys = function(tiles) ensureKeys(registry, tiles) end,
         release = function(zone) zone:disposeView() end,
