@@ -37,8 +37,8 @@ function PewterWorld.install(game)
     installed[game] = provider
     return provider
 end
-function PewterWorld.isolated(name)
-    return SourceMaps.isolated(name)
+function PewterWorld.isolated(name, overrides)
+    return SourceMaps.isolated(name, overrides)
 end
 local dirs={up={0,-1},down={0,1},left={-1,0},right={1,0}}
 local function target(game,key,x,y,direction)
