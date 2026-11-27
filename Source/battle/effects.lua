@@ -270,6 +270,8 @@ function BattleEffects:canAttempt(move,attacker,defender)
         if not pending or pending.category=="status" then return false end
     end
     if move.damageRule=="endeavor" and attacker.hp>=defender.hp then return false end
+    -- pokered MoveHitTest misses Dream Eater unless the target is sleeping.
+    if key=="dreamEater" and defender.status~="sleep" then return false end
     return true
 end
 function BattleEffects:fixedDamage(move,attacker,defender)
@@ -511,6 +513,11 @@ function BattleEffects:canDropStat(source, target, stat, delta)
     if source == target or delta >= 0 then
         return true
     end
+    -- pokered MoveHitTest blocks stat-down effects while PROTECTED_BY_MIST.
+    -- Gen V Mist lasts 5 turns (sideDurations) rather than until switch.
+    if self.battle.conditions:sideTurns(target, "mist") > 0 then
+        return false, "Mist"
+    end
     if self:livingAbility(target, 29) then
         return false, "Clear Body"
     end
@@ -592,6 +599,11 @@ function BattleEffects:hit(source,target,move,amount,hitNumber)
     local receipt={source=source,target=target,move=move,before=before,removed=before-target.hp,endured=endured,
         cause=cause,contact=move~=nil and move.contact==true,hit=hitNumber or 1}
     if move and move.category~="status" then self.battle.conditions:bideHit(target,source,receipt.removed) end
+    -- Gen V Counter stores the last physical body hit. A crit is already
+    -- inside removed. Substitute damage never reaches this receipt.
+    if move and move.category=="physical" and receipt.removed>0 and source~=target then
+        self.battle.conditions:of(target).counterDamage=receipt.removed
+    end
     -- Revenge observes only opposing move HP loss, not residuals, recoil or
     -- confusion. Receipts share the existing logical-round and identity owner.
     if self.round and move and move.category ~= "status" and receipt.removed > 0

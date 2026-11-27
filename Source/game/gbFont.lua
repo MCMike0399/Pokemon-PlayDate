@@ -46,6 +46,59 @@ local function tileImage(sheetName, index)
     return image
 end
 
+-- The fidelity sweep's uniform 12/8 nearest scale of the 8x8 tile.
+-- Borders stay on the full 20 by 13 cell (drawChar / drawBox). Text on
+-- the title menu, options, naming screen, and continue box uses this
+-- inset so a glyph cannot meet the next cell or the border.
+GbFont.FIT = 12
+
+local function fitImage(sheetName, index)
+    local key = "fit:" .. sheetName .. ":" .. index
+    local cached = cache[key]
+    if cached then return cached end
+    local sheet = GbFont.load()[sheetName]
+    local columns = sheetName == "ed" and 1 or 16
+    local sx = (index % columns) * 8
+    local sy = math.floor(index / columns) * 8
+    local image = gfx.image.new(GbFont.FIT, GbFont.FIT, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setColor(gfx.kColorBlack)
+    for y = 0, GbFont.FIT - 1 do
+        local sourceY = sy + math.floor(y * 8 / GbFont.FIT)
+        for x = 0, GbFont.FIT - 1 do
+            local sourceX = sx + math.floor(x * 8 / GbFont.FIT)
+            if sheet:sample(sourceX, sourceY) == gfx.kColorBlack then
+                gfx.drawPixel(x, y)
+            end
+        end
+    end
+    gfx.popContext()
+    cache[key] = image
+    return image
+end
+
+function GbFont.drawFitAt(sheetName, index, col, row)
+    local ox = math.floor((TitleIdle.COL - GbFont.FIT) / 2)
+    local oy = TitleIdle.ROW - GbFont.FIT
+    fitImage(sheetName, index):draw(col * TitleIdle.COL + ox, row * TitleIdle.ROW + oy)
+end
+
+function GbFont.drawFitChar(char, col, row)
+    local sheetName, index = TitleIdle.glyph(char)
+    GbFont.drawFitAt(sheetName, index, col, row)
+end
+
+function GbFont.drawFitString(text, col, row)
+    local cursor, index = 0, 1
+    while index <= #text do
+        local nextIndex, sheetName, glyph = TitleIdle.nextTile(text, index)
+        GbFont.drawFitAt(sheetName, glyph, col + cursor, row)
+        cursor = cursor + 1
+        index = nextIndex
+    end
+end
+
 function GbFont.drawChar(char, col, row)
     local sheetName, index = TitleIdle.glyph(char)
     tileImage(sheetName, index):draw(col * TitleIdle.COL, row * TitleIdle.ROW)
