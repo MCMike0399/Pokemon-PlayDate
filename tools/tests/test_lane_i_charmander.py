@@ -3608,7 +3608,7 @@ class CharmanderRun(BrockJourney):
             # Hyper Potion is not on the shelf. Status cures come last.
             for item, cap in (
                 ("revive", 3),
-                ("fullRestore", 1),
+                ("fullRestore", 2),
                 ("maxPotion", 2),
                 ("fullHeal", 4),
             ):
@@ -4345,7 +4345,7 @@ class CharmanderRun(BrockJourney):
 
     def _needs_league_stock(self):
         money = self.inventory()["money"]
-        for item, cap in (("revive", 3), ("maxPotion", 2), ("fullRestore", 1), ("fullHeal", 4)):
+        for item, cap in (("revive", 3), ("maxPotion", 2), ("fullRestore", 2), ("fullHeal", 4)):
             if self.quantity(item) < cap and money >= self._INDIGO_PRICES[item]:
                 return True
         return False
@@ -5267,7 +5267,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertEqual(key_fight("source", "pokered:LORELEIS_ROOM:objects:1"), "elite-lorelei")
         self.assertEqual(key_fight("source", "pokered:CHAMPIONS_ROOM:objects:1"), "champion")
         stock = source.split("def _stock_league_items", 1)[1].split("def _want_league_shop", 1)[0]
-        self.assertLess(stock.index('"fullRestore", 1'), stock.index('"maxPotion", 2'))
+        self.assertLess(stock.index('"fullRestore", 2'), stock.index('"maxPotion", 2'))
         self.assertLess(stock.index("len(slots) >= 20"), stock.index("self.buy_item"))
         self.assertIn("def _spare_revive", source)
         climb = source.split("def _climb_route23", 1)[1].split("def _pin_victory_trainers", 1)[0]
