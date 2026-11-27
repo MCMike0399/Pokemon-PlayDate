@@ -1,0 +1,24 @@
+# Opening the party list to Surf crashes. PartyState:drawPartyList calls
+# import "game/gbFont" on the first frame of the menu. Playdate rejects
+# import() after the pdx has loaded. The font import belongs with the
+# file, which main.lua loads while the pdx is still loading. The status
+# page keeps its own reload. MallocPoolSize stays 16645684.
+
+diff --git a/Source/game/partyState.lua b/Source/game/partyState.lua
+index 908a5692..e7c8a8d5 100644
+--- a/Source/game/partyState.lua
++++ b/Source/game/partyState.lua
+@@ -1,4 +1,5 @@
+ local gfx <const> = playdate.graphics
++import "game/gbFont"
+ Class("PartyState"):extends(State)
+ 
+ function PartyState:init(game)
+@@ -371,7 +372,6 @@ local function partyHpBar(col, row, tiles, hp, maxHP)
+ end
+ 
+ function PartyState:drawPartyList(party)
+-    import "game/gbFont"
+     local count = math.min(party:count(), 6)
+     for i = 1, count do
+         local member = party:get(i)

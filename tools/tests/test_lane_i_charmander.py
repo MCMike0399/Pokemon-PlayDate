@@ -3371,6 +3371,7 @@ class CharmanderRun(BrockJourney):
             return
         self.navigate((4, 31))
         self.face("down")
+        self.save()
         index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
         self.use_field(index, "surf")
         if self.position() == (4, 31):
@@ -3388,6 +3389,9 @@ class CharmanderRun(BrockJourney):
     def _play_postgame(self):
         """Heal, cross to Cerulean Cave, and face Mewtwo. The Mew giver has no script."""
         self._bind_kanto_route()
+        if not hasattr(self, "use_field"):
+            import tools.harness.midgame_journey as midgame
+            self.use_field = midgame.MidgameJourney.use_field.__get__(self, type(self))
         self.config["name"] = "cerulean-natural"
         self.config["max_blackouts"] = 4
         self._flee_wilds = True
