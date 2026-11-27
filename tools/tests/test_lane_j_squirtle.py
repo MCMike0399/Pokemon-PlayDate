@@ -8116,11 +8116,16 @@ def _celadon_center(player, report):
         if player.state["player"].get("facing") != "up":
             player.press("up", wait=4)
         player.press("a", wait=8)
-        for _ in range(24):
+        for _ in range(40):
             if player.exploring() and not _party_needs_heal(player):
                 break
-            options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
-            if "YES" in options:
+            event = player.state.get("event") or {}
+            phase = event.get("phase")
+            menu = event.get("menu") or {}
+            if phase == "heal-animation":
+                player.send("wait 20")
+                continue
+            if menu.get("active") and "YES" in (menu.get("options") or []):
                 player.choose("event", "YES")
                 continue
             player.press("a", wait=8)
