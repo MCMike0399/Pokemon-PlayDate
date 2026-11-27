@@ -3620,6 +3620,7 @@ def play(output, clips, save_from=None, story=None):
                     shutil.copyfile(src, dest)
                     files.append({"name": src.name, "sha256": sha256_file(dest)})
                 report["save_kept"] = {"dir": str(kept), "files": files}
+                report.pop("film", None)
                 (output / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
                 print(json.dumps(report, indent=2))
         return 0 if "error" not in report else 1
