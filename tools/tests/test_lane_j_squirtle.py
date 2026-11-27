@@ -5832,8 +5832,10 @@ def _k_clear(player, report):
         return _ride_safari_return(player, report)
     if player.state.get("root") != "battle":
         if not player.exploring():
-            player.dismiss_until_explore(limit=40)
-        return None
+            # A trainer can still be walking up. Dismiss reveals the battle.
+            player.dismiss_until_explore(limit=80)
+        if player.state.get("root") != "battle":
+            return None
     before = player.state.get("last_battle_outcome")
     # Dugtrio has 62 HP. Healing at 36 made every Hypno hit a potion turn, so Dig never finished.
     # One gym trainer outlasts a single 2500-step fight call. Do not save that call mid-battle.
@@ -5892,8 +5894,17 @@ def _k_go(player, report, direction, place, end_x, end_y):
             return status
     landed = _k_here(player)
     if landed != (place, end_x, end_y):
-        block = (player.state.get("player") or {}).get("lastTraversalBlock")
-        raise RuntimeError(f"{direction} landed {landed} not {place} {end_x},{end_y} block {block}")
+        if not player.exploring() or player.state.get("root") == "battle":
+            status = _k_clear(player, report)
+            if status:
+                return status
+            landed = _k_here(player)
+        if landed == (place, end_x, end_y):
+            return None
+        if not player.exploring():
+            _checkpoint(player, report, "saved_k_line")
+            return "yield"
+        return "blocked"
     if place in ("LavenderTown", "CeladonCity") and (end_x, end_y) in ((9, 0), (49, 11)):
         _checkpoint(player, report, "saved_" + place)
     return None
@@ -6906,7 +6917,7 @@ def _south_edges(filename, pad):
 def _route_leg(player, report, filename, pad, width, place, goal, extra, key, limit=40):
     """Walk up to `limit` steps. Sight is skipped when another path remains."""
     cells = set(open_map(SOUTH / filename, pad, width))
-    edges = _south_edges(filename, pad)
+    edges = set(_south_edges(filename, pad))
     misses = 0
     for _ in range(limit):
         _name, x, y = _k_here(player)
@@ -6931,6 +6942,9 @@ def _route_leg(player, report, filename, pad, width, place, goal, extra, key, li
         misses = 0
         nxt = neighbor((x, y), steps[0])
         status = _k_go(player, report, steps[0], place, nxt[0], nxt[1])
+        if status == "blocked":
+            edges.add(((x, y), nxt))
+            continue
         if status:
             return status
     _checkpoint(player, report, key)
