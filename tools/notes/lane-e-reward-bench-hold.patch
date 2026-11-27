@@ -1,0 +1,25 @@
+diff --git a/Source/dev/rewardContracts.lua b/Source/dev/rewardContracts.lua
+index b4de4b3a..70a409ef 100644
+--- a/Source/dev/rewardContracts.lua
++++ b/Source/dev/rewardContracts.lua
+@@ -208,16 +208,16 @@ function RewardContracts.run()
+     bars={};playdate.graphics.pushContext(image);scene:drawBattleField();playdate.graphics.popContext();eq(bars[2][1],20);eq(bars[2][2],22);scene:exit();b:clearVolatiles()
+  end)
+  test("active second member stays held while first bench member narrates and learns",function()
+-    local p,q=Pokemon("squirtle",6),Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;q.xp=q:xpForLevel(7)-1
++    local p,q=Pokemon("squirtle",7),Pokemon("charmander",6);p.xp=p:xpForLevel(8)-1;q.xp=q:xpForLevel(7)-1
+     local e=Pokemon("bulbasaur",6);own(e,{"growl"});local party=Party();assert(party:add(p));assert(party:add(q));local b=Battle(p,e,"HUD ORDER",{party=party});settle(b);assert(b:chooseParty(2));settle(b);e.hp=0
+     b:runScript(function()return b:handleFaint("enemy")end);local n=0
+-    while not b.message:find("SQUIRTLE gained ",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
+-    eq(p.level,7);eq(q.level,7);local level,hp,maximum=b:presentationVitals(q);eq(level,6);eq(hp,20);eq(maximum,20)
++    while not b.message:find("SQUIRTLE gained\n",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
++    eq(p.level,8);eq(q.level,7);local level,hp,maximum=b:presentationVitals(q);eq(level,6);eq(hp,20);eq(maximum,20)
+     assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),6)
+     assert(b.machine:get("script"):advance());eq(b.levelStats.speed, p.spe);eq(select(1,b:presentationVitals(q)),6)
+     assert(b.machine:get("script"):advance());eq(b.levelStats, nil);eq(b:getLearningSnapshot().pending,true)
+     local request,mon=b:takeLearningRequest();eq(mon,p);while #p:getPendingMoveChoices()>0 do assert(p:resolveMoveChoice(p:getPendingMoveChoices()[1].id,"learn"))end;assert(b:resumeLearning(request))
+-    assert(b.message:find("CHARMANDER gained ",1,true));eq(select(1,b:presentationVitals(q)),6);assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),7);eq(party:active(),q);b:clearVolatiles()
++    assert(b.message:find("CHARMANDER gained\n",1,true));eq(select(1,b:presentationVitals(q)),6);assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),7);eq(party:active(),q);b:clearVolatiles()
+  end)
+  test("closed or stale presentation receipt never leaks old vitals or consumes rules RNG",function()
+     local p=Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;local b=fresh(p,Pokemon("rattata",5));local r=award(b);eq(select(1,b:presentationVitals(p)),6)

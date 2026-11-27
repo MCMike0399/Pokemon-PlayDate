@@ -1,0 +1,13 @@
+diff --git a/Source/dev/rewardContracts.lua b/Source/dev/rewardContracts.lua
+index b4de4b3a..4bc474c4 100644
+--- a/Source/dev/rewardContracts.lua
++++ b/Source/dev/rewardContracts.lua
+@@ -186,7 +186,7 @@ function RewardContracts.run()
+  test("HUD holds before vitals through gained message then releases before grew message",function()
+     local p=Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;p.hp=18;local b=fresh(p,Pokemon("rattata",5));b.enemy.hp=0
+     b:runScript(function()return b:handleFaint("enemy")end)
+-    local n=0;while not b.message:find(" gained ",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
++    local n=0;while not b.message:find(" gained\n",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
+     eq(p.level,7);eq(p.hp,20);eq(p.maxHP,22);local before=RulesRNG.snapshot()
+     for _=1,64 do local level,hp,maximum=b:presentationVitals(p);eq(level,6);eq(hp,18);eq(maximum,20)end;same(RulesRNG.snapshot(),before)
+     local scene=BattleScene(b);scene.playerShown=b.player;local bars={};local draw=scene.drawHPBar

@@ -1,0 +1,19 @@
+diff --git a/Source/dev/rewardContracts.lua b/Source/dev/rewardContracts.lua
+index b4de4b3a..af2729e6 100644
+--- a/Source/dev/rewardContracts.lua
++++ b/Source/dev/rewardContracts.lua
+@@ -225,11 +225,11 @@ function RewardContracts.run()
+     eq(BattleRewards.acknowledge(b,r.id,1),false);p:takeDamage(1);local level,hp,maximum=b:presentationVitals(p);eq(level,p.level);eq(hp,p.hp);eq(maximum,p.maxHP);same(RulesRNG.snapshot(),before)
+  end)
+  test("level-up stats box follows the grew line and waits before learning",function()
+-    local p=Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;local b=fresh(p,Pokemon("rattata",5));b.enemy.hp=0
++    local p=Pokemon("charmander",8);p.xp=p:xpForLevel(9)-1;local b=fresh(p,Pokemon("rattata",5));b.enemy.hp=0
+     b:runScript(function()return b:handleFaint("enemy")end)
+     local scene=BattleScene(b)
+-    settle(b, scene, " grew to Lv7!")
+-    assert(b.message:find(" grew to Lv7!", 1, true))
++    settle(b, scene, " grew to Lv9!")
++    assert(b.message:find(" grew to Lv9!", 1, true))
+     eq(b.levelStats, nil)
+     eq(b:getLearningSnapshot().pending, false)
+     assert(b.machine:get("script"):advance())

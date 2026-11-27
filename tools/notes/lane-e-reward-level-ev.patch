@@ -1,0 +1,16 @@
+diff --git a/Source/dev/rewardContracts.lua b/Source/dev/rewardContracts.lua
+index b4de4b3a..7c2444dc 100644
+--- a/Source/dev/rewardContracts.lua
++++ b/Source/dev/rewardContracts.lua
+@@ -148,9 +148,9 @@ function RewardContracts.run()
+     assert(b:flushRewards());eq(p.spe,p:calculatedStats().spe);b:clearVolatiles()
+  end)
+  test("level-up recomputes from EV already allocated before next foe and typed learning",function()
+-    local iv,ev=zero(),zero();iv.spe=13;ev.spe=3;local p=Pokemon("squirtle",6,{natureId=0,abilitySlot="first",heldItem="none",ivs=iv,evs=ev});p.xp=p:xpForLevel(7)-1;local e1,e2=Pokemon("pidgey",5),Pokemon("geodude",5);own(e1,{"growl"});own(e2,{"defenseCurl"});local foes=Party();assert(foes:add(e1));assert(foes:add(e2))
++    local iv,ev=zero(),zero();iv.spe=13;ev.spe=3;local p=Pokemon("squirtle",7,{natureId=0,abilitySlot="first",heldItem="none",ivs=iv,evs=ev});p.xp=p:xpForLevel(8)-1;local e1,e2=Pokemon("pidgey",5),Pokemon("geodude",5);own(e1,{"growl"});own(e2,{"defenseCurl"});local foes=Party();assert(foes:add(e1));assert(foes:add(e2))
+     local b=fresh(p,e1,nil,foes);local beforeHP=p.maxHP-p.hp;e1.hp=0;b:runScript(function()local result=b:handleFaint("enemy");if result=="replacement"then return b:finishRound()end;return result end);settle(b)
+-    eq(p.level,7);eq(p.evs.spe,4);eq(p.spe,12);eq(p.spe,p:calculatedStats().spe);eq(p.maxHP-p.hp,beforeHP);eq(b.enemy,e1);eq(b:getLearningSnapshot().pending,true)
++    eq(p.level,8);eq(p.evs.spe,4);eq(p.spe,13);eq(p.spe,p:calculatedStats().spe);eq(p.maxHP-p.hp,beforeHP);eq(b.enemy,e1);eq(b:getLearningSnapshot().pending,true)
+     local receipt,mon=b:takeLearningRequest();eq(mon,p);while #p:getPendingMoveChoices()>0 do assert(p:resolveMoveChoice(p:getPendingMoveChoices()[1].id,"learn"))end;assert(b:resumeLearning(receipt));settle(b);eq(b.enemy,e2);eq(b:getRewardSnapshot().awards,1);eq(p:hasMove("bubble"),true);b:clearVolatiles()
+  end)
+  test("emitEnd flushes before same-owned evolution callback and cannot flush twice",function()
