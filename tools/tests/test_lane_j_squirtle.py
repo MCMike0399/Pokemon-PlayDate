@@ -1035,6 +1035,9 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertNotIn((5, 4), seventh)
         self.assertIn((5, 2), seventh)
         self.assertIsNotNone(route(seventh, (5, 7), (5, 2), {(5, 3)}))
+        center = floor_source.split("\ndef _saffron_center", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("_sabrina_needs_nurse(player)", center)
+        self.assertNotIn("_silph_needs_nurse(player)", center)
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -9748,11 +9751,14 @@ def _after_strength(player, report, display=None, clips=None, output=None):
 
 
 def _sabrina_needs_nurse(player):
-    """57 HP is above the sweep line and still one Psychic from a faint."""
+    """57 and 51 sit above the sweep line and still one Psychic from a faint."""
     if _silph_needs_nurse(player):
         return True
-    _slot, mon = _member(player, "blastoise")
-    return bool(mon and 0 < (mon.get("hp") or 0) < 90)
+    for species, line in (("blastoise", 90), ("pidgeot", 80)):
+        _slot, mon = _member(player, species)
+        if mon and 0 < (mon.get("hp") or 0) < line:
+            return True
+    return False
 
 
 def _sabrina_hop(here):
@@ -9911,7 +9917,8 @@ def _saffron_center(player, report):
     avoid = {(3, 1), (5, 5), (8, 3), (11, 2), (3, 7), (4, 7)}
     here = (player.state["player"]["x"], player.state["player"]["y"])
     avoid.discard(here)
-    if _silph_needs_nurse(player):
+    # The sweep line is 45. Blastoise at 57 still has to talk to the nurse.
+    if _sabrina_needs_nurse(player):
         kind = _walk(player, cells, surface, (3, 3), avoid, report=report, yield_after=2)
         if kind in ("blackout", "yield"):
             return kind
@@ -9919,7 +9926,7 @@ def _saffron_center(player, report):
             player.press("up", wait=4)
         player.press("a", wait=8)
         for _ in range(40):
-            if player.exploring() and not _silph_needs_nurse(player):
+            if player.exploring() and not _sabrina_needs_nurse(player):
                 break
             event = player.state.get("event") or {}
             phase = event.get("phase")
@@ -9931,7 +9938,7 @@ def _saffron_center(player, report):
                 player.choose("event", "YES")
                 continue
             player.press("a", wait=8)
-        if _silph_needs_nurse(player):
+        if _sabrina_needs_nurse(player):
             raise RuntimeError("the Saffron nurse did not heal: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_saffron_healed")
         return "yield"
