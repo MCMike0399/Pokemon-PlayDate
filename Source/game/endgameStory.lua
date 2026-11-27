@@ -1900,6 +1900,27 @@ function EndgameStory.install()
         steps = {{op = "dialog", labels = {"_IndigoPlateauLobbyCooltrainerFText"}}}}
     events["pokered:INDIGO_PLATEAU_LOBBY:objects:4"] = {kind = "program", content = CONTENT,
         steps = {{op = "shop", id = "indigoPlateauLobbyClerkText"}}}
+    -- script_cable_club_receptionist (scripts/*Pokecenter.asm, af519899) shows the
+    -- welcome and the save line. TRADE_CENTER and COLOSSEUM stay closed: no warp.
+    local cableClub <const> = {
+        {op = "dialog", labels = {"_CableClubNPCWelcomeText"}},
+        {op = "dialog", labels = {"_CableClubNPCPleaseApplyHereHaveToSaveText"}},
+    }
+    for _, id in ipairs({
+        "pokered:VIRIDIAN_POKECENTER:objects:4",
+        "pokered:PEWTER_POKECENTER:objects:4",
+        "pokered:CERULEAN_POKECENTER:objects:4",
+        "pokered:VERMILION_POKECENTER:objects:4",
+        "pokered:LAVENDER_POKECENTER:objects:4",
+        "pokered:CELADON_POKECENTER:objects:4",
+        "pokered:FUCHSIA_POKECENTER:objects:4",
+        "pokered:SAFFRON_POKECENTER:objects:4",
+        "pokered:CINNABAR_POKECENTER:objects:4",
+        "pokered:ROCK_TUNNEL_POKECENTER:objects:4",
+        "pokered:MT_MOON_POKECENTER:objects:6",
+    }) do
+        events[id] = {kind = "program", content = CONTENT, steps = cableClub}
+    end
     events["pokered:INDIGO_PLATEAU_LOBBY:objects:5"] = {kind = "program", content = CONTENT, steps = {
         {op = "dialog", labels = {"_CableClubNPCWelcomeText"}},
         {op = "dialog", labels = {"_CableClubNPCPleaseApplyHereHaveToSaveText"}}}}
