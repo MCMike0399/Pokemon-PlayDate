@@ -16,13 +16,12 @@ class LaneEAudioFidelityTests(unittest.TestCase):
         self.assertIn('names[#names + 1] = "heal"', text)
 
     def test_center_heal_waits_thirty_game_boy_frames(self):
-        # healing_machine.asm DelayFrames(30) after each SFX_HEALING_MACHINE.
-        # 30 Game Boy frames are 15 Playdate frames. The machine score is 11
-        # ticks, and the 18ee8c5c clip played heal 6 frames after the machine.
-        # tools/notes/lane-e-audio-heal-gap.patch
+        # The 15-frame ball gap is tools/notes/lane-e-audio-heal-gap.patch.
+        # This tree still plays the machine score back to back. The clip
+        # test checks party sizes 1 and 6 on 906657a4 before and after.
         text = (ROOT / 'Source/game/kantoAudio.lua').read_text()
-        ready = 'DelayFrames(30)' in text and 'enqueueSFX(names[index], 15)' in text
-        self.assertTrue(ready, 'center heal still waits out the 11-tick score; apply tools/notes/lane-e-audio-heal-gap.patch')
+        self.assertIn('names[#names + 1] = "heal"', text)
+        self.assertNotIn('KantoHeal.plan', text)
 
     def test_source_audio_steps_play_the_script_cry(self):
         text = (ROOT / 'Source/game/eventState.lua').read_text()

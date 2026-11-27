@@ -80,13 +80,23 @@ class Journey:
         # Each press is gated by the current semantic overlay, so a final A
         # cannot reopen an NPC or select the next menu. First A reveals text;
         # the next advances it. No narrative text is used as an oracle.
+        # A finished line still sits for 10 frames before a new A can turn
+        # the page. The Pokémon Center welcome is short, so that first A
+        # lands inside the wait and used to abort the heal and the capture
+        # path on the welcome text.
         for _ in range(64):
             if self.state.get("root") != "dialog":
                 return
             previous = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
             ready = self.state["dialog"].get("ready")
             self.send("press a")
-            if self.state.get("root") == "dialog" and ready:
+            if self.state.get("root") != "dialog":
+                return
+            current = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
+            if ready and current == previous:
+                self.send("wait 12", "press a")
+                if self.state.get("root") != "dialog":
+                    return
                 current = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
                 if current == previous:
                     raise ProtocolError("ready dialog failed to advance on A")

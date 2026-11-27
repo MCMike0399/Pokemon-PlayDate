@@ -139,6 +139,12 @@ PITCHED = {
     'faint_fall_kinesis': ('audio2:SFX_Faint_Fall', 0x18, 0x20),
     'faint_fall_transform': ('audio2:SFX_Faint_Fall', 0xff, 0xff),
     'faint_fall_dizzy_punch': ('audio2:SFX_Faint_Fall', 0xff, 0x04),
+    # PlayApplyingAttackSound. Neutral (multiplier 10) is SFX_DAMAGE at
+    # frequency $20 tempo $30. Above 10 is SFX_SUPER_EFFECTIVE $e0/$ff.
+    # Below 10 is SFX_NOT_VERY_EFFECTIVE $50/$01. A multiplier of 0 is silent.
+    'damage_normal': ('audio2:SFX_Damage', 0x20, 0x30),
+    'damage_super': ('audio2:SFX_Super_Effective', 0xe0, 0xff),
+    'damage_not_very': ('audio2:SFX_Not_Very_Effective', 0x50, 0x01),
 }
 # A joint label loop longer than this becomes one part per channel.
 # Cinnabar Mansion's channel periods meet again at tick 1788480.

@@ -108,7 +108,7 @@ class LaneEAudioHandoffTests(unittest.TestCase):
                 fidelity.returncode, 0,
                 (fidelity.stdout or "") + (fidelity.stderr or ""),
             )
-            self.assertIn("Ran 6 tests", fidelity.stderr)
+            self.assertIn("Ran 7 tests", fidelity.stderr)
         finally:
             subprocess.run(
                 ["git", "worktree", "remove", "--force", str(work)],

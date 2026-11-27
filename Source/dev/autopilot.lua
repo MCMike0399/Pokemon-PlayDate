@@ -194,8 +194,17 @@ function Autopilot.step(cmd, game)
 
     elseif name == "dismiss" then
         -- Checks the state BEFORE each press, so the press that closes the
-        -- dialog is the last one — it can't re-open the NPC interaction
-        if game.machine:getCurrent() ~= "dialog" then
+        -- dialog is the last one — it can't re-open the NPC interaction.
+        -- The Center welcome is several pages. The stack can leave "dialog"
+        -- for a frame between them while the event is still on that text,
+        -- and stopping there left the heal and Pokédex drivers on the welcome.
+        local event = game.machine:get("event")
+        local waiting = event and event.waiting
+        local nurseText = event and event.phase == "dialog" and (
+            waiting == "_PokemonCenterWelcomeText"
+            or waiting == "_ShallWeHealYourPokemonText"
+            or waiting == "_NeedYourPokemonText")
+        if game.machine:getCurrent() ~= "dialog" and not nurseText then
             results[#results + 1] = "dismissed -> " .. game.machine:stackNames()
             return true
         end
