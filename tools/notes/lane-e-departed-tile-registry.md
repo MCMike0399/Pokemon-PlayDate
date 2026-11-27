@@ -1,6 +1,6 @@
 # Departed maps leave a Lua heap residue
 
-`tools/tests/test_lane_e_departed_tile_registry.py` switches from the Viridian Center to Mt. Moon 1F, Route 4, and Cerulean City, then back to the Center. It reads `map.ViridianPokecenter.definition.begin` in the boot trace. That mark is the `collectgarbage("collect")` at the start of `SourceMaps.createZone`, before the destination is decoded. The return visit must stay within 96 KiB of the first visit. It does not. There is no patch with this note. A registry release was tried and the test still failed.
+`tools/tests/test_lane_e_departed_tile_registry.py` switches from the Viridian Center to Mt. Moon 1F, Route 4, and Cerulean City, then back to the Center. It reads `map.ViridianPokecenter.definition.begin` in the boot trace. That mark is the `collectgarbage("collect")` at the start of `SourceMaps.createZone`, before the destination is decoded. The return visit must stay within 96 KiB of the first visit. Unpatched, it does not. The fix is `tools/notes/lane-e-departed-tile-registry.patch`. Apply it before the two tests. A registry release by itself was not enough; the measurements below are the unpatched baseline.
 
 ## What the device measured
 
@@ -93,3 +93,35 @@ The shade grids are the per-tileset payload that grows on a first visit. Each gr
 | FOREST_GATE | 8 | 2.0 |
 
 The walk had already paid for Overworld, Gym, Mart, Pokecenter, Cavern, Facility, and most of Forest. The tilesets still unseen are the ones in that table from SHIP down through FOREST_GATE, except the rows the walk already touched. Their shade text is the other 157 KiB. At the same 19 KiB of heap per KiB of shade text, that remainder is about 2900 KiB, which from the map-50 Center (13920.9) lands near 16850 KiB and still over the pool. The shade text itself is only 234.5 KiB, so the strings are not what fills the pool. The heap that tracks them is.
+
+## What reaches the 96 KiB bound
+
+Content-addressing the shade rows does not. The four maps in the 96 KiB test have 122 stable ids and 122 distinct grids, so sharing rows removes nothing. Compacting the entry tables does not either: after the imported entries, the slice catalogue, the field-move decodes, and the prepared encounter zone were dropped, the Center return was still about 190 KiB up. That remainder is the score chunks. `playdate.file.run` keeps each `audio/score/<name>` chunk after `KantoScores` is cleared, and `unloadAll` does not drop the chunk. The first play of the Center, Mt. Moon, Route 4, and Cerulean paid about 156 KiB of those chunks between the two marks.
+
+The patch does three things:
+
+- Identical shade rows in one registration share a single grid table. The share dies with the batch, so a later eviction can free the rows.
+- `releaseDepartingWorld` and the Fly origin release drop imported registry entries and their images, the two atlas slots, the slice and Pewter and source sprite caches, the field-move decodes, and the prepared encounter zone. The next visit registers the same stable keys, in definition order, into the same slots above the 37 authored bases. The Center's `registry.slots` line stays `62` on every rebuild.
+- The first ordinary `createZone` runs every score file once, then `unloadAll`, before `definition.begin`. Isolated catalogue fixtures skip that warm. The chunks are then in both the first mark and the return, and a new map does not look like growth.
+
+`MallocPoolSize` stayed `16645684`.
+
+With the patch applied, `test_lane_e_departed_tile_registry.py` passed inside 96 KiB and both Center `registry.slots` counts were 62. The fifty-map walk, same fixture and the same order as the table above, sampled the Center at:
+
+| new maps | Center KiB | since start | since the previous sample |
+| ---: | ---: | ---: | ---: |
+| 0 | 13693.0 | 0 |  |
+| 5 | 13802.7 | 109.7 | 109.7 |
+| 10 | 13872.3 | 179.3 | 69.6 |
+| 15 | 13880.2 | 187.2 | 7.9 |
+| 20 | 13899.1 | 206.1 | 18.9 |
+| 25 | 13916.1 | 223.1 | 17.0 |
+| 30 | 13939.4 | 246.4 | 23.3 |
+| 35 | 13942.4 | 249.4 | 3.0 |
+| 40 | 13953.3 | 260.3 | 10.9 |
+| 45 | 13966.4 | 273.4 | 13.1 |
+| 50 | 13978.3 | 285.3 | 11.9 |
+
+Map 20 through map 50 spans 79.2 KiB. The highest Lua heap in that trace was 14811.4 KiB, 1444 KiB under the 16255.6 KiB pool. The old line crossed the pool near map 158. This tail is about 2.6 KiB per map; carried to map 200 it is still near 14400 KiB. `registry.slots ViridianPokecenter` was 62 after every return.
+
+`python3 tools/generate_terrain_atlases.py --check` regenerated the 24 atlases, 938 frames, and matched the files in `Source/terrainAtlases`. That is the Pallet overworld pin and the Gym pin shared by Celadon Gym and Fuchsia Gym. The battle-art pins are `tools/generate_battle_art.py --check` against archive `e571972fc926dcb65d94fc989299d38109590aa945ed657bf215eac8561afd05`. That archive is not on this machine. The patch does not change the generator, the shade grids, or the battle PNGs. On the patched tree, `contracts cave-encounters` passed 8, `contracts field-travel` passed 3, and `contracts individual-stats-v1` passed 17.

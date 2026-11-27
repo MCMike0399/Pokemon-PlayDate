@@ -4,10 +4,9 @@
 switchZone from the Viridian Center through Mt. Moon 1F, Route 4 and
 Cerulean, then back, collects before the Center is decoded again. The
 return visit's definition.begin is still about 514 KiB above the first
-visit. A second lap of the same maps adds about 5 KiB, so the residue is
-paid once per map and kept. Rebuilding the Center succeeds. The bound is
-96 KiB. This fails on the current tree. The measurement and the release
-that was not enough are in tools/notes/lane-e-departed-tile-registry.md.
+visit until tools/notes/lane-e-departed-tile-registry.patch is applied.
+The bound is 96 KiB and is not loosened. Rebuilding the Center must also
+report the same registry.slots count, so eviction reuses the same ids.
 MallocPoolSize stays 16645684.
 """
 
@@ -175,6 +174,13 @@ class DepartedTileRegistryTest(unittest.TestCase):
             f"Viridian Center definition grew from {begins[0]:.1f} KiB to {begins[-1]:.1f} KiB "
             f"after Mt. Moon, Route 4 and Cerulean ({detail})",
         )
+        slots = []
+        for row in rows:
+            prefix = "registry.slots ViridianPokecenter "
+            if row["phase"].startswith(prefix):
+                slots.append(int(row["phase"][len(prefix):]))
+        self.assertGreaterEqual(len(slots), 2, detail)
+        self.assertEqual(min(slots), max(slots), f"Center slot count changed across the rebuild ({detail})")
 
 
 if __name__ == "__main__":
