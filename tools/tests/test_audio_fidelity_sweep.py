@@ -41,7 +41,28 @@ SPOTLIGHT = (
     "SAFARI_ZONE_EAST",
     "CINNABAR_ISLAND",
     "CINNABAR_GYM",
+    "INDIGO_PLATEAU",
+    "INDIGO_PLATEAU_LOBBY",
+    "ROUTE_23",
+    "LORELEIS_ROOM",
+    "BRUNOS_ROOM",
+    "AGATHAS_ROOM",
+    "LANCES_ROOM",
 )
+
+# Room beds from songs.asm. Route 23 is the outside approach. Champion,
+# Hall of Fame, and credits stay out of this list.
+INDIGO_ROOMS = (
+    "INDIGO_PLATEAU",
+    "INDIGO_PLATEAU_LOBBY",
+    "ROUTE_23",
+    "LORELEIS_ROOM",
+    "BRUNOS_ROOM",
+    "AGATHAS_ROOM",
+    "LANCES_ROOM",
+)
+
+ELITE_FOUR = ("LoreleiData", "BrunoData", "AgathaData", "LanceData")
 
 # Cue name, pokered token, and the file that plays it. Badge scripts name the
 # key-item opcode; the item-fanfare handoff is a separate patch.
@@ -104,6 +125,78 @@ def _songs(root):
             raise AssertionError(f"{label} does not name one score: {names}")
         rows[map_name] = names[0]
     return rows
+
+
+def _parties(root):
+    text = (root / "data/trainers/parties.asm").read_text()
+    current = None
+    rows = {label: [] for label in ELITE_FOUR}
+    for raw in text.splitlines():
+        code = _code(raw)
+        if code.endswith("Data:"):
+            current = code[:-1]
+            continue
+        if current not in rows or not code.startswith("db "):
+            continue
+        parts = [part.strip() for part in code[3:].split(",")]
+        index = 1 if parts and parts[0].startswith("$") else 0
+        while index + 1 < len(parts) and parts[index] != "0":
+            rows[current].append(parts[index + 1])
+            index += 2
+    return rows
+
+
+def _cry_rows(root):
+    order = []
+    for raw in (root / "data/pokemon/dex_order.asm").read_text().splitlines():
+        match = re.search(r"\bdb\s+(DEX_[A-Z0-9_]+|0)\b", _code(raw))
+        if match:
+            order.append(match.group(1))
+    rows = {}
+    cries = []
+    for raw in (root / "data/pokemon/cries.asm").read_text().splitlines():
+        match = re.search(
+            r"mon_cry\s+SFX_CRY_([0-9A-F]+),\s+\$([0-9A-F]+),\s+\$([0-9A-F]+)",
+            _code(raw),
+        )
+        if match:
+            base, pitch, length = match.groups()
+            cries.append([int(base, 16), int(pitch, 16), int(length, 16)])
+    if len(order) != len(cries):
+        raise AssertionError(f"dex order {len(order)} cries {len(cries)}")
+    for species, triple in zip(order, cries):
+        if species == "0":
+            continue
+        rows[species.removeprefix("DEX_").lower()] = triple
+    return rows
+
+
+def _game_cries():
+    text = (ROOT / "Source/audio/crydata.lua").read_text()
+    return {
+        name: [int(base), int(pitch), int(length)]
+        for name, base, pitch, length in re.findall(
+            r'\["([a-z0-9_]+)"\] = \{(\d+), (\d+), (\d+)\}',
+            text,
+        )
+    }
+
+
+def _battle_scores(classes):
+    quoted = ", ".join(f'"{name}"' for name in classes)
+    script = f"""
+local root = [[{ROOT}]]
+playdate = {{ file = {{ run = function() end }} }}
+dofile(root .. "/Source/audio/events.lua")
+dofile(root .. "/Source/audio/select.lua")
+local classes = {{ {quoted} }}
+for _, class in ipairs(classes) do
+    local score = KantoEvents.battleScore({{trainerClass = class, gymLeaderNo = 0}})
+    io.write(class, "\\t", tostring(score), "\\n")
+end
+"""
+    completed = subprocess.run(["lua", "-e", script], check=True, capture_output=True, text=True)
+    return dict(line.split("\t") for line in completed.stdout.splitlines())
 
 
 def _game_maps():
@@ -234,3 +327,36 @@ class AudioFidelitySweepTests(unittest.TestCase):
             self.assertEqual(self.jingles[(class_name, "0")], expected, class_name)
             # PlayTrainerMusic returns before the lists when wGymLeaderNo is set.
             self.assertEqual(self.jingles[(class_name, "1")], "nil", class_name)
+
+    def test_indigo_and_elite_four_rooms_use_the_songs_asm_beds(self):
+        for map_name in INDIGO_ROOMS:
+            self.assertEqual(self.maps["pokered:" + map_name], self.songs[map_name], map_name)
+        # Lorelei, Bruno, and Agatha are absent from both encounter lists, so
+        # the meet jingle is the male bed. Lance is the same. A gym flag is
+        # silent for every class, including these four.
+        for class_name in ("OPP_LORELEI", "OPP_BRUNO", "OPP_AGATHA", "OPP_LANCE"):
+            self.assertEqual(self.jingles[(class_name, "0")], "meet_male", class_name)
+            self.assertEqual(self.jingles[(class_name, "1")], "nil", class_name)
+        beds = _battle_scores(("OPP_LORELEI", "OPP_BRUNO", "OPP_AGATHA", "OPP_LANCE"))
+        self.assertEqual(beds["OPP_LORELEI"], "trainer")
+        self.assertEqual(beds["OPP_BRUNO"], "trainer")
+        self.assertEqual(beds["OPP_AGATHA"], "trainer")
+        # audio/play_battle_music.asm plays the gym leader theme for Lance.
+        self.assertEqual(beds["OPP_LANCE"], "gym_leader")
+
+    def test_elite_four_party_cries_match_crydata(self):
+        parties = _parties(POKERED)
+        cries = _cry_rows(POKERED)
+        game = _game_cries()
+        self.assertEqual(set(parties), set(ELITE_FOUR))
+        seen = []
+        for label in ELITE_FOUR:
+            mons = parties[label]
+            self.assertGreaterEqual(len(mons), 5, label)
+            for species in mons:
+                key = species.lower()
+                self.assertIn(key, cries, species)
+                self.assertEqual(game[key], cries[key], f"{label} {species}")
+                seen.append(key)
+        # The four parties, including the repeated Onix, Gengar, and Dragonair.
+        self.assertEqual(len(seen), 20)

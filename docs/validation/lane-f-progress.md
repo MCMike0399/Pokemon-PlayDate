@@ -235,3 +235,48 @@ Simulator receipts are the music name `KantoAudio` requested on a real zone chan
 | Celadon, then Vermilion | `celadon`, `vermilion` | same |
 
 Rock Tunnel is `dungeon3` in the table, the same bed Mt. Moon played. The longer tours ran out of memory while inflating a later map. Those crashes are the scratch logger loading every score, not a wrong song. The finished Fuchsia tour is session `e1cfe803`.
+
+## Budget against main `61a70ffe`
+
+`MallocPoolSize` stayed `16645684`. Main is `61a70ffe972f75a812282a08129d209e3152b4fc`. The audio tree had not landed there, so this branch merges that tip. A rebase would rewrite the pushed commits.
+
+Clean `61a70ffe` passes field-travel 3/3. The first audio measurement failed the expired Surf inflate (`pd_readcompressed`, `fieldTravelContracts.lua:367`) at 2 passed / 1 failed. `KantoAudio.updateGame` was reloading the full map table every frame, and that string table stayed live through the Safari stay. The device now reads `Source/audio/eventMaps.bin`, keeps the one score name, and drops the table. The lua file remains the host table. The same contracts then match clean main.
+
+| Check | Clean `61a70ffe` | Audio tree |
+| --- | --- | --- |
+| `individual-stats-v1` | 17/17, heap 12934.3 KiB | 17/17, heap 12933.6 KiB |
+| Viridian `zone.end` | 13186.4 | 13250.6 |
+| Lavender `zone.end` | 13070.2 | 13070.3 |
+| Fuchsia `zone.end` | 13568.3 | 13467.7 |
+| Cerulean Cave 1F `zone.end` | 13216.0 | 13264.9 |
+| City switch and cave warp | both pass | both pass |
+| `field-travel` | 3/3, heap 12798.0 KiB | 3/3, heap 12810.4 KiB |
+
+## Indigo Plateau and Elite Four
+
+Same pokered pin, `af519899`. Champion, Hall of Fame, and credits playback are still out of this sweep. `POKERED_REFERENCE_DIR=/tmp/pokered python3 -m unittest tools.tests.test_audio_fidelity_sweep tools.tests.test_audio_events` ran 21 tests and passed. No row disagreed, so this sweep adds no patch.
+
+`data/maps/songs.asm` beds, also asserted by name:
+
+| Map | Bed |
+| --- | --- |
+| Indigo Plateau | `indigo` (`MUSIC_INDIGO_PLATEAU`) |
+| Indigo Plateau lobby | `indigo` |
+| Route 23, the outside approach | `indigo` |
+| Lorelei's room | `gym` |
+| Bruno's room | `dungeon1` |
+| Agatha's room | `tower` |
+| Lance's room | `indigo` |
+
+Lorelei, Bruno, Agatha, and Lance are in neither encounter list, so the meet jingle is `meet_male`. A non-zero gym flag is silent. `PlayBattleMusic` uses `MUSIC_TRAINER_BATTLE` for Lorelei, Bruno, and Agatha, and `MUSIC_GYM_LEADER_BATTLE` for Lance.
+
+`data/trainers/parties.asm` parties, each cry triple checked against `data/pokemon/cries.asm` and `KantoCrySpecies`:
+
+| Trainer | Party |
+| --- | --- |
+| Lorelei | Dewgong, Cloyster, Slowbro, Jynx, Lapras |
+| Bruno | Onix, Hitmonchan, Hitmonlee, Onix, Machamp |
+| Agatha | Gengar, Golbat, Haunter, Arbok, Gengar |
+| Lance | Gyarados, Dragonair, Dragonair, Aerodactyl, Dragonite |
+
+The repeated Onix, Gengar, and Dragonair are the same cry rows. Send-out still cries `scene.enemyShown.species` through that table.

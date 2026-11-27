@@ -464,10 +464,6 @@ function KantoAudio.updateGame(game)
         end
         return
     end
-    if KantoEvents.ensureMaps then
-        KantoEvents.ensureMaps()
-    end
-
     if observer.game ~= game or observer.session ~= game.session then
         KantoAudio.stop()
         observer.game = game

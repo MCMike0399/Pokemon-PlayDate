@@ -1,19 +1,77 @@
 -- Battle, map, jingle, and HP decisions. No Playdate and no gameplay state.
 -- KantoEvents is the generated table from audio/events.lua.
 
+local function mapU16(raw, index)
+    local lo, hi = string.byte(raw, index, index + 1)
+    return lo + hi * 256, index + 2
+end
+
+local function mapBlob(raw, index)
+    local size = string.byte(raw, index)
+    return raw:sub(index + 1, index + size), index + 1 + size
+end
+
+function KantoEvents.loadMapRecords(raw)
+    if type(raw) ~= "string" or #raw < 4 then
+        return false
+    end
+    local count, index = mapU16(raw, 1)
+    local maps = {}
+    for _ = 1, count do
+        local key, score
+        key, index = mapBlob(raw, index)
+        score, index = mapBlob(raw, index)
+        maps[key] = score
+    end
+    local aliases = {}
+    count, index = mapU16(raw, index)
+    for _ = 1, count do
+        local key, value
+        key, index = mapBlob(raw, index)
+        value, index = mapBlob(raw, index)
+        aliases[key] = value
+    end
+    if index ~= #raw + 1 then
+        return false
+    end
+    KantoEvents.maps = maps
+    KantoEvents.aliases = aliases
+    return true
+end
+
 function KantoEvents.ensureMaps()
     if type(KantoEvents.maps) == "table" then
         return
     end
+    local fileApi = playdate and playdate.file
+    local file = fileApi and fileApi.open and fileApi.open("audio/eventMaps.bin", fileApi.kFileRead)
+    if file then
+        local raw, count = file:read(65536)
+        file:close()
+        if type(raw) == "string" and count == #raw and KantoEvents.loadMapRecords(raw) then
+            return
+        end
+    end
+    -- Host probes that only stub file.run still load the lua table.
     playdate.file.run("audio/eventMaps")
 end
 
 function KantoEvents.mapScore(id)
     KantoEvents.ensureMaps()
-    if type(id) ~= "string" then
-        return nil
+    local score
+    if type(id) == "string" and type(KantoEvents.maps) == "table" then
+        local key = id
+        if type(KantoEvents.aliases) == "table" and KantoEvents.aliases[id] then
+            key = KantoEvents.aliases[id]
+        end
+        score = KantoEvents.maps[key]
     end
-    return KantoEvents.maps[KantoEvents.aliases[id] or id]
+    -- The lookup is one string. The full table is only needed for that read,
+    -- and the next city inflate needs the bytes back.
+    KantoEvents.maps = nil
+    KantoEvents.aliases = nil
+    collectgarbage("collect")
+    return score
 end
 
 function KantoEvents.fieldBed(mode, mapScore)
