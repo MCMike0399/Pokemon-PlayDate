@@ -7945,13 +7945,285 @@ def _after_soul(player, report):
                         "SafariZoneGate", _fuchsia_doors())
 
 
+def _has_move(player, species, move):
+    _slot, mon = _member(player, species)
+    return bool(mon) and move in (mon.get("moves") or [])
+
+
+def _gave_drink(player):
+    return bool(_quest(player).get("pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK"))
+
+
+def _south_exit(player, report, filename, pad, width, place, stand, avoid, direction, expect, key):
+    status = _route_leg(player, report, filename, pad, width, place, stand, avoid, key)
+    if status:
+        return status
+    return _leave_edge(player, report, place, direction, expect, key)
+
+
+def _teach_field_moves(player, report):
+    """Wartortle is the only party member who can learn Surf or Strength."""
+    if not _has_move(player, "wartortle", "surf"):
+        _teach(player, "hm03", "wartortle", "surf")
+        _checkpoint(player, report, "saved_taught_surf")
+        return "yield"
+    if not _has_move(player, "wartortle", "strength"):
+        _teach(player, "hm04", "wartortle", "strength")
+        _checkpoint(player, report, "saved_taught_strength")
+        return "yield"
+    return None
+
+
+def _route7_to_celadon(player, report):
+    _lead_tank(player)
+    kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (1, 3),
+                 set(ROUTE7_GATES) | {(5, 13)}, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("left")
+    player.settle(limit=80)
+    if "celadon" not in str(player.state.get("zone")):
+        player.step("left")
+        player.settle(limit=80)
+    if "celadon" not in str(player.state.get("zone")):
+        raise RuntimeError("Celadon did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_celadon")
+    return "yield"
+
+
+def _route7_to_gate(player, report):
+    _lead_tank(player)
+    kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (10, 9),
+                 set(ROUTE7_GATES) | {(5, 13)}, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("right")
+    player.settle(limit=80)
+    if "route_7_gate" not in str(player.state.get("zone")):
+        player.step("right")
+        player.settle(limit=80)
+    if "route_7_gate" not in str(player.state.get("zone")):
+        raise RuntimeError("the Route 7 gate stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route7_gate")
+    return "yield"
+
+
+def _buy_fresh_water(player, report):
+    if _holding(player, "freshWater") or _gave_drink(player):
+        return None
+    cells = set(open_map(EAST / "CeladonMartRoof.json", 0, 20))
+    kind = _walk(player, cells, map_surface(EAST / "CeladonMartRoof.json"), (10, 2),
+                 {(10, 4), (5, 5), (15, 2)}, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (10, 2):
+        raise RuntimeError("the vending machine is out of reach: " + json.dumps(summary(player.state)))
+    if player.state["player"].get("facing") != "up":
+        player.press("up", wait=4)
+    for _ in range(24):
+        if _holding(player, "freshWater"):
+            break
+        options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+        label = next((option for option in options if "FRESH" in option), None)
+        if label:
+            player.choose("event", label)
+            continue
+        player.press("a", wait=8)
+    _close_menus(player)
+    if not _holding(player, "freshWater"):
+        raise RuntimeError("the roof machine did not sell Fresh Water: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_fresh_water")
+    return "yield"
+
+
+def _give_guard_drink(player, report):
+    if _gave_drink(player):
+        return None
+    if not _holding(player, "freshWater"):
+        raise RuntimeError("the Saffron guard needs a drink: " + json.dumps(summary(player.state)))
+    before = _item_count(player, "freshWater")
+    cells = set(open_map(EAST / "Route7Gate.json", 3, 13))
+    avoid = {(6, 1), (6, 3), (6, 4), (3, 3), (3, 4), (8, 3), (8, 4)}
+    kind = _walk(player, cells, map_surface(EAST / "Route7Gate.json", 3), (5, 3), avoid,
+                 report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("right")
+    player.settle(limit=40)
+    for _ in range(30):
+        if _gave_drink(player) or _item_count(player, "freshWater") < before:
+            break
+        options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+        if "YES" in options:
+            player.choose("event", "YES")
+            continue
+        player.press("a", wait=8)
+    _close_menus(player)
+    if not _gave_drink(player) and _item_count(player, "freshWater") >= before:
+        raise RuntimeError("the guard did not take the drink: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron_drink")
+    return "yield"
+
+
+def _mart_stair(player, report, filename, goal, key):
+    data = json.loads((EAST / filename).read_text(encoding="utf-8"))
+    avoid = {(obj["x"], obj["y"]) for obj in data["events"]["objects"]}
+    avoid.update((warp["x"], warp["y"]) for warp in data["events"]["warps"])
+    avoid.discard(goal)
+    cells = set(open_map(EAST / filename, 0, 20))
+    return _onto_warp(player, cells, map_surface(EAST / filename), goal, avoid, report, key)
+
+
+def _after_strength(player, report, display=None, clips=None, output=None):
+    """Teach Surf and Strength, then buy a Celadon roof drink for the Route 7 guard.
+
+    The return is the walked south road in reverse: Fuchsia, Routes 15-12,
+    Lavender, the underground, and Celadon. Diglett's Cave is the wrong way.
+    """
+    del display, clips, output
+    taught = _teach_field_moves(player, report)
+    if taught:
+        return taught
+    place = _k_here(player)[0]
+    zone = str(player.state.get("zone"))
+    if place == "FuchsiaPokecenter":
+        return _fuchsia_center(player, report)
+    if place == "FuchsiaMart":
+        return _fuchsia_mart(player, report)
+    if place == "WardensHouse":
+        return _south_exit(player, report, "WardensHouse.json", 1, 13, "WardensHouse", (5, 6),
+                           {(3, 3), (9, 3), (9, 4), (5, 7), (6, 7)}, "down", "FuchsiaCity", "saved_fuchsia")
+    if place == "FuchsiaCity":
+        if _party_needs_heal(player):
+            return _south_exit(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (19, 28),
+                               _fuchsia_doors(), "up", "FuchsiaPokecenter", "saved_fuchsia_center")
+        return _south_exit(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (38, 16),
+                           set(_fuchsia_doors()) | {(39, 16), (39, 17)}, "right", "Route15", "saved_route15")
+    if place == "Route15":
+        _name, x, _y = _k_here(player)
+        doors = {(7, 8), (7, 9), (14, 8), (14, 9)}
+        if x < 10:
+            return _south_exit(player, report, "Route15.json", 0, 60, "Route15", (6, 8), doors,
+                               "right", "Route15Gate1F", "saved_route15_gate")
+        return _south_exit(player, report, "Route15.json", 0, 60, "Route15", (59, 8), doors,
+                           "right", "Route14", "saved_route14")
+    if place == "Route15Gate1F":
+        return _south_exit(player, report, "Route15Gate1F.json", 2, 13, "Route15Gate1F", (8, 4),
+                           {(6, 1), (9, 4), (9, 5), (2, 4), (2, 5), (8, 8)}, "right", "Route15",
+                           "saved_route15")
+    if place == "Route14":
+        return _south_exit(player, report, "Route14.json", 0, 20, "Route14", (19, 10), set(),
+                           "right", "Route13", "saved_route13")
+    if place == "Route13":
+        return _south_exit(player, report, "Route13.json", 0, 60, "Route13", (50, 0), set(),
+                           "up", "Route12", "saved_route12")
+    if place == "Route12":
+        _name, _x, y = _k_here(player)
+        if y > 22:
+            return _snorlax_to_gate(player, report)
+        return _route12_to_lavender(player, report)
+    if place == "Route12Gate1F":
+        return _gate_to_lavender(player, report)
+    if place == "LavenderTown":
+        status = _cross_lavender(player, report)
+        if status != "open":
+            return status
+        _checkpoint(player, report, "saved_route8")
+        return "yield"
+    if place == "Route8":
+        status = _cross_route8(player, report)
+        if status != "open":
+            return status
+        _checkpoint(player, report, "saved_underground")
+        return "yield"
+    if "underground" in zone:
+        status = _cross_underground(player, report)
+        if status != "open":
+            return status
+        _checkpoint(player, report, "saved_underground")
+        return "yield"
+    if place == "Route7":
+        if _holding(player, "freshWater") and not _gave_drink(player):
+            return _route7_to_gate(player, report)
+        return _route7_to_celadon(player, report)
+    if "route_7_gate" in zone:
+        given = _give_guard_drink(player, report)
+        if given:
+            return given
+        cells = set(open_map(EAST / "Route7Gate.json", 3, 13))
+        kind = _walk(player, cells, map_surface(EAST / "Route7Gate.json", 3), (7, 3),
+                     {(6, 1), (3, 3), (3, 4), (8, 3), (8, 4)}, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        player.step("right")
+        player.settle(limit=80)
+        if "saffron" not in str(player.state.get("zone")) and "route_7" not in str(player.state.get("zone")):
+            raise RuntimeError("the guard did not open the east door: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_saffron_gate")
+        return "yield"
+    if zone == "kanto_celadon_mart_roof":
+        bought = _buy_fresh_water(player, report)
+        if bought:
+            return bought
+        status = _mart_stair(player, report, "CeladonMartRoof.json", (15, 2), "mart_down")
+        if status == "open":
+            _checkpoint(player, report, "saved_mart_floor")
+            return "yield"
+        return status
+    stairs = {
+        "kanto_celadon_mart_5f": ("CeladonMart5F.json", (12, 1) if not _holding(player, "freshWater") else (16, 1)),
+        "kanto_celadon_mart_4f": ("CeladonMart4F.json", (16, 1) if not _holding(player, "freshWater") else (12, 1)),
+        "kanto_celadon_mart_3f": ("CeladonMart3F.json", (12, 1) if not _holding(player, "freshWater") else (16, 1)),
+        "kanto_celadon_mart_2f": ("CeladonMart2F.json", (16, 1) if not _holding(player, "freshWater") else (12, 1)),
+        "kanto_celadon_mart_1f": ("CeladonMart1F.json", (12, 1) if not _holding(player, "freshWater") else (3, 7)),
+    }
+    if zone in stairs:
+        filename, goal = stairs[zone]
+        status = _mart_stair(player, report, filename, goal, "mart_stair")
+        if status == "open":
+            _checkpoint(player, report, "saved_mart_floor")
+            return "yield"
+        return status
+    if place == "CeladonCity" or zone == "kanto_celadon_city":
+        doors = {(8, 13), (10, 13), (12, 27), (24, 9), (24, 3), (25, 3), (41, 9),
+                 (28, 19), (39, 19), (33, 19), (31, 27), (35, 27), (43, 27)}
+        if not _holding(player, "freshWater") and not _gave_drink(player):
+            kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (8, 14), doors,
+                         report=report, yield_after=2)
+            if kind in ("blackout", "yield"):
+                return kind
+            player.step("up")
+            player.settle(limit=40)
+            if "mart" not in str(player.state.get("zone")):
+                raise RuntimeError("the Dept. Store stayed shut: " + json.dumps(summary(player.state)))
+            _checkpoint(player, report, "saved_celadon_mart")
+            return "yield"
+        kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (48, 10),
+                     doors | {(49, 10), (49, 11)}, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        player.step("right")
+        player.settle(limit=80)
+        if "route_7" not in str(player.state.get("zone")):
+            player.step("right")
+            player.settle(limit=80)
+        if "route_7" not in str(player.state.get("zone")):
+            raise RuntimeError("Route 7 did not open: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_route7")
+        return "yield"
+    raise RuntimeError("after Strength: " + json.dumps(summary(player.state)))
+
+
 def _toward_celadon(player, report, display=None, clips=None, output=None):
     """After the badge: Diglett's Cave to Route 2, Cut (5, 10), then Pewter.
 
     A reload grows the tree back. The cave side reaches Pewter only after Cut
     from (5, 11). Cascade is already set, so Cerulean does not mean Misty.
+    HM04 turns the walk east instead: Surf, Strength, then the Saffron drink.
     """
     zone = str(player.state.get("zone"))
+    if _quest(player).get("BADGE_SOUL") and _holding(player, "hm04"):
+        return _after_strength(player, report, display, clips, output)
     if _quest(player).get("BADGE_SOUL") and not _holding(player, "hm04"):
         return _after_soul(player, report)
     if _holding(player, "silphScope") and not _quest(player).get("BADGE_SOUL"):
