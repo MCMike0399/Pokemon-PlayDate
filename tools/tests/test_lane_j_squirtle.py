@@ -942,6 +942,11 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertEqual(kind, "share")
         self.assertGreaterEqual(target[1], 25)
         self.assertIn(target, cells)
+        # The wall below row 25 splits the road. The left lane cannot reach the
+        # right-lane bikers, and it can still reach the left-lane one at y=68.
+        self.assertIsNone(_route17_south_step(cells, (5, 32), (15, 34)))
+        self.assertIsNotNone(_route17_south_step(cells, (5, 32), (3, 68)))
+        self.assertIsNotNone(_route17_south_step(cells, (10, 25), (15, 34)))
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -8976,6 +8981,32 @@ def _rounds_left(player, rounds):
     return any(not _beaten(player, tid) for tid, _stand, _kind, _sight in rounds)
 
 
+def _route17_south_step(cells, here, goal):
+    """First step of a south-only path. Route 17 never walks back up the hill."""
+    if here == goal or here[1] > goal[1]:
+        return None
+    came = {here: None}
+    queue = [here]
+    head = 0
+    found = None
+    while head < len(queue):
+        x, y = queue[head]
+        head += 1
+        if (x, y) == goal:
+            found = (x, y)
+            break
+        for nxt in ((x - 1, y), (x + 1, y), (x, y + 1)):
+            if nxt in cells and nxt not in came and nxt[1] >= y:
+                came[nxt] = (x, y)
+                queue.append(nxt)
+    if found is None:
+        return None
+    step = found
+    while came[step] != here:
+        step = came[step]
+    return step
+
+
 def _route17_target(beaten, cells, blocked, here):
     """The next sight at or below the rider. The road only coasts south."""
     hx, hy = here
@@ -8997,15 +9028,20 @@ def _route17_bike(player, report):
     path = SOUTH / "Route17.json"
     cells = set(open_map(path, 0, 20))
     blocked = _map_blocks(path, 0)
+    skipped = set()
     for _ in range(240):
         if player.state.get("root") == "battle":
             return _k_clear(player, report)
         if not player.exploring():
-            player.send("wait 4")
+            # An idle wait is another downhill step. Hold the brake instead.
+            if player.state.get("root") == "overworld":
+                player.send("hold b", "wait 12")
+            else:
+                player.send("wait 4")
             continue
         here = (player.state["player"]["x"], player.state["player"]["y"])
         beaten = {tid for tid, _stand, _kind, _sight in _ROUTE17_ROUNDS if _beaten(player, tid)}
-        picked = _route17_target(beaten, cells, blocked, here)
+        picked = _route17_target(beaten | skipped, cells, blocked, here)
         if picked is None:
             if here == (10, 143):
                 player.step("down")
@@ -9021,6 +9057,9 @@ def _route17_bike(player, report):
         if player.state.get("root") == "battle":
             return _k_clear(player, report)
         moved = _route17_coast(player, cells, target)
+        if moved == "unreachable":
+            skipped.add(tid)
+            continue
         if moved == "battle" or player.state.get("root") == "battle" or _beaten(player, tid):
             return _k_clear(player, report)
         if _beaten(player, tid):
@@ -9030,13 +9069,13 @@ def _route17_bike(player, report):
 
 
 def _route17_nudge(player, direction):
-    """One tile, with the button held for the whole step. An idle frame rolls south."""
+    """One tile. B stays down between batches so the gap cannot start another coast."""
     if direction == "down":
-        # A coast step is four frames. The button is not held, so this batch is the whole step.
-        player.send("wait 4")
+        # Release starts the four-frame coast. Hold again on the frame it ends.
+        player.send("release b", "wait 3", "hold b")
         return
-    # Left and right are an eight-frame walk. Every frame of the batch keeps the button down.
-    player.send(*([f"press {direction}"] * 8))
+    # Sideways is an eight-frame walk. B is held so a new downhill step does not begin.
+    player.send("hold b", *([f"press {direction}"] * 8))
 
 
 def _route17_coast(player, cells, target):
@@ -9072,6 +9111,9 @@ def _route17_coast(player, cells, target):
             continue
         if y > ty:
             return "passed"
+        nxt = _route17_south_step(cells, (x, y), (tx, ty))
+        if nxt is None:
+            return "unreachable"
         if (x, y) == last:
             stuck += 1
             if stuck > 12:
@@ -9079,18 +9121,15 @@ def _route17_coast(player, cells, target):
         else:
             stuck = 0
         last = (x, y)
-        step = -1 if tx < x else 1
-        if x != tx and (x + step, y) in cells and y <= ty:
-            _route17_nudge(player, "left" if step < 0 else "right")
-            continue
-        if (x, y + 1) in cells and y < ty:
+        dx, dy = nxt[0] - x, nxt[1] - y
+        if dy == 1:
             _route17_nudge(player, "down")
-            continue
-        if (x + step, y) not in cells:
-            step = -step
-        if (x + step, y) not in cells:
-            raise RuntimeError(f"no downhill lane toward {target} from {(x, y)}")
-        _route17_nudge(player, "left" if step < 0 else "right")
+        elif dx < 0:
+            _route17_nudge(player, "left")
+        elif dx > 0:
+            _route17_nudge(player, "right")
+        else:
+            return "unreachable"
     return "lost"
 
 
