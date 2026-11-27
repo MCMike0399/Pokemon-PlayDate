@@ -1392,7 +1392,8 @@ class Player:
                     # Weezing's Selfdestruct dealt 76. Attacking from 76 faints the Fly user.
                     ceiling = max(ceiling, 90)
                 elif active in ("wartortle", "blastoise", "squirtle"):
-                    ceiling = max(ceiling, 48)
+                    # Gyarados hits for about 60. Healing at 48 let that hit faint Blastoise.
+                    ceiling = max(ceiling, 72)
                 elif active == "dugtrio":
                     # Dig is two turns. Healing at 21 spends the second turn and the move never lands.
                     ceiling = min(ceiling, 15)
@@ -8565,33 +8566,16 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         _checkpoint(player, report, "saved_underground")
         return "yield"
     if place == "Route7":
-        if not _rival_trained(player):
-            if _party_needs_heal(player) or not _prep_done(player):
-                return _route7_to_celadon(player, report)
-            return _route7_grind(player, report)
-        if _gave_drink(player):
+        # The east strip is Saffron. The west side only reaches it through the gate.
+        if player.state["player"]["x"] >= 17:
             return _route7_to_saffron(player, report)
-        if _holding(player, "freshWater"):
-            return _route7_to_gate(player, report)
-        return _route7_to_celadon(player, report)
+        return _route7_to_gate(player, report)
     if "route_7_gate" in zone:
         if not _gave_drink(player):
             given = _give_guard_drink(player, report)
             if given:
                 return given
-        if not _rival_trained(player):
-            return _route7_gate(player, report, "west")
-        cells = set(open_map(EAST / "Route7Gate.json", 3, 13))
-        kind = _walk(player, cells, map_surface(EAST / "Route7Gate.json", 3), (7, 3),
-                     {(6, 1), (3, 3), (3, 4), (8, 3), (8, 4)}, report=report, yield_after=2)
-        if kind in ("blackout", "yield"):
-            return kind
-        player.step("right")
-        player.settle(limit=80)
-        if "saffron" not in str(player.state.get("zone")) and "route_7" not in str(player.state.get("zone")):
-            raise RuntimeError("the guard did not open the east door: " + json.dumps(summary(player.state)))
-        _checkpoint(player, report, "saved_saffron_gate")
-        return "yield"
+        return _route7_gate(player, report, "east")
     if zone == "kanto_celadon_pokecenter":
         return _celadon_center(player, report)
     if (zone == "kanto_celadon_mart_2f" and _ice_known(player) and _needs_revives(player)):
@@ -8673,12 +8657,18 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         return _saffron_center(player, report)
     if "saffron_mart" in zone:
         return _saffron_mart(player, report)
+    if "fighting_dojo" in zone:
+        return _dojo(player, report)
     if "saffron_city" in zone:
         if _silph_needs_nurse(player):
             return _saffron_to_center(player, report)
+        if not _dojo_done(player):
+            return _saffron_to_dojo(player, report)
         if not _rival_trained(player):
-            if _prep_done(player) and _needs_medicine(player):
-                return _saffron_to_mart(player, report)
+            if _next_silph_floor(player):
+                if _needs_medicine(player) and _money(player) >= 1500:
+                    return _saffron_to_mart(player, report)
+                return _saffron_to_silph(player, report)
             return _saffron_to_route7(player, report)
         if _needs_medicine(player):
             return _saffron_to_mart(player, report)
@@ -8842,8 +8832,8 @@ def _saffron_to_silph(player, report):
 
 
 def _silph_needs_nurse(player):
-    """Paralysis with no Full Heal. The 9F rocket blocks that nurse, so use the Center."""
-    return _party_needs_heal(player)
+    """A hurt fighter uses the Saffron Center. Dugtrio at 17 is not a faint."""
+    return _sweep_hurt(player)
 
 
 def _needs_medicine(player):
@@ -8860,11 +8850,308 @@ def _level_of(player, species):
     return (mon or {}).get("level") or 0
 
 
+def _share_species(player):
+    """The lower of Blastoise and Pidgeot takes the next ordinary trainer."""
+    if _level_of(player, "blastoise") <= _level_of(player, "pidgeot"):
+        return "blastoise"
+    return "pidgeot"
+
+
+def _sweep_hurt(player):
+    if _party_needs_heal(player):
+        return True
+    for species in ("blastoise", "pidgeot", "dugtrio"):
+        _slot, mon = _member(player, species)
+        if not mon:
+            continue
+        status = str(mon.get("status") or "none")
+        if (mon.get("hp") or 0) < 45 or status not in ("none", "healthy", ""):
+            return True
+    return False
+
+
 def _rival_trained(player):
-    """Blastoise and Pidgeot near 45, and Dugtrio near 40, before the Silph rival."""
-    return (_level_of(player, "blastoise") >= 45
-            and _level_of(player, "pidgeot") >= 45
-            and _level_of(player, "dugtrio") >= 40)
+    """Blastoise and Pidgeot about 44. Dugtrio is the Growlithe answer, not a gate."""
+    return _level_of(player, "blastoise") >= 44 and _level_of(player, "pidgeot") >= 44
+
+
+# floor, file, width, elevator x, (id, stand, kind, sight cells).
+# Dugtrio leads only Rock and Electric parties. Sight cells of the others stay avoided.
+_SILPH_ROUNDS = (
+    ("2f", "SilphCo2F.json", 30, 20, (
+        ("pokered:SILPH_CO_2F:objects:2", (5, 13), "share", ((5, 13), (5, 14), (5, 15))),
+        ("pokered:SILPH_CO_2F:objects:4", (16, 10), "share", ((16, 10), (16, 9), (16, 8))),
+        ("pokered:SILPH_CO_2F:objects:3", (23, 13), "dugtrio", ((23, 13), (22, 13), (21, 13), (20, 13))),
+        ("pokered:SILPH_CO_2F:objects:5", (24, 6), "share", ((24, 6), (24, 5), (24, 4))),
+    )),
+    ("3f", "SilphCo3F.json", 30, 20, (
+        ("pokered:SILPH_CO_3F:objects:3", (7, 10), "dugtrio", ((7, 10), (7, 11), (7, 12))),
+    )),
+    ("4f", "SilphCo4F.json", 30, 20, (
+        ("pokered:SILPH_CO_4F:objects:2", (10, 14), "share", ((10, 14), (11, 14), (12, 14), (13, 14))),
+        ("pokered:SILPH_CO_4F:objects:3", (13, 6), "dugtrio", ((13, 6), (12, 6), (11, 6))),
+        ("pokered:SILPH_CO_4F:objects:4", (26, 9), "share", ((26, 9), (26, 8), (26, 7), (26, 6))),
+    )),
+    ("5f", "SilphCo5F.json", 30, 20, (
+        ("pokered:SILPH_CO_5F:objects:4", (18, 9), "share", ((18, 9), (18, 8), (18, 7), (18, 6))),
+        ("pokered:SILPH_CO_5F:objects:5", (28, 3), "share", ((28, 3), (28, 2), (28, 1))),
+    )),
+    ("6f", "SilphCo6F.json", 26, 18, (
+        ("pokered:SILPH_CO_6F:objects:6", (18, 3), "share", ((18, 3), (19, 3))),
+        ("pokered:SILPH_CO_6F:objects:7", (7, 9), "dugtrio", ((7, 9), (7, 10), (7, 11))),
+        ("pokered:SILPH_CO_6F:objects:8", (13, 15), "share", ((13, 15), (12, 15))),
+    )),
+    ("8f", "SilphCo8F.json", 26, 18, (
+        ("pokered:SILPH_CO_8F:objects:2", (18, 2), "share", ((18, 2), (17, 2), (16, 2), (15, 2))),
+        ("pokered:SILPH_CO_8F:objects:3", (10, 3), "dugtrio", ((10, 3), (10, 4), (10, 5), (10, 6))),
+        ("pokered:SILPH_CO_8F:objects:4", (13, 15), "share", ((13, 15), (14, 15), (15, 15), (16, 15))),
+    )),
+    ("9f", "SilphCo9F.json", 26, 18, (
+        ("pokered:SILPH_CO_9F:objects:2", (2, 3), "share", ((2, 3), (2, 2), (2, 1), (2, 0))),
+        ("pokered:SILPH_CO_9F:objects:3", (21, 14), "dugtrio", ((21, 14), (21, 15))),
+        ("pokered:SILPH_CO_9F:objects:4", (13, 15), "share", ((13, 15), (13, 14), (13, 13), (13, 12))),
+    )),
+    ("10f", "SilphCo10F.json", 16, 12, (
+        ("pokered:SILPH_CO_10F:objects:1", (2, 9), "share", ((2, 9), (3, 9), (4, 9))),
+        ("pokered:SILPH_CO_10F:objects:2", (9, 2), "dugtrio", ((9, 2), (8, 2), (7, 2), (6, 2))),
+    )),
+    ("7f", "SilphCo7F.json", 26, 18, (
+        ("pokered:SILPH_CO_7F:objects:5", (13, 2), "share", ((13, 2), (13, 3))),
+        ("pokered:SILPH_CO_7F:objects:7", (19, 2), "share", ((19, 2), (18, 2), (17, 2))),
+        ("pokered:SILPH_CO_7F:objects:8", (20, 14), "share", ((20, 14), (21, 14), (22, 14), (23, 14))),
+        ("pokered:SILPH_CO_7F:objects:6", (2, 14), "dugtrio", ((2, 14), (2, 15), (2, 16))),
+    )),
+    ("11f", "SilphCo11F.json", 18, 13, (
+        ("pokered:SILPH_CO_11F:objects:5", (15, 8), "share", ((15, 8), (15, 7), (15, 6))),
+    )),
+)
+# Southern belts first, so the walk north does not cross a later sight line. No gift.
+_DOJO_ROUNDS = (
+    ("pokered:FIGHTING_DOJO:objects:5", (5, 7), "share", ((5, 7), (4, 7), (3, 7))),
+    ("pokered:FIGHTING_DOJO:objects:3", (5, 6), "share", ((5, 6), (6, 6), (7, 6), (8, 6))),
+    ("pokered:FIGHTING_DOJO:objects:4", (5, 5), "share", ((5, 5), (4, 5), (3, 5))),
+    ("pokered:FIGHTING_DOJO:objects:2", (5, 4), "share", ((5, 4), (6, 4), (7, 4), (8, 4))),
+    ("pokered:FIGHTING_DOJO:objects:1", (6, 4), "talk", ()),
+)
+
+
+def _silph_round(tag):
+    for row in _SILPH_ROUNDS:
+        if row[0] == tag:
+            return row
+    return None
+
+
+def _next_silph_floor(player):
+    for tag, _filename, _width, _elev, trainers in _SILPH_ROUNDS:
+        if any(not _beaten(player, tid) for tid, _stand, _kind, _sight in trainers):
+            return tag[:-1].upper() + "F"
+    return None
+
+
+def _dojo_done(player):
+    return all(_beaten(player, tid) for tid, _stand, _kind, _sight in _DOJO_ROUNDS)
+
+
+def _silph_tag(zone):
+    for tag, _filename, _width, _elev, _trainers in _SILPH_ROUNDS:
+        if zone.endswith("silph_co_" + tag):
+            return tag
+    if zone.endswith("silph_co_1f"):
+        return "1f"
+    return None
+
+
+def _map_blocks(path, pad):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    blocked = set()
+    for warp in data["events"]["warps"]:
+        blocked.add((warp["x"] + pad, warp["y"]))
+    for obj in data["events"]["objects"]:
+        blocked.add((obj["x"] + pad, obj["y"]))
+    return blocked
+
+
+def _ride_lift(player, report, filename, width, elev_x, extra=()):
+    """Stand under this floor's elevator and step up."""
+    path = Path("Source/data/midgameSaffron") / filename
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here[1] == 0:
+        player.step("down")
+        player.settle(limit=40)
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid = _map_blocks(path, 0) | set(extra)
+    avoid.discard(here)
+    cells = set(open_map(path, 0, width))
+    stand = (elev_x, 1)
+    avoid.discard(stand)
+    kind = _walk(player, cells, map_surface(path), stand, avoid, report=report, yield_after=1)
+    if kind in ("blackout", "yield", "no-route"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != stand:
+        return "no-route"
+    player.step("up")
+    player.settle(limit=80)
+    if "elevator" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "elevator" not in str(player.state.get("zone")):
+        raise RuntimeError("the Silph lift stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_lift")
+    return "yield"
+
+
+def _other_sights(trainers, tid, beaten):
+    blocked = set()
+    for other, _stand, _kind, sight in trainers:
+        if other != tid and not beaten(other):
+            blocked.update(sight)
+    return blocked
+
+
+def _engage(player, report, path, pad, width, tid, stand, kind, extra):
+    """Walk onto one sight cell. One trainer ends the session so the lead can rotate."""
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here[1] == 0:
+        player.step("down")
+        player.settle(limit=40)
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid = _map_blocks(path, pad)
+    avoid.update(extra)
+    avoid.discard(here)
+    avoid.discard(stand)
+    species = "dugtrio" if kind == "dugtrio" else _share_species(player)
+    _lead(player, species)
+    cells = set(open_map(path, pad, width))
+    if here == stand:
+        for dx, dy, direction in ((0, 1, "down"), (0, -1, "up"), (1, 0, "right"), (-1, 0, "left")):
+            nxt = (here[0] + dx, here[1] + dy)
+            if nxt in cells and nxt not in avoid:
+                player.step(direction)
+                player.settle(limit=20)
+                break
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        avoid.discard(here)
+    surface = map_surface(path, pad)
+    walked = _walk(player, cells, surface, stand, avoid, report=report, yield_after=1, shift=species)
+    if walked in ("blackout", "yield"):
+        return walked
+    if kind == "talk" and walked == "arrived" and not _beaten(player, tid):
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        for _ in range(16):
+            if player.state.get("root") == "battle":
+                break
+            player.press("a", wait=8)
+        if player.state.get("root") != "battle":
+            raise RuntimeError("the dojo master did not battle: " + json.dumps(summary(player.state)))
+        return _k_clear(player, report)
+    if walked == "arrived" and _beaten(player, tid):
+        _checkpoint(player, report, "saved_trainer")
+        return "yield"
+    if not _beaten(player, tid):
+        raise RuntimeError("trainer " + tid + " did not start: " + str(walked) + " " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_trainer")
+    return "yield"
+
+
+def _pick_trainer(player, path, pad, width, trainers, extra):
+    """The trainer whose sight can be entered without crossing another one."""
+    cells = set(open_map(path, pad, width))
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    if here[1] == 0:
+        here = (here[0], 1)
+    remaining = [row for row in trainers if not _beaten(player, row[0])]
+    for tid, stand, kind, _sight in remaining:
+        avoid = _map_blocks(path, pad) | set(extra) | _other_sights(
+            trainers, tid, lambda other: _beaten(player, other))
+        avoid.discard(here)
+        avoid.discard(stand)
+        if route(cells, here, stand, avoid):
+            return (tid, stand, kind)
+    if remaining:
+        tid, stand, kind, _sight = remaining[0]
+        return (tid, stand, kind)
+    return None
+
+
+def _silph_clear_floor(player, report, tag):
+    row = _silph_round(tag)
+    if row is None:
+        raise RuntimeError("no Silph round for " + tag)
+    _tag, filename, width, elev, trainers = row
+    path = Path("Source/data/midgameSaffron") / filename
+    extra = {(3, 2), (3, 3)} if tag == "7f" else set()
+    if _sweep_hurt(player):
+        sights = set()
+        for tid, _stand, _kind, sight in trainers:
+            if not _beaten(player, tid):
+                sights.update(sight)
+        kind = _ride_lift(player, report, filename, width, elev, sights | extra)
+        if kind != "no-route":
+            return kind
+    picked = _pick_trainer(player, path, 0, width, trainers, extra)
+    if picked:
+        tid, stand, kind = picked
+        extra.update(_other_sights(trainers, tid, lambda other: _beaten(player, other)))
+        return _engage(player, report, path, 0, width, tid, stand, kind, extra)
+    return _ride_lift(player, report, filename, width, elev)
+
+
+def _saffron_to_dojo(player, report):
+    path = Path("Source/data/midgameSaffron/SaffronCity.json")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    kind = _walk(player, set(open_map(path, 0, 40)), map_surface(path), (26, 4), avoid,
+                 report=report, yield_after=1, shift=_share_species(player))
+    if kind in ("blackout", "yield"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (26, 4):
+        raise RuntimeError("the Fighting Dojo is out of reach: " + str(kind) + " " + json.dumps(summary(player.state)))
+    player.step("up")
+    player.settle(limit=80)
+    if "fighting_dojo" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "fighting_dojo" not in str(player.state.get("zone")):
+        raise RuntimeError("the Fighting Dojo stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_dojo")
+    return "yield"
+
+
+def _dojo_exit(player, report):
+    path = Path("Source/data/midgameSaffron/FightingDojo.json")
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid = _map_blocks(path, 1)
+    avoid.discard(here)
+    cells = set(open_map(path, 1, 13))
+    kind = _walk(player, cells, map_surface(path, 1), (6, 10), avoid, report=report, yield_after=1)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("down")
+    player.settle(limit=80)
+    if "fighting_dojo" in str(player.state.get("zone")):
+        player.step("down")
+        player.settle(limit=80)
+    if "saffron" not in str(player.state.get("zone")):
+        raise RuntimeError("the Dojo door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron")
+    return "yield"
+
+
+def _dojo(player, report):
+    """Beat the blackbelts. Leave both Poké Balls. Lapras still needs the open slot."""
+    path = Path("Source/data/midgameSaffron/FightingDojo.json")
+    if _sweep_hurt(player) or _dojo_done(player):
+        return _dojo_exit(player, report)
+    picked = _pick_trainer(player, path, 1, 13, _DOJO_ROUNDS, set())
+    if picked:
+        tid, stand, kind = picked
+        extra = _other_sights(_DOJO_ROUNDS, tid, lambda other: _beaten(player, other))
+        return _engage(player, report, path, 1, 13, tid, stand, kind, extra)
+    return _dojo_exit(player, report)
 
 
 def _ice_known(player):
@@ -8888,8 +9175,10 @@ def _prep_done(player):
 
 
 def _silph_floor(player):
-    if (not _rival_trained(player) or _silph_needs_town(player)) and _holding(player, "cardKey"):
+    if _sweep_hurt(player) and _holding(player, "cardKey"):
         return "1F"
+    if not _rival_trained(player) and _holding(player, "cardKey"):
+        return _next_silph_floor(player) or "1F"
     if not _holding(player, "cardKey"):
         return "5F"
     if not _quest(player).get("EVENT_SILPH_CO_3_UNLOCKED_DOOR2"):
@@ -9244,6 +9533,9 @@ def _silph_progress(player, report):
     """1F elevator to 5F, then the Card Key behind the 9F warp."""
     zone = str(player.state.get("zone"))
     saffron = Path("Source/data/midgameSaffron")
+    tag = _silph_tag(zone)
+    if tag and tag != "1f" and "elevator" not in zone and not _rival_trained(player):
+        return _silph_clear_floor(player, report, tag)
     if zone.endswith("silph_co_5f") or zone.endswith("silph_co_9f"):
         return _silph_card(player, report)
     if "elevator" in zone:
@@ -9291,7 +9583,8 @@ def _silph_progress(player, report):
         return _silph_7f(player, report)
     if zone.endswith("silph_co_11f"):
         return _silph_11f(player, report)
-    if zone.endswith("silph_co_1f") and (not _rival_trained(player) or _silph_needs_town(player)):
+    if (zone.endswith("silph_co_1f") and not _rival_trained(player)
+            and (_sweep_hurt(player) or _next_silph_floor(player) is None)):
         _lead(player, "dugtrio")
         data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))
         avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
