@@ -5833,29 +5833,20 @@ def _k_clear(player, report):
 
 
 def _run_safari(player):
-    """Safari battles are not party fights. Run, and do not throw the Safari Balls."""
-    for _ in range(24):
+    """Safari battles are not party fights. Run, and do not throw the Safari Balls.
+
+    The compact snapshot has no safari menu. The page opens on BALL in a
+    two-column list, so down then right is RUN, and RUN always escapes.
+    Directions during the appearance text do nothing. A there only opens the list.
+    """
+    for _ in range(8):
         if player.state.get("root") != "safariBattle":
             return True
-        battle = ((player.state.get("safari") or {}).get("battle") or {})
-        menu = battle.get("menu") or {}
-        options = menu.get("options") or []
-        if menu.get("active") and "RUN" in options:
-            columns = menu.get("columns") or 2
-            selected = battle.get("selected") or 1
-            target = options.index("RUN") + 1
-            if selected == target:
-                player.press("a", wait=8)
-            else:
-                row, col = divmod(selected - 1, columns)
-                goal_row, goal_col = divmod(target - 1, columns)
-                if row != goal_row:
-                    player.press("down" if goal_row > row else "up", wait=2)
-                else:
-                    player.press("right" if goal_col > col else "left", wait=2)
-        else:
-            # The wild-appeared page has no menu yet. A opens BALL / BAIT / ROCK / RUN.
-            player.press("a", wait=6)
+        player.press("down", wait=2)
+        player.press("right", wait=2)
+        if player.state.get("root") != "safariBattle":
+            return True
+        player.press("a", wait=8)
     return player.state.get("root") != "safariBattle"
 
 
