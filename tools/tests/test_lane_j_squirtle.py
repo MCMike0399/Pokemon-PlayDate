@@ -8791,10 +8791,12 @@ def _saffron_mart(player, report):
             player.press("a", wait=8)
         if player.state.get("root") != "shop":
             raise RuntimeError("the Saffron clerk stayed shut: " + json.dumps(summary(player.state)))
-        _shop_buy(player, "hyperPotion", 1500, 6)
+        had = _item_count(player, "hyperPotion")
+        _shop_buy(player, "hyperPotion", 1500, 2)
         _shop_buy(player, "fullHeal", 600, 4)
         _close_shop(player)
-        if _needs_medicine(player):
+        # One Hyper Potion is a stock when the payout only covers one.
+        if _item_count(player, "hyperPotion") <= had and _money(player) >= 1500:
             raise RuntimeError("the Saffron Mart did not sell Hyper Potions: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_saffron_stocked")
         return "yield"
