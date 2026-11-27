@@ -3376,8 +3376,13 @@ class CharmanderRun(BrockJourney):
         scientist = next(event for event in self.models[cave].events["objects"]
                          if event["id"] == "postgame:CERULEAN_CAVE_1F:mew-gift")
         if not self._on("CeruleanCave1F") and not self._on("CeruleanCaveB1F"):
-            # The outdoor router stops at the city. The cave warp is the north
-            # step at (4, 11), and the guard on (4, 12) is already hidden.
+            # One search from the Center to Cerulean expands every nearer door
+            # and hits the node cap. Each hop is the next road.
+            hops = ("ViridianCity", "Route2", "PewterCity", "Route3", "Route4", "CeruleanCity")
+            here = next((index for index, name in enumerate(hops) if self._on(name)), None)
+            for name in hops[(here + 1) if here is not None else 0:]:
+                if not self._on(name):
+                    self.travel(self.zone(name))
             city = self.zone("CeruleanCity")
             self.travel(city, {(4, 13), (3, 12), (5, 12)})
             if not self._on("CeruleanCity"):
@@ -5358,6 +5363,7 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn("self._keep_door_restore(battle, options)", source)
         postgame = source.split("def _play_postgame", 1)[1].split("def _champion", 1)[0]
         self.assertIn('self.zone("CeruleanCity")', postgame)
+        self.assertIn('"Route4"', postgame)
         self.assertIn("press up", postgame)
         self.assertLess(source.index("def route_portal"), source.index("def _play_postgame"))
         self.assertIn("len(best) <= 16384", source.split("def route_portal", 1)[1].split("def _play_postgame", 1)[0])
