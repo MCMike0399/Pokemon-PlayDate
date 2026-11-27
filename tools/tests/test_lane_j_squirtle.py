@@ -8071,10 +8071,13 @@ def _give_guard_drink(player, report):
     before = _item_count(player, "freshWater")
     cells = set(open_map(EAST / "Route7Gate.json", 3, 13))
     avoid = {(6, 1), (6, 3), (6, 4), (3, 3), (3, 4), (8, 3), (8, 4)}
-    kind = _walk(player, cells, map_surface(EAST / "Route7Gate.json", 3), (5, 3), avoid,
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    kind = _walk(player, cells, map_surface(EAST / "Route7Gate.json", 3), (5, 4), avoid,
                  report=report, yield_after=2)
     if kind in ("blackout", "yield"):
         return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (5, 4):
+        raise RuntimeError("could not reach the guard: " + str(kind) + " " + json.dumps(summary(player.state)))
     player.step("right")
     player.settle(limit=40)
     for _ in range(30):
