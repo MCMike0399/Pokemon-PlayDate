@@ -55,15 +55,23 @@ def attach_record(commands, name, chunk, clip_left):
 
 
 def clip_frames(folder, name):
-    """Display frames in chunk order, ignoring lexicographic leftovers."""
+    """Display frames in capture order.
+
+    Chunk numbers are only the order inside one recording. A later recording
+    of the same name starts again at chunk 1 and leaves the previous
+    recording's higher chunks on disk. Those older files sort after the new
+    prefix when the key is the chunk number, so the win plays first and the
+    earlier turns follow it. The write time is the capture order: an
+    overwritten chunk is newer than the tail it did not replace.
+    """
     pattern = re.compile(rf'^{re.escape(name)}-(\d+)-(\d+)-display\.png$')
     found = []
     for path in Path(folder).glob(f'{name}-*-display.png'):
         match = pattern.match(path.name)
         if path.name.endswith('-display.png') and match:
-            found.append((int(match.group(1)), int(match.group(2)), path))
+            found.append((path.stat().st_mtime_ns, int(match.group(1)), int(match.group(2)), path))
     found.sort()
-    return [path for _, _, path in found]
+    return [path for _, _, _, path in found]
 
 
 def _chunk_groups(frames):

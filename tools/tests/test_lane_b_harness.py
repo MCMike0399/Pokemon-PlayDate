@@ -6,6 +6,7 @@ A 900-frame record around one step holds the harness request open and the
 picture freezes. Saved frames are ordered by chunk, then frame.
 """
 
+import os
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -49,21 +50,50 @@ class LaneBHarnessTest(unittest.TestCase):
     def test_clip_frames_follow_chunk_order_not_lexicographic_names(self):
         with TemporaryDirectory() as tmp:
             folder = Path(tmp)
-            for name in (
+            names = (
                 'victory-road-01-display.png',
                 'victory-road-100-display.png',
                 'victory-road-0002-01-display.png',
                 'victory-road-0001-02-display.png',
                 'victory-road-0001-10-display.png',
                 'victory-road-0001-01-display.png',
-            ):
+            )
+            for name in names:
                 (folder / name).write_bytes(b'x')
+            # One recording: capture time follows the chunk, not the write order above.
+            for stamp, name in enumerate((
+                'victory-road-0001-01-display.png',
+                'victory-road-0001-02-display.png',
+                'victory-road-0001-10-display.png',
+                'victory-road-0002-01-display.png',
+            ), start=1):
+                os.utime(folder / name, (stamp, stamp))
             got = [path.name for path in clip_frames(folder, 'victory-road')]
         self.assertEqual(got, [
             'victory-road-0001-01-display.png',
             'victory-road-0001-02-display.png',
             'victory-road-0001-10-display.png',
             'victory-road-0002-01-display.png',
+        ])
+
+    def test_a_recycled_chunk_plays_after_the_frames_it_did_not_replace(self):
+        """A second pass reuses chunk 0001. The leftover higher chunk is older."""
+        with TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            earlier = folder / 'elite-lorelei-0002-01-display.png'
+            later_win = folder / 'elite-lorelei-0001-01-display.png'
+            later_prize = folder / 'elite-lorelei-0001-02-display.png'
+            earlier.write_bytes(b'confuse-ray')
+            later_win.write_bytes(b'defeated')
+            later_prize.write_bytes(b'prize')
+            os.utime(earlier, (1000, 1000))
+            os.utime(later_win, (2000, 2000))
+            os.utime(later_prize, (2001, 2001))
+            got = [path.name for path in clip_frames(folder, 'elite-lorelei')]
+        self.assertEqual(got, [
+            'elite-lorelei-0002-01-display.png',
+            'elite-lorelei-0001-01-display.png',
+            'elite-lorelei-0001-02-display.png',
         ])
 
     def test_stale_battle_bytes_do_not_return_after_the_map(self):
