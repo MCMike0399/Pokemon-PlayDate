@@ -8371,10 +8371,82 @@ def _saffron_to_silph(player, report):
     return "yield"
 
 
-def _silph_progress(player, report):
-    """1F elevator to 5F. The Card Key is the next ball after that landing."""
+def _silph_card(player, report):
+    """The Card Key sits behind the 9F warp. Come back along the south corridor."""
+    if _holding(player, "cardKey"):
+        return None
     zone = str(player.state.get("zone"))
     saffron = Path("Source/data/midgameSaffron")
+    if zone.endswith("silph_co_9f"):
+        data = json.loads((saffron / "SilphCo9F.json").read_text(encoding="utf-8"))
+        avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        avoid.discard(here)
+        cells = set(open_map(saffron / "SilphCo9F.json", 0, 26))
+        kind = _walk(player, cells, map_surface(saffron / "SilphCo9F.json"), (17, 14), avoid,
+                     report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        player.step("down")
+        player.settle(limit=80)
+        if "9f" in str(player.state.get("zone")):
+            player.step("down")
+            player.settle(limit=80)
+        if "5f" not in str(player.state.get("zone")):
+            raise RuntimeError("the 9F warp did not return to 5F: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_silph_5f")
+        return "yield"
+    data = json.loads((saffron / "SilphCo5F.json").read_text(encoding="utf-8"))
+    warps = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    cells = set(open_map(saffron / "SilphCo5F.json", 0, 30))
+    if here[1] >= 15:
+        avoid = set(warps)
+        avoid.discard(here)
+        kind = _walk(player, cells, map_surface(saffron / "SilphCo5F.json"), (20, 16), avoid,
+                     report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if player.state["player"].get("facing") != "right":
+            player.press("right", wait=4)
+        for _ in range(16):
+            if _holding(player, "cardKey"):
+                break
+            if not player.exploring():
+                player.press("a", wait=8)
+                continue
+            player.press("a", wait=8)
+        if not _holding(player, "cardKey"):
+            raise RuntimeError("the Card Key stayed on the floor: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_card_key")
+        return "yield"
+    if here == (20, 0):
+        player.step("down")
+        player.settle(limit=40)
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid = set(warps)
+    avoid.discard(here)
+    kind = _walk(player, cells, map_surface(saffron / "SilphCo5F.json"), (9, 14), avoid,
+                 report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("down")
+    player.settle(limit=80)
+    if "5f" in str(player.state.get("zone")):
+        player.step("down")
+        player.settle(limit=80)
+    if "9f" not in str(player.state.get("zone")):
+        raise RuntimeError("the 5F pad did not open 9F: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_9f")
+    return "yield"
+
+
+def _silph_progress(player, report):
+    """1F elevator to 5F, then the Card Key behind the 9F warp."""
+    zone = str(player.state.get("zone"))
+    saffron = Path("Source/data/midgameSaffron")
+    if zone.endswith("silph_co_5f") or zone.endswith("silph_co_9f"):
+        return _silph_card(player, report)
     if "elevator" in zone:
         cells = set(open_map(saffron / "SilphCoElevator.json", 4, 13))
         avoid = {(5, 3), (6, 3)}
