@@ -2394,13 +2394,13 @@ class CharmanderRun(BrockJourney):
             ("right", 1, (12, 5)),
             ("up", 1, (12, 4)),
             ("right", 3, (15, 4)),
-            # The cooltrainer who watched (16, 5) now stands on (15, 5).
-            ("left", 1, (14, 4)),
-            ("down", 3, (14, 7)),
-            ("left", 1, (13, 7)),
-            ("down", 2, (13, 9)),
-            ("right", 1, (14, 9)),
-            ("down", 7, (14, 16)),
+            # He stands on (15, 5), and (14, 6) is a wall. The east aisle is open.
+            ("right", 1, (16, 4)),
+            ("down", 3, (16, 7)),
+            ("left", 3, (13, 7)),
+            ("down", 4, (13, 11)),
+            ("right", 1, (14, 11)),
+            ("down", 5, (14, 16)),
             ("right", 2, (16, 16)),
         ):
             self._gym_presses(direction, count, landing)
@@ -2490,6 +2490,8 @@ class CharmanderRun(BrockJourney):
             self._walk_viridian_gym()
         if not self.flag("BADGE_EARTH"):
             raise ProtocolError("Giovanni did not award the Earth Badge: " + self._map_name() + " " + str(self.position()))
+        # The exit walk can miss a trainer who moved. Keep the badge first.
+        self.save()
         if self._on("ViridianGym"):
             self._leave_viridian_gym()
         self.heal_here("ViridianPokecenter")
