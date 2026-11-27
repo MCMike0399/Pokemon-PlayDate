@@ -93,7 +93,7 @@ class TrainerMovesetTests(unittest.TestCase):
                 self.assertEqual(self.actual[key], expected, key)
         events = (ROOT / "Source/game/trainerEvents.lua").read_text(encoding="utf-8")
         self.assertIn(
-            "Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.starter)",
+            "Pokemon.trainerMovesFor(mon.species, mon.level, value.definition.class_source, index, intro and intro.rivalStarter)",
             events)
 
 
