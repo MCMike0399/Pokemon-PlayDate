@@ -933,6 +933,13 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn("libx264rgb", argv)
         self.assertIn("rgb24", argv)
 
+    def test_cerulean_south_exit_is_the_regrowing_tree(self):
+        cells = set(cerulean_cells())
+        feet, ledges = map_surface(ROOT / "Source/data/sourceSlice/CeruleanCity.json")
+        self.assertIsNone(ledge_route(cells, feet, ledges, (13, 26), (26, 35), CERULEAN_DOORS))
+        cells.add((19, 28))
+        self.assertIsNotNone(ledge_route(cells, feet, ledges, (13, 26), (26, 35), CERULEAN_DOORS))
+
     def test_pause_menu_can_release_the_trainer_card(self):
         # Opening the start menu draws the menu phase, which releases the
         # trainer card. The card itself loads on demand. Both have to exist
@@ -8720,12 +8727,42 @@ def _fan_club(player, report):
     return _accept_gift(player, report, "EVENT_GOT_BIKE_VOUCHER", "bike_voucher")
 
 
+def _cerulean_south(player, report):
+    """Leave toward Route 5. The southeast tree is the only walk south, and it regrows."""
+    path = ROOT / "Source/data/sourceSlice/CeruleanCity.json"
+    cells = set(cerulean_cells())
+    surface = map_surface(path)
+    avoid = set(CERULEAN_DOORS)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    opened = cells
+    if ledge_route(cells, surface[0], surface[1], here, (26, 35), avoid) is None:
+        status, opened = _cut_facing(
+            player, cells, surface, (19, 27), "down", (19, 28), avoid, report, "cerulean_tree")
+        if status in ("blackout", "yield"):
+            return status
+    kind = _walk(player, opened, surface, (26, 35), avoid, report=report, yield_after=1,
+                 shift=_share_species(player))
+    if kind in ("blackout", "yield"):
+        return kind
+    if _on_map(player, "route_5"):
+        _checkpoint(player, report, "saved_route5")
+        return "yield"
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (26, 35):
+        raise RuntimeError("route5 missed (26, 35): " + str(kind) + " "
+                           + json.dumps(summary(player.state)))
+    player.step("down")
+    player.settle(limit=80)
+    if not _on_map(player, "route_5"):
+        raise RuntimeError("route5 did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_route5")
+    return "yield"
+
+
 def _cerulean_bike(player, report):
-    if _bike_stage(player) != "shop":
+    if _bike_stage(player) == "shop":
         return _edge_leave(player, report, ROOT / "Source/data/sourceSlice/CeruleanCity.json",
-                           0, 40, (26, 35), "down", CERULEAN_DOORS, "route5", "route_5")
-    return _edge_leave(player, report, ROOT / "Source/data/sourceSlice/CeruleanCity.json",
-                       0, 40, (13, 26), "up", CERULEAN_DOORS, "bike_shop", "bike_shop")
+                           0, 40, (13, 26), "up", CERULEAN_DOORS, "bike_shop", "bike_shop")
+    return _cerulean_south(player, report)
 
 
 def _bike_shop(player, report):
