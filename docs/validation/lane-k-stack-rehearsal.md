@@ -203,3 +203,29 @@ The regenerated status card is a standalone `statusScreen` pdz. `PartyState` run
 Cave-encounters is 8/0 on the full stack. The `39ad4248` status card was the forest edge (7/1 at 13111.0 KiB, full stack 13137.8 KiB). Loading the status and trainer cards only while those screens are open brings the full stack, including F's seven, back under that edge at 13082.5 KiB. The four battle-rewards failures are the same inherited expectations (level-up EV identity, HUD `script-cancelled`, bench `script-cancelled`, stats-box `expected true, got false`). Individual-stats and field-travel stayed green.
 
 Batch 1 is still patches 1–25. Batch 2 is still status-fidelity, battle-slide-in, save-fidelity, trainer-fidelity, then F's seven at `9dc7883c`. With the regenerated cards, batch 2 no longer turns the forest case red.
+
+## Queue left on main 1ec2e285
+
+`git ls-remote origin refs/heads/main` is `1ec2e28515fba778de4229147c052978b6284961`. That commit is `d86dd999` plus `846a3840` (blackout pages), `4bc49bb1` (Center cable-club lines), and `4bee9267` (EXP.ALL bench award), each followed by a coverage snapshot. Batch 2 is already in as `2c0daa81`. Cable-club is already in as `4bc49bb1`. G's four `lane-e-reward-*` patches are dropped. `063aed84` already corrected those four expectations, and `contracts battle-rewards-v1` on `47ab3408` (that fix, before the link patch) was 27 passed, 0 failed, heap 12849.1 KiB.
+
+What is still outside main is `cursor/lane-g-link-cable` `c97499e9`: `lane-e-link-cable-celadon-4f` and `lane-e-mart-list-fidelity`. Checked with plain `git apply --check` (no `--3way`) on a fresh `1ec2e285`. `MallocPoolSize` stayed `16645684`.
+
+| Patch | `git apply --check` on 1ec2e285 | Own test |
+| --- | --- | --- |
+| lane-e-link-cable-celadon-4f | clean, applied | `test_link_cable` 3/3 |
+| lane-e-mart-list-fidelity | fails at `Source/game/gbFont.lua:46` | not applied |
+
+The mart hunk expects `function GbFont.drawChar` immediately after `tileImage`. Main already has the screen-font block there (`GbFont.FIT = 12` and `fitImage`). The patch would insert a second `GbFont.FIT = 10`. Checked alone, `martList.lua`, `shopState.lua`, and `docs/validation/fidelity-ledger.md` are clean. The patch needs to be regenerated against the FIT 12 block. It was not applied with `--3way`.
+
+### Device checks
+
+Clean `1ec2e285`, then the same tree plus the link-cable patch:
+
+| Suite | clean 1ec2e285 | plus link-cable |
+| --- | --- | --- |
+| cave-encounters | 8 / 0, 13090.7 KiB | 7 / 1, 13116.9 KiB |
+| individual-stats-v1 | not rerun | 17 / 0, 12981.1 KiB |
+| battle-rewards-v1 | not rerun | 27 / 0, 12862.8 KiB |
+| field-travel | 3 / 0, 12845.2 KiB | 2 / 1, 12837.9 KiB |
+
+The link patch's own tests pass, and battle-rewards stays 27/0. It is the change that puts cave-encounters back over the forest edge (`FOREST non-grass and outdoor non-grass reject; ordinary grass retains Blue rate`, `not enough memory`) and makes field-travel's expired Surf inflate fail (`pd_readcompressed inflate failed, out of memory`). Clean main is 8/0 and 3/0 on those two.
