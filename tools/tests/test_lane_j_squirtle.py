@@ -997,6 +997,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIsNotNone(route(lavender_cells(), (0, 8), (8, 17), set(LAVENDER_DOORS)))
         self.assertEqual(_decline_step("ask", 1, False), "down")
         self.assertEqual(_decline_step("ask", 2, False), "a")
+        decline = (ROOT / "tools/tests/test_lane_j_squirtle.py").read_text(encoding="utf-8")
+        decline = decline.split("def _decline_new_move", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("hold a", decline)
+        self.assertIn("wait 150", decline)
         self.assertEqual(_decline_step("stop", 1, False), "a")
         self.assertEqual(_decline_step("replace", 2, False), "b")
 
@@ -3824,14 +3828,26 @@ def _decline_step(phase, selected, dialog_ready):
 
 
 def _decline_new_move(player):
-    """NO on the learn question, then YES to abandon it. Whirlwind is 17 in B2W2."""
+    """NO on the learn question, then YES to abandon it. Whirlwind is 17 in B2W2.
+
+    The ask text is six pages. Each page ignores A until it has been up for 10
+    frames, and a held A turns the next page after 12 more. Down does nothing
+    until the last page. The menu confirms on a new A press, so the hold ends
+    before NO is chosen.
+    """
+    turned = False
     for _ in range(16):
         if player.state.get("root") != "learning":
             return
         learning = player.state.get("learning") or {}
+        phase = learning.get("phase")
+        if phase == "ask" and not turned:
+            player.send("hold a", "wait 150", "release a", "wait 4")
+            turned = True
+            continue
         menu = learning.get("menu") or {}
         selected = menu.get("selected") or learning.get("selected") or 1
-        step = _decline_step(learning.get("phase"), selected, bool(learning.get("dialog_ready")))
+        step = _decline_step(phase, selected, bool(learning.get("dialog_ready")))
         if step == "wait":
             player.send("wait 6")
         elif step == "a":
