@@ -1031,6 +1031,10 @@ class SquirtleRouteTests(unittest.TestCase):
         self.assertIn("_silph_needs_town(player)", floor_body)
         progress = floor_source.split("\ndef _silph_progress", 1)[1].split("\ndef ", 1)[0]
         self.assertIn("_silph_needs_town(player)", progress)
+        seventh = set(open_map(Path("Source/data/midgameSaffron/SilphCo7F.json"), 0, 26))
+        self.assertNotIn((5, 4), seventh)
+        self.assertIn((5, 2), seventh)
+        self.assertIsNotNone(route(seventh, (5, 7), (5, 2), {(5, 3)}))
 
     def test_route16_east_road_opens_after_snorlax(self):
         path = SOUTH / "Route16.json"
@@ -9693,7 +9697,7 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         if _quest(player).get("BADGE_MARSH"):
             return "yield"
         if _quest(player).get("EVENT_GOT_MASTER_BALL"):
-            if _silph_needs_nurse(player):
+            if _sabrina_needs_nurse(player):
                 return _saffron_to_center(player, report)
             if _needs_medicine(player):
                 return _saffron_to_mart(player, report)
@@ -9741,6 +9745,14 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         if moved:
             return moved
     raise RuntimeError("after Strength: " + json.dumps(summary(player.state)))
+
+
+def _sabrina_needs_nurse(player):
+    """57 HP is above the sweep line and still one Psychic from a faint."""
+    if _silph_needs_nurse(player):
+        return True
+    _slot, mon = _member(player, "blastoise")
+    return bool(mon and 0 < (mon.get("hp") or 0) < 90)
 
 
 def _sabrina_hop(here):
@@ -10753,7 +10765,7 @@ def _silph_11f(player, report):
 
 
 def _silph_7f_to_3f(player, report):
-    """(5, 3) is 3F. (5, 7) goes back to 11F, so the walk stays off it."""
+    """(5, 3) is 3F. (5, 4) and (5, 5) are walls, so the stand is (5, 2)."""
     saffron = Path("Source/data/midgameSaffron")
     data = json.loads((saffron / "SilphCo7F.json").read_text(encoding="utf-8"))
     avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
@@ -10761,14 +10773,17 @@ def _silph_7f_to_3f(player, report):
     avoid.discard(here)
     cells = set(open_map(saffron / "SilphCo7F.json", 0, 26))
     surface = map_surface(saffron / "SilphCo7F.json")
-    if here != (5, 4):
-        kind = _walk(player, cells, surface, (5, 4), avoid, report=report, yield_after=2)
+    if here != (5, 2):
+        kind = _walk(player, cells, surface, (5, 2), avoid, report=report, yield_after=2)
         if kind in ("blackout", "yield"):
             return kind
-    player.step("up")
+        if (player.state["player"]["x"], player.state["player"]["y"]) != (5, 2):
+            raise RuntimeError("could not reach the 3F pad: " + str(kind) + " "
+                               + json.dumps(summary(player.state)))
+    player.step("down")
     player.settle(limit=80)
     if "3f" not in str(player.state.get("zone")):
-        player.step("up")
+        player.step("down")
         player.settle(limit=80)
     if "3f" not in str(player.state.get("zone")):
         raise RuntimeError("the 7F pad did not open 3F: " + json.dumps(summary(player.state)))
