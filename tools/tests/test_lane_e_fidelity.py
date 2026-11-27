@@ -84,10 +84,13 @@ class FidelityGapTests(unittest.TestCase):
         self.assertIn("talk_only = (row.sight or 0) == 0", row)
 
     def test_trainer_card_and_payday_use_yen(self):
-        # start_sub_menus.asm TrainerInfo_NameMoneyTimeText.
-        card = (ROOT / "Source/game/pauseState.lua").read_text()
+        # engine/menus/start_sub_menus.asm TrainerInfo_NameMoneyTimeText
+        # is NAME/ then MONEY/ then TIME/. PrintBCDNumber at hlcoord 8, 4
+        # uses MONEY_SIGN, the charmap yen ($f0).
+        card = (ROOT / "Source/game/trainerScreen.lua").read_text()
         self.assertNotIn("MONEY/$", card)
-        self.assertIn('GbFont.drawMoneyLine("¥"', card)
+        self.assertIn('trainerFitString("MONEY/", 2, 4)', card)
+        self.assertIn('trainerFitString("¥" .. session:inventory():money(), 8, 4)', card)
         # data/text/text_2.asm _PickUpPayDayMoneyText, after a win.
         won = (ROOT / "Source/battle/battle.lua").read_text()
         won = won.split("if won then", 1)[1].split('return "victory"', 1)[0]

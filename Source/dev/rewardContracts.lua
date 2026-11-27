@@ -150,8 +150,11 @@ function RewardContracts.run()
  test("level-up recomputes from EV already allocated before next foe and typed learning",function()
     local iv,ev=zero(),zero();iv.spe=13;ev.spe=3;local p=Pokemon("squirtle",6,{natureId=0,abilitySlot="first",heldItem="none",ivs=iv,evs=ev});p.xp=p:xpForLevel(7)-1;local e1,e2=Pokemon("pidgey",5),Pokemon("geodude",5);own(e1,{"growl"});own(e2,{"defenseCurl"});local foes=Party();assert(foes:add(e1));assert(foes:add(e2))
     local b=fresh(p,e1,nil,foes);local beforeHP=p.maxHP-p.hp;e1.hp=0;b:runScript(function()local result=b:handleFaint("enemy");if result=="replacement"then return b:finishRound()end;return result end);settle(b)
-    eq(p.level,7);eq(p.evs.spe,4);eq(p.spe,12);eq(p.spe,p:calculatedStats().spe);eq(p.maxHP-p.hp,beforeHP);eq(b.enemy,e1);eq(b:getLearningSnapshot().pending,true)
-    local receipt,mon=b:takeLearningRequest();eq(mon,p);while #p:getPendingMoveChoices()>0 do assert(p:resolveMoveChoice(p:getPendingMoveChoices()[1].id,"learn"))end;assert(b:resumeLearning(receipt));settle(b);eq(b.enemy,e2);eq(b:getRewardSnapshot().awards,1);eq(p:hasMove("bubble"),true);b:clearVolatiles()
+    -- pokered data/pokemon/evos_moves.asm:2003 teaches Squirtle Bubble at
+    -- level 8, so a level-7 gain has no LearnMoveFromLevelUp prompt
+    -- (engine/battle/experience.asm:256) and .nextMon (line 266) sends Geodude.
+    eq(p.level,7);eq(p.evs.spe,4);eq(p.spe,12);eq(p.spe,p:calculatedStats().spe);eq(p.maxHP-p.hp,beforeHP);eq(b.enemy,e2);eq(b:getLearningSnapshot().pending,false)
+    eq(#p:getPendingMoveChoices(),0);eq(b:getRewardSnapshot().awards,1);eq(p:hasMove("bubble"),false);b:clearVolatiles()
  end)
  test("emitEnd flushes before same-owned evolution callback and cannot flush twice",function()
     local ev=zero();ev.hp=3;local p=Pokemon("eevee",100,{natureId=0,abilitySlot="first",heldItem="none",ivs=zero(),evs=ev});local g=readyGame(p);assert(g.session:inventory():add("waterStone",1));p.hp=p.maxHP-7
@@ -186,7 +189,9 @@ function RewardContracts.run()
  test("HUD holds before vitals through gained message then releases before grew message",function()
     local p=Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;p.hp=18;local b=fresh(p,Pokemon("rattata",5));b.enemy.hp=0
     b:runScript(function()return b:handleFaint("enemy")end)
-    local n=0;while not b.message:find(" gained ",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
+    -- pokered data/text/text_2.asm:1211 is text " gained" and line 1212 is the
+    -- line break. The page is "CHARMANDER gained\n" plus the EXP amount.
+    local n=0;while not b.message:find(" gained\n",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
     eq(p.level,7);eq(p.hp,20);eq(p.maxHP,22);local before=RulesRNG.snapshot()
     for _=1,64 do local level,hp,maximum=b:presentationVitals(p);eq(level,6);eq(hp,18);eq(maximum,20)end;same(RulesRNG.snapshot(),before)
     local scene=BattleScene(b);scene.playerShown=b.player;local bars={};local draw=scene.drawHPBar
@@ -211,13 +216,16 @@ function RewardContracts.run()
     local p,q=Pokemon("squirtle",6),Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;q.xp=q:xpForLevel(7)-1
     local e=Pokemon("bulbasaur",6);own(e,{"growl"});local party=Party();assert(party:add(p));assert(party:add(q));local b=Battle(p,e,"HUD ORDER",{party=party});settle(b);assert(b:chooseParty(2));settle(b);e.hp=0
     b:runScript(function()return b:handleFaint("enemy")end);local n=0
-    while not b.message:find("SQUIRTLE gained ",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
+    -- pokered data/text/text_2.asm:1211-1212. Squirtle Bubble is level 8
+    -- (evos_moves.asm:2003) and Charmander Ember is level 9 (evos_moves.asm:1990),
+    -- so neither level-7 gain yields LearnMoveFromLevelUp (experience.asm:256).
+    while not b.message:find("SQUIRTLE gained\n",1,true)do n=n+1;assert(n<20);assert(b.machine:get("script"):advance())end
     eq(p.level,7);eq(q.level,7);local level,hp,maximum=b:presentationVitals(q);eq(level,6);eq(hp,20);eq(maximum,20)
     assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),6)
     assert(b.machine:get("script"):advance());eq(b.levelStats.speed, p.spe);eq(select(1,b:presentationVitals(q)),6)
-    assert(b.machine:get("script"):advance());eq(b.levelStats, nil);eq(b:getLearningSnapshot().pending,true)
-    local request,mon=b:takeLearningRequest();eq(mon,p);while #p:getPendingMoveChoices()>0 do assert(p:resolveMoveChoice(p:getPendingMoveChoices()[1].id,"learn"))end;assert(b:resumeLearning(request))
-    assert(b.message:find("CHARMANDER gained ",1,true));eq(select(1,b:presentationVitals(q)),6);assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),7);eq(party:active(),q);b:clearVolatiles()
+    assert(b.machine:get("script"):advance());eq(b.levelStats, nil);eq(b:getLearningSnapshot().pending,false)
+    eq(#p:getPendingMoveChoices(),0);eq(#q:getPendingMoveChoices(),0)
+    assert(b.message:find("CHARMANDER gained\n",1,true));eq(select(1,b:presentationVitals(q)),6);assert(b.machine:get("script"):advance());eq(select(1,b:presentationVitals(q)),7);eq(party:active(),q);b:clearVolatiles()
  end)
  test("closed or stale presentation receipt never leaks old vitals or consumes rules RNG",function()
     local p=Pokemon("charmander",6);p.xp=p:xpForLevel(7)-1;local b=fresh(p,Pokemon("rattata",5));local r=award(b);eq(select(1,b:presentationVitals(p)),6)
@@ -272,7 +280,11 @@ function RewardContracts.run()
     assert(label>40, "level-up stats text")
     assert(b.machine:get("script"):advance())
     eq(b.levelStats, nil)
-    eq(b:getLearningSnapshot().pending, true)
+    -- pokered data/pokemon/evos_moves.asm:1990 teaches Charmander Ember at
+    -- level 9, so the level-7 stats box is not followed by a learning prompt
+    -- (engine/battle/experience.asm:256).
+    eq(b:getLearningSnapshot().pending, false)
+    eq(#p:getPendingMoveChoices(),0)
     scene:exit();b:clearVolatiles()
  end)
  test("closed or aborted reward owner flushes durable EV without opening new grants",function()
