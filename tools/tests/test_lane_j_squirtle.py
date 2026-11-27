@@ -8054,10 +8054,20 @@ def _route7_to_celadon(player, report):
             raise RuntimeError("the Route 7 gate did not open: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_route7_gate")
         return "yield"
+    avoid = set(ROUTE7_GATES) | {(5, 13)}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    # (11, 10) is the west door. Standing on it makes the walk a no-route.
+    if here in ROUTE7_GATES:
+        player.step("left")
+        player.settle(limit=40)
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
     kind = _walk(player, route7_cells(), map_surface(EAST / "Route7.json"), (1, 3),
-                 set(ROUTE7_GATES) | {(5, 13)}, report=report, yield_after=2)
+                 avoid, report=report, yield_after=2)
     if kind in ("blackout", "yield"):
         return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != (1, 3):
+        raise RuntimeError("Route 7 did not reach Celadon: " + str(kind) + " " + json.dumps(summary(player.state)))
     player.step("left")
     player.settle(limit=80)
     if "celadon" not in str(player.state.get("zone")):
