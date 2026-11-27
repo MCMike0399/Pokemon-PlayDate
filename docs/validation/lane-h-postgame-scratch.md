@@ -324,3 +324,28 @@ The cave door is city (4, 11). Its land is the 13 cells (0, 12), (0, 13), (1, 12
 | Viridian Center (11, 3), after A | 13211.5 | receptionist blocked |
 | Cerulean (8, 18) | 14102.9 | streets |
 | Cerulean (8, 12), facing left | 14095.9 | step left did not move |
+
+## Surf to the cave, the Cerulean heap, and which scientist
+
+`origin/main` is `247d60a9`. The six handoffs were applied only in the simulator. `Source/` in the tree is `origin/main`. `MallocPoolSize` stayed `16645684`. No inflate line and no out-of-memory line. The save was only the Hall fixture. Buttons did the Continue, every step, and the party SURF command. Encounters were off. Trainer sight stayed on.
+
+Surf does not board from the street, and that matches the pin, so there is no handoff. The Hall Blastoise already knows SURF. It is the first party action, ahead of STATS, SWITCH, ITEM, and CANCEL. No HM was used. The player stood at Cerulean (8, 12), faced left, and pressed A on SURF. The party stayed on its actions menu and said "That move can't be used here." Root stayed `party`. The clips are `artifacts/surf-shore.mp4` and `artifacts/surf-use.mp4`.
+
+`GetTileAndCoordsInFrontOfPlayer` (`engine/overworld/player_state.asm` 283, af519899) reads the cell one step left. That cell is (7, 12). It is overworld block 25's right quadrant, foot `$3A`. `IsNextTileShoreOrWater` (`engine/items/item_effects.asm` 2829–2845) accepts `$48`, `$32`, and `$14`, and rejects anything else. `$3A` is not one of those, and it is not in `Overworld_Coll`. `FieldTravel.surfSurface` uses the same three feet. The only land cells in the city that face `$14`, `$32`, or `$48` are the cave pocket and the east bank at (39, 6). The east bank's water does not connect to the pond in front of the door. The street component does not touch a surf tile. The pocket is the water the user already called correct, so nothing here opens `$3A` or a land tile. The door was not entered. No save was written inside, and Continue-inside was not reached.
+
+There is no pokered cave scientist at af519899. `data/maps/objects/CeruleanCave1F.asm` lines 22–25 are `def_object_events` and three `SPRITE_POKE_BALL` objects: Full Restore (7, 13) line 23, Max Elixer (19, 3) line 24, Nugget (5, 0) line 25. Line 27 is `def_warps_to CERULEAN_CAVE_1F`. `scripts/CeruleanCave1F.asm` line 1 is `CeruleanCave1F_Script:`, line 2 is `jp EnableAutoTextBoxDrawing`, and lines 4–8 are three `PickUpItemText` pointers. The script status on the ported map is unimplemented. The giver in this port is not that file. It is `postgame:CERULEAN_CAVE_1F:mew-gift` at (23, 16), `SPRITE_SCIENTIST`, `STAY`, `RIGHT`, text `_PostgameGiftIntroText`, `source_line` null. The talk id `pokered:CERULEAN_CAVE_1F:script:mew-gift` is not a label in that asm. The NPC standing on the city door is `CERULEANCITY_SUPER_NERD3`, `data/maps/objects/CeruleanCity.asm` line 47, `object_event 4, 12, SPRITE_SUPER_NERD, STAY, DOWN`. That is the guard the Hall flag hides, not the gift giver.
+
+The 14095.9 KiB reading is the live map after Mt. Moon, not a Cerulean allocation and not a number that comes back down on the same boot. On the next walk the same shore, facing up, was 14066.2 KiB. Route 4 before Mt. Moon was 13854.0. Mt. Moon 1F was 14287.0. Route 4 after leaving the cave was 14023.4. Cerulean at the west connection was 14272.4, and (8, 12) settled at 14066.2. The Viridian Center counter on the way out, the same boot, was 13157.8 KiB at (11, 3). Leaving the city into the Cerulean Center, the same kind of interior, landed at 14105.3 on the mat and settled at 13801.3 at (7, 4). That is 643 KiB above the Viridian Center and only 265 KiB below the shore. The clip of that interior is `artifacts/leave-city.mp4`. The one-way Route 4 ledges block a walk back to the Viridian Center, so the return sample is this Center rather than the same room.
+
+A fresh Viridian Center fixture, before any of those maps, is 12800.1 KiB. `switchzone` through Mt. Moon 1F, Route 4, and Cerulean, then back to that Center, settles at 13156.9 KiB. The interior is 356.8 KiB higher after the three maps. `switchZone` already drops the departing view, the retained runtime, and the imported cache. What stays is the append-only `TileRegistry`: each visit keeps its shade grids, and `TileFactory.generateAll` draws every registered id into the next imagetable. Nilling the shade grids of maps that are no longer on screen does drop the next definition (Cerulean actors 13762.5 KiB, the following Center definition 12921.2 KiB) and then faults on the way back into the Center, in `OverworldState:enter`, after `field_prepare`. The reported fault is `game/overworldState.lua:88` with `game.player` nil. The error underneath, before the state machine rethrows it, is `world/tileRegistry.lua` `conflicting duplicate tile key: pokered:POKECENTER:cell:01-0b-11-1b` once the grid has been cleared and the Center is built again. That release is not a handoff. No lane-e patch is in this commit.
+
+| point | heap KiB | where |
+| --- | ---: | --- |
+| Viridian Center (11, 3), before Cerulean | 13157.8 | same boot, way out |
+| Route 4 (9, 17), before Mt. Moon | 13854.0 | lower road |
+| Mt. Moon 1F (14, 35) | 14287.0 | first cave room |
+| Route 4 (24, 6), after Mt. Moon | 14023.4 | upper strip |
+| Cerulean (8, 12), facing up | 14066.2 | shore, SURF refused |
+| Cerulean Center (7, 4) | 13801.3 | after leaving the city |
+| fresh Viridian Center fixture | 12800.1 | before the three maps |
+| same Center after Moon, Route 4, Cerulean | 13156.9 | 356.8 KiB retained |
