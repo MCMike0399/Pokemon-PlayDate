@@ -74,11 +74,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-The Saffron Center cleared Blastoise's paralysis. The committed pause is sequence 472, Silph Co. 7F (5, 3) facing down, in the rival's room. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. `origin/main` `61a70ffe` is merged and this save continued. The rival wiped the party once. That blackout returned to the Center and did not replace this save. Two Super Potions were not enough, so the next step buys Hyper Potions at the Saffron Mart before the rematch, then Lapras and Giovanni. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
+Hyper Potions are in the bag. The committed pause is sequence 483, Silph Co. 7F (5, 3) facing down, in the rival's room. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `61a70ffe` is merged and this save continued. The rival wiped the party twice. Both blackouts returned to the Center and left this save in place. The second fight never counted the six Hyper Potions. The rematch uses them, then Lapras and Giovanni. Koga's clip is `artifacts/lane-j/20261127T020500Z-koga.mp4`. Sabrina and Blaine are not yet filmed. Pidgeot stays for Fly. One party slot stays open for Lapras.
 
 Badges: Boulder, Cascade, Thunder, Rainbow, and Soul.
 
-Team: Blastoise 37 (110 HP, Surf, Strength, Water Gun, Bite), Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Dugtrio 30 (66 HP), Venonat 22 (64 HP). Route 16 stays the other Snorlax.
+Team: Dugtrio 30 (66 HP) leads, Bellsprout 15 (40 HP), Pidgeot 38 (111 HP), Blastoise 37 (110 HP, Surf, Strength, Water Gun, Bite), Venonat 22 (64 HP). Six Hyper Potions and four Full Heals. Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 

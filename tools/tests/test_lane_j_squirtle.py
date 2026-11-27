@@ -1244,7 +1244,8 @@ class Player:
                 player_hp = mon.get("hp") or 0
                 max_hp = mon.get("maxHP") or 0
                 quantities = (self.state.get("inventory") or {}).get("quantities") or {}
-                potions = int(quantities.get("potion") or 0) + int(quantities.get("superPotion") or 0)
+                potions = (int(quantities.get("potion") or 0) + int(quantities.get("superPotion") or 0)
+                           + int(quantities.get("hyperPotion") or 0))
                 if potions > 0 and 0 < player_hp < max_hp and player_hp <= max(28, max_hp - 12):
                     if self.use_potion():
                         continue
@@ -1376,7 +1377,8 @@ class Player:
                 player_hp = (battle.get("player") or {}).get("hp") or 0
                 max_hp = (battle.get("player") or {}).get("maxHP") or 0
                 quantities = (self.state.get("inventory") or {}).get("quantities") or {}
-                potions = int(quantities.get("potion") or 0) + int(quantities.get("superPotion") or 0)
+                potions = (int(quantities.get("potion") or 0) + int(quantities.get("superPotion") or 0)
+                           + int(quantities.get("hyperPotion") or 0))
                 # A Potion is applied before the foe moves. Starmie's Swift crit
                 # is 31, so healing at 32 or below finishes at 45 or more.
                 # Staryu's hits are about 9, so those turns stay on Bite.
@@ -1491,7 +1493,7 @@ class Player:
                     continue
                 slots = ((self.state.get("inventory") or {}).get("slots") or [])
                 index = next((i for i, slot in enumerate(slots, start=1)
-                              if slot.get("id") in ids), None)
+                              if slot.get("id") in ids and (slot.get("quantity") or 0) > 0), None)
                 if index is None:
                     self.press("b", wait=4)
                     return False
