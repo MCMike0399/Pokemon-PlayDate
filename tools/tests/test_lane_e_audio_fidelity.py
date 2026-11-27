@@ -11,9 +11,17 @@ ROOT = Path(__file__).resolve().parents[2]
 class LaneEAudioFidelityTests(unittest.TestCase):
     def test_center_heal_repeats_the_machine_once_per_party_member(self):
         text = (ROOT / 'Source/game/kantoAudio.lua').read_text()
+        body = (ROOT / 'Source/audio/healSchedule.lua').read_text()
         self.assertIn('local count = healing.healCount', text)
-        self.assertIn('names[#names + 1] = "healing_machine"', text)
-        self.assertIn('names[#names + 1] = "heal"', text)
+        self.assertIn('KantoHeal.plan(count)', text)
+        plan = body.split('function KantoHeal.plan', 1)[1].split('return events', 1)[0]
+        loop_at = plan.find('for _ = 1, count do')
+        machine_at = plan.find('name = "healing_machine"')
+        heal_at = plan.find('name = "heal"')
+        self.assertGreaterEqual(loop_at, 0)
+        self.assertGreater(machine_at, loop_at)
+        self.assertGreater(heal_at, machine_at)
+        self.assertIn('ballFrames = 15', body)
 
     def test_source_audio_steps_play_the_script_cry(self):
         text = (ROOT / 'Source/game/eventState.lua').read_text()

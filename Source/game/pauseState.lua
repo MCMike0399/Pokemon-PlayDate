@@ -95,7 +95,6 @@ end
 -- and drop when it closes, so a boot that never opens it does not keep them.
 function PauseState:drawTrainer()
     if not TrainerScreen then
-        import "game/gbFont"
         if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
             playdate.file.run("game/trainerScreen")
         else
