@@ -3424,6 +3424,170 @@ class CharmanderRun(BrockJourney):
             self._surf_follow([(6, 12), (6, 13)], attempts=40)
             self._surf_off("left")
 
+    _TRADE_SPECIES = {"kadabra", "machoke", "graveler", "haunter"}
+    _CABLE_EVOLVED = {"kadabra": "alakazam", "machoke": "machamp", "graveler": "golem", "haunter": "gengar"}
+
+    def _link_cable(self):
+        """Take the scientist's cable and evolve a trade species with it."""
+        if any(mon["species"] in self._CABLE_EVOLVED.values() for mon in self.party()):
+            self.summary["link_cable"] = "evolved"
+            return
+        if self.quantity("linkCable") < 1:
+            self._collect_link_cable()
+            self.save()
+        if not any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
+            self._catch_trade_species()
+        species = next(mon["species"] for mon in self.party() if mon["species"] in self._TRADE_SPECIES)
+        self._evolve_with_cable(species)
+        self.save()
+        self.summary["link_cable"] = "evolved"
+
+    def _collect_link_cable(self):
+        cave = self.zone("CeruleanCave1F")
+        if not self._on("CeruleanCave1F") or self.position() != (24, 16):
+            self._cave_maze({(cave, 24, 16)})
+        self.face("left")
+        # The same menu offered MEW. This visit takes the cable.
+        self.event_choices["pokered:CERULEAN_CAVE_1F:script:mew-gift"] = "LINK CABLE"
+        scientist = "postgame:CERULEAN_CAVE_1F:mew-gift"
+        self.interact(source_id=scientist)
+        if self.quantity("linkCable") < 1:
+            raise ProtocolError("scientist did not give a LINK CABLE")
+        self.summary["link_cable"] = "received"
+
+    def _pocket_to_streets(self):
+        """Leave the cave pocket on the west channel, then enter the streets.
+
+        Route 24 columns 10 and 11 are land. The south connection adds 10,
+        so they arrive on Cerulean (20, 0) and (21, 0).
+        """
+        if self._on("CeruleanCave1F") or self._on("CeruleanCave2F") or self._on("CeruleanCaveB1F"):
+            self._cave_maze({(self.zone("CeruleanCave1F"), 24, 16)})
+            self._step("down")
+        if not self._on("CeruleanCity") and not self._on("Route24"):
+            raise ProtocolError("cave exit stayed in " + self._map_name() + " " + str(self.position()))
+        if self._on("CeruleanCity"):
+            self.navigate((5, 13))
+            self.face("right")
+            index = next(i for i, mon in enumerate(self.party(), 1) if "surf" in mon["moves"])
+            self.use_field(index, "surf")
+            if self.position() == (5, 13):
+                self._surf_press("right", 1)
+            self._surf_follow([(x, 0) for x in range(14, 19)])
+            if self._on("CeruleanCity"):
+                self._surf_off("up")
+        if not self._on("Route24"):
+            raise ProtocolError("pocket surf did not reach Route 24: " + self._map_name())
+        if self.model().collision[self.position()[1]][self.position()[0]] != 0:
+            self._surf_follow([(4, 32)])
+            self._surf_off("up")
+        self.navigate((10, 35))
+        self.cross("down", self.zone("CeruleanCity"), (20, 0))
+
+    def _deposit_for_cable(self):
+        if len(self.party()) < 6:
+            return
+        index = next((i for i, mon in enumerate(self.party(), 1)
+                      if mon["species"] == "pidgeot"), None)
+        if index is None:
+            raise ProtocolError("no Pidgeot to store for a trade catch")
+        if not self.state["zone_id"].endswith("POKECENTER"):
+            self._pocket_to_streets()
+            self.heal_here("CeruleanPokecenter")
+        self.navigate((13, 4))
+        self.face("up")
+        before = [mon["species"] for mon in self.party()]
+        self.send("wait 1", "press a", "wait 2")
+        self.require(root="pc", **{"pc.phase": "top"})
+        self.select("pc.menu.selected", 1)
+        self.send("press a")
+        self.require(**{"pc.phase": "storage"})
+        self.select("pc.menu.selected", 2)
+        self.send("press a")
+        self.require(**{"pc.phase": "list", "pc.operation": "deposit"})
+        self.select("pc.selected", index)
+        self.send("press a")
+        self.require(**{"pc.phase": "actions"})
+        self.select("pc.menu.selected", 1)
+        self.send("press a")
+        self.require(**{"pc.phase": "result", "pc.result.ok": True})
+        after = [mon["species"] for mon in self.party()]
+        if after != before[:index - 1] + before[index:]:
+            raise ProtocolError("PC deposit stored the wrong party member")
+        self.send("press b", "press b", "press b", "press b")
+        self.require(root="overworld")
+        self.summary.setdefault("party_changes", []).append({"kind": "deposit-for-link-cable", "species": "pidgeot"})
+
+    def _return_to_cave_grass(self):
+        if not self._on("CeruleanCave1F"):
+            if not self._on("Route24"):
+                if not self._on("CeruleanCity"):
+                    self.travel(self.zone("CeruleanCity"))
+                self.navigate((20, 0))
+                self.cross("up", self.zone("Route24"), (10, 35))
+            self.navigate((4, 31))
+            self._surf_down_route24()
+            if self._on("CeruleanCity"):
+                self.navigate((4, 12))
+                self.send("press up", "wait 20")
+                self.drain()
+        if not self._on("CeruleanCave1F"):
+            raise ProtocolError("cave grass stayed at " + self._map_name() + " " + str(self.position()))
+        self._cave_maze({(self.zone("CeruleanCave1F"), 4, 6)})
+
+    def _catch_trade_species(self):
+        self._deposit_for_cable()
+        clerk = self.zone("CeruleanMart") + ":objects:1"
+        price = self.export["shops"][clerk]["prices"]["pokeBall"]
+        want = 20
+        count = min(want - self.quantity("pokeBall"), self.inventory()["money"] // price)
+        if count > 0:
+            self.travel(self.zone("CeruleanMart"))
+            self.buy_item(clerk, "pokeBall", count, price)
+        self._return_to_cave_grass()
+        self._catch_trade = True
+        try:
+            for _ in range(80):
+                if any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
+                    return
+                if self.quantity("pokeBall") < 1:
+                    break
+                # The basement ladder is to the left of this grass. Pace the other way.
+                moved = self._step("up") or self._step("down") or self._step("right")
+                if not moved and not self._on("CeruleanCave1F"):
+                    break
+        finally:
+            self._catch_trade = False
+        if not any(mon["species"] in self._TRADE_SPECIES for mon in self.party()):
+            raise ProtocolError("cave grass did not yield a trade species")
+
+    def _evolve_with_cable(self, species):
+        index = next(i for i, mon in enumerate(self.party(), 1) if mon["species"] == species)
+        before = self.quantity("linkCable")
+        self.send("press b")
+        self.await_value("root", "pause", frames=180)
+        options = sequence(lookup(self.state, "pause.menu.options"), "pause options")
+        if options.count("ITEM") != 1:
+            raise ProtocolError("pause menu has no ITEM: " + str(options))
+        self.select("pause.menu.selected", options.index("ITEM") + 1)
+        self.send("press a")
+        self.require(root="bag")
+        slot = next(i for i, row in enumerate(sequence(self.inventory()["slots"], "inventory.slots"), 1)
+                    if row["id"] == "linkCable")
+        self.select("bag.selected", slot)
+        self.send("press a", "press a")
+        self.require(root="party")
+        self.select("party_ui.selected", index)
+        self._record_screen("link-cable", 40)
+        self.send("press a")
+        self.require(root="evolution")
+        self.evolution()
+        evolved = self._CABLE_EVOLVED[species]
+        if not any(mon["species"] == evolved for mon in self.party()):
+            raise ProtocolError("LINK CABLE did not evolve " + species)
+        if self.quantity("linkCable") != before - 1:
+            raise ProtocolError("LINK CABLE was not consumed")
+
     def _play_postgame(self):
         """Heal, cross to Cerulean Cave, and face Mewtwo. The Mew giver has no script."""
         self._bind_kanto_route()
@@ -3492,6 +3656,7 @@ class CharmanderRun(BrockJourney):
             raise ProtocolError("Mewtwo did not finish: " + str(self.position()))
         self._record_screen("mewtwo-result", 20)
         self.save()
+        self._link_cable()
         self.summary.update(acceptance="Mewtwo faced", natural=True, forbidden_shortcuts=False)
 
     def drain(self, stop_phase=None):
@@ -4968,7 +5133,8 @@ class CharmanderRun(BrockJourney):
         if self.quantity("pokeBall") <= 0:
             return False
         if len(self.summary["captures"]) >= self.config.get("max_capture_attempts", 24):
-            return False
+            if not getattr(self, "_catch_trade", False):
+                return False
         before = self.quantity("pokeBall")
         count = len(self.party())
         positions = [i for i, value in enumerate(options, 1)
@@ -5155,6 +5321,9 @@ class CharmanderRun(BrockJourney):
             self._mewtwo_ball = True
             if self._throw_master_ball(battle, options):
                 return True
+        if (getattr(self, "_catch_trade", False) and enemy in self._TRADE_SPECIES
+                and self.quantity("pokeBall") > 0 and len(self.party()) < 6):
+            return self._throw_ball(battle, options)
         player = battle.get("player") or {}
         status = player.get("status")
         if (player.get("hp") or 0) > 0 and status not in {None, "none"}:
@@ -5243,6 +5412,9 @@ class CharmanderRun(BrockJourney):
     def flee(self):
         """A Scope ghost or a flute Snorlax is a real battle. Other wilds run."""
         enemy = lookup(self.state, "battle.enemy")
+        if (getattr(self, "_catch_trade", False) and isinstance(enemy, dict)
+                and enemy.get("species") in self._TRADE_SPECIES):
+            return self.battle(enemy["species"])
         if isinstance(enemy, dict) and enemy.get("species") == "mewtwo":
             return self.battle("mewtwo")
         expected = getattr(self, "scripted_wild", None)
@@ -5487,6 +5659,9 @@ class CharmanderTitleTests(unittest.TestCase):
         self.assertIn('event_choices["pokered:CERULEAN_CAVE_1F:script:mew-gift"] = "MEW"', postgame)
         self.assertIn("self._surf_down_route24()", postgame)
         self.assertIn("self._cave_maze(", postgame)
+        self.assertIn("self._link_cable()", postgame)
+        cable = source.split("def _collect_link_cable", 1)[1].split("def _pocket_to_streets", 1)[0]
+        self.assertIn('"LINK CABLE"', cable)
         caught = source.split("def battle(self, name", 1)[1].split("def capture_presentation", 1)[0]
         self.assertIn('"was caught"', caught)
         self.assertIn("battle exited without observed terminal phase", caught)
