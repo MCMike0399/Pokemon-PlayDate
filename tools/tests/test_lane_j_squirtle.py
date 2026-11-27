@@ -9058,7 +9058,10 @@ def _route17_bike(player, report):
                     _checkpoint(player, report, "saved_route18")
                     return "yield"
                 raise RuntimeError("route 18 did not open: " + json.dumps(summary(player.state)))
-            return _route17_coast(player, cells, (10, 143))
+            moved = _route17_coast(player, cells, (10, 143))
+            if _on_map(player, "route_18"):
+                return _route18_bike(player, report)
+            return moved
         tid, kind, target = picked
         species = "dugtrio" if kind == "dugtrio" else _share_species(player)
         _lead(player, species)
