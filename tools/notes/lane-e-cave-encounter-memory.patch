@@ -1,0 +1,98 @@
+diff --git a/Source/dev/caveEncounterContracts.lua b/Source/dev/caveEncounterContracts.lua
+index e7db8210..d801b802 100644
+--- a/Source/dev/caveEncounterContracts.lua
++++ b/Source/dev/caveEncounterContracts.lua
+@@ -154,8 +154,10 @@ function CaveEncounterContracts.run()
+ 
+     test("terrain-only imported cave cannot activate an unbound encounter table", function()
+         local game <const> = context()
+-        local zone <const> = Zone.fromMapDefinition(SourceMaps.padded("MtMoon1F"), TileRegistry(),
+-            { terrainFixture = true })
++        -- The raw padded slice plus a per-cell terrain copy has no contiguous
++        -- hole once the other cave maps have been built. The packed runtime
++        -- path keeps the fixture unbound without that second inflate.
++        local zone <const> = PewterWorld.isolated("MtMoon1F", { terrainFixture = true })
+         local x, y = land(zone)
+         rejected(game, zone, x, y, "unbound-encounter-policy")
+     end)
+@@ -202,12 +204,18 @@ function CaveEncounterContracts.run()
+     test("FOREST non-grass and outdoor non-grass reject; ordinary grass retains Blue rate", function()
+         local game <const> = context()
+         for _, name in ipairs({ "ViridianForest", "Route3" }) do
++            -- Viridian Forest's source record does not decode beside the live
++            -- zone. Keep the Blue rate, drop the copy, then build the map.
++            local definition = SourceMaps.definition(name)
++            local rate <const> = definition.encounters.grass.rate_byte
++            definition = nil
++            collectgarbage("collect")
+             local zone <const> = PewterWorld.isolated(name)
+             local x, y = land(zone)
+             rejected(game, zone, x, y, "ineligible-terrain")
+             x, y = cell(zone, function(terrain, collision) return terrain.grass and collision == 0 end)
+             local policy <const> = assert(zone:encounterPolicyAt(x, y))
+-            equal(policy.rate.value, SourceMaps.definition(name).encounters.grass.rate_byte)
++            equal(policy.rate.value, rate)
+             assert(prepare(game, zone, x, y))
+         end
+         local authored <const> = Zone({ name = "authored grass witness", tileRows = { "TG Fo" } })
+diff --git a/Source/game/pewterWorld.lua b/Source/game/pewterWorld.lua
+index 1b7c3700..f989cf07 100644
+--- a/Source/game/pewterWorld.lua
++++ b/Source/game/pewterWorld.lua
+@@ -37,8 +37,8 @@ function PewterWorld.install(game)
+     installed[game] = provider
+     return provider
+ end
+-function PewterWorld.isolated(name)
+-    return SourceMaps.isolated(name)
++function PewterWorld.isolated(name, overrides)
++    return SourceMaps.isolated(name, overrides)
+ end
+ local dirs={up={0,-1},down={0,1},left={-1,0},right={1,0}}
+ local function target(game,key,x,y,direction)
+diff --git a/Source/world/sourceMapProvider.lua b/Source/world/sourceMapProvider.lua
+index e313404d..67139ded 100644
+--- a/Source/world/sourceMapProvider.lua
++++ b/Source/world/sourceMapProvider.lua
+@@ -58,7 +58,13 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
+     if BootTrace then
+         BootTrace.mark("map." .. name .. ".art.end")
+     end
+-    options.sliceBindings = SourceBindings.specs(name, definition, options.hasEvent)
++    -- A terrain fixture has no slice plan, so encounter policy stays unbound.
++    -- Binding the plan here would mark the zone slice-ready and activate grass.
++    if options.terrainFixture then
++        options.sliceBindings = nil
++    else
++        options.sliceBindings = SourceBindings.specs(name, definition, options.hasEvent)
++    end
+     options.bindingAdapter = SourceBindings
+     -- Terrain is immutable per tile key. Public accessors still return copies;
+     -- cells keep private shared records instead of duplicating every flag.
+@@ -81,13 +87,24 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
+     return zone
+ end
+ 
+-function SourceMaps.isolated(name)
++function SourceMaps.isolated(name, overrides)
+     local function forbidden() error("catalog source events cannot execute") end
+     -- Catalog exporters may inspect visibility later; retain the historical
+     -- all-false flag projection without reading live story/session predicates.
+     local function absent() return false end
+     local profiles = SourceMaps.legacyProfiles({ dispatch = forbidden, questFlag = absent, sourceFlag = absent })
+-    return SourceMaps.createZone(name, profiles[SourceMaps.entry(name).profile], TileRegistry(), { isolatedCatalog = true })
++    -- A terrain fixture must use this packed runtime path. SourceMaps.padded
++    -- inflates the raw slice (+650 KiB for Mt. Moon) and fromMapDefinition
++    -- then deep-copies every cell, which has no contiguous hole left.
++    local options = { isolatedCatalog = true }
++    if type(overrides) == "table" then
++        for key, value in pairs(overrides) do
++            if key ~= "isolatedCatalog" and key ~= "registry" then
++                options[key] = value
++            end
++        end
++    end
++    return SourceMaps.createZone(name, profiles[SourceMaps.entry(name).profile], TileRegistry(), options)
+ end
+ 
+ function SourceMaps.createProvider(profiles, registry)

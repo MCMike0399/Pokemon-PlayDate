@@ -309,7 +309,7 @@ KantoEvents = {
   },
   cues = {
     ["arrow_tiles"] = {score="arrow_tiles", kind="sfx", source="scripts/ViridianGym.asm:46", token="SFX_ARROW_TILES"},
-    ["badge"] = {score="key_item", kind="jingle", source="home/text.asm:551", token="SFX_GET_KEY_ITEM"},
+    ["badge"] = {score="item", kind="jingle", source="home/text.asm:546", token="SFX_GET_ITEM_1"},
     ["bicycle"] = {score="bicycle", kind="music", source="home/audio.asm:27", token="MUSIC_BIKE_RIDING"},
     ["boulder"] = {score="boulder", kind="sfx", source="engine/overworld/push_boulder.asm:67", token="SFX_PUSH_BOULDER"},
     ["caught"] = {score="caught", kind="jingle", source="home/text.asm:547", token="SFX_CAUGHT_MON"},

@@ -1,0 +1,29 @@
+diff --git a/Source/audio/events.lua b/Source/audio/events.lua
+index effed549..7c2cf1c4 100644
+--- a/Source/audio/events.lua
++++ b/Source/audio/events.lua
+@@ -309,7 +309,7 @@ KantoEvents = {
+   },
+   cues = {
+     ["arrow_tiles"] = {score="arrow_tiles", kind="sfx", source="scripts/ViridianGym.asm:46", token="SFX_ARROW_TILES"},
+-    ["badge"] = {score="key_item", kind="jingle", source="home/text.asm:551", token="SFX_GET_KEY_ITEM"},
++    ["badge"] = {score="item", kind="jingle", source="home/text.asm:546", token="SFX_GET_ITEM_1"},
+     ["bicycle"] = {score="bicycle", kind="music", source="home/audio.asm:27", token="MUSIC_BIKE_RIDING"},
+     ["boulder"] = {score="boulder", kind="sfx", source="engine/overworld/push_boulder.asm:67", token="SFX_PUSH_BOULDER"},
+     ["caught"] = {score="caught", kind="jingle", source="home/text.asm:547", token="SFX_CAUGHT_MON"},
+diff --git a/tools/audio/events.py b/tools/audio/events.py
+index 7f563e82..cc59adfd 100644
+--- a/tools/audio/events.py
++++ b/tools/audio/events.py
+@@ -49,8 +49,9 @@ CUES = (
+     ('item', 'item', 'jingle', 'home/text.asm', 'SFX_GET_ITEM_1'),
+     ('item2', 'item2', 'jingle', 'home/text.asm', 'SFX_GET_ITEM_2'),
+     ('key_item', 'key_item', 'jingle', 'home/text.asm', 'SFX_GET_KEY_ITEM'),
+-    # Badge scripts name this opcode. The audio2 bank alias is not reproduced.
+-    ('badge', 'key_item', 'jingle', 'home/text.asm', 'SFX_GET_KEY_ITEM'),
++    # sound_level_up is DEF'd as sound_get_item_1. Pewter and Viridian
++    # badges use that opcode, so the fanfare is SFX_GET_ITEM_1.
++    ('badge', 'item', 'jingle', 'home/text.asm', 'SFX_GET_ITEM_1'),
+     ('level_up', 'level_up', 'jingle', 'engine/pokemon/learn_move.asm', 'SFX_LEVEL_UP'),
+     ('caught', 'caught', 'jingle', 'home/text.asm', 'SFX_CAUGHT_MON'),
+     ('heal', 'heal', 'jingle', 'engine/overworld/healing_machine.asm', 'MUSIC_PKMN_HEALED'),

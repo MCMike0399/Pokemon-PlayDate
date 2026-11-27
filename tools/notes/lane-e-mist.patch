@@ -1,0 +1,117 @@
+diff --git a/Source/battle/conditions.lua b/Source/battle/conditions.lua
+index 2b83a699..eff8dac2 100644
+--- a/Source/battle/conditions.lua
++++ b/Source/battle/conditions.lua
+@@ -449,13 +482,14 @@ function BattleConditions:roost()
+     return true
+ end
+ local sideDurations <const> = {
+-    reflect=5, lightScreen=5, safeguard=5, tailwind=4,
++    reflect=5, lightScreen=5, safeguard=5, tailwind=4, mist=5,
+ }
+ local sideSuborders <const> = {
+-    reflect=1, lightScreen=2, safeguard=3, tailwind=5,
++    reflect=1, lightScreen=2, safeguard=3, mist=4, tailwind=5,
+ }
+ local sideNames <const> = {
+     reflect="Reflect", lightScreen="Light Screen", safeguard="Safeguard", tailwind="Tailwind",
++    mist="Mist",
+ }
+ function BattleConditions:activeSide(mon)
+     if mon==self.battle.player then return "player" end
+@@ -469,6 +503,7 @@ function BattleConditions:setSideCondition(kind)
+     state[kind]={turns=sideDurations[kind]}
+     local team=side=="player" and "your team" or "the opposing team"
+     if kind=="tailwind" then b:say("A tailwind blew behind "..team.."!")
++    elseif kind=="mist" then b:say(b.attacker.name .. "'s shrouded in mist!")
+     else b:say(sideNames[kind].." protected "..team.."!") end
+     return true
+ end
+@@ -854,7 +962,7 @@ function BattleConditions:events()
+         end
+     end
+     for _,side in ipairs({"player","enemy"}) do
+-        for _,kind in ipairs({"reflect","lightScreen","safeguard","tailwind"}) do
++        for _,kind in ipairs({"reflect","lightScreen","safeguard","mist","tailwind"}) do
+             local state=self.sides[side][kind]
+             if state then events[#events+1]={kind="sideTimer",side=side,condition=kind,record=state,order=26,suborder=sideSuborders[kind]} end
+         end
+diff --git a/Source/battle/dsl.lua b/Source/battle/dsl.lua
+index 73e0d054..2bc8d91a 100644
+--- a/Source/battle/dsl.lua
++++ b/Source/battle/dsl.lua
+@@ -269,6 +269,10 @@ function ModifyStat:apply(battle, secondary)
+             if prevention == "Clear Body" and secondary then
+                 return
+             end
++            if prevention == "Mist" then
++                battle:say(pokemon.name .. " is protected by Mist!")
++                return
++            end
+             local loss = prevention == "Keen Eye" and "accuracy loss!" or "stat loss!"
+             battle:say(pokemon.name .. "'s " .. prevention .. " prevents " .. loss)
+             return
+@@ -606,7 +616,7 @@ end
+ Class("SideConditionEffect")
+ function SideConditionEffect:init(kind)
+     assert(kind == "reflect" or kind == "lightScreen" or kind == "safeguard"
+-        or kind == "tailwind", "unsupported-side-condition")
++        or kind == "tailwind" or kind == "mist", "unsupported-side-condition")
+     self.kind=kind
+ end
+ function SideConditionEffect:apply(battle) return battle.conditions:setSideCondition(self.kind) end
+diff --git a/Source/battle/effects.lua b/Source/battle/effects.lua
+index 57d4012f..dd479002 100644
+--- a/Source/battle/effects.lua
++++ b/Source/battle/effects.lua
+@@ -511,6 +513,11 @@ function BattleEffects:canDropStat(source, target, stat, delta)
+     if source == target or delta >= 0 then
+         return true
+     end
++    -- pokered MoveHitTest blocks stat-down effects while PROTECTED_BY_MIST.
++    -- Gen V Mist lasts 5 turns (sideDurations) rather than until switch.
++    if self.battle.conditions:sideTurns(target, "mist") > 0 then
++        return false, "Mist"
++    end
+     if self:livingAbility(target, 29) then
+         return false, "Clear Body"
+     end
+diff --git a/Source/battle/moveSupport.lua b/Source/battle/moveSupport.lua
+index bd10b883..6a033240 100644
+--- a/Source/battle/moveSupport.lua
++++ b/Source/battle/moveSupport.lua
+@@ -52,7 +52,7 @@ MoveSupport.handlers.disable = "battle-condition"
+ MoveSupport.handlers.acid = "standard-damage"
+ MoveSupport.handlers.ember = "standard-damage"
+ MoveSupport.handlers.flamethrower = "standard-damage"
+-MoveSupport.gaps.mist = "sideCondition"
++MoveSupport.handlers.mist = "dsl"
+ MoveSupport.handlers.waterGun = "standard-damage"
+ MoveSupport.handlers.hydroPump = "standard-damage"
+ MoveSupport.handlers.iceBeam = "standard-damage"
+diff --git a/Source/battle/moves.lua b/Source/battle/moves.lua
+index e37af4f4..2dfa4f9b 100644
+--- a/Source/battle/moves.lua
++++ b/Source/battle/moves.lua
+@@ -246,7 +246,7 @@ moveData = {
+         return Move{ name = "FLAMETHROWER", type = "fire", category = "special", power = 95, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+     end,
+     mist = function()
+-        return Move{ name = "MIST", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
++        return Move{ name = "MIST", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("mist") } }
+     end,
+     waterGun = function()
+         return Move{ name = "WATER GUN", type = "water", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+diff --git a/tools/references/move-support.json b/tools/references/move-support.json
+index 9efb566a..9bdbc2d3 100644
+--- a/tools/references/move-support.json
++++ b/tools/references/move-support.json
+@@ -166,7 +166,7 @@
+       "handler": "standard-damage"
+     },
+     "mist": {
+-      "gap": "sideCondition"
++      "handler": "dsl"
+     },
+     "waterGun": {
+       "handler": "standard-damage"
