@@ -5763,7 +5763,8 @@ def _k_clear(player, report):
         return None
     before = player.state.get("last_battle_outcome")
     # Wartortle takes the hit. A Super Potion is used before Pidgeot would be sent out.
-    player.fight(limit=2500, potion_at=70, shift_to="wartortle")
+    # Heal once a Super Potion restores most of its 60 HP. Healing at 70 wasted the dose.
+    player.fight(limit=2500, potion_at=36, shift_to="wartortle")
     player.dismiss_until_explore(limit=80)
     if _lost(before, player.state.get("last_battle_outcome") or {}):
         _note_blackout(report)
@@ -7076,7 +7077,7 @@ def _enter_fuchsia_mart(player, report):
 
 def _fuchsia_mart(player, report):
     """Fuchsia sells Super Potions. Basic Potions are not on this clerk's list."""
-    if _item_count(player, "superPotion") >= 8:
+    if _item_count(player, "superPotion") >= 12:
         status = _route_leg(player, report, "FuchsiaMart.json", 2, 13, "FuchsiaMart", (5, 6),
                             {(2, 5), (6, 2), (8, 5), (5, 7), (6, 7)}, "saved_fuchsia_mart")
         if status:
@@ -7109,10 +7110,10 @@ def _fuchsia_mart(player, report):
         player.press("a", wait=8)
     if not opened and player.state.get("root") != "shop":
         raise RuntimeError("the Fuchsia clerk did not open: " + json.dumps(summary(player.state)))
-    bought = _shop_buy(player, "superPotion", 700, 8)
+    bought = _shop_buy(player, "superPotion", 700, 12)
     report["super_potions"] = bought
     _close_shop(player)
-    if bought < 8 and int((player.state.get("inventory") or {}).get("money") or 0) >= 700:
+    if bought < 12 and int((player.state.get("inventory") or {}).get("money") or 0) >= 700:
         raise RuntimeError("Fuchsia Mart did not sell Super Potions: " + json.dumps(summary(player.state)))
     _checkpoint(player, report, "saved_fuchsia_stocked")
     return "yield"
@@ -7134,7 +7135,7 @@ def _fuchsia_city(player, report):
             raise RuntimeError("the Fuchsia Center stayed shut: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_fuchsia_center")
         return "yield"
-    if _item_count(player, "superPotion") < 8:
+    if _item_count(player, "superPotion") < 12:
         return _enter_fuchsia_mart(player, report)
     status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (5, 28),
                         _fuchsia_doors(), "saved_fuchsia")
@@ -7185,7 +7186,8 @@ def _koga(player, report, display=None, clips=None, output=None):
     if _quest(player).get("BADGE_SOUL"):
         _checkpoint(player, report, "saved_soul")
         return "yield"
-    if _item_count(player, "superPotion") < 8 and player.state.get("root") != "battle":
+    if player.state.get("root") != "battle" and (
+            _party_needs_heal(player) or _item_count(player, "superPotion") < 1):
         status = _route_leg(player, report, "FuchsiaGym.json", 1, 13, "FuchsiaGym", (5, 16),
                             {(5, 17), (6, 17)}, "saved_fuchsia_gym")
         if status:

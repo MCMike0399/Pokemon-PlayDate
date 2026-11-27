@@ -73,11 +73,11 @@ Kadabra fainted. Wartortle grew to level 26. Ivysaur came out with Vine Whip, Le
 
 ## Next
 
-Rainbow Badge is set. The pause is sequence 317, Fuchsia City (4, 21) facing left, on the walk from the Mart to the gym. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.a.json`. `origin/main` `93c15d86` is merged and this save continued. `EVENT_BEAT_ROUTE12_SNORLAX` is set. Routes 13, 14, and 15 were crossed into Fuchsia (39, 16) with no further faint. The Fuchsia clerk sells Super Potions, not basic Potions. Eight Super Potions were bought (money 22437). The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. TM21 is in the bag. The Saffron gate was not used. Pidgeot is benched for Fly. Wartortle leads.
+Rainbow Badge is set. The pause is sequence 330, Fuchsia City (4, 21) facing left, restocked and walking back to the gym. Highest slot: `artifacts/lane-j/saves/route6-bird/adventure.b.json`. `origin/main` `93c15d86` is merged and the sequence 309 save continued. `EVENT_BEAT_ROUTE12_SNORLAX` is set. Routes 13, 14, and 15 were crossed into Fuchsia (39, 16). The Fuchsia clerk sells Super Potions, not basic Potions. The first gym trainer was beaten. That win left Wartortle, Bellsprout, and Dugtrio fainted and spent the first eight Super Potions. Pidgeot stayed conscious and the Center healed the party. Twelve Super Potions are in the bag (money 15367). The Poké Flute, the Silph Scope, the Lift Key, and the Rare Candy are in the bag. Giovanni is beaten. TM21 is in the bag. The Saffron gate was not used. Pidgeot is benched for Fly. Wartortle leads.
 
 Badges: Boulder, Cascade, Thunder, and Rainbow.
 
-Team: Wartortle 33 (86 HP), Bellsprout 15 (40 HP), Pidgeot 37 (108 HP), Dugtrio 28 (62 HP). Next is Koga, then the Safari Zone for HM03 and the Gold Teeth, then the warden for HM04. Route 16 stays the other Snorlax.
+Team: Wartortle 33 (86 HP), Bellsprout 15 (40 HP), Pidgeot 37 (108 HP), Dugtrio 28 (62 HP). Next is the rest of the gym and Koga, then the Safari Zone for HM03 and the Gold Teeth, then the warden for HM04. Route 16 stays the other Snorlax.
 
 The B2F lift reached Giovanni. The two east Rockets opened his door. The Scope was the ball at (25, 2). The way out stays off the B2F Rocket's sight and uses the B2F cabin back to the Game Corner, then the Celadon Center. B1F's door at (24, 16) and (25, 16) is still the closed block. The closed-stairs note was the wrong press; see `tools/notes/lane-e-game-corner-stairs.md`.
 
