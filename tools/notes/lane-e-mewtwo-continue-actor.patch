@@ -1,36 +1,58 @@
 # A cave save after Mewtwo is rejected on Continue.
 # Title inspect validates world motion before loadHallContinue installs
 # the postgame chunk. LateKantoStory.actorMetadata then has no hide rule
-# for pokered:CERULEAN_CAVE_B1F:objects:1, so EVENT_BEAT_MEWTWO does not
-# hide him. WorldMotionData.normalize reports
+# for the postgame statics, so EVENT_BEAT_MEWTWO does not hide Mewtwo and
+# EVENT_BEAT_ZAPDOS does not hide Zapdos or the Power Plant voltorbs.
+# WorldMotionData.normalize reports
 # domain/worldMotion.lua:139: missing visible source actor.
 # The newer slot is corrupt and Continue loads the older Hall fixture.
+# Snorlax, Articuno, and Moltres already hide from boot-chunk metadata.
+# Ordinary boot-registered item balls hide from the pickup flag in
+# SourceActors. Cave and Power Plant balls are lane-e-postgame-pickup-continue.patch.
 # MallocPoolSize stays 16645684.
 
 diff --git a/Source/game/lateKantoStory.lua b/Source/game/lateKantoStory.lua
-index fe1af9ee..dd39c6ab 100644
+index fe1af9ee..b0eaf1be 100644
 --- a/Source/game/lateKantoStory.lua
 +++ b/Source/game/lateKantoStory.lua
-@@ -59,15 +59,21 @@ function LateKantoStory.caveEntry(flags)
+@@ -58,16 +58,39 @@ function LateKantoStory.caveEntry(flags)
+     return "blocked"
  end
  
++-- PostgameStory.visibility is the hide rule for these statics, and that
++-- chunk is not loaded when title inspect validates a save. scripts/CeruleanCaveB1F.asm
++-- object 1 uses EVENT_BEAT_MEWTWO. scripts/PowerPlant.asm objects 1-9 use the
++-- voltorb flags and EVENT_BEAT_ZAPDOS. The same rules are returned by
++-- PostgameStory.visibility once a Hall-team continue has loaded the chunk.
++local POSTGAME_STATIC_HIDE <const> = {
++    ["pokered:CERULEAN_CAVE_B1F:objects:1"] = "EVENT_BEAT_MEWTWO",
++    ["pokered:POWER_PLANT:objects:1"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_0",
++    ["pokered:POWER_PLANT:objects:2"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_1",
++    ["pokered:POWER_PLANT:objects:3"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_2",
++    ["pokered:POWER_PLANT:objects:4"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_3",
++    ["pokered:POWER_PLANT:objects:5"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_4",
++    ["pokered:POWER_PLANT:objects:6"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_5",
++    ["pokered:POWER_PLANT:objects:7"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_6",
++    ["pokered:POWER_PLANT:objects:8"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_7",
++    ["pokered:POWER_PLANT:objects:9"] = "EVENT_BEAT_ZAPDOS",
++}
++
  function LateKantoStory.actorMetadata(id)
 -    -- A field install has not loaded the postgame chunk. Visibility is read
 -    -- only after a Hall continue or the ceremony has installed it.
 -    local rule <const> = LateKantoStory.scenes().cerulean_cave
 +    -- A field install has not loaded the postgame chunk. Continue validates
-+    -- the saved actor list before that chunk is installed, so Mewtwo's hide
-+    -- rule has to live here. scripts/CeruleanCaveB1F.asm object 1 uses
-+    -- EVENT_BEAT_MEWTWO. PostgameStory.visibility returns the same rule
-+    -- once the ceremony or a Hall-team continue has loaded the chunk.
++    -- the saved actor list before that chunk is installed, so these hide
++    -- rules have to live in the boot chunk.
      if PostgameStory and PostgameStory.visibility then
          local extra <const> = PostgameStory.visibility(id)
          if extra then
              return extra
          end
      end
-+    if id == "pokered:CERULEAN_CAVE_B1F:objects:1" then
-+        return {visibility = {{group = "quest", id = "EVENT_BEAT_MEWTWO", equals = false}}}
++    local hidden <const> = POSTGAME_STATIC_HIDE[id]
++    if hidden then
++        return {visibility = {{group = "quest", id = hidden, equals = false}}}
 +    end
 +    local rule <const> = LateKantoStory.scenes().cerulean_cave
      if id == rule.guard_id then
