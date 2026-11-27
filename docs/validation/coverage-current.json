@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "8b33d5d07df32cc083e575b737c874669c9ed8e3",
-    "source_sha256": "2aa601aead21b165c18cf71ca6adfff411561dcdcd80ca53d4f1abe45c289930",
+    "commit": "f80fd388a3c2d072ec7b014da8d2c98b1eeba5ec",
+    "source_sha256": "466dbe110a5a41ee73bc21a79dc596868d4880de28aa1542768f7fd8dd6a02c8",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after the battle intro slide keeps the name box and the starter off the glass. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 bab936d01a734dcd15226dc23406f176edd9ae387b38a254fe0a5eca6e3f7966.",
+    "scope": "Source identity after the Vermilion journey pin records the departed-profile zone hash. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 2aa601aead21b165c18cf71ca6adfff411561dcdcd80ca53d4f1abe45c289930.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
