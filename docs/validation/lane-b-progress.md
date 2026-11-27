@@ -1806,4 +1806,11 @@ Merge `68ea804a` takes main `6cc6dfea` (party-import fix `371bf703`).
 Road 3F `(25, 9)` with the same six Pokémon, the same HP and XP, the
 same fourteen bag slots, and ¥3424. The party list opened during an
 Onix fight and closed back to the battle. No import crash. Training
-to L52 continues.
+to L52 continues. No further merge until asked. The progress note
+after that reload is `f6d154b2`.
+
+Sequence 1888 is Victory Road 3F `(25, 11)`, sha256
+`51678ce701f9a5137e5a41ae2ba84270a55ad2b0bad5a1292a8d01669c80ccbd`.
+Pidgeot L47 XP 98807, Poliwhirl L47 74/119 XP 98859, Hypno L47 36/152
+XP 106285, Venusaur L72. Money is still ¥3424. The same run is in
+the grass.
