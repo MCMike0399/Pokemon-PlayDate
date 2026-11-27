@@ -8973,17 +8973,14 @@ def _route17_bike(player, report):
     raise RuntimeError("the cycling road did not reach a trainer: " + json.dumps(summary(player.state)))
 
 
-def _route17_nudge(player, commands):
-    """Move one tile. Extra idle frames roll the hill, so stop at the first change."""
-    x, y = player.state["player"]["x"], player.state["player"]["y"]
-    player.send(*commands)
-    for _ in range(8):
-        if player.state.get("root") == "battle" or not player.exploring():
-            return
-        now = (player.state["player"]["x"], player.state["player"]["y"])
-        if now != (x, y):
-            return
-        player.send("wait 2")
+def _route17_nudge(player, direction):
+    """One tile, with the button held for the whole step. An idle frame rolls south."""
+    if direction == "down":
+        # A coast step is four frames. The button is not held, so this batch is the whole step.
+        player.send("wait 4")
+        return
+    # Left and right are an eight-frame walk. Every frame of the batch keeps the button down.
+    player.send(*([f"press {direction}"] * 8))
 
 
 def _route17_coast(player, cells, target):
@@ -8995,7 +8992,8 @@ def _route17_coast(player, cells, target):
         if player.state.get("root") == "battle":
             return "battle"
         if not player.exploring():
-            player.send("wait 2")
+            # The step is still animating. Another idle wait would roll into the next tile.
+            player.send(*([f"press {('left' if tx < player.state['player']['x'] else 'right')}"] * 4))
             continue
         x, y = player.state["player"]["x"], player.state["player"]["y"]
         if (x, y) == (tx, ty):
@@ -9014,16 +9012,16 @@ def _route17_coast(player, cells, target):
         last = (x, y)
         step = -1 if tx < x else 1
         if x != tx and (x + step, y) in cells and y <= ty:
-            _route17_nudge(player, ("press " + ("left" if step < 0 else "right"),))
+            _route17_nudge(player, "left" if step < 0 else "right")
             continue
         if (x, y + 1) in cells and y < ty:
-            _route17_nudge(player, ("wait 2",))
+            _route17_nudge(player, "down")
             continue
         if (x + step, y) not in cells:
             step = -step
         if (x + step, y) not in cells:
             raise RuntimeError(f"no downhill lane toward {target} from {(x, y)}")
-        _route17_nudge(player, ("press " + ("left" if step < 0 else "right"),))
+        _route17_nudge(player, "left" if step < 0 else "right")
     return "lost"
 
 
