@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "2c0daa81c2422ad7d5f3fe3575ce619ffa9c349b",
-    "source_sha256": "3bc5be7e776e20491ebb3cd95c35c07b61c0c1cf7546000f23029d3ea9f2398f",
+    "commit": "6f7e5fcb5044d3346602882c29e7cd74ccc225d8",
+    "source_sha256": "49edb1c950c725b3f7b7aa3477ee2518275f89aae4e62dda2a97703cb4bffcf1",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after batch 2: lazy status and trainer screens, the opening slide, save and trainer fidelity, and the seven audio patches. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 73de9a82b58a91de52619056f4c19783073ecf0f6b3436052151c8e82426a339.",
+    "scope": "Source identity after the forest encounter case drops the retained cave maps before it decodes. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 466dbe110a5a41ee73bc21a79dc596868d4880de28aa1542768f7fd8dd6a02c8.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",

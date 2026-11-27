@@ -363,6 +363,16 @@ function SourceActors.interact(game, npc, id)
     return SourceEvents.dispatch(game, id)
 end
 
+function SourceActors.releaseDepartedProfiles()
+    -- One short profile string per zone ever sighted. A walk that visits every
+    -- map would keep the whole set after those zones had left. Drop them with
+    -- the departing world; the next sight fills the current zone again.
+    local count = 0
+    for _ in pairs(zoneProfiles) do count = count + 1 end
+    if BootTrace then BootTrace.mark("registry.profiles " .. count) end
+    for key in pairs(zoneProfiles) do zoneProfiles[key] = nil end
+end
+
 function SourceActors.trySight(game)
     local player = game.player
     if not game.trainers or not player or not currentZone

@@ -1996,7 +1996,9 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
         else
             local title = self.session and self.session:title()
             local playerName = title and title.playerName or "RED"
-            self.message = playerName .. " is out of\nuseable POKéMON!\n\n"
+            -- para is a form feed. A blank line is an empty row, so
+            -- "blacked" fills one page and "out!" lands on the next.
+            self.message = playerName .. " is out of\nuseable POKéMON!\f"
                 .. playerName .. " blacked\nout!"
         end
         return "defeat"
