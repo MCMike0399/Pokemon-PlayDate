@@ -280,3 +280,23 @@ Lorelei, Bruno, Agatha, and Lance are in neither encounter list, so the meet jin
 | Lance | Gyarados, Dragonair, Dragonair, Aerodactyl, Dragonite |
 
 The repeated Onix, Gengar, and Dragonair are the same cry rows. Send-out still cries `scene.enemyShown.species` through that table.
+
+## Handoff onto main `247d60a9`
+
+The six fidelity patches were written against this branch's sequencer, so they are not a build of clean main. `tools/tests/test_lane_e_audio_handoff.py` checks out `247d60a9216307c0e1b15316f2b052ae10d23a6c`, applies this order with `git apply`, runs `pdc`, and runs the six `LaneEAudioFidelityTests`. `events.lua` keeps main's alphabetical cue keys. The badge row changes to `item` / `SFX_GET_ITEM_1` / `home/text.asm:546`. `MallocPoolSize` stays 16645684.
+
+1. `tools/notes/lane-e-audio-sequencer.patch` — `Source/audio/moveSfx.lua`, `Source/audio/moveSfxData.lua`, `Source/audio/eventMaps.bin`, and `sfxFrames`, `playSequence`, `moveScore` on main's observer.
+2. `tools/notes/lane-e-audio-movesfx-import.patch`
+3. `tools/notes/lane-e-audio-heal-count.patch`
+4. `tools/notes/lane-e-audio-pokedex-cry.patch`
+5. `tools/notes/lane-e-audio-source-cries.patch`
+6. `tools/notes/lane-e-audio-badge-item.patch`
+7. `tools/notes/lane-e-audio-player-faint-cry.patch`
+
+Device heap on that applied tree, same pool:
+
+| Suite | Result | Heap |
+| --- | --- | --- |
+| `field-travel` | 3/3 | 12803.0 KiB |
+| `individual-stats-v1` | 17/17 | 12939.3 KiB |
+| `cave-encounters` | 6 passed, 2 failed. Same two `not enough memory` cases as clean `247d60a9` | 13117.4 KiB |
