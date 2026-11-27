@@ -18,6 +18,7 @@ function PartyState:enter(options)
 end
 
 function PartyState:exit()
+    self:releaseStatusScreen()
     self.active=false;self.visit=(self.visit or 0)+1;self.view=(self.view or 0)+1;self.session=nil
     self.phase = "closed"
     self.menu:hide()
@@ -281,31 +282,17 @@ function PartyState.typeLines(mon)
 end
 
 function PartyState:_paintScreen(party)
+    if self.phase ~= "stats" and self.phase ~= "info" then
+        self:releaseStatusScreen()
+    end
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
     local mon = party:get(self.selected)
     if self.phase == "stats" and mon then
-        local lines = PartyState.typeLines(mon)
-        gfx.drawText(mon.name .. "  Lv" .. mon.level, 12, 10)
-        gfx.drawText(lines[1], 220, 10)
-        gfx.drawText("HP " .. mon.hp .. "/" .. mon.maxHP .. "  " .. (mon.status or "OK"):upper(), 12, 34)
-        gfx.drawText(lines[2], 220, 34)
-        gfx.drawText("ATTACK " .. mon.atk .. "   DEFENSE " .. mon.def, 12, 58)
-        gfx.drawText("SP. ATK " .. mon.spa .. "   SP. DEF " .. mon.spd, 12, 82)
-        gfx.drawText("SPEED " .. mon.spe .. "   EXP " .. mon.xp, 12, 106)
-        for i, key in ipairs(mon.moves) do
-            gfx.drawText(moveData[key].name, 12, 124 + i * 19)
-            gfx.drawText("PP " .. mon.pp[key] .. "/" .. moveData[key].maxPP, 270, 124 + i * 19)
-        end
-        gfx.drawText("A: INFO   B: Back", 12, 222)
+        PartyState.typeLines(mon)
+        self:drawStatus(mon)
     elseif self.phase=="info" and mon then
-        gfx.drawText(mon.name.."  Lv"..mon.level,12,10)
-        gfx.drawText("NATURE  "..SpecimenData.natures[mon.natureId].name:upper(),12,54)
-        gfx.drawText("ABILITY",12,90)
-        gfx.drawTextInRect(SpecimenData.abilityNames[mon:ability()]:upper(),12,110,376,36)
-        gfx.drawText("HELD ITEM",12,154)
-        gfx.drawTextInRect(mon.heldItem=="none" and "NONE" or ItemData.definitions[mon.heldItem].name,12,174,376,36)
-        gfx.drawText("A: STATS  B: Back",12,222)
+        self:drawSummary(mon)
     else
         self:drawPartyList(party)
     end
@@ -440,6 +427,38 @@ function PartyState:draw()
     end
     self.screenImage:draw(0, 0)
     if x ~= 0 or y ~= 0 then gfx.setDrawOffset(x, y) end
+end
+
+-- The status and summary pages live in a standalone pdz. playdate.file.run
+-- loads it while one of those pages is up. Leaving the page drops the glyph
+-- cache and the module, so a boot that never opens STATUS does not keep
+-- the 12x12 tiles.
+function PartyState:loadStatusScreen()
+    if StatusScreen then return end
+    import "game/gbFont"
+    if playdate ~= nil and playdate.file ~= nil and type(playdate.file.run) == "function" then
+        playdate.file.run("game/statusScreen")
+    else
+        dofile("Source/game/statusScreen.lua")
+    end
+end
+
+function PartyState:drawStatus(mon)
+    self:loadStatusScreen()
+    StatusScreen.drawStatus(self, mon)
+end
+
+function PartyState:drawSummary(mon)
+    self:loadStatusScreen()
+    StatusScreen.drawSummary(self, mon)
+end
+
+function PartyState:releaseStatusScreen()
+    if StatusScreen == nil then return end
+    if StatusScreen.release then StatusScreen.release() end
+    StatusScreen = nil
+    collectgarbage("collect")
+    collectgarbage("collect")
 end
 
 function PartyState:resume()

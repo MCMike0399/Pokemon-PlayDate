@@ -221,6 +221,12 @@ function BattleScriptPhase:exit()
 end
 
 function BattleScriptPhase:advance()
+    -- The opening slide is only adopted by a scene that attaches before
+    -- the next advance. A headless settle advances with no scene, so the
+    -- hold must not survive into a later BattleScene.
+    if self.battle.pendingSilhouette and not self.battle.presentationAttached then
+        self.battle.pendingSilhouette = nil
+    end
     if self.cancelled then return false, "script-cancelled" end
     if self.battle.pendingLearning then return false, "learning-pending" end
     local ok, kind, value = coroutine.resume(self.co)
@@ -388,6 +394,10 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     end
 
     self:runScript(function()
+        -- engine/battle/core.asm:9 SlidePlayerAndEnemySilhouettesOnScreen
+        -- engine/battle/core.asm:100 jpfar PrintBeginningBattleText
+        -- Called from core.asm:6738 before StartBattle at core.asm:6763.
+        self:present("silhouetteEnter")
         if self.trainerName then
             -- data/text/text_2.asm:1258 _TrainerWantsToFightText
             --   text_ram wTrainerName
@@ -612,6 +622,15 @@ end
 
 -- Optional scene handshake. Rules-only callers never acquire visual waits.
 function Battle:present(kind, details)
+    -- Battle:init asks for the opening slide before a production scene
+    -- exists. Remember it and return. BattleScene plays that slide, then
+    -- reveals the line this script says next. There is no yield, so
+    -- RewardContracts.settle and any other headless caller do not block
+    -- on a presentation they have no scene to play.
+    if kind == "silhouetteEnter" and not self.presentationAttached then
+        self.pendingSilhouette = true
+        return
+    end
     if not self.presentationAttached then
         return
     end
