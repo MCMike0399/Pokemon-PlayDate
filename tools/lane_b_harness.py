@@ -60,7 +60,75 @@ def clip_frames(folder, name):
     found = []
     for path in Path(folder).glob(f'{name}-*-display.png'):
         match = pattern.match(path.name)
-        if match:
+        if path.name.endswith('-display.png') and match:
             found.append((int(match.group(1)), int(match.group(2)), path))
     found.sort()
     return [path for _, _, path in found]
+
+
+def _chunk_groups(frames):
+    groups = []
+    current = None
+    last = None
+    for path in frames:
+        match = re.search(r'-(\d+)-(\d+)-display\.png$', path.name)
+        chunk = int(match.group(1)) if match else 0
+        if chunk != last:
+            current = []
+            groups.append(current)
+            last = chunk
+        current.append(path)
+    return groups
+
+
+def _scene_class(path):
+    """Map tiles are the large frames. Battle text and torn battle buffers are smaller."""
+    return 'map' if path.stat().st_size >= 6000 else 'battle'
+
+
+def coherent_clip_frames(folder, name):
+    """Drop a chunk's leading frames when they revive a scene that chunk already left.
+
+    Each recorded command screenshots the working image. After a battle the
+    next command's first frames can still hold the previous battle, including
+    a byte-for-byte copy of a frame the previous command had already moved
+    past, and then the real map. A frame that repeats one of those abandoned
+    images, or a leading battle run on a command that starts and ends on the
+    map, is not a second live scene.
+    """
+    groups = _chunk_groups(clip_frames(folder, name))
+    superseded = set()
+    last_class = None
+    kept = []
+    for group in groups:
+        digest = [path.read_bytes() for path in group]
+        classes = [_scene_class(path) for path in group]
+        start = 0
+        while start < len(group) and digest[start] in superseded:
+            start += 1
+        # A command that was already on the map can still open with a torn
+        # battle buffer and only reach the map partway through. Drop that
+        # prefix. A battle that is still underway stays, because the previous
+        # command ended on the battle and these frames match it.
+        if last_class is not None and last_class in classes[start:]:
+            while start < len(group) and classes[start] != last_class:
+                start += 1
+        chosen = group[start:]
+        kept.extend(chosen)
+        final = digest[-1]
+        for picture in digest:
+            if picture != final:
+                superseded.add(picture)
+        if chosen:
+            last_class = _scene_class(chosen[-1])
+    return kept
+
+
+def walk_allowed(state):
+    """A direction while a battle is still ongoing steps the player and can roll an encounter."""
+    if not isinstance(state, dict) or state.get('root') != 'overworld':
+        return False
+    battle = state.get('battle') or {}
+    if battle.get('present') is False or not battle.get('phase'):
+        return True
+    return battle.get('phase') == 'ended' or battle.get('outcome') not in (None, 'ongoing')

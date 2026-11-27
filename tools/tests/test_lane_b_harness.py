@@ -11,8 +11,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from tools.lane_b_harness import (
-    attach_record, battle_continues_after_clip, clip_frames, command_span,
-    leave_move_menu_for_item,
+    attach_record, battle_continues_after_clip, clip_frames, coherent_clip_frames,
+    command_span, leave_move_menu_for_item, walk_allowed,
 )
 
 
@@ -65,6 +65,76 @@ class LaneBHarnessTest(unittest.TestCase):
             'victory-road-0001-10-display.png',
             'victory-road-0002-01-display.png',
         ])
+
+    def test_stale_battle_bytes_do_not_return_after_the_map(self):
+        battle = b'B' * 400
+        torn = b'T' * 500
+        got_away = b'G' * 300
+        machop = b'M' * 180
+        first_map = b'W' * 6000
+        later_map = b'X' * 6100
+        with TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            pictures = {
+                'victory-road-0044-01-display.png': battle,
+                'victory-road-0044-02-display.png': battle,
+                'victory-road-0044-03-display.png': first_map,
+                'victory-road-0045-01-display.png': battle,
+                'victory-road-0045-02-display.png': torn,
+                'victory-road-0045-03-display.png': later_map,
+            'victory-road-0048-01-display.png': torn,
+            'victory-road-0048-02-display.png': later_map,
+            'victory-road-0048-03-display.png': b'I' * 500,
+                'victory-road-0049-01-display.png': got_away,
+                'victory-road-0049-02-display.png': machop,
+                'victory-road-0050-01-display.png': got_away,
+                'victory-road-0050-02-display.png': got_away,
+                'victory-road-0051-01-display.png': got_away,
+                'victory-road-0051-02-display.png': b'Z' * 6200,
+            }
+            for name, payload in pictures.items():
+                (folder / name).write_bytes(payload)
+            got = [path.name for path in coherent_clip_frames(folder, 'victory-road')]
+        self.assertEqual(got, [
+            'victory-road-0044-01-display.png',
+            'victory-road-0044-02-display.png',
+            'victory-road-0044-03-display.png',
+            'victory-road-0045-03-display.png',
+            'victory-road-0048-02-display.png',
+            'victory-road-0048-03-display.png',
+            'victory-road-0049-01-display.png',
+            'victory-road-0049-02-display.png',
+            'victory-road-0051-02-display.png',
+        ])
+
+    def test_a_real_battle_exit_keeps_its_last_battle_frames(self):
+        battle = b'B' * 400
+        ending = b'E' * 450
+        field = b'W' * 6000
+        with TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            for name, payload in {
+                'victory-road-0028-01-display.png': battle,
+                'victory-road-0029-01-display.png': ending,
+                'victory-road-0029-02-display.png': field,
+            }.items():
+                (folder / name).write_bytes(payload)
+            got = [path.name for path in coherent_clip_frames(folder, 'victory-road')]
+        self.assertEqual(got, [
+            'victory-road-0028-01-display.png',
+            'victory-road-0029-01-display.png',
+            'victory-road-0029-02-display.png',
+        ])
+
+    def test_walk_inputs_wait_until_the_battle_is_over(self):
+        self.assertFalse(walk_allowed({'root': 'battle', 'battle': {
+            'phase': 'script', 'outcome': 'ongoing'}}))
+        self.assertFalse(walk_allowed({'root': 'overworld', 'battle': {
+            'phase': 'command', 'outcome': 'ongoing', 'present': True}}))
+        self.assertTrue(walk_allowed({'root': 'overworld', 'battle': {'present': False}}))
+        self.assertTrue(walk_allowed({'root': 'overworld', 'battle': {
+            'phase': 'ended', 'outcome': 'ran'}}))
+        self.assertFalse(walk_allowed(None))
 
 
 if __name__ == '__main__':
