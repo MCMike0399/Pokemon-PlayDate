@@ -301,3 +301,26 @@ The floor under Mewtwo is 14 walkable cells, (25–28, 12–15) with (26, 15) an
 | ready, sequence 3 present | 12734.9 |
 | Continue of sequence 3, B1F (26, 13) right | 13061.6 |
 | after walking the chamber | 12957.6 |
+
+## Cable Club, Hall Continue, and the walk to Cerulean
+
+`origin/main` is `247d60a9`. The six handoffs were applied only in the simulator, in this order: `lane-e-gift-menu-input`, `lane-e-viridian-sleepy-retrigger-heap`, `lane-e-nil-player-reentry`, `lane-e-party-status-type`, `lane-e-mewtwo-continue-actor`, `lane-e-postgame-pickup-continue`. `Source/` in the tree is `origin/main`. `MallocPoolSize` stayed `16645684`. No inflate line and no out-of-memory line. The save was only the Hall fixture `tools/tests/fixtures/lane-h-hall-continue-8e72131f.json`. Buttons did the Continue, the receptionist A, and every step. Encounters were off. Trainer sight stayed on.
+
+Cable Club fails. The Viridian Center receptionist is `pokered:VIRIDIAN_POKECENTER:objects:4`. The player stood at (11, 3), pressed up, and pressed A. The event stayed closed. `lastTraversalBlock` was `{kind="unimplemented-source-event", id="pokered:VIRIDIAN_POKECENTER:objects:4"}`. No welcome line and no warp. The same press on a second boot landed on the same block. Heap 13244.4 KiB, then 13211.5 KiB. The clip is `artifacts/cable-club-viridian.mp4`.
+
+`scripts/ViridianPokecenter.asm` (af519899) `ViridianPokecenterLinkReceptionistText` is `script_cable_club_receptionist`. The other center receptionists use that macro. Indigo Plateau lobby object 5 already says the welcome line and the save line and does not warp. The handoff is `tools/notes/lane-e-cable-club-dialog.patch` with `tools/tests/test_lane_e_cable_club_dialog.py` (1 test). It registers the eleven center receptionists as those two dialog steps. `TRADE_CENTER` and `COLOSSEUM` stay closed. The test fails on this tree and passes after `git apply`.
+
+The LINK CABLE was not received. The only giver is the cave scientist at Cerulean Cave 1F (23, 16), and that room sits on the pocket below. The four `linkCable` edges are already in `Source/data/evolutionData.lua`. The bag never held a cable, so the non-target use was not played.
+
+Hall Continue passes. The same buttons land in `kanto_pallet_town` at (5, 6) facing down. The Hall record is version 1, Blastoise level 65. The party is that Blastoise. `EVENT_GOT_POKEDEX` and `TOGGLE_CERULEAN_CAVE_GUY` are true. `EVENT_GOT_MEW` and `EVENT_BEAT_MEWTWO` are false. Heap 13168.7 KiB. The clip is `artifacts/continue-pallet.mp4`.
+
+The walk from that Pallet cell used real steps: Viridian Center, Route 2, the forest gates and the forest, Pewter, Route 3, Mt. Moon 1F, B1F, and B2F, Route 4's lower road, and Cerulean (0, 18). Route 3 and Mt. Moon trainer scripts took A through the text and the walk continued. The player reached Cerulean (8, 18), then (8, 12) facing left. `move left` stayed on (8, 12). No map refused an exit. The clips are `artifacts/cerulean-streets.mp4` and `artifacts/cave-approach.mp4`.
+
+The cave door is city (4, 11). Its land is the 13 cells (0, 12), (0, 13), (1, 12), (1, 13), (2, 12), (2, 13), (3, 12), (3, 13), (4, 11), (4, 12), (4, 13), (5, 12), and (5, 13). (6, 12) and (6, 13) are water, foot `$14`. (7, 12) and (7, 13) are shore, foot `$3A`, which is not in `Overworld_Coll` and is not a surf surface. The street component from (8, 18) is 378 cells and does not touch that pocket or that water. The pocket's west edge is Cerulean (0, 12). Route 4's east connection is `connection east, CeruleanCity, CERULEAN_CITY, -4` (af519899), adjustment `+8`, so Route 4 (89, 4) lands there and Route 4 (89, 10) lands on the street (0, 18). The upper strip is Route 4 y=2..4 east of x=60. Cell (60, 4) is foot `$27`, collision 1. (59, 4) and (61, 4) are foot `$2C`. `data/tilesets/ledge_tiles.asm` hops left from `$2C` onto `$27` and has no right hop onto `$27`. The Mt. Moon exit component, 353 cells from (24, 5), stops at that cliff. Opening a tile would contradict those pins, so there is no collision handoff.
+
+| point | heap KiB | where |
+| --- | ---: | --- |
+| Continue, Pallet (5, 6) down | 13168.7 | hall record kept |
+| Viridian Center (11, 3), after A | 13211.5 | receptionist blocked |
+| Cerulean (8, 18) | 14102.9 | streets |
+| Cerulean (8, 12), facing left | 14095.9 | step left did not move |
