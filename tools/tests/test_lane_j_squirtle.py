@@ -1381,7 +1381,8 @@ class Player:
                 ceiling = potion_at if bite_only or foe != "staryu" else min(potion_at, 18)
                 active = ((battle.get("player") or {}).get("species") or "")
                 if active in ("pidgeot", "pidgeotto", "pidgey"):
-                    ceiling = max(ceiling, 70)
+                    # Weezing's Selfdestruct dealt 76. Attacking from 76 faints the Fly user.
+                    ceiling = max(ceiling, 90)
                 elif active in ("wartortle", "blastoise", "squirtle"):
                     ceiling = max(ceiling, 48)
                 elif active == "dugtrio":
@@ -1390,6 +1391,12 @@ class Player:
                 menu = battle.get("menu") or {}
                 # Ability text, such as Intimidate, keeps command phase with the menu closed.
                 ready = bool(menu.get("active")) and not battle.get("inMoveSelect")
+                status = ((battle.get("player") or {}).get("status") or "none")
+                # Cure poison while HP can still take Selfdestruct. A low HP uses the Super Potion first.
+                if (ready and int(quantities.get("fullHeal") or 0) > 0
+                        and status not in ("none", "") and player_hp > ceiling
+                        and self.use_potion(("fullHeal",))):
+                    continue
                 if (ready and potions > 0 and 0 < player_hp <= ceiling
                         and player_hp < max_hp and self.use_potion()):
                     continue
@@ -1461,8 +1468,8 @@ class Player:
                 self.send("wait 4")
         return won
 
-    def use_potion(self):
-        """Spend one battle turn on a Potion for the lead. The Lass outlasts Bite otherwise."""
+    def use_potion(self, ids=("potion", "superPotion")):
+        """Spend one battle turn on medicine for the lead. The Lass outlasts Bite otherwise."""
         if (self.state.get("battle") or {}).get("inMoveSelect"):
             self.press("b", wait=4)
         try:
@@ -1481,7 +1488,7 @@ class Player:
                     continue
                 slots = ((self.state.get("inventory") or {}).get("slots") or [])
                 index = next((i for i, slot in enumerate(slots, start=1)
-                              if slot.get("id") in ("potion", "superPotion")), None)
+                              if slot.get("id") in ids), None)
                 if index is None:
                     self.press("b", wait=4)
                     return False
@@ -7147,8 +7154,8 @@ def _enter_fuchsia_mart(player, report):
 
 
 def _fuchsia_mart(player, report):
-    """Fuchsia sells Super Potions. Basic Potions are not on this clerk's list."""
-    if _item_count(player, "superPotion") >= 12:
+    """Fuchsia sells Super Potions and Full Heals. Basic Potions are not on this clerk's list."""
+    if _item_count(player, "superPotion") >= 12 and _item_count(player, "fullHeal") >= 6:
         status = _route_leg(player, report, "FuchsiaMart.json", 2, 13, "FuchsiaMart", (5, 6),
                             {(2, 5), (6, 2), (8, 5), (5, 7), (6, 7)}, "saved_fuchsia_mart")
         if status:
@@ -7182,10 +7189,15 @@ def _fuchsia_mart(player, report):
     if not opened and player.state.get("root") != "shop":
         raise RuntimeError("the Fuchsia clerk did not open: " + json.dumps(summary(player.state)))
     bought = _shop_buy(player, "superPotion", 700, 12)
+    heals = _shop_buy(player, "fullHeal", 600, 6)
     report["super_potions"] = bought
+    report["full_heals"] = heals
     _close_shop(player)
-    if bought < 12 and int((player.state.get("inventory") or {}).get("money") or 0) >= 700:
+    money_left = int((player.state.get("inventory") or {}).get("money") or 0)
+    if bought < 12 and money_left >= 700:
         raise RuntimeError("Fuchsia Mart did not sell Super Potions: " + json.dumps(summary(player.state)))
+    if heals < 6 and money_left >= 600:
+        raise RuntimeError("Fuchsia Mart did not sell Full Heals: " + json.dumps(summary(player.state)))
     _checkpoint(player, report, "saved_fuchsia_stocked")
     return "yield"
 
@@ -7206,7 +7218,7 @@ def _fuchsia_city(player, report):
             raise RuntimeError("the Fuchsia Center stayed shut: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_fuchsia_center")
         return "yield"
-    if _item_count(player, "superPotion") < 4:
+    if _item_count(player, "superPotion") < 4 or _item_count(player, "fullHeal") < 4:
         return _enter_fuchsia_mart(player, report)
     status = _route_leg(player, report, "FuchsiaCity.json", 0, 40, "FuchsiaCity", (5, 28),
                         _fuchsia_doors(), "saved_fuchsia")
@@ -7258,7 +7270,8 @@ def _koga(player, report, display=None, clips=None, output=None):
         _checkpoint(player, report, "saved_soul")
         return "yield"
     if player.state.get("root") != "battle" and (
-            _party_needs_heal(player) or _item_count(player, "superPotion") < 1):
+            _party_needs_heal(player) or _item_count(player, "superPotion") < 4
+            or _item_count(player, "fullHeal") < 4):
         status = _route_leg(player, report, "FuchsiaGym.json", 1, 13, "FuchsiaGym", (5, 16),
                             {(5, 17), (6, 17)}, "saved_fuchsia_gym")
         if status:
