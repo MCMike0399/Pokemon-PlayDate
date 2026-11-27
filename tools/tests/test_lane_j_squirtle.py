@@ -8417,6 +8417,277 @@ def _saffron_edge(player, report, stand, direction, expect, key):
     return "yield"
 
 
+def _on_map(player, key):
+    zone = str(player.state.get("zone"))
+    return zone == "kanto_" + key or zone.endswith("_" + key)
+
+
+def _bike_stage(player):
+    """Voucher, then the Cerulean exchange, then Cycling Road."""
+    if _holding(player, "bicycle") or _quest(player).get("EVENT_GOT_BICYCLE"):
+        return "road"
+    if _holding(player, "bikeVoucher") or _quest(player).get("EVENT_GOT_BIKE_VOUCHER"):
+        return "shop"
+    return "voucher"
+
+
+def _cycling_quest(player):
+    return (not _rival_trained(player) and _dojo_done(player)
+            and _next_silph_floor(player) is None)
+
+
+def _warp_tiles(path, pad):
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    return {(warp["x"] + pad, warp["y"]) for warp in data["events"]["warps"]}
+
+
+def _edge_leave(player, report, path, pad, width, stand, direction, avoid, key, destination):
+    """Walk to the tile before an edge or a door, then take one step onto it."""
+    cells = set(open_map(path, pad, width))
+    surface = map_surface(path, pad)
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    blocked = set(avoid)
+    blocked.discard(here)
+    blocked.discard(tuple(stand))
+    if here != tuple(stand):
+        kind = _walk(player, cells, surface, stand, blocked, report=report, yield_after=1,
+                     shift=_share_species(player))
+        if kind in ("blackout", "yield"):
+            return kind
+        if _on_map(player, destination):
+            _checkpoint(player, report, "saved_" + key)
+            return "yield"
+        if (player.state["player"]["x"], player.state["player"]["y"]) != tuple(stand):
+            raise RuntimeError(key + " missed " + str(stand) + ": " + str(kind) + " "
+                               + json.dumps(summary(player.state)))
+    player.step(direction)
+    player.settle(limit=80)
+    if not _on_map(player, destination):
+        player.step(direction)
+        player.settle(limit=80)
+    if not _on_map(player, destination):
+        raise RuntimeError(key + " did not open: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_" + key)
+    return "yield"
+
+
+def _cross_gate(player, report, filename, toward, destination, key):
+    """Walk a Saffron gate. The mats are the top and bottom rows."""
+    path = ROOT / "Source/data/vermilionPreparation" / filename
+    y = player.state["player"]["y"]
+    if y == 0:
+        player.step("down")
+        player.settle(limit=40)
+    elif y >= 5:
+        player.step("up")
+        player.settle(limit=40)
+    stand, direction = ((5, 4), "down") if toward == "south" else ((5, 1), "up")
+    avoid = _warp_tiles(path, 2) | _map_blocks(path, 2)
+    return _edge_leave(player, report, path, 2, 13, stand, direction, avoid, key, destination)
+
+
+def _accept_gift(player, report, flag, key):
+    for _ in range(40):
+        if _quest(player).get(flag):
+            break
+        options = ((player.state.get("event") or {}).get("menu") or {}).get("options") or []
+        if "YES" in options:
+            player.choose("event", "YES")
+            continue
+        player.press("a", wait=8)
+    _close_menus(player)
+    if not _quest(player).get(flag):
+        raise RuntimeError(key + " was not received: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_" + key)
+    return "yield"
+
+
+def _cycling_from_saffron(player, report):
+    stage = _bike_stage(player)
+    if stage == "voucher":
+        return _saffron_edge(player, report, (20, 35), "down", "route_6", "route6")
+    if stage == "shop":
+        return _saffron_edge(player, report, (20, 0), "up", "route_5", "route5")
+    return _saffron_to_route7(player, report)
+
+
+def _route6_bike(player, report):
+    path = ROOT / "Source/data/vermilionPreparation/Route6.json"
+    y = player.state["player"]["y"]
+    if _bike_stage(player) == "voucher":
+        if y < 6:
+            return _edge_leave(player, report, path, 0, 20, (10, 0), "down", ROUTE6_SKIP,
+                               "route6_gate", "route_6_gate")
+        return _edge_leave(player, report, path, 0, 20, (9, 35), "down", ROUTE6_SKIP,
+                           "vermilion", "vermilion_city")
+    if y > 3:
+        return _edge_leave(player, report, path, 0, 20, (10, 8), "up", ROUTE6_SKIP,
+                           "route6_gate", "route_6_gate")
+    return _edge_leave(player, report, path, 0, 20, (10, 0), "up", ROUTE6_SKIP,
+                       "saffron", "saffron_city")
+
+
+def _route5_bike(player, report):
+    path = ROOT / "Source/data/vermilionPreparation/Route5.json"
+    y = player.state["player"]["y"]
+    # The daycare door is the only center-column gap. The east road passes it.
+    if _bike_stage(player) == "shop":
+        if y > 30:
+            return _edge_leave(player, report, path, 0, 20, (10, 34), "up", ROUTE5_SKIP,
+                               "route5_gate", "route_5_gate")
+        return _edge_leave(player, report, path, 0, 20, (16, 0), "up", ROUTE5_SKIP,
+                           "cerulean", "cerulean_city")
+    if y < 32:
+        return _edge_leave(player, report, path, 0, 20, (10, 28), "down", ROUTE5_SKIP,
+                           "route5_gate", "route_5_gate")
+    return _edge_leave(player, report, path, 0, 20, (10, 35), "down", ROUTE5_SKIP,
+                       "saffron", "saffron_city")
+
+
+def _vermilion_bike(player, report):
+    if _sweep_hurt(player):
+        doors = set(VERMILION_DOORS)
+        doors.discard((11, 3))
+        _heal_in(player, report, vermilion_cells(), (11, 3), VERMILION_NURSE,
+                 vermilion_center_cells(), "Vermilion", "vermilion_city", avoid=doors)
+        _checkpoint(player, report, "saved_vermilion_center")
+        return "yield"
+    if _bike_stage(player) == "voucher":
+        return _edge_leave(player, report, ROOT / "Source/data/vermilionPreparation/VermilionCity.json",
+                           0, 40, (9, 14), "up", VERMILION_DOORS, "fan_club", "pokemon_fan_club")
+    return _edge_leave(player, report, ROOT / "Source/data/vermilionPreparation/VermilionCity.json",
+                       0, 40, (19, 0), "up", VERMILION_DOORS, "route6", "route_6")
+
+
+def _stand_on(player, report, path, pad, width, stand, avoid):
+    """Walk to a tile on the current map. Reaching it is not a zone change."""
+    cells = set(open_map(path, pad, width))
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    blocked = set(avoid)
+    blocked.discard(here)
+    blocked.discard(tuple(stand))
+    if here == tuple(stand):
+        return "arrived"
+    kind = _walk(player, cells, map_surface(path, pad), stand, blocked, report=report,
+                 yield_after=1, shift=_share_species(player))
+    if kind in ("blackout", "yield"):
+        return kind
+    if (player.state["player"]["x"], player.state["player"]["y"]) != tuple(stand):
+        raise RuntimeError("missed " + str(stand) + ": " + str(kind) + " " + json.dumps(summary(player.state)))
+    return "arrived"
+
+
+def _fan_club(player, report):
+    path = ROOT / "Source/data/vermilionPreparation/PokemonFanClub.json"
+    if _bike_stage(player) != "voucher":
+        return _edge_leave(player, report, path, 2, 13, (5, 6), "down", _warp_tiles(path, 2),
+                           "vermilion", "vermilion_city")
+    kind = _stand_on(player, report, path, 2, 13, (6, 1), _map_blocks(path, 2))
+    if kind != "arrived":
+        return kind
+    if player.state["player"].get("facing") != "left":
+        player.press("left", wait=4)
+    return _accept_gift(player, report, "EVENT_GOT_BIKE_VOUCHER", "bike_voucher")
+
+
+def _cerulean_bike(player, report):
+    if _bike_stage(player) != "shop":
+        return _edge_leave(player, report, ROOT / "Source/data/sourceSlice/CeruleanCity.json",
+                           0, 40, (26, 35), "down", CERULEAN_DOORS, "route5", "route_5")
+    return _edge_leave(player, report, ROOT / "Source/data/sourceSlice/CeruleanCity.json",
+                       0, 40, (13, 26), "up", CERULEAN_DOORS, "bike_shop", "bike_shop")
+
+
+def _bike_shop(player, report):
+    path = ROOT / "Source/data/sourceSlice/BikeShop.json"
+    if _bike_stage(player) == "road":
+        return _edge_leave(player, report, path, 2, 13, (5, 6), "down", _warp_tiles(path, 2),
+                           "cerulean", "cerulean_city")
+    kind = _stand_on(player, report, path, 2, 13, (6, 2), _map_blocks(path, 2))
+    if kind != "arrived":
+        return kind
+    if player.state["player"].get("facing") != "right":
+        player.press("right", wait=4)
+    return _accept_gift(player, report, "EVENT_GOT_BICYCLE", "bicycle")
+
+
+def _celadon_to_route16(player, report):
+    doors = {(8, 13), (10, 13), (12, 27), (24, 9), (24, 3), (25, 3), (41, 9),
+             (28, 19), (39, 19), (33, 19), (31, 27), (35, 27), (43, 27)}
+    return _edge_leave(player, report, EAST / "CeladonCity.json", 0, 50, (0, 18), "left", doors,
+                       "route16", "route_16")
+
+
+_ROUTE16_ROUNDS = (
+    ("pokered:ROUTE_16:objects:1", (16, 12), "share", ((16, 12), (15, 12), (14, 12))),
+    ("pokered:ROUTE_16:objects:2", (15, 13), "share", ((15, 13), (16, 13))),
+    ("pokered:ROUTE_16:objects:3", (11, 11), "share", ((11, 11), (11, 10))),
+    ("pokered:ROUTE_16:objects:4", (8, 11), "share", ((8, 11), (7, 11))),
+    ("pokered:ROUTE_16:objects:5", (7, 10), "share", ((7, 10), (8, 10))),
+    ("pokered:ROUTE_16:objects:6", (4, 12), "share", ((4, 12), (5, 12), (6, 12), (7, 12))),
+)
+
+
+def _route16_bike(player, report):
+    path = SOUTH / "Route16.json"
+    x, y = player.state["player"]["x"], player.state["player"]["y"]
+    if not _quest(player).get("EVENT_BEAT_ROUTE16_SNORLAX") and x >= 24:
+        kind = _stand_on(player, report, path, 0, 40, (27, 10), _map_blocks(path, 0))
+        if kind != "arrived":
+            return kind
+        return _play_flute(player, report)
+    if x >= 18:
+        doors = _warp_tiles(path, 0)
+        return _edge_leave(player, report, path, 0, 40, (25, 10), "left", doors,
+                           "route16_gate", "route_16_gate_1f")
+    extra = set()
+    picked = _pick_trainer(player, path, 0, 40, _ROUTE16_ROUNDS, extra)
+    if picked:
+        tid, stand, kind = picked
+        extra.update(_other_sights(_ROUTE16_ROUNDS, tid, lambda other: _beaten(player, other)))
+        return _engage(player, report, path, 0, 40, tid, stand, kind, extra)
+    return _edge_leave(player, report, path, 0, 40, (10, 17), "down", _map_blocks(path, 0),
+                       "route17", "route_17")
+
+
+def _route16_gate(player, report):
+    path = SOUTH / "Route16Gate1F.json"
+    x, y = player.state["player"]["x"], player.state["player"]["y"]
+    if x >= 8 and y in (8, 9):
+        player.step("left")
+        player.settle(limit=40)
+    avoid = _warp_tiles(path, 2) | _map_blocks(path, 2)
+    return _edge_leave(player, report, path, 2, 13, (3, 8), "left", avoid,
+                       "route16_west", "route_16")
+
+
+def _bike_zone(player, report, zone):
+    if zone == "kanto_route_6_gate":
+        toward = "south" if _bike_stage(player) == "voucher" else "north"
+        destination = "route_6"
+        return _cross_gate(player, report, "Route6Gate.json", toward, destination, "route6")
+    if zone == "kanto_route_6":
+        return _route6_bike(player, report)
+    if zone == "kanto_vermilion_city":
+        return _vermilion_bike(player, report)
+    if zone == "kanto_pokemon_fan_club":
+        return _fan_club(player, report)
+    if zone == "kanto_route_5_gate":
+        toward = "north" if _bike_stage(player) == "shop" else "south"
+        return _cross_gate(player, report, "Route5Gate.json", toward, "route_5", "route5")
+    if zone == "kanto_route_5":
+        return _route5_bike(player, report)
+    if zone == "kanto_cerulean_city":
+        return _cerulean_bike(player, report)
+    if zone == "kanto_bike_shop":
+        return _bike_shop(player, report)
+    if zone == "kanto_route_16_gate_1f":
+        return _route16_gate(player, report)
+    if zone == "kanto_route_16":
+        return _route16_bike(player, report)
+    return None
+
+
 def _saffron_to_route7(player, report):
     return _saffron_edge(player, report, (0, 17), "left", "route_7", "route7")
 
@@ -8568,10 +8839,14 @@ def _after_strength(player, report, display=None, clips=None, output=None):
         return "yield"
     if place == "Route7":
         # The east strip is Saffron. The west side only reaches it through the gate.
+        if _cycling_quest(player) and _bike_stage(player) == "road":
+            return _route7_to_celadon(player, report)
         if player.state["player"]["x"] >= 17:
             return _route7_to_saffron(player, report)
         return _route7_to_gate(player, report)
     if "route_7_gate" in zone:
+        if _cycling_quest(player) and _bike_stage(player) == "road":
+            return _route7_gate(player, report, "west")
         if not _gave_drink(player):
             given = _give_guard_drink(player, report)
             if given:
@@ -8630,6 +8905,8 @@ def _after_strength(player, report, display=None, clips=None, output=None):
                 raise RuntimeError("the Celadon Center stayed shut: " + json.dumps(summary(player.state)))
             _checkpoint(player, report, "saved_celadon_center")
             return "yield"
+        if _cycling_quest(player) and _bike_stage(player) == "road":
+            return _celadon_to_route16(player, report)
         if _climbing_for_drink(player) or (_ice_known(player) and _needs_revives(player)):
             kind = _walk(player, celadon_cells(), map_surface(EAST / "CeladonCity.json"), (8, 14), doors,
                          report=report, yield_after=2)
@@ -8672,12 +8949,16 @@ def _after_strength(player, report, display=None, clips=None, output=None):
                 if _item_count(player, "hyperPotion") < 2 and _money(player) >= 1500:
                     return _saffron_to_mart(player, report)
                 return _saffron_to_silph(player, report)
-            return _saffron_to_route7(player, report)
+            return _cycling_from_saffron(player, report)
         if _needs_medicine(player):
             return _saffron_to_mart(player, report)
         return _saffron_to_silph(player, report)
     if "silph_co" in zone:
         return _silph_progress(player, report)
+    if _cycling_quest(player):
+        moved = _bike_zone(player, report, zone)
+        if moved:
+            return moved
     raise RuntimeError("after Strength: " + json.dumps(summary(player.state)))
 
 
