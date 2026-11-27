@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "a87c8d8908168d54166e92b7a68c8a8dfa307567",
-    "source_sha256": "bab936d01a734dcd15226dc23406f176edd9ae387b38a254fe0a5eca6e3f7966",
+    "commit": "8b33d5d07df32cc083e575b737c874669c9ed8e3",
+    "source_sha256": "2aa601aead21b165c18cf71ca6adfff411561dcdcd80ca53d4f1abe45c289930",
     "policy_date": "2026-11-20",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Source identity after command results spill immediately and departed actor profiles are released. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 0598dc34a090da344a76ee0ad52b6edcf6419bbad408f2254c1e79bdc56e52fc.",
+    "scope": "Source identity after the battle intro slide keeps the name box and the starter off the glass. Snapshot identifies this tree only. No row is promoted. Previous snapshot source_sha256 bab936d01a734dcd15226dc23406f176edd9ae387b38a254fe0a5eca6e3f7966.",
     "acceptance_context": "main-5.5b-accepted-hardware-safe-latency-open",
     "review_document": {
       "path": "docs/validation/main-named-contracts-20261104.json",
