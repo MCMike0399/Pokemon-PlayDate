@@ -4834,7 +4834,7 @@ EAST_RESUME = {
 }
 
 
-def _walk(player, cells, surface, goal, avoid, limit=800, report=None, yield_after=2):
+def _walk(player, cells, surface, goal, avoid, limit=800, report=None, yield_after=2, shift="pidgeotto"):
     """Recompute a ledge-aware step until the goal, a warp, or a blackout.
 
     Two trainer battles are enough for one session. The caller saves and exits.
@@ -4853,9 +4853,9 @@ def _walk(player, cells, surface, goal, avoid, limit=800, report=None, yield_aft
                 before = player.state.get("last_battle_outcome")
                 trainer = (player.state.get("battle") or {}).get("trainerName")
                 if trainer:
-                    player.fight(limit=2500, potion_at=30, shift_to="pidgeotto")
+                    player.fight(limit=2500, potion_at=30, shift_to=shift)
                 elif not player.run_away():
-                    player.fight(limit=2500, potion_at=30, shift_to="pidgeotto")
+                    player.fight(limit=2500, potion_at=30, shift_to=shift)
                 player.dismiss_until_explore(limit=80)
                 after = player.state.get("last_battle_outcome") or {}
                 if _lost(before, after):
@@ -7177,7 +7177,11 @@ def _party_needs_heal(player):
         return True
     # 38 HP walked into the gym and fainted before Hypno. Heal before that fight.
     _species, mon = _water_line(player)
-    return bool(mon and 0 < (mon.get("hp") or 0) < 50)
+    if not mon:
+        return False
+    status = mon.get("status") or "none"
+    hp = mon.get("hp") or 0
+    return 0 < hp < 50 or status not in ("none", "healthy", "")
 
 
 def _close_shop(player):
@@ -8342,11 +8346,82 @@ def _after_strength(player, report, display=None, clips=None, output=None):
             raise RuntimeError("Route 7 did not open: " + json.dumps(summary(player.state)))
         _checkpoint(player, report, "saved_route7")
         return "yield"
+    if "saffron_pokecenter" in zone:
+        return _saffron_center(player, report)
     if "saffron_city" in zone:
+        if _silph_needs_nurse(player):
+            return _saffron_to_center(player, report)
         return _saffron_to_silph(player, report)
     if "silph_co" in zone:
         return _silph_progress(player, report)
     raise RuntimeError("after Strength: " + json.dumps(summary(player.state)))
+
+
+def _saffron_to_center(player, report):
+    _lead(player, "dugtrio")
+    saffron = Path("Source/data/midgameSaffron")
+    data = json.loads((saffron / "SaffronCity.json").read_text(encoding="utf-8"))
+    avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+    avoid.discard((player.state["player"]["x"], player.state["player"]["y"]))
+    kind = _walk(player, set(open_map(saffron / "SaffronCity.json", 0, 40)),
+                 map_surface(saffron / "SaffronCity.json"), (9, 30), avoid,
+                 report=report, yield_after=2, shift="dugtrio")
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("up")
+    player.settle(limit=80)
+    if "pokecenter" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "pokecenter" not in str(player.state.get("zone")):
+        raise RuntimeError("the Saffron Center stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron_center")
+    return "yield"
+
+
+def _saffron_center(player, report):
+    saffron = Path("Source/data/midgameSaffron")
+    cells = set(open_map(saffron / "SaffronPokecenter.json", 0, 14))
+    surface = map_surface(saffron / "SaffronPokecenter.json")
+    avoid = {(3, 1), (5, 5), (8, 3), (11, 2), (3, 7), (4, 7)}
+    here = (player.state["player"]["x"], player.state["player"]["y"])
+    avoid.discard(here)
+    if _silph_needs_nurse(player):
+        kind = _walk(player, cells, surface, (3, 3), avoid, report=report, yield_after=2)
+        if kind in ("blackout", "yield"):
+            return kind
+        if player.state["player"].get("facing") != "up":
+            player.press("up", wait=4)
+        player.press("a", wait=8)
+        for _ in range(40):
+            if player.exploring() and not _silph_needs_nurse(player):
+                break
+            event = player.state.get("event") or {}
+            phase = event.get("phase")
+            menu = event.get("menu") or {}
+            if phase == "heal-animation":
+                player.send("wait 20")
+                continue
+            if menu.get("active") and "YES" in (menu.get("options") or []):
+                player.choose("event", "YES")
+                continue
+            player.press("a", wait=8)
+        if _silph_needs_nurse(player):
+            raise RuntimeError("the Saffron nurse did not heal: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_saffron_healed")
+        return "yield"
+    kind = _walk(player, cells, surface, (3, 6), avoid, report=report, yield_after=2)
+    if kind in ("blackout", "yield"):
+        return kind
+    player.step("down")
+    player.settle(limit=80)
+    if "pokecenter" in str(player.state.get("zone")):
+        player.step("down")
+        player.settle(limit=80)
+    if "saffron_city" not in str(player.state.get("zone")):
+        raise RuntimeError("the Saffron Center door stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_saffron")
+    return "yield"
 
 
 def _saffron_to_silph(player, report):
@@ -8372,18 +8447,13 @@ def _saffron_to_silph(player, report):
 
 
 def _silph_needs_nurse(player):
-    """The 9F nurse is the heal inside Silph. Paralysis with no Full Heal stops here."""
-    _species, mon = _water_line(player)
-    if not mon:
-        return False
-    status = mon.get("status") or "none"
-    hp = mon.get("hp") or 0
-    return 0 < hp < 50 or status not in ("none", "healthy", "")
+    """Paralysis with no Full Heal. The 9F rocket blocks that nurse, so use the Center."""
+    return _party_needs_heal(player)
 
 
 def _silph_floor(player):
     if _silph_needs_nurse(player) and _holding(player, "cardKey"):
-        return "9F"
+        return "1F"
     if not _holding(player, "cardKey"):
         return "5F"
     if not _quest(player).get("EVENT_SILPH_CO_3_UNLOCKED_DOOR2"):
@@ -8502,34 +8572,27 @@ def _silph_card(player, report):
 
 
 def _silph_nurse(player, report):
-    """The Silph nurse stands at (3, 14). Talk from (3, 15)."""
+    """The 9F rocket stands on the way to the nurse. Ride the lift down to the Center."""
+    _lead(player, "dugtrio")
     saffron = Path("Source/data/midgameSaffron")
     data = json.loads((saffron / "SilphCo9F.json").read_text(encoding="utf-8"))
     avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
-    avoid.add((3, 14))
     here = (player.state["player"]["x"], player.state["player"]["y"])
-    if here == (18, 0):
-        player.step("down")
-        player.settle(limit=40)
-        here = (player.state["player"]["x"], player.state["player"]["y"])
     avoid.discard(here)
     cells = set(open_map(saffron / "SilphCo9F.json", 0, 26))
-    kind = _walk(player, cells, map_surface(saffron / "SilphCo9F.json"), (3, 15), avoid,
-                 report=report, yield_after=2)
-    if kind in ("blackout", "yield"):
-        return kind
-    if player.state["player"].get("facing") != "up":
-        player.press("up", wait=4)
-    for _ in range(30):
-        if not _silph_needs_nurse(player) and player.exploring():
-            break
-        if player.state.get("root") == "naming":
-            player.press("b", wait=8)
-        else:
-            player.press("a", wait=8)
-    if _silph_needs_nurse(player):
-        raise RuntimeError("the Silph nurse did not heal: " + json.dumps(summary(player.state)))
-    _checkpoint(player, report, "saved_silph_nurse")
+    if here != (18, 1):
+        kind = _walk(player, cells, map_surface(saffron / "SilphCo9F.json"), (18, 1), avoid,
+                     report=report, yield_after=2, shift="dugtrio")
+        if kind in ("blackout", "yield"):
+            return kind
+    player.step("up")
+    player.settle(limit=80)
+    if "elevator" not in str(player.state.get("zone")):
+        player.step("up")
+        player.settle(limit=80)
+    if "elevator" not in str(player.state.get("zone")):
+        raise RuntimeError("the 9F lift stayed shut: " + json.dumps(summary(player.state)))
+    _checkpoint(player, report, "saved_silph_lift")
     return "yield"
 
 
@@ -8768,6 +8831,30 @@ def _silph_progress(player, report):
         return _silph_7f(player, report)
     if zone.endswith("silph_co_11f"):
         return _silph_11f(player, report)
+    if zone.endswith("silph_co_1f") and _silph_needs_nurse(player):
+        _lead(player, "dugtrio")
+        data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))
+        avoid = {(warp["x"], warp["y"]) for warp in data["events"]["warps"]}
+        here = (player.state["player"]["x"], player.state["player"]["y"])
+        if here == (20, 0):
+            player.step("down")
+            player.settle(limit=40)
+            here = (player.state["player"]["x"], player.state["player"]["y"])
+        avoid.discard(here)
+        cells = set(open_map(saffron / "SilphCo1F.json", 0, 30))
+        kind = _walk(player, cells, map_surface(saffron / "SilphCo1F.json"), (10, 16), avoid,
+                     report=report, yield_after=2, shift="dugtrio")
+        if kind in ("blackout", "yield"):
+            return kind
+        player.step("down")
+        player.settle(limit=80)
+        if "silph" in str(player.state.get("zone")):
+            player.step("down")
+            player.settle(limit=80)
+        if "saffron_city" not in str(player.state.get("zone")):
+            raise RuntimeError("Silph did not open onto Saffron: " + json.dumps(summary(player.state)))
+        _checkpoint(player, report, "saved_saffron")
+        return "yield"
     if not zone.endswith("silph_co_1f"):
         raise RuntimeError("Silph floor is not on the lift path: " + json.dumps(summary(player.state)))
     data = json.loads((saffron / "SilphCo1F.json").read_text(encoding="utf-8"))
