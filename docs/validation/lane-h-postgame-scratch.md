@@ -276,3 +276,28 @@ The saved actor list keeps the visible Max Revive, `pokered:CERULEAN_CAVE_B1F:ob
 | overworld after the catch | 13904.8 | 13999.5 |
 | saved, overworld, B1F (26, 13) | 13770.9 | 13999.5 |
 | Continue of the rejected slot | 13173.5 | 13693.1 |
+
+## Cave Continue on 247d60a9
+
+The five local patches, plus the pickup handoff below, were applied only in the simulator. `Source/` in the tree is `origin/main` `247d60a9`. `MallocPoolSize` stayed `16645684`. No inflate line and no out-of-memory line. The post-catch pair was `/tmp/postgame-accept-save`: slot A sequence 1, the Hall fixture, and slot B sequence 2, B1F (26, 13) right.
+
+The static hide rule is not enough. With only `lane-e-mewtwo-continue-actor.patch`, title inspect still rejects slot B:
+
+`missing visible source actor pokered:CERULEAN_CAVE_B1F:objects:2`
+
+That is the Ultra Ball. `PostgameStory.installEvents` is what registers the cave and Power Plant balls. The chunk is not loaded during title inspect, so `SourceEvents.descriptor` is nil and the taken ball stays visible. The handoff is `tools/notes/lane-e-postgame-pickup-continue.patch`, applied after the static patch. The same test covers both. Snorlax on Routes 12 and 16 is already hidden by `SnorlaxStory.actorMetadata` through `HideoutTowerContent`, which the boot install calls. Articuno is decorated by `CoastStoryWorld.install`. Moltres is in `EndgameStory` `VISIBILITY`. The Mew gift actor is not a pokered source object. Those four do not fail this check.
+
+With both rules present, Continue of slot B loads the cave. Party is Blastoise, Mew, Hypno, and Mewtwo. `EVENT_GOT_MEW` and `EVENT_BEAT_MEWTWO` are true. The player is at B1F (26, 13) facing right. The Hall record is version 1, Blastoise level 65. The only actor is the Max Revive, `pokered:CERULEAN_CAVE_B1F:objects:3`. Mewtwo is absent.
+
+SAVE is the fifth start-menu row. YES writes `adventure.a.json` sequence 3, 6573 bytes. Quit and Continue loads that newer slot. The same party, both flags, B1F (26, 13) facing right, the Hall record, and the absent Mewtwo all come back. The clip is `artifacts/continue-cave-b1f.mp4`.
+
+The floor under Mewtwo is 14 walkable cells, (25–28, 12–15) with (26, 15) and without (25, 15) or (28, 15). Eighty-three real steps walked every one of them and returned to (26, 13). None of them leaves the room. The stair at (3, 6) is a different component, so the walk out to 1F and back cannot be done from this save. After those steps the party and both flags are unchanged, and the only actor is still the Max Revive.
+
+| point | heap KiB |
+| --- | ---: |
+| ready, slot B present | 12734.8 |
+| Continue of slot B, B1F (26, 13) right | 13114.4 |
+| after SAVE / YES | 13080.3 |
+| ready, sequence 3 present | 12734.9 |
+| Continue of sequence 3, B1F (26, 13) right | 13061.6 |
+| after walking the chamber | 12957.6 |

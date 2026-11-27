@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
-"""A Hall-team Continue rejects the newer cave save.
+"""A Hall-team Continue rejects a save that hid a postgame static.
 
-The field save after catching Mewtwo is adventure.b.json, sequence 2.
-Its actor list keeps the still-visible Max Revive and omits
+The field save after catching Mewtwo omits
 pokered:CERULEAN_CAVE_B1F:objects:1 because EVENT_BEAT_MEWTWO is set.
 Title inspect validates that list before loadHallContinue installs the
 postgame chunk. LateKantoStory.actorMetadata then has no hide rule, so
 WorldMotionData.normalize reports a missing visible source actor and the
 slot is corrupt. Continue falls through to the older Hall fixture.
 
-The handoff is tools/notes/lane-e-mewtwo-continue-actor.patch. It is not
-applied here. This test fails on the current tree and passes after
-git apply. MallocPoolSize stays 16645684. No skip.
+The same gap covers the Power Plant statics, including Zapdos. Their
+hide rules live only in PostgameStory.visibility. A taken cave Ultra Ball
+fails the same check for a second reason: PostgameStory.installEvents is
+what registers the pickup, so title inspect has no PICKUP flag and the
+omitted ball still looks visible. That handoff is
+tools/notes/lane-e-postgame-pickup-continue.patch, applied after the
+static patch.
+
+Snorlax (Routes 12 and 16), Articuno, and Moltres already hide from
+boot-chunk metadata. The Mew gift actor is not a pokered source object.
+Ordinary item balls whose pickup descriptor is registered at boot do not
+fail this check.
+
+Neither patch is applied here. This test fails on the current tree and
+passes after both git applies. MallocPoolSize stays 16645684. No skip.
 """
 
 import json
@@ -35,13 +46,31 @@ function import() end
 PostgameStory = nil
 dofile(__SOURCE__)
 assert(PostgameStory == nil, "the boot probe loaded PostgameStory")
-local meta = LateKantoStory.actorMetadata("pokered:CERULEAN_CAVE_B1F:objects:1")
-local rule = meta.visibility and meta.visibility[1]
-if not rule or rule.group ~= "quest" or rule.id ~= "EVENT_BEAT_MEWTWO" or rule.equals ~= false then
-    io.stderr:write("mewtwo visibility " .. tostring(rule and rule.id) .. "\n")
-    os.exit(1)
+local expected = {
+    ["pokered:CERULEAN_CAVE_B1F:objects:1"] = "EVENT_BEAT_MEWTWO",
+    ["pokered:POWER_PLANT:objects:1"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_0",
+    ["pokered:POWER_PLANT:objects:2"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_1",
+    ["pokered:POWER_PLANT:objects:3"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_2",
+    ["pokered:POWER_PLANT:objects:4"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_3",
+    ["pokered:POWER_PLANT:objects:5"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_4",
+    ["pokered:POWER_PLANT:objects:6"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_5",
+    ["pokered:POWER_PLANT:objects:7"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_6",
+    ["pokered:POWER_PLANT:objects:8"] = "EVENT_BEAT_POWER_PLANT_VOLTORB_7",
+    ["pokered:POWER_PLANT:objects:9"] = "EVENT_BEAT_ZAPDOS",
+    ["pokered:CERULEAN_CAVE_B1F:objects:2"] = "PICKUP:pokered:CERULEAN_CAVE_B1F:objects:2",
+    ["pokered:CERULEAN_CAVE_1F:objects:1"] = "PICKUP:pokered:CERULEAN_CAVE_1F:objects:1",
+    ["pokered:CERULEAN_CAVE_2F:objects:2"] = "PICKUP:pokered:CERULEAN_CAVE_2F:objects:2",
+    ["pokered:POWER_PLANT:objects:10"] = "PICKUP:pokered:POWER_PLANT:objects:10",
+}
+for id, flag in pairs(expected) do
+    local meta = LateKantoStory.actorMetadata(id)
+    local rule = meta.visibility and meta.visibility[1]
+    if not rule or rule.group ~= "quest" or rule.id ~= flag or rule.equals ~= false then
+        io.stderr:write(id .. " visibility " .. tostring(rule and rule.id) .. "\n")
+        os.exit(1)
+    end
 end
-print("mewtwo-hidden-before-postgame")
+print("postgame-statics-hidden-before-postgame")
 """
 
 
@@ -54,7 +83,7 @@ class MewtwoContinueActorTests(unittest.TestCase):
             capture_output=True, text=True, check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
-        self.assertIn("mewtwo-hidden-before-postgame", result.stdout)
+        self.assertIn("postgame-statics-hidden-before-postgame", result.stdout)
 
 
 if __name__ == "__main__":
